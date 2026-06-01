@@ -1,5 +1,5 @@
 import Mathlib
-import Proofs.A051293_analytic
+import Proofs.A051293.Analytic
 import Proofs.Zumkeller
 
 /-!
