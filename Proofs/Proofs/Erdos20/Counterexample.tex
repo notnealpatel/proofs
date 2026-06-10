@@ -1,0 +1,282 @@
+% Counterexample.tex — companion note to Counterexample.lean
+% (formal verification source: Proofs.Erdos20.Counterexample in
+%  github.com/thatnealpatel/proofs).
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cS}{\mathcal{S}}
+
+\title{Frankl Shifts Can Create Sunflowers:\\
+  a Machine-Checked Counterexample to a Proposed Bridge\\
+  for the Sunflower Conjecture}
+\author{Neal Patel\thanks{\texttt{neal@patel.codes}. The Lean development
+  and this note were produced with AI assistance; see the AI disclosure in
+  the repository (\texttt{Proofs/README}).}}
+\date{June 10, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Version~1 of Mishra, \emph{Erd\H{o}s Rado sunflower theorem for shifted
+families} (arXiv:2606.02667v1), proposed reducing the Erd\H{o}s--Rado
+sunflower conjecture to the case of shifted families via the bound
+$\tau(\cS(\cF))\le3\,\tau(\cF)^{2}$ (its Lemma~3), where $\cS(\cF)$ is
+the endpoint of the canonical Frankl-shift sweep and $\tau$ denotes the
+largest size of a sunflower contained in a family. We exhibit a
+$4$-uniform family $\cF$ on $20$ points with $17$ members and
+$\tau(\cF)=2$ whose canonical sweep endpoint is a $17$-petal star, so
+that $\tau(\cS(\cF))=17>12=3\,\tau(\cF)^{2}$. The same witness refutes
+the natural repaired bound $3\tau^{2}+\tau+1=15$. All claims are
+machine-checked in Lean~4: the chain endpoint, its stability,
+$\tau(\cF)=2$ (by exhaustive scan), and $\tau(\cS(\cF))=17$. The
+mechanism is that shifting funnels low-$\tau$ families into stars on
+the lexicographically smallest $k-1$ elements; only empty-kernel
+sunflowers (matchings) are guaranteed to transport backward through
+shift chains.
+\end{abstract}
+
+\section{The proposed bridge}
+
+A \emph{sunflower} of size $s$ with kernel $Y$ is a collection of $s$
+distinct sets whose pairwise intersections all equal $Y$ and whose
+petals (members minus $Y$) are non-empty; $\tau(\cF)$ is the largest
+size of a sunflower contained in $\cF$, and $\nu(\cF)\le\tau(\cF)$ is
+the matching number. For $i<j$, the Frankl compression $\cC_{ij}$
+\cite{Fr87} replaces $j$ by $i$ in each member $S$ of a family $\cF$
+(when $i\notin S$, $j\in S$) unless the replacement already lies in
+$\cF$, in which case $S$ is kept; $\cC_{ij}$ is injective on $\cF$, so
+$|\cC_{ij}(\cF)|=|\cF|$. The \emph{canonical sweep} applies all
+$\binom{n}{2}$ compressions in lexicographic order, and its endpoint
+is denoted $\cS(\cF)$; a family is \emph{shifted} when every
+$\cC_{ij}$ with $i<j$ fixes it.
+
+Version~1 of \cite{Mi26} claimed the full Erd\H{o}s--Rado conjecture
+\cite{ER60} by combining a (correct, see the companion note
+\texttt{ShiftedSunflower.tex}) sunflower theorem for shifted families,
+$f'(k,s)\le s^{2s-2}2^{k}$, with a bridge from general families to
+shifted ones:
+
+\begin{quote}
+\textbf{Lemma~3 of \cite{Mi26}v1.}\quad
+$\tau(\cS(\cF))\;\le\;3\,\tau(\cF)^{2}$.
+\end{quote}
+
+\noindent Together these would give $f(k,s)\le(3s^{2})^{6s^{2}-2}\,2^{k}$
+(v1's Theorem~2). This note records a machine-checked proof that the
+bridge's \emph{statement} --- not merely its proof --- is false.
+Version~2 of \cite{Mi26} withdraws Lemma~3 and the unconditional claim
+(both are commented out in the v2 source) and retains the shifted-case
+theorem.
+
+\section{The witness}
+
+Elements are written $0$-indexed over $\{0,\dots,19\}$, exactly as in
+the Lean development (\texttt{Fin 20}); add $1$ to every element for
+the $[n]$ convention of \cite{Mi26}. Let $\cF$ be the following
+$4$-uniform family with $17$ members (\texttt{familyB} in the Lean
+source):
+\[
+\begin{array}{lllll}
+\{0,1,2,15\} & \{0,1,3,15\} & \{0,1,4,5\} & \{0,4,14,16\} & \{0,4,14,18\}\\
+\{0,8,9,15\} & \{0,8,10,15\} & \{1,2,3,4\} & \{1,2,3,7\} & \{1,4,5,8\}\\
+\{1,5,6,12\} & \{2,9,11,12\} & \{2,3,12,13\} & \{2,3,6,12\} & \{3,11,12,17\}\\
+\{3,11,14,15\} & \{4,14,15,19\}
+\end{array}
+\]
+
+\begin{theorem}[machine-checked]\label{thm:witness}
+\leavevmode
+\begin{enumerate}
+\item $\tau(\cF)=2$: the pair $\{0,1,2,15\},\{0,1,3,15\}$ is a
+$2$-sunflower with kernel $\{0,1,15\}$, and no three members of $\cF$
+form a sunflower (exhaustive scan over all
+$\binom{17}{3}=680$ triples).
+\item The canonical sweep --- all $\cC_{ij}$ for
+$0\le i<j\le19$ in lexicographic order ($i$ ascending, $j$ ascending
+within $i$; $190$ compressions, the membership guard evaluated against
+the current family at each step) --- sends $\cF$ to the full star
+\[
+  \cS(\cF)\;=\;\bigl\{\{0,1,2,x\}:3\le x\le19\bigr\}.
+\]
+\item $\cS(\cF)$ is stable under every $\cC_{ij}$ with $i<j$.
+\item $\tau(\cS(\cF))=17$: the $17$ members pairwise intersect in
+exactly $\{0,1,2\}$ with distinct singleton petals, so the star is
+itself a $17$-sunflower, and $\tau\le|\cS(\cF)|=17$.
+\end{enumerate}
+\end{theorem}
+
+\begin{corollary}\label{cor:false}
+$\tau(\cS(\cF))=17>15=3\,\tau(\cF)^{2}+\tau(\cF)+1>12=3\,\tau(\cF)^{2}$.
+Lemma~3 of \cite{Mi26}v1 is false, and so is its natural repair
+$\tau(\cS(\cF))\le3\tau^{2}+\tau+1$.
+\end{corollary}
+
+The Lean statements are
+\texttt{shifting\_creates\_stars} --- there exist families
+$\cF,\cG$ over \texttt{Fin 20} with $\cG$ a full shift of $\cF$,
+$\tau(\cF)=2$, and $\tau(\cG)>15$ --- and
+\texttt{mishra\_v1\_lemma3\_false} --- the universally quantified bound
+$\tau(\cG)\le3\tau(\cF)^{2}+\tau(\cF)+1$ over full-shift pairs is
+refuted. Here ``$\cG$ is a full shift of $\cF$''
+(\texttt{IsFullShiftOf}) means: $\cG$ is reachable from $\cF$ by a
+chain of $(i<j)$-compressions and is stable under all of them. By
+Theorem~\ref{thm:witness}(2,3) the canonical sweep endpoint is such a
+$\cG$, so the refutation applies verbatim to the $\cS(\cdot)$ of
+\cite{Mi26}.
+
+\section{Mechanism and scope}
+
+\paragraph{Shifting creates stars.}
+The sweep collapses all $17$ members onto the common core $\{0,1,2\}$
+--- the lexicographically smallest $k-1$ elements --- manufacturing a
+maximal star. Sunflowers with non-empty kernel are thereby created
+from nothing: $\cF$ has no sunflower of size $3$, while $\cS(\cF)$
+contains one of size $17$.
+
+\paragraph{Matchings are immune.}
+By contrast, empty-kernel sunflowers cannot be created: a matching of
+size $t$ in any chain endpoint pulls back to a matching of size $t$ in
+the source. This is formalized
+(\texttt{matchingNumber\_shift\_le},
+\texttt{matchingNumber\_reachable} in
+\texttt{Proofs.Erdos20.Sunflower}; the single-step statement is
+\cite[Lemma~1(iii)]{Mi26}, $\nu(\cC_{ij}(\cF))\le\nu(\cF)$). The
+failure of the bridge is therefore confined exactly to the
+non-empty-kernel case: here $\nu(\cF)\le\tau(\cF)=2$ bounds
+$\nu(\cS(\cF))$, while $\tau(\cS(\cF))=17$ --- the chain-stable
+invariant $\nu$ cannot see the blow-up.
+
+\paragraph{Further witnesses.}
+Three more witnesses were certified by two independently written
+verification programs (they are not formalized in Lean): at
+$(k,n,|\cF|)=(4,16,21)$ the endpoint contains the complete star on the
+first three elements, of size $13$, refuting the $3\tau^{2}=12$ bound
+but not the repaired $15$; at $(5,22,30)$ and $(6,24,43)$ the
+endpoints contain stars of size $17$, refuting both. In all cases
+$\tau(\cF)=2$ by exhaustive scan. At $k=4$ the two certified endpoints
+carry the complete star of size exactly $n-3$ ($13$ at $n=16$, $17$ at
+$n=20$); if that growth persists in $n$ --- search experiments suggest
+it does, but no larger instance has been certified --- then no bound
+of the form $\tau(\cS(\cF))\le g(\tau(\cF),k)$ can hold with $g$
+independent of the ground-set size.
+
+\paragraph{What the witnesses do not exclude.}
+All witnesses are small ($|\cF|\le43$), far below the shifted-case
+threshold $s^{2s-2}2^{k}$; a bridge hypothesis restricted to families
+\emph{above} the sunflower-free size threshold is untested. Bridges
+through invariants other than $\tau$ are likewise untouched, with one
+caveat: on the shifted side, bounds $\tau(\cG)\le g(\nu(\cG))$ for
+shifted $\cG$ fail trivially, since full stars are shifted families
+with $\nu=1$ and $\tau$ as large as the ground set allows.
+
+\section{The Lean certificate}
+
+The module \texttt{Proofs.Erdos20.Counterexample} (next to this note)
+imports the shift theory of \texttt{Proofs.Erdos20.Sunflower}
+(\texttt{franklShift}, \texttt{IsFullyCompressed},
+\texttt{IsFullShiftOf}, \texttt{sunflowerNumber}) and proceeds as
+follows.
+
+\begin{itemize}
+\item \emph{Computable twin.} \texttt{franklShift} is marked
+noncomputable; a twin \texttt{franklShiftC} with an identical body is
+definitionally equal (proved by \texttt{rfl}), so evaluated facts about
+the twin convert to the original for free.
+\item \emph{The chain as data.} The $190$ ordered pairs are a literal
+list; \texttt{applyChain} folds the compressions left-to-right, and a
+structural induction (\texttt{reachable\_applyChain}) turns any such
+list into a reachability certificate. \texttt{native\_decide}
+evaluates the ground facts: the endpoint equality
+$\texttt{applyChain sweep familyB}=\texttt{starB}$, the stability of
+\texttt{starB} under all $(i<j)$-compressions, and
+$|\texttt{starB}|=17$.
+\item \emph{Deciding $\tau(\cF)=2$.} The predicate ``$\cF$ has an
+$s$-sunflower'' quantifies existentially over arbitrary subfamilies
+and kernels and is not directly decidable at feasible cost; but any
+$3$-sunflower yields a bounded witness: a $3$-element subfamily
+together with a kernel contained in any one of its members. The
+bounded form is refuted by \texttt{native\_decide} ($680$ triples,
+at most $2^{4}=16$ candidate kernels each); the $2$-sunflower is
+exhibited literally; attainment of the supremum closes
+$\tau(\cF)=2$. A practical note: the bounded quantifiers must be
+decided by \texttt{Finset} traversal --- Lean's default instance
+search prefers an instance that enumerates all $2^{20}$ subsets of the
+ground set per quantifier; pinning the traversal instances at high
+local priority makes the certificate evaluate in seconds.
+\item \emph{Trust base.} \texttt{\#print axioms} reports
+\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound},
+plus one trust axiom per \texttt{native\_decide} evaluation (the
+Lean~4.30 form of \texttt{Lean.ofReduceBool}: the compiler is trusted
+for eight ground, finitely checkable facts). There is no
+\texttt{sorry}. All reasoning around the ground facts --- the $\tau$
+algebra, the reachability certificate, the final inequalities --- is
+ordinary kernel-checked Lean.
+\item \emph{Provenance.} The witness was found by stochastic search
+and certificate-verified by two independently written programs
+(disjoint code, chain semantics matched to the Lean definition of
+\texttt{franklShift}) before formalization; the Lean module
+re-verifies every certified claim inside the proof assistant.
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Claim & Lean identifier \\
+\hline
+the witness family and the star &
+  \texttt{familyB}, \texttt{starB} \\
+Theorem~\ref{thm:witness}(1) &
+  \texttt{familyB\_no\_3sunflower}, \texttt{familyB\_hasSunflower\_2},
+  \texttt{familyB\_tau} \\
+Theorem~\ref{thm:witness}(2) &
+  \texttt{sweep}, \texttt{chain\_endpoint},
+  \texttt{familyB\_reaches\_starB} \\
+Theorem~\ref{thm:witness}(3) &
+  \texttt{starB\_compressed} \\
+Theorem~\ref{thm:witness}(4) &
+  \texttt{starB\_hasSunflower\_17}, \texttt{starB\_tau} \\
+Corollary~\ref{cor:false} &
+  \texttt{shifting\_creates\_stars}, \texttt{mishra\_v1\_lemma3\_false} \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{thebibliography}{Mi26}
+
+\bibitem[ER60]{ER60}
+P.~Erd\H{o}s and R.~Rado,
+\emph{Intersection theorems for systems of sets},
+J.\ London Math.\ Soc.\ \textbf{35} (1960), 85--90.
+
+\bibitem[Fr87]{Fr87}
+P.~Frankl,
+\emph{The shifting technique in extremal set theory},
+in: Surveys in Combinatorics 1987, London Math.\ Soc.\ Lecture Note
+Ser.\ \textbf{123}, Cambridge Univ.\ Press, 1987, 81--110.
+
+\bibitem[Mi26]{Mi26}
+T.~K.~Mishra,
+\emph{Erd\H{o}s Rado sunflower theorem for shifted families},
+arXiv:2606.02667 (v1: 2026-06-01; v2: 2026-06-08).
+
+\bibitem[MU21]{MU21}
+L.~de~Moura and S.~Ullrich,
+\emph{The Lean 4 theorem prover and programming language},
+in: Automated Deduction --- CADE 28, LNCS \textbf{12699}, Springer,
+2021, 625--635.
+
+\end{thebibliography}
+
+\end{document}
