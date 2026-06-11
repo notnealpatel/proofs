@@ -6,4 +6,5 @@ import Proofs.Erdos20.Sunflower
 import Proofs.Erdos20.ShiftedSunflower
 import Proofs.Erdos20.Counterexample
 import Proofs.Erdos20.Spread
+import Proofs.Erdos20.SpreadDefect
 import Proofs.Scratch

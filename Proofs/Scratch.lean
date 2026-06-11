@@ -1,1 +1,3 @@
 import Scratch.SunflowerExample
+import Scratch.SpreadDefectSanity
+import Scratch.SpreadDefectWitness
