@@ -1,2 +1,11 @@
 data
 notes.txt
+.tasks
+.claude
+
+# wip
+cmd/erdos218/
+cmd/erdos236/
+cmd/erdos364/
+cmd/erdos727/
+cmd/erdos779/
