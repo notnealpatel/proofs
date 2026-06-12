@@ -2,6 +2,7 @@ import Proofs.Fubini
 import Proofs.Zumkeller
 import Proofs.A051293.Analytic
 import Proofs.A051293.Counting
+import Proofs.CHILO.CyclicBlock
 import Proofs.Erdos20.Sunflower
 import Proofs.Erdos20.ShiftedSunflower
 import Proofs.Erdos20.Counterexample
