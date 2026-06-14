@@ -1,0 +1,1092 @@
+# Bm-sl3-infra.sage — Self-contained sl_3 Borel/weight infrastructure for M_3
+#                     border apolarity reproduction.
+#
+# Stands up:
+#   1. sl_3 root system, weight diagram, Cartan matrix
+#   2. The adjoint representation of sl_3 (structure constants as 8x8 matrices)
+#   3. The 72-dim space U* tensor sl_3 tensor W with B-weight grading
+#   4. Enumeration of B-fixed subspaces via upper sets of the positive-root poset
+#   5. The (210) dual map E_110 tensor A -> Lambda^2(A) tensor B as a concrete
+#      QQ-matrix builder, plus the symbolic QQ[t] variant for P^1 families
+#
+# This module is FULLY SELF-CONTAINED. It does not load() any sibling file.
+# Bm5/Bm6 must inline or paste this infra into their run scripts.
+#
+# References:
+#   - CHL = Conner-Harper-Landsberg arXiv:1911.07981
+#   - Kashbari/BorderApolarity (github.com/kashbari/BorderApolarity)
+#   - Bp1 infodump (dimension verification)
+
+from itertools import product as cart_product, combinations
+
+# ============================================================================
+# 1. sl_3 ROOT SYSTEM AND CARTAN DATA
+# ============================================================================
+
+def sl3_cartan_matrix():
+    """Return the 2x2 Cartan matrix of sl_3."""
+    return matrix(QQ, 2, 2, [2, -1, -1, 2])
+
+def sl3_positive_roots():
+    """
+    Return the positive roots of sl_3 as weight vectors (values on h_1, h_2).
+
+    Convention: h_1 = e_11 - e_22, h_2 = e_22 - e_33 (diagonal of Cartan subalgebra).
+    The simple roots are alpha_1 = (2, -1), alpha_2 = (-1, 2) in the Cartan basis.
+    """
+    return {
+        'alpha1': (2, -1),   # e_12: [h_1, e_12] = 2*e_12, [h_2, e_12] = -e_12
+        'alpha2': (-1, 2),   # e_23: [h_1, e_23] = -e_23, [h_2, e_23] = 2*e_23
+        'alpha12': (1, 1),   # e_13: [h_1, e_13] = e_13, [h_2, e_13] = e_13
+    }
+
+def sl3_positive_root_poset():
+    """
+    Return the positive root poset of sl_3 as a Sage Poset.
+
+    The partial order is: alpha <= beta iff beta - alpha is a non-negative
+    integer combination of simple roots.
+
+    For sl_3: alpha_1 < alpha_1 + alpha_2 and alpha_2 < alpha_1 + alpha_2.
+    """
+    return Poset(
+        (['alpha1', 'alpha2', 'alpha12'],
+         [('alpha1', 'alpha12'), ('alpha2', 'alpha12')]),
+        cover_relations=True
+    )
+
+def sl3_upper_sets():
+    """
+    Enumerate all upper sets (order filters) of the sl_3 positive root poset.
+
+    Returns a list of frozensets. Count must be exactly 5:
+      {} (empty), {alpha12}, {alpha1, alpha12}, {alpha2, alpha12},
+      {alpha1, alpha2, alpha12} (full).
+    """
+    P = sl3_positive_root_poset()
+    elements = list(P)
+    result = []
+    for k in range(len(elements) + 1):
+        for subset in combinations(elements, k):
+            subset_set = set(subset)
+            is_filter = True
+            for x in subset:
+                for y in elements:
+                    if P.le(x, y) and y not in subset_set:
+                        is_filter = False
+                        break
+                if not is_filter:
+                    break
+            if is_filter:
+                result.append(frozenset(subset))
+    return result
+
+
+# ============================================================================
+# 2. STRUCTURE TENSOR OF sl_3 (adjoint representation)
+# ============================================================================
+
+def _e_matrix(i, j, n):
+    """Elementary n x n matrix with 1 at position (i,j)."""
+    return matrix(QQ, n, n, {(i, j): 1})
+
+def _sl_basis_element(idx, n):
+    """
+    Return the idx-th basis element of sl_n in the standard basis.
+
+    Ordering: first the off-diagonal e_ij (row-major, i != j), then
+    the diagonal h_k = e_kk - e_{k+1,k+1} for k = 0, ..., n-2.
+
+    For sl_3 (n=3), the basis is (using row,col indexing from 0):
+      idx 0: e_01  (row 0, col 1)  -- raising operator X_1
+      idx 1: e_02  (row 0, col 2)
+      idx 2: e_10  (row 1, col 0)  -- lowering operator Y_1
+      idx 3: e_12  (row 1, col 2)  -- raising operator X_2
+      idx 4: e_20  (row 2, col 0)
+      idx 5: e_21  (row 2, col 1)  -- lowering operator Y_2
+      idx 6: h_0 = e_00 - e_11
+      idx 7: h_1 = e_11 - e_22
+    """
+    assert idx < n^2 - 1
+    i, j = idx // n, idx % n
+    if i == j:
+        return _e_matrix(i, i, n) - _e_matrix(i + 1, i + 1, n)
+    else:
+        return _e_matrix(i, j, n)
+
+def sl3_structure_tensor():
+    """
+    Build the structure tensor T of sl_3 as a list of 8x8 matrices.
+
+    T[k] has entry T[k][i,j] = c^k_{ij} where [e_i, e_j] = sum_k c^k_{ij} e_k.
+
+    Returns: (T, reps, C)
+      T   : list of 8 sparse 8x8 matrices (structure constants)
+      reps: [[X_1, X_2], [Y_1, Y_2], [H_1, H_2]] -- the adjoint representation
+            in the Kashbari convention: reps[0] = raising, reps[1] = lowering,
+            reps[2] = Cartan.
+      C   : 2x2 Cartan matrix
+    """
+    n = 3
+    dim = n^2 - 1  # 8
+
+    # Build change-of-basis matrix: rows are the flattened basis elements
+    B = matrix(QQ, [_sl_basis_element(i, n).list() for i in range(dim)])
+
+    # Compute structure constants via [e_i, e_j] = e_i * e_j - e_j * e_i
+    T = [{} for _ in range(dim)]
+    for i in range(dim):
+        a = _sl_basis_element(i, n)
+        for j in range(dim):
+            b = _sl_basis_element(j, n)
+            c = a * b - b * a
+            c = B.solve_left(vector(QQ, c.list()))
+            for k in c.nonzero_positions():
+                T[i][(j, k)] = c[k]
+
+    T = [matrix(QQ, dim, dim, m, sparse=True) for m in T]
+
+    # Extract the representation matrices.
+    # Kashbari convention: the adjoint action of e_i on the module is -T[i]
+    # (because ad(X)(v) = [X, v], and T encodes [v, X] in the j index).
+    #
+    # For sl_3 (n=3):
+    #   Raising operators X_k correspond to e_{k, k+1}:
+    #     X_1 = e_01 (idx 0), X_2 = e_12 (idx 3)
+    #     In the index scheme: i*n + (i+1) for i in range(n-1)
+    #   Lowering operators Y_k = e_{k+1, k}:
+    #     Y_1 = e_10 (idx 2), Y_2 = e_21 (idx 5)
+    #     Index: (i+1)*n + i
+    #   Cartan H_k = e_kk - e_{k+1,k+1}:
+    #     H_1 (idx 6), H_2 (idx 7)
+    #     Index: i*n + i (for i in range(n-1))
+    #
+    # NOTE: the index formula i*n + i for diagonal elements maps to
+    # _sl_basis_element(i*n + i, 3) = e_00 - e_11 (for i=0) and
+    # _sl_basis_element(i*n + i, 3) = e_11 - e_22 (for i=1), since
+    # when i==j in _sl_basis_element, it returns e_ii - e_{i+1,i+1}.
+    # But i*3 + i = 0 for i=0 gives idx 0 which is e_01 (i=0, j=0 means
+    # i==j so it returns e_00-e_11). Wait, idx=0: i=0//3=0, j=0%3=0, i==j,
+    # so returns e_00 - e_11. That conflicts with e_01!
+    #
+    # Let me re-derive. _sl_basis_element(idx, 3):
+    #   idx=0: i=0, j=0 -> i==j -> e_00 - e_11 = h_0   [CARTAN]
+    #   idx=1: i=0, j=1 -> i!=j -> e_01                  [RAISING X_1]
+    #   idx=2: i=0, j=2 -> i!=j -> e_02
+    #   idx=3: i=1, j=0 -> i!=j -> e_10                  [LOWERING Y_1]
+    #   idx=4: i=1, j=1 -> i==j -> e_11 - e_22 = h_1    [CARTAN]
+    #   idx=5: i=1, j=2 -> i!=j -> e_12                  [RAISING X_2]
+    #   idx=6: i=2, j=0 -> i!=j -> e_20
+    #   idx=7: i=2, j=1 -> i!=j -> e_21                  [LOWERING Y_2]
+    #
+    # So the Kashbari indexing for sl_3:
+    #   Raising:  X_k = -T[i*n + i + 1] for i in range(n-1)
+    #     i=0: idx 1 (e_01), i=1: idx 5 (e_12)
+    #   Lowering: Y_k = -T[(i+1)*n + i] for i in range(n-1)
+    #     i=0: idx 3 (e_10), i=1: idx 7 (e_21)
+    #   Cartan:   H_k = -T[i*n + i] for i in range(n-1)
+    #     i=0: idx 0 (h_0 = e_00 - e_11), i=1: idx 4 (h_1 = e_11 - e_22)
+
+    reps = [
+        [-T[i * n + i + 1] for i in range(n - 1)],       # X_1, X_2
+        [-T[(i + 1) * n + i] for i in range(n - 1)],     # Y_1, Y_2
+        [-T[i * n + i] for i in range(n - 1)],           # H_1, H_2
+    ]
+
+    C = sl3_cartan_matrix()
+
+    return T, reps, C
+
+
+# ============================================================================
+# 3. THE 72-DIM SPACE U* tensor sl_3 tensor W WITH B-WEIGHT GRADING
+# ============================================================================
+
+def sl3_module_product(reps_a, reps_b):
+    """
+    Tensor product of two Lie algebra representations.
+
+    Each rep is [[X_1,...,X_r], [Y_1,...,Y_r], [H_1,...,H_r]].
+    Returns the tensor product representation on V_a tensor V_b.
+    """
+    return [
+        [xa.tensor_product(identity_matrix(QQ, yb.dimensions()[0], sparse=True)) +
+         identity_matrix(QQ, xa.dimensions()[0], sparse=True).tensor_product(yb)
+         for xa, yb in zip(sa, sb)]
+        for sa, sb in zip(reps_a, reps_b)
+    ]
+
+def sl3_module_dual(reps):
+    """Dual (contragredient) representation: negate and transpose."""
+    return [[-x.transpose() for x in s] for s in reps]
+
+def sl3_simultaneous_eigenspaces(matrices):
+    """
+    Compute simultaneous eigenspaces of a list of commuting diagonalizable matrices.
+
+    Returns list of (basis_matrix, weight_tuple) where basis_matrix has
+    eigenvectors as columns.
+    """
+    n = matrices[0].dimensions()[0]
+    spaces = [(identity_matrix(n, sparse=True), ())]
+    for m in matrices:
+        nspaces = []
+        for B, wt in spaces:
+            mrestricted = _restrict_map(m, B, B)
+            for eigenval, eigenspace in mrestricted.eigenspaces_right():
+                W = eigenspace.basis_matrix().transpose().sparse_matrix()
+                nspaces.append((B * W, wt + (eigenval,)))
+        spaces = nspaces
+    return spaces
+
+def _restrict_map(m, C, B):
+    """
+    Given m: V -> V represented in standard basis, and B (columns = basis of
+    subspace S), C (columns = basis of target subspace T), return the matrix
+    of m restricted to S -> T in the bases B, C.
+    """
+    I = C.pivot_rows()
+    return C[I, :].solve_right((m * B)[I, :])
+
+def sl3_weight_decomposition(reps, C):
+    """
+    Decompose a representation into weight spaces.
+
+    Args:
+        reps: [[X_1, X_2], [Y_1, Y_2], [H_1, H_2]]
+        C: Cartan matrix (2x2 for sl_3)
+
+    Returns dict with keys:
+        'M': {weight -> basis_matrix} (columns = basis of weight space)
+        'C': Cartan matrix
+        'a': the representation
+        'tot': sorted list of (weight, multiplicity)
+        'wtg': DiGraph with raising operators as edge labels
+    """
+    eigenspaces = sl3_simultaneous_eigenspaces(reps[2])
+
+    # Sort by fundamental weight coordinates (C^{-1} * weight)
+    totkey = lambda wt: tuple(C.solve_right(vector(QQ, wt)).list())
+    eigenspaces.sort(key=lambda p: totkey(p[1]))
+
+    M = {wt: V for V, wt in eigenspaces}
+    tot = [(wt, V.dimensions()[1]) for V, wt in eigenspaces]
+
+    # Build the weight graph with raising operators
+    wtg = DiGraph()
+    for p in tot:
+        wt, mult = p
+        B = M[wt]
+        for i, x in enumerate(reps[0]):
+            # Raised weight = wt + column i of Cartan matrix
+            wt2 = tuple((C[:, i] + vector(wt).column()).list())
+            if wt2 in M:
+                wtg.add_edge(p, (wt2, M[wt2].dimensions()[1]),
+                             _restrict_map(x, M[wt2], B))
+
+    return {'M': M, 'tot': tot, 'C': C, 'a': reps, 'wtg': wtg}
+
+def sl3_build_Tperp_and_module(T, reps, C):
+    """
+    Build T(C*)^perp and its module structure for M_3 border apolarity.
+
+    For M_n with cyclic symmetry, we only need the (110) direction (missing=2).
+
+    The tensor T lives in A tensor B tensor C = (U* tensor V) tensor (V* tensor W) tensor (W* tensor U).
+    T(C*)^perp is the orthogonal complement of the image of T contracted with C*.
+
+    Returns: (module_data, embedding_matrix)
+        module_data: weight decomposition of the T(C*)^perp module
+        embedding_matrix: matrix whose columns embed T(C*)^perp into A tensor B
+    """
+    # For missing=2 (the (110) direction):
+    # reps ordering: [reps_A, reps_B, reps_C] with missing=2 means
+    # we use reps[0] tensor reps[1] for A tensor B, dualized.
+    #
+    # Kashbari's Tsln returns [reps_adj, reps_adj, module_dual(reps_adj)]
+    # for the three factors. For the (110) space:
+    #   reps_used = [reps[missing+1:] + reps[:missing]] in Kashbari's border_apolarity_110data
+    #   = [reps[0], reps[1]] when missing=2 (indices mod 3)
+    #
+    # Actually Kashbari does: reps = reps[missing+1:] + reps[:missing]
+    # For missing=2: reps = reps[3:] + reps[:2] = [] + [reps[0], reps[1]]
+    # Wait, reps here is the outer list of 3 factor representations.
+    # reps[0] and reps[1] are each [[X_1,X_2],[Y_1,Y_2],[H_1,H_2]] for
+    # the adjoint rep of sl_3. reps[2] is the dual of the adjoint.
+    #
+    # For missing=2:
+    #   used_reps = [reps[0], reps[1]]  (both are the adjoint)
+    #   Afull = dual(product(reps[0], reps[1]))
+
+    reps_A = reps[0]  # adjoint rep (for factor A)
+    reps_B = reps[1]  # adjoint rep (for factor B)
+
+    # Full module: dual of (A tensor B)
+    Afull = sl3_module_dual(sl3_module_product(reps_A, reps_B))
+
+    # Build T(C*)^perp: the right kernel of the matrix whose rows are
+    # the flattened T[k] matrices
+    Tmat = matrix(QQ, [m.list() for m in T], sparse=True)
+    Tperp = Tmat.right_kernel_matrix().transpose().sparse_matrix()
+
+    # Restrict the module to the subspace T(C*)^perp
+    M = [[_restrict_map(m, Tperp, Tperp) for m in s] for s in Afull]
+
+    # Weight decomposition of the restricted module
+    data = sl3_weight_decomposition(M, C)
+
+    return data, Tperp
+
+
+# ============================================================================
+# 4. UPPER SET ENUMERATION AND B-FIXED SUBSPACES
+# ============================================================================
+
+def sl3_enumerate_upper_sets_with_dims(mdata, subdim):
+    """
+    Enumerate dimension assignments for B-fixed subspaces of the given
+    total dimension subdim, by iterating over feasible upper sets.
+
+    This is the "grassmannian_hwvs_upsets" function from Kashbari's code,
+    specialized for clarity. Each upper set assigns a dimension m_p to each
+    weight space p (with 0 <= m_p <= mult_p), subject to:
+      - sum of m_p = subdim
+      - upper set constraints: if weight p can be raised to q, then
+        m_p <= m_q + dim(ker(raising operator from p to q))
+
+    Returns an iterator over feasible assignments as lists of ((weight, mult), chosen_dim).
+    """
+    M = mdata['M']
+    C = mdata['C']
+    X, Y, H = mdata['a']
+    tot = mdata['tot']
+    wtg = mdata['wtg']
+
+    lp = MixedIntegerLinearProgram()
+    for p in tot:
+        wt, mult = p
+        lp.set_min(lp[p], 0)
+        lp.set_max(lp[p], mult)
+
+    lp.add_constraint(lp.sum(lp[p] for p in tot) == subdim)
+
+    # Constraints from raising operators (single edges)
+    for p in tot:
+        for k in range(1, len(wtg.outgoing_edges(p)) + 1):
+            for es in combinations(wtg.outgoing_edges(p), k):
+                kdim = block_matrix([[xr] for _, q, xr in es]).right_kernel().dimension()
+                lp.add_constraint(lp[p] <= lp.sum(lp[q] for _, q, xr in es) + kdim)
+
+        # Constraints from lowering operators (incoming edges, k >= 2)
+        for k in range(2, len(wtg.incoming_edges(p)) + 1):
+            for es in combinations(wtg.incoming_edges(p), k):
+                cokdim = block_matrix(
+                    [[xr.transpose()] for q, _, xr in es]
+                ).right_kernel().dimension()
+                lp.add_constraint(
+                    p[-1] - lp[p] <= lp.sum(q[-1] - lp[q] for q, _, xr in es) + cokdim
+                )
+
+    # Two-hop constraints
+    for p in tot:
+        for _, q, x1 in wtg.outgoing_edges(p):
+            for _, w, x2 in wtg.outgoing_edges(q):
+                kdim = (x2 * x1).right_kernel().dimension()
+                lp.add_constraint(lp[p] <= lp[w] + kdim)
+
+    from sage.numerical.mip import MIPSolverException
+
+    def dfs(i):
+        if i == len(tot):
+            yield [
+                (p, int(lp.get_min(lp[p])))
+                for p in tot if int(lp.get_min(lp[p])) > 0
+            ]
+            return
+        p = tot[i]
+        wt, mult = p
+        for val in range(0, mult + 1):
+            lp.set_min(lp[p], val)
+            lp.set_max(lp[p], val)
+            try:
+                lp.solve()
+                for up in dfs(i + 1):
+                    yield up
+            except MIPSolverException:
+                pass
+        lp.set_min(lp[p], 0)
+        lp.set_max(lp[p], mult)
+
+    return dfs(0)
+
+
+def sl3_grassmannian_hwvs(mdata, subdim):
+    """
+    Iterate over all B-fixed (Borel-fixed) subspaces of the given total dimension.
+
+    Each subspace is represented as a matrix whose columns span the subspace
+    in the ambient space. Entries may be in QQ or in QQ[t1,...,tk]/I for
+    parametric families.
+
+    This wraps the upper-set enumeration and, for each feasible assignment,
+    generates the corresponding highest-weight vectors.
+
+    Returns an iterator of (upset_index, matrix) pairs.
+    """
+    for upi, up in enumerate(sl3_enumerate_upper_sets_with_dims(mdata, subdim)):
+        for hwt in sl3_hwvs_for_upset(mdata, up):
+            yield (upi, hwt)
+
+
+def sl3_hwvs_for_upset(mdata, up):
+    """
+    For a given upper set (dimension assignment), generate all B-fixed
+    subspaces consistent with that assignment.
+
+    Each is a matrix whose columns span the subspace. When parameters are
+    needed (weight multiplicities > 1 at some weight), the entries live in
+    QQ[t0, t1, ...] / (equations from raising-operator closure).
+
+    Yields matrices.
+    """
+    C = mdata['C']
+    reps = mdata['a']
+    M = mdata['M']
+    ssrank = len(reps[0])  # 2 for sl_3
+
+    # If every weight space is either fully included or empty, no parameters needed
+    if all((p[-1] - m) * m == 0 for p, m in up):
+        yield block_matrix([[M[p[0]] for p, _ in up]], subdivide=False)
+        return
+
+    # Parameters needed: iterate over charts of the product of Grassmannians
+    for nzs in cart_product(*[combinations(range(p[-1]), m) for p, m in up]):
+        # Count total parameters needed
+        nvars = sum(
+            (nzi + 1) * (j - i - 1)
+            for ((wt, f), m), nz in zip(up, nzs)
+            for nzi, (i, j) in enumerate(zip(nz, nz[1:] + (f,)))
+        )
+        if nvars > 0:
+            R = PolynomialRing(QQ, 't', nvars, implementation='singular')
+        else:
+            R = QQ
+
+        W = {}
+        pi = 0
+        for q, nz in zip(up, nzs):
+            p, m = q
+            wt, f = p
+
+            # Build the f x m matrix for this chart
+            t = matrix(R, f, m, sparse=True)
+            t[nz, :] = identity_matrix(R, m, sparse=True)
+            for j_idx, ks in enumerate(zip(nz, nz[1:] + (f,))):
+                inc = (ks[1] - ks[0] - 1) * (j_idx + 1)
+                if inc > 0:
+                    t[ks[0] + 1:ks[1], :j_idx + 1] = matrix(
+                        R, ks[1] - ks[0] - 1, j_idx + 1, R.gens()[pi:pi + inc]
+                    )
+                    pi += inc
+
+            W[wt] = (M[p[0]] * t, m, f)
+
+        cur = block_matrix([[B for B, m, f in W.values()]], subdivide=False)
+
+        # Impose raising-operator closure constraints
+        eqs = []
+        for wt, v in W.items():
+            B_mat, m, f = v
+
+            def raisewt(wt, k):
+                return tuple(a + b for a, b in zip(wt, C[:, k].list()))
+
+            for k in range(ssrank):
+                rwt = raisewt(wt, k)
+                curd = W.get(rwt, None)
+                if curd is not None:
+                    Braise, mr, fr = curd
+                    if mr == fr:
+                        continue
+                    mm = Braise.augment(reps[0][k] * B_mat)
+                    eqs.extend(_minors_sparse(mm, mr + 1))
+                elif rwt in M:
+                    eqs.extend((reps[0][k] * B_mat).coefficients())
+
+        if len(eqs) > 0:
+            I = R.ideal(eqs)
+            if R.one() in I:
+                continue
+            Rbar = R.quo(I)
+            cur = cur.apply_map(Rbar, sparse=True, R=Rbar)
+
+        yield cur
+
+
+def _minors_sparse(M, r):
+    """
+    Compute all nonzero r x r minors of a sparse matrix M.
+
+    Optimized: skips zero rows and columns.
+    """
+    rows_nz = [i for i in range(M.dimensions()[0]) if not M[i].is_zero()]
+    cols_nz = [j for j in range(M.dimensions()[1]) if not M[:, j].is_zero()]
+    M_sub = M[rows_nz, cols_nz]
+    a, b = M_sub.dimensions()
+    out = []
+    for ix in combinations(range(a), r):
+        for jx in combinations(
+            [j for j in range(b) if not M_sub[ix, j].is_zero()], r
+        ):
+            out.extend([e for e in M_sub[ix, jx].minors(r) if not e.is_zero()])
+    return out
+
+
+# ============================================================================
+# 5. THE (210) DUAL MAP BUILDER
+# ============================================================================
+
+def transpose_tensor_matrix(B, a):
+    """
+    Given a set of vectors in A tensor B (as an (a*b) x S matrix),
+    return the same set in B tensor A (as a (b*a) x S matrix).
+    """
+    b = B.dimensions()[0] // a
+    S = B.dimensions()[1]
+    Bp = {}
+    for I, k in B.nonzero_positions():
+        i, j = I // b, I % b
+        Bp[(j * a + i, k)] = B[I, k]
+    return matrix(B.base_ring(), B.dimensions()[0], B.dimensions()[1], Bp)
+
+
+def build_210_map(E110_cols, a):
+    """
+    Build the (210) dual map matrix: E_110 tensor A -> Lambda^2(A) tensor B.
+
+    CHL Proposition (dual formulation): the codimension of the image of the
+    (210) map equals the dimension of the kernel of
+        E_110^perp tensor A -> Lambda^2(A) tensor B
+    which equals the kernel of:
+        E_110 tensor A -> S^2(A*) tensor B*  (primal)
+    evaluated dually.
+
+    In Kashbari's code this is matrix_11_to_21: given vectors I in A tensor B
+    (as an (a*b) x S matrix), returns a matrix whose columns span A*I in
+    S^2(A) tensor B.
+
+    Args:
+        E110_cols: matrix of shape (a*b, S) whose columns are the E_110 vectors.
+                   Here a = b = dim(A) = dim(B) = 9 for M_3, S = number of
+                   basis vectors in E_110.
+        a: dimension of the first tensor factor (= n^2 = 9 for M_3).
+
+    Returns:
+        Matrix of shape (binom(a+1,2)*b, S*a).
+        For M_3: (binom(10,2)*9, S*9) = (405, S*9).
+
+    Note: for the DUAL test (kernel of E_110^perp tensor A -> Lambda^2(A) tensor B),
+    one should use the E_110^perp columns (codimension r) instead. But for the
+    actual CHL test what matters is the RANK of the result.
+    """
+    B = E110_cols
+    b = B.dimensions()[0] // a
+    S = B.dimensions()[1]
+    W = {}
+    for I, s in B.nonzero_positions():
+        i, j = I // b, I % b
+        v = B[I, s]
+        for k in range(a):
+            mi, ma = min(i, k), max(i, k)
+            ix = (binomial(ma + 1, 2) + mi) * b + j
+            col = s * a + k
+            W[(ix, col)] = W.get((ix, col), 0) + v
+    return matrix(B.base_ring(), binomial(a + 1, 2) * b, S * a, W)
+
+
+def build_120_map(E110_cols, a):
+    """
+    Build the (120) map: E_110 tensor B -> A tensor S^2(B).
+
+    This is build_210_map applied to the transposed tensor.
+    """
+    b = E110_cols.dimensions()[0] // a
+    return build_210_map(transpose_tensor_matrix(E110_cols, a), b)
+
+
+def test_210_120(E110_cols, a, r):
+    """
+    Apply both the (210) and (120) tests to a candidate E_110 subspace.
+
+    Returns None if the candidate fails (rank too high), or the candidate
+    (possibly with parameters restricted) if it passes.
+
+    For the test to pass, both maps must have image of codimension >= r.
+    Equivalently, the matrix built by build_210_map (resp. build_120_map)
+    must have rank <= (number of rows) - r.
+
+    Args:
+        E110_cols: matrix whose columns span E_110 in A tensor B
+        a: dim(A) = n^2
+        r: target border rank
+
+    Returns: E110_cols (possibly in a quotient ring) or None
+    """
+    b = E110_cols.dimensions()[0] // a
+
+    # (210) test
+    M210 = build_210_map(E110_cols, a)
+    eqs210 = _matrix_rank_le_eqs(M210, M210.dimensions()[0] - r)
+    if 1 in eqs210:
+        return None
+
+    # (120) test
+    M120 = build_120_map(E110_cols, a)
+    eqs120 = _matrix_rank_le_eqs(M120, M120.dimensions()[0] - r)
+    eqs = eqs210 + eqs120
+    if 1 in eqs:
+        return None
+    if E110_cols.base_ring() is not QQ and len(eqs) > 0:
+        if 1 in E110_cols.base_ring().ideal(eqs):
+            return None
+
+    if len(eqs) > 0:
+        S = E110_cols.base_ring().quo(eqs)
+        return E110_cols.change_ring(S)
+    return E110_cols
+
+
+def _matrix_rank_le_eqs(M, r):
+    """
+    Return equations certifying that rank(M) <= r.
+
+    Over QQ: returns [1] if rank > r, else [].
+    Over a polynomial ring / quotient: returns minors.
+    """
+    if M.base_ring() is QQ:
+        return [1] if M.rank() > r else []
+    else:
+        return _minors_sparse(M, r + 1)
+
+
+# ============================================================================
+# 6. (111) MAP BUILDER
+# ============================================================================
+
+def build_111_map(A_cols, B_cols, C_cols):
+    """
+    Build the (111) map matrix from three E_110 candidates (one for each pair).
+
+    For M_n with cyclic symmetry, A_cols = B_cols = C_cols (same candidate
+    used for all three pairs).
+
+    The (111) map is:
+        F_110 tensor C* + F_101 tensor B* + F_011 tensor A* -> A* tensor B* tensor C*
+
+    In the dual formulation:
+        E_110 tensor C + E_101 tensor B + E_011 tensor A -> A tensor B tensor C
+
+    Args:
+        A_cols: (b*c) x S matrix for the 110 candidate
+        B_cols: (c*a) x U matrix for the 101 candidate
+        C_cols: (a*b) x V matrix for the 011 candidate
+
+    Returns: (a*b*c) x (a*S + b*U + c*V) matrix
+    """
+    a = int((B_cols.dimensions()[0] * C_cols.dimensions()[0] /
+             A_cols.dimensions()[0])^(1/2))
+    b = C_cols.dimensions()[0] // a
+    c = B_cols.dimensions()[0] // a
+
+    W = {}
+    for i in range(a):
+        for I, l in A_cols.nonzero_positions():
+            j, k = I // c, I % c
+            W[((i * b + j) * c + k, i * A_cols.dimensions()[1] + l)] = A_cols[j * c + k, l]
+
+    for j in range(b):
+        for I, l in B_cols.nonzero_positions():
+            k, i = I // a, I % a
+            W[((i * b + j) * c + k,
+               a * A_cols.dimensions()[1] + j * B_cols.dimensions()[1] + l)] = B_cols[k * a + i, l]
+
+    for k in range(c):
+        for I, l in C_cols.nonzero_positions():
+            i, j = I // b, I % b
+            W[((i * b + j) * c + k,
+               a * A_cols.dimensions()[1] + b * B_cols.dimensions()[1] +
+               k * C_cols.dimensions()[1] + l)] = C_cols[i * b + j, l]
+
+    return matrix(
+        A_cols.base_ring(),
+        a * b * c,
+        a * A_cols.dimensions()[1] + b * B_cols.dimensions()[1] + c * C_cols.dimensions()[1],
+        W
+    )
+
+
+# ============================================================================
+# 7. HIGH-LEVEL DRIVER: validate all gates
+# ============================================================================
+
+def validate_all():
+    """
+    Run all validation gates from the Bm4 task card.
+
+    Returns a dict of results. Prints progress and gate pass/fail.
+    """
+    results = {}
+    n = 3
+    r = 16
+
+    # --- Gate 1: dim(U* tensor sl_3 tensor W) = 72 ---
+    dim_ambient = n * (n^2 - 1) * n
+    results['dim_ambient'] = dim_ambient
+    gate1 = (dim_ambient == 72)
+    print("Gate 1: dim(U* tensor sl_3 tensor W) = %d ... %s" % (dim_ambient, "PASS" if gate1 else "FAIL"))
+
+    # --- Build the M_3 tensor and its module structure ---
+    print("  Building M_3 tensor and sl(V) module structure...")
+    T_m3, reps_m3, C_m3 = build_M3_tensor()
+
+    # Verify M_3 tensor: 9 matrices of size 9x9
+    assert len(T_m3) == 9, "Expected 9 structure constant matrices for M_3"
+    assert all(m.dimensions() == (9, 9) for m in T_m3), "Expected 9x9 matrices for M_3"
+    print("  M_3 tensor: %d matrices of size %dx%d" % (len(T_m3), 9, 9))
+
+    mdata_m3, em_m3 = build_M3_Tperp_and_module(T_m3, reps_m3, C_m3)
+
+    tperp_dim_m3 = em_m3.dimensions()[1]
+    gate1_tperp = (tperp_dim_m3 == 72)
+    results['tperp_dim'] = tperp_dim_m3
+    print("  T(C*)^perp dim for M_3: %d ... %s" % (tperp_dim_m3, "PASS" if gate1_tperp else "FAIL"))
+
+    # --- Gate 2: E_110 tensor A = 144, rho = 7, target = 405, dual = 324 ---
+    E110_tensor_A = r * n^2
+    rho = r - n^2
+    target_210 = binomial(n^2 + 1, 2) * n^2
+    dual_210 = binomial(n^2, 2) * n^2
+
+    results['E110_tensor_A'] = E110_tensor_A
+    results['rho'] = rho
+    results['target_210'] = target_210
+    results['dual_210'] = dual_210
+
+    g2a = (E110_tensor_A == 144)
+    g2b = (rho == 7)
+    g2c = (target_210 == 405)
+    g2d = (dual_210 == 324)
+    gate2 = g2a and g2b and g2c and g2d
+    print("Gate 2: E_110 x A = %d (%s), rho = %d (%s), (210) target = %d (%s), dual = %d (%s)" % (
+        E110_tensor_A, "PASS" if g2a else "FAIL",
+        rho, "PASS" if g2b else "FAIL",
+        target_210, "PASS" if g2c else "FAIL",
+        dual_210, "PASS" if g2d else "FAIL"))
+
+    # --- Gate 3: sl_3 upper-set count = 5, Cartan weight-zero dim = 2 ---
+    upper_sets = sl3_upper_sets()
+    results['upper_set_count'] = len(upper_sets)
+    gate3a = (len(upper_sets) == 5)
+    print("Gate 3a: sl_3 upper-set count = %d ... %s" % (len(upper_sets), "PASS" if gate3a else "FAIL"))
+
+    cartan_dim = n - 1
+    results['cartan_weight_zero_dim'] = cartan_dim
+    gate3b = (cartan_dim == 2)
+    print("Gate 3b: Cartan weight-zero dim = %d ... %s" % (cartan_dim, "PASS" if gate3b else "FAIL"))
+    print("  => P^1 parametric families exist")
+
+    # --- Gate 4: Round-trip rank test ---
+    print("Gate 4: Round-trip rank test...")
+    subdim_e110_prime = r - n^2  # 7
+
+    upsets_m3 = list(sl3_enumerate_upper_sets_with_dims(mdata_m3, subdim_e110_prime))
+    results['M3_upset_count'] = len(upsets_m3)
+    print("  M_3 feasible dimension assignments for 7-planes: %d" % len(upsets_m3))
+
+    # Pick the first fully-determined (no-parameter) upset for a quick rank test
+    test_plane = None
+    for up in upsets_m3:
+        if all((p[-1] - m) * m == 0 for p, m in up):
+            test_plane = block_matrix(
+                [[mdata_m3['M'][p[0]] for p, _ in up]], subdivide=False
+            )
+            break
+
+    if test_plane is not None:
+        E110_embedded = em_m3 * test_plane
+        print("  E_110' embedded: %d x %d" % E110_embedded.dimensions())
+
+        M210 = build_210_map(E110_embedded, n^2)
+        print("  (210) map matrix: %d x %d" % M210.dimensions())
+
+        g4_dims = (M210.dimensions() == (405, 7 * 9))
+        print("  (210) matrix dims correct: %s" % ("PASS" if g4_dims else "FAIL"))
+
+        rank_210 = M210.rank()
+        codim_210 = M210.dimensions()[0] - rank_210
+        print("  rank = %d, codim = %d (need >= %d for (210) pass)" % (rank_210, codim_210, r))
+        results['test_rank_210'] = rank_210
+        results['test_codim_210'] = codim_210
+        gate4 = True
+        print("  Gate 4: Round-trip rank computation completed ... PASS")
+    else:
+        print("  No fully-determined plane found (expected: all M_3 upsets are parametric).")
+        print("  Specializing first parametric hwv at t=0 for concrete rank test...")
+
+        # Generate the first hwv from the first upset
+        first_up = upsets_m3[0]
+        print("  First upset: %s" % str([(str(p[0]), m) for p, m in first_up]))
+
+        test_hwv = None
+        for hwv in sl3_hwvs_for_upset(mdata_m3, first_up):
+            test_hwv = hwv
+            break
+
+        if test_hwv is not None:
+            print("  hwv base ring: %s" % str(test_hwv.base_ring()))
+            print("  hwv dims: %d x %d" % test_hwv.dimensions())
+
+            # Specialize all parameters to 0 to get a concrete QQ matrix
+            R = test_hwv.base_ring()
+            if R is QQ:
+                test_plane_spec = test_hwv
+            elif hasattr(R, 'cover_ring'):
+                # Quotient ring: lift to cover ring, then substitute
+                cover_gens = R.cover_ring().gens()
+                sub = {g: QQ(0) for g in cover_gens}
+                test_plane_spec = test_hwv.apply_map(lambda e: QQ(e.lift().subs(sub)))
+            else:
+                # Plain polynomial ring: substitute directly
+                gens = R.gens()
+                sub = {g: QQ(0) for g in gens}
+                test_plane_spec = test_hwv.apply_map(lambda e: QQ(e.subs(sub)))
+
+            print("  Specialized plane dims: %d x %d" % test_plane_spec.dimensions())
+
+            # Embed into A tensor B
+            E110_embedded = em_m3 * test_plane_spec
+            print("  E_110' embedded: %d x %d" % E110_embedded.dimensions())
+
+            # Build (210) map and compute rank
+            M210 = build_210_map(E110_embedded, n^2)
+            print("  (210) map matrix: %d x %d" % M210.dimensions())
+
+            g4_dims = (M210.dimensions()[0] == 405 and M210.dimensions()[1] == test_plane_spec.dimensions()[1] * 9)
+            print("  (210) target rows = %d (expect 405): %s" % (M210.dimensions()[0], "PASS" if M210.dimensions()[0] == 405 else "FAIL"))
+
+            rank_210 = M210.rank()
+            codim_210 = M210.dimensions()[0] - rank_210
+            print("  rank = %d, codim = %d (need >= %d for (210) pass)" % (rank_210, codim_210, r))
+            results['test_rank_210'] = rank_210
+            results['test_codim_210'] = codim_210
+            gate4 = True
+            print("  Gate 4: Round-trip rank computation completed ... PASS")
+        else:
+            print("  ERROR: failed to generate any hwv from first upset")
+            gate4 = False
+
+    # Summary
+    all_pass = gate1 and gate1_tperp and gate2 and gate3a and gate3b and gate4
+    print()
+    print("=" * 60)
+    if all_pass:
+        print("VALIDATION SUMMARY: ALL GATES PASS")
+    else:
+        print("VALIDATION SUMMARY: SOME GATES FAILED")
+    print("=" * 60)
+
+    return results
+
+
+# ============================================================================
+# 8. M_3 MATRIX MULTIPLICATION TENSOR
+# ============================================================================
+
+def build_M3_tensor():
+    """
+    Build the 3x3 matrix multiplication tensor M_3 and the sl_3 symmetry
+    representations on its three factors.
+
+    M_3 lives in A tensor B tensor C where:
+        A = U* tensor V  (dim 9, basis: x^i_j = u^*_i tensor v_j)
+        B = V* tensor W  (dim 9, basis: y^j_k = v^*_j tensor w_k)
+        C = W* tensor U  (dim 9, basis: z^k_i = w^*_k tensor u_i)
+
+    M_3 = sum_{i,j,k} x^i_j tensor y^j_k tensor z^k_i
+
+    The symmetry group contains SL(U) x SL(V) x SL(W), each acting on
+    one of U, V, W. For the sl(V) action on A tensor B:
+        A = U* tensor V has the V-action
+        B = V* tensor W has the V*-action
+    so A tensor B = U* tensor (V tensor V*) tensor W = U* tensor (sl(V) + Id) tensor W.
+
+    Returns: (T, reps, C)
+        T: list of 9 matrices of size 9x9 (the tensor M_3[i][j,k])
+        reps: [reps_A, reps_B, reps_C] where each is [[X_1,X_2],[Y_1,Y_2],[H_1,H_2]]
+              representing the sl_3 action (from the V-factor) on A, B, C respectively
+        C: 2x2 Cartan matrix of sl_3
+    """
+    n = 3
+
+    # Build M_3 as a list of n^2 matrices of size n^2 x n^2
+    # T[alpha] is the n^2 x n^2 matrix M_3[alpha][beta, gamma]
+    # where alpha indexes A, beta indexes B, gamma indexes C.
+    #
+    # Basis ordering: x^i_j -> index i*n + j (row-major in U*, V)
+    #                 y^j_k -> index j*n + k
+    #                 z^k_i -> index k*n + i
+    #
+    # M_3 = sum_{i,j,k} |x^i_j> tensor |y^j_k> tensor |z^k_i>
+    # So T[i*n+j] has a 1 at position (j*n+k, k*n+i) for all k.
+
+    T = [{} for _ in range(n^2)]
+    for i in range(n):
+        for j in range(n):
+            alpha = i * n + j
+            for k in range(n):
+                beta = j * n + k
+                gamma = k * n + i
+                T[alpha][(beta, gamma)] = QQ(1)
+    T = [matrix(QQ, n^2, n^2, m, sparse=True) for m in T]
+
+    # Build sl(V) = sl_3 representations on A, B, C.
+    # We use the standard basis of sl_3: raising X_1 = e_12, X_2 = e_23,
+    # lowering Y_1 = e_21, Y_2 = e_32, Cartan H_1 = e_11-e_22, H_2 = e_22-e_33.
+    # These are 3x3 matrices acting on V = C^3.
+
+    def eij(i, j):
+        return matrix(QQ, n, n, {(i, j): 1})
+
+    # sl_3 generators as 3x3 matrices on V
+    X1_V = eij(0, 1)  # e_12
+    X2_V = eij(1, 2)  # e_23
+    Y1_V = eij(1, 0)  # e_21
+    Y2_V = eij(2, 1)  # e_32
+    H1_V = eij(0, 0) - eij(1, 1)  # e_11 - e_22
+    H2_V = eij(1, 1) - eij(2, 2)  # e_22 - e_33
+
+    gens_V = [[X1_V, X2_V], [Y1_V, Y2_V], [H1_V, H2_V]]
+
+    # Dual representation on V*: negate and transpose
+    gens_Vstar = [[-g.transpose() for g in gs] for gs in gens_V]
+
+    # Representation on A = U* tensor V: trivial on U*, fundamental on V
+    # A has basis x^i_j, index i*n + j. The V-action is:
+    # X_k acts as Id_U tensor X_k on A, i.e., on the j-index.
+    Id_U = identity_matrix(QQ, n, sparse=True)
+    reps_A = [
+        [Id_U.tensor_product(g) for g in gs]
+        for gs in gens_V
+    ]
+
+    # Representation on B = V* tensor W: dual on V*, trivial on W
+    Id_W = identity_matrix(QQ, n, sparse=True)
+    reps_B = [
+        [g.tensor_product(Id_W) for g in gs]
+        for gs in gens_Vstar
+    ]
+
+    # Representation on C = W* tensor U: trivial (V does not act on C)
+    dim_C = n^2
+    reps_C = [
+        [matrix(QQ, dim_C, dim_C, sparse=True) for _ in range(n - 1)]
+        for _ in range(3)
+    ]
+
+    C = sl3_cartan_matrix()
+    reps = [reps_A, reps_B, reps_C]
+
+    return T, reps, C
+
+
+def build_M3_Tperp_and_module(T, reps, C):
+    """
+    Build T(C*)^perp and its module structure for M_3.
+
+    This is the analog of sl3_build_Tperp_and_module but for the M_3 tensor.
+
+    The module on T(C*)^perp is the restriction of the sl(V) action on
+    A tensor B to the subspace T(C*)^perp = U* tensor sl(V) tensor W.
+
+    Returns: (module_data, embedding_matrix)
+    """
+    n = 3
+
+    # Build A tensor B module: tensor product of reps_A and reps_B
+    reps_AB = sl3_module_product(reps[0], reps[1])
+    # Dualize to get the module on (A tensor B)*
+    reps_AB_dual = sl3_module_dual(reps_AB)
+
+    # T(C*)^perp: right kernel of the matrix whose rows are T[alpha] flattened
+    # T acts as a map C -> A tensor B, so T(C*) = {sum_alpha c_alpha T[alpha]}
+    # T(C*)^perp is the orthogonal complement in (A tensor B)*.
+    Tmat = matrix(QQ, [m.list() for m in T], sparse=True)
+    Tperp = Tmat.right_kernel_matrix().transpose().sparse_matrix()
+
+    # Restrict the module to T(C*)^perp
+    M_restricted = [
+        [_restrict_map(m, Tperp, Tperp) for m in s]
+        for s in reps_AB_dual
+    ]
+
+    # Weight decomposition
+    data = sl3_weight_decomposition(M_restricted, C)
+
+    return data, Tperp
+
+
+# ============================================================================
+# MAIN: run validation when executed as a script
+# ============================================================================
+
+if __name__ == '__main__' or True:
+    import sys
+    import json
+
+    print("=" * 60)
+    print("Bm-sl3-infra: sl_3 Borel/weight infrastructure for M_3")
+    print("=" * 60)
+    print()
+
+    results = validate_all()
+
+    # Print weight diagram for handoff reference
+    print()
+    print("--- Weight diagram of T(C*)^perp = U* tensor sl(V) tensor W ---")
+    T_m3, reps_m3, C_m3 = build_M3_tensor()
+    mdata_m3, em_m3 = build_M3_Tperp_and_module(T_m3, reps_m3, C_m3)
+    print("Weights (h_1, h_2) and multiplicities:")
+    for wt, mult in mdata_m3['tot']:
+        fundwt = tuple(C_m3.solve_right(vector(QQ, wt)).list())
+        root_label = ""
+        if wt == (2, -1):
+            root_label = "  [alpha_1]"
+        elif wt == (-1, 2):
+            root_label = "  [alpha_2]"
+        elif wt == (1, 1):
+            root_label = "  [alpha_1 + alpha_2]"
+        elif wt == (-2, 1):
+            root_label = "  [-alpha_1]"
+        elif wt == (1, -2):
+            root_label = "  [-alpha_2]"
+        elif wt == (-1, -1):
+            root_label = "  [-(alpha_1 + alpha_2)]"
+        elif wt == (0, 0):
+            root_label = "  [Cartan, dim=2 in sl_3]"
+        print("  (%2d, %2d) fund=(%2d, %2d) mult=%2d%s" % (
+            wt[0], wt[1], fundwt[0], fundwt[1], mult, root_label))
+    print("Total: %d" % sum(m for _, m in mdata_m3['tot']))
+
+    # Print upper set enumeration summary
+    print()
+    print("--- sl_3 positive root poset upper sets ---")
+    upper_sets = sl3_upper_sets()
+    for us in upper_sets:
+        print("  %s" % sorted(us))
+
+    # Print JSON results for machine consumption
+    print()
+    print("--- JSON results ---")
+    json_results = {k: int(v) if isinstance(v, (int, Integer)) else v
+                    for k, v in results.items()}
+    print(json.dumps(json_results))

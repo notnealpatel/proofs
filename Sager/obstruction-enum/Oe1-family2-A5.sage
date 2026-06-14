@@ -1,0 +1,84 @@
+# Oe1 Family 2: A_5 (icosahedral) GM ansatz for <3,3,3>.
+#
+# A_5 has a faithful 3-dim real irrep (the icosahedral rotation group in SO(3)),
+# order-3 elements, and character field Q(sqrt5) -- genuinely DIFFERENT from
+# S_4's Q(sqrt3). Its rho (x) rho* = 1 (+) 3 (+) 5 (NO sign/antisymmetric rho'
+# since A_5 is simple), so the S_4 box-box / rho'-rho' obstruction does NOT
+# transfer. We must compute A_5's reach/coverage directly.
+#
+# FOUNDATIONS FIRST (Oe1 "check foundations before solving"):
+#  1. Build A_5's 3-dim irrep rho over a field containing sqrt5.
+#  2. Confirm it is a faithful irreducible 3-dim rep with an order-3 element sigma.
+#  3. rho (x) rho* decomposition (expect 1+3+5, dims 1+3+5=9).
+#  4. The MM target T_MM = sum E_ij (x) E_jk (x) E_ki is the SAME tensor (it lives
+#     in M_3, independent of the group); we test <T_ansatz, A (x) B (x) C> = tr(ABC)
+#     on a basis of the diagonal-trivial-containing triples of rho (x) rho*.
+#  5. Orbit sizes = |A_5| / |stab| = 60/|H|. Tensor rank = 1 + sum orbit sizes.
+#     Beating Laderman 23 needs total orbit <= 21.
+#
+# RANK TRIAGE: smallest A_5 orbits in the 3-dim action. A_5 < SO(3) point orbits:
+#   icosahedron vertices: 12 (stab C_5, order 5)
+#   icosahedron edges/midpoints: 30 (stab C_2, order 2)
+#   icosahedron faces: 20 (stab C_3, order 3)
+# So the SMALLEST nontrivial orbit is 12 => single-orbit rank 13. Two orbits
+# >= 24 > 21. So at most ONE A_5 orbit fits rank<=22.
+
+K.<s5> = QuadraticField(5)
+# Golden ratio phi = (1+sqrt5)/2
+phi = (1+s5)/2
+
+# Icosahedral rotation generators in SO(3) over Q(sqrt5). Standard generators:
+# a 5-fold rotation and a 2-fold rotation (or 3-fold). Use the classic
+# realization (e.g. from the icosahedral group). We build A_5 = <g5, g2>.
+# 5-fold rotation about a vertex axis, 2-fold about an edge axis.
+# Use a known faithful matrix realization of the icosahedral group.
+def Mt(rows): return matrix(K, rows)
+
+# A clean construction: A_5 ~ <(123), (345)> as permutations gives A_5; we instead
+# need the 3-dim irrep matrices. Build via Sage's group algebra / character?
+# Simpler robust path: realize the icosahedral group as a matrix group with
+# explicit generators. The 3-dim irrep of A_5 is the rotation rep. Generators:
+half = K(1)/2
+# 5-fold rotation matrix (about z-axis would be 2pi/5 but that's not in Q(sqrt5)
+# rationally as a single axis; instead use the standard icosahedral generators):
+# Use the well-known pair (Hamilton):
+#   sigma3 = 3-fold rotation cycling coordinate axes (in SO(3), rational)
+#   plus a golden-ratio rotation.
+# 3-fold rotation cycling (x,y,z)->(y,z,x):
+g3 = Mt([[0,0,1],[1,0,0],[0,1,0]])   # order 3, rational
+# 2-fold / 5-fold golden generator: rotation by the icosahedral symmetry.
+# Standard icosahedral generator (rotation by 2pi/5 about a vertex) in the
+# coordinate frame where vertices are cyclic perms of (0, +-1, +-phi):
+g5 = Mt([[half, -phi/2, (phi-1)/2],
+         [phi/2, (phi-1)/2, -half],
+         [(phi-1)/2, half, phi/2]])
+
+# Build the group by BFS multiplication.
+gens_list = [g3, g5]
+def matkey(M): return tuple(M.list())
+I3 = identity_matrix(K,3)
+elems = {matkey(I3): I3}
+frontier=[I3]
+for _ in range(2000):
+    if not frontier: break
+    new=[]
+    for e in frontier:
+        for g in gens_list:
+            ne = g*e
+            k = matkey(ne)
+            if k not in elems:
+                elems[k]=ne; new.append(ne)
+    frontier=new
+ELEM=list(elems.values())
+print(f"group order: {len(ELEM)} (expect 60 for A_5 if g5 is a genuine icosahedral 5-fold)")
+
+# Check orders present (need order-3 element).
+def matorder(M):
+    P=M; o=1
+    while P!=I3 and o<200:
+        P=P*M; o+=1
+    return o
+from collections import Counter
+orders = Counter(matorder(M) for M in ELEM)
+print("element order distribution:", dict(orders))
+# A_5: orders 1(1),2(15),3(20),5(24). Total 60.

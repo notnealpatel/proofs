@@ -1,0 +1,134 @@
+# Oe1 Family 2: full A_5 (icosahedral) GM-ansatz analysis for <3,3,3>.
+# Builds A_5's 3-dim irrep over Q(sqrt5), confirms irreducibility, decomposes
+# rho (x) rho*, enumerates subgroup orbits with size <= 21, and computes the
+# reach/coverage against the MM residual on the rho (x) rho* basis -- the same
+# coverage pre-screen used for S_4, now for the genuinely-different A_5 isotypic
+# structure (char field Q(sqrt5), no antisymmetric rho').
+
+import itertools
+K.<s5> = QuadraticField(5)
+phi = (1+s5)/2
+half = K(1)/2
+def Mt(rows): return matrix(K, rows)
+g3 = Mt([[0,0,1],[1,0,0],[0,1,0]])
+g5 = Mt([[half, -phi/2, (phi-1)/2],
+         [phi/2, (phi-1)/2, -half],
+         [(phi-1)/2, half, phi/2]])
+gens_list=[g3,g5]
+def matkey(M): return tuple(M.list())
+I3=identity_matrix(K,3)
+elems={matkey(I3):I3}; frontier=[I3]
+for _ in range(2000):
+    if not frontier: break
+    new=[]
+    for e in frontier:
+        for g in gens_list:
+            ne=g*e; k=matkey(ne)
+            if k not in elems: elems[k]=ne; new.append(ne)
+    frontier=new
+ELEM=list(elems.values())
+assert len(ELEM)==60, len(ELEM)
+sigma = g3   # order-3 element for the twist
+
+# --- Foundation: irreducibility of rho (3-dim) ---
+# rho irreducible iff the only matrices commuting with all rho(g) are scalars,
+# i.e. dim End_G(rho) = 1. End = null space of stacked (g (x) g^-T - I) on vec.
+def conjOperatorOnGL(g):  # 9x9: vec(X) -> vec(g X g^-1)
+    gi = g.inverse()
+    C=matrix(K,9,9)
+    for i in range(3):
+        for j in range(3):
+            E=matrix(K,3,3); E[i,j]=1; img=g*E*gi; col=i*3+j
+            for a in range(3):
+                for b in range(3): C[a*3+b,col]=img[a,b]
+    return C
+rows=[]
+I9=identity_matrix(K,9)
+for g in ELEM:
+    rows.append(conjOperatorOnGL(g)-I9)
+big=block_matrix(K,[[m] for m in rows])
+enddim = 9 - big.rank()
+print(f"dim End_A5(rho) = {enddim} (1 => rho irreducible)")
+# The fixed space of the FULL group under conjugation = multiplicity of trivial
+# in rho (x) rho* = number of trivial subreps. For irreducible self-dual rho this
+# is 1 (Schur). So enddim counts trivials in rho (x) rho*.
+
+# --- rho (x) rho* isotypic structure via character inner products ---
+# chi_{rho(x)rho*}(g) = |chi_rho(g)|^2 = (tr rho(g))^2 (rho real).
+# Decompose against A_5 irreps by their trace-squared class sums. We just report
+# the multiplicity of the trivial (already enddim) and the Sym/antisym split.
+# Sym^2 dim 6, Lambda^2 dim 3. For A_5: rho(x)rho = 1 + 3 + 5 (Lambda^2 = 3 = rho).
+# Confirm Lambda^2 ~ rho (3-dim) by checking the antisymmetric subspace is a
+# faithful 3-dim irrep (its End dim = 1).
+# Antisymmetric subspace basis: E_ij - E_ji for i<j (3 of them).
+def antisym_basis():
+    out=[]
+    for (i,j) in [(0,1),(0,2),(1,2)]:
+        E=matrix(K,3,3); E[i,j]=1; E[j,i]=-1; out.append(E)
+    return out
+AB=antisym_basis()
+# project conjugation action onto the 3-dim antisym space and check End dim.
+# coordinates: a vector c=(c01,c02,c12) -> X = sum c_ij (E_ij - E_ji).
+def antisym_to_vec(X):  # X antisymmetric -> (X01,X02,X12)
+    return vector(K,[X[0,1],X[0,2],X[1,2]])
+def conj_on_antisym(g):
+    M=matrix(K,3,3)
+    for col,B in enumerate(AB):
+        img = g*B*g.inverse()
+        v=antisym_to_vec(img)
+        for r in range(3): M[r,col]=v[r]
+    return M
+# End dim on antisym:
+rows2=[]; I3b=identity_matrix(K,3)
+for g in ELEM:
+    A=conj_on_antisym(g)
+    rows2.append(A.tensor_product(A.inverse().transpose())-identity_matrix(K,9))
+big2=block_matrix(K,[[m] for m in rows2])
+print(f"dim End on antisymmetric (Lambda^2) subspace = {9-big2.rank()} (1 => Lambda^2 irreducible 3-dim ~ rho)")
+
+# --- rho (x) rho* basis (orthogonal, isotypic-adapted) ---
+# We don't need GM's exact basis; ANY basis of M_3 works for the residual test
+# since the residual tr(A)tr(B)tr(C)-tr(ABC) and the orbit-sum are basis-covariant.
+# But the "reachable directions" depend on basis. The intrinsic question is:
+# can the A_5 orbit ansatz produce T_MM? Equivalent to: is T_MM in the span of
+# {id^3} (+) {A_5-orbit-sums of sigma-twisted seeds}? We test feasibility by the
+# SAME coverage idea but on a canonical basis of M_3 (the 9 E_ij), which is a
+# valid test basis (the constraint <T_ansatz,A(x)B(x)C>=tr(ABC) on all 9^3 E-triples
+# is equivalent to T_ansatz=T_MM).
+Ebasis=[]
+for i in range(3):
+    for j in range(3):
+        E=matrix(K,3,3); E[i,j]=1; Ebasis.append(E)
+
+def fixedBasis_sub(Hmats):
+    rows=[]; I9=identity_matrix(K,9)
+    for h in Hmats:
+        rows.append(conjOperatorOnGL(h)-I9)
+    big=block_matrix(K,[[m] for m in rows]); ker=big.right_kernel().basis()
+    return [matrix(K,3,3,[v[k] for k in range(9)]) for v in ker]
+
+# Enumerate cyclic subgroups (and a few key ones) by element, get orbit sizes.
+# orbit size = 60/|H|. We want |H| large => small orbit. Stabilizers in the
+# 3-dim action: C_5 (order5,orbit12), C_3 (order3,orbit20), C_2 (order2,orbit30).
+# Build the cyclic subgroup generated by each element; collect distinct subgroups.
+def cyclic(g):
+    H=[I3]; P=g
+    while P!=I3:
+        H.append(P); P=P*g
+    return H
+seen=set(); subs=[]
+for g in ELEM:
+    H=cyclic(g)
+    key=frozenset(matkey(x) for x in H)
+    if key not in seen and len(H)>1:
+        seen.add(key); subs.append(H)
+# group subgroups by order, keep one representative of each order for orbit/fixed-dim
+byorder={}
+for H in subs:
+    byorder.setdefault(len(H),[]).append(H)
+print("\ncyclic subgroup orders present:", sorted(byorder.keys()))
+for o in sorted(byorder.keys()):
+    H=byorder[o][0]
+    fb=fixedBasis_sub(H)
+    orbit=60//o
+    print(f"  |H|={o:2d}  orbit={orbit:2d} rank={1+orbit:2d}  fixed_dim(M3)={len(fb)}  (#subgroups this order: {len(byorder[o])})")
