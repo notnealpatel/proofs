@@ -3,6 +3,9 @@ notes.txt
 .tasks
 .claude
 
+# arXiv dumps, pdftotext, etc.
+References/
+
 # wip
 cmd/erdos218/
 cmd/erdos236/
