@@ -1,0 +1,396 @@
+% ShiftedSunflower.tex — companion note to ShiftedSunflower.lean
+% (formal verification source: Proofs.Erdos20.ShiftedSunflower,
+%  Proofs.Erdos20.Sunflower in github.com/thatnealpatel/proofs).
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cM}{\mathcal{M}}
+\newcommand{\cS}{\mathcal{S}}
+
+\title{The Erd\H{o}s--Rado Sunflower Conjecture for Shifted Families:\\
+  a Lean~4 Formalization with Two Gap Repairs}
+\author{Neal Patel\thanks{\texttt{neal@patel.codes}. The Lean development
+  and this note were produced with AI assistance; see the AI disclosure in
+  the repository (\texttt{Proofs/README}).}}
+\date{June 10, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We describe a complete, sorry-free formalization in Lean~4 of the main
+theorem of Mishra (arXiv:2606.02667v2): every shifted $k$-uniform family
+with more than $s^{2s-2}\,2^{k}$ members contains a sunflower with $s$
+petals; equivalently, the Erd\H{o}s--Rado sunflower conjecture holds for
+shifted families. The formalization revealed two unstated steps in the
+paper's induction and repairs both: (G1) the star bound is applied
+without its hypothesis $\tau(\cF)\le k$, and (G2) the induction
+hypothesis is applied to the link of the least element, which is not
+shifted over the original ground set. We also prove an unconditional
+companion statement: every $k$-uniform family above the threshold
+admits a finite sequence of Frankl shifts whose endpoint is shifted,
+has the same size and uniformity, and therefore contains an
+$s$-sunflower. Every theorem in the development depends only on the
+axioms \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}.
+\end{abstract}
+
+\section{Introduction}
+
+A \emph{sunflower} (or $\Delta$-system) of size $s$ with \emph{kernel}
+(or core) $Y$ is a collection of $s$ distinct sets $A_1,\dots,A_s$ such
+that $A_p\cap A_q=Y$ for all $p\neq q$ and every petal
+$A_p\setminus Y$ is non-empty. Let $f(k,s)$ denote the minimal $m$ such
+that every family of $k$-element sets with more than $m$ members
+contains a sunflower of size $s$. Erd\H{o}s and Rado \cite{ER60} proved
+$f(k,s)\le k!\,(s-1)^{k}$ and conjectured that for every $s>2$ there is
+a constant $C=C(s)$ with $f(k,s)\le C^{k}$; the conjecture remains open
+(Erd\H{o}s offered \$1000 for the case $s=3$ \cite{Er81}), the best
+known bound being $f(k,s)\le(Cs\log k)^{k}$ after Alweiss, Lovett, Wu,
+and Zhang \cite{ALWZ20} and subsequent refinements \cite{Ra20,BCW21}.
+
+Mishra \cite{Mi26} proves the conjecture for \emph{shifted} families
+(Definition~\ref{def:shifted} below): writing $f'(k,s)$ for the
+analogous threshold quantified over shifted $k$-uniform families,
+\[
+  f'(k,s)\;\le\; s^{2s-2}\,2^{k}.
+\]
+This note documents a machine-checked verification of that theorem.
+The formalization is carried out in Lean~4 over Mathlib, in the modules
+\texttt{Proofs.Erdos20.Sunflower} (Frankl shift theory) and
+\texttt{Proofs.Erdos20.ShiftedSunflower} (the present theorem) of the
+repository \texttt{github.com/thatnealpatel/proofs}; the source files
+sit next to this note. The verification is complete: there are no
+\texttt{sorry}s, and the axiom audit is clean
+(Section~\ref{sec:formal}).
+
+One historical remark is needed to situate the result. Version~1 of
+\cite{Mi26} claimed the full conjecture by combining the shifted-family
+theorem with a bridge lemma (its Lemma~3): $\tau(\cS(\cF))\le
+3\,\tau(\cF)^{2}$, where $\cS(\cF)$ is the endpoint of the canonical
+shift sweep and $\tau$ denotes the largest size of a sunflower
+contained in a family. That bridge is \emph{false}: there is a
+$4$-uniform family with $\tau=2$ whose sweep endpoint has $\tau=17$.
+The counterexample is machine-checked in the companion module
+\texttt{Proofs.Erdos20.Counterexample} and written up in the companion
+note \texttt{Counterexample.tex}. Version~2 of \cite{Mi26} withdraws
+Lemma~3 and the unconditional claim (both are commented out in the v2
+source) and retains the shifted case, which is correct. What follows
+concerns the shifted case only.
+
+\section{Definitions}
+
+We write the ground set as $[n]=\{1,\dots,n\}$ with its usual order;
+the Lean development uses $\{0,\dots,n-1\}$ (\texttt{Fin n}). All
+families are finite families of finite subsets of the ground set.
+
+\begin{definition}[Frankl shift \cite{Fr87}]\label{def:shift}
+For $i<j$ and a family $\cF$, the $(i,j)$-compression of a member
+$S\in\cF$ is
+\[
+  \cC_{ij}(S)=
+  \begin{cases}
+    (S\setminus\{j\})\cup\{i\}, &
+      \text{if } i\notin S,\ j\in S,\ (S\setminus\{j\})\cup\{i\}\notin\cF,\\
+    S, & \text{otherwise,}
+  \end{cases}
+\]
+and $\cC_{ij}(\cF)=\{\cC_{ij}(S):S\in\cF\}$. The map
+$S\mapsto\cC_{ij}(S)$ is injective on $\cF$, so
+$|\cC_{ij}(\cF)|=|\cF|$.
+\end{definition}
+
+\begin{definition}[shifted family]\label{def:shifted}
+$\cF$ is \emph{shifted} (fully compressed, stable, initial) if
+$\cC_{ij}(\cF)=\cF$ for all $i<j$. Equivalently, in the form actually
+used by every proof below: for all $S\in\cF$ and $i<j$ with $i\notin S$
+and $j\in S$, also $(S\setminus\{j\})\cup\{i\}\in\cF$.
+\end{definition}
+
+Following \cite{Mi26} we write $\tau(\cF)$ for the \emph{sunflower
+number} of $\cF$, the largest $s$ such that $\cF$ contains an
+$s$-sunflower, and $\nu(\cF)$ for the matching number; a matching is a
+sunflower with empty kernel, so $\nu(\cF)\le\tau(\cF)$. The
+\emph{shadow} of a $k$-uniform family is
+$\partial\cF=\{S\setminus\{x\}:S\in\cF,\ x\in S\}$. In Lean, $\tau$ is
+defined as the supremum of the achievable sunflower sizes; this
+supremum is attained because size $0$ is always achievable and every
+sunflower in $\cF$ has size at most $|\cF|$.
+
+\section{The theorem and its proof}
+
+\begin{theorem}[{\cite[Theorem~1 and Corollary~1]{Mi26}}, formalized]
+\label{thm:main}
+Let $s\ge 1$ and let $\cF$ be a shifted $k$-uniform family with
+$|\cF|>s^{2s-2}\,2^{k}$. Then $\cF$ contains an $s$-sunflower. In
+particular $f'(k,s)\le s^{2s-2}\,2^{k}$, and the Erd\H{o}s--Rado
+conjecture holds for shifted families with $C(s)=2\,s^{2s-2}$.
+
+\noindent\emph{Lean:} \texttt{IsFullyCompressed.hasSunflower}.
+\end{theorem}
+
+The proof goes through three formalized ingredients.
+
+\begin{lemma}[shadow bound; {\cite[Lemma~4]{Mi26}}]\label{lem:shadow}
+For every $k$-uniform family $\cF$,
+\[
+  k\,|\cF|\;\le\;\tau(\cF)\cdot|\partial\cF|.
+\]
+\emph{Lean:} \texttt{card\_mul\_le\_sunflowerNumber\_mul\_shadow}
+(multiplicative form, avoiding division).
+\end{lemma}
+
+\begin{proof}
+Double-count the pairs $(E,S)$ with $S\in\cF$, $E\in\partial\cF$,
+$E\subset S$. Each $S$ contains exactly $k$ shadow sets. Conversely,
+for a fixed $E\in\partial\cF$, the extensions
+$\{S\in\cF:E\subset S\}$ form a sunflower with kernel $E$ (two distinct
+$k$-sets containing the same $(k-1)$-set intersect exactly in it, with
+singleton petals), so there are at most $\tau(\cF)$ of them.
+\end{proof}
+
+\begin{lemma}[star bound; {\cite[Lemma~5]{Mi26}}, the instance used]
+\label{lem:star}
+Let $\cF$ be shifted, $k$-uniform with $k\ge1$, and suppose
+$\tau(\cF)\le k$. Let $\cA=\{S\in\cF:1\in S\}$ be the star at the least
+element. Then $|\cF|\le 2\,|\cA|$.
+
+\noindent\emph{Lean:} \texttt{IsShiftedFrom.star\_card\_half} (stated
+relative to a least-element bound $m$; see gap G2 below).
+\end{lemma}
+
+\begin{proof}
+Let $\cB=\cF\setminus\cA$, the members avoiding $1$. The lift
+$E\mapsto E\cup\{1\}$ maps $\partial\cB$ injectively into $\cA$:
+writing $E=S\setminus\{x\}$ with $S\in\cB$, $x\in S$, we have $1<x$ and
+$1\notin S$, so shiftedness puts $(S\setminus\{x\})\cup\{1\}$ in $\cF$,
+and it contains $1$; injectivity holds because $1\notin E$ for every
+$E\in\partial\cB$. Hence $|\partial\cB|\le|\cA|$. Applying
+Lemma~\ref{lem:shadow} to $\cB$ and using
+$\tau(\cB)\le\tau(\cF)\le k$ gives
+$k\,|\cB|\le\tau(\cB)\,|\partial\cB|\le k\,|\partial\cB|$, so
+$|\cB|\le|\partial\cB|\le|\cA|$ and
+$|\cF|=|\cA|+|\cB|\le2\,|\cA|$.
+\end{proof}
+
+\begin{lemma}[small uniformity; {\cite[Theorem~1, first branch]{Mi26}};
+general families]\label{lem:smallk}
+If $k\le s$ and $\cF$ is $k$-uniform with $|\cF|>s^{2k}$, then $\cF$
+contains an $s$-sunflower. (Shiftedness is not needed.)
+
+\noindent\emph{Lean:} \texttt{hasSunflower\_of\_small\_uniformity}.
+\end{lemma}
+
+\begin{proof}
+Induction on $k$. Choose a maximum matching $\cM\subseteq\cF$. If
+$|\cM|\ge s$, a matching of size $s$ is an $s$-sunflower with empty
+kernel. Otherwise $U=\bigcup\cM$ has $|U|\le k(s-1)$ and, by
+maximality, meets every member of $\cF$. If every $x\in U$ lay in at
+most $s^{2(k-1)}$ members, then
+$|\cF|\le|U|\,s^{2(k-1)}\le k(s-1)\,s^{2(k-1)}<s^{2}\,s^{2(k-1)}
+=s^{2k}$, a contradiction; so some $x$ has link
+$\{S\setminus\{x\}:S\in\cF,\ x\in S\}$ of size exceeding $s^{2(k-1)}$.
+The link is $(k-1)$-uniform; by induction it contains an
+$s$-sunflower, which lifts back through the hinge $x$ (the kernel
+grows by $x$, the petals are unchanged).
+\end{proof}
+
+\emph{Proof of Theorem~\ref{thm:main} (master induction).} Induct on
+$k$, quantifying over all least-element bounds $m$ simultaneously (see
+G2). If $k\le s-1$, then $s^{2s-2}\,2^{k}\ge s^{2k}$ and
+Lemma~\ref{lem:smallk} applies. Otherwise $s\le k$, and we split on
+$\tau(\cF)$. If $\tau(\cF)\ge s$, an $s$-sunflower exists outright:
+$\tau$ is attained, and a sunflower restricts to any smaller size. If
+$\tau(\cF)\le s-1$, then $\tau(\cF)<s\le k$, so
+Lemma~\ref{lem:star} gives
+$|\cA|\ge|\cF|/2>s^{2s-2}\,2^{k-1}$ for the star $\cA$ at the least
+available element; the link
+$\cG=\{S\setminus\{1\}:S\in\cA\}$ has the same size as $\cA$, is
+$(k-1)$-uniform, and is shifted from the next element (G2); the
+induction hypothesis yields an $s$-sunflower in $\cG$, which lifts back
+through the hinge. \hfill$\square$
+
+\section{Two gaps and their repairs}\label{sec:gaps}
+
+Both gaps are repairable --- the theorem is true --- but neither repair
+appears in \cite{Mi26}, and the formal proof does not close without
+them.
+
+\paragraph{G1: the star bound's hypothesis.}
+The recurrence step of \cite[Theorem~1]{Mi26} (the branch $k\ge s$)
+invokes Lemma~\ref{lem:star}, whose hypothesis is $\tau(\cF)\le k$;
+the paper never establishes that hypothesis. The repair is a case
+split absent from the paper: if $s\le\tau(\cF)$, the conclusion holds
+immediately --- the largest sunflower has size $\tau(\cF)\ge s$ and
+restricts to size exactly $s$ (formalized as attainment of the
+supremum, \texttt{hasSunflower\_sunflowerNumber}, plus restriction,
+\texttt{HasSunflower.mono}) --- and the cardinality hypothesis is not
+needed; otherwise $\tau(\cF)\le s-1\le k-1<k$ and the star bound
+applies.
+
+\paragraph{G2: shiftedness of the link.}
+The recurrence applies the induction hypothesis --- a statement about
+\emph{shifted} families --- to the link
+$\cG_1=\{S\setminus\{1\}:S\in\cA_1\}$. But no member of $\cG_1$
+contains $1$, so $\cG_1$ is \emph{not} shifted over $[n]$: shiftedness
+would force $(E\setminus\{j\})\cup\{1\}\in\cG_1$ for $E\in\cG_1$,
+$j\in E$, and that set contains $1$. The intended object is $\cG_1$
+viewed over the relabeled ground set $\{2,\dots,n\}\cong[n-1]$; the
+relabeling and the shiftedness of the relabeled link are not stated in
+the paper. The formalization avoids relabeling altogether by defining
+shiftedness \emph{relative to a lower bound} $m$
+(\texttt{IsShiftedFrom m}): every element of every member is $\ge m$,
+and membership is stable under replacing $j\in S$ by any $i\notin S$
+with $m\le i<j$. A shifted family is shifted from the least ground
+element; the link of a family shifted from $m$, taken at the hinge
+$m$, is shifted from $m+1$ (\texttt{IsShiftedFrom.link\_shifted}); and
+the master induction carries $m$ as a universally quantified
+parameter. The star bound (Lemma~\ref{lem:star}) is proved in the same
+relative form.
+
+\section{The unconditional form}\label{sec:uncond}
+
+Theorem~\ref{thm:main} presupposes a shifted family. To produce
+shifted families, \cite{Mi26} asserts that the canonical sweep
+$\cF_{n-1,n}$ of all $\binom{n}{2}$ compressions $\cC_{ij}$, $i<j$, in
+lexicographic order is compressed and stable, citing Frankl's survey
+\cite{Fr87} without proof. The formalization instead proves the weaker
+existence statement, which suffices, by a termination argument:
+
+\begin{theorem}\label{thm:uncond}
+\emph{(a)} Every family $\cF$ admits a finite chain of compressions
+$\cC_{i_1j_1},\dots,\cC_{i_tj_t}$ (all $i_r<j_r$) ending at a shifted
+family $\cS(\cF)$ with $|\cS(\cF)|=|\cF|$, $k$-uniform if $\cF$ is.
+\emph{(b)} Consequently, for $s\ge1$, every $k$-uniform family $\cF$
+with $|\cF|>s^{2s-2}\,2^{k}$ admits a shifted image $\cS(\cF)$
+containing an $s$-sunflower.
+
+\noindent\emph{Lean:} \texttt{exists\_isFullShiftOf} and
+\texttt{exists\_shifted\_hasSunflower}.
+\end{theorem}
+
+\begin{proof}[Proof of (a)]
+The weight $w(\cF)=\sum_{S\in\cF}\sum_{x\in S}x$ strictly decreases
+under every compression that moves the family: the family-level map is
+injective, fixes each set whose compression collides with $\cF$, and
+strictly lowers the weight of every moved set (it trades $j$ for
+$i<j$). Induct on $w$.
+\end{proof}
+
+\begin{remark}
+The $s$-sunflower of Theorem~\ref{thm:uncond}(b) lives in the shifted
+image and \emph{cannot}, in general, be transported back to $\cF$: by
+the companion counterexample note, $\tau$ can jump from $2$ to $17$
+along a shift chain. Only empty-kernel sunflowers (matchings) are
+guaranteed to transport backward
+(\texttt{matchingNumber\_reachable}). The Erd\H{o}s--Rado conjecture
+for general families therefore remains open.
+\end{remark}
+
+\section{Formalization notes}\label{sec:formal}
+
+The development uses Lean~4 (v4.30.0-rc2) and Mathlib. Families are
+\texttt{Finset (Finset (Fin n))}; $\tau$ is
+\texttt{sunflowerNumber}, the (attained) supremum of achievable
+sunflower sizes; the shadow is Mathlib's \texttt{Finset.shadow}. The
+supporting compression theory --- including
+\cite[Lemma~1(i)--(iii)]{Mi26} and \cite[Lemma~2]{Mi26},
+$\tau(\cC_{ij}(\cF))\le2\,\tau(\cF)$ --- is in
+\texttt{Proofs.Erdos20.Sunflower}; the present theorem and the
+unconditional form are in \texttt{Proofs.Erdos20.ShiftedSunflower}.
+Every theorem named in this note depends on exactly the axioms
+\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}
+(checked with \texttt{\#print axioms}); there are no \texttt{sorry}s.
+The companion counterexample module additionally uses
+\texttt{native\_decide} trust axioms for its ground certificates; see
+the companion note.
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Statement & Lean identifier \\
+\hline
+\cite[Lemma~1(i),(ii),(iii)]{Mi26} &
+  \texttt{franklShiftSet\_card}, \texttt{franklShift\_card},\\
+  & \texttt{matchingNumber\_shift\_le} \\
+\cite[Lemma~2]{Mi26}: $\tau(\cC_{ij}\cF)\le2\tau(\cF)$ &
+  \texttt{sunflowerNumber\_franklShift\_le} \\
+Lemma~\ref{lem:shadow} (shadow bound) &
+  \texttt{card\_mul\_le\_sunflowerNumber\_mul\_shadow} \\
+Lemma~\ref{lem:star} (star bound, relative form) &
+  \texttt{IsShiftedFrom.star\_card\_half} \\
+Lemma~\ref{lem:smallk} (small uniformity) &
+  \texttt{hasSunflower\_of\_small\_uniformity} \\
+Theorem~\ref{thm:main} (shifted case) &
+  \texttt{IsShiftedFrom.hasSunflower},\\
+  & \texttt{IsFullyCompressed.hasSunflower} \\
+Theorem~\ref{thm:uncond}(a) (shifted endpoint exists) &
+  \texttt{exists\_isFullShiftOf} \\
+Theorem~\ref{thm:uncond}(b) (unconditional corollary) &
+  \texttt{exists\_shifted\_hasSunflower} \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{thebibliography}{ALWZ20}
+
+\bibitem[ALWZ20]{ALWZ20}
+R.~Alweiss, S.~Lovett, K.~Wu, and J.~Zhang,
+\emph{Improved bounds for the sunflower lemma},
+Ann.\ of Math.\ (2) \textbf{194} (2021), no.~3, 795--815.
+
+\bibitem[BCW21]{BCW21}
+T.~Bell, S.~Chueluecha, and L.~Warnke,
+\emph{Note on sunflowers},
+Discrete Math.\ \textbf{344} (2021), 112367.
+
+\bibitem[Er81]{Er81}
+P.~Erd\H{o}s,
+\emph{On the combinatorial problems which I would most like to see
+solved},
+Combinatorica \textbf{1} (1981), 25--42.
+
+\bibitem[ER60]{ER60}
+P.~Erd\H{o}s and R.~Rado,
+\emph{Intersection theorems for systems of sets},
+J.\ London Math.\ Soc.\ \textbf{35} (1960), 85--90.
+
+\bibitem[Fr87]{Fr87}
+P.~Frankl,
+\emph{The shifting technique in extremal set theory},
+in: Surveys in Combinatorics 1987, London Math.\ Soc.\ Lecture Note
+Ser.\ \textbf{123}, Cambridge Univ.\ Press, 1987, 81--110.
+
+\bibitem[Mi26]{Mi26}
+T.~K.~Mishra,
+\emph{Erd\H{o}s Rado sunflower theorem for shifted families},
+arXiv:2606.02667 (v1: 2026-06-01; v2: 2026-06-08).
+
+\bibitem[MU21]{MU21}
+L.~de~Moura and S.~Ullrich,
+\emph{The Lean 4 theorem prover and programming language},
+in: Automated Deduction --- CADE 28, LNCS \textbf{12699}, Springer,
+2021, 625--635.
+
+\bibitem[Ra20]{Ra20}
+A.~Rao,
+\emph{Coding for sunflowers},
+Discrete Anal.\ (2020), Paper No.~2.
+
+\end{thebibliography}
+
+\end{document}
