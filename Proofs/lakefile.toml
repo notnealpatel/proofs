@@ -8,6 +8,9 @@ name = "Proofs"
 [[lean_lib]]
 name = "Scratch"
 
+[[lean_lib]]
+name = "Xlib"
+
 [[require]]
 name  = "mathlib"
 scope = "leanprover-community"

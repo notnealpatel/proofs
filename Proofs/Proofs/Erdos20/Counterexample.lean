@@ -1,8 +1,14 @@
 /-
   Erdős Problem #20 — machine-checked counterexample to Mishra v1 Lemma 3.
 
-  Mishra, "Erdős Rado Sunflower Theorem for Shifted Families"
-  (arXiv:2606.02667v1, 2026-06-01), Lemma 3 claimed τ(S(F)) ≤ 3·τ(F)²
+  NOTE ON NUMBERING: this file's "Lemma 3" label follows the tex \label tag,
+  not the compiled auto-numbering — v1 displays the bridge τ(S(F)) ≤ 3·τ(F)²
+  as Lemma 2.
+
+  Mishra, "Erdős Rado Sunflower (Conjecture) Theorem"
+  (arXiv:2606.02667v1, 2026-06-01; v1 title: "Erdős Rado Sunflower
+  (Conjecture) Theorem", retitled in v2 to "Erdős Rado Sunflower Theorem
+  for Shifted Families"), Lemma 3 claimed τ(S(F)) ≤ 3·τ(F)²
   for the full shift endpoint S(F) of any family F — the bridge that
   would have reduced the full Erdős–Rado conjecture to the shifted case.
   This file certifies a counterexample inside Lean, using the shift

@@ -10,6 +10,10 @@
   The headline theorem for shifted families is in ShiftedSunflower.lean;
   the machine-checked refutation of v1's bridge is in Counterexample.lean.
 
+  NOTE ON NUMBERING: the "Lemma 1(ii)/(iii)" and "Lemma 2" labels below follow
+  the tex \label tags, not the compiled auto-numbering — v2 displays the
+  shift-effects lemma as Lemma 3 and the τ-doubling lemma as Lemma 4.
+
   Key results (all sorry-free):
     franklShift_card               — Lemma 1(ii): |C_ij F| = |F|
     sunflowerNumber_franklShift_le — Lemma 2: τ(C_ij F) ≤ 2·τ(F)

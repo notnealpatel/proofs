@@ -4,6 +4,10 @@
   Families" (arXiv:2606.02667v2, 2026-06-08), building on the shift
   infrastructure of Sunflower.lean.
 
+  NOTE ON NUMBERING: this file's "Lemma 4"/"Lemma 5" labels follow the tex
+  \label tags (lemma:4, lemma:5), not the compiled auto-numbering — v2
+  displays shadow=Lemma 1, star=Lemma 2, shift-effects=Lemma 3, τ-doubling=Lemma 4.
+
   v2 RECONCILIATION: v1 (2026-06-01) claimed the full Erdős–Rado
   conjecture via a bridge lemma, Lemma 3: τ(S(F)) ≤ 3·τ(F)² for the full
   shift endpoint S(F). That statement is false: a 4-uniform family on
@@ -40,6 +44,10 @@
          Repair: `IsShiftedFrom`, shiftedness relative to a ground-set
          lower bound m, with the link at m being `IsShiftedFrom (m+1)`.
          This avoids ground-set relabeling entirely.
+
+  The two shiftedness notions coincide at `m = 0`
+  (`isShiftedFrom_zero_iff_isFullyCompressed`), so the headline is exactly
+  "the conjecture for shifted families".
 
   UNCONDITIONAL FORM (§7–§8, beyond the paper's statement): every family
   reaches SOME fully compressed endpoint by a chain of i < j shifts
@@ -205,6 +213,33 @@ theorem IsFullyCompressed.isShiftedFrom_zero {F : Finset (Finset (Fin n))}
     (h : IsFullyCompressed F) : IsShiftedFrom 0 F :=
   ⟨fun _ _ _ _ => Nat.zero_le _,
    fun _ hS _ _ _ hij hi hj => h.replace_mem hS hij hi hj⟩
+
+/-- Converse of `IsFullyCompressed.isShiftedFrom_zero`: a family shifted
+    from `0` is fully compressed. For each `S ∈ F` and `i < j`, the Frankl
+    set-level shift `franklShiftSet i j S` lands back in `F` (either the
+    `i ∉ S ∧ j ∈ S` condition fails, leaving `S` itself, or shiftedness
+    gives `insert i (S.erase j) ∈ F`), so `franklShift i j F = F`. -/
+theorem IsShiftedFrom_zero_isFullyCompressed
+    {F : Finset (Finset (Fin n))} (h : IsShiftedFrom 0 F) :
+    IsFullyCompressed F := by
+  intro i j hij
+  apply franklShift_id_of_forall
+  intro S hS
+  unfold franklShiftSet
+  split_ifs with hcond
+  · -- case: i ∉ S and j ∈ S; shiftedness gives the result
+    exact h.2 S hS i j (Nat.zero_le _) hij hcond.1 hcond.2
+  · -- case: condition fails; franklShiftSet i j S = S
+    exact hS
+
+/-- The two shiftedness notions coincide at `m = 0`: a family is shifted
+    from `0` iff it is fully compressed. -/
+theorem isShiftedFrom_zero_iff_isFullyCompressed
+    {F : Finset (Finset (Fin n))} :
+    IsShiftedFrom 0 F ↔ IsFullyCompressed F :=
+  Iff.intro
+    IsShiftedFrom_zero_isFullyCompressed
+    IsFullyCompressed.isShiftedFrom_zero
 
 /-- v2 Lemma 5 (star bound), instance at the least available element:
     for `F` shifted from `m`, `k`-uniform, with `τ(F) ≤ k`, the star at
@@ -607,7 +642,10 @@ theorem IsShiftedFrom.hasSunflower {s : ℕ} (hs : 1 ≤ s) :
 /-- v2 HEADLINE (Theorem 1 + Corollary 1): the Erdős–Rado sunflower
     conjecture for shifted (fully compressed) families, with
     `C(s) = 2·s^(2s-2)`: any shifted `k`-uniform family with more than
-    `s^(2s-2)·2^k` members contains an `s`-sunflower. -/
+    `s^(2s-2)·2^k` members contains an `s`-sunflower.
+
+    NON-VACUITY: `Scratch/SunflowerExample.lean` instantiates this end-to-end
+    on the nine singletons `{{0},…,{8}}` (k=1, s=2, threshold 8 < 9). -/
 theorem IsFullyCompressed.hasSunflower {s k : ℕ} (hs : 1 ≤ s)
     {F : Finset (Finset (Fin n))} (hcomp : IsFullyCompressed F)
     (hunif : ∀ S ∈ F, S.card = k)
