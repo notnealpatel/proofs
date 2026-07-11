@@ -1,0 +1,1 @@
+{"id": [355, 1], "order": 355, "nil_class": null, "center_order": 1, "gz_index": 355, "derived_order": 71, "derived_cyclic": true, "p_group": null, "tier": "T3b", "action": "CAP(2.5)", "flags": ["p=5"], "ceilings": {"T3b": 2.5, "subset_packing": 9.426149773176359, "subgroup_packing": 18.841443681416774}, "cd": [1, 5], "n_G": 5, "ceiling": 2.5}

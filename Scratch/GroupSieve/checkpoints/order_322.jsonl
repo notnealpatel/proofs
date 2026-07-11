@@ -1,0 +1,3 @@
+{"id": [322, 1], "order": 322, "nil_class": null, "center_order": 23, "gz_index": 14, "derived_order": 7, "derived_cyclic": true, "p_group": null, "tier": "T3b", "action": "REJECT", "flags": ["p=2, (2p-1)=3 nmid |G|=322"], "ceilings": {}}
+{"id": [322, 2], "order": 322, "nil_class": null, "center_order": 7, "gz_index": 46, "derived_order": 23, "derived_cyclic": true, "p_group": null, "tier": "T3b", "action": "REJECT", "flags": ["p=2, (2p-1)=3 nmid |G|=322"], "ceilings": {}}
+{"id": [322, 3], "order": 322, "nil_class": null, "center_order": 1, "gz_index": 322, "derived_order": 161, "derived_cyclic": true, "p_group": null, "tier": "T3b", "action": "REJECT", "flags": ["p=2, (2p-1)=3 nmid |G|=322"], "ceilings": {}}
