@@ -239,8 +239,4 @@ theorem omega_lt_three : omega < 3 := by
     exact (Real.logb_lt_iff_lt_rpow (by norm_num) (by norm_num)).mpr hlt
   exact lt_of_le_of_lt omega_le_logb_two_seven h37
 
-#print axioms omega_le_logb
-#print axioms omega_le_logb_two_seven
-#print axioms omega_lt_three
-
 end BilinearComplexity

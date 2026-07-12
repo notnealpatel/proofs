@@ -693,7 +693,29 @@ in a `d i = 1` block the six factors multiply to `|z_S|² |z_T|² |z_U|² ≥ 0`
 theorem trace_gowersElt_one_dim (he : IsUnitary e) {i : Fin k} (hd : d i = 1)
     (S T U : Finset G) :
     ∃ r : ℝ, 0 ≤ r ∧ ((e (gowersElt S T U)) i).trace = (r : ℂ) := by
-  sorry
+  have hconj : ∀ X : Finset G,
+      ((e (indInv X)) i).trace = (starRingEnd ℂ) (((e (ind X)) i).trace) := by
+    intro X
+    rw [he.e_indInv X i, Matrix.trace_conjTranspose]
+    rfl
+  have hsix : ((e (gowersElt S T U)) i).trace
+      = (((e (ind S)) i).trace * (starRingEnd ℂ) (((e (ind T)) i).trace))
+        * (((e (ind T)) i).trace * (starRingEnd ℂ) (((e (ind U)) i).trace))
+        * (((e (ind U)) i).trace * (starRingEnd ℂ) (((e (ind S)) i).trace)) := by
+    unfold gowersElt
+    rw [map_mul, map_mul, map_mul, map_mul, map_mul]
+    simp only [Pi.mul_apply]
+    rw [trace_mul_dim_one hd, trace_mul_dim_one hd, trace_mul_dim_one hd,
+      trace_mul_dim_one hd, trace_mul_dim_one hd, hconj S, hconj T, hconj U]
+  refine ⟨Complex.normSq (((e (ind S)) i).trace)
+      * Complex.normSq (((e (ind T)) i).trace)
+      * Complex.normSq (((e (ind U)) i).trace),
+    mul_nonneg (mul_nonneg (Complex.normSq_nonneg _) (Complex.normSq_nonneg _))
+      (Complex.normSq_nonneg _), ?_⟩
+  rw [hsix]
+  push_cast
+  rw [← Complex.mul_conj, ← Complex.mul_conj, ← Complex.mul_conj]
+  ring
 
 end Unitary
 
@@ -742,7 +764,7 @@ theorem exists_trivial_block {k : ℕ} {d : Fin k → ℕ} [∀ i, NeZero (d i)]
       intro g
       have h1 : (MonoidAlgebra.single g (x g) : MonoidAlgebra ℂ G)
           = x g • MonoidAlgebra.single g 1 := by
-        rw [Finsupp.smul_single, smul_eq_mul, mul_one]
+        rw [← MonoidAlgebra.of_apply, MonoidAlgebra.smul_of]
       rw [h1, smul_mul_assoc, hsingle_mul]
     rw [Finset.sum_congr rfl fun g _ => hterm g, ← Finset.sum_smul]
   have hPx : ∀ x : MonoidAlgebra ℂ G, P * x = (∑ g : G, x g) • P := by
@@ -756,7 +778,7 @@ theorem exists_trivial_block {k : ℕ} {d : Fin k → ℕ} [∀ i, NeZero (d i)]
       intro g
       have h1 : (MonoidAlgebra.single g (x g) : MonoidAlgebra ℂ G)
           = x g • MonoidAlgebra.single g 1 := by
-        rw [Finsupp.smul_single, smul_eq_mul, mul_one]
+        rw [← MonoidAlgebra.of_apply, MonoidAlgebra.smul_of]
       rw [h1, mul_smul_comm, hmul_single]
     rw [Finset.sum_congr rfl fun g _ => hterm g, ← Finset.sum_smul]
   -- `P` is nonzero and satisfies `P² = |G| P`

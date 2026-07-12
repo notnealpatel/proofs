@@ -488,7 +488,29 @@ theorem sliceRankLE_diag_full [DecidableEq k] {n : ℕ} (w : Fin n → k)
 `⟨w⟩` over a field has `r` at least the number of nonzero diagonal entries. -/
 theorem card_le_of_sliceRankLE_diag [DecidableEq k] {n : ℕ} (w : Fin n → k) {r : ℕ}
     (h : SliceRankLE (diag w) r) : (Finset.univ.filter fun i => w i ≠ 0).card ≤ r := by
-  sorry
+  -- reindex the nonzero support `S` to `Fin S.card`, reducing to the full-support case
+  set S : Finset (Fin n) := Finset.univ.filter fun i => w i ≠ 0 with hS
+  set σ : Fin S.card → Fin n := fun t => (S.equivFin.symm t : Fin n) with hσdef
+  have hσ : Function.Injective σ := fun a b hab =>
+    S.equivFin.symm.injective (Subtype.val_injective hab)
+  set w' : Fin S.card → k := fun t => w (σ t) with hw'def
+  have hw' : ∀ t, w' t ≠ 0 := by
+    intro t
+    have hmem : σ t ∈ S := (S.equivFin.symm t).2
+    rw [hS, Finset.mem_filter] at hmem
+    exact hmem.2
+  -- restrict every slice family through `σ`; the diagonal identity transports by injectivity
+  have h' : SliceRankLE (diag w') r := by
+    obtain ⟨r₁, r₂, r₃, hr, f, M, g, N, e, P, hT⟩ := h
+    refine ⟨r₁, r₂, r₃, hr,
+      fun s t => f s (σ t), fun s t₂ t₃ => M s (σ t₂) (σ t₃),
+      fun s t => g s (σ t), fun s t t₃ => N s (σ t) (σ t₃),
+      fun s t => e s (σ t), fun s t t₂ => P s (σ t) (σ t₂), ?_⟩
+    intro t₁ t₂ t₃
+    rw [show diag w' t₁ t₂ t₃ = diag w (σ t₁) (σ t₂) (σ t₃) by
+      simp only [diag, hw'def, hσ.eq_iff]]
+    exact hT (σ t₁) (σ t₂) (σ t₃)
+  exact sliceRankLE_diag_full w' hw' h'
 
 /-- **Tao's diagonal lemma.** Over a field, the slice rank of the diagonal tensor
 `⟨w⟩` equals the number of nonzero diagonal entries. -/
