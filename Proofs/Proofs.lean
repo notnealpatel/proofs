@@ -29,4 +29,5 @@ import Proofs.BilinearComplexity.Flattening
 import Proofs.BilinearComplexity.Omega
 import Proofs.BilinearComplexity.Strassen
 import Proofs.BilinearComplexity.KroneckerMatMul
+import Proofs.BilinearComplexity.MatMulMono
 import Proofs.Scratch
