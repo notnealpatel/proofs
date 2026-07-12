@@ -237,3 +237,101 @@ Results file: /home/exedev/p/proofs/Scratch/GroupSieve/rho0-results.jsonl
   [03:23:46] testing candidate 7842686/32862132, best=1, tpp_checks=2663301
   [03:24:46] testing candidate 7994750/32862132, best=1, tpp_checks=3345790
   [03:25:46] testing candidate 8108973/32862132, best=1, tpp_checks=4018450
+  [03:26:46] testing candidate 8249444/32862132, best=1, tpp_checks=4723550
+  [03:27:46] testing candidate 8407217/32862132, best=1, tpp_checks=5358333
+  [03:28:46] testing candidate 8515294/32862132, best=1, tpp_checks=6053222
+  [03:29:46] testing candidate 8719603/32862132, best=1, tpp_checks=6714484
+  [03:30:46] testing candidate 8826061/32862132, best=1, tpp_checks=7369793
+  [03:31:46] testing candidate 8974233/32862132, best=1, tpp_checks=8086432
+  [03:32:46] testing candidate 9132953/32862132, best=1, tpp_checks=8751678
+  [03:33:46] testing candidate 9241470/32862132, best=1, tpp_checks=9449232
+  [03:34:46] testing candidate 9403568/32862132, best=1, tpp_checks=10116095
+  [03:35:46] testing candidate 9548580/32862132, best=1, tpp_checks=10833916
+  [03:36:46] testing candidate 9701105/32862132, best=1, tpp_checks=11500898
+  [03:37:46] testing candidate 10338125/32862132, best=1, tpp_checks=12198591
+  [03:38:46] testing candidate 11529936/32862132, best=1, tpp_checks=12912811
+  [03:39:46] testing candidate 11730548/32862132, best=1, tpp_checks=13619450
+  [03:40:46] testing candidate 11852041/32862132, best=1, tpp_checks=14329148
+  DONE: rho_0 = 2 (2.000000), triple type (16, 4, 4), 1263.5s [MATCH]
+
+[54/73] C4 x [32,50] ExSp(2,5)- (order 128)
+  Order: 128
+  [03:41:49] testing candidate 5599670/16989220, best=1, tpp_checks=582740
+  [03:42:49] testing candidate 9918011/16989220, best=1, tpp_checks=1201185
+  [03:43:49] testing candidate 12283054/16989220, best=1, tpp_checks=1923355
+  [03:44:49] testing candidate 15205625/16989220, best=1, tpp_checks=2592752
+  DONE: rho_0 = 1 (1.000000), triple type (128, 1, 1), 278.4s [MATCH]
+
+[55/73] C2xC2 x [8,3] D8 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 19.2s [MATCH]
+
+[56/73] C2xC2 x [8,4] Q8 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.1s [MATCH]
+
+[57/73] C2xC2 x [12,4] D12 (order 48)
+  Order: 48
+  DONE: rho_0 = 4/3 (1.333333), triple type (16, 2, 2), 0.3s [MATCH]
+
+[58/73] C2xC2 x [16,3] C4^2:C2 a (order 64)
+  Order: 64
+  [03:46:47] testing candidate 225858/4499457, best=1, tpp_checks=665533
+  [03:47:47] testing candidate 411820/4499457, best=1, tpp_checks=1319353
+  [03:48:47] testing candidate 615824/4499457, best=1, tpp_checks=1994525
+  [03:49:47] testing candidate 743663/4499457, best=1, tpp_checks=2640627
+  [03:50:47] testing candidate 880258/4499457, best=1, tpp_checks=3259138
+  [03:51:47] testing candidate 1024779/4499457, best=1, tpp_checks=3917038
+  [03:52:47] testing candidate 1265260/4499457, best=1, tpp_checks=4544321
+  [03:53:47] testing candidate 1383711/4499457, best=1, tpp_checks=5205859
+  [03:54:47] testing candidate 1685210/4499457, best=1, tpp_checks=5849513
+  [03:55:47] testing candidate 1953434/4499457, best=1, tpp_checks=6469520
+  [03:56:47] testing candidate 2274957/4499457, best=1, tpp_checks=7072170
+  [03:57:47] testing candidate 2427377/4499457, best=1, tpp_checks=7672168
+  [03:58:47] testing candidate 2526359/4499457, best=1, tpp_checks=8288078
+  [03:59:47] testing candidate 2629325/4499457, best=1, tpp_checks=8928196
+  [04:00:47] testing candidate 2741758/4499457, best=1, tpp_checks=9540502
+  [04:01:47] testing candidate 2839671/4499457, best=1, tpp_checks=10147742
+  [04:02:47] testing candidate 2941169/4499457, best=1, tpp_checks=10774838
+  [04:03:47] testing candidate 3179871/4499457, best=1, tpp_checks=11381551
+  [04:04:47] testing candidate 3451322/4499457, best=1, tpp_checks=12022383
+  [04:05:47] testing candidate 3781267/4499457, best=1, tpp_checks=12674707
+  [04:06:47] testing candidate 3938495/4499457, best=1, tpp_checks=13314162
+  [04:07:47] testing candidate 4044452/4499457, best=1, tpp_checks=13953192
+  [04:08:47] testing candidate 4146734/4499457, best=1, tpp_checks=14598818
+  [04:09:47] testing candidate 4263080/4499457, best=1, tpp_checks=15238256
+  [04:10:47] testing candidate 4368404/4499457, best=1, tpp_checks=15878816
+  [04:11:47] testing candidate 4469987/4499457, best=1, tpp_checks=16522691
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 1577.6s [MATCH]
+
+[59/73] C2xC2 x [16,6] C8:C2 (order 64)
+  Order: 64
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 2.6s [MATCH]
+
+[60/73] C2xC2 x [16,11] C2xD8 (order 64)
+  Order: 64
+  [04:13:07] testing candidate 141496/24123825, best=1, tpp_checks=588693
+  [04:14:07] testing candidate 224825/24123825, best=1, tpp_checks=1179817
+  [04:15:07] testing candidate 481837/24123825, best=1, tpp_checks=1751000
+  [04:16:07] testing candidate 553822/24123825, best=1, tpp_checks=2327810
+  [04:17:07] testing candidate 722606/24123825, best=1, tpp_checks=2893417
+  [04:18:07] testing candidate 833421/24123825, best=1, tpp_checks=3464736
+  [04:19:07] testing candidate 912374/24123825, best=1, tpp_checks=4052239
+  [04:20:07] testing candidate 1280708/24123825, best=1, tpp_checks=4627247
+  [04:21:07] testing candidate 1363454/24123825, best=1, tpp_checks=5211469
+  [04:22:07] testing candidate 1445250/24123825, best=1, tpp_checks=5785559
+  [04:23:07] testing candidate 1517531/24123825, best=1, tpp_checks=6365395
+  [04:24:07] testing candidate 1628845/24123825, best=1, tpp_checks=6942188
+  [04:25:07] testing candidate 1712348/24123825, best=1, tpp_checks=7535267
+  [04:26:07] testing candidate 1853257/24123825, best=1, tpp_checks=8116072
+  [04:27:07] testing candidate 1925928/24123825, best=1, tpp_checks=8700532
+  [04:28:07] testing candidate 2212167/24123825, best=1, tpp_checks=9271477
+  [04:29:07] testing candidate 2323184/24123825, best=1, tpp_checks=9845227
+  [04:30:07] testing candidate 2393806/24123825, best=1, tpp_checks=10406890
+  [04:31:07] testing candidate 2592512/24123825, best=1, tpp_checks=10980062
+  [04:32:07] testing candidate 2704338/24123825, best=1, tpp_checks=11562550
+  [04:33:07] testing candidate 2776328/24123825, best=1, tpp_checks=12139445
+  [04:34:07] testing candidate 2886764/24123825, best=1, tpp_checks=12706327
+  [04:35:07] testing candidate 2968967/24123825, best=1, tpp_checks=13284327
+  [04:36:07] testing candidate 3076217/24123825, best=1, tpp_checks=13861800
+  [04:37:07] testing candidate 3151153/24123825, best=1, tpp_checks=14426030

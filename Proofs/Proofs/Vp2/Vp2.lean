@@ -22,14 +22,19 @@
   assert a proof exists where none does — a mis-stated theorem, which
   the doctrine forbids. Therefore the open question is packaged here as
   a named `Prop` (`Vp2OpenQuestion`), NOT as a theorem we claim to have
-  proved. The only `theorem`s with `sorry` below are the two facts the
-  sources DO support (Np1 §2): (i) flattening minors are VP-computable
-  distinguishers covered by the barrier, and (ii) the (111) verdict has
-  the wrong type to be such a distinguisher (it is an existential search
-  over candidate graded ideals together with a smoothability witness).
-  The final `theorem` records the EQUIVALENCE between the open question
-  and a precise inexpressibility statement — formalizing that the open
-  question is well-posed, not that it is resolved.
+  proved. Of the two facts the sources DO support (Np1 §2), (i)
+  "flattening minors are VP-computable distinguishers covered by the
+  barrier" is now PROVED sorry-free at the family level
+  (`exists_flattening_vpDistinguisher`), while (ii) "the (111) verdict
+  has the wrong type to be such a distinguisher (it is an existential
+  search over candidate graded ideals together with a smoothability
+  witness)" is still carried by the remaining `sorry`s (`Passes111`,
+  `passes111_of_borderRankLE`), blocked on absent Mathlib infrastructure
+  (apolarity, Hilbert scheme, smoothability). The final `theorem`
+  (`vp2OpenQuestion_iff`, now proved) records the EQUIVALENCE between
+  the open question and a precise inexpressibility statement —
+  formalizing that the open question is well-posed, not that it is
+  resolved.
 
   Mathlib substrate actually reused (survey in docs/Vp2.md):
     · `MvPolynomial (entries) k`        — distinguisher polynomials       [EXISTS]
@@ -46,14 +51,53 @@
   here and carried by a blocked task card. Border rank itself is NO
   LONGER absent: `Proofs.Vp2.BorderRank` (imported below) defines it for
   real, as polynomial closure. Arithmetic circuits are NO LONGER absent
-  either: `Proofs.Vp2.Circuit` defines the model (`Circuit`, `size`,
-  `eval`, `ComputedInSize`, `VPFamily`); of the VP leg only the
-  family-level retyping of `IsVP` remains (see its annotation).
+  either: `Proofs.Vp2.Circuit` (imported below) defines the model
+  (`Circuit`, `size`, `eval`, `ComputedInSize`, `VPFamily`), and the VP
+  leg is fully discharged: since the 2026-07-12 family retyping this
+  file's statements quantify over distinguisher FAMILIES via `VPFamily`
+  (see the CHANGELOG entry below and §2).
+
+  CHANGELOG (2026-07-12, task VPCircuit — the family retyping):
+    · `Proofs.Vp2.Circuit` is now imported, and the single-n sorry-def
+      `IsVP` is DELETED — discharged exactly as its annotation
+      prescribed, by retyping the VP side of this file over FAMILIES
+      `D : (n : ℕ) → MvPolynomial (EntryIndex n) k` quantified by the
+      honest `VPFamily D` (∃ c, ∀ n, `D n` computed in size (n³ + c)^c,
+      Circuit.lean). No pinned single-n size threshold anywhere; no
+      statement weakened; three sorrys discharged (`IsVP`,
+      `exists_flattening_vpDistinguisher`, `vp2OpenQuestion_iff`).
+    · `VPDistinguisher` (single n) replaced by `VPDistinguisherFamily`
+      over an n-indexed target rank `r : ℕ → ℕ`, with a `threshold`
+      field: members must be nonzero and vanish on the border-rank-≤ r n
+      locus for all `n ≥ threshold`. The "for sufficiently large n"
+      quantifier is the standard asymptotic convention of the barrier
+      literature: FSV (Defn 2.1) and GKSS quantify over poly-size
+      circuit FAMILIES, whose size and agreement conditions are
+      asymptotic. The fixed-n `Distinguisher` and the sorry-free
+      `exists_flattening_distinguisher` STAY unchanged.
+    · `exists_flattening_vpDistinguisher` retyped to constant-rank
+      families and PROVED sorry-free: witness `flatteningMinorFamily`
+      with threshold `r + 1`; legs by `flatteningMinorFamily_of_le` +
+      `det_genericFlattening_submatrix_ne_zero`,
+      `BorderRankLE.eval_det_genericFlattening_submatrix_eq_zero`, and
+      `vpFamily_flatteningMinorFamily` (all Circuit/BorderRank.lean).
+    · `DecidedByVP` / `Vp2OpenQuestion` retyped over families: one VP
+      family whose vanishing agrees with `Passes111 T (r n)` for all
+      `T`, for all `n` beyond some `n₀` (same asymptotic convention).
+      `vp2OpenQuestion_iff` restated accordingly and PROVED (pure
+      classical logic: unfold + `push Not`, Mathlib's current name for
+      push_neg) — the well-posedness certificate is no longer a sorry.
+    · Remaining sorrys (2, both on the (111) side, other task cards):
+      the def `Passes111` (SORRY[Test111]) and the soundness anchor
+      `passes111_of_borderRankLE` (SORRY[Test111-sound]); both are
+      single-T, single-r statements, untouched by the retyping apart
+      from `Passes111` now being referenced at rank `r n`.
 
   CHANGELOG (2026-07-11, task Pf2 — arithmetic circuit model):
-    · `Proofs.Vp2.Circuit` (NEW; not imported here — no statement in this
-      file changed) provides the repo's first arithmetic-circuit-size
-      infrastructure: `Circuit σ k` (expression trees), `size`,
+    · `Proofs.Vp2.Circuit` (NEW; imported here only since 2026-07-12 —
+      Pf2 itself changed no statement in this file) provides the repo's
+      first arithmetic-circuit-size infrastructure: `Circuit σ k`
+      (expression trees), `size`,
       `eval : Circuit σ k → MvPolynomial σ k`, builders with exact size
       lemmas, the degree bound `totalDegree_eval_le`, completeness
       `exists_circuit` (every polynomial has a circuit, with explicit
@@ -63,13 +107,13 @@
       `ComputedInSize ((r+1)!·(2·(r+1)+4)+1)` — a bound constant in `n` —
       (`computedInSize_flatteningMinor`), and the fixed-r minor family is
       a genuine `VPFamily` (`vpFamily_flatteningMinorFamily`).
-    · `IsVP` stays sorry-defined ON PURPOSE: "poly-size" at a single
-      fixed `n` is vacuous — `Vp2.exists_computedInSize` proves EVERY
-      polynomial is "computed in some size" — and any non-vacuous
-      single-n reading would pin an arbitrary threshold, a dishonest
-      definition. The honest discharge retypes this file's objects over
-      families; recorded at the `IsVP` annotation. No statement here was
-      weakened.
+    · `IsVP` stayed sorry-defined ON PURPOSE at that point: "poly-size"
+      at a single fixed `n` is vacuous — `Vp2.exists_computedInSize`
+      proves EVERY polynomial is "computed in some size" — and any
+      non-vacuous single-n reading would pin an arbitrary threshold, a
+      dishonest definition. The honest discharge — retyping this file's
+      objects over families — is exactly what the 2026-07-12 entry above
+      records. No statement here was weakened.
 
   CHANGELOG (2026-07-11, task Pf1 — border rank infrastructure):
     · `BorderRankLE` is no longer `sorry`-defined. Vp2/BorderRank.lean
@@ -87,8 +131,9 @@
       theorem here already assumed one.
     · NEW sorry-free `exists_flattening_distinguisher`: flattening minors
       are genuine distinguishers (`ne_zero` + `vanishes` both proved).
-      Of `exists_flattening_vpDistinguisher` only the `isVP` leg remains
-      open, blocked solely on the `VPCircuit` task card.
+      Of `exists_flattening_vpDistinguisher` only the `isVP` leg remained
+      open, blocked solely on the `VPCircuit` task card (discharged
+      2026-07-12 — see the entry above).
 
   Primary sources (labels/lines as in docs/Vp1.md, docs/Np1.md):
     FSV  arXiv:1701.05328  Defn 2.1 (distinguisher), barrier theorem.
@@ -99,6 +144,7 @@
   AI disclosure: skeleton produced with AI assistance (see Proofs/README).
 -/
 import Proofs.Vp2.BorderRank
+import Proofs.Vp2.Circuit
 import Mathlib.Algebra.MvPolynomial.Eval
 import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
 import Mathlib.RingTheory.GradedAlgebra.Homogeneous.Ideal
@@ -136,44 +182,30 @@ A distinguisher (FSV Defn 2.1) is a nonzero `D ∈ k[c_{ijk}]` vanishing on
 all `T` with `BorderRankLE T r`. It is *VP-natural* when `D` is computed
 by a poly(N)-size algebraic circuit (`N = n³`). Mathlib still has no
 algebraic computation model ("circuit" = matroid circuit), but this
-development now does: `Proofs.Vp2.Circuit` (task Pf2) defines expression
-trees with `size`/`eval` into `MvPolynomial`, the honest fixed-bound
-predicate `ComputedInSize s D`, and the family-level class `VPFamily`.
-`IsVP` remains an opaque sorry-predicate for a TYPE-LEVEL reason, not a
-missing model — see its annotation. -/
+development does: `Proofs.Vp2.Circuit` (task Pf2, imported above) defines
+expression trees with `size`/`eval` into `MvPolynomial`, the honest
+fixed-bound predicate `ComputedInSize s D`, and the family-level class
+`VPFamily`. "Poly-size" is a growth condition on a FAMILY, not on one
+polynomial at one `n` — at any fixed `n` EVERY polynomial is computed in
+*some* size (`Vp2.exists_computedInSize`) — so the VP-natural objects
+below are families quantified via `VPFamily` directly; the former
+single-n `IsVP` sorry-def is gone (see the retrospective note below). -/
 
-/-- `IsVP n D` : the polynomial `D` in the `n³` tensor entries is
-computable by a poly(`n³`)-size algebraic circuit (the "constructivity"
-hypothesis the barrier quantifies over). The circuit MODEL now exists
-(`Proofs.Vp2.Circuit`); what keeps this opaque is that "poly-size" is a
-property of a family, not of one polynomial at one `n` — see the
-annotation in the body. -/
-def IsVP {k : Type*} [CommSemiring k] (n : ℕ) (_D : MvPolynomial (EntryIndex n) k) : Prop :=
-  -- SORRY[VPCircuit-family]: the circuit model this was blocked on now
-  -- EXISTS (`Proofs.Vp2.Circuit`): `Circuit σ k` with `size`/`eval`, the
-  -- honest fixed-bound predicate `ComputedInSize s D` (∃ circuit of size
-  -- ≤ s computing D), and the family-level class
-  --   `VPFamily D := ∃ c, ∀ n, ComputedInSize ((n³ + c)^c) (D n)`.
-  -- What remains is a TYPE-LEVEL obstruction, not missing infrastructure:
-  -- "poly(n³)-size" is a growth condition on a FAMILY of polynomials,
-  -- while this def receives a single `D` at a single fixed `n`. At fixed
-  -- `n` the naive unfolding "∃ s, s ≤ poly(n³) ∧ ComputedInSize s D" is
-  -- VACUOUS — by circuit completeness every polynomial has some circuit
-  -- (`Vp2.exists_computedInSize`), so `IsVP` would be trivially true and
-  -- the barrier statement empty — while any non-vacuous single-n reading
-  -- must pin an arbitrary size threshold, a dishonest definition
-  -- (doctrine: no invented pinned exponents). Discharging this sorry
-  -- therefore means retyping `VPDistinguisher`/`DecidedByVP`/
-  -- `Vp2OpenQuestion`/`vp2OpenQuestion_iff` over distinguisher FAMILIES
-  -- quantified via `VPFamily` — a re-statement of the open question
-  -- itself, deliberately out of Pf2's scope; still carried by task card
-  -- `VPCircuit` (now reduced to that family retyping). The honest
-  -- fragments are already PROVED in Circuit.lean: the concrete
-  -- flattening-minor distinguisher is
-  -- `ComputedInSize ((r+1)!·(2·(r+1)+4)+1)` — a bound constant in `n` —
-  -- (`computedInSize_flatteningMinor`), and the fixed-r minor family is
-  -- a genuine `VPFamily` (`vpFamily_flatteningMinorFamily`).
-  sorry
+/-! #### Retrospective (2026-07-12): the former `IsVP` sorry-def is gone
+
+Until 2026-07-12 this file carried
+`def IsVP (n : ℕ) (D : MvPolynomial (EntryIndex n) k) : Prop := sorry`
+(SORRY[VPCircuit-family]) — opaque because a non-vacuous "poly(n³)-size"
+predicate cannot exist at one fixed `n`: every polynomial is computed in
+*some* size (`Vp2.exists_computedInSize`, Circuit.lean), and any
+non-vacuous single-n reading would pin an arbitrary size threshold, a
+dishonest definition. Its annotation prescribed the honest discharge:
+retype `VPDistinguisher` / `DecidedByVP` / `Vp2OpenQuestion` /
+`vp2OpenQuestion_iff` over distinguisher FAMILIES quantified by
+`VPFamily` (Circuit.lean). That retyping is now done — see
+`VPDistinguisherFamily`, `DecidedByVP`, `Vp2OpenQuestion` below — so the
+sorry is DISCHARGED BY DELETION: there is no per-`n` "IsVP" predicate to
+define, and nothing below is blocked on the circuit model. -/
 
 /-- A *distinguisher* for `σ_r(Seg)`: a nonzero polynomial in the tensor
 entries that vanishes on every tensor of border rank `≤ r` (FSV Defn 2.1,
@@ -187,12 +219,32 @@ structure Distinguisher (k : Type*) [Field k] (n r : ℕ) where
   /-- it vanishes on the secant variety `σ_r(Seg)` -/
   vanishes : ∀ T : Tensor3 k n, BorderRankLE T r → MvPolynomial.eval (entries T) poly = 0
 
-/-- A *VP-natural proof* against `σ_r(Seg)`: a distinguisher whose
-polynomial is additionally VP-computable. This is exactly the object the
-algebraic natural-proofs barrier governs (Np1 §2d, item 4). -/
-structure VPDistinguisher (k : Type*) [Field k] (n r : ℕ) extends Distinguisher k n r where
-  /-- the underlying polynomial is VP-computable -/
-  isVP : IsVP n toDistinguisher.poly
+/-- A *VP-natural proof* against the border-rank loci `σ_{r n}(Seg)`, at
+the honest family level: for each side `n` a polynomial `poly n` in the
+`n³` tensor entries which, for every sufficiently large `n`
+(`threshold ≤ n`), is a genuine distinguisher for rank `r n` — nonzero
+and vanishing on the whole border-rank-≤ `r n` locus — and which as a
+family is VP-computable (`VPFamily`, Circuit.lean). This is exactly the
+object the algebraic natural-proofs barrier governs (Np1 §2d, item 4):
+FSV Defn 2.1 / GKSS quantify over poly-size circuit FAMILIES, and their
+size and agreement conditions are asymptotic, whence the `threshold`
+("for sufficiently large n") field. At each `n ≥ threshold` the data
+specializes to a fixed-n `Distinguisher k n (r n)`. -/
+structure VPDistinguisherFamily (k : Type*) [Field k] (r : ℕ → ℕ) where
+  /-- for each side `n`, a polynomial in the `n³` entry variables -/
+  poly : (n : ℕ) → MvPolynomial (EntryIndex n) k
+  /-- distinguishing is required only from this side on — the standard
+  "for sufficiently large `n`" of asymptotic complexity -/
+  threshold : ℕ
+  /-- beyond the threshold, the member is not identically zero -/
+  ne_zero : ∀ n, threshold ≤ n → poly n ≠ 0
+  /-- beyond the threshold, the member vanishes on the whole
+  border-rank-≤ `r n` locus `σ_{r n}(Seg)` -/
+  vanishes : ∀ n, threshold ≤ n → ∀ T : Tensor3 k n,
+    BorderRankLE T (r n) → MvPolynomial.eval (entries T) (poly n) = 0
+  /-- the family is VP-computable: computed by circuits of size
+  polynomial in `n³` -/
+  isVP : VPFamily poly
 
 /-! ### 2a. Flattenings are VP-distinguishers (the SUPPORTED fact)
 
@@ -201,19 +253,18 @@ The `(j)`-flattening of `T` is the `n × n²` matrix `M_T` with
 `BorderRankLE T r` then this matrix has rank `≤ r`, so every
 `(r+1)×(r+1)` minor (a degree-`r+1` determinantal polynomial in the
 entries) vanishes (Np1 §2; Sager: 84 degree-3 minors witness this for
-`n = r = 3`). Both mathematical legs of this supported fact are now
-PROVED (`exists_flattening_distinguisher`, sorry-free, via
-Vp2/BorderRank.lean): the minor is a nonzero polynomial, and it vanishes
-on the whole border-rank-≤ r locus. The only remaining `sorry` is the
-VP-computability leg (`exists_flattening_vpDistinguisher`), blocked on a
-formal algebraic circuit model. -/
+`n = r = 3`). ALL legs of this supported fact are now PROVED, sorry-free:
+at fixed `n`, `exists_flattening_distinguisher` (via Vp2/BorderRank.lean)
+gives the nonzero minor vanishing on the whole border-rank-≤ r locus; at
+the family level, `exists_flattening_vpDistinguisher` (via
+Vp2/Circuit.lean) adds VP-computability of the minor family. -/
 
 /-- Flattening minors are genuine distinguishers for `σ_r(Seg)` whenever
 `r + 1 ≤ n`: a fixed `(r+1)×(r+1)` minor of the generic flattening is a
 nonzero polynomial in the tensor entries (BorderRank.lean §5) that
 vanishes on every tensor of border rank `≤ r` (BorderRank.lean §6).
-Sorry-free — this is the honest, fully-proved part of the SUPPORTED fact
-(Np1 §2); only VP-computability of the minor is left open, in
+Sorry-free — the fixed-`n` part of the SUPPORTED fact (Np1 §2);
+VP-computability of the minor family is added, also sorry-free, by
 `exists_flattening_vpDistinguisher` below. -/
 theorem exists_flattening_distinguisher
     {k : Type*} [Field k] {n r : ℕ} (h : r + 1 ≤ n) :
@@ -224,28 +275,30 @@ theorem exists_flattening_distinguisher
         fun _ _ htt' => Fin.castLE_injective h (congrArg Prod.fst htt')
      vanishes := fun _T hT => hT.eval_det_genericFlattening_submatrix_eq_zero _ _ }⟩
 
-/-- A flattening `(r+1)×(r+1)`-minor distinguisher exists for `σ_r(Seg)`
-whenever `r + 1 ≤ n` (so the minor is nontrivial). This packages the
-SUPPORTED fact (Np1 §2): such a `D` is a genuine VP-natural proof, hence
-the barrier's hypothesis is nonvacuous for the tensor setting. -/
-theorem exists_flattening_vpDistinguisher
-    {k : Type*} [Field k] {n r : ℕ} (_h : r + 1 ≤ n) :
-    Nonempty (VPDistinguisher k n r) := by
-  -- SORRY[VPCircuit-family]: legs (i) `ne_zero` and (ii) `vanishes` are
-  -- DISCHARGED — `exists_flattening_distinguisher` above builds the
-  -- flattening-minor distinguisher sorry-free on the real `BorderRankLE`
-  -- (Vp2/BorderRank.lean). Leg (iii) `isVP`'s honest CONTENT is now ALSO
-  -- proved, in `Proofs.Vp2.Circuit`: this very minor is computed by an
-  -- explicit Leibniz circuit of size ≤ (r+1)!·(2·(r+1)+4)+1, constant in
-  -- n (`computedInSize_flatteningMinor`), so the fixed-r minor family is
-  -- a genuine VP family (`vpFamily_flatteningMinorFamily`). What still
-  -- blocks is only that `IsVP` itself is sorry-defined (single-n
-  -- type-level obstruction; see its annotation): nothing can be proved
-  -- ABOUT an opaque sorry-Prop, so no bridge `ComputedInSize → IsVP` can
-  -- exist yet. Once `IsVP` is retyped at the family level, this proof is
-  -- `(exists_flattening_distinguisher _h).map fun D => ⟨D, …⟩` with the
-  -- Circuit.lean witnesses.
-  sorry
+/-- **Flattening minors are a VP-natural proof** (the SUPPORTED fact,
+Np1 §2 — now sorry-free end to end). For every fixed target rank `r`,
+the family of `(r+1)×(r+1)` diagonal minors of the generic flattening
+(`flatteningMinorFamily`, Circuit.lean) is a `VPDistinguisherFamily`
+for the constant rank function `fun _ => r`, with threshold `r + 1`
+(the side must be large enough for the minor to be nontrivial). Legs:
+nonzero on injective picks (`det_genericFlattening_submatrix_ne_zero`);
+vanishing on the border-rank-≤ r locus
+(`BorderRankLE.eval_det_genericFlattening_submatrix_eq_zero`);
+VP-computability (`vpFamily_flatteningMinorFamily` — Leibniz circuits
+of size `(r+1)!·(2(r+1)+4)+1`, constant in `n`). Hence the barrier's
+hypothesis is nonvacuous for the tensor setting. -/
+theorem exists_flattening_vpDistinguisher {k : Type*} [Field k] (r : ℕ) :
+    Nonempty (VPDistinguisherFamily k (fun _ => r)) :=
+  ⟨{ poly := flatteningMinorFamily k r
+     threshold := r + 1
+     ne_zero := fun n hn => by
+       rw [flatteningMinorFamily_of_le hn]
+       exact det_genericFlattening_submatrix_ne_zero (Fin.castLE_injective hn)
+         fun _ _ htt' => Fin.castLE_injective hn (congrArg Prod.fst htt')
+     vanishes := fun n hn T hT => by
+       rw [flatteningMinorFamily_of_le hn]
+       exact hT.eval_det_genericFlattening_submatrix_eq_zero _ _
+     isVP := vpFamily_flatteningMinorFamily k r }⟩
 
 /-! ## 3. The (111) border apolarity test  [ABSENT in Mathlib]
 
@@ -301,44 +354,50 @@ def Passes111 {k : Type*} {n : ℕ} (_T : Tensor3 k n) (_r : ℕ) : Prop :=
 
 /-! ## 4. The open question, made precise
 
-The barrier governs *polynomial* distinguishers (§2). The (111) verdict
-(§3) is an existential search. The OPEN QUESTION (Vp1, UNPINNED-ANALOGY)
-is whether the (111) verdict can nonetheless be *re-expressed* as the
-output of some single VP-computable distinguisher — equivalently, whether
-the constructible set `{T : Passes111 T r}` is cut out (as a decision) by
-the vanishing of one VP polynomial. No source resolves this either way. -/
+The barrier governs *polynomial* distinguisher families (§2). The (111)
+verdict (§3) is an existential search. The OPEN QUESTION (Vp1,
+UNPINNED-ANALOGY) is whether the (111) verdict can nonetheless be
+*re-expressed* as the output of some VP-computable distinguisher family
+— equivalently, whether the constructible sets `{T : Passes111 T (r n)}`
+are cut out (as decisions, for all sufficiently large `n`) by the
+vanishing of one VP family. No source resolves this either way. -/
 
-/-- `DecidedByVP T-test` says a VP-distinguisher family decides the (111)
-test at rank `r`: there is one VP-computable polynomial `D` whose
-vanishing at `entries T` matches `Passes111 T r` for *all* `T`. -/
-def DecidedByVP (k : Type*) [Field k] (n r : ℕ) : Prop :=
-  ∃ D : MvPolynomial (EntryIndex n) k, IsVP n D ∧
-    ∀ T : Tensor3 k n, (MvPolynomial.eval (entries T) D = 0 ↔ Passes111 T r)
+/-- `DecidedByVP k r` says a VP family decides the (111) test at target
+rank `r n`: there is one VP-computable family `D` of polynomials in the
+tensor entries whose vanishing at `entries T` matches `Passes111 T (r n)`
+for *all* `T`, for all sufficiently large `n` (the `n₀` cutoff — the same
+asymptotic convention as `VPDistinguisherFamily.threshold`). -/
+def DecidedByVP (k : Type*) [Field k] (r : ℕ → ℕ) : Prop :=
+  ∃ D : (n : ℕ) → MvPolynomial (EntryIndex n) k, VPFamily D ∧
+    ∃ n₀ : ℕ, ∀ n, n₀ ≤ n → ∀ T : Tensor3 k n,
+      (MvPolynomial.eval (entries T) (D n) = 0 ↔ Passes111 T (r n))
 
 /-- **The open question (Vp2OpenQuestion).** For matrix-multiplication–type
-parameters, the (111) border apolarity verdict is *not* decided by any
-VP-computable polynomial in the tensor entries. Packaged as a `Prop`, not
-a theorem: Vp1 establishes that no primary source proves or refutes it.
-A proof would be a genuine escape from the natural-proofs barrier; a
-refutation would place the (111) test back inside it. -/
-def Vp2OpenQuestion (k : Type*) [Field k] (n r : ℕ) : Prop :=
-  ¬ DecidedByVP k n r
+parameters (a target-rank growth `r : ℕ → ℕ`), the (111) border apolarity
+verdict is *not* decided by any VP-computable family of polynomials in
+the tensor entries. Packaged as a `Prop`, not a theorem: Vp1 establishes
+that no primary source proves or refutes it. A proof would be a genuine
+escape from the natural-proofs barrier; a refutation would place the
+(111) test back inside it. -/
+def Vp2OpenQuestion (k : Type*) [Field k] (r : ℕ → ℕ) : Prop :=
+  ¬ DecidedByVP k r
 
 /-- Well-posedness, the formal content actually delivered: the open
 question is equivalent to the precise inexpressibility statement "for
-every VP-computable `D` there is a tensor `T` on which `D`'s vanishing
-disagrees with the (111) verdict." This is a tautological unfolding —
-its only purpose is to certify that `Vp2OpenQuestion` is a sharply stated
-mathematical proposition, NOT that it has been answered. -/
-theorem vp2OpenQuestion_iff (k : Type*) [Field k] (n r : ℕ) :
-    Vp2OpenQuestion k n r ↔
-      ∀ D : MvPolynomial (EntryIndex n) k, IsVP n D →
-        ∃ T : Tensor3 k n, ¬ (MvPolynomial.eval (entries T) D = 0 ↔ Passes111 T r) := by
-  -- SORRY[wellposed]: pure logic — push `¬ ∃ ... ∧ ∀ ...` through to
-  -- `∀ ... → ∃ ...`. Discharged once the underlying `sorry`-defs typecheck;
-  -- no external Mathlib infrastructure needed. (Kept as `sorry` so the
-  -- file's open obligations are visible in one `lake build` summary.)
-  sorry
+every VP-computable family `D` and every cutoff `n₀` there are a side
+`n ≥ n₀` and a tensor `T` on which the vanishing of `D n` disagrees with
+the (111) verdict at rank `r n`". This is a tautological unfolding (pure
+classical logic) — its only purpose is to certify that `Vp2OpenQuestion`
+is a sharply stated mathematical proposition, NOT that it has been
+answered. -/
+theorem vp2OpenQuestion_iff (k : Type*) [Field k] (r : ℕ → ℕ) :
+    Vp2OpenQuestion k r ↔
+      ∀ D : (n : ℕ) → MvPolynomial (EntryIndex n) k, VPFamily D →
+        ∀ n₀ : ℕ, ∃ n, n₀ ≤ n ∧ ∃ T : Tensor3 k n,
+          ¬ (MvPolynomial.eval (entries T) (D n) = 0 ↔ Passes111 T (r n)) := by
+  unfold Vp2OpenQuestion DecidedByVP
+  push Not
+  rfl
 
 /-- Soundness anchor for the test (the supported direction of CHL's
 method, Vp1 §2d): if `T` has border rank `≤ r`, then the (111) test
