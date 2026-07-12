@@ -114,6 +114,26 @@ STRATUM_B_POPULATION = 10494213   # NumberSmallGroups(512)
 STRATUM_B_SEED = 20260711         # hardcoded, no wall-clock seeding
 STRATUM_B_DEFAULT_TARGET = 10000
 
+# ---------------------------------------------------------------------------
+# T3c toggle: product decomposition tier (Pf3 abelian-factor conjecture)
+#
+# The identity rho_0(A x G) = rho_0(G) (A finite abelian) is UNPROVEN
+# (conjecture status; reduced to one open lemma, zero counterexamples
+# across ~25k exhaustive small-group configs — see Pf3-abelian-factor.md).
+#
+# Soundness discipline:
+#   - Prunes based on the EQUALITY are conjecture-gated: labeled in code
+#     and output, default OFF until the user-run sweep artifact exists.
+#   - The unconditional bound rho_0(A x G) <= |A|^2 rho_0(G) may apply
+#     where it clears a threshold (provenance: Pf3 §6 item 3).
+#   - Toggle is read from environment: T3C_CONJECTURE=1 enables.
+#   - Gate artifact: Scratch/GroupSieve/lemma-sweep-results*.jsonl
+#     (a single violation row kills the conjecture permanently).
+# ---------------------------------------------------------------------------
+
+T3C_CONJECTURE_ENABLED = os.environ.get("T3C_CONJECTURE", "0") == "1"
+T3C_SWEEP_ARTIFACT = REPO_ROOT / "Scratch" / "GroupSieve"
+
 
 # ---------------------------------------------------------------------------
 # Tier predicates — the ONLY copy; harness and sweep both use these.
@@ -171,6 +191,56 @@ def abelian_normal_subgroup_prime_index(G, order_G):
         if is_prime(idx) and H.IsAbelian():
             return True, int(idx)
     return False, None
+
+
+def abelian_direct_factor(G):
+    """Detect a nontrivial abelian direct factor of G via GAP
+    DirectFactorsOfGroup. Returns (abelian_order, complement_id) or
+    (None, None). complement_id is [order, idx] if IdSmallGroup resolves.
+    Cost: one GAP DirectFactorsOfGroup call (cheap at sieve scale)."""
+    df = libgap.DirectFactorsOfGroup(G)
+    if len(df) <= 1:
+        return None, None
+    abelian_factors = []
+    nonabelian_factors = []
+    for f in df:
+        f_order = int(f.Size())
+        if libgap.IsAbelian(f):
+            abelian_factors.append((f_order, f))
+        else:
+            nonabelian_factors.append((f_order, f))
+    if not abelian_factors:
+        return None, None
+    # Combine all abelian factors into one abelian part
+    ab_order = 1
+    for (sz, _) in abelian_factors:
+        ab_order *= sz
+    # The complement is the product of nonabelian factors (if any)
+    if not nonabelian_factors:
+        # Fully abelian — should have been caught by T0
+        return None, None
+    # For one nonabelian factor, try IdSmallGroup
+    if len(nonabelian_factors) == 1:
+        comp_order, comp = nonabelian_factors[0]
+        try:
+            sid = [int(x) for x in libgap.IdSmallGroup(comp)]
+            return int(ab_order), sid
+        except Exception:
+            return int(ab_order), [int(comp_order), None]
+    else:
+        # Multiple nonabelian factors: build the direct product
+        comp_order = 1
+        for (sz, _) in nonabelian_factors:
+            comp_order *= sz
+        # Try building the product and identifying
+        try:
+            prod = nonabelian_factors[0][1]
+            for (_, f) in nonabelian_factors[1:]:
+                prod = libgap.DirectProduct(prod, f)
+            sid = [int(x) for x in libgap.IdSmallGroup(prod)]
+            return int(ab_order), sid
+        except Exception:
+            return int(ab_order), [int(comp_order), None]
 
 
 # ---------------------------------------------------------------------------
@@ -266,6 +336,55 @@ def classify_group(order_val, idx):
                 rec["flags"].append("p=%d" % ans_p)
                 # fall through to collect packing ceilings
 
+    # T3c: product decomposition — G = A x H with A abelian, H nonabelian.
+    # Conjecture (Pf3): rho_0(G) = rho_0(H).
+    # Unconditional (Pf3 §6 item 3): rho_0(G) <= |A|^2 * rho_0(H).
+    # Provenance: Pf3-abelian-factor.md + computational sweep (Im6).
+    ab_order, comp_id = abelian_direct_factor(G)
+    if ab_order is not None and comp_id is not None and comp_id[1] is not None:
+        # Recursively classify the complement through the cascade
+        comp_rec = classify_group(comp_id[0], comp_id[1])
+        comp_action = comp_rec.get("action", "")
+        comp_ceiling = comp_rec.get("ceiling")
+
+        rec["flags"].append("T3c:A=%d,H=[%d,%d]" % (ab_order, comp_id[0], comp_id[1]))
+        rec["t3c_complement"] = comp_id
+        rec["t3c_abelian_order"] = int(ab_order)
+        rec["t3c_complement_action"] = str(comp_action)
+
+        # --- Conjecture-gated prune (equality): default OFF ---
+        # rho_0(G) = rho_0(H); if H rejects (rho_0 = 1), G rejects.
+        # If H caps, G inherits the same cap.
+        if T3C_CONJECTURE_ENABLED:
+            if comp_action == "REJECT":
+                rec["tier"] = "T3c"
+                rec["action"] = "REJECT"
+                rec["flags"].append("T3c_conjecture_gated")
+                rec["t3c_provenance"] = "Pf3 conjecture + computational sweep"
+                return rec
+            elif "CAP" in str(comp_action) and comp_ceiling is not None:
+                # Inherit complement's cap (conjecture: rho_0 same)
+                rec["ceilings"]["T3c_conj"] = float(comp_ceiling)
+                rec["flags"].append("T3c_conjecture_gated")
+                rec["t3c_provenance"] = "Pf3 conjecture + computational sweep"
+
+        # --- Unconditional bound: rho_0(G) <= |A|^2 * rho_0(H) ---
+        # Always sound (Pf3 §6 item 3). When H is REJECT (rho_0 = 1),
+        # rho_0(G) <= |A|^2. When H has a ceiling c, rho_0(G) <= |A|^2 * c.
+        if comp_action == "REJECT":
+            # rho_0(H) = 1, so rho_0(G) <= |A|^2 unconditionally
+            uncond_ceil_reject = float(ab_order ** 2)
+            rec["ceilings"]["T3c_uncond"] = uncond_ceil_reject
+            if uncond_ceil_reject <= 1:
+                # Only possible if |A| = 1, which we already excluded
+                rec["tier"] = "T3c"
+                rec["action"] = "REJECT"
+                rec["t3c_provenance"] = "Pf3 unconditional bound"
+                return rec
+        elif comp_ceiling is not None:
+            uncond_ceil = float(ab_order ** 2) * float(comp_ceiling)
+            rec["ceilings"]["T3c_uncond"] = uncond_ceil
+
     # T1c: nonabelian p-group with cyclic G' of order p => rho_0 <= p
     # [Murthy26 Thm 4.1] CAP(p), never REJECT — extraspecial groups
     # achieve rho_0 = p > 1.
@@ -323,13 +442,23 @@ ANCHORS_REJECT = [
     ((27, 4), ("T1a", "T1b", "T3a")),
 ]
 
-# [24,10] C3xD8 and [24,11] C3xQ8: known rho_0 = 1, but no tier can
-# prove it — T3b with p=2 has (2p-1)=3 | 24, so Cor 4.3(1) is
-# inapplicable and CAP(4/3) is the best available. A product-
-# decomposition tier would close this (Im4 card).
+# [24,10] C3xD8 and [24,11] C3xQ8: known rho_0 = 1.
+# With T3C_CONJECTURE OFF: T3b CAP(4/3) is the best available (the
+# unconditional bound |A|^2 = 9 does not help).
+# With T3C_CONJECTURE ON: T3c REJECT via complement D8/Q8 rho_0 = 1.
+# Both paths are conjecture-gated — the REJECT requires the unproven
+# equality rho_0(C3 x G) = rho_0(G).
+# Provenance: Pf3 §7 item 3.
 ANCHORS_REJECT_OR_CAP = [
     ((24, 10), "T3b"),
     ((24, 11), "T3b"),
+]
+
+# Conjecture-gated REJECT anchors: only asserted when T3C_CONJECTURE=1.
+# These groups have known rho_0 = 1 via the abelian-factor identity.
+ANCHORS_T3C_CONJECTURE_REJECT = [
+    ((24, 10), "T3c"),   # C3 x D8: complement D8 rejects, conjecture => rho_0 = 1
+    ((24, 11), "T3c"),   # C3 x Q8: complement Q8 rejects, conjecture => rho_0 = 1
 ]
 
 ANCHORS_MUST_NOT_REJECT = [
@@ -372,13 +501,23 @@ def run_anchor_harness():
               % (o, i, "/".join(tiers), rec["tier"], rec["action"]))
 
     print("--- REJECT-or-CAP anchors (known rho_0=1, cascade limited) ---", flush=True)
-    for (o, i), tier in ANCHORS_REJECT_OR_CAP:
-        rec = classify_group(o, i)
-        ok = rec["tier"] == tier and (rec["action"] == "REJECT" or "CAP" in str(rec["action"]))
-        check(ok,
-              "[%d,%d]: %s %s (conservative bound)" % (o, i, rec["tier"], rec["action"]),
-              "[%d,%d]: expected %s REJECT/CAP, got tier=%s action=%s"
-              % (o, i, tier, rec["tier"], rec["action"]))
+    if T3C_CONJECTURE_ENABLED:
+        print("  (T3C_CONJECTURE=1: expecting T3c REJECT for [24,10]/[24,11])", flush=True)
+        for (o, i), tier in ANCHORS_T3C_CONJECTURE_REJECT:
+            rec = classify_group(o, i)
+            ok = rec["tier"] == tier and rec["action"] == "REJECT"
+            check(ok,
+                  "[%d,%d]: %s REJECT (conjecture-gated)" % (o, i, rec["tier"]),
+                  "[%d,%d]: expected %s REJECT (conjecture ON), got tier=%s action=%s"
+                  % (o, i, tier, rec["tier"], rec["action"]))
+    else:
+        for (o, i), tier in ANCHORS_REJECT_OR_CAP:
+            rec = classify_group(o, i)
+            ok = rec["tier"] == tier and (rec["action"] == "REJECT" or "CAP" in str(rec["action"]))
+            check(ok,
+                  "[%d,%d]: %s %s (conservative bound)" % (o, i, rec["tier"], rec["action"]),
+                  "[%d,%d]: expected %s REJECT/CAP, got tier=%s action=%s"
+                  % (o, i, tier, rec["tier"], rec["action"]))
 
     print("--- MUST-NOT-REJECT anchors (known rho_0 > 1) ---", flush=True)
     for (o, i), pattern in ANCHORS_MUST_NOT_REJECT:
@@ -666,11 +805,12 @@ def generate_summary(start_order, end_order):
             "T1b": "Class-2 p-group, cd={1,p} [Murthy26 Thm 6.1]",
             "T3a": "p-group, abelian subgroup index p [Murthy25 Cor 4.3(2)]",
             "T3b": "Abelian normal subgroup prime index [Murthy25 Thm 4.1]",
+            "T3c": "Product decomp A x H, conjecture-gated [Pf3 + sweep]",
             "T1c": "p-group, cyclic G' order p, CAP(p) [Murthy26 Thm 4.1]",
             "T2b": "Survivors with packing ceilings [BCGPU Thm 3.2, Cor 3.8]",
             "ERROR": "Per-group classification errors",
         }
-        for tier in ["T1a", "T1b", "T3a", "T3b", "T1c", "T2b", "ERROR"]:
+        for tier in ["T1a", "T1b", "T3a", "T3b", "T3c", "T1c", "T2b", "ERROR"]:
             f.write("| %s | %d | %s |\n" % (tier, tier_counts.get(tier, 0), descs[tier]))
         f.write("\nT2a is absent by design: provably shadowed by T1b "
                 "(Isaacs Cor 2.30); it fired 0 times in all prior data.\n")

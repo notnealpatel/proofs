@@ -58,8 +58,30 @@ cd Scratch/GroupSieve && sage rho0.sage -- --resume --per-target-timeout 3600
   rho_0 > 1 row is a surface-immediately flag.
 - Provenance: Im5 (`.tasks/f5exp/docs/Im5-rho0-manifest.md`), Qr1.
 
-Suggested order: 1 (3 min) -> 2 pilot -> 3 overnight, with 2's full
-sample scheduled off the pilot's projection. Programs are
+### 4. lemma_sweep.sage — Lemma M / Lemma D kill-test, orders 2..64 + survivors
+
+```
+cd Scratch/GroupSieve && sage lemma_sweep.sage
+```
+
+- Options: `-- --shard I/N`, `-- --lemma-d` (also run Lemma D),
+  `-- --limit K`, `-- --dry-run`.
+- Space: 2604 targets (469 nonabelian groups order 2..64, plus 2135
+  sieve survivors at orders 96/128).
+- Runtime: ~2-3 hours single-core (Lemma M only); ~6 hours with
+  `--lemma-d`. Shardable: `--shard 0/4` through `--shard 3/4`.
+- Output: `lemma-sweep-results.jsonl` (or per-shard
+  `lemma-sweep-results.shard{I}of{N}.jsonl`). Resume unions across
+  all shard files.
+- **Kill-test**: a single row with `"VIOLATION": true` or
+  `"D_FAILURE": true` kills the Pf3 conjecture. Surface immediately.
+- Gates: T3c tier activation in groupsieve.sage — the conjecture-gated
+  prune (`T3C_CONJECTURE=1`) should not be enabled until this sweep
+  completes with zero violations.
+- Provenance: Pf3 (`.tasks/f5exp/docs/Pf3-abelian-factor.md`) + Im6.
+
+Suggested order: 1 (3 min) -> 2 pilot -> 3 overnight -> 4, with 2's
+full sample scheduled off the pilot's projection. Programs are
 single-core; running two concurrently on this box is fine.
 
 ## Utilities (run as needed)

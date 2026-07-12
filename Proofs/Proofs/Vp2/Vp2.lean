@@ -1,5 +1,6 @@
 /-
-  Vp2 — A sorry-skeleton making precise the OPEN QUESTION:
+  Vp2 — the OPEN QUESTION, made machine-precise (sorry-free since
+  2026-07-12):
 
     "The (111) border apolarity test is structurally outside the
      algebraic natural-proofs framework: it is a smoothability search
@@ -7,13 +8,17 @@
      tensor entries. Whether this structural distinction constitutes a
      provable escape from the barrier remains an open question."
 
-  This is a FEASIBILITY SURVEY, not a proof campaign. The file's job is
-  to (a) give type-level objects for every noun in the sentence above,
-  and (b) state the open question as a machine-precise `Prop`, with each
-  `sorry` annotated by the Mathlib infrastructure that would be required
-  to discharge it. The real deliverable is the dependency-ordered set of
-  task cards (blocked on Vp2) for the missing formalizations; see
-  `.tasks/research/docs/Vp2.md`.
+  This began as a FEASIBILITY SURVEY (a sorry-skeleton). The file's job
+  is to (a) give type-level objects for every noun in the sentence
+  above, and (b) state the open question as a machine-precise `Prop`.
+  Both are now done with real definitions: the last two `sorry`s
+  (`Passes111`, `passes111_of_borderRankLE`) were discharged by the
+  apolarity layer `Proofs.Vp2.Apolarity` (see the 2026-07-12 WP-B
+  CHANGELOG entry below for scope and recorded deviations). The
+  smoothability/Hilbert-scheme side of the quoted sentence remains OUT
+  OF MODELED SCOPE — the modeled verdict is CHL's (111) RANK TEST,
+  documented loudly in §3 and in Apolarity.lean. Task cards for the
+  missing full formalizations: `.tasks/research/docs/Vp2.md`.
 
   FOUNDATIONS NOTE (binding — see `.tasks/research/docs/Vp1.md`).
   The Vp1 resolution is UNPINNED-ANALOGY: *no primary source proves*
@@ -24,14 +29,20 @@
   a named `Prop` (`Vp2OpenQuestion`), NOT as a theorem we claim to have
   proved. Of the two facts the sources DO support (Np1 §2), (i)
   "flattening minors are VP-computable distinguishers covered by the
-  barrier" is now PROVED sorry-free at the family level
-  (`exists_flattening_vpDistinguisher`), while (ii) "the (111) verdict
+  barrier" is PROVED sorry-free at the family level
+  (`exists_flattening_vpDistinguisher`), and (ii) "the (111) verdict
   has the wrong type to be such a distinguisher (it is an existential
-  search over candidate graded ideals together with a smoothability
-  witness)" is still carried by the remaining `sorry`s (`Passes111`,
-  `passes111_of_borderRankLE`), blocked on absent Mathlib infrastructure
-  (apolarity, Hilbert scheme, smoothability). The final `theorem`
-  (`vp2OpenQuestion_iff`, now proved) records the EQUIVALENCE between
+  search over candidate graded-ideal data)" is now carried by REAL
+  definitions instead of sorrys: `Passes111` quantifies over all
+  polynomials vanishing on the accept locus of the existential search
+  `Candidate111` (Vp2/Apolarity.lean) — a search over subspace triples,
+  the low-degree graded pieces of a candidate apolar ideal — and the
+  soundness anchor `passes111_of_borderRankLE` is proved over infinite
+  fields. The smoothability witness in the original sentence is OUT OF
+  MODELED SCOPE (no Hilbert scheme in Mathlib): the modeled verdict is
+  CHL's (111) rank test, strictly weaker than the sources' full test,
+  and every affected docstring says so. The final `theorem`
+  (`vp2OpenQuestion_iff`, proved) records the EQUIVALENCE between
   the open question and a precise inexpressibility statement —
   formalizing that the open question is well-posed, not that it is
   resolved.
@@ -46,16 +57,65 @@
     · `HomogeneousIdeal (graded ring)`  — Z-graded apolar candidate ideal  [EXISTS]
     · `Module.length`                   — length of a finite scheme        [EXISTS]
     · `IsReduced` / `Ideal.IsRadical`   — reduced = "distinct smooth pts"  [EXISTS]
-  Everything genuinely absent (secant/cactus varieties as schemes, the
-  Hilbert scheme of points, smoothability, apolarity) is `sorry`-defined
-  here and carried by a blocked task card. Border rank itself is NO
-  LONGER absent: `Proofs.Vp2.BorderRank` (imported below) defines it for
-  real, as polynomial closure. Arithmetic circuits are NO LONGER absent
-  either: `Proofs.Vp2.Circuit` (imported below) defines the model
-  (`Circuit`, `size`, `eval`, `ComputedInSize`, `VPFamily`), and the VP
-  leg is fully discharged: since the 2026-07-12 family retyping this
-  file's statements quantify over distinguisher FAMILIES via `VPFamily`
-  (see the CHANGELOG entry below and §2).
+  Nothing is `sorry`-defined here anymore. Of the infrastructure that
+  was genuinely absent: border rank is REAL (`Proofs.Vp2.BorderRank`,
+  imported below — polynomial closure); arithmetic circuits are REAL
+  (`Proofs.Vp2.Circuit`, imported below — `Circuit`, `size`, `eval`,
+  `ComputedInSize`, `VPFamily`), and since the 2026-07-12 family
+  retyping this file's statements quantify over distinguisher FAMILIES
+  via `VPFamily` (see the CHANGELOG below and §2); the low-degree
+  APOLARITY layer used by the (111) rank test is REAL
+  (`Proofs.Vp2.Apolarity`, imported below — flattening/slice maps,
+  `Candidate111`, `test111Locus`, the soundness core). Still absent
+  from Mathlib and NOT modeled (documented scenery and docstrings, no
+  sorrys): secant/cactus varieties as schemes, the Hilbert scheme of
+  points, smoothability/Slip-membership.
+
+  CHANGELOG (2026-07-12, task WP-B — the (111) test made real; the
+  final two sorrys discharged, file now sorry-free):
+    · `Proofs.Vp2.Apolarity` (NEW, imported): concrete flattening and
+      slice `LinearMap`s; the DUAL-form candidate condition
+      `Candidate111` (CHL Prop 3.1 eq (7), arXiv:1911.07981; Hilbert
+      function min-truncated per BB Thm 1.2, arXiv:1910.01944); the
+      accept locus `test111Locus`; Lemma A-spread
+      (`candidate111_of_linearIndependent`); the degenerate band
+      (`candidate111_of_sq_le`); the soundness core
+      `vanishingIdeal_test111Locus_le` (perturbation of an arbitrary
+      rank decomposition along a polynomial line; `[Infinite k]`).
+      NOT imported by root Proofs.lean pending user sign-off on the
+      import-list convention.
+    · `Passes111` REAL (SORRY[Test111] discharged): the polynomial
+      closure of `test111Locus` — the same closure wrap as
+      `BorderRankLE`. DEVIATION (recorded): gains `[Field k]` (the
+      sorry-era scaffold had no constraint on `k`).
+    · `passes111_of_borderRankLE` PROVED (SORRY[Test111-sound]
+      discharged) via `zeroLocus_anti_mono`. DEVIATION (recorded):
+      gains `[Infinite k]` — BB/CHL prove the FULL Slip test sound over
+      algebraically closed fields; the theorem here is about the WEAKER
+      modeled (111) test's polynomial closure over any infinite field
+      (strictly weaker hypothesis, strictly weaker test: different
+      theorems, neither subsuming the other). Over finite `k` the
+      closure degenerates pointwise and no claim is made.
+    · NEW `passes111_iff` (unfold mirror of `borderRankLE_iff`),
+      `Candidate111.passes111` (locus ⊆ closure, mirror of
+      `RankLE.borderRankLE`), and the degenerate-parameter lemma
+      `passes111_of_sq_le` (`n² ≤ r` ⟹ every tensor passes; hence the
+      zero family decides such ranks and `Vp2OpenQuestion` is FALSE for
+      eventually-degenerate rank families).
+    · §3 prose and §4 docstrings scoped by the CONTENT WINDOW (WP-B
+      adversarial review, MAJOR-1): the formalized question is
+      informative exactly in the superlinear band
+      `n ≲ r < 2n³/(3n−1)`; outside it the answer is settled by
+      degenerate-parameter effects with no barrier content.
+      `ApolarCandidate` stays as documented scenery (byte-identical).
+    · Modeled-scope omissions, all documented (each RELAXES the test,
+      so soundness is a fortiori): the (210)/(120)-family sibling
+      pre-tests, the degree-(100) pieces (CHL set them to 0 by
+      conciseness; a strict relaxation exactly when r < n), total
+      degree ≥ 4, extendability to a genuine graded ideal,
+      Borel-fixedness (a WLOG for CHL's search-side enumeration only;
+      needs algebraically closed k), smoothability/Slip-membership
+      (the cactus gap). See Apolarity.lean's header.
 
   CHANGELOG (2026-07-12, task VPCircuit — the family retyping):
     · `Proofs.Vp2.Circuit` is now imported, and the single-n sorry-def
@@ -143,6 +203,7 @@
 
   AI disclosure: skeleton produced with AI assistance (see Proofs/README).
 -/
+import Proofs.Vp2.Apolarity
 import Proofs.Vp2.BorderRank
 import Proofs.Vp2.Circuit
 import Mathlib.Algebra.MvPolynomial.Eval
@@ -300,7 +361,7 @@ theorem exists_flattening_vpDistinguisher {k : Type*} [Field k] (r : ℕ) :
        exact hT.eval_det_genericFlattening_submatrix_eq_zero _ _
      isVP := vpFamily_flatteningMinorFamily k r }⟩
 
-/-! ## 3. The (111) border apolarity test  [ABSENT in Mathlib]
+/-! ## 3. The (111) border apolarity test  [modeled: Proofs.Vp2.Apolarity]
 
 The structurally DIFFERENT object. CHL's algorithm enumerates Borel-fixed
 graded ideals (candidate apolar ideals of length-`r` schemes) and checks
@@ -308,10 +369,19 @@ rank conditions; the (111) verdict is sound because the candidate must be
 the flat limit of ideals of *smooth* (reduced) length-`r` schemes —
 i.e. a smoothability search in the Hilbert scheme (Vp1 §2, Cb1 §1).
 
-We model only what is needed to state the type mismatch:
-  · a candidate is a `HomogeneousIdeal` (Mathlib: EXISTS) with a length-`r`
-    and a smoothability flag;
-  · the (111) verdict is `∃` over candidates, not `eval` of a polynomial. -/
+Modeled for real (Vp2/Apolarity.lean): the (111) RANK TEST itself — the
+candidate search `Candidate111` over subspace triples (the
+(110)/(101)/(011) graded pieces of a candidate ideal, in the dual form
+of CHL Prop 3.1 eq (7)) — and, below, the polynomial closure of its
+accept locus (`Passes111`). The verdict is `∃` over candidates, not
+`eval` of a polynomial: exactly the type mismatch this file is about.
+
+Documented scenery only (`ApolarCandidate` below): the full graded-ideal
+picture with scheme length and the SMOOTHABILITY witness — what the
+sources' full test adds on top of the rank test, and what Mathlib cannot
+yet express (no Hilbert scheme of points, no smoothable component). Its
+omission from `Candidate111` RELAXES the modeled test, which keeps the
+soundness direction (`passes111_of_borderRankLE`) honest a fortiori. -/
 
 variable (S : Type*) [CommRing S]
 
@@ -336,21 +406,85 @@ structure ApolarCandidate {ι : Type*} [DecidableEq ι] [AddCommMonoid ι]
   component). Opaque pending the `Smoothability` task card. -/
   smoothable : Prop
 
-/-- `Passes111 T r` : the (111) border apolarity verdict for `T` at rank
-`r` — there EXISTS a grading, a Borel-fixed candidate apolar ideal of
-length `r` annihilating `T`, of codimension `≥ r` on the (111) graded
-piece, that is a flat limit of *smoothable* schemes. This is the crux:
-its shape is `∃ (graded ring) (candidate) (...)`, a search in the Hilbert
-scheme, NOT `MvPolynomial.eval D (entries T)` for any fixed `D`. -/
-def Passes111 {k : Type*} {n : ℕ} (_T : Tensor3 k n) (_r : ℕ) : Prop :=
-  -- SORRY[Test111]: should unfold to the CHL existential — `∃ grading 𝒜 on
-  -- the Cox ring, ∃ ApolarCandidate with length = r, smoothable, ideal ⊆
-  -- Ann(T), and the (210)/(120)/(111) rank conditions hold`. Requires:
-  -- the apolar algebra `Ann(T)` (apolarity, ABSENT), the multigraded Cox
-  -- ring, the rank-of-multiplication-map conditions, and `smoothable`
-  -- (Hilbert scheme, ABSENT). See task cards `Apolarity`, `Test111`,
-  -- `Smoothability`, `CactusVariety`.
-  sorry
+/-- `Passes111 T r` : the (111) border-apolarity verdict for `T` at
+target rank `r`, in polynomial-closure form: `entries T` lies in the
+zero locus of the vanishing ideal of the accept locus `test111Locus` of
+the modeled (111) candidate search (`Candidate111`, Vp2/Apolarity.lean)
+— every polynomial in the `n³` entry variables that vanishes at all
+tensors passing the modeled (111) test also vanishes at `T`.
+
+SHAPE HONESTY (the crux): `Candidate111` is an existential SEARCH over
+subspace triples — the (110)/(101)/(011) graded pieces of a candidate
+apolar ideal, per CHL §2.3 (i)–(ii) + §3(iii) eq (4), in the dual form
+of Prop 3.1 eq (7) — and `Passes111` quantifies over ALL polynomials
+vanishing on that search's accept locus. Neither is
+`MvPolynomial.eval D (entries T)` for any fixed `D`; whether some VP
+family can nonetheless DECIDE the verdict is exactly `DecidedByVP` (§4).
+
+MODELED SCOPE: the sources' full verdict additionally demands the
+(210)/(120)-family pre-tests, degree-(100) conditions, all higher
+degrees, extendability to a genuine graded ideal, Borel-fixedness
+(search-side WLOG), and the SMOOTHABILITY/Slip-membership witness (the
+`ApolarCandidate` scenery above). All are omitted here — each omission
+RELAXES the test; see Apolarity.lean's header and the CHL digest.
+
+CLOSURE HONESTY: the wrap mirrors `BorderRankLE` (the file's
+established envelope). Over an algebraically closed field the accept
+set of the MODELED test is expected to be Zariski-closed by elimination
+theory (properness of the Grassmannian incidence variety plus
+closedness of the rank conditions), making the wrap a no-op there; BB's
+projectivity of Slip is the ANALOGOUS statement for the FULL test,
+cited as analogy only, not as the operative mechanism. Over a general
+field this is the polynomial-closure notion; over a FINITE field the
+closure degenerates (`Passes111 ⟺ Candidate111` pointwise) and no
+soundness claim is made (`passes111_of_borderRankLE` needs
+`[Infinite k]`).
+
+CONTENT WINDOW: `Passes111 · r` is identically True for `n² ≤ r`
+(`passes111_of_sq_le` below) — in fact already for
+`r ≥ ⌈2n³/(3n−1)⌉ ≈ (2/3)n²` (dimension count, recorded in
+Apolarity.lean's header, not formalized) — and for `r < n` the verdict
+is expected to be undecidable by any single polynomial over
+algebraically closed fields (codimension ≥ 2 accept set vs codimension
+1 hypersurfaces). The informative band is superlinear `r`:
+matrix-multiplication territory. See §4.
+
+DEVIATION (recorded in the CHANGELOG): gains `[Field k]` — the
+sorry-era scaffold had no constraint on `k`; the real definition needs
+the field-valued `zeroLocus`/`vanishingIdeal` vocabulary and the
+dimension conditions, like `BorderRankLE` before it. -/
+def Passes111 {k : Type*} [Field k] {n : ℕ} (T : Tensor3 k n) (r : ℕ) : Prop :=
+  entries T ∈
+    MvPolynomial.zeroLocus k (MvPolynomial.vanishingIdeal k (test111Locus k n r))
+
+/-- The defining property, unfolded (mirror of `borderRankLE_iff`):
+passing means every polynomial vanishing on the (111) accept locus
+vanishes at `entries T`. -/
+theorem passes111_iff {k : Type*} [Field k] {n : ℕ} {T : Tensor3 k n} {r : ℕ} :
+    Passes111 T r ↔
+      ∀ p ∈ MvPolynomial.vanishingIdeal k (test111Locus k n r),
+        MvPolynomial.eval (entries T) p = 0 :=
+  Iff.rfl
+
+/-- A tensor satisfying the candidate search passes the test: the locus
+is contained in the zero locus of its own vanishing ideal (mirror of
+`RankLE.borderRankLE`). -/
+theorem Candidate111.passes111 {k : Type*} [Field k] {n : ℕ} {T : Tensor3 k n}
+    {r : ℕ} (h : Candidate111 T r) : Passes111 T r :=
+  MvPolynomial.zeroLocus_vanishingIdeal_le (test111Locus k n r) ⟨T, h, rfl⟩
+
+/-- DEGENERATE-PARAMETER LEMMA (labeled as such on purpose — see the
+content-window notes in §4 and Apolarity.lean). For `n² ≤ r` EVERY
+tensor passes the modeled (111) test, because `Candidate111` is
+satisfied by the full spaces (`candidate111_of_sq_le`). Consequently
+the ZERO family decides `Passes111 · (r n)` for any rank family with
+eventually `n² ≤ r n`, so `DecidedByVP` holds and `Vp2OpenQuestion` is
+FALSE there: a parameter artifact with no barrier content, NOT a
+resolution of the open question, which lives in the superlinear band.
+Needs neither `[Infinite k]` nor any closure argument. -/
+theorem passes111_of_sq_le {k : Type*} [Field k] {n r : ℕ} (hr : n * n ≤ r)
+    (T : Tensor3 k n) : Passes111 T r :=
+  (candidate111_of_sq_le hr T).passes111
 
 /-! ## 4. The open question, made precise
 
@@ -360,25 +494,57 @@ UNPINNED-ANALOGY) is whether the (111) verdict can nonetheless be
 *re-expressed* as the output of some VP-computable distinguisher family
 — equivalently, whether the constructible sets `{T : Passes111 T (r n)}`
 are cut out (as decisions, for all sufficiently large `n`) by the
-vanishing of one VP family. No source resolves this either way. -/
+vanishing of one VP family. No source resolves this either way.
+
+CONTENT WINDOW (WP-B adversarial review, MAJOR-1 — a binding scope
+note). With `Passes111` real, the question is contentful only for rank
+families in the superlinear band `n ≲ r n < 2n³/(3n−1)`:
+  · if eventually `n² ≤ r n` (in fact already `r n ≥ ⌈2n³/(3n−1)⌉`, by
+    a dimension count not formalized here), then `Passes111 · (r n)` is
+    identically True (`passes111_of_sq_le`), the ZERO family decides it
+    (`VPFamily (fun _ => 0)` holds via `computedInSize_zero`,
+    Circuit.lean), so `DecidedByVP k r` HOLDS and `Vp2OpenQuestion k r`
+    is FALSE — a degenerate-parameter artifact, not barrier content;
+  · for `r n < n` the accept set is expected (over algebraically closed
+    fields) to have codimension ≥ 2 while a nonzero polynomial's zero
+    set has a codimension-1 component, so `Vp2OpenQuestion` there is
+    expected TRUE for pure dimension-counting reasons — again no
+    barrier content (not formalized: needs Krull dimension of
+    determinantal loci).
+Matrix-multiplication-type parameters (`r n ~ n^(1+ε)`; even generic
+border rank ≈ n³/(3n−2) ≈ n²/3 sits a factor ~2 below the vacuity
+threshold) live inside the informative band, so the intended reading of
+`Vp2OpenQuestion` survives — stated out loud rather than implied. -/
 
 /-- `DecidedByVP k r` says a VP family decides the (111) test at target
 rank `r n`: there is one VP-computable family `D` of polynomials in the
 tensor entries whose vanishing at `entries T` matches `Passes111 T (r n)`
 for *all* `T`, for all sufficiently large `n` (the `n₀` cutoff — the same
-asymptotic convention as `VPDistinguisherFamily.threshold`). -/
+asymptotic convention as `VPDistinguisherFamily.threshold`).
+
+Degenerate-parameter honesty: for rank families with eventually
+`n² ≤ r n` this HOLDS vacuously via the zero family
+(`passes111_of_sq_le` makes the right side identically True and
+`computedInSize_zero` makes `fun _ => 0` a `VPFamily`); see the §4
+content window above. The question is informative only in the
+superlinear band. -/
 def DecidedByVP (k : Type*) [Field k] (r : ℕ → ℕ) : Prop :=
   ∃ D : (n : ℕ) → MvPolynomial (EntryIndex n) k, VPFamily D ∧
     ∃ n₀ : ℕ, ∀ n, n₀ ≤ n → ∀ T : Tensor3 k n,
       (MvPolynomial.eval (entries T) (D n) = 0 ↔ Passes111 T (r n))
 
 /-- **The open question (Vp2OpenQuestion).** For matrix-multiplication–type
-parameters (a target-rank growth `r : ℕ → ℕ`), the (111) border apolarity
+parameters (a target-rank growth `r : ℕ → ℕ` inside the informative
+band — see the §4 content window), the modeled (111) border apolarity
 verdict is *not* decided by any VP-computable family of polynomials in
 the tensor entries. Packaged as a `Prop`, not a theorem: Vp1 establishes
-that no primary source proves or refutes it. A proof would be a genuine
-escape from the natural-proofs barrier; a refutation would place the
-(111) test back inside it. -/
+that no primary source proves or refutes it there. A proof would be a
+genuine escape from the natural-proofs barrier; a refutation would place
+the modeled (111) test back inside it. OUTSIDE the band the `Prop` is
+not open: it is FALSE for eventually-degenerate rank families
+(`n² ≤ r n` — zero family + `passes111_of_sq_le`) and expected TRUE for
+`r n < n` by dimension counting; both are degenerate-parameter artifacts
+without barrier content. -/
 def Vp2OpenQuestion (k : Type*) [Field k] (r : ℕ → ℕ) : Prop :=
   ¬ DecidedByVP k r
 
@@ -399,20 +565,37 @@ theorem vp2OpenQuestion_iff (k : Type*) [Field k] (r : ℕ → ℕ) :
   push Not
   rfl
 
-/-- Soundness anchor for the test (the supported direction of CHL's
-method, Vp1 §2d): if `T` has border rank `≤ r`, then the (111) test
-passes — there is a smoothable length-`r` apolar candidate. The converse
-(passing ⇒ border rank `≤ r`) is FALSE in general (candidates may fail to
-be smoothable), which is precisely why the test is a *search*, not an
-equation. -/
+/-- Soundness anchor for the modeled test (the supported direction of
+CHL's method, Vp1 §2d): if `T` has border rank `≤ r`, the (111) test
+passes. Proof: `vanishingIdeal_test111Locus_le` (Vp2/Apolarity.lean —
+Lemma A-spread plus the perturbation of an arbitrary rank decomposition
+along a polynomial line) gives
+`vI (test111Locus) ≤ vI (rankLocus)`; `zeroLocus` antitonicity turns
+that into `zeroLocus (vI (rankLocus)) ⊆ zeroLocus (vI (test111Locus))`,
+i.e. `BorderRankLE → Passes111`.
+
+CONVERSE FAILURE (why this is one-directional): for the MODELED test
+the converse fails for elementary reasons before smoothability ever
+enters — `Candidate111` omits the (210)/(120)-family pre-tests, the
+degree-(100) conditions (a strict relaxation exactly when `r < n`), all
+higher multidegrees, ideal extendability, and Borel-fixedness. For the
+sources' FULL test the converse fails further because a surviving
+candidate need not be a limit of ideals of SMOOTH schemes
+(Slip-membership — the cactus gap, CHL §1.3.1). That last gap is why
+the sources' verdict is a *search*, not an equation.
+
+DEVIATION (recorded in the CHANGELOG): gains `[Infinite k]`. BB/CHL
+prove soundness of the FULL Slip test over algebraically closed fields;
+this theorem is about the WEAKER modeled test's polynomial closure and
+holds over any infinite field — a strictly weaker hypothesis for a
+strictly weaker test: different theorems, neither subsuming the other.
+Over finite `k` the closure collapses pointwise
+(`Passes111 ⟺ Candidate111`), the pointwise statement
+`RankLE → Candidate111` for degenerate decompositions is not
+established by the sources, and no claim is made here. -/
 theorem passes111_of_borderRankLE
-    {k : Type*} [Field k] {n r : ℕ} (T : Tensor3 k n) (h : BorderRankLE T r) :
-    Passes111 T r := by
-  -- SORRY[Test111-sound]: the necessary-conditions direction of border
-  -- apolarity — a border-rank decomposition yields a smoothable apolar
-  -- candidate (CHL §7). With `BorderRankLE`/`Passes111` opaque, `h` has no
-  -- usable structure, so this is a bare `sorry`; it becomes provable once
-  -- `BorderRank`, `Apolarity`, `Test111`, `Smoothability` land.
-  sorry
+    {k : Type*} [Field k] [Infinite k] {n r : ℕ} (T : Tensor3 k n)
+    (h : BorderRankLE T r) : Passes111 T r :=
+  MvPolynomial.zeroLocus_anti_mono vanishingIdeal_test111Locus_le h
 
 end Vp2
