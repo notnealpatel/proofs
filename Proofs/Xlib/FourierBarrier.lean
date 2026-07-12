@@ -440,7 +440,8 @@ private lemma norm_trace_mul_le {m : Type*} [Fintype m]
       rw [sq_frobenius_norm, Fintype.sum_prod_type]
       exact Finset.sum_comm
     calc ∑ r : m, ∑ c : m, ‖M r c‖ * ‖N c r‖
-        = ∑ p : m × m, ‖M p.1 p.2‖ * ‖N p.2 p.1‖ := (Fintype.sum_prod_type _).symm
+        = ∑ p : m × m, ‖M p.1 p.2‖ * ‖N p.2 p.1‖ :=
+          (Fintype.sum_prod_type (f := fun p : m × m => ‖M p.1 p.2‖ * ‖N p.2 p.1‖)).symm
       _ ≤ Real.sqrt (∑ p : m × m, ‖M p.1 p.2‖ ^ 2)
             * Real.sqrt (∑ p : m × m, ‖N p.2 p.1‖ ^ 2) := hCS
       _ = ‖M‖ * ‖N‖ := by
@@ -469,17 +470,20 @@ private def conjAlgEquiv {m : ℕ} (B B' : Matrix (Fin m) (Fin m) ℂ)
   toFun y := B * y * B'
   invFun y := B' * y * B
   left_inv y := by
-    calc B' * (B * y * B') * B
-        = (B' * B) * y * (B' * B) := by noncomm_ring
-      _ = y := by rw [hB'B, one_mul, mul_one]
+    show B' * (B * y * B') * B = y
+    rw [show B' * (B * y * B') * B = (B' * B) * y * (B' * B) from by
+      simp only [mul_assoc], hB'B]
+    simp
   right_inv y := by
-    calc B * (B' * y * B) * B'
-        = (B * B') * y * (B * B') := by noncomm_ring
-      _ = y := by rw [hBB', one_mul, mul_one]
+    show B * (B' * y * B) * B' = y
+    rw [show B * (B' * y * B) * B' = (B * B') * y * (B * B') from by
+      simp only [mul_assoc], hBB']
+    simp
   map_mul' y z := by
-    calc B * (y * z) * B'
-        = (B * y) * (B' * B) * (z * B') := by noncomm_ring
-      _ = B * y * B' * (B * z * B') := by rw [hB'B]; noncomm_ring
+    show B * (y * z) * B' = B * y * B' * (B * z * B')
+    rw [show B * y * B' * (B * z * B') = B * y * (B' * B) * (z * B') from by
+      simp only [mul_assoc], hB'B]
+    simp only [mul_assoc, one_mul, mul_one]
   map_add' y z := by
     simp [Matrix.mul_add, Matrix.add_mul]
   commutes' c := by
@@ -504,6 +508,7 @@ private lemma piConjAlgEquiv_apply {k : ℕ} {d : Fin k → ℕ}
     piConjAlgEquiv B B' hBB' hB'B y i = B i * y i * B' i :=
   rfl
 
+open scoped ComplexOrder MatrixOrder in
 /-- **The unitarian trick** (Weyl): any indexed Wedderburn decomposition of the
 group algebra can be conjugated blockwise into a *unitary* one with the same
 block dimensions.  Conjugate block `i` by the positive factor `B i` of the
@@ -512,7 +517,115 @@ theorem exists_isUnitary {k : ℕ} {d : Fin k → ℕ}
     (e₀ : MonoidAlgebra ℂ G ≃ₐ[ℂ] ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ) :
     ∃ e : MonoidAlgebra ℂ G ≃ₐ[ℂ] ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ,
       IsUnitary e := by
-  sorry
+  classical
+  -- multiplicativity of the block representations
+  have ρ_mul : ∀ (i : Fin k) (g h : G),
+      (e₀ (MonoidAlgebra.single (g * h) 1)) i
+        = (e₀ (MonoidAlgebra.single g 1)) i * (e₀ (MonoidAlgebra.single h 1)) i := by
+    intro i g h
+    rw [show (MonoidAlgebra.single (g * h) (1 : ℂ))
+        = MonoidAlgebra.single g 1 * MonoidAlgebra.single h 1 from by
+      rw [MonoidAlgebra.single_mul_single, one_mul], map_mul]
+    rfl
+  have ρ_one : ∀ i : Fin k, (e₀ (MonoidAlgebra.single (1 : G) 1)) i = 1 := by
+    intro i
+    rw [show (MonoidAlgebra.single (1 : G) (1 : ℂ)) = 1 from rfl, map_one]
+    rfl
+  have ρ_mul_inv : ∀ (i : Fin k) (g : G),
+      (e₀ (MonoidAlgebra.single g 1)) i * (e₀ (MonoidAlgebra.single g⁻¹ 1)) i = 1 := by
+    intro i g
+    rw [← ρ_mul, mul_inv_cancel, ρ_one]
+  have ρ_unit : ∀ (i : Fin k) (g : G), IsUnit ((e₀ (MonoidAlgebra.single g 1)) i) :=
+    fun i g => Matrix.isUnit_of_right_inverse (ρ_mul_inv i g)
+  -- the averaged Gram matrices
+  set Q : ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ := fun i =>
+    ∑ g : G, ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * (e₀ (MonoidAlgebra.single g 1)) i
+    with hQdef
+  have hQPD : ∀ i, (Q i).PosDef := by
+    intro i
+    refine Matrix.posDef_sum Finset.univ_nonempty fun g _ => ?_
+    refine (Matrix.posSemidef_conjTranspose_mul_self _).posDef_iff_det_ne_zero.mpr ?_
+    rw [Matrix.det_mul, Matrix.det_conjTranspose]
+    have hu : IsUnit ((e₀ (MonoidAlgebra.single g 1)) i).det :=
+      (Matrix.isUnit_iff_isUnit_det _).mp (ρ_unit i g)
+    simp only [ne_eq, mul_eq_zero, not_or]
+    exact ⟨star_ne_zero.mpr hu.ne_zero, hu.ne_zero⟩
+  -- invariance of the Gram matrix under right translation
+  have hQinv : ∀ (i : Fin k) (g : G),
+      ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * Q i * (e₀ (MonoidAlgebra.single g 1)) i
+        = Q i := by
+    intro i g
+    calc ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * Q i * (e₀ (MonoidAlgebra.single g 1)) i
+        = ∑ h : G, ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ *
+            (((e₀ (MonoidAlgebra.single h 1)) i)ᴴ * (e₀ (MonoidAlgebra.single h 1)) i) *
+            (e₀ (MonoidAlgebra.single g 1)) i := by
+          rw [hQdef, Finset.mul_sum, Finset.sum_mul]
+      _ = ∑ h : G, ((e₀ (MonoidAlgebra.single (h * g) 1)) i)ᴴ *
+            (e₀ (MonoidAlgebra.single (h * g) 1)) i := by
+          refine Finset.sum_congr rfl fun h _ => ?_
+          rw [ρ_mul i h g, Matrix.conjTranspose_mul]
+          simp only [mul_assoc]
+      _ = Q i := by
+          rw [hQdef]
+          exact Fintype.sum_bijective (· * g) (Group.mulRight_bijective g) _ _
+            fun h => rfl
+  -- factor `Q i = (B i)ᴴ (B i)` with `B i` invertible
+  have hfac : ∀ i, ∃ B : Matrix (Fin (d i)) (Fin (d i)) ℂ, Q i = Bᴴ * B := by
+    intro i
+    obtain ⟨B, hB⟩ := CStarAlgebra.nonneg_iff_eq_star_mul_self.mp (hQPD i).posSemidef.nonneg
+    exact ⟨B, by simpa [Matrix.star_eq_conjTranspose] using hB⟩
+  choose B hB using hfac
+  have hBunit : ∀ i, IsUnit (B i) := by
+    intro i
+    have hQu : IsUnit ((B i)ᴴ * B i) := by rw [← hB]; exact (hQPD i).isUnit
+    rw [Matrix.isUnit_iff_isUnit_det] at hQu ⊢
+    rw [Matrix.det_mul, Matrix.det_conjTranspose] at hQu
+    exact isUnit_of_mul_isUnit_right hQu
+  have hBinv : ∀ i, ∃ B' : Matrix (Fin (d i)) (Fin (d i)) ℂ,
+      B i * B' = 1 ∧ B' * B i = 1 := by
+    intro i
+    obtain ⟨u, hu⟩ := hBunit i
+    exact ⟨↑u⁻¹, by rw [← hu]; exact u.mul_inv, by rw [← hu]; exact u.inv_mul⟩
+  choose B' hBB' hB'B using hBinv
+  refine ⟨e₀.trans (piConjAlgEquiv B B' hBB' hB'B), ?_⟩
+  intro g i
+  show B i * (e₀ (MonoidAlgebra.single g⁻¹ 1)) i * B' i
+      = (B i * (e₀ (MonoidAlgebra.single g 1)) i * B' i)ᴴ
+  -- the key intertwining relation `Q ρ(g⁻¹) = ρ(g)ᴴ Q`
+  have hkey : Q i * (e₀ (MonoidAlgebra.single g⁻¹ 1)) i
+      = ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * Q i := by
+    conv_lhs => rw [← hQinv i g]
+    rw [mul_assoc, ρ_mul_inv i g, mul_one]
+  -- rewrite the conjugate transpose of the right-hand side
+  have hrhs : (B i * (e₀ (MonoidAlgebra.single g 1)) i * B' i)ᴴ
+      = (B' i)ᴴ * ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * (B i)ᴴ := by
+    rw [Matrix.conjTranspose_mul, Matrix.conjTranspose_mul, ← mul_assoc]
+  rw [hrhs]
+  -- cancel the invertible factor `(B i)ᴴ` on the left
+  have hBH : IsUnit (B i)ᴴ := by
+    rw [Matrix.isUnit_iff_isUnit_det, Matrix.det_conjTranspose]
+    exact ((Matrix.isUnit_iff_isUnit_det _).mp (hBunit i)).star
+  apply hBH.mul_left_cancel
+  have hL : (B i)ᴴ * (B i * (e₀ (MonoidAlgebra.single g⁻¹ 1)) i * B' i)
+      = ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * (B i)ᴴ := by
+    calc (B i)ᴴ * (B i * (e₀ (MonoidAlgebra.single g⁻¹ 1)) i * B' i)
+        = Q i * (e₀ (MonoidAlgebra.single g⁻¹ 1)) i * B' i := by
+          rw [hB i]; simp only [mul_assoc]
+      _ = ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * Q i * B' i := by rw [hkey]
+      _ = ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * (B i)ᴴ * (B i * B' i) := by
+          rw [hB i]; simp only [mul_assoc]
+      _ = ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * (B i)ᴴ := by
+          rw [hBB' i, mul_one]
+  have hR : (B i)ᴴ * ((B' i)ᴴ * ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * (B i)ᴴ)
+      = ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * (B i)ᴴ := by
+    calc (B i)ᴴ * ((B' i)ᴴ * ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * (B i)ᴴ)
+        = ((B i)ᴴ * (B' i)ᴴ) * (((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * (B i)ᴴ) := by
+          simp only [mul_assoc]
+      _ = (B' i * B i)ᴴ * (((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * (B i)ᴴ) := by
+          rw [Matrix.conjTranspose_mul]
+      _ = ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * (B i)ᴴ := by
+          rw [hB'B i, Matrix.conjTranspose_one, one_mul]
+  rw [hL, hR]
 
 /-! ### Consequences of unitarity -/
 

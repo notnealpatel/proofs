@@ -324,7 +324,97 @@ variable {k : Type*} [Field k]
 the slice rank of `⟨w⟩` is at least `n`. -/
 theorem sliceRankLE_diag_full [DecidableEq k] {n : ℕ} (w : Fin n → k)
     (hw : ∀ i, w i ≠ 0) {r : ℕ} (h : SliceRankLE (diag w) r) : n ≤ r := by
-  sorry
+  obtain ⟨r₁, r₂, r₃, hr, f, M, g, N, e, P, hT⟩ := h
+  refine le_trans ?_ hr
+  -- contraction against the mode-1 slice functionals, as a linear map `Φ`
+  set Fmat : Matrix (Fin r₁) (Fin n) k := Matrix.of fun s i => f s i with hFmat
+  set Φ : (Fin n → k) →ₗ[k] (Fin r₁ → k) := Fmat.mulVecLin with hΦ
+  -- rank–nullity: `n ≤ r₁ + finrank (ker Φ)`
+  have hnull : Module.finrank k (LinearMap.range Φ) + Module.finrank k (LinearMap.ker Φ) = n := by
+    rw [LinearMap.finrank_range_add_finrank_ker Φ, Module.finrank_pi, Fintype.card_fin]
+  have hrange : Module.finrank k (LinearMap.range Φ) ≤ r₁ := by
+    refine le_trans (Submodule.finrank_le _) ?_
+    rw [Module.finrank_pi, Fintype.card_fin]
+  have hn_le : n ≤ r₁ + Module.finrank k (LinearMap.ker Φ) := by omega
+  -- a maximal-support vector `v` in `ker Φ`
+  obtain ⟨v, hvmem, hvcard⟩ := exists_mem_support_card_ge (LinearMap.ker Φ)
+  have hker : ∀ s, ∑ i, f s i * v i = 0 := by
+    intro s
+    have h0 : Φ v = 0 := LinearMap.mem_ker.mp hvmem
+    have := congrFun h0 s
+    simpa [hΦ, hFmat, Matrix.mulVecLin_apply, Matrix.mulVec, Matrix.dotProduct] using this
+  -- the contraction of the diagonal against `v`
+  have hdiagLHS : ∀ jj ll : Fin n,
+      (∑ i, v i * diag w i jj ll) = if jj = ll then v jj * w jj else 0 := by
+    intro jj ll
+    simp only [diag]
+    by_cases hjl : jj = ll
+    · rw [if_pos hjl, Finset.sum_eq_single_of_mem jj (Finset.mem_univ jj)]
+      · rw [if_pos (show jj = jj ∧ jj = ll from ⟨rfl, hjl⟩)]
+      · intro i _ hij
+        rw [if_neg (fun h => hij h.1), mul_zero]
+    · rw [if_neg hjl]
+      apply Finset.sum_eq_zero
+      intro i _
+      rw [if_neg (fun h => hjl h.2), mul_zero]
+  -- contracting the slice decomposition kills the mode-1 part (`hker`)
+  have contract : ∀ jj ll : Fin n, (∑ i, v i * diag w i jj ll)
+      = (∑ s : Fin r₂, g s jj * ∑ i, v i * N s i ll)
+        + ∑ s : Fin r₃, (∑ i, v i * P s i jj) * e s ll := by
+    intro jj ll
+    have step1 : (∑ i, v i * diag w i jj ll)
+        = ((∑ s : Fin r₁, (∑ i, v i * f s i) * M s jj ll)
+          + (∑ s : Fin r₂, g s jj * ∑ i, v i * N s i ll))
+          + ∑ s : Fin r₃, (∑ i, v i * P s i jj) * e s ll := by
+      simp only [hT, mul_add, Finset.sum_add_distrib]
+      refine congr_arg₂ (· + ·) (congr_arg₂ (· + ·) ?_ ?_) ?_
+      · simp only [Finset.mul_sum]; rw [Finset.sum_comm]
+        refine Finset.sum_congr rfl fun s _ => ?_
+        rw [Finset.sum_mul]; exact Finset.sum_congr rfl fun i _ => by ring
+      · simp only [Finset.mul_sum]; rw [Finset.sum_comm]
+        refine Finset.sum_congr rfl fun s _ => ?_
+        rw [Finset.mul_sum]; exact Finset.sum_congr rfl fun i _ => by ring
+      · simp only [Finset.mul_sum]; rw [Finset.sum_comm]
+        refine Finset.sum_congr rfl fun s _ => ?_
+        rw [Finset.sum_mul]; exact Finset.sum_congr rfl fun i _ => by ring
+    rw [step1]
+    have hz : (∑ s : Fin r₁, (∑ i, v i * f s i) * M s jj ll) = 0 := by
+      apply Finset.sum_eq_zero
+      intro s _
+      have : (∑ i, v i * f s i) = 0 := by
+        rw [← hker s]; exact Finset.sum_congr rfl fun i _ => by ring
+      rw [this, zero_mul]
+    rw [hz, zero_add]
+  -- the two contraction matrices `Hm`, `Vm`, so that `diag (v · w) = Hm * Vm`
+  set Hm : Matrix (Fin n) (Fin r₂ ⊕ Fin r₃) k :=
+    Matrix.of fun j x => Sum.elim (fun s => g s j) (fun s => ∑ i, v i * P s i j) x with hHm
+  set Vm : Matrix (Fin r₂ ⊕ Fin r₃) (Fin n) k :=
+    Matrix.of fun x l => Sum.elim (fun s => ∑ i, v i * N s i l) (fun s => e s l) x with hVm
+  have hmateq : Matrix.diagonal (fun j => v j * w j) = Hm * Vm := by
+    ext j l
+    rw [Matrix.diagonal_apply, Matrix.mul_apply, Fintype.sum_sum_type]
+    simp only [hHm, hVm, Matrix.of_apply, Sum.elim_inl, Sum.elim_inr]
+    rw [← hdiagLHS j l]
+    exact contract j l
+  -- `rank (diag (v · w)) ≤ r₂ + r₃`
+  have hrankle : (Matrix.diagonal (fun j => v j * w j)).rank ≤ r₂ + r₃ := by
+    rw [hmateq]
+    calc (Hm * Vm).rank ≤ Hm.rank := Matrix.rank_mul_le_left Hm Vm
+      _ ≤ Fintype.card (Fin r₂ ⊕ Fin r₃) := Matrix.rank_le_card_width Hm
+      _ = r₂ + r₃ := by rw [Fintype.card_sum, Fintype.card_fin, Fintype.card_fin]
+  -- `rank (diag (v · w)) = |support v|` (all diagonal entries of `w` nonzero)
+  have hdiagrank : (Matrix.diagonal (fun j => v j * w j)).rank
+      = (Finset.univ.filter fun i => v i ≠ 0).card := by
+    rw [Matrix.rank_diagonal, Fintype.card_subtype]
+    congr 1
+    refine Finset.filter_congr fun i _ => ?_
+    constructor
+    · exact fun h => left_ne_zero_of_mul h
+    · exact fun h => mul_ne_zero h (hw i)
+  -- assemble
+  have hfin : Module.finrank k (LinearMap.ker Φ) ≤ r₂ + r₃ :=
+    le_trans hvcard (hdiagrank ▸ hrankle)
+  omega
 
 /-- Tao's diagonal lemma (lower bound form): every slice-rank-≤ r decomposition of
 `⟨w⟩` over a field has `r` at least the number of nonzero diagonal entries. -/
