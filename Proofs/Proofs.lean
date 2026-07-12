@@ -25,5 +25,6 @@ import Proofs.Vp2.Vp2
 import Proofs.BilinearComplexity.Basic
 import Proofs.BilinearComplexity.RankCalculus
 import Proofs.BilinearComplexity.Flattening
+import Proofs.BilinearComplexity.Omega
 import Proofs.BilinearComplexity.Strassen
 import Proofs.Scratch
