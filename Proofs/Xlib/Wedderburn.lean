@@ -543,6 +543,85 @@ theorem isotypicLengthMultiset_pi [Fintype ι] [∀ i, IsSimpleRing (A i)]
 
 end PiFactor
 
+/-! ### Center glue: products and transport along algebra equivalences
+
+Small general lemmas about `Subalgebra.center` missing from Mathlib (which has
+`Set.center_pi` and `Subalgebra.pi` but no bridge, and no transport of the
+center along an `AlgEquiv`) — **upstream candidates**.  Consumed by the
+`#irreps = #conjugacy classes` count in `Xlib.CharDegrees`. -/
+
+section Center
+
+variable {R : Type*} [CommSemiring R]
+
+section Pi
+
+variable {ι : Type*} {S : ι → Type*} [∀ i, Semiring (S i)] [∀ i, Algebra R (S i)]
+
+/-- The center of a product algebra is the product of the centers
+(`Set.center_pi` lifted to `Subalgebra`). -/
+theorem center_pi :
+    Subalgebra.center R (Π i, S i) = Subalgebra.pi Set.univ fun i => Subalgebra.center R (S i) :=
+  SetLike.coe_injective Set.center_pi
+
+/-- The center of a product algebra is `R`-linearly equivalent to the product
+of the centers. -/
+def centerPiEquiv :
+    Subalgebra.center R (Π i, S i) ≃ₗ[R] Π i, Subalgebra.center R (S i) where
+  toFun z i := ⟨z.1 i, by
+    have hz : (z : Π i, S i) ∈ Set.center (Π i, S i) := z.2
+    rw [Set.center_pi] at hz
+    exact hz i (Set.mem_univ i)⟩
+  invFun c := ⟨fun i => (c i).1, by
+    show _ ∈ Set.center (Π i, S i)
+    rw [Set.center_pi]
+    exact fun i _ => (c i).2⟩
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+  left_inv _ := rfl
+  right_inv _ := rfl
+
+end Pi
+
+variable {A B : Type*} [Semiring A] [Semiring B] [Algebra R A] [Algebra R B]
+
+/-- An algebra equivalence maps the center onto the center. -/
+theorem map_center (e : A ≃ₐ[R] B) :
+    (Subalgebra.center R A).map (e : A →ₐ[R] B) = Subalgebra.center R B := by
+  ext b
+  simp only [Subalgebra.mem_map, Subalgebra.mem_center_iff]
+  constructor
+  · rintro ⟨a, ha, rfl⟩ c
+    calc c * e a = e (e.symm c * a) := by rw [map_mul, e.apply_symm_apply]
+      _ = e (a * e.symm c) := by rw [ha]
+      _ = e a * c := by rw [map_mul, e.apply_symm_apply]
+  · intro hb
+    refine ⟨e.symm b, fun c => e.injective ?_, e.apply_symm_apply b⟩
+    rw [map_mul, map_mul, e.apply_symm_apply]
+    exact hb (e c)
+
+/-- Transport of the center of an algebra along an algebra equivalence. -/
+def centerCongr (e : A ≃ₐ[R] B) :
+    Subalgebra.center R A ≃ₐ[R] Subalgebra.center R B :=
+  (e.subalgebraMap (Subalgebra.center R A)).trans
+    (Subalgebra.equivOfEq _ _ (map_center e))
+
+end Center
+
+/-- **The center of a finite product of central algebras has dimension the
+number of factors**: for nontrivial central algebras `A i` over a field `F`
+(e.g. matrix algebras `Matrix (Fin dᵢ) (Fin dᵢ) F` with `dᵢ ≠ 0`),
+`finrank F Z(Π i, A i) = card ι`. -/
+theorem finrank_center_pi {F : Type*} [Field F] {ι : Type*} [Fintype ι] {A : ι → Type*}
+    [∀ i, Semiring (A i)] [∀ i, Algebra F (A i)] [∀ i, Algebra.IsCentral F (A i)]
+    [∀ i, Nontrivial (A i)] :
+    Module.finrank F (Subalgebra.center F (Π i, A i)) = Fintype.card ι := by
+  rw [LinearEquiv.finrank_eq (centerPiEquiv (R := F) (S := A)),
+    LinearEquiv.finrank_eq (LinearEquiv.piCongrRight fun i =>
+      ((Subalgebra.equivOfEq _ _ (Algebra.IsCentral.center_eq_bot F (A i))).trans
+        (Algebra.botEquiv F (A i))).toLinearEquiv),
+    Module.finrank_pi]
+
 /-! ### The main theorem: Wedderburn uniqueness over an algebraically closed field -/
 
 /-- **Wedderburn uniqueness (algebraically closed case).**  If

@@ -92,13 +92,13 @@ lemma classSum_apply_of_mk_eq {x : ConjClasses G} {g : G} (h : ConjClasses.mk g 
     exact h
   refine (Finsupp.finsetSum_apply _ _ _).trans
     ((Finset.sum_eq_single_of_mem g hg fun b _ hbg => ?_).trans ?_)
-  · exact Finsupp.single_eq_of_ne hbg
+  · exact Finsupp.single_eq_of_ne' hbg
   · exact Finsupp.single_eq_same
 
 lemma classSum_apply_of_mk_ne {x : ConjClasses G} {g : G} (h : ConjClasses.mk g ≠ x) :
     classSum k x g = 0 := by
   refine (Finsupp.finsetSum_apply _ _ _).trans (Finset.sum_eq_zero fun b hb => ?_)
-  refine Finsupp.single_eq_of_ne fun hbg => h ?_
+  refine Finsupp.single_eq_of_ne' fun hbg => h ?_
   subst hbg
   rwa [Set.Finite.mem_toFinset, ConjClasses.mem_carrier_iff_mk_eq] at hb
 
@@ -137,14 +137,15 @@ lemma sum_smul_classSum_apply [Fintype (ConjClasses G)] (c : ConjClasses G → k
 theorem linearIndependent_classSumCenter :
     LinearIndependent k (classSumCenter k (G := G)) := by
   letI := Fintype.ofFinite (ConjClasses G)
-  rw [Fintype.linearIndependent_iff]
-  intro c hc x
+  rw [Fintype.linearIndependent_iffₛ]
+  intro c c' hcc x
   obtain ⟨g, rfl⟩ := ConjClasses.mk_surjective x
-  have hc' : ∑ x, c x • classSum k x = (0 : MonoidAlgebra k G) := by
-    simpa using congrArg Subtype.val hc
-  have heval := sum_smul_classSum_apply k c g
-  rw [hc'] at heval
-  simpa using heval.symm
+  have hcc' : ∑ x, c x • classSum k x = ∑ x, c' x • classSum k x := by
+    simpa using congrArg Subtype.val hcc
+  calc c (ConjClasses.mk g)
+      = (∑ x, c x • classSum k x) g := (sum_smul_classSum_apply k c g).symm
+    _ = (∑ x, c' x • classSum k x) g := by rw [hcc']
+    _ = c' (ConjClasses.mk g) := sum_smul_classSum_apply k c' g
 
 /-- The class sums span the center. -/
 theorem span_classSumCenter :

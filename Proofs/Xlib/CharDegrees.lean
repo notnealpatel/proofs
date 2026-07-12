@@ -1,5 +1,6 @@
 import Xlib.TPP
 import Xlib.Wedderburn
+import Xlib.GroupAlgebraCenter
 
 /-!
 # Character degrees: the indexed representation-theory foundation
@@ -237,8 +238,23 @@ of `ℂ[G]` equals both the number of simple factors (one per irrep, from the
 Wedderburn decomposition) and the number of conjugacy classes (the class sums are
 a basis of the center). Absent from Mathlib. `sorry`. -/
 theorem card_charDegrees (G : Type*) [Group G] [Fintype G] :
-    Multiset.card (charDegrees G) = Nat.card (ConjClasses G) :=
-  sorry
+    Multiset.card (charDegrees G) = Nat.card (ConjClasses G) := by
+  haveI : NeZero (Nat.card G : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
+  obtain ⟨n, d, hd, ⟨e⟩⟩ :=
+    IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed ℂ (MonoidAlgebra ℂ G)
+  haveI := hd
+  haveI : ∀ i, Nonempty (Fin (d i)) := fun i => ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne (d i))⟩⟩
+  -- the number of irreps is the number of matrix blocks
+  have h1 : Multiset.card (charDegrees G) = n := by
+    rw [charDegrees_eq_of_algEquiv G e, Multiset.card_map]
+    exact Finset.card_fin n
+  -- the dimension of the center, computed on the matrix side, is also `n`
+  have h2 : Module.finrank ℂ (Subalgebra.center ℂ (MonoidAlgebra ℂ G)) = n := by
+    rw [LinearEquiv.finrank_eq (Wedderburn.centerCongr e).toLinearEquiv,
+      Wedderburn.finrank_center_pi, Fintype.card_fin]
+  -- the dimension of the center, computed via class sums, is `#ConjClasses G`
+  have h3 := GroupAlgebraCenter.finrank_center ℂ G
+  omega
 
 /-! ### Immediate consequences of the foundation theorems (`sorry`-free) -/
 
