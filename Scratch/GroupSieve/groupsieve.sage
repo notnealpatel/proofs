@@ -678,7 +678,7 @@ def generate_summary(start_order, end_order):
 # Main
 # ---------------------------------------------------------------------------
 
-def main():
+def main(argv):
     parser = argparse.ArgumentParser(description="TPP group sieve (consolidated)")
     parser.add_argument("--harness-only", action="store_true",
                         help="run the falsifiability harness and exit")
@@ -690,7 +690,7 @@ def main():
                         help="soft seconds per order, 0 = none (default 300)")
     parser.add_argument("--budget-min", type=int, default=0,
                         help="overall wall-clock budget in minutes, 0 = none")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.summary_only:
         path = generate_summary(args.start, args.end)
@@ -710,5 +710,8 @@ def main():
     print("Summary: %s" % path, flush=True)
 
 
-if __name__ == "__main__":
-    main()
+# The sage.cli runner executes this file inside sage_globals(), not
+# under __name__ == "__main__" — an if-guard would silently skip
+# main(). It also forwards the literal "--" separator that
+# `sage groupsieve.sage -- --flags` requires; strip it here.
+main([a for a in sys.argv[1:] if a != "--"])
