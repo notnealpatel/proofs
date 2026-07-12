@@ -198,14 +198,34 @@ count `ℂ`-dimensions resp. match centers). -/
 /-- **Sum of squared degrees equals the group order:** `D₂(G) = |G|`, i.e.
 `Σᵢ dᵢ² = |G|`.
 
-This is the fundamental identity of complex representation theory. Standard
-proof: the indexed Wedderburn decomposition gives
-`ℂ[G] ≃ₐ[ℂ] Π i, Matrix (Fin dᵢ) (Fin dᵢ) ℂ`; taking `ℂ`-dimensions of both sides,
-`dim ℂ[G] = Σᵢ dᵢ²`, and `dim ℂ[G] = |G|` (the group elements are a basis).
-Absent from Mathlib (no `Σ dᵢ² = |G|` declaration). `sorry`. -/
+This is the fundamental identity of complex representation theory, absent from
+Mathlib (no `Σ dᵢ² = |G|` declaration) — **upstream candidate**.
+
+Proof: Maschke (`NeZero (|G| : ℂ)`) makes `ℂ[G]` semisimple, so
+`IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed` yields an indexed
+Wedderburn decomposition `e : ℂ[G] ≃ₐ[ℂ] Π i, Matrix (Fin dᵢ) (Fin dᵢ) ℂ`; the
+bridge lemma `charDegrees_eq_of_algEquiv` identifies `charDegrees G` with
+`{dᵢ}`, and taking `ℂ`-dimensions along `e` gives
+`|G| = dim ℂ[G] = Σᵢ dim (Matrix (Fin dᵢ) (Fin dᵢ) ℂ) = Σᵢ dᵢ²` (the group
+elements are a basis of `ℂ[G]`; each matrix block contributes `dᵢ²`). -/
 theorem charDegreeSum_two (G : Type*) [Group G] [Fintype G] :
-    charDegreeSum G 2 = Fintype.card G :=
-  sorry
+    charDegreeSum G 2 = Fintype.card G := by
+  haveI : NeZero (Nat.card G : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
+  obtain ⟨n, d, hd, ⟨e⟩⟩ :=
+    IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed ℂ (MonoidAlgebra ℂ G)
+  haveI := hd
+  have hsum : charDegreeSum G 2 = ∑ i, d i ^ 2 := by
+    unfold charDegreeSum
+    rw [charDegrees_eq_of_algEquiv G e, Multiset.map_map]
+    rfl
+  have hR : Module.finrank ℂ (Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ) = ∑ i, d i ^ 2 := by
+    rw [Module.finrank_pi_fintype]
+    exact Finset.sum_congr rfl fun i _ => by
+      rw [Module.finrank_matrix, Fintype.card_fin, Module.finrank_self, mul_one, pow_two]
+  calc charDegreeSum G 2 = ∑ i, d i ^ 2 := hsum
+    _ = Module.finrank ℂ (Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ) := hR.symm
+    _ = Module.finrank ℂ (MonoidAlgebra ℂ G) := e.toLinearEquiv.finrank_eq.symm
+    _ = Fintype.card G := Module.finrank_eq_card_basis (MonoidAlgebra.basis G ℂ)
 
 /-- **Number of irreps equals number of conjugacy classes:** the cardinality of
 the character-degree multiset equals `|ConjClasses G|`.
