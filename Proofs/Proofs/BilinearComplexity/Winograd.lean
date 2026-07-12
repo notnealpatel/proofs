@@ -125,6 +125,52 @@ theorem swap_forced {k : Type*} [CommRing k] {a b c r : ℕ}
   · intro s hs
     exact ⟨if_neg hs, if_neg hs⟩
 
+/-- A-vector `a₀₁` (the surviving first A-coordinate of orbit 4). -/
+def p0 : Fin 2 → ZMod 2 := ![1, 0]
+/-- B-vector `b₁₀` — the B-part of the forced product at slice `c₀₀`. -/
+def q0 : Fin 4 → ZMod 2 := ![0, 0, 1, 0]
+/-- B-vector `b₁₁` — the B-part of the forced product at slice `c₁₀`. -/
+def q1 : Fin 4 → ZMod 2 := ![0, 0, 0, 1]
+
+/-- The forced-product residual: `T4` with the two forced products
+`a₀₁⊗b₁₀⊗W0` (slice `c₀₀`) and `a₀₁⊗b₁₁⊗W1` (slice `c₁₀`) stripped, for
+arbitrary C-completions `W0, W1`. -/
+def Xres (W0 W1 : Fin 4 → ZMod 2) : Tensor (ZMod 2) 2 4 4 :=
+  fun i j l => T4 i j l - p0 i * q0 j * W0 l - p0 i * q1 j * W1 l
+
+/-- Column selection `(l,i)` picking the four B-flattening columns
+`{(c₀₁,a₀₁),(c₁₁,a₀₁),(c₀₁,a₁₁),(c₁₁,a₁₁)}` (the odd-C columns) that carry an
+invertible submatrix of the residual, uniformly in `W0,W1`. -/
+def colsel : Fin 4 → Fin 4 × Fin 2 := ![(1, 0), (3, 0), (1, 1), (3, 1)]
+
+/-- The invertible witness: the residual's B-flattening restricted to
+`colsel` is block-unitriangular (`W`-dependent lower-left block, identity
+blocks on the diagonal), hence an involution over `F₂`. -/
+def Msub (W0 W1 : Fin 4 → ZMod 2) : Matrix (Fin 4) (Fin 4) (ZMod 2) :=
+  !![1, 0, 0, 0; 0, 1, 0, 0; W0 1, W0 3, 1, 0; W1 1, W1 3, 0, 1]
+
+/-- **Residual flattening bound.** For every completion `W0, W1`, the
+B-flattening `flattening (cyc (Xres W0 W1))` has rank ≥ 4: its `colsel`
+submatrix is `Msub W0 W1`, an involution (`Msub² = 1` over `F₂`), hence a
+unit of full rank 4, and `rank_submatrix_le` transfers the bound. -/
+theorem resid_flat_rank (W0 W1 : Fin 4 → ZMod 2) :
+    4 ≤ (flattening (cyc (Xres W0 W1))).rank := by
+  have hneg : ∀ x : ZMod 2, -x = x := by decide
+  have hadd : ∀ x : ZMod 2, x + x = 0 := by decide
+  have hsub : (flattening (cyc (Xres W0 W1))).submatrix id colsel = Msub W0 W1 := by
+    ext j k
+    fin_cases j <;> fin_cases k <;>
+      simp [flattening, cyc, Xres, Msub, colsel, T4, p0, q0, q1, hneg]
+  have hinv : Msub W0 W1 * Msub W0 W1 = 1 := by
+    ext a b
+    fin_cases a <;> fin_cases b <;>
+      simp [Matrix.mul_apply, Fin.sum_univ_four, Msub, Matrix.one_apply, hadd]
+  have hU : IsUnit (Msub W0 W1) := IsUnit.of_mul_eq_one _ hinv
+  calc (4 : ℕ) = Fintype.card (Fin 4) := (Fintype.card_fin 4).symm
+    _ = (Msub W0 W1).rank := (Matrix.rank_of_isUnit _ hU).symm
+    _ = ((flattening (cyc (Xres W0 W1))).submatrix id colsel).rank := by rw [hsub]
+    _ ≤ (flattening (cyc (Xres W0 W1))).rank := Matrix.rank_submatrix_le _ _ _
+
 /-- A tensor written as a triad sum over a `Finset` `S` of term indices has
 `RankLE` at most `S.card` — reindex `S` by `S.equivFin`. -/
 theorem rankLE_of_finset_sum {k : Type*} [CommSemiring k] {a b c r : ℕ}
