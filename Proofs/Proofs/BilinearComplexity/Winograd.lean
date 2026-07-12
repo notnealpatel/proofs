@@ -101,7 +101,7 @@ theorem swap_forced {k : Type*} [CommRing k] {a b c r : ℕ}
             else -(u s i * v s j * w s z₀)) * w s₀ l := by
       intro s
       by_cases hs : s = s₀
-      · subst hs; simp only [if_pos rfl]; ring
+      · subst hs; simp only [↓reduceIte]; ring
       · simp only [if_neg hs]; ring
     have hzero : (∑ s, if s = s₀ then p i * q j - u s₀ i * v s₀ j
         else -(u s i * v s j * w s z₀)) = 0 := by
@@ -111,15 +111,19 @@ theorem swap_forced {k : Type*} [CommRing k] {a b c r : ℕ}
         apply Finset.sum_congr rfl
         intro s _
         by_cases hs : s = s₀
-        · subst hs; simp only [if_pos rfl, hs₀, mul_one]; ring
+        · subst hs; simp only [↓reduceIte, hs₀, mul_one]; ring
         · simp only [if_neg hs]; ring
-      rw [Finset.sum_add_distrib, Finset.sum_ite_eq' Finset.univ s₀ (fun _ => p i * q j),
-        Finset.mem_univ, if_true, hslice i j] at h1
-      linear_combination h1
-    rw [Finset.sum_congr rfl (fun s _ => key s), Finset.sum_add_distrib, ← Finset.sum_mul,
-      hzero, zero_mul, add_zero]
+      rw [Finset.sum_add_distrib, Finset.sum_ite_eq' Finset.univ s₀ (fun _ => p i * q j)] at h1
+      simp only [Finset.mem_univ, if_true] at h1
+      rw [hslice i j] at h1
+      exact add_right_cancel (h1.trans (zero_add _).symm)
+    trans (∑ s, (u s i * v s j * w s l +
+        (if s = s₀ then p i * q j - u s₀ i * v s₀ j
+          else -(u s i * v s j * w s z₀)) * w s₀ l))
+    · exact Finset.sum_congr rfl (fun s _ => key s)
+    · rw [Finset.sum_add_distrib, ← Finset.sum_mul, hzero, zero_mul, add_zero]
   · intro s hs
-    simp [hs]
+    exact ⟨if_neg hs, if_neg hs⟩
 
 /-- **Hopcroft–Kerr forced product (orbit 4).** The 2×4×4 tensor `T4` has
 rank at least 6. This is the hard core: the two rank-1 C-slices at `c₀₀`

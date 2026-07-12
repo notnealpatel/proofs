@@ -210,6 +210,7 @@ symmetric under swapping `T` and `U`. Proved through the quotient-set
 characterization `tripleProductProperty_iff_leftQuot`: a relation
 `q₁ q₂ q₃ = 1` with `q₂ ∈ Q(U)`, `q₃ ∈ Q(T)` inverts and cyclically rotates to
 `q₁⁻¹ q₃⁻¹ q₂⁻¹ = 1` in the `(S, T, U)` order, where the original TPP applies. -/
+omit [Fintype G] in
 theorem tpp_perm_swap23 {S T U : Finset G} (h : TripleProductProperty S T U) :
     TripleProductProperty S U T := by
   rw [tripleProductProperty_iff_leftQuot] at h ⊢
@@ -230,6 +231,7 @@ theorem tpp_perm_swap23 {S T U : Finset G} (h : TripleProductProperty S T U) :
 under the cyclic rotation `(S, T, U) ↦ (T, U, S)`. A relation `q₁ q₂ q₃ = 1`
 with `q₁ ∈ Q(T)`, `q₂ ∈ Q(U)`, `q₃ ∈ Q(S)` rotates to `q₃ q₁ q₂ = 1` in the
 `(S, T, U)` order, where the original TPP applies. -/
+omit [Fintype G] in
 theorem tpp_perm_rotate {S T U : Finset G} (h : TripleProductProperty S T U) :
     TripleProductProperty T U S := by
   rw [tripleProductProperty_iff_leftQuot] at h ⊢
@@ -296,7 +298,6 @@ theorem pairSumBound {S T U : Finset G} (h : TripleProductProperty S T U)
     rw [Finset.mem_product] at hxy
     simp only at hw1
     obtain ⟨q, hqE, hw2⟩ := hwW
-    simp only at hw2
     rw [Finset.mem_erase] at hqE
     obtain ⟨hqne, hqU⟩ := hqE
     have hq1 : s₀⁻¹ * x ∈ leftQuot S := mem_leftQuot.mpr ⟨x, hxy.1, s₀, hs₀, rfl⟩
@@ -329,19 +330,97 @@ end PairwiseBounds
 /-- **The universal pseudo-exponent lower bound:** every nontrivial finite group
 has `α(G) > 2` [math/0307321, CU.tex:478–500].
 
-CU proof sketch: if `G` realizes `⟨n₁,n₂,n₃⟩` (with `n₁n₂n₃ > 1`), the pairwise
-quotient-set bounds give `|G| ≥ nᵢnⱼ` for each pair, with strict inequality
-unless the third index is `1`; multiplying the three gives `|G|³ > (n₁n₂n₃)²`,
-i.e. `α(G) > 2`. (The three pairwise bounds are
-`Xlib.TPP.card_inter_*` / `leftQuot_inter_*` flavoured; assembling them into the
-cubed inequality and converting to the `log` form is the remaining work.)
-
-`sorry`: the assembly of the three pairwise bounds into `|G|³ > β(G)²` and the
-`log`-monotonicity step are not yet ported. -/
+CU proof: let `(S, T, U)` be a TPP triple *realizing* `β(G) = tppCapacity G`, so
+`β(G) = |S|·|T|·|U|` and, `G` being nontrivial, `β(G) ≥ |G| ≥ 2 > 1`. The three
+pairwise sum-product bounds (`pairSumBound`, applied through the permutation
+helpers `tpp_perm_swap23`/`tpp_perm_rotate` to reach the `(S,U)` and `(T,U)`
+pairs) give `|S|·|T| + |U| ≤ |G| + 1` and cyclically. Since `β(G) > 1` at least
+one of `|S|, |T|, |U|` is `≥ 2`, making the corresponding pairwise product bound
+*strict*; multiplying the three (via `(|S||T||U|)² = (|S||T|)(|S||U|)(|T||U|)`)
+yields the strict cube inequality `β(G)² < |G|³` in `ℕ`. Casting to `ℝ` and
+applying `log`-monotonicity (`Real.log_lt_log`, `Real.log_pow`) converts
+`β(G)² < |G|³` to `2·log β(G) < 3·log|G|`, i.e. `2 < 3·log|G| / log β(G) = α(G)`
+(`lt_div_iff₀`, using `log β(G) > 0`). -/
 theorem two_lt_pseudoExponent (G : Type*)
     [Group G] [Fintype G] [DecidableEq G] [Nontrivial G] :
-    2 < pseudoExponent G :=
-  sorry
+    2 < pseudoExponent G := by
+  classical
+  -- A TPP triple `(S, T, U)` realizing the capacity `β(G) = |S|·|T|·|U|`.
+  have hne : (tppTriples G).Nonempty :=
+    ⟨(Finset.univ, {1}, {1}), mem_tppTriples.mpr tpp_trivial⟩
+  obtain ⟨p, hpmem, hpsup⟩ :=
+    Finset.exists_mem_eq_sup (tppTriples G) hne
+      (fun p => p.1.card * p.2.1.card * p.2.2.card)
+  obtain ⟨S, T, U⟩ := p
+  have hTPP : TripleProductProperty S T U := mem_tppTriples.mp hpmem
+  have hβeq : tppCapacity G = S.card * T.card * U.card := hpsup
+  have hN1 : 1 < Fintype.card G := Fintype.one_lt_card
+  have hβN : Fintype.card G ≤ tppCapacity G := card_le_tppCapacity
+  have hβ1 : 1 < S.card * T.card * U.card := by rw [← hβeq]; omega
+  -- All three sets are nonempty (else the product would be `0`).
+  have hpos : S.card ≠ 0 ∧ T.card ≠ 0 ∧ U.card ≠ 0 := by
+    have hne0 : S.card * T.card * U.card ≠ 0 := by omega
+    rw [mul_ne_zero_iff, mul_ne_zero_iff] at hne0
+    exact ⟨hne0.1.1, hne0.1.2, hne0.2⟩
+  have hS : S.Nonempty := Finset.card_pos.mp (Nat.pos_of_ne_zero hpos.1)
+  have hT : T.Nonempty := Finset.card_pos.mp (Nat.pos_of_ne_zero hpos.2.1)
+  have hU : U.Nonempty := Finset.card_pos.mp (Nat.pos_of_ne_zero hpos.2.2)
+  -- The three pairwise sum-product bounds.
+  have hb1 := pairSumBound hTPP hS hT hU
+  have hb2 := pairSumBound (tpp_perm_swap23 hTPP) hS hU hT
+  have hb3 := pairSumBound (tpp_perm_rotate hTPP) hT hU hS
+  set a := S.card with ha_def
+  set b := T.card with hb_def
+  set c := U.card with hc_def
+  have ha : 0 < a := Nat.pos_of_ne_zero hpos.1
+  have hb : 0 < b := Nat.pos_of_ne_zero hpos.2.1
+  have hc : 0 < c := Nat.pos_of_ne_zero hpos.2.2
+  -- Product bounds `|Sᵢ|·|Sⱼ| ≤ |G|`, and at least one is strict.
+  have pab : a * b ≤ Fintype.card G := by omega
+  have pac : a * c ≤ Fintype.card G := by omega
+  have pbc : b * c ≤ Fintype.card G := by omega
+  have hsome : 2 ≤ a ∨ 2 ≤ b ∨ 2 ≤ c := by
+    by_contra hcon
+    push_neg at hcon
+    obtain ⟨hca, hcb, hcc⟩ := hcon
+    have hae : a = 1 := by omega
+    have hbe : b = 1 := by omega
+    have hce : c = 1 := by omega
+    rw [hae, hbe, hce] at hβ1
+    omega
+  -- `(|S||T||U|)² = (|S||T|)(|S||U|)(|T||U|) < |G|³`.
+  have cube_lt : ∀ x y z : ℕ, x ≤ Fintype.card G → y ≤ Fintype.card G →
+      z < Fintype.card G → x * y * z < Fintype.card G ^ 3 := by
+    intro x y z hx hy hz
+    have hNpos : 0 < Fintype.card G := by omega
+    calc x * y * z ≤ Fintype.card G * Fintype.card G * z :=
+          Nat.mul_le_mul (Nat.mul_le_mul hx hy) (le_refl _)
+      _ < Fintype.card G * Fintype.card G * Fintype.card G :=
+          mul_lt_mul_of_pos_left hz (Nat.mul_pos hNpos hNpos)
+      _ = Fintype.card G ^ 3 := by ring
+  have hcube : (a * b * c) ^ 2 < Fintype.card G ^ 3 := by
+    rcases hsome with h2 | h2 | h2
+    · rw [show (a * b * c) ^ 2 = a * b * (a * c) * (b * c) by ring]
+      exact cube_lt _ _ _ pab pac (by omega)
+    · rw [show (a * b * c) ^ 2 = a * b * (b * c) * (a * c) by ring]
+      exact cube_lt _ _ _ pab pbc (by omega)
+    · rw [show (a * b * c) ^ 2 = a * c * (b * c) * (a * b) by ring]
+      exact cube_lt _ _ _ pac pbc (by omega)
+  have hβcube : tppCapacity G ^ 2 < Fintype.card G ^ 3 := by rw [hβeq]; exact hcube
+  -- Convert to the `log` form: `2·log β < 3·log|G|`, hence `2 < α(G)`.
+  have hβR : (1 : ℝ) < (tppCapacity G : ℝ) := by
+    have : 1 < tppCapacity G := lt_of_lt_of_le hN1 hβN
+    exact_mod_cast this
+  have hlogβ : 0 < Real.log (tppCapacity G) := Real.log_pos hβR
+  have hβpos : (0 : ℝ) < (tppCapacity G : ℝ) := lt_trans one_pos hβR
+  rw [pseudoExponent, lt_div_iff₀ hlogβ]
+  have e1 : (2 : ℝ) * Real.log (tppCapacity G) = Real.log ((tppCapacity G : ℝ) ^ 2) := by
+    rw [Real.log_pow]; norm_num
+  have e2 : (3 : ℝ) * Real.log (Fintype.card G) = Real.log ((Fintype.card G : ℝ) ^ 3) := by
+    rw [Real.log_pow]; norm_num
+  rw [e1, e2]
+  apply Real.log_lt_log (pow_pos hβpos 2)
+  exact_mod_cast hβcube
 
 /-! ### Cohn–Umans Theorem 4.1 (sorry) -/
 
