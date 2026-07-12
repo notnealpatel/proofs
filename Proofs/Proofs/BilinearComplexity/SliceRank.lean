@@ -48,6 +48,7 @@ import Mathlib.Data.Fintype.BigOperators
 import Mathlib.Data.Fintype.Card
 import Mathlib.Data.Nat.Lattice
 import Proofs.BilinearComplexity.Basic
+import Proofs.BilinearComplexity.RankCalculus
 
 namespace BilinearComplexity
 
@@ -264,6 +265,32 @@ at most the number of nonzero diagonal entries. -/
 theorem sliceRank_diag_le [DecidableEq k] {n : ℕ} (w : Fin n → k) :
     sliceRank (diag w) ≤ (Finset.univ.filter fun i => w i ≠ 0).card :=
   sliceRank_le_of_sliceRankLE (sliceRankLE_diag w)
+
+/-! ## 6. Cyclic rotation -/
+
+/-- Slice rank does not increase under cyclic rotation: a mode-1 slice
+of `T` is a mode-3 slice of `cyc T`, a mode-2 slice a mode-1 slice, a
+mode-3 slice a mode-2 slice — the three parts rotate. -/
+theorem SliceRankLE.cyc {T : Tensor k a b c} {r : ℕ} (h : SliceRankLE T r) :
+    SliceRankLE (cyc T) r := by
+  obtain ⟨r₁, r₂, r₃, hr, f, M, g, N, e, P, hT⟩ := h
+  refine ⟨r₂, r₃, r₁, by omega, g, fun s L I => N s I L, e, fun s J I => P s I J,
+    f, fun s J L => M s J L, ?_⟩
+  intro J L I
+  dsimp only [cyc_apply]
+  rw [hT I J L]
+  ring
+
+/-- Slice rank-≤ is invariant under cyclic rotation (rotate twice more
+to come back around, using `cyc³ = id`). -/
+theorem sliceRankLE_cyc_iff {T : Tensor k a b c} {r : ℕ} :
+    SliceRankLE (cyc T) r ↔ SliceRankLE T r :=
+  ⟨fun h => h.cyc.cyc, SliceRankLE.cyc⟩
+
+/-- Slice rank is invariant under cyclic rotation. -/
+@[simp] theorem sliceRank_cyc (T : Tensor k a b c) : sliceRank (cyc T) = sliceRank T :=
+  le_antisymm (sliceRank_le_of_sliceRankLE (sliceRankLE_sliceRank T).cyc)
+    (sliceRank_le_of_sliceRankLE ((sliceRankLE_sliceRank (cyc T)).cyc.cyc))
 
 end SliceRank
 

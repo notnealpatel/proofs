@@ -114,8 +114,8 @@ theorem reindex_kron_matMulTensor (k : Type*) [CommSemiring k]
   funext i j l
   simp only [reindex, kron_apply, matMulTensor_apply, kronMulEquiv,
     Equiv.symm_trans_apply, Equiv.prodCongr_symm, Equiv.prodProdProdComm_symm,
-    Equiv.symm_symm, Equiv.prodProdProdComm_apply, Prod.map_apply',
-    Equiv.symm_apply_apply, ite_zero_mul_ite_zero, mul_one]
+    Equiv.symm_symm, Equiv.prodCongr_apply, Equiv.prodProdProdComm_apply,
+    Prod.map_apply', Equiv.symm_apply_apply, ite_zero_mul_ite_zero, mul_one]
   refine if_congr ?_ rfl rfl
   simp only [pair_eq]
   tauto
