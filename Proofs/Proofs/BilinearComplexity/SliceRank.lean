@@ -47,6 +47,7 @@ import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Data.Fintype.BigOperators
 import Mathlib.Data.Fintype.Card
 import Mathlib.Data.Nat.Lattice
+import Mathlib.LinearAlgebra.Matrix.Rank
 import Proofs.BilinearComplexity.Basic
 import Proofs.BilinearComplexity.RankCalculus
 
@@ -293,5 +294,51 @@ theorem sliceRankLE_cyc_iff {T : Tensor k a b c} {r : ℕ} :
     (sliceRank_le_of_sliceRankLE ((sliceRankLE_sliceRank (cyc T)).cyc.cyc))
 
 end SliceRank
+
+/-! ## 7. Tao's diagonal lemma: the slice-rank lower bound
+
+The matching lower bound to `sliceRank_diag_le`: over a field, the slice rank of
+the diagonal tensor `⟨w⟩` is *exactly* the number of nonzero diagonal entries
+(Tao's diagonal lemma, the hinge of the slice-rank method). The proof contracts a
+slice decomposition against a vector `v` in the joint kernel of the mode-1 slice
+functionals; the contraction is a diagonal matrix `diag (v · w)` on one side and a
+sum of `r₂ + r₃` rank-one matrices on the other, so `rank (diag (v · w)) ≤ r₂ + r₃`.
+Choosing `v` with maximal support inside that kernel (the "large support" lemma
+`exists_mem_support_card_ge`) forces `(support card) - r₁ ≤ r₂ + r₃`. -/
+
+section TaoDiagonal
+
+/-- **Large-support lemma.** A subspace `V ⊆ (ι → K)` over a field contains a
+vector whose number of nonzero coordinates is at least `finrank K V`. Equivalently,
+`V` cannot consist entirely of vectors with fewer than `finrank K V` nonzero
+coordinates. This is what upgrades the diagonal contraction from "some `v`" to "a
+`v` that sees the whole support". -/
+theorem exists_mem_support_card_ge {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {K : Type*} [Field K] [DecidableEq K] (V : Submodule K (ι → K)) :
+    ∃ v ∈ V, Module.finrank K V ≤ (Finset.univ.filter fun i => v i ≠ 0).card := by
+  sorry
+
+variable {k : Type*} [Field k]
+
+/-- Full-support case of Tao's diagonal lemma: if every diagonal entry is nonzero,
+the slice rank of `⟨w⟩` is at least `n`. -/
+theorem sliceRankLE_diag_full [DecidableEq k] {n : ℕ} (w : Fin n → k)
+    (hw : ∀ i, w i ≠ 0) {r : ℕ} (h : SliceRankLE (diag w) r) : n ≤ r := by
+  sorry
+
+/-- Tao's diagonal lemma (lower bound form): every slice-rank-≤ r decomposition of
+`⟨w⟩` over a field has `r` at least the number of nonzero diagonal entries. -/
+theorem card_le_of_sliceRankLE_diag [DecidableEq k] {n : ℕ} (w : Fin n → k) {r : ℕ}
+    (h : SliceRankLE (diag w) r) : (Finset.univ.filter fun i => w i ≠ 0).card ≤ r := by
+  sorry
+
+/-- **Tao's diagonal lemma.** Over a field, the slice rank of the diagonal tensor
+`⟨w⟩` equals the number of nonzero diagonal entries. -/
+theorem sliceRank_diag [DecidableEq k] {n : ℕ} (w : Fin n → k) :
+    sliceRank (diag w) = (Finset.univ.filter fun i => w i ≠ 0).card :=
+  le_antisymm (sliceRank_diag_le w)
+    (card_le_of_sliceRankLE_diag w (sliceRankLE_sliceRank (diag w)))
+
+end TaoDiagonal
 
 end BilinearComplexity

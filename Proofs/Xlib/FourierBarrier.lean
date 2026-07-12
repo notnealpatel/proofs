@@ -150,8 +150,8 @@ theorem gowersElt_apply_one {S T U : Finset G} (h : TripleProductProperty S T U)
           = s'⁻¹ * (s * t⁻¹ * (t' * u⁻¹) * (u' * s'⁻¹)) * s' := by group
       rw [hconj, hrel]; group
     obtain ⟨hss', htt', huu'⟩ := h s hs s' hs' t' ht' t ht u' hu' u hu hrel'
-    simp only [Prod.mk.injEq]
-    exact ⟨⟨⟨rfl, rfl⟩, htt'.symm, rfl⟩, huu'.symm, hss'.symm⟩
+    subst_vars
+    rfl
   case right =>
     -- i ∘ j = id on S ×ˢ T ×ˢ U
     rintro ⟨s, t, u⟩ _
@@ -188,16 +188,19 @@ theorem coeff_star_a {S T U : Finset G} (h : TripleProductProperty S T U)
   have hcard : (T ×ˢ S).card = S.card * T.card := by
     rw [Finset.card_product]; ring
   rw [← hcard]
-  apply Finset.card_bij' (i := fun p _ => p.1)
-    (j := fun q _ => ((q.1, q.2), (q.2, q.1)))
-  · rintro ⟨⟨t, s⟩, ⟨s', t'⟩⟩ hp
+  refine Finset.card_bij' (fun p _ => p.1)
+    (fun q _ => ((q.1, q.2), (q.2, q.1))) ?hi ?hj ?left ?right
+  case hi =>
+    rintro ⟨⟨t, s⟩, ⟨s', t'⟩⟩ hp
     simp only [Finset.mem_filter, Finset.mem_product] at hp
     exact Finset.mem_product.mpr ⟨hp.1.1.1, hp.1.1.2⟩
-  · rintro ⟨t, s⟩ hq
+  case hj =>
+    rintro ⟨t, s⟩ hq
     simp only [Finset.mem_product] at hq
     simp only [Finset.mem_filter, Finset.mem_product]
     exact ⟨⟨⟨hq.1, hq.2⟩, hq.2, hq.1⟩, by group⟩
-  · rintro ⟨⟨t, s⟩, ⟨s', t'⟩⟩ hp
+  case left =>
+    rintro ⟨⟨t, s⟩, ⟨s', t'⟩⟩ hp
     simp only [Finset.mem_filter, Finset.mem_product] at hp
     obtain ⟨⟨⟨ht, hs⟩, hs', ht'⟩, hrel⟩ := hp
     have hrel' : s⁻¹ * s' * t'⁻¹ * t * u₀⁻¹ * u₀ = 1 := by
@@ -205,9 +208,10 @@ theorem coeff_star_a {S T U : Finset G} (h : TripleProductProperty S T U)
           = t⁻¹ * (t * s⁻¹ * (s' * t'⁻¹)) * t := by group
       rw [hconj, hrel]; group
     obtain ⟨hss', htt', -⟩ := h s' hs' s hs t ht t' ht' u₀ hu₀ u₀ hu₀ hrel'
-    simp only [Prod.mk.injEq]
-    exact ⟨⟨rfl, rfl⟩, hss', htt'⟩
-  · rintro ⟨t, s⟩ _
+    subst_vars
+    rfl
+  case right =>
+    rintro ⟨t, s⟩ _
     rfl
 
 /-- **Parseval count for `b = 1_T 1_{U⁻¹}`** (needs `S` nonempty). -/
@@ -227,16 +231,19 @@ theorem coeff_star_b {S T U : Finset G} (h : TripleProductProperty S T U)
   have hcard : (U ×ˢ T).card = T.card * U.card := by
     rw [Finset.card_product]; ring
   rw [← hcard]
-  apply Finset.card_bij' (i := fun p _ => p.1)
-    (j := fun q _ => ((q.1, q.2), (q.2, q.1)))
-  · rintro ⟨⟨u, t⟩, ⟨t', u'⟩⟩ hp
+  refine Finset.card_bij' (fun p _ => p.1)
+    (fun q _ => ((q.1, q.2), (q.2, q.1))) ?hi ?hj ?left ?right
+  case hi =>
+    rintro ⟨⟨u, t⟩, ⟨t', u'⟩⟩ hp
     simp only [Finset.mem_filter, Finset.mem_product] at hp
     exact Finset.mem_product.mpr ⟨hp.1.1.1, hp.1.1.2⟩
-  · rintro ⟨u, t⟩ hq
+  case hj =>
+    rintro ⟨u, t⟩ hq
     simp only [Finset.mem_product] at hq
     simp only [Finset.mem_filter, Finset.mem_product]
     exact ⟨⟨⟨hq.1, hq.2⟩, hq.2, hq.1⟩, by group⟩
-  · rintro ⟨⟨u, t⟩, ⟨t', u'⟩⟩ hp
+  case left =>
+    rintro ⟨⟨u, t⟩, ⟨t', u'⟩⟩ hp
     simp only [Finset.mem_filter, Finset.mem_product] at hp
     obtain ⟨⟨⟨hu, ht⟩, ht', hu'⟩, hrel⟩ := hp
     have hrel' : s₀⁻¹ * s₀ * t⁻¹ * t' * u'⁻¹ * u = 1 := by
@@ -244,9 +251,10 @@ theorem coeff_star_b {S T U : Finset G} (h : TripleProductProperty S T U)
           = u⁻¹ * (u * t⁻¹ * (t' * u'⁻¹)) * u := by group
       rw [hconj, hrel]; group
     obtain ⟨-, htt', huu'⟩ := h s₀ hs₀ s₀ hs₀ t' ht' t ht u hu u' hu' hrel'
-    simp only [Prod.mk.injEq]
-    exact ⟨⟨rfl, rfl⟩, htt'.symm, huu'⟩
-  · rintro ⟨u, t⟩ _
+    subst_vars
+    rfl
+  case right =>
+    rintro ⟨u, t⟩ _
     rfl
 
 /-- **Parseval count for `c = 1_U 1_{S⁻¹}`** (needs `T` nonempty). -/
@@ -266,16 +274,19 @@ theorem coeff_star_c {S T U : Finset G} (h : TripleProductProperty S T U)
   have hcard : (S ×ˢ U).card = U.card * S.card := by
     rw [Finset.card_product]; ring
   rw [← hcard]
-  apply Finset.card_bij' (i := fun p _ => p.1)
-    (j := fun q _ => ((q.1, q.2), (q.2, q.1)))
-  · rintro ⟨⟨s, u⟩, ⟨u', s'⟩⟩ hp
+  refine Finset.card_bij' (fun p _ => p.1)
+    (fun q _ => ((q.1, q.2), (q.2, q.1))) ?hi ?hj ?left ?right
+  case hi =>
+    rintro ⟨⟨s, u⟩, ⟨u', s'⟩⟩ hp
     simp only [Finset.mem_filter, Finset.mem_product] at hp
     exact Finset.mem_product.mpr ⟨hp.1.1.1, hp.1.1.2⟩
-  · rintro ⟨s, u⟩ hq
+  case hj =>
+    rintro ⟨s, u⟩ hq
     simp only [Finset.mem_product] at hq
     simp only [Finset.mem_filter, Finset.mem_product]
     exact ⟨⟨⟨hq.1, hq.2⟩, hq.2, hq.1⟩, by group⟩
-  · rintro ⟨⟨s, u⟩, ⟨u', s'⟩⟩ hp
+  case left =>
+    rintro ⟨⟨s, u⟩, ⟨u', s'⟩⟩ hp
     simp only [Finset.mem_filter, Finset.mem_product] at hp
     obtain ⟨⟨⟨hs, hu⟩, hu', hs'⟩, hrel⟩ := hp
     have hrel' : s'⁻¹ * s * t₀⁻¹ * t₀ * u⁻¹ * u' = 1 := by
@@ -283,9 +294,10 @@ theorem coeff_star_c {S T U : Finset G} (h : TripleProductProperty S T U)
           = s'⁻¹ * (s * u⁻¹ * (u' * s'⁻¹)) * s' := by group
       rw [hconj, hrel]; group
     obtain ⟨hss', -, huu'⟩ := h s hs s' hs' t₀ ht₀ t₀ ht₀ u' hu' u hu hrel'
-    simp only [Prod.mk.injEq]
-    exact ⟨⟨rfl, rfl⟩, huu'.symm, hss'.symm⟩
-  · rintro ⟨s, u⟩ _
+    subst_vars
+    rfl
+  case right =>
+    rintro ⟨s, u⟩ _
     rfl
 
 /-! ### Fourier inversion: the trace of left multiplication -/
@@ -355,9 +367,7 @@ theorem trace_mulLeft_piMat {k : ℕ} {d : Fin k → ℕ}
       Matrix.stdBasis_eq_single, stdBasis_repr]
     rw [Matrix.mul_single_apply_same]
     simp
-  rw [Finset.sum_congr rfl fun σ _ => hdiag σ]
-  rw [show (∑ σ : Σ i : Fin k, Fin (d i) × Fin (d i), y σ.1 σ.2.1 σ.2.1)
-      = ∑ i : Fin k, ∑ p : Fin (d i) × Fin (d i), y i p.1 p.1 from Fintype.sum_sigma _ _]
+  rw [Finset.sum_congr rfl fun σ _ => hdiag σ, Fintype.sum_sigma]
   exact Finset.sum_congr rfl fun i _ => sum_prod_diag (y i)
 
 /-- **Fourier inversion at the identity**: for any algebra isomorphism
@@ -451,38 +461,48 @@ def IsUnitary {k : ℕ} {d : Fin k → ℕ}
     (e (MonoidAlgebra.single g⁻¹ 1)) i = ((e (MonoidAlgebra.single g 1)) i)ᴴ
 
 omit [Group G] [Fintype G] [DecidableEq G] in
+/-- Conjugation by an inverse pair, as an algebra automorphism of a matrix
+algebra. -/
+private def conjAlgEquiv {m : ℕ} (B B' : Matrix (Fin m) (Fin m) ℂ)
+    (hBB' : B * B' = 1) (hB'B : B' * B = 1) :
+    Matrix (Fin m) (Fin m) ℂ ≃ₐ[ℂ] Matrix (Fin m) (Fin m) ℂ where
+  toFun y := B * y * B'
+  invFun y := B' * y * B
+  left_inv y := by
+    calc B' * (B * y * B') * B
+        = (B' * B) * y * (B' * B) := by noncomm_ring
+      _ = y := by rw [hB'B, one_mul, mul_one]
+  right_inv y := by
+    calc B * (B' * y * B) * B'
+        = (B * B') * y * (B * B') := by noncomm_ring
+      _ = y := by rw [hBB', one_mul, mul_one]
+  map_mul' y z := by
+    calc B * (y * z) * B'
+        = (B * y) * (B' * B) * (z * B') := by noncomm_ring
+      _ = B * y * B' * (B * z * B') := by rw [hB'B]; noncomm_ring
+  map_add' y z := by
+    simp [Matrix.mul_add, Matrix.add_mul]
+  commutes' c := by
+    simp only [Algebra.algebraMap_eq_smul_one]
+    rw [mul_smul_comm, smul_mul_assoc, mul_one, hBB']
+
+omit [Group G] [Fintype G] [DecidableEq G] in
 /-- Blockwise conjugation by an inverse pair, as an algebra automorphism of the
 product of matrix algebras. -/
 private def piConjAlgEquiv {k : ℕ} {d : Fin k → ℕ}
     (B B' : ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ)
     (hBB' : ∀ i, B i * B' i = 1) (hB'B : ∀ i, B' i * B i = 1) :
     (∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ) ≃ₐ[ℂ]
-      (∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ) where
-  toFun y := fun i => B i * y i * B' i
-  invFun y := fun i => B' i * y i * B i
-  left_inv y := by
-    funext i
-    calc B' i * (B i * y i * B' i) * B i
-        = (B' i * B i) * y i * (B' i * B i) := by noncomm_ring
-      _ = y i := by rw [hB'B, one_mul, mul_one]
-  right_inv y := by
-    funext i
-    calc B i * (B' i * y i * B i) * B' i
-        = (B i * B' i) * y i * (B i * B' i) := by noncomm_ring
-      _ = y i := by rw [hBB', one_mul, mul_one]
-  map_mul' y z := by
-    funext i
-    simp only [Pi.mul_apply]
-    calc B i * (y i * z i) * B' i
-        = B i * y i * (B' i * B i) * z i * B' i := by rw [hB'B]; noncomm_ring
-      _ = B i * y i * B' i * (B i * z i * B' i) := by noncomm_ring
-  map_add' y z := by
-    funext i
-    simp [Matrix.mul_add, Matrix.add_mul]
-  commutes' c := by
-    funext i
-    simp only [Pi.algebraMap_apply, Algebra.algebraMap_eq_smul_one]
-    rw [mul_smul_comm, smul_mul_assoc, mul_one, hBB']
+      (∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ) :=
+  AlgEquiv.piCongrRight fun i => conjAlgEquiv (B i) (B' i) (hBB' i) (hB'B i)
+
+omit [Group G] [Fintype G] [DecidableEq G] in
+private lemma piConjAlgEquiv_apply {k : ℕ} {d : Fin k → ℕ}
+    (B B' : ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ)
+    (hBB' : ∀ i, B i * B' i = 1) (hB'B : ∀ i, B' i * B i = 1)
+    (y : ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ) (i : Fin k) :
+    piConjAlgEquiv B B' hBB' hB'B y i = B i * y i * B' i :=
+  rfl
 
 /-- **The unitarian trick** (Weyl): any indexed Wedderburn decomposition of the
 group algebra can be conjugated blockwise into a *unitary* one with the same
@@ -508,8 +528,11 @@ theorem IsUnitary.e_indInv (he : IsUnitary e) (X : Finset G) (i : Fin k) :
   unfold ind indInv
   rw [map_sum, map_sum]
   simp only [Finset.sum_apply]
-  rw [← Matrix.conjTranspose_sum]
-  exact Finset.sum_congr rfl fun x _ => he x i
+  calc ∑ x ∈ X, (e (MonoidAlgebra.single x⁻¹ 1)) i
+      = ∑ x ∈ X, ((e (MonoidAlgebra.single x 1)) i)ᴴ :=
+        Finset.sum_congr rfl fun x _ => he x i
+    _ = (∑ x ∈ X, (e (MonoidAlgebra.single x 1)) i)ᴴ :=
+        (Matrix.conjTranspose_sum _ _).symm
 
 /-- The block of the reversed product `1_Y 1_{X⁻¹}` is the conjugate transpose
 of the block of `1_X 1_{Y⁻¹}`. -/
@@ -542,6 +565,7 @@ theorem parseval_norm_sum (he : IsUnitary e) (X Y : Finset G)
       = (((Fintype.card G : ℝ) * X.card * Y.card : ℝ) : ℂ) := by
     push_cast at hinv ⊢
     rw [← hinv]
+    ring
   exact_mod_cast hcast
 
 /-- In a one-dimensional block, the trace of a product is the product of the
