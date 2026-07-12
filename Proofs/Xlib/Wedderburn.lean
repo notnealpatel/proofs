@@ -48,7 +48,11 @@ algebras lives in `Xlib.CharDegrees`.
 `mem_isotypicComponents_iff_minimal`, `length_matrix_self` and
 `isotypicLengthMultiset_eq_of_algEquiv` are natural upstream candidates: they
 discharge the "uniqueness" TODO of `Mathlib.RingTheory.SimpleModule.Basic` for
-algebras over algebraically closed fields.
+algebras over algebraically closed fields.  So are the center glue lemmas
+`center_pi`, `centerPiEquiv`, `map_center`, `centerCongr` and
+`finrank_center_pi` (Mathlib has `Set.center_pi` and `Subalgebra.pi` but no
+bridge between them, and no transport of `Subalgebra.center` along an
+`AlgEquiv`).
 -/
 
 open Module

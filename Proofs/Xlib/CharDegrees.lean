@@ -46,14 +46,17 @@ The two classical identities
 
   `Σᵢ dᵢ² = |G|`   and   `#{irreps} = #{conjugacy classes}`
 
-are both **absent** from Mathlib.  The first is now **proved** here
-(`charDegreeSum_two`, `sorry`-free): extract a decomposition with
+are both **absent** from Mathlib and both now **proved** here (`sorry`-free).
+The first (`charDegreeSum_two`): extract a decomposition with
 `exists_algEquiv_pi_matrix_of_isAlgClosed`, rewrite with
 `charDegrees_eq_of_algEquiv`, and count `ℂ`-dimensions.  The second
-(`card_charDegrees`) is the one remaining `sorry` of this file, provable the
-same way by matching centers.  Both are stated as named theorems so downstream
-files (CU Thm 4.1, the `n(G)` barrier) import them by name rather than
-re-deriving them.
+(`card_charDegrees`): the same extraction, then match the dimension of the
+center of `ℂ[G]` computed on both sides — it is the number `n` of matrix blocks
+(each matrix algebra is central, `Xlib.Wedderburn.finrank_center_pi` transported
+along `Xlib.Wedderburn.centerCongr`), and it is `#ConjClasses G` by the
+class-sum basis (`Xlib.GroupAlgebraCenter.classSumBasis`).  Both are stated as
+named theorems so downstream files (CU Thm 4.1, the `n(G)` barrier) import them
+by name rather than re-deriving them.
 
 ## Main definitions
 
@@ -73,8 +76,9 @@ re-deriving them.
   *any* Wedderburn decomposition `ℂ[G] ≃ₐ[ℂ] Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ`.
 * `Xlib.CharDegrees.charDegreeSum_two` — (**`sorry`-free**) `D₂(G) = |G|`, i.e.
   `Σᵢ dᵢ² = |G|`. The fundamental identity (Wedderburn + `dim ℂ[G] = |G|`).
-* `Xlib.CharDegrees.card_charDegrees` — **(`sorry`)** the number of irreducible
-  representations equals the number of conjugacy classes of `G`.
+* `Xlib.CharDegrees.card_charDegrees` — (**`sorry`-free**) the number of
+  irreducible representations equals the number of conjugacy classes of `G`
+  (via the class-sum basis of the center, `Xlib.GroupAlgebraCenter`).
 * `Xlib.CharDegrees.charDegreeSumReal_natCast` — the `ℕ`↔`ℝ` exponent bridge
   `D_(r)(G) = (Dᵣ(G) : ℝ)` for natural `r` (`sorry`-free).
 * `Xlib.CharDegrees.charDegreeSum_zero`, `charDegreeSum_one` — `D₀(G) = #{irreps}`
@@ -194,9 +198,9 @@ program but are **absent from Mathlib**. They are stated here as named theorems
 so downstream files import them by name. Both follow from the bridge lemma
 `charDegrees_eq_of_algEquiv` (extract a decomposition from
 `IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed`, transport, and
-count `ℂ`-dimensions resp. match centers): the dimension count is done
-(`charDegreeSum_two`, `sorry`-free); the center match (`card_charDegrees`)
-remains a `sorry`. -/
+count `ℂ`-dimensions resp. match centers), and both are proved `sorry`-free:
+the dimension count is `charDegreeSum_two`, the center match is
+`card_charDegrees`. -/
 
 /-- **Sum of squared degrees equals the group order:** `D₂(G) = |G|`, i.e.
 `Σᵢ dᵢ² = |G|`.
@@ -233,10 +237,14 @@ theorem charDegreeSum_two (G : Type*) [Group G] [Fintype G] :
 /-- **Number of irreps equals number of conjugacy classes:** the cardinality of
 the character-degree multiset equals `|ConjClasses G|`.
 
-This is the second classical count. Standard proof: the dimension of the center
-of `ℂ[G]` equals both the number of simple factors (one per irrep, from the
-Wedderburn decomposition) and the number of conjugacy classes (the class sums are
-a basis of the center). Absent from Mathlib. `sorry`. -/
+This is the second classical count, absent from Mathlib — **upstream
+candidate**. Proof: the dimension of the center of `ℂ[G]` equals both the
+number of simple factors of a Wedderburn decomposition (one per irrep: each
+matrix block is a central algebra, so contributes exactly the scalars to the
+center — `Xlib.Wedderburn.finrank_center_pi`, transported along
+`Xlib.Wedderburn.centerCongr e`) and the number of conjugacy classes (the class
+sums are a basis of the center — `Xlib.GroupAlgebraCenter.classSumBasis`,
+consumed via `Xlib.GroupAlgebraCenter.finrank_center`). -/
 theorem card_charDegrees (G : Type*) [Group G] [Fintype G] :
     Multiset.card (charDegrees G) = Nat.card (ConjClasses G) := by
   haveI : NeZero (Nat.card G : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
@@ -260,7 +268,7 @@ theorem card_charDegrees (G : Type*) [Group G] [Fintype G] :
 
 /-- The number of irreducible representations, expressed via `D₀`, equals the
 number of conjugacy classes. Combines `charDegreeSum_zero` and
-`card_charDegrees`; `sorry`-free *given* those. -/
+`card_charDegrees`. -/
 theorem charDegreeSum_zero_eq_card_conjClasses (G : Type*) [Group G] [Fintype G] :
     charDegreeSum G 0 = Nat.card (ConjClasses G) := by
   rw [charDegreeSum_zero, card_charDegrees]
