@@ -1,0 +1,239 @@
+/tmp/sage_ogpt4cov/rho02i6meo02.sage.py:417: SyntaxWarning: invalid escape sequence '\{'
+  So: TPP fails iff there exist s in S\{1}, t in T, u in U with s^{-1} = tu.
+======================================================================
+rho0.sage — Exact subgroup TPP ratio engine
+Targets: 73 total, 0 already done, 73 to run
+Per-target timeout: 3600s
+Results file: /home/exedev/p/proofs/Scratch/GroupSieve/rho0-results.jsonl
+======================================================================
+
+[1/73] [24,10] C3xD8
+  Order: 24
+  DONE: rho_0 = 1 (1.000000), triple type (24, 1, 1), 0.2s [MATCH]
+
+[2/73] [24,11] C3xQ8
+  Order: 24
+  DONE: rho_0 = 1 (1.000000), triple type (24, 1, 1), 0.0s [MATCH]
+
+[3/73] [32,49] ExSp(2,5)+
+  Order: 32
+  DONE: rho_0 = 2 (2.000000), triple type (4, 4, 4), 0.7s [MATCH]
+
+[4/73] [32,50] ExSp(2,5)-
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.4s [MATCH]
+
+[5/73] [64,226] D8:D8
+  Order: 64
+  DONE: rho_0 = 2 (2.000000), triple type (8, 4, 4), 45.6s [MATCH]
+
+[6/73] control [8,3] D8
+  Order: 8
+  DONE: rho_0 = 1 (1.000000), triple type (8, 1, 1), 0.0s [MATCH]
+
+[7/73] control [8,4] Q8
+  Order: 8
+  DONE: rho_0 = 1 (1.000000), triple type (8, 1, 1), 0.0s [MATCH]
+
+[8/73] control [12,4] D12
+  Order: 12
+  DONE: rho_0 = 4/3 (1.333333), triple type (4, 2, 2), 0.0s [MATCH]
+
+[9/73] control [16,3] C4^2:C2 a
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[10/73] control [16,4] C4^2:C2 b
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[11/73] control [16,6] C8:C2
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[12/73] control [16,11] C2xD8
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[13/73] control [16,12] C2xQ8
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[14/73] control [16,13] (C4xC2):C2
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[15/73] control [27,3] (C3xC3):C3
+  Order: 27
+  DONE: rho_0 = 1 (1.000000), triple type (27, 1, 1), 0.0s [MATCH]
+
+[16/73] control [27,4] C9:C3
+  Order: 27
+  DONE: rho_0 = 1 (1.000000), triple type (27, 1, 1), 0.0s [MATCH]
+
+[17/73] control [32,49] ExSp(2,5)+
+  Order: 32
+  DONE: rho_0 = 2 (2.000000), triple type (4, 4, 4), 0.7s [MATCH]
+
+[18/73] control [32,50] ExSp(2,5)-
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.5s [MATCH]
+
+[19/73] C2 x [8,3] D8 (order 16)
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[20/73] C2 x [8,4] Q8 (order 16)
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[21/73] C2 x [12,4] D12 (order 24)
+  Order: 24
+  DONE: rho_0 = 4/3 (1.333333), triple type (8, 2, 2), 0.1s [MATCH]
+
+[22/73] C2 x [16,3] C4^2:C2 a (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 5.4s [MATCH]
+
+[23/73] C2 x [16,6] C8:C2 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.1s [MATCH]
+
+[24/73] C2 x [16,11] C2xD8 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 19.5s [MATCH]
+
+[25/73] C2 x [16,12] C2xQ8 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.5s [MATCH]
+
+[26/73] C2 x [16,13] (C4xC2):C2 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.8s [MATCH]
+
+[27/73] C2 x [27,3] (C3xC3):C3 (order 54)
+  Order: 54
+  DONE: rho_0 = 1 (1.000000), triple type (54, 1, 1), 0.7s [MATCH]
+
+[28/73] C2 x [27,4] C9:C3 (order 54)
+  Order: 54
+  DONE: rho_0 = 1 (1.000000), triple type (54, 1, 1), 0.0s [MATCH]
+
+[29/73] C2 x [32,49] ExSp(2,5)+ (order 64)
+  Order: 64
+  [02:59:09] testing candidate 0/87429159, best=1, tpp_checks=0
+  [03:00:09] testing candidate 72417364/87429159, best=1, tpp_checks=0
+  DONE: rho_0 = 2 (2.000000), triple type (8, 4, 4), 151.1s [MATCH]
+
+[30/73] C2 x [32,50] ExSp(2,5)- (order 64)
+  Order: 64
+  [03:01:22] testing candidate 57059129/61575579, best=1, tpp_checks=0
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 67.0s [MATCH]
+
+[31/73] C3 x [8,3] D8 (order 24)
+  Order: 24
+  DONE: rho_0 = 1 (1.000000), triple type (24, 1, 1), 0.0s [MATCH]
+
+[32/73] C3 x [8,4] Q8 (order 24)
+  Order: 24
+  DONE: rho_0 = 1 (1.000000), triple type (24, 1, 1), 0.0s [MATCH]
+
+[33/73] C3 x [12,4] D12 (order 36)
+  Order: 36
+  DONE: rho_0 = 4/3 (1.333333), triple type (12, 2, 2), 0.1s [MATCH]
+
+[34/73] C3 x [16,3] C4^2:C2 a (order 48)
+  Order: 48
+  DONE: rho_0 = 1 (1.000000), triple type (48, 1, 1), 0.3s [MATCH]
+
+[35/73] C3 x [16,6] C8:C2 (order 48)
+  Order: 48
+  DONE: rho_0 = 1 (1.000000), triple type (48, 1, 1), 0.1s [MATCH]
+
+[36/73] C3 x [16,11] C2xD8 (order 48)
+  Order: 48
+  DONE: rho_0 = 1 (1.000000), triple type (48, 1, 1), 0.8s [MATCH]
+
+[37/73] C3 x [16,12] C2xQ8 (order 48)
+  Order: 48
+  DONE: rho_0 = 1 (1.000000), triple type (48, 1, 1), 0.1s [MATCH]
+
+[38/73] C3 x [16,13] (C4xC2):C2 (order 48)
+  Order: 48
+  DONE: rho_0 = 1 (1.000000), triple type (48, 1, 1), 0.2s [MATCH]
+
+[39/73] C3 x [27,3] (C3xC3):C3 (order 81)
+  Order: 81
+  DONE: rho_0 = 1 (1.000000), triple type (81, 1, 1), 0.2s [MATCH]
+
+[40/73] C3 x [27,4] C9:C3 (order 81)
+  Order: 81
+  DONE: rho_0 = 1 (1.000000), triple type (81, 1, 1), 0.1s [MATCH]
+
+[41/73] C3 x [32,49] ExSp(2,5)+ (order 96)
+  Order: 96
+  DONE: rho_0 = 2 (2.000000), triple type (12, 4, 4), 6.3s [MATCH]
+
+[42/73] C3 x [32,50] ExSp(2,5)- (order 96)
+  Order: 96
+  DONE: rho_0 = 1 (1.000000), triple type (96, 1, 1), 4.1s [MATCH]
+
+[43/73] C4 x [8,3] D8 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.6s [MATCH]
+
+[44/73] C4 x [8,4] Q8 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.2s [MATCH]
+
+[45/73] C4 x [12,4] D12 (order 48)
+  Order: 48
+  DONE: rho_0 = 4/3 (1.333333), triple type (16, 2, 2), 0.2s [MATCH]
+
+[46/73] C4 x [16,3] C4^2:C2 a (order 64)
+  Order: 64
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 47.9s [MATCH]
+
+[47/73] C4 x [16,6] C8:C2 (order 64)
+  Order: 64
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 0.8s [MATCH]
+
+[48/73] C4 x [16,11] C2xD8 (order 64)
+  Order: 64
+  [03:03:31] testing candidate 8207797/8809605, best=1, tpp_checks=618613
+  [03:04:31] testing candidate 8499292/8809605, best=1, tpp_checks=1320815
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 125.8s [MATCH]
+
+[49/73] C4 x [16,12] C2xQ8 (order 64)
+  Order: 64
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 4.5s [MATCH]
+
+[50/73] C4 x [16,13] (C4xC2):C2 (order 64)
+  Order: 64
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 10.9s [MATCH]
+
+[51/73] C4 x [27,3] (C3xC3):C3 (order 108)
+  Order: 108
+  DONE: rho_0 = 1 (1.000000), triple type (108, 1, 1), 1.9s [MATCH]
+
+[52/73] C4 x [27,4] C9:C3 (order 108)
+  Order: 108
+  DONE: rho_0 = 1 (1.000000), triple type (108, 1, 1), 0.1s [MATCH]
+
+[53/73] C4 x [32,49] ExSp(2,5)+ (order 128)
+  Order: 128
+======================================================================
+rho0.sage — Exact subgroup TPP ratio engine
+Targets: 73 total, 52 already done, 21 to run
+Per-target timeout: 3600s
+Results file: /home/exedev/p/proofs/Scratch/GroupSieve/rho0-results.jsonl
+======================================================================
+
+[53/73] C4 x [32,49] ExSp(2,5)+ (order 128)
+  Order: 128
+  [03:20:46] testing candidate 7418618/32862132, best=1, tpp_checks=562104
+  [03:21:46] testing candidate 7532161/32862132, best=1, tpp_checks=1304220
+  [03:22:46] testing candidate 7725950/32862132, best=1, tpp_checks=1949278
+  [03:23:46] testing candidate 7842686/32862132, best=1, tpp_checks=2663301
+  [03:24:46] testing candidate 7994750/32862132, best=1, tpp_checks=3345790
+  [03:25:46] testing candidate 8108973/32862132, best=1, tpp_checks=4018450

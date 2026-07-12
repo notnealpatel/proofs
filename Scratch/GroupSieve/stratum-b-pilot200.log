@@ -1,0 +1,35 @@
+=== Falsifiability Harness ===
+--- REJECT anchors (action and tier both asserted) ---
+  [8,3]: T1a REJECT -- OK
+  [8,4]: T1a REJECT -- OK
+  [16,3]: T1a REJECT -- OK
+  [16,4]: T1a REJECT -- OK
+  [16,6]: T1a REJECT -- OK
+  [16,11]: T1a REJECT -- OK
+  [16,12]: T1a REJECT -- OK
+  [16,13]: T1a REJECT -- OK
+  [27,3]: T1a REJECT -- OK
+  [27,4]: T1a REJECT -- OK
+--- REJECT-or-CAP anchors (known rho_0=1, cascade limited) ---
+  [24,10]: T3b CAP(1.3333333333333333) (conservative bound) -- OK
+  [24,11]: T3b CAP(1.3333333333333333) (conservative bound) -- OK
+--- MUST-NOT-REJECT anchors (known rho_0 > 1) ---
+  [32,49]: T1c CAP(2) -- OK
+  [64,226]: T2b SURVIVE -- OK
+  [128,1135]: T2b SURVIVE -- OK
+  [128,2194]: T2b SURVIVE -- OK
+--- Dihedral family anchors ---
+  [12,4]: T3b CAP(1.3333333333333333) -- OK
+  [10,1]: T3b REJECT -- OK
+--- [32,49] ceiling consistency ---
+  [32,49]: subgroup_packing = 4.0 = sqrt(16) -- OK
+  [32,49]: class2_strict = subgroup_packing = 4.0 -- OK
+
+HARNESS PASSED: 20/20 assertions.
+
+Stratum B (order 512): sample size 10000, processing positions 1..200
+  PILOT mode: 200 ids (for runtime projection)
+  Seed: 20260711, population: 10494213
+
+  pos 100/200 (100 new, 53.4 groups/s, 1.9s elapsed)
+  pos 200/200 (200 new, 54.9 groups/s, 3.6s elapsed)

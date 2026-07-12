@@ -58,8 +58,21 @@ The sage CLI wrapper needs `--` before script flags:
   sage groupsieve.sage -- --summary-only
       Regenerate the summary from checkpoints without computing.
 
+  sage groupsieve.sage -- --stratum-b --pilot 200
+      Stratum-B pilot: 200 ids from the fixed-seed sample at order 512
+      for runtime projection before committing to the full 10,000.
+
+  sage groupsieve.sage -- --stratum-b
+      Full stratum-B sample (10,000 ids by default). Resumable; uses
+      checkpoints/stratum_b_512.jsonl. Adjust with --target N.
+
+  sage groupsieve.sage -- --stratum-b --target 5000 --budget-min 60
+      Run up to 5000 ids with a 60-minute budget.
+
 Space size: 92,803 groups of order 2..511; 56,092 at order 256 alone.
-Checkpoints: Scratch/GroupSieve/checkpoints/order_N.jsonl
+Stratum-B space: 10,494,213 groups of order 512 (all 2-groups); sampled.
+Checkpoints: Scratch/GroupSieve/checkpoints/order_N.jsonl (stratum A)
+             Scratch/GroupSieve/checkpoints/stratum_b_512.jsonl (stratum B)
 Summary:     .tasks/f5exp/docs/sieve-summary.md
 Spec:        .tasks/f5exp/docs/sieve-spec.md
 """
@@ -78,6 +91,28 @@ CHECKPOINT_DIR = REPO_ROOT / "Scratch" / "GroupSieve" / "checkpoints"
 SUMMARY_FILE = DOCS_DIR / "sieve-summary.md"
 
 CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
+
+STRATUM_B_CHECKPOINT = CHECKPOINT_DIR / "stratum_b_512.jsonl"
+
+# ---------------------------------------------------------------------------
+# Stratum-B constants (order 512 = 2^9)
+#
+# Every group of order 512 is a 2-group, so the tier cascade has
+# known structural properties at this order:
+#   - T1a never fires: 512 > 2^4 = 16.
+#   - T3b never fires: T3b tests non-p-groups for an abelian normal
+#     subgroup of prime index; but 512 is a prime power, so there
+#     are no non-p-groups at this order.
+#   - T1b (class-2 2-group with cd={1,2}) and T3a (abelian subgroup
+#     of index 2) should dominate rejections.  If they do not, that
+#     is structural signal (e.g. a large proportion of class >= 3
+#     groups without abelian index-2 subgroups), not noise.
+# ---------------------------------------------------------------------------
+
+STRATUM_B_ORDER = 512
+STRATUM_B_POPULATION = 10494213   # NumberSmallGroups(512)
+STRATUM_B_SEED = 20260711         # hardcoded, no wall-clock seeding
+STRATUM_B_DEFAULT_TARGET = 10000
 
 
 # ---------------------------------------------------------------------------
@@ -671,7 +706,318 @@ def generate_summary(start_order, end_order):
         f.write("2. Ceilings are upper bounds (necessary-condition screens): a\n")
         f.write("   high ceiling means \"not yet excluded\", never \"promising\".\n")
 
+        # This file is REGENERATED whole; hand-authored analysis must live
+        # in its own doc and be linked here, or a regen silently drops it.
+        f.write("\n### Downstream artifacts\n\n")
+        f.write("- Tier-4 ranking and anchor validation: "
+                "`.tasks/f5exp/docs/Im3-ranking.md` "
+                "(program: `cmd/tier4rank/`, features: `tier4.sage`)\n")
+        f.write("- Survivor census (direct factors, ES types, T3b rationals): "
+                "`survivors-census*.jsonl` via `census.sage`; early analysis "
+                "in `.tasks/f5exp/docs/orch-Cj-census-early.md`\n")
+
     return SUMMARY_FILE
+
+
+# ---------------------------------------------------------------------------
+# Stratum B — fixed-seed uniform sample over order 512
+# ---------------------------------------------------------------------------
+
+def stratum_b_load_checkpoint():
+    """Returns (processed_ids dict {id: record}, sample_list or None, meta or None).
+
+    The checkpoint is a JSONL file with:
+      - one meta record {"type":"stratum_b_meta", "seed":..., "target":..., "sample":...}
+      - group records {"id":[512, idx], ...}
+      - one progress record {"type":"stratum_b_progress", "last_pos":...}
+    """
+    if not STRATUM_B_CHECKPOINT.exists():
+        return {}, None, None
+
+    processed = {}
+    sample_list = None
+    meta = None
+    last_pos = 0
+    for line in open(STRATUM_B_CHECKPOINT):
+        line = line.strip()
+        if not line:
+            continue
+        rec = json.loads(line)
+        t = rec.get("type")
+        if t == "stratum_b_meta":
+            meta = rec
+            sample_list = rec.get("sample")
+        elif t == "stratum_b_progress":
+            last_pos = rec["last_pos"]
+        elif t is None:
+            gid = rec.get("id")
+            if gid:
+                processed[int(gid[1])] = rec
+    return processed, sample_list, meta
+
+
+def stratum_b_write_checkpoint(meta, records, last_pos):
+    """Atomic rewrite of the stratum-B checkpoint."""
+    tmp = STRATUM_B_CHECKPOINT.with_suffix(".jsonl.tmp")
+    with open(tmp, "w") as f:
+        f.write(json.dumps(meta) + "\n")
+        for rec in records:
+            f.write(json.dumps(rec) + "\n")
+        # int(): last_pos arrives as a Sage Integer, which json.dumps rejects
+        f.write(json.dumps({"type": "stratum_b_progress", "last_pos": int(last_pos)}) + "\n")
+    os.replace(tmp, STRATUM_B_CHECKPOINT)
+
+
+def stratum_b_generate_sample(target):
+    """Generate the fixed-seed sample of `target` ids from 1..STRATUM_B_POPULATION."""
+    import random
+    rng = random.Random(int(STRATUM_B_SEED))
+    sample = rng.sample(range(1, STRATUM_B_POPULATION + 1), int(target))
+    return sample
+
+
+def stratum_b_sweep(target, pilot, budget_min):
+    """Run the stratum-B sample sweep. If pilot > 0, process only the
+    first `pilot` ids and report projection."""
+    import math
+
+    # Load or create the sample
+    processed, existing_sample, meta = stratum_b_load_checkpoint()
+
+    effective_target = int(pilot) if pilot else int(target)
+
+    if existing_sample is not None and meta is not None:
+        sample_list = existing_sample
+        stored_target = meta.get("target", len(existing_sample))
+        if stored_target != int(target) and not pilot:
+            print("WARNING: checkpoint has target=%d, requested target=%d; "
+                  "using checkpoint's sample." % (stored_target, target), flush=True)
+    else:
+        sample_list = stratum_b_generate_sample(target)
+        meta = {
+            "type": "stratum_b_meta",
+            "seed": int(STRATUM_B_SEED),
+            "target": int(target),
+            "population": int(STRATUM_B_POPULATION),
+            "order": int(STRATUM_B_ORDER),
+            "sample": sample_list,
+        }
+
+    # Determine resume position
+    start_pos = len(processed)
+    end_pos = min(effective_target, len(sample_list))
+
+    print("Stratum B (order 512): sample size %d, processing positions %d..%d"
+          % (len(sample_list), start_pos + 1, end_pos), flush=True)
+    if pilot:
+        print("  PILOT mode: %d ids (for runtime projection)" % pilot, flush=True)
+    print("  Seed: %d, population: %d" % (STRATUM_B_SEED, STRATUM_B_POPULATION), flush=True)
+    print(flush=True)
+
+    t0 = time.time()
+    global_deadline = t0 + budget_min * 60 if budget_min else None
+    records_list = [processed[sample_list[i]] for i in range(start_pos)
+                    if sample_list[i] in processed]
+
+    # Rebuild ordered record list from checkpoint
+    records_by_id = dict(processed)
+    records_ordered = []
+    for i in range(start_pos):
+        sid = sample_list[i]
+        if sid in records_by_id:
+            records_ordered.append(records_by_id[sid])
+    n_done = len(records_ordered)
+
+    n_new = 0
+    last_pos = start_pos
+    for pos in range(start_pos, end_pos):
+        if global_deadline is not None and time.time() > global_deadline:
+            print("Budget exhausted at position %d." % pos, flush=True)
+            break
+        sid = sample_list[pos]
+        if sid in processed:
+            last_pos = pos + 1
+            continue
+        try:
+            G = libgap.SmallGroup(STRATUM_B_ORDER, sid)
+            if bool(G.IsAbelian()):
+                rec = {
+                    "id": [int(STRATUM_B_ORDER), int(sid)],
+                    "order": int(STRATUM_B_ORDER),
+                    "tier": "T0",
+                    "action": "REJECT",
+                }
+            else:
+                rec = classify_group(STRATUM_B_ORDER, sid)
+        except KeyboardInterrupt:
+            print("Interrupted at position %d; checkpointing." % pos, flush=True)
+            stratum_b_write_checkpoint(meta, records_ordered, pos)
+            sys.exit(130)
+        except Exception as e:
+            rec = {
+                "id": [int(STRATUM_B_ORDER), int(sid)],
+                "order": int(STRATUM_B_ORDER),
+                "tier": "ERROR",
+                "action": "SKIP",
+                "error": str(e),
+            }
+
+        records_ordered.append(rec)
+        processed[sid] = rec
+        n_new += 1
+        last_pos = pos + 1
+
+        if n_new % 100 == 0:
+            elapsed = time.time() - t0
+            rate = n_new / elapsed if elapsed > 0 else 0
+            print("  pos %d/%d (%d new, %.1f groups/s, %.1fs elapsed)"
+                  % (last_pos, end_pos, n_new, rate, elapsed), flush=True)
+            # Periodic checkpoint every 500
+            if n_new % 500 == 0:
+                stratum_b_write_checkpoint(meta, records_ordered, last_pos)
+
+    # Final checkpoint
+    stratum_b_write_checkpoint(meta, records_ordered, last_pos)
+    elapsed = time.time() - t0
+
+    n_total = len(records_ordered)
+    print(flush=True)
+    print("Stratum B pass done: %d records (%d new in %.1fs)." % (n_total, n_new, elapsed),
+          flush=True)
+    if n_new > 0:
+        rate = n_new / elapsed if elapsed > 0 else 0
+        remaining = end_pos - last_pos
+        if remaining > 0:
+            print("  Rate: %.2f groups/s; ~%.0fs remaining for this batch."
+                  % (rate, remaining / rate), flush=True)
+        if pilot:
+            full_remaining = int(target) - n_total
+            if rate > 0:
+                proj_s = full_remaining / rate
+                proj_h = proj_s / 3600
+                print("  PILOT PROJECTION: full sample (%d remaining ids) at current rate: "
+                      "~%.0fs (~%.1f hours)" % (full_remaining, proj_s, proj_h), flush=True)
+
+    # Print tier distribution
+    tier_counts = {}
+    action_counts = {"REJECT": 0, "CAP": 0, "SURVIVE": 0, "ERROR": 0}
+    for rec in records_ordered:
+        tier = rec.get("tier", "UNKNOWN")
+        tier_counts[tier] = tier_counts.get(tier, 0) + 1
+        action = str(rec.get("action", ""))
+        if action == "REJECT":
+            action_counts["REJECT"] += 1
+        elif action == "SURVIVE":
+            action_counts["SURVIVE"] += 1
+        elif "CAP" in action:
+            action_counts["CAP"] += 1
+        else:
+            action_counts["ERROR"] += 1
+
+    print(flush=True)
+    print("  Tier distribution (n=%d):" % n_total, flush=True)
+    for tier in sorted(tier_counts.keys()):
+        print("    %s: %d (%.1f%%)" % (tier, tier_counts[tier],
+              100.0 * tier_counts[tier] / n_total if n_total else 0), flush=True)
+    print("  Actions: REJECT=%d CAP=%d SURVIVE=%d ERROR=%d"
+          % (action_counts["REJECT"], action_counts["CAP"],
+             action_counts["SURVIVE"], action_counts["ERROR"]), flush=True)
+
+    # Theory note check: T1a and T3b should never fire at order 512
+    t1a_count = tier_counts.get("T1a", 0)
+    t3b_count = tier_counts.get("T3b", 0)
+    if t1a_count > 0:
+        print("  ** SIGNAL: T1a fired %d times (unexpected at order 512 > 2^4) **"
+              % t1a_count, flush=True)
+    if t3b_count > 0:
+        print("  ** SIGNAL: T3b fired %d times (unexpected: 512 is a 2-group) **"
+              % t3b_count, flush=True)
+    # Check dominance of T1b/T3a among rejections
+    t1b_count = tier_counts.get("T1b", 0)
+    t3a_count = tier_counts.get("T3a", 0)
+    reject_total = action_counts["REJECT"]
+    if reject_total > 0:
+        dom_frac = (t1b_count + t3a_count) / reject_total
+        print("  T1b+T3a dominance among REJECTs: %d/%d = %.1f%%"
+              % (t1b_count + t3a_count, reject_total, 100.0 * dom_frac), flush=True)
+        if dom_frac < 0.5:
+            print("  ** SIGNAL: T1b+T3a do NOT dominate rejections — investigate **",
+                  flush=True)
+
+
+def stratum_b_summary_section(target):
+    """Generate the stratum-B section for sieve-summary.md and return it as a string."""
+    import math
+
+    processed, sample_list, meta = stratum_b_load_checkpoint()
+    if not processed:
+        return ""
+
+    n = len(processed)
+    records = list(processed.values())
+
+    # Count survivors
+    n_survive = sum(1 for r in records if r.get("action") == "SURVIVE")
+    n_reject = sum(1 for r in records if r.get("action") == "REJECT")
+    n_cap = sum(1 for r in records if "CAP" in str(r.get("action", "")))
+    n_error = n - n_survive - n_reject - n_cap
+
+    # Tier counts
+    tier_counts = {}
+    for r in records:
+        tier = r.get("tier", "UNKNOWN")
+        tier_counts[tier] = tier_counts.get(tier, 0) + 1
+
+    # Binomial 95% CI on survivor rate (Wilson interval)
+    p_hat = n_survive / n if n > 0 else 0
+    z = 1.96  # 95%
+    denom = 1 + z**2 / n if n > 0 else 1
+    centre = (p_hat + z**2 / (2 * n)) / denom if n > 0 else 0
+    spread = z * math.sqrt(p_hat * (1 - p_hat) / n + z**2 / (4 * n**2)) / denom if n > 0 else 0
+    ci_lo = max(0.0, centre - spread)
+    ci_hi = min(1.0, centre + spread)
+
+    # Extrapolate to population
+    pop = STRATUM_B_POPULATION
+    est_survivors = int(round(p_hat * pop))
+    est_lo = int(round(ci_lo * pop))
+    est_hi = int(round(ci_hi * pop))
+
+    lines = []
+    lines.append("\n## Stratum B — order 512 (SAMPLE ESTIMATE)\n")
+    lines.append("Seed: %d | Population: %d | Sample: %d of %d target\n"
+                 % (STRATUM_B_SEED, pop, n, target))
+    lines.append("**This is a random sample; counts are estimates, not census.**\n")
+    lines.append("")
+    lines.append("| Metric | Value |")
+    lines.append("|--------|-------|")
+    lines.append("| Sample size (n) | %d |" % n)
+    lines.append("| Survivors (SURVIVE) | %d (%.2f%%) |" % (n_survive, 100.0 * p_hat))
+    lines.append("| Survivor rate 95%% CI (Wilson) | [%.4f, %.4f] |" % (ci_lo, ci_hi))
+    lines.append("| Population estimate | %d [%d, %d] |" % (est_survivors, est_lo, est_hi))
+    lines.append("| Rejected | %d |" % n_reject)
+    lines.append("| Capped | %d |" % n_cap)
+    lines.append("| Errors | %d |" % n_error)
+    lines.append("")
+    lines.append("### Per-tier counts (sample)\n")
+    lines.append("| Tier | Count | Pct |")
+    lines.append("|------|-------|-----|")
+    for tier in ["T0", "T1a", "T1b", "T3a", "T3b", "T1c", "T2b", "ERROR"]:
+        c = tier_counts.get(tier, 0)
+        lines.append("| %s | %d | %.1f%% |" % (tier, c, 100.0 * c / n if n else 0))
+    lines.append("")
+    lines.append("### Theory notes (order 512 = 2^9)\n")
+    lines.append("- All groups are 2-groups; T1a never fires (512 > 2^4).")
+    lines.append("- T3b never fires (only tests non-p-groups).")
+    lines.append("- T1b (class-2, cd={1,2}) and T3a (abelian index-2 subgroup) "
+                 "should dominate rejections.")
+    t1b = tier_counts.get("T1b", 0)
+    t3a = tier_counts.get("T3a", 0)
+    if n_reject > 0:
+        lines.append("- T1b+T3a among rejections: %d/%d = %.1f%%."
+                     % (t1b + t3a, n_reject, 100.0 * (t1b + t3a) / n_reject))
+    lines.append("")
+    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -690,10 +1036,22 @@ def main(argv):
                         help="soft seconds per order, 0 = none (default 300)")
     parser.add_argument("--budget-min", type=int, default=0,
                         help="overall wall-clock budget in minutes, 0 = none")
+    # Stratum-B flags
+    parser.add_argument("--stratum-b", action="store_true",
+                        help="run the stratum-B sample sweep (order 512)")
+    parser.add_argument("--target", type=int, default=STRATUM_B_DEFAULT_TARGET,
+                        help="stratum-B sample size (default %d)" % STRATUM_B_DEFAULT_TARGET)
+    parser.add_argument("--pilot", type=int, default=0,
+                        help="stratum-B pilot batch size (for projection); 0 = full run")
     args = parser.parse_args(argv)
 
     if args.summary_only:
         path = generate_summary(args.start, args.end)
+        # Append stratum-B section if data exists
+        sb_section = stratum_b_summary_section(args.target)
+        if sb_section:
+            with open(path, "a") as f:
+                f.write(sb_section)
         print("Summary: %s" % path, flush=True)
         return
 
@@ -702,6 +1060,18 @@ def main(argv):
         print("STOPPING: fix the cascade before sweeping.", flush=True)
         sys.exit(1)
     if args.harness_only:
+        return
+
+    if args.stratum_b:
+        print(flush=True)
+        stratum_b_sweep(args.target, args.pilot, args.budget_min)
+        # Regenerate summary with stratum-B section appended
+        path = generate_summary(args.start, args.end)
+        sb_section = stratum_b_summary_section(args.target)
+        if sb_section:
+            with open(path, "a") as f:
+                f.write(sb_section)
+        print("Summary: %s" % path, flush=True)
         return
 
     print(flush=True)
