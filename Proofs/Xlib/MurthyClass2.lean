@@ -9,8 +9,8 @@ subgroups of finite nilpotent groups of class 2* [arXiv:2602.15796]:
 > For any group `G` of nilpotency class `2` (nonabelian with `{1} < G' ≤ Z(G) < G`),
 > the subgroup-TPP ratio satisfies `ρ₀(G) < √(|G : Z(G)|)`.
 
-Here `ρ₀(G) = β₀(G) / |G|`, with `β₀(G) = stppCapacity G` the subgroup-TPP capacity
-defined in `Xlib.TPP`.
+Here `ρ₀(G) = β₀(G) / |G|` is `Xlib.TPP.rho0`, with `β₀(G) = stppCapacity G` the
+subgroup-TPP capacity; both are defined in `Xlib.TPP`.
 
 ## Foundations note
 
@@ -64,13 +64,6 @@ namespace Xlib.MurthyClass2
 open Xlib.TPP
 
 variable {G : Type*} [Group G] [Fintype G] [DecidableEq G]
-
-/-! ### The subgroup-TPP ratio `ρ₀(G)` -/
-
-/-- The **subgroup-TPP ratio** `ρ₀(G) = β₀(G) / |G|` (Murthy 2602.15796, eq. `TPPRho0`),
-as a real number. -/
-noncomputable def rho0 (G : Type*) [Group G] [Fintype G] [DecidableEq G] : ℝ :=
-  (stppCapacity G : ℝ) / (Fintype.card G : ℝ)
 
 /-! ### Class-2 hypothesis -/
 

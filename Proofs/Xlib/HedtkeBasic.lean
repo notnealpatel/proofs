@@ -2,12 +2,18 @@ import Mathlib
 import Xlib.TPP
 
 /-!
-# Translating a TPP triple to a basic one
+# Basic TPP triples: the WLOG reduction and the Hedtke–Murthy test
 
-This file formalizes the **"WLOG basic" reduction** for Triple Product Property
-triples: *any* TPP triple can be left-translated, factor by factor, to a
-**basic** TPP triple (one containing the identity in each set), and the
-translation preserves the three cardinalities.
+This file formalizes two results of Hedtke–Murthy [arXiv:1104.5097] about
+**basic** Triple Product Property triples (those containing the identity in
+each set):
+
+1. the **"WLOG basic" reduction**: *any* TPP triple can be left-translated,
+   factor by factor, to a basic TPP triple, and the translation preserves the
+   three cardinalities;
+2. **Theorem 3.1**, the set-theoretic characterization of the TPP by two
+   quotient-set identities — the test that every GAP/Sage TPP search
+   implementation actually runs — together with its subgroup specialization.
 
 This is the reduction remarked on by Hedtke–Murthy
 [arXiv:1104.5097, just after Lemma `lemm:Neumann`, "Note that any TPP triple

@@ -21,6 +21,9 @@ search for good matrix-multiplication algorithms must use *nonabelian* groups
 * `Xlib.TPP.SubgroupTripleProductProperty` — the TPP on subgroup carriers.
 * `Xlib.TPP.tppCapacity` — `β(G)`, the sup of `|S| · |T| · |U|` over TPP triples.
 * `Xlib.TPP.stppCapacity` — `β₀(G)`, the same sup over subgroup triples.
+* `Xlib.TPP.rho0` — `ρ₀(G) = β₀(G) / |G|`, the subgroup-TPP ratio, as a real.
+* `Xlib.TPP.TripleProductPropertyR` — the *right-quotient* TPP
+  (`Q(X) = X * X⁻¹`, the Neumann/Hedtke–Murthy convention).
 
 ## Main results
 
@@ -35,6 +38,9 @@ search for good matrix-multiplication algorithms must use *nonabelian* groups
   intersection bound: two of `S, T, U` meet in ≤ 1 point (third nonempty).
 * `Xlib.TPP.card_add_card_add_card_le` — Hedtke's Corollary 6,
   `|S| + |T| + |U| ≤ |G| + 2` for a TPP triple of nonempty subsets.
+* `Xlib.TPP.tripleProductPropertyR_iff_inv` — the inversion bridge between the
+  two TPP conventions, `TPP_R(S, T, U) ↔ TPP(S⁻¹, T⁻¹, U⁻¹)`; for the *same*
+  ordered triple they are **not** equivalent.
 
 ## References
 
@@ -220,6 +226,13 @@ theorem stppCapacity_le_tppCapacity : stppCapacity G ≤ tppCapacity G := by
       ← natCard_eq_toFinset_card L] at hb
   · simp only [hTPP, if_false]
     exact Nat.zero_le _
+
+/-! ### The subgroup-TPP ratio `ρ₀(G)` -/
+
+/-- The **subgroup-TPP ratio** `ρ₀(G) = β₀(G) / |G|` (Murthy 2602.15796, eq. `TPPRho0`),
+as a real number. -/
+noncomputable def rho0 (G : Type*) [Group G] [Fintype G] [DecidableEq G] : ℝ :=
+  (stppCapacity G : ℝ) / (Fintype.card G : ℝ)
 
 /-! ### Hedtke disjointness corollaries
 
@@ -491,5 +504,159 @@ theorem card_add_card_add_card_le {S T U : Finset G}
   have hU' := card_le_card_leftQuot hU
   have hsum := card_leftQuot_sum_le h hS hT hU
   omega
+
+/-! ### The right-quotient TPP and the inversion bridge
+
+`TripleProductProperty` above is the elementwise *left-quotient* convention
+(`s'⁻¹ * s`; the Murthy/Wikipedia rendering). The literature also uses the
+set-level *right-quotient* convention on `Q_r(X) = X * X⁻¹` (Neumann;
+Hedtke–Murthy; `DihedralTPP.IsTPP`), formalized as `TripleProductPropertyR`
+below. For the **same** ordered triple the two are **not** equivalent — see
+the docstring of `TripleProductPropertyR`. The correct bridge inverts the
+sets: `Q_l(X) = X⁻¹ * X = Q_r(X⁻¹)`, so
+`TripleProductPropertyR S T U ↔ TripleProductProperty S⁻¹ T⁻¹ U⁻¹`. -/
+
+section RightQuotient
+
+open scoped Pointwise
+
+omit [Fintype G] in
+/-- Double inversion of a finset is the identity. (Mathlib has no
+`InvolutiveInv (Finset G)` instance, so generic `inv_inv` does not apply;
+we record the group case here.) -/
+theorem finset_inv_inv (X : Finset G) : X⁻¹⁻¹ = X := by
+  ext g; simp
+
+omit [Fintype G] in
+/-- Membership in the right quotient set `Q_r(X) = X * X⁻¹` (Pointwise), the
+right-quotient analogue of `mem_leftQuot`. -/
+theorem mem_mul_inv {X : Finset G} {g : G} :
+    g ∈ X * X⁻¹ ↔ ∃ x ∈ X, ∃ x' ∈ X, x * x'⁻¹ = g := by
+  rw [Finset.mem_mul]
+  constructor
+  · rintro ⟨y, hy, z, hz, rfl⟩
+    exact ⟨y, hy, z⁻¹, Finset.mem_inv'.mp hz, by rw [inv_inv]⟩
+  · rintro ⟨x, hx, x', hx', rfl⟩
+    exact ⟨x, hx, x'⁻¹, Finset.inv_mem_inv hx', rfl⟩
+
+omit [Fintype G] in
+/-- **Quotient-set glue:** the left quotient set is the pointwise product
+`X⁻¹ * X = X⁻¹ * (X⁻¹)⁻¹`, i.e. `Q_l(X) = Q_r(X⁻¹)` (see `leftQuot_inv`). -/
+theorem leftQuot_eq_inv_mul (X : Finset G) : leftQuot X = X⁻¹ * X := by
+  ext g
+  rw [mem_leftQuot, Finset.mem_mul]
+  constructor
+  · rintro ⟨x, hx, x', hx', rfl⟩
+    exact ⟨x'⁻¹, Finset.inv_mem_inv hx', x, hx, rfl⟩
+  · rintro ⟨y, hy, x, hx, rfl⟩
+    exact ⟨x, hx, y⁻¹, Finset.mem_inv'.mp hy, by rw [inv_inv]⟩
+
+omit [Fintype G] in
+/-- `Q_r(X) = Q_l(X⁻¹)`: the right quotient set of `X` is the left quotient
+set of `X⁻¹`. This is the definitional heart of the inversion bridge. -/
+theorem leftQuot_inv (X : Finset G) : leftQuot X⁻¹ = X * X⁻¹ := by
+  rw [leftQuot_eq_inv_mul, finset_inv_inv]
+
+omit [Fintype G] in
+/-- **Set-level form of the TPP:** `(S, T, U)` has the (left) TPP iff the only
+way three left-quotients `q₁ ∈ Q_l(S)`, `q₂ ∈ Q_l(T)`, `q₃ ∈ Q_l(U)` multiply
+to `1` is `q₁ = q₂ = q₃ = 1`. The elementwise conclusion `s = s'` matches the
+set-level conclusion `q₁ = 1` via `inv_mul_eq_one`. -/
+theorem tripleProductProperty_iff_leftQuot {S T U : Finset G} :
+    TripleProductProperty S T U ↔
+      ∀ q₁ ∈ leftQuot S, ∀ q₂ ∈ leftQuot T, ∀ q₃ ∈ leftQuot U,
+        q₁ * q₂ * q₃ = 1 → q₁ = 1 ∧ q₂ = 1 ∧ q₃ = 1 := by
+  constructor
+  · intro h q₁ hq₁ q₂ hq₂ q₃ hq₃ heq
+    obtain ⟨s, hs, s', hs', rfl⟩ := mem_leftQuot.mp hq₁
+    obtain ⟨t, ht, t', ht', rfl⟩ := mem_leftQuot.mp hq₂
+    obtain ⟨u, hu, u', hu', rfl⟩ := mem_leftQuot.mp hq₃
+    have hquot : s'⁻¹ * s * t'⁻¹ * t * u'⁻¹ * u = 1 := by
+      have hreassoc : s'⁻¹ * s * t'⁻¹ * t * u'⁻¹ * u
+          = s'⁻¹ * s * (t'⁻¹ * t) * (u'⁻¹ * u) := by group
+      rw [hreassoc]; exact heq
+    obtain ⟨h1, h2, h3⟩ := h s hs s' hs' t ht t' ht' u hu u' hu' hquot
+    exact ⟨by rw [h1, inv_mul_cancel], by rw [h2, inv_mul_cancel],
+      by rw [h3, inv_mul_cancel]⟩
+  · intro h s hs s' hs' t ht t' ht' u hu u' hu' heq
+    have h1 : s'⁻¹ * s ∈ leftQuot S := mem_leftQuot.mpr ⟨s, hs, s', hs', rfl⟩
+    have h2 : t'⁻¹ * t ∈ leftQuot T := mem_leftQuot.mpr ⟨t, ht, t', ht', rfl⟩
+    have h3 : u'⁻¹ * u ∈ leftQuot U := mem_leftQuot.mpr ⟨u, hu, u', hu', rfl⟩
+    have heq' : s'⁻¹ * s * (t'⁻¹ * t) * (u'⁻¹ * u) = 1 := by
+      have hreassoc : s'⁻¹ * s * (t'⁻¹ * t) * (u'⁻¹ * u)
+          = s'⁻¹ * s * t'⁻¹ * t * u'⁻¹ * u := by group
+      rw [hreassoc]; exact heq
+    obtain ⟨e1, e2, e3⟩ := h _ h1 _ h2 _ h3 heq'
+    exact ⟨(inv_mul_eq_one.mp e1).symm, (inv_mul_eq_one.mp e2).symm,
+      (inv_mul_eq_one.mp e3).symm⟩
+
+/-- The **right-quotient Triple Product Property**: the set-level TPP on the
+right quotient sets `Q_r(X) = X * X⁻¹` (the Neumann/Hedtke–Murthy convention;
+syntactically the shape of `DihedralTPP.IsTPP`): whenever `q₁ ∈ S * S⁻¹`,
+`q₂ ∈ T * T⁻¹`, `q₃ ∈ U * U⁻¹` multiply to `1`, all three are `1`.
+
+**Warning (same-triple NON-equivalence).** For the *same* ordered triple this
+is **not** equivalent to the left-quotient `TripleProductProperty`: an
+exhaustive check over all 250,047 nonempty-subset triples of `S₃` finds 1,746
+triples satisfying each convention but not the other. Counterexample in `S₃`:
+`S = {e}`, `T = {e, (23)}`, `U = {(13), (132)}` is left-TPP but not right-TPP
+(right fails via `e · (23) · (23) = 1` with `(23) ∈ Q_r(T)` and
+`(23) ∈ Q_r(U)`); the `decide` example below reproduces this in
+`DihedralGroup 3 ≅ S₃`. Do not attempt a same-triple equivalence. The correct
+bridge inverts the sets (`Q_l(X) = X⁻¹ * X = Q_r(X⁻¹)`):
+`TripleProductPropertyR S T U ↔ TripleProductProperty S⁻¹ T⁻¹ U⁻¹`, which is
+`tripleProductPropertyR_iff_inv`. -/
+def TripleProductPropertyR (S T U : Finset G) : Prop :=
+  ∀ q₁ ∈ S * S⁻¹, ∀ q₂ ∈ T * T⁻¹, ∀ q₃ ∈ U * U⁻¹,
+    q₁ * q₂ * q₃ = 1 → q₁ = 1 ∧ q₂ = 1 ∧ q₃ = 1
+
+/-- The right-quotient TPP is decidable: bounded quantifiers over the finsets
+`X * X⁻¹` with decidable group equations at the leaves. -/
+instance (S T U : Finset G) : Decidable (TripleProductPropertyR S T U) := by
+  unfold TripleProductPropertyR; infer_instance
+
+omit [Fintype G] in
+/-- **The inversion bridge:** the right-quotient TPP for `(S, T, U)` is the
+left-quotient TPP for `(S⁻¹, T⁻¹, U⁻¹)`, since `Q_r(X) = Q_l(X⁻¹)`. (For the
+*same* triple the two conventions are not equivalent; see the docstring of
+`TripleProductPropertyR`.) -/
+theorem tripleProductPropertyR_iff_inv {S T U : Finset G} :
+    TripleProductPropertyR S T U ↔ TripleProductProperty S⁻¹ T⁻¹ U⁻¹ := by
+  unfold TripleProductPropertyR
+  rw [tripleProductProperty_iff_leftQuot, leftQuot_inv, leftQuot_inv, leftQuot_inv]
+
+omit [Fintype G] in
+/-- Mirror of `tripleProductPropertyR_iff_inv`: the left-quotient TPP for
+`(S, T, U)` is the right-quotient TPP for `(S⁻¹, T⁻¹, U⁻¹)`. -/
+theorem tripleProductProperty_iff_inv {S T U : Finset G} :
+    TripleProductProperty S T U ↔ TripleProductPropertyR S⁻¹ T⁻¹ U⁻¹ := by
+  rw [tripleProductPropertyR_iff_inv, finset_inv_inv, finset_inv_inv, finset_inv_inv]
+
+/-- **Capacity transfer:** a right-quotient TPP triple satisfies the same
+`tppCapacity` bound, via the inversion bridge (`Finset.card_inv` preserves the
+three cardinalities). `β(G)` is therefore convention-independent, and no
+separate right-quotient capacity is needed. -/
+theorem TripleProductPropertyR.le_tppCapacity {S T U : Finset G}
+    (h : TripleProductPropertyR S T U) :
+    S.card * T.card * U.card ≤ tppCapacity G := by
+  have hb := Xlib.TPP.le_tppCapacity (tripleProductPropertyR_iff_inv.mp h)
+  simpa only [Finset.card_inv] using hb
+
+-- The two conventions genuinely differ on the same ordered triple: in
+-- `DihedralGroup 3 ≅ S₃` (identity `r 0`), the triple
+-- `({r 0}, {r 0, sr 0}, {r 1, sr 1})` is left-TPP but not right-TPP
+-- (right fails via `1 * sr 0 * sr 0 = 1` with `sr 0 ∈ Q_r(T) ∩ Q_r(U)`).
+example :
+    TripleProductProperty
+        ({DihedralGroup.r 0} : Finset (DihedralGroup 3))
+        {DihedralGroup.r 0, DihedralGroup.sr 0}
+        {DihedralGroup.r 1, DihedralGroup.sr 1} ∧
+      ¬ TripleProductPropertyR
+        ({DihedralGroup.r 0} : Finset (DihedralGroup 3))
+        {DihedralGroup.r 0, DihedralGroup.sr 0}
+        {DihedralGroup.r 1, DihedralGroup.sr 1} := by
+  decide
+
+end RightQuotient
 
 end Xlib.TPP
