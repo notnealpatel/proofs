@@ -1,0 +1,11 @@
+{"group_id":[8,3],"order":8,"lemma_m":{"beta0":8,"n_subgroups":10,"checked":654,"dead":28,"n_violations":0,"violations":[]},"elapsed_s":5.76}
+{"group_id":[12,3],"order":12,"lemma_m":{"beta0":18,"n_subgroups":10,"checked":446,"dead":28,"n_violations":0,"violations":[]},"elapsed_s":1.36}
+{"group_id":[16,4],"order":16,"lemma_m":{"beta0":16,"n_subgroups":15,"checked":2719,"dead":43,"n_violations":0,"violations":[]},"elapsed_s":217.07}
+{"group_id":[16,9],"order":16,"lemma_m":{"beta0":16,"n_subgroups":11,"checked":915,"dead":243,"n_violations":0,"violations":[]},"elapsed_s":28.83}
+{"group_id":[18,1],"order":18,"lemma_m":{"beta0":24,"n_subgroups":16,"checked":1148,"dead":640,"n_violations":0,"violations":[]},"elapsed_s":2.32}
+{"group_id":[20,3],"order":20,"lemma_m":{"beta0":32,"n_subgroups":14,"checked":1209,"dead":152,"n_violations":0,"violations":[]},"elapsed_s":1.54}
+{"group_id":[24,1],"order":24,"lemma_m":{"beta0":24,"n_subgroups":10,"checked":838,"dead":28,"n_violations":0,"violations":[]},"elapsed_s":90.97}
+{"group_id":[24,6],"order":24,"lemma_m":{"beta0":32,"n_subgroups":34,"checked":18225,"dead":5608,"n_violations":0,"violations":[]},"elapsed_s":93.76}
+{"group_id":[24,11],"order":24,"lemma_m":{"beta0":24,"n_subgroups":12,"checked":1394,"dead":128,"n_violations":0,"violations":[]},"elapsed_s":799.6}
+{"group_id":[26,1],"order":26,"lemma_m":{"beta0":26,"n_subgroups":16,"checked":1222,"dead":46,"n_violations":0,"violations":[]},"elapsed_s":0.57}
+{"group_id":[28,3],"order":28,"lemma_m":{"beta0":28,"n_subgroups":28,"checked":10539,"dead":702,"n_violations":0,"violations":[]},"elapsed_s":16.52}
