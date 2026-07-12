@@ -32,26 +32,30 @@ possible. The companion **center barrier** (BCGPU Corollary 3.8,
 
 ## Proof status
 
-The normalizer barrier (Theorem 3.6, `bcgpu_thm_3_6`) and the center barrier
-(Corollary 3.8, `bcgpu_cor_3_8`) are fully proved here. Theorem 3.2 and its
-corollaries (3.3, 3.4, 3.5) remain `sorry`-skeletons. The barrier of Theorem 3.2
-is a nonabelian Fourier / second-moment estimate (a Cauchy–Schwarz argument over
-the character degrees, following Gowers' mixing theorem for quasirandom groups).
-It needs the *indexed* representation-theory layer — Fourier inversion, Parseval,
-and the per-irrep operator-norm bound — which sits on top of the
-character-degree foundation `Xlib.CharDegrees` (itself carrying the single
-Wedderburn `sorry`). Theorem 3.6 is an injectivity argument on
-`H₁ × (N(H₁) ∩ H₂) × H₃`; it and Corollary 3.8 are proved by elementary
-counting, so they do not depend on the deferred representation-theory layer.
+**All six statements are fully proved (`sorry`-free).** The barrier of
+Theorem 3.2 is a nonabelian Fourier / second-moment estimate (a Cauchy–Schwarz
+argument over the character degrees, following Gowers' mixing theorem for
+quasirandom groups); its analytic engine — Fourier inversion of the six-fold
+Gowers convolution, the unitarian trick, Parseval, and the per-irrep
+Hilbert–Schmidt bound — is the layer `Xlib.FourierBarrier`
+(`master_bound`), which sits on top of the sorry-free character-degree
+foundation `Xlib.CharDegrees` / `Xlib.Wedderburn`.  The bridge from
+nonabelianness to `n(G) ≥ 2` is `two_le_minNontrivIrrepDim` below; the
+corollaries 3.3 and 3.4 are `rpow` arithmetic over Theorem 3.2, and the `√2`
+corollary 3.5 case-splits on commutativity (abelian barrier
+`Xlib.TPP.card_mul_card_mul_card_le` vs Theorem 3.2). Theorem 3.6 is an
+injectivity argument on `H₁ × (N(H₁) ∩ H₂) × H₃`; it and Corollary 3.8 are
+proved by elementary counting and are independent of the Fourier layer.
 
 ## Main statements
 
-* `Xlib.BCGPUBarrier.bcgpu_thm_3_2` — **(`sorry`)** the `n(G)` barrier.
-* `Xlib.BCGPUBarrier.bcgpu_cor_3_3` — **(`sorry`)** the `n(G) ≥ |G|^δ` kernel of
+* `Xlib.BCGPUBarrier.bcgpu_thm_3_2` — the `n(G)` barrier.
+* `Xlib.BCGPUBarrier.two_le_minNontrivIrrepDim` — nonabelian `G` has `n(G) ≥ 2`.
+* `Xlib.BCGPUBarrier.bcgpu_cor_3_3` — the `n(G) ≥ |G|^δ` kernel of
   the "cannot meet the packing bound" corollary.
-* `Xlib.BCGPUBarrier.bcgpu_cor_3_4_kernel` — **(`sorry`)** the Lie-type barrier,
-  as a per-group inequality `|S||T||U| ≤ |G|^{(3-δ)/2} + |G|`.
-* `Xlib.BCGPUBarrier.bcgpu_cor_3_5` — **(`sorry`)** the `√2` corollary,
+* `Xlib.BCGPUBarrier.bcgpu_cor_3_4_kernel` — the Lie-type barrier,
+  as a per-group inequality ratio `|S||T||U|/|G|^{3/2} ≤ |G|^{-δ/2} + |G|^{-1/2}`.
+* `Xlib.BCGPUBarrier.bcgpu_cor_3_5` — the `√2` corollary,
   `|S||T||U| ≤ |G|^{3/2}/√2 + |G|`, for *any* finite group.
 * `Xlib.BCGPUBarrier.bcgpu_thm_3_6` — the normalizer barrier.
 * `Xlib.BCGPUBarrier.bcgpu_cor_3_8` — the center barrier.
@@ -84,6 +88,7 @@ noncomputable def nG (G : Type*) [Group G] [Fintype G] : ℝ :=
 
 /-! ### BCGPU Theorem 3.2: the representation-theoretic barrier -/
 
+omit [DecidableEq G] in
 /-- **The `n(G)` bridge for nonabelian groups**: a nonabelian finite group has
 an irreducible representation of dimension `> 1`, and therefore
 `n(G) = minNontrivIrrepDim G ≥ 2`.  Extract any Wedderburn decomposition; were

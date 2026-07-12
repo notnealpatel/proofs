@@ -30,4 +30,5 @@ import Proofs.BilinearComplexity.Omega
 import Proofs.BilinearComplexity.Strassen
 import Proofs.BilinearComplexity.KroneckerMatMul
 import Proofs.BilinearComplexity.MatMulMono
+import Proofs.BilinearComplexity.GroupTensor
 import Proofs.Scratch

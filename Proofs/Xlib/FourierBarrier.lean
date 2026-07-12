@@ -75,7 +75,7 @@ private lemma sum_single_mul {ι κ : Type*} (A : Finset ι) (B : Finset κ)
   rw [Finset.sum_mul_sum, Finset.sum_product]
   simp [MonoidAlgebra.single_mul_single]
 
-omit [Fintype G] in
+omit [Group G] [Fintype G] in
 /-- Evaluating an indicator-type sum at a point counts the fiber. -/
 private lemma sum_single_apply {ι : Type*} (A : Finset ι) (f : ι → G) (h : G) :
     (∑ a ∈ A, MonoidAlgebra.single (f a) (1 : ℂ)) h
@@ -88,6 +88,7 @@ private lemma sum_single_apply {ι : Type*} (A : Finset ι) (f : ι → G) (h : 
         Finset.sum_congr rfl fun a _ => Finsupp.single_apply
     _ = ((A.filter (fun a => f a = h)).card : ℂ) := Finset.sum_boole _ _
 
+omit [Group G] in
 /-- Total mass of an indicator-type sum. -/
 private lemma sum_single_mass {ι : Type*} (A : Finset ι) (f : ι → G) :
     (∑ g : G, (∑ a ∈ A, MonoidAlgebra.single (f a) (1 : ℂ)) g) = (A.card : ℂ) := by
@@ -101,6 +102,7 @@ private lemma sum_single_mass {ι : Type*} (A : Finset ι) (f : ι → G) :
         Finset.sum_congr rfl fun a _ => by simp [Finsupp.single_apply]
     _ = (A.card : ℂ) := by simp
 
+omit [Fintype G] [DecidableEq G] in
 /-- The Gowers element as one sum over the six-fold product finset. -/
 private lemma gowersElt_eq_sum (S T U : Finset G) :
     gowersElt S T U
@@ -115,6 +117,7 @@ private lemma gowersElt_eq_sum (S T U : Finset G) :
     sum_single_mul (((S ×ˢ T) ×ˢ (T ×ˢ U))) (U ×ˢ S)
       (fun p => p.1.1 * p.1.2⁻¹ * (p.2.1 * p.2.2⁻¹)) (fun p => p.1 * p.2⁻¹)]
 
+omit [Fintype G] in
 /-- **The six-fold TPP count**: the coefficient of the Gowers element at the
 identity is exactly `|S| |T| |U|`. -/
 theorem gowersElt_apply_one {S T U : Finset G} (h : TripleProductProperty S T U) :
@@ -170,6 +173,7 @@ theorem mass_gowersElt (S T U : Finset G) :
         push_cast
         ring
 
+omit [Fintype G] in
 /-- **Parseval count for `a = 1_S 1_{T⁻¹}`**: the coefficient of `a⋆ a` at `1`
 is `|S| |T|` (needs `U` nonempty to run the TPP). -/
 theorem coeff_star_a {S T U : Finset G} (h : TripleProductProperty S T U)
@@ -214,6 +218,7 @@ theorem coeff_star_a {S T U : Finset G} (h : TripleProductProperty S T U)
     rintro ⟨t, s⟩ _
     rfl
 
+omit [Fintype G] in
 /-- **Parseval count for `b = 1_T 1_{U⁻¹}`** (needs `S` nonempty). -/
 theorem coeff_star_b {S T U : Finset G} (h : TripleProductProperty S T U)
     (hS : S.Nonempty) :
@@ -257,6 +262,7 @@ theorem coeff_star_b {S T U : Finset G} (h : TripleProductProperty S T U)
     rintro ⟨u, t⟩ _
     rfl
 
+omit [Fintype G] in
 /-- **Parseval count for `c = 1_U 1_{S⁻¹}`** (needs `T` nonempty). -/
 theorem coeff_star_c {S T U : Finset G} (h : TripleProductProperty S T U)
     (hT : T.Nonempty) :
@@ -346,7 +352,7 @@ theorem trace_mulLeft_monoidAlgebra (x : MonoidAlgebra ℂ G) :
     rw [MonoidAlgebra.mul_single_apply]
     simp
   rw [Finset.sum_congr rfl fun g _ => hdiag g]
-  simp [mul_comm]
+  simp
 
 /-- The trace of left multiplication by `y` on `Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ`
 is `Σ i, d i · Tr(y i)`: block `i` consists of `d i` copies of the column module. -/
@@ -483,7 +489,7 @@ private def conjAlgEquiv {m : ℕ} (B B' : Matrix (Fin m) (Fin m) ℂ)
     show B * (y * z) * B' = B * y * B' * (B * z * B')
     rw [show B * y * B' * (B * z * B') = B * y * (B' * B) * (z * B') from by
       simp only [mul_assoc], hB'B]
-    simp only [mul_assoc, one_mul, mul_one]
+    simp only [mul_assoc, mul_one]
   map_add' y z := by
     simp [Matrix.mul_add, Matrix.add_mul]
   commutes' c := by
@@ -508,6 +514,7 @@ private lemma piConjAlgEquiv_apply {k : ℕ} {d : Fin k → ℕ}
     piConjAlgEquiv B B' hBB' hB'B y i = B i * y i * B' i :=
   rfl
 
+omit [DecidableEq G] in
 open scoped ComplexOrder MatrixOrder in
 /-- **The unitarian trick** (Weyl): any indexed Wedderburn decomposition of the
 group algebra can be conjugated blockwise into a *unitary* one with the same
@@ -536,7 +543,7 @@ theorem exists_isUnitary {k : ℕ} {d : Fin k → ℕ}
     intro i g
     rw [← ρ_mul, mul_inv_cancel, ρ_one]
   have ρ_unit : ∀ (i : Fin k) (g : G), IsUnit ((e₀ (MonoidAlgebra.single g 1)) i) :=
-    fun i g => Matrix.isUnit_of_right_inverse (ρ_mul_inv i g)
+    fun i g => IsUnit.of_mul_eq_one _ (ρ_mul_inv i g)
   -- the averaged Gram matrices
   set Q : ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ := fun i =>
     ∑ g : G, ((e₀ (MonoidAlgebra.single g 1)) i)ᴴ * (e₀ (MonoidAlgebra.single g 1)) i
@@ -634,6 +641,7 @@ section Unitary
 variable {k : ℕ} {d : Fin k → ℕ}
   {e : MonoidAlgebra ℂ G ≃ₐ[ℂ] ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ}
 
+omit [Fintype G] [DecidableEq G] in
 /-- Under a unitary decomposition, the block of `indInv X` is the conjugate
 transpose of the block of `ind X`. -/
 theorem IsUnitary.e_indInv (he : IsUnitary e) (X : Finset G) (i : Fin k) :
@@ -647,6 +655,7 @@ theorem IsUnitary.e_indInv (he : IsUnitary e) (X : Finset G) (i : Fin k) :
     _ = (∑ x ∈ X, (e (MonoidAlgebra.single x 1)) i)ᴴ :=
         (Matrix.conjTranspose_sum _ _).symm
 
+omit [Fintype G] [DecidableEq G] in
 /-- The block of the reversed product `1_Y 1_{X⁻¹}` is the conjugate transpose
 of the block of `1_X 1_{Y⁻¹}`. -/
 theorem IsUnitary.e_star_prod (he : IsUnitary e) (X Y : Finset G) (i : Fin k) :
@@ -688,6 +697,7 @@ private lemma trace_mul_dim_one {m : ℕ} (hm : m = 1)
   subst hm
   simp [Matrix.trace, Matrix.mul_apply]
 
+omit [Fintype G] [DecidableEq G] in
 /-- **One-dimensional blocks of the Gowers element are nonnegative reals**:
 in a `d i = 1` block the six factors multiply to `|z_S|² |z_T|² |z_U|² ≥ 0`. -/
 theorem trace_gowersElt_one_dim (he : IsUnitary e) {i : Fin k} (hd : d i = 1)
@@ -878,8 +888,11 @@ private lemma matrix_mul_comm_of_le_one {m : ℕ} (hm : m ≤ 1)
   interval_cases m
   · exact Subsingleton.elim _ _
   · ext i j
-    fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, mul_comm]
+    fin_cases i
+    fin_cases j
+    simp [Matrix.mul_apply, mul_comm]
 
+omit [Fintype G] [DecidableEq G] in
 /-- A nonabelian group has a block of dimension `> 1`: otherwise the product of
 `≤ 1`-dimensional matrix algebras would be commutative, hence so would `ℂ[G]`,
 hence so would `G`. -/
@@ -888,13 +901,14 @@ theorem exists_one_lt_dim_of_nonabelian {k : ℕ} {d : Fin k → ℕ}
     (hG : ∃ a b : G, a * b ≠ b * a) :
     ∃ i, 1 < d i := by
   by_contra hall
-  push_neg at hall
   obtain ⟨a, b, hab⟩ := hG
   apply hab
   have hcomm : ∀ y z : (∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ), y * z = z * y := by
     intro y z
     funext i
-    exact matrix_mul_comm_of_le_one (hall i) (y i) (z i)
+    refine matrix_mul_comm_of_le_one ?_ (y i) (z i)
+    by_contra hgt
+    exact hall ⟨i, by omega⟩
   have hsingle : MonoidAlgebra.single (a * b) (1 : ℂ)
       = MonoidAlgebra.single (b * a) (1 : ℂ) := by
     rw [show MonoidAlgebra.single (a * b) (1 : ℂ)
