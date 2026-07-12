@@ -104,14 +104,16 @@ theorem two_le_minNontrivIrrepDim (hG : ∃ a b : G, a * b ≠ b * a) :
   have hmem : d i₁ ∈ ((charDegrees G).filter (fun m => m > 1)).toFinset := by
     rw [Multiset.mem_toFinset, Multiset.mem_filter, hbridge]
     exact ⟨Multiset.mem_map.mpr ⟨i₁, Finset.mem_val.mpr (Finset.mem_univ i₁), rfl⟩, hi₁⟩
+  have hne : ((charDegrees G).filter (fun m => m > 1)).toFinset.min ≠ ⊤ := by
+    intro htop
+    exact Finset.ne_empty_of_mem hmem (Finset.min_eq_top.mp htop)
+  obtain ⟨m, hm⟩ := WithTop.ne_top_iff_exists.1 hne
+  have hmm := Finset.mem_of_min hm.symm
+  rw [Multiset.mem_toFinset, Multiset.mem_filter] at hmm
+  have h1 : 1 < m := hmm.2
   unfold minNontrivIrrepDim
-  rcases hmt : ((charDegrees G).filter (fun m => m > 1)).toFinset.min with _ | m
-  · exact absurd (Finset.min_eq_top.mp hmt) (Finset.ne_empty_of_mem hmem)
-  · have hmm := Finset.mem_of_min hmt
-    rw [Multiset.mem_toFinset, Multiset.mem_filter] at hmm
-    have h1 : 1 < m := hmm.2
-    rw [hmt, WithTop.untopD_coe]
-    omega
+  rw [← hm, WithTop.untopD_coe]
+  omega
 
 /-- **BCGPU Theorem 3.2** (`thm:gowerstrick`, arXiv:2204.03826).
 
@@ -171,14 +173,16 @@ theorem bcgpu_thm_3_2 {S T U : Finset G} (hG : ∃ a b : G, a * b ≠ b * a)
   -- `n(G)` lower-bounds every block dimension exceeding `1`
   have hnd : ∀ i, 1 < d i → minNontrivIrrepDim G ≤ d i := by
     intro i hi
-    have hmin := Finset.min_le (hmem i hi)
+    have hminle := Finset.min_le (hmem i hi)
+    have hne : ((charDegrees G).filter (fun m => m > 1)).toFinset.min ≠ ⊤ := by
+      intro htop
+      rw [htop] at hminle
+      exact WithTop.not_top_le_coe _ hminle
+    obtain ⟨m, hm⟩ := WithTop.ne_top_iff_exists.1 hne
+    rw [← hm] at hminle
     unfold minNontrivIrrepDim
-    rcases hmt : ((charDegrees G).filter (fun m => m > 1)).toFinset.min with _ | m
-    · rw [hmt] at hmin
-      exact absurd hmin (by simp)
-    · rw [hmt] at hmin
-      rw [hmt, WithTop.untopD_coe]
-      exact_mod_cast hmin
+    rw [← hm, WithTop.untopD_coe]
+    exact WithTop.coe_le_coe.mp hminle
   exact Xlib.FourierBarrier.master_bound he (two_le_minNontrivIrrepDim hG) hnd
     h hS hT hU
 
@@ -195,14 +199,37 @@ family with `n(Gᵢ) ≥ Ω(|Gᵢ|^δ)` can meet the packing bound `|G|^{3/2 - o
 the leading term `|G|^{(3-δ)/2}` is a *polynomial factor* `|G|^{δ/2}` below the
 packing target `|G|^{3/2}`.
 
-**Proof (deferred, `sorry`).** Substitute `n(G)^{1/2} ≥ |G|^{δ/2}` into
+**Proof.** Substitute `n(G)^{1/2} ≥ |G|^{δ/2}` into
 `bcgpu_thm_3_2`, so `|G|^{3/2}/n(G)^{1/2} ≤ |G|^{3/2}/|G|^{δ/2} = |G|^{(3-δ)/2}`. -/
 theorem bcgpu_cor_3_3 {S T U : Finset G} {δ : ℝ} (hδ : 0 < δ)
     (hG : ∃ a b : G, a * b ≠ b * a)
     (hn : (Fintype.card G : ℝ) ^ δ ≤ nG G) (h : TripleProductProperty S T U) :
     (S.card * T.card * U.card : ℝ)
-      ≤ (Fintype.card G : ℝ) ^ ((3 - δ) / 2) + (Fintype.card G : ℝ) :=
-  sorry
+      ≤ (Fintype.card G : ℝ) ^ ((3 - δ) / 2) + (Fintype.card G : ℝ) := by
+  have hNpos : (0 : ℝ) < Fintype.card G := by exact_mod_cast Fintype.card_pos
+  have h32 := bcgpu_thm_3_2 hG h
+  -- `√(n(G)) ≥ |G|^{δ/2} > 0`
+  have hs1 : (Fintype.card G : ℝ) ^ (δ / 2) ≤ Real.sqrt (nG G) := by
+    have hsq : Real.sqrt ((Fintype.card G : ℝ) ^ δ) ≤ Real.sqrt (nG G) :=
+      Real.sqrt_le_sqrt hn
+    rwa [Real.sqrt_eq_rpow, ← Real.rpow_mul hNpos.le,
+      show δ * (1 / 2) = δ / 2 by ring] at hsq
+  have hpos : (0 : ℝ) < (Fintype.card G : ℝ) ^ (δ / 2) :=
+    Real.rpow_pos_of_pos hNpos _
+  have hdiv : (Fintype.card G : ℝ) ^ ((3 : ℝ) / 2) / Real.sqrt (nG G)
+      ≤ (Fintype.card G : ℝ) ^ ((3 : ℝ) / 2) / (Fintype.card G : ℝ) ^ (δ / 2) :=
+    div_le_div_of_nonneg_left (by positivity) hpos hs1
+  have heq : (Fintype.card G : ℝ) ^ ((3 : ℝ) / 2) / (Fintype.card G : ℝ) ^ (δ / 2)
+      = (Fintype.card G : ℝ) ^ ((3 - δ) / 2) := by
+    rw [← Real.rpow_sub hNpos]
+    congr 1
+    ring
+  calc (S.card * T.card * U.card : ℝ)
+      ≤ (Fintype.card G : ℝ) ^ ((3 : ℝ) / 2) / Real.sqrt (nG G)
+          + (Fintype.card G : ℝ) := h32
+    _ ≤ (Fintype.card G : ℝ) ^ ((3 - δ) / 2) + (Fintype.card G : ℝ) := by
+        rw [← heq]
+        linarith
 
 /-! ### BCGPU Corollary 3.4: the Lie-type barrier -/
 
@@ -224,13 +251,24 @@ to `ω = 2`. (The further passage to an `ω`-bound in the paper uses convexity o
 `x ↦ x^{ω/2}` and the conjugacy-class count `m = |ConjClasses G|`; see
 `Xlib.CharDegrees.card_charDegrees`.)
 
-**Proof (deferred, `sorry`).** Divide `bcgpu_cor_3_3` through by `|G|^{3/2}`. -/
+**Proof.** Divide `bcgpu_cor_3_3` through by `|G|^{3/2}`. -/
 theorem bcgpu_cor_3_4_kernel {S T U : Finset G} {δ : ℝ} (hδ : 0 < δ)
     (hG : ∃ a b : G, a * b ≠ b * a)
     (hn : (Fintype.card G : ℝ) ^ δ ≤ nG G) (h : TripleProductProperty S T U) :
     (S.card * T.card * U.card : ℝ) / (Fintype.card G : ℝ) ^ ((3 : ℝ) / 2)
-      ≤ (Fintype.card G : ℝ) ^ (-δ / 2) + (Fintype.card G : ℝ) ^ (-(1 : ℝ) / 2) :=
-  sorry
+      ≤ (Fintype.card G : ℝ) ^ (-δ / 2) + (Fintype.card G : ℝ) ^ (-(1 : ℝ) / 2) := by
+  have hNpos : (0 : ℝ) < Fintype.card G := by exact_mod_cast Fintype.card_pos
+  have hN32 : (0 : ℝ) < (Fintype.card G : ℝ) ^ ((3 : ℝ) / 2) :=
+    Real.rpow_pos_of_pos hNpos _
+  rw [div_le_iff₀ hN32]
+  calc (S.card * T.card * U.card : ℝ)
+      ≤ (Fintype.card G : ℝ) ^ ((3 - δ) / 2) + (Fintype.card G : ℝ) :=
+        bcgpu_cor_3_3 hδ hG hn h
+    _ = ((Fintype.card G : ℝ) ^ (-δ / 2) + (Fintype.card G : ℝ) ^ (-(1 : ℝ) / 2))
+          * (Fintype.card G : ℝ) ^ ((3 : ℝ) / 2) := by
+        rw [add_mul, ← Real.rpow_add hNpos, ← Real.rpow_add hNpos,
+          show -δ / 2 + (3 : ℝ) / 2 = (3 - δ) / 2 by ring,
+          show -(1 : ℝ) / 2 + (3 : ℝ) / 2 = 1 by ring, Real.rpow_one]
 
 /-! ### BCGPU Corollary 3.5: the `√2` corollary (any finite group) -/
 
@@ -242,14 +280,40 @@ satisfies
 This sharpens the elementary `|S||T||U| < |G|^{3/2}` bound: the three sets cannot
 all be as large as `⌊|G|^{1/2} - 1⌋` once `|G|` is large.
 
-**Proof (deferred, `sorry`).** If `G` is abelian then `|S||T||U| ≤ |G|`
-(`Xlib.TPP.card_mul_card_mul_card_le`). Otherwise `n(G) ≥ 2`, so
-`bcgpu_thm_3_2` gives `|G|^{3/2}/n(G)^{1/2} ≤ |G|^{3/2}/√2`. -/
+**Proof.** If `G` is abelian then `|S||T||U| ≤ |G|`
+(`Xlib.TPP.card_mul_card_mul_card_le`). Otherwise `n(G) ≥ 2`
+(`two_le_minNontrivIrrepDim`), so `bcgpu_thm_3_2` gives
+`|G|^{3/2}/n(G)^{1/2} ≤ |G|^{3/2}/√2`. -/
 theorem bcgpu_cor_3_5 {S T U : Finset G} (h : TripleProductProperty S T U) :
     (S.card * T.card * U.card : ℝ)
       ≤ (Fintype.card G : ℝ) ^ ((3 : ℝ) / 2) / Real.sqrt 2
-        + (Fintype.card G : ℝ) :=
-  sorry
+        + (Fintype.card G : ℝ) := by
+  classical
+  by_cases hab : ∃ a b : G, a * b ≠ b * a
+  · -- nonabelian: `n(G) ≥ 2` and Theorem 3.2
+    have h32 := bcgpu_thm_3_2 hab h
+    have hn2 : 2 ≤ minNontrivIrrepDim G := two_le_minNontrivIrrepDim hab
+    have hsqrt : Real.sqrt 2 ≤ Real.sqrt (nG G) := by
+      apply Real.sqrt_le_sqrt
+      unfold nG
+      exact_mod_cast hn2
+    have hs2 : (0 : ℝ) < Real.sqrt 2 := by positivity
+    have hdiv : (Fintype.card G : ℝ) ^ ((3 : ℝ) / 2) / Real.sqrt (nG G)
+        ≤ (Fintype.card G : ℝ) ^ ((3 : ℝ) / 2) / Real.sqrt 2 :=
+      div_le_div_of_nonneg_left (by positivity) hs2 hsqrt
+    linarith
+  · -- abelian: the abelian barrier `|S||T||U| ≤ |G|`
+    have hcomm : ∀ a b : G, a * b = b * a := by
+      intro a b
+      by_contra hne
+      exact hab ⟨a, b, hne⟩
+    letI : CommGroup G := { (inferInstance : Group G) with mul_comm := hcomm }
+    have habel := card_mul_card_mul_card_le h
+    have h1 : (S.card * T.card * U.card : ℝ) ≤ Fintype.card G := by
+      exact_mod_cast habel
+    have h2 : (0 : ℝ) ≤ (Fintype.card G : ℝ) ^ ((3 : ℝ) / 2) / Real.sqrt 2 := by
+      positivity
+    linarith
 
 /-! ### BCGPU Theorem 3.6: the normalizer barrier for subgroups -/
 
