@@ -930,7 +930,237 @@ theorem master_bound {k : ℕ} {d : Fin k → ℕ} [∀ i, NeZero (d i)]
     (S.card * T.card * U.card : ℝ)
       ≤ (Fintype.card G : ℝ) ^ ((3 : ℝ) / 2) / Real.sqrt n
         + (Fintype.card G : ℝ) := by
-  sorry
+  classical
+  set N : ℝ := (Fintype.card G : ℝ) with hNdef
+  set P : ℝ := (S.card * T.card * U.card : ℝ) with hPdef
+  have hNpos : 0 < N := by rw [hNdef]; exact_mod_cast Fintype.card_pos
+  have hPpos : 0 < P := by
+    rw [hPdef]
+    have h1 : 0 < S.card * T.card * U.card :=
+      Nat.mul_pos (Nat.mul_pos hS.card_pos hT.card_pos) hU.card_pos
+    exact_mod_cast h1
+  have hnpos : (0 : ℝ) < n := by exact_mod_cast (by omega : 0 < n)
+  have hsqn : 0 < Real.sqrt n := Real.sqrt_pos.mpr hnpos
+  -- Fourier inversion of the Gowers element, real form
+  have hinv := inversion e (gowersElt S T U)
+  rw [gowersElt_apply_one h] at hinv
+  have hsix : N * P = ∑ i, (d i : ℝ) * ((e (gowersElt S T U)) i).trace.re := by
+    have hre := congrArg Complex.re hinv
+    rw [Complex.re_sum] at hre
+    rw [hNdef, hPdef]
+    calc (Fintype.card G : ℝ) * ((S.card : ℝ) * T.card * U.card)
+        = ((Fintype.card G : ℂ) * ((S.card * T.card * U.card : ℕ) : ℂ)).re := by
+          simp only [Complex.mul_re, Complex.natCast_re, Complex.natCast_im]
+          push_cast
+          ring
+      _ = ∑ i, ((d i : ℂ) * ((e (gowersElt S T U)) i).trace).re := hre
+      _ = ∑ i, (d i : ℝ) * ((e (gowersElt S T U)) i).trace.re := by
+          refine Finset.sum_congr rfl fun i _ => ?_
+          simp [Complex.mul_re]
+  -- the three Parseval identities
+  have hPa : ∑ i, (d i : ℝ) * ‖(e (ind S * indInv T)) i‖ ^ 2
+      = N * S.card * T.card := by
+    rw [hNdef]; exact parseval_norm_sum he S T (coeff_star_a h hU)
+  have hPb : ∑ i, (d i : ℝ) * ‖(e (ind T * indInv U)) i‖ ^ 2
+      = N * T.card * U.card := by
+    rw [hNdef]; exact parseval_norm_sum he T U (coeff_star_b h hS)
+  have hPc : ∑ i, (d i : ℝ) * ‖(e (ind U * indInv S)) i‖ ^ 2
+      = N * U.card * S.card := by
+    rw [hNdef]; exact parseval_norm_sum he U S (coeff_star_c h hT)
+  -- the trivial block contributes `P²`
+  obtain ⟨i₀, hdi₀, hi₀⟩ := exists_trivial_block e
+  have htriv : ((e (gowersElt S T U)) i₀).trace = ((P ^ 2 : ℝ) : ℂ) := by
+    rw [hi₀ (gowersElt S T U), mass_gowersElt, Matrix.trace_smul, Matrix.trace_one,
+      Fintype.card_fin, hdi₀, hPdef]
+    push_cast [smul_eq_mul]
+    ring
+  -- one-dimensional blocks are nonnegative
+  have hone : ∀ i, d i = 1 → 0 ≤ ((e (gowersElt S T U)) i).trace.re := by
+    intro i hdi
+    obtain ⟨r, hr0, hr⟩ := trace_gowersElt_one_dim he hdi S T U
+    rw [hr, Complex.ofReal_re]
+    exact hr0
+  -- factor the Gowers block
+  have hsplit_e : ∀ i, (e (gowersElt S T U)) i
+      = (e (ind S * indInv T)) i * (e (ind T * indInv U)) i
+        * (e (ind U * indInv S)) i := by
+    intro i
+    show (e (ind S * indInv T * (ind T * indInv U) * (ind U * indInv S))) i = _
+    rw [map_mul, map_mul]
+    rfl
+  -- Hilbert–Schmidt bound per block
+  have hblock : ∀ i, ‖((e (gowersElt S T U)) i).trace‖
+      ≤ ‖(e (ind S * indInv T)) i‖ * ‖(e (ind T * indInv U)) i‖
+        * ‖(e (ind U * indInv S)) i‖ := by
+    intro i
+    rw [hsplit_e i]
+    calc ‖((e (ind S * indInv T)) i * (e (ind T * indInv U)) i
+          * (e (ind U * indInv S)) i).trace‖
+        ≤ ‖(e (ind S * indInv T)) i * (e (ind T * indInv U)) i‖
+            * ‖(e (ind U * indInv S)) i‖ := norm_trace_mul_le _ _
+      _ ≤ ‖(e (ind S * indInv T)) i‖ * ‖(e (ind T * indInv U)) i‖
+            * ‖(e (ind U * indInv S)) i‖ :=
+          mul_le_mul_of_nonneg_right (norm_mul_le _ _) (norm_nonneg _)
+  -- the per-irrep Frobenius bound for the `a`-part
+  have hnormA : ∀ i, 1 < d i → ‖(e (ind S * indInv T)) i‖
+      ≤ Real.sqrt (N * S.card * T.card / n) := by
+    intro i hi
+    have h1 : (n : ℝ) * ‖(e (ind S * indInv T)) i‖ ^ 2 ≤ N * S.card * T.card := by
+      calc (n : ℝ) * ‖(e (ind S * indInv T)) i‖ ^ 2
+          ≤ (d i : ℝ) * ‖(e (ind S * indInv T)) i‖ ^ 2 := by
+            have hle : (n : ℝ) ≤ d i := by exact_mod_cast hnd i hi
+            exact mul_le_mul_of_nonneg_right hle (by positivity)
+        _ ≤ ∑ j, (d j : ℝ) * ‖(e (ind S * indInv T)) j‖ ^ 2 :=
+            Finset.single_le_sum
+              (f := fun j => (d j : ℝ) * ‖(e (ind S * indInv T)) j‖ ^ 2)
+              (fun j _ => by positivity) (Finset.mem_univ i)
+        _ = N * S.card * T.card := hPa
+    have h2 : ‖(e (ind S * indInv T)) i‖ ^ 2 ≤ N * S.card * T.card / n := by
+      rw [le_div_iff₀ hnpos]
+      linarith
+    calc ‖(e (ind S * indInv T)) i‖
+        = Real.sqrt (‖(e (ind S * indInv T)) i‖ ^ 2) :=
+          (Real.sqrt_sq (norm_nonneg _)).symm
+      _ ≤ Real.sqrt (N * S.card * T.card / n) := Real.sqrt_le_sqrt h2
+  -- the big-block set
+  set F : Finset (Fin k) := Finset.univ.filter (fun i => 1 < d i) with hFdef
+  -- filtered Parseval sums
+  have hCb : ∑ i ∈ F, (d i : ℝ) * ‖(e (ind T * indInv U)) i‖ ^ 2
+      ≤ N * T.card * U.card := by
+    rw [← hPb]
+    exact Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ F)
+      (fun i _ _ => by positivity)
+  have hCc : ∑ i ∈ F, (d i : ℝ) * ‖(e (ind U * indInv S)) i‖ ^ 2
+      ≤ N * U.card * S.card := by
+    rw [← hPc]
+    exact Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ F)
+      (fun i _ _ => by positivity)
+  -- Cauchy–Schwarz across the big blocks
+  have hCS : ∑ i ∈ F, (d i : ℝ)
+        * (‖(e (ind T * indInv U)) i‖ * ‖(e (ind U * indInv S)) i‖)
+      ≤ Real.sqrt (N * T.card * U.card) * Real.sqrt (N * U.card * S.card) := by
+    calc ∑ i ∈ F, (d i : ℝ)
+          * (‖(e (ind T * indInv U)) i‖ * ‖(e (ind U * indInv S)) i‖)
+        = ∑ i ∈ F, Real.sqrt ((d i : ℝ) * ‖(e (ind T * indInv U)) i‖ ^ 2)
+            * Real.sqrt ((d i : ℝ) * ‖(e (ind U * indInv S)) i‖ ^ 2) := by
+          refine Finset.sum_congr rfl fun i _ => ?_
+          rw [← Real.sqrt_mul (by positivity)]
+          rw [show (d i : ℝ) * ‖(e (ind T * indInv U)) i‖ ^ 2
+              * ((d i : ℝ) * ‖(e (ind U * indInv S)) i‖ ^ 2)
+              = ((d i : ℝ) * (‖(e (ind T * indInv U)) i‖
+                  * ‖(e (ind U * indInv S)) i‖)) ^ 2 from by ring]
+          rw [Real.sqrt_sq (by positivity)]
+      _ ≤ Real.sqrt (∑ i ∈ F, (d i : ℝ) * ‖(e (ind T * indInv U)) i‖ ^ 2)
+            * Real.sqrt (∑ i ∈ F, (d i : ℝ) * ‖(e (ind U * indInv S)) i‖ ^ 2) :=
+          Real.sum_sqrt_mul_sqrt_le F (fun i => by positivity)
+            (fun i => by positivity)
+      _ ≤ Real.sqrt (N * T.card * U.card) * Real.sqrt (N * U.card * S.card) :=
+          mul_le_mul (Real.sqrt_le_sqrt hCb) (Real.sqrt_le_sqrt hCc)
+            (Real.sqrt_nonneg _) (Real.sqrt_nonneg _)
+  -- the total big-block estimate
+  have hsqrtN3 : Real.sqrt (N ^ (3 : ℕ)) = N ^ ((3 : ℝ) / 2) := by
+    rw [Real.sqrt_eq_rpow, ← Real.rpow_natCast N 3, ← Real.rpow_mul hNpos.le]
+    norm_num
+  have hbig : ∑ i ∈ F, (d i : ℝ) * ‖((e (gowersElt S T U)) i).trace‖
+      ≤ N ^ ((3 : ℝ) / 2) * P / Real.sqrt n := by
+    calc ∑ i ∈ F, (d i : ℝ) * ‖((e (gowersElt S T U)) i).trace‖
+        ≤ ∑ i ∈ F, Real.sqrt (N * S.card * T.card / n)
+            * ((d i : ℝ) * (‖(e (ind T * indInv U)) i‖
+                * ‖(e (ind U * indInv S)) i‖)) := by
+          refine Finset.sum_le_sum fun i hiF => ?_
+          have hiF' : 1 < d i := by
+            rw [hFdef] at hiF
+            exact (Finset.mem_filter.mp hiF).2
+          calc (d i : ℝ) * ‖((e (gowersElt S T U)) i).trace‖
+              ≤ (d i : ℝ) * (‖(e (ind S * indInv T)) i‖
+                  * ‖(e (ind T * indInv U)) i‖ * ‖(e (ind U * indInv S)) i‖) :=
+                mul_le_mul_of_nonneg_left (hblock i) (by positivity)
+            _ = ((d i : ℝ) * (‖(e (ind T * indInv U)) i‖
+                  * ‖(e (ind U * indInv S)) i‖)) * ‖(e (ind S * indInv T)) i‖ := by
+                ring
+            _ ≤ ((d i : ℝ) * (‖(e (ind T * indInv U)) i‖
+                  * ‖(e (ind U * indInv S)) i‖))
+                  * Real.sqrt (N * S.card * T.card / n) :=
+                mul_le_mul_of_nonneg_left (hnormA i hiF') (by positivity)
+            _ = Real.sqrt (N * S.card * T.card / n)
+                  * ((d i : ℝ) * (‖(e (ind T * indInv U)) i‖
+                      * ‖(e (ind U * indInv S)) i‖)) := by ring
+      _ = Real.sqrt (N * S.card * T.card / n)
+            * ∑ i ∈ F, (d i : ℝ) * (‖(e (ind T * indInv U)) i‖
+                * ‖(e (ind U * indInv S)) i‖) := by
+          rw [Finset.mul_sum]
+      _ ≤ Real.sqrt (N * S.card * T.card / n)
+            * (Real.sqrt (N * T.card * U.card) * Real.sqrt (N * U.card * S.card)) :=
+          mul_le_mul_of_nonneg_left hCS (Real.sqrt_nonneg _)
+      _ = N ^ ((3 : ℝ) / 2) * P / Real.sqrt n := by
+          rw [Real.sqrt_div (by positivity : (0 : ℝ) ≤ N * S.card * T.card),
+            div_mul_eq_mul_div]
+          congr 1
+          rw [← Real.sqrt_mul (by positivity : (0 : ℝ) ≤ N * T.card * U.card),
+            ← Real.sqrt_mul (by positivity : (0 : ℝ) ≤ N * S.card * T.card)]
+          rw [show N * (S.card : ℝ) * T.card * (N * T.card * U.card
+              * (N * U.card * S.card)) = N ^ (3 : ℕ) * P ^ 2 from by
+            rw [hPdef]; ring]
+          rw [Real.sqrt_mul (by positivity) (P ^ 2), Real.sqrt_sq hPpos.le, hsqrtN3]
+  -- split the inversion sum: trivial block + one-dimensional + big blocks
+  have hi₀F : i₀ ∉ F := by
+    rw [hFdef]
+    simp [hdi₀]
+  have hterm₀ : (d i₀ : ℝ) * ((e (gowersElt S T U)) i₀).trace.re = P ^ 2 := by
+    rw [htriv, Complex.ofReal_re, hdi₀]
+    norm_num
+  have hFeq : (Finset.univ.erase i₀).filter (fun i => 1 < d i) = F := by
+    rw [hFdef]
+    ext j
+    simp only [Finset.mem_filter, Finset.mem_erase, Finset.mem_univ, true_and,
+      and_true]
+    constructor
+    · rintro ⟨-, hj⟩
+      exact hj
+    · intro hj
+      refine ⟨?_, hj⟩
+      rintro rfl
+      rw [hdi₀] at hj
+      omega
+  have hsum_split : ∑ i, (d i : ℝ) * ((e (gowersElt S T U)) i).trace.re
+      ≥ P ^ 2 - ∑ i ∈ F, (d i : ℝ) * ‖((e (gowersElt S T U)) i).trace‖ := by
+    rw [← Finset.add_sum_erase Finset.univ _ (Finset.mem_univ i₀), hterm₀,
+      ← Finset.sum_filter_add_sum_filter_not (Finset.univ.erase i₀)
+        (fun i => 1 < d i), hFeq]
+    have hpos : 0 ≤ ∑ i ∈ (Finset.univ.erase i₀).filter (fun i => ¬ 1 < d i),
+        (d i : ℝ) * ((e (gowersElt S T U)) i).trace.re := by
+      refine Finset.sum_nonneg fun i hi => ?_
+      simp only [Finset.mem_filter] at hi
+      have hd1 : d i = 1 := by
+        have h1 := Nat.pos_of_ne_zero (NeZero.ne (d i))
+        omega
+      exact mul_nonneg (by positivity) (hone i hd1)
+    have hFbound : ∑ i ∈ F, (d i : ℝ) * ((e (gowersElt S T U)) i).trace.re
+        ≥ -∑ i ∈ F, (d i : ℝ) * ‖((e (gowersElt S T U)) i).trace‖ := by
+      rw [ge_iff_le, ← Finset.sum_neg_distrib]
+      refine Finset.sum_le_sum fun i _ => ?_
+      have hre : -‖((e (gowersElt S T U)) i).trace‖
+          ≤ ((e (gowersElt S T U)) i).trace.re :=
+        (abs_le.mp (Complex.abs_re_le_norm _)).1
+      calc -((d i : ℝ) * ‖((e (gowersElt S T U)) i).trace‖)
+          = (d i : ℝ) * (-‖((e (gowersElt S T U)) i).trace‖) := by ring
+        _ ≤ (d i : ℝ) * ((e (gowersElt S T U)) i).trace.re :=
+            mul_le_mul_of_nonneg_left hre (by positivity)
+    linarith
+  -- assemble and divide by `P`
+  have hmain : N * P ≥ P ^ 2 - N ^ ((3 : ℝ) / 2) * P / Real.sqrt n := by
+    rw [hsix]
+    calc ∑ i, (d i : ℝ) * ((e (gowersElt S T U)) i).trace.re
+        ≥ P ^ 2 - ∑ i ∈ F, (d i : ℝ) * ‖((e (gowersElt S T U)) i).trace‖ :=
+          hsum_split
+      _ ≥ P ^ 2 - N ^ ((3 : ℝ) / 2) * P / Real.sqrt n := by linarith
+  have hmain' : N * P ≥ P ^ 2 - (N ^ ((3 : ℝ) / 2) / Real.sqrt n) * P := by
+    have h2 : N ^ ((3 : ℝ) / 2) * P / Real.sqrt n
+        = (N ^ ((3 : ℝ) / 2) / Real.sqrt n) * P := by ring
+    linarith [hmain, h2.le, h2.ge]
+  have h1 : P * P ≤ (N ^ ((3 : ℝ) / 2) / Real.sqrt n + N) * P := by nlinarith
+  exact le_of_mul_le_mul_right (by linarith : P * P
+    ≤ (N ^ ((3 : ℝ) / 2) / Real.sqrt n + N) * P) hPpos
 
 end
 

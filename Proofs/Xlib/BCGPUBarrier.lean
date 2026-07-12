@@ -1,5 +1,6 @@
 import Xlib.TPP
 import Xlib.CharDegrees
+import Xlib.FourierBarrier
 
 /-!
 # The BCGPU `n(G)` barrier and the normalizer barrier
@@ -83,6 +84,35 @@ noncomputable def nG (G : Type*) [Group G] [Fintype G] : ℝ :=
 
 /-! ### BCGPU Theorem 3.2: the representation-theoretic barrier -/
 
+/-- **The `n(G)` bridge for nonabelian groups**: a nonabelian finite group has
+an irreducible representation of dimension `> 1`, and therefore
+`n(G) = minNontrivIrrepDim G ≥ 2`.  Extract any Wedderburn decomposition; were
+all blocks of dimension `≤ 1`, the group algebra — hence the group — would be
+commutative (`Xlib.FourierBarrier.exists_one_lt_dim_of_nonabelian`), so some
+block dimension exceeds `1`, and through the bridge lemma
+`charDegrees_eq_of_algEquiv` the filtered minimum defining `minNontrivIrrepDim`
+is attained at a degree `> 1`. -/
+theorem two_le_minNontrivIrrepDim (hG : ∃ a b : G, a * b ≠ b * a) :
+    2 ≤ minNontrivIrrepDim G := by
+  classical
+  haveI : NeZero (Nat.card G : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
+  obtain ⟨k, d, hd, ⟨e₀⟩⟩ :=
+    IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed ℂ (MonoidAlgebra ℂ G)
+  haveI := hd
+  have hbridge := charDegrees_eq_of_algEquiv G e₀
+  obtain ⟨i₁, hi₁⟩ := Xlib.FourierBarrier.exists_one_lt_dim_of_nonabelian e₀ hG
+  have hmem : d i₁ ∈ ((charDegrees G).filter (fun m => m > 1)).toFinset := by
+    rw [Multiset.mem_toFinset, Multiset.mem_filter, hbridge]
+    exact ⟨Multiset.mem_map.mpr ⟨i₁, Finset.mem_val.mpr (Finset.mem_univ i₁), rfl⟩, hi₁⟩
+  unfold minNontrivIrrepDim
+  rcases hmt : ((charDegrees G).filter (fun m => m > 1)).toFinset.min with _ | m
+  · exact absurd (Finset.min_eq_top.mp hmt) (Finset.ne_empty_of_mem hmem)
+  · have hmm := Finset.mem_of_min hmt
+    rw [Multiset.mem_toFinset, Multiset.mem_filter] at hmm
+    have h1 : 1 < m := hmm.2
+    rw [hmt, WithTop.untopD_coe]
+    omega
+
 /-- **BCGPU Theorem 3.2** (`thm:gowerstrick`, arXiv:2204.03826).
 
 If subsets `S`, `T`, `U` satisfy the Triple Product Property in a finite
@@ -96,19 +126,61 @@ and the bound is meaningful. This is the fundamental barrier of the paper: a
 family of groups with `n(G)` growing as a power of `|G|` cannot meet the
 `|G|^{3/2}` packing bound.
 
-**Proof (deferred, `sorry`).** Apply Fourier inversion to the six-fold
-convolution `1_S * 1_{S⁻¹} * 1_T * 1_{T⁻¹} * 1_U * 1_{U⁻¹}` evaluated at the
-identity, isolate the trivial-representation term `(|S||T||U|)²`, and bound the
-remaining sum over irreps of dimension `> 1` by Cauchy–Schwarz together with the
-per-irrep Frobenius-norm estimate `‖π(S⁻¹T)‖ ≤ √(|S||T||G|/n(G))` (which itself
-comes from Parseval). This needs the indexed Fourier/Parseval layer over
-`Xlib.CharDegrees`. -/
+**Proof.** Extract an indexed Wedderburn decomposition
+(`IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed`), make it unitary
+by the unitarian trick (`Xlib.FourierBarrier.exists_isUnitary`), and identify
+its block dimensions with `charDegrees G` via `charDegrees_eq_of_algEquiv`.
+The analytic core — Fourier inversion of the six-fold Gowers convolution at the
+identity, isolation of the trivial-representation term `(|S||T||U|)²`, and the
+Cauchy–Schwarz/Parseval estimate of the blocks of dimension `> 1` — is
+`Xlib.FourierBarrier.master_bound`, applied with `n := minNontrivIrrepDim G`
+(which lower-bounds every block dimension `> 1` by minimality, and is `≥ 2` by
+`two_le_minNontrivIrrepDim`). -/
 theorem bcgpu_thm_3_2 {S T U : Finset G} (hG : ∃ a b : G, a * b ≠ b * a)
     (h : TripleProductProperty S T U) :
     (S.card * T.card * U.card : ℝ)
       ≤ (Fintype.card G : ℝ) ^ ((3 : ℝ) / 2) / Real.sqrt (nG G)
-        + (Fintype.card G : ℝ) :=
-  sorry
+        + (Fintype.card G : ℝ) := by
+  classical
+  -- degenerate cases: an empty set makes the left side zero
+  rcases S.eq_empty_or_nonempty with rfl | hS
+  · have h0 : ((Finset.card (∅ : Finset G) : ℝ)) * T.card * U.card = 0 := by simp
+    rw [h0]
+    positivity
+  rcases T.eq_empty_or_nonempty with rfl | hT
+  · have h0 : (S.card : ℝ) * (Finset.card (∅ : Finset G) : ℝ) * U.card = 0 := by simp
+    rw [h0]
+    positivity
+  rcases U.eq_empty_or_nonempty with rfl | hU
+  · have h0 : (S.card : ℝ) * T.card * (Finset.card (∅ : Finset G) : ℝ) = 0 := by simp
+    rw [h0]
+    positivity
+  -- extract a unitary Wedderburn decomposition
+  haveI : NeZero (Nat.card G : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
+  obtain ⟨k, d, hd, ⟨e₀⟩⟩ :=
+    IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed ℂ (MonoidAlgebra ℂ G)
+  haveI := hd
+  obtain ⟨e, he⟩ := Xlib.FourierBarrier.exists_isUnitary e₀
+  -- identify the block dimensions with the character degrees
+  have hbridge := charDegrees_eq_of_algEquiv G e
+  have hmem : ∀ i, 1 < d i →
+      d i ∈ ((charDegrees G).filter (fun m => m > 1)).toFinset := by
+    intro i hi
+    rw [Multiset.mem_toFinset, Multiset.mem_filter, hbridge]
+    exact ⟨Multiset.mem_map.mpr ⟨i, Finset.mem_val.mpr (Finset.mem_univ i), rfl⟩, hi⟩
+  -- `n(G)` lower-bounds every block dimension exceeding `1`
+  have hnd : ∀ i, 1 < d i → minNontrivIrrepDim G ≤ d i := by
+    intro i hi
+    have hmin := Finset.min_le (hmem i hi)
+    unfold minNontrivIrrepDim
+    rcases hmt : ((charDegrees G).filter (fun m => m > 1)).toFinset.min with _ | m
+    · rw [hmt] at hmin
+      exact absurd hmin (by simp)
+    · rw [hmt] at hmin
+      rw [hmt, WithTop.untopD_coe]
+      exact_mod_cast hmin
+  exact Xlib.FourierBarrier.master_bound he (two_le_minNontrivIrrepDim hG) hnd
+    h hS hT hU
 
 /-! ### BCGPU Corollary 3.3: groups with large `n(G)` miss the packing bound -/
 
