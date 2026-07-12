@@ -45,13 +45,14 @@ The two classical identities
 
   `Σᵢ dᵢ² = |G|`   and   `#{irreps} = #{conjugacy classes}`
 
-remain **absent** from Mathlib and are the two remaining `sorry`s of this file,
-stated as named theorems (`charDegreeSum_two` and `card_charDegrees`) with their
-standard proofs cited, so downstream files (CU Thm 4.1, the `n(G)` barrier)
-import them by name rather than re-deriving them.  Both are now provable over
-the bridge lemma: extract any decomposition with
+are both **absent** from Mathlib.  The first is now **proved** here
+(`charDegreeSum_two`, `sorry`-free): extract a decomposition with
 `exists_algEquiv_pi_matrix_of_isAlgClosed`, rewrite with
-`charDegrees_eq_of_algEquiv`, and count dimensions (resp. match centers).
+`charDegrees_eq_of_algEquiv`, and count `ℂ`-dimensions.  The second
+(`card_charDegrees`) is the one remaining `sorry` of this file, provable the
+same way by matching centers.  Both are stated as named theorems so downstream
+files (CU Thm 4.1, the `n(G)` barrier) import them by name rather than
+re-deriving them.
 
 ## Main definitions
 
@@ -69,7 +70,7 @@ the bridge lemma: extract any decomposition with
 * `Xlib.CharDegrees.charDegrees_eq_of_algEquiv` — **the bridge lemma**
   (`sorry`-free): `charDegrees G` equals the block-size multiset `{d i}` of
   *any* Wedderburn decomposition `ℂ[G] ≃ₐ[ℂ] Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ`.
-* `Xlib.CharDegrees.charDegreeSum_two` — **(`sorry`)** `D₂(G) = |G|`, i.e.
+* `Xlib.CharDegrees.charDegreeSum_two` — (**`sorry`-free**) `D₂(G) = |G|`, i.e.
   `Σᵢ dᵢ² = |G|`. The fundamental identity (Wedderburn + `dim ℂ[G] = |G|`).
 * `Xlib.CharDegrees.card_charDegrees` — **(`sorry`)** the number of irreducible
   representations equals the number of conjugacy classes of `G`.
@@ -185,15 +186,16 @@ theorem charDegreeSumReal_natCast (G : Type*) [Group G] [Fintype G] (r : ℕ) :
   | empty => simp
   | cons a s ih => simp [Real.rpow_natCast]
 
-/-! ### The two classical identities (the foundation theorems, `sorry`)
+/-! ### The two classical identities (the foundation theorems)
 
 These are the two standard representation-theory facts that justify the whole
 program but are **absent from Mathlib**. They are stated here as named theorems
-so downstream files import them by name. Each is a `sorry` with its standard
-proof cited; both are now provable over the bridge lemma
+so downstream files import them by name. Both follow from the bridge lemma
 `charDegrees_eq_of_algEquiv` (extract a decomposition from
 `IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed`, transport, and
-count `ℂ`-dimensions resp. match centers). -/
+count `ℂ`-dimensions resp. match centers): the dimension count is done
+(`charDegreeSum_two`, `sorry`-free); the center match (`card_charDegrees`)
+remains a `sorry`. -/
 
 /-- **Sum of squared degrees equals the group order:** `D₂(G) = |G|`, i.e.
 `Σᵢ dᵢ² = |G|`.
