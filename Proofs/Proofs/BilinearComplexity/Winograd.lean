@@ -206,7 +206,6 @@ theorem Pz_kill : ∀ z : Fin 4 → ZMod 2, ∀ α, ∑ i, (Pz z) α i * z i = 0
 
 /-- The GL-equivalence identity: for every nonzero `z`, applying the
 invertible B/C witnesses to `contract₁ (Pz z) ⟨2,2,2⟩` recovers `T4`. -/
-set_option maxHeartbeats 2000000 in
 theorem key_id : ∀ z : Fin 4 → ZMod 2, z ≠ 0 →
     contract₂ (gBz z) (contract₃ (gCz z)
         (contract₁ (Pz z) (matMulTensor (ZMod 2) 2 2 2))) = T4 := by
