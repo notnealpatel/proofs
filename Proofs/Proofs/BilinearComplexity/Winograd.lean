@@ -463,4 +463,10 @@ theorem seven_le_rank_matMulTensor : 7 ≤ rank (matMulTensor ℤ 2 2 2) :=
   le_trans seven_le_rank_matMulTensor_zmod
     (rank_matMulTensor_hom_le ℤ (ZMod 2) (Int.castRingHom (ZMod 2)) 2 2 2)
 
+/-- **The rank of `2×2` matrix multiplication is exactly 7** (Strassen 1969
+upper bound, `rank_matMulTensor_le_seven`; Hopcroft–Kerr / Winograd 1971
+lower bound, `seven_le_rank_matMulTensor`). -/
+theorem rank_matMulTensor_eq_seven : rank (matMulTensor ℤ 2 2 2) = 7 :=
+  le_antisymm rank_matMulTensor_le_seven seven_le_rank_matMulTensor
+
 end BilinearComplexity
