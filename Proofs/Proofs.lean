@@ -24,7 +24,9 @@ import Proofs.Vp2.Circuit
 import Proofs.Vp2.Vp2
 import Proofs.BilinearComplexity.Basic
 import Proofs.BilinearComplexity.RankCalculus
+import Proofs.BilinearComplexity.SliceRank
 import Proofs.BilinearComplexity.Flattening
 import Proofs.BilinearComplexity.Omega
 import Proofs.BilinearComplexity.Strassen
+import Proofs.BilinearComplexity.KroneckerMatMul
 import Proofs.Scratch
