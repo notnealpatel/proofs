@@ -316,7 +316,76 @@ coordinates. This is what upgrades the diagonal contraction from "some `v`" to "
 theorem exists_mem_support_card_ge {ι : Type*} [Fintype ι] [DecidableEq ι]
     {K : Type*} [Field K] [DecidableEq K] (V : Submodule K (ι → K)) :
     ∃ v ∈ V, Module.finrank K V ≤ (Finset.univ.filter fun i => v i ≠ 0).card := by
-  sorry
+  -- Take the element `ymax` of `V` with maximal support size `M`.
+  set g : ↥V → ℕ := fun y => (Finset.univ.filter fun i => (y : ι → K) i ≠ 0).card with hg_def
+  have hne : (Set.range g).Nonempty := Set.range_nonempty g
+  have hbdd : BddAbove (Set.range g) := by
+    use Fintype.card ι
+    rintro _ ⟨y, rfl⟩
+    exact (Finset.card_le_card (Finset.filter_subset _ _)).trans Finset.card_univ.le
+  set M := sSup (Set.range g) with hM_def
+  have hM_mem : M ∈ Set.range g := Nat.sSup_mem hne hbdd
+  obtain ⟨ymax, hymax⟩ := hM_mem
+  have hle : ∀ y, g y ≤ M := fun y => le_csSup hbdd (Set.mem_range_self y)
+  -- It suffices to show `finrank K V ≤ M`.
+  suffices hsuff : Module.finrank K V ≤ M by
+    refine ⟨↑ymax, SetLike.coe_mem ymax, ?_⟩
+    have : g ymax = (Finset.univ.filter fun i => (ymax : ι → K) i ≠ 0).card := rfl
+    omega
+  by_contra hlt
+  push Not at hlt
+  -- `T` is the support of `ymax`, with `T.card = M`.
+  set T : Finset ι := Finset.univ.filter fun i => (ymax : ι → K) i ≠ 0 with hT_def
+  have hTcard : T.card = M := hymax
+  -- Restriction-to-`T` map; rank–nullity forces its kernel to be nonzero.
+  set ρ : ↥V →ₗ[K] (↥T → K) :=
+    (LinearMap.funLeft K K (Subtype.val : ↥T → ι)).comp V.subtype with hρ_def
+  have hρ_range : Module.finrank K (LinearMap.range ρ) ≤ T.card := by
+    calc Module.finrank K (LinearMap.range ρ)
+        ≤ Module.finrank K (↥T → K) := Submodule.finrank_le _
+      _ = Fintype.card ↥T := Module.finrank_pi _
+      _ = T.card := Fintype.card_coe T
+  have hrn := LinearMap.finrank_range_add_finrank_ker ρ
+  have hker_pos : 0 < Module.finrank K (LinearMap.ker ρ) := by omega
+  have hker_ne : LinearMap.ker ρ ≠ ⊥ := by
+    intro heq
+    rw [heq, finrank_bot] at hker_pos
+    exact Nat.lt_irrefl 0 hker_pos
+  -- a nonzero `b ∈ ker ρ`: its support avoids `T`, so we can enlarge `ymax`'s support.
+  obtain ⟨b, hb_mem, hb_ne⟩ := Submodule.exists_mem_ne_zero_of_ne_bot hker_ne
+  have hρb : ρ b = 0 := LinearMap.mem_ker.mp hb_mem
+  have hb_vanish : ∀ i : ι, i ∈ T → (b : ι → K) i = 0 := by
+    intro i hi
+    have := congr_fun hρb ⟨i, hi⟩
+    simp [hρ_def, LinearMap.comp_apply, LinearMap.funLeft_apply, Submodule.subtype_apply] at this
+    exact this
+  have hb_ne_fun : (b : ι → K) ≠ 0 := by
+    rwa [ne_eq, Submodule.coe_eq_zero]
+  obtain ⟨i₀, hi₀⟩ := Function.ne_iff.mp hb_ne_fun
+  simp only [Pi.zero_apply] at hi₀
+  have hi₀_not_mem : i₀ ∉ T := by
+    intro hmem
+    exact hi₀ (hb_vanish i₀ hmem)
+  have hymax_i₀ : (ymax : ι → K) i₀ = 0 := by
+    by_contra h'
+    exact hi₀_not_mem (Finset.mem_filter.mpr ⟨Finset.mem_univ _, h'⟩)
+  -- `ymax + b` has support ⊇ `insert i₀ T` (disjoint supports, no cancellation).
+  have hinsert_sub : insert i₀ T ⊆ Finset.univ.filter fun i => (↑(ymax + b) : ι → K) i ≠ 0 := by
+    intro i hi
+    rw [Finset.mem_filter]
+    refine ⟨Finset.mem_univ _, ?_⟩
+    simp only [Submodule.coe_add, Pi.add_apply]
+    rcases Finset.mem_insert.mp hi with rfl | hi'
+    · rw [hymax_i₀, zero_add]
+      exact hi₀
+    · rw [hb_vanish i hi', add_zero]
+      exact (Finset.mem_filter.mp hi').2
+  have hg_big : M + 1 ≤ g (ymax + b) := by
+    calc M + 1 = T.card + 1 := by omega
+      _ = (insert i₀ T).card := (Finset.card_insert_of_notMem hi₀_not_mem).symm
+      _ ≤ g (ymax + b) := Finset.card_le_card hinsert_sub
+  have := hle (ymax + b)
+  omega
 
 variable {k : Type*} [Field k]
 
@@ -342,7 +411,7 @@ theorem sliceRankLE_diag_full [DecidableEq k] {n : ℕ} (w : Fin n → k)
     intro s
     have h0 : Φ v = 0 := LinearMap.mem_ker.mp hvmem
     have := congrFun h0 s
-    simpa [hΦ, hFmat, Matrix.mulVecLin_apply, Matrix.mulVec, Matrix.dotProduct] using this
+    simpa [hΦ, hFmat, Matrix.mulVecLin_apply, Matrix.mulVec, dotProduct, Matrix.of_apply] using this
   -- the contraction of the diagonal against `v`
   have hdiagLHS : ∀ jj ll : Fin n,
       (∑ i, v i * diag w i jj ll) = if jj = ll then v jj * w jj else 0 := by
@@ -372,8 +441,7 @@ theorem sliceRankLE_diag_full [DecidableEq k] {n : ℕ} (w : Fin n → k)
         refine Finset.sum_congr rfl fun s _ => ?_
         rw [Finset.sum_mul]; exact Finset.sum_congr rfl fun i _ => by ring
       · simp only [Finset.mul_sum]; rw [Finset.sum_comm]
-        refine Finset.sum_congr rfl fun s _ => ?_
-        rw [Finset.mul_sum]; exact Finset.sum_congr rfl fun i _ => by ring
+        exact Finset.sum_congr rfl fun s _ => Finset.sum_congr rfl fun i _ => by ring
       · simp only [Finset.mul_sum]; rw [Finset.sum_comm]
         refine Finset.sum_congr rfl fun s _ => ?_
         rw [Finset.sum_mul]; exact Finset.sum_congr rfl fun i _ => by ring

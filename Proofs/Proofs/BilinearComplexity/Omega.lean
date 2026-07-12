@@ -30,9 +30,14 @@
   AI disclosure: produced with AI assistance (see Proofs/README).
 -/
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
+import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.Order.Filter.AtTopBot.Basic
+import Mathlib.Order.Filter.AtTopBot.Archimedean
 import Proofs.BilinearComplexity.Basic
 import Proofs.BilinearComplexity.Flattening
+import Proofs.BilinearComplexity.KroneckerMatMul
+import Proofs.BilinearComplexity.MatMulMono
 
 namespace BilinearComplexity
 
@@ -108,5 +113,134 @@ theorem two_le_omega : 2 ≤ omega :=
 (`bddBelow_omegaSet`), so `sInf omegaSet ≤ 3`. -/
 theorem omega_le_three : omega ≤ 3 :=
   csInf_le bddBelow_omegaSet three_mem_omegaSet
+
+/-! ## 3. The Strassen exponent bound `ω ≤ log_n R⟨n,n,n⟩` -/
+
+/-- **Padding membership.** For every base `n ≥ 2` and every `ε > 0`, the
+shifted exponent `α + ε` — with `α := log_n R⟨n,n,n⟩` — is admissible.
+
+This is the analytic heart of the Strassen bound. The exponent `α` itself
+is generally *not* in `omegaSet`: recursively padding an `m×m×m` product up
+to the next power `n^t ≥ m` costs a bounded but nonzero constant factor
+`≤ R⟨n,n,n⟩`, which only washes out in the limit. Concretely, writing
+`r := R⟨n,n,n⟩`, `s := Nat.log n m` and `t := s + 1`, so that
+`n^s ≤ m < n^t` (`Nat.pow_log_le_self`, `Nat.lt_pow_succ_log_self`),
+monotonicity (Om3, `rank_matMulTensor_mono_cube`) and submultiplicativity
+(Om2, `rank_matMulTensor_pow_le`) give
+
+  R⟨m,m,m⟩ ≤ R⟨nᵗ,nᵗ,nᵗ⟩ ≤ rᵗ = rˢ · r.
+
+Since `(n:ℝ)^α = r` (`Real.rpow_logb`; `r ≥ n² ≥ 4 > 0`) and `α ≥ 0`
+(`Real.logb_nonneg`), we get `rˢ = ((n:ℝ)ˢ)^α ≤ (m:ℝ)^α`
+(`Real.rpow_le_rpow` with `nˢ ≤ m`), whence `R⟨m,m,m⟩ ≤ (m:ℝ)^α · r`.
+Finally `r ≤ (m:ℝ)^ε` eventually (`tendsto_rpow_atTop`), so
+`R⟨m,m,m⟩ ≤ (m:ℝ)^(α+ε)` eventually — i.e. `α + ε ∈ omegaSet`. -/
+theorem logb_rank_add_mem_omegaSet {n : ℕ} (hn : 2 ≤ n) {ε : ℝ} (hε : 0 < ε) :
+    Real.logb n (rank (matMulTensor ℝ n n n)) + ε ∈ omegaSet := by
+  have hn1 : 1 < n := by omega
+  have hnR : (1 : ℝ) < (n : ℝ) := by exact_mod_cast hn1
+  have hnR0 : (0 : ℝ) < (n : ℝ) := lt_trans one_pos hnR
+  have hnR_ne1 : (n : ℝ) ≠ 1 := ne_of_gt hnR
+  set r := rank (matMulTensor ℝ n n n) with hr
+  set α := Real.logb (n : ℝ) (r : ℝ) with hα
+  have hsq : n ^ 2 ≤ r := by rw [hr]; exact sq_le_rank_matMulTensor ℝ n
+  have hr4 : 4 ≤ r := by
+    have h4 : (4 : ℕ) ≤ n ^ 2 := by
+      calc (4 : ℕ) = 2 ^ 2 := by norm_num
+        _ ≤ n ^ 2 := Nat.pow_le_pow_left hn 2
+    exact le_trans h4 hsq
+  have hr0 : 0 < r := by omega
+  have hrR0 : (0 : ℝ) < (r : ℝ) := by exact_mod_cast hr0
+  have hr1R : (1 : ℝ) ≤ (r : ℝ) := by exact_mod_cast (show 1 ≤ r by omega)
+  have hα_eq : (n : ℝ) ^ α = (r : ℝ) := by
+    rw [hα]; exact Real.rpow_logb hnR0 hnR_ne1 hrR0
+  have hα0 : 0 ≤ α := by rw [hα]; exact Real.logb_nonneg hnR hr1R
+  -- `r ≤ m^ε` holds for all sufficiently large `m` since `ε > 0`.
+  have hev : ∀ᶠ m : ℕ in Filter.atTop, (r : ℝ) ≤ (m : ℝ) ^ ε := by
+    have htend : Filter.Tendsto (fun m : ℕ => (m : ℝ) ^ ε) Filter.atTop Filter.atTop :=
+      (tendsto_rpow_atTop hε).comp tendsto_natCast_atTop_atTop
+    exact htend.eventually_ge_atTop (r : ℝ)
+  show ∀ᶠ m : ℕ in Filter.atTop,
+      (rank (matMulTensor ℝ m m m) : ℝ) ≤ (m : ℝ) ^ (α + ε)
+  filter_upwards [Filter.eventually_ge_atTop 1, hev] with m hm1 hmr
+  have hm0 : m ≠ 0 := by omega
+  have hmR0 : (0 : ℝ) < (m : ℝ) := by exact_mod_cast (show 0 < m by omega)
+  set s := Nat.log n m with hs
+  -- `n^s ≤ m < n^(s+1)` bracket `m` between consecutive powers of `n`.
+  have hmt : m < n ^ (s + 1) := by rw [hs]; exact Nat.lt_pow_succ_log_self hn1 m
+  have hmle : m ≤ n ^ (s + 1) := le_of_lt hmt
+  have hlog : n ^ s ≤ m := by rw [hs]; exact Nat.pow_log_le_self n hm0
+  -- ℕ chain: pad up to `n^(s+1)`, then use submultiplicativity.
+  have hNat : rank (matMulTensor ℝ m m m) ≤ r ^ (s + 1) := by
+    calc rank (matMulTensor ℝ m m m)
+        ≤ rank (matMulTensor ℝ (n ^ (s + 1)) (n ^ (s + 1)) (n ^ (s + 1))) :=
+          rank_matMulTensor_mono_cube ℝ hmle
+      _ ≤ rank (matMulTensor ℝ n n n) ^ (s + 1) := rank_matMulTensor_pow_le ℝ n (s + 1)
+      _ = r ^ (s + 1) := by rw [← hr]
+  have hNatR : (rank (matMulTensor ℝ m m m) : ℝ) ≤ (r : ℝ) ^ (s + 1) := by
+    exact_mod_cast hNat
+  -- `rˢ = ((n:ℝ)ˢ)^α` via `r = (n:ℝ)^α` and commuting the two exponents.
+  have hswap : (r : ℝ) ^ s = ((n : ℝ) ^ s) ^ α := by
+    rw [← hα_eq, ← Real.rpow_natCast_mul hnR0.le, ← Real.rpow_mul_natCast hnR0.le,
+      mul_comm α (s : ℝ)]
+  have hbase : (n : ℝ) ^ s ≤ (m : ℝ) := by exact_mod_cast hlog
+  have hstep : ((n : ℝ) ^ s) ^ α ≤ (m : ℝ) ^ α :=
+    Real.rpow_le_rpow (by positivity) hbase hα0
+  have hrs : (r : ℝ) ^ s ≤ (m : ℝ) ^ α := by rw [hswap]; exact hstep
+  calc (rank (matMulTensor ℝ m m m) : ℝ)
+      ≤ (r : ℝ) ^ (s + 1) := hNatR
+    _ = (r : ℝ) ^ s * (r : ℝ) := by rw [pow_succ]
+    _ ≤ (m : ℝ) ^ α * (r : ℝ) := mul_le_mul_of_nonneg_right hrs hrR0.le
+    _ ≤ (m : ℝ) ^ α * (m : ℝ) ^ ε := mul_le_mul_of_nonneg_left hmr (by positivity)
+    _ = (m : ℝ) ^ (α + ε) := by rw [← Real.rpow_add hmR0]
+
+/-- **Any single rank bound gives a Strassen exponent bound.** For `n ≥ 2`,
+`ω ≤ log_n R⟨n,n,n⟩`. The padding membership `logb_rank_add_mem_omegaSet`
+puts `α + ε` in `omegaSet` for every `ε > 0`, so `ω = sInf omegaSet ≤ α + ε`
+(`csInf_le bddBelow_omegaSet`); letting `ε → 0` gives `ω ≤ α`. -/
+theorem omega_le_logb {n : ℕ} (hn : 2 ≤ n) :
+    omega ≤ Real.logb n (rank (matMulTensor ℝ n n n)) := by
+  have key : ∀ ε : ℝ, 0 < ε →
+      omega ≤ Real.logb n (rank (matMulTensor ℝ n n n)) + ε :=
+    fun ε hε => csInf_le bddBelow_omegaSet (logb_rank_add_mem_omegaSet hn hε)
+  by_contra hcon
+  rw [not_le] at hcon
+  have hε : (0 : ℝ) < (omega - Real.logb n (rank (matMulTensor ℝ n n n))) / 2 := by
+    linarith
+  have := key _ hε
+  linarith
+
+/-- **Strassen's exponent bound** `ω ≤ log₂ 7`. Instantiate `omega_le_logb`
+at `n = 2` and bound `log₂ R⟨2,2,2⟩ ≤ log₂ 7` by monotonicity of `log₂`
+(base `1 < 2`), using Strassen's `R⟨2,2,2⟩ ≤ 7`
+(`rank_matMulTensor_le_seven_real`, Om2) and `0 < R⟨2,2,2⟩` (from
+`4 ≤ R⟨2,2,2⟩`). -/
+theorem omega_le_logb_two_seven : omega ≤ Real.logb 2 7 := by
+  have h1 := omega_le_logb (n := 2) (by norm_num)
+  simp only [Nat.cast_ofNat] at h1
+  have hpos : (0 : ℝ) < (rank (matMulTensor ℝ 2 2 2) : ℝ) := by
+    have h4 := sq_le_rank_matMulTensor ℝ 2
+    norm_num at h4
+    exact_mod_cast (show 0 < rank (matMulTensor ℝ 2 2 2) by omega)
+  have hle7 : (rank (matMulTensor ℝ 2 2 2) : ℝ) ≤ (7 : ℝ) := by
+    exact_mod_cast rank_matMulTensor_le_seven_real
+  have h2 : Real.logb 2 (rank (matMulTensor ℝ 2 2 2) : ℝ) ≤ Real.logb 2 7 :=
+    Real.logb_le_logb_of_le (by norm_num) hpos hle7
+  exact le_trans h1 h2
+
+/-- **`ω < 3`.** The Strassen bound `ω ≤ log₂ 7` is strictly below `3`
+because `7 < 2³ = 8` (`Real.logb_lt_iff_lt_rpow`; `norm_num` closes the
+arithmetic after `Real.rpow_natCast`). -/
+theorem omega_lt_three : omega < 3 := by
+  have h37 : Real.logb 2 7 < 3 := by
+    have hlt : (7 : ℝ) < (2 : ℝ) ^ (3 : ℝ) := by
+      rw [show (3 : ℝ) = ((3 : ℕ) : ℝ) by norm_num, Real.rpow_natCast]
+      norm_num
+    exact (Real.logb_lt_iff_lt_rpow (by norm_num) (by norm_num)).mpr hlt
+  exact lt_of_le_of_lt omega_le_logb_two_seven h37
+
+#print axioms omega_le_logb
+#print axioms omega_le_logb_two_seven
+#print axioms omega_lt_three
 
 end BilinearComplexity

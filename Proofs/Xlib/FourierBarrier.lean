@@ -706,7 +706,148 @@ theorem exists_trivial_block {k : ℕ} {d : Fin k → ℕ} [∀ i, NeZero (d i)]
     (e : MonoidAlgebra ℂ G ≃ₐ[ℂ] ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ) :
     ∃ i₀ : Fin k, d i₀ = 1 ∧
       ∀ x : MonoidAlgebra ℂ G, (e x) i₀ = (∑ g : G, x g) • 1 := by
-  sorry
+  classical
+  have hcard0 : (Fintype.card G : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr Fintype.card_ne_zero
+  set P : MonoidAlgebra ℂ G := ∑ g : G, MonoidAlgebra.single g 1 with hPdef
+  -- pointwise values and total mass of `P`
+  have hPapply : ∀ g : G, P g = 1 := by
+    intro g
+    rw [hPdef, sum_single_apply Finset.univ (fun h => h) g]
+    rw [show Finset.univ.filter (fun h : G => h = g) = {g} from by
+      ext h; simp]
+    simp
+  have hPmass : (∑ g : G, P g) = (Fintype.card G : ℂ) := by
+    rw [Finset.sum_congr rfl fun g _ => hPapply g]
+    simp
+  -- one-sided absorption on group elements
+  have hsingle_mul : ∀ h : G, (MonoidAlgebra.single h (1 : ℂ)) * P = P := by
+    intro h
+    rw [hPdef, Finset.mul_sum]
+    exact Fintype.sum_bijective (h * ·) (Group.mulLeft_bijective h) _ _
+      fun g => by rw [MonoidAlgebra.single_mul_single, one_mul]
+  have hmul_single : ∀ h : G, P * (MonoidAlgebra.single h (1 : ℂ)) = P := by
+    intro h
+    rw [hPdef, Finset.sum_mul]
+    exact Fintype.sum_bijective (· * h) (Group.mulRight_bijective h) _ _
+      fun g => by rw [MonoidAlgebra.single_mul_single, one_mul]
+  -- `x * P = mass(x) • P` and symmetrically
+  have hxP : ∀ x : MonoidAlgebra ℂ G, x * P = (∑ g : G, x g) • P := by
+    intro x
+    have hxdec : x = ∑ g : G, MonoidAlgebra.single g (x g) :=
+      (Finsupp.univ_sum_single x).symm
+    conv_lhs => rw [hxdec]
+    rw [Finset.sum_mul]
+    have hterm : ∀ g : G,
+        (MonoidAlgebra.single g (x g) : MonoidAlgebra ℂ G) * P = x g • P := by
+      intro g
+      have h1 : (MonoidAlgebra.single g (x g) : MonoidAlgebra ℂ G)
+          = x g • MonoidAlgebra.single g 1 := by
+        rw [Finsupp.smul_single, smul_eq_mul, mul_one]
+      rw [h1, smul_mul_assoc, hsingle_mul]
+    rw [Finset.sum_congr rfl fun g _ => hterm g, ← Finset.sum_smul]
+  have hPx : ∀ x : MonoidAlgebra ℂ G, P * x = (∑ g : G, x g) • P := by
+    intro x
+    have hxdec : x = ∑ g : G, MonoidAlgebra.single g (x g) :=
+      (Finsupp.univ_sum_single x).symm
+    conv_lhs => rw [hxdec]
+    rw [Finset.mul_sum]
+    have hterm : ∀ g : G,
+        P * (MonoidAlgebra.single g (x g) : MonoidAlgebra ℂ G) = x g • P := by
+      intro g
+      have h1 : (MonoidAlgebra.single g (x g) : MonoidAlgebra ℂ G)
+          = x g • MonoidAlgebra.single g 1 := by
+        rw [Finsupp.smul_single, smul_eq_mul, mul_one]
+      rw [h1, mul_smul_comm, hmul_single]
+    rw [Finset.sum_congr rfl fun g _ => hterm g, ← Finset.sum_smul]
+  -- `P` is nonzero and satisfies `P² = |G| P`
+  have hPP : P * P = (Fintype.card G : ℂ) • P := by rw [hxP P, hPmass]
+  have hPne : P ≠ 0 := by
+    intro h0
+    have h1 : P 1 = 0 := by rw [h0]; rfl
+    rw [hPapply 1] at h1
+    exact one_ne_zero h1
+  -- transport to the matrix side
+  set q := e P with hqdef
+  have hqq : q * q = (Fintype.card G : ℂ) • q := by
+    rw [hqdef, ← map_mul, hPP, map_smul]
+  have hqcentral : ∀ y, y * q = q * y := by
+    intro y
+    calc y * q = e (e.symm y * P) := by rw [map_mul, e.apply_symm_apply]
+      _ = e (P * e.symm y) := by rw [hxP (e.symm y), hPx (e.symm y)]
+      _ = q * y := by rw [map_mul, e.apply_symm_apply]
+  have hqne : q ≠ 0 := by
+    intro h0
+    apply hPne
+    have h1 : e.symm (e P) = e.symm 0 := by rw [← hqdef, h0]
+    simpa using h1
+  -- each block of `q` is a scalar
+  have hscalar : ∀ i, ∃ c : ℂ, q i = c • 1 := by
+    intro i
+    have hcomm : ∀ N : Matrix (Fin (d i)) (Fin (d i)) ℂ, N * q i = q i * N := by
+      intro N
+      have := congrFun (hqcentral (Pi.single i N)) i
+      simpa [Pi.mul_apply, Pi.single_eq_same] using this
+    obtain ⟨c, hc⟩ := Matrix.mem_range_scalar_iff_commute_single'.mpr
+      (fun a b => hcomm _)
+    refine ⟨c, ?_⟩
+    rw [← hc, Matrix.scalar_apply, Matrix.smul_one_eq_diagonal]
+  choose c hc using hscalar
+  -- the scalars satisfy `c² = |G| c`, so each is `0` or `|G|`
+  have hcid : ∀ i, c i = 0 ∨ c i = (Fintype.card G : ℂ) := by
+    intro i
+    have hq2 := congrFun hqq i
+    rw [Pi.mul_apply, Pi.smul_apply, hc i] at hq2
+    have h2 : (c i * c i) • (1 : Matrix (Fin (d i)) (Fin (d i)) ℂ)
+        = ((Fintype.card G : ℂ) * c i) • 1 := by
+      rw [← smul_smul, ← smul_smul, ← hq2, smul_mul_assoc, mul_smul_comm, mul_one]
+    have h3 : c i * c i = (Fintype.card G : ℂ) * c i := by
+      have h4 := congrFun (congrFun h2 ⟨0, Nat.pos_of_ne_zero (NeZero.ne (d i))⟩)
+        ⟨0, Nat.pos_of_ne_zero (NeZero.ne (d i))⟩
+      simpa [Matrix.one_apply] using h4
+    have h5 : c i * (c i - (Fintype.card G : ℂ)) = 0 := by linear_combination h3
+    rcases mul_eq_zero.mp h5 with h | h
+    · exact Or.inl h
+    · exact Or.inr (sub_eq_zero.mp h)
+  -- some block carries `q i₀ = |G| • 1`
+  obtain ⟨i₀, hi₀ne⟩ : ∃ i, q i ≠ 0 := by
+    by_contra hall
+    exact hqne (funext fun i => by
+      by_contra hne
+      exact hall ⟨i, hne⟩)
+  have hci₀ : c i₀ = (Fintype.card G : ℂ) := by
+    rcases hcid i₀ with h0 | h1
+    · exact absurd (by rw [hc i₀, h0, zero_smul]) hi₀ne
+    · exact h1
+  have hqi₀ : q i₀ = (Fintype.card G : ℂ) • 1 := by rw [hc i₀, hci₀]
+  -- the universal mass property, after cancelling the factor `|G|`
+  have huniv : ∀ x : MonoidAlgebra ℂ G, (e x) i₀ = (∑ g : G, x g) • 1 := by
+    intro x
+    have hchain : (Fintype.card G : ℂ) • ((e x) i₀)
+        = (Fintype.card G : ℂ) • ((∑ g : G, x g) • 1) := by
+      calc (Fintype.card G : ℂ) • ((e x) i₀)
+          = (e x) i₀ * ((Fintype.card G : ℂ) • 1) := by
+            rw [mul_smul_comm, mul_one]
+        _ = (e x) i₀ * q i₀ := by rw [hqi₀]
+        _ = (e (x * P)) i₀ := by rw [map_mul, Pi.mul_apply]
+        _ = (e ((∑ g : G, x g) • P)) i₀ := by rw [hxP]
+        _ = (∑ g : G, x g) • q i₀ := by rw [map_smul, hqdef, Pi.smul_apply]
+        _ = (Fintype.card G : ℂ) • ((∑ g : G, x g) • 1) := by
+            rw [hqi₀, smul_comm]
+    exact smul_right_injective _ hcard0 hchain
+  -- the block is one-dimensional
+  refine ⟨i₀, ?_, huniv⟩
+  by_contra hne
+  have h2le : 2 ≤ d i₀ := by
+    have h1 := Nat.pos_of_ne_zero (NeZero.ne (d i₀))
+    omega
+  have hr01 : (⟨0, by omega⟩ : Fin (d i₀)) ≠ ⟨1, by omega⟩ := by
+    simp [Fin.ext_iff]
+  have hM := huniv (e.symm (Pi.single i₀
+    (Matrix.single (⟨0, by omega⟩ : Fin (d i₀)) (⟨1, by omega⟩ : Fin (d i₀)) 1)))
+  rw [e.apply_symm_apply, Pi.single_eq_same] at hM
+  have hentry := congrFun (congrFun hM ⟨0, by omega⟩) ⟨1, by omega⟩
+  rw [Matrix.single_apply, Matrix.smul_apply, Matrix.one_apply_ne hr01] at hentry
+  simp at hentry
 
 omit [Group G] [Fintype G] [DecidableEq G] in
 /-- Matrices of size `≤ 1` commute. -/
