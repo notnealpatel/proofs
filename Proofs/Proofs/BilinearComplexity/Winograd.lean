@@ -125,6 +125,18 @@ theorem swap_forced {k : Type*} [CommRing k] {a b c r : ℕ}
   · intro s hs
     exact ⟨if_neg hs, if_neg hs⟩
 
+/-- A tensor written as a triad sum over a `Finset` `S` of term indices has
+`RankLE` at most `S.card` — reindex `S` by `S.equivFin`. -/
+theorem rankLE_of_finset_sum {k : Type*} [CommSemiring k] {a b c r : ℕ}
+    (S : Finset (Fin r)) (u : Fin r → Fin a → k) (v : Fin r → Fin b → k)
+    (w : Fin r → Fin c → k) :
+    RankLE (fun i j l => ∑ s ∈ S, u s i * v s j * w s l) S.card := by
+  refine ⟨fun t i => u (S.equivFin.symm t) i, fun t j => v (S.equivFin.symm t) j,
+          fun t l => w (S.equivFin.symm t) l, ?_⟩
+  funext i j l
+  rw [← Finset.sum_coe_sort S (fun s => u s i * v s j * w s l)]
+  exact (Equiv.sum_comp S.equivFin.symm (fun s => u s i * v s j * w s l)).symm
+
 /-- **Hopcroft–Kerr forced product (orbit 4).** The 2×4×4 tensor `T4` has
 rank at least 6. This is the hard core: the two rank-1 C-slices at `c₀₀`
 and `c₁₀` are single products that any decomposition may be assumed to

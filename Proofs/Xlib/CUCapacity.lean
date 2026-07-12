@@ -205,12 +205,12 @@ section PairwiseBounds
 
 variable {G : Type*} [Group G] [Fintype G] [DecidableEq G]
 
+omit [Fintype G] in
 /-- **Permutation invariance (transpose the last two):** the (left) TPP is
 symmetric under swapping `T` and `U`. Proved through the quotient-set
 characterization `tripleProductProperty_iff_leftQuot`: a relation
 `q₁ q₂ q₃ = 1` with `q₂ ∈ Q(U)`, `q₃ ∈ Q(T)` inverts and cyclically rotates to
 `q₁⁻¹ q₃⁻¹ q₂⁻¹ = 1` in the `(S, T, U)` order, where the original TPP applies. -/
-omit [Fintype G] in
 theorem tpp_perm_swap23 {S T U : Finset G} (h : TripleProductProperty S T U) :
     TripleProductProperty S U T := by
   rw [tripleProductProperty_iff_leftQuot] at h ⊢
@@ -227,11 +227,11 @@ theorem tpp_perm_swap23 {S T U : Finset G} (h : TripleProductProperty S T U) :
     q₂⁻¹ (inv_mem_leftQuot hq₂) hkey
   exact ⟨inv_eq_one.mp e1, inv_eq_one.mp e2, inv_eq_one.mp e3⟩
 
+omit [Fintype G] in
 /-- **Permutation invariance (cyclic rotation):** the (left) TPP is symmetric
 under the cyclic rotation `(S, T, U) ↦ (T, U, S)`. A relation `q₁ q₂ q₃ = 1`
 with `q₁ ∈ Q(T)`, `q₂ ∈ Q(U)`, `q₃ ∈ Q(S)` rotates to `q₃ q₁ q₂ = 1` in the
 `(S, T, U)` order, where the original TPP applies. -/
-omit [Fintype G] in
 theorem tpp_perm_rotate {S T U : Finset G} (h : TripleProductProperty S T U) :
     TripleProductProperty T U S := by
   rw [tripleProductProperty_iff_leftQuot] at h ⊢
@@ -325,7 +325,7 @@ theorem pairSumBound {S T U : Finset G} (h : TripleProductProperty S T U)
 
 end PairwiseBounds
 
-/-! ### The universal lower bound: `α(G) > 2` (sorry) -/
+/-! ### The universal lower bound: `α(G) > 2` (proved) -/
 
 /-- **The universal pseudo-exponent lower bound:** every nontrivial finite group
 has `α(G) > 2` [math/0307321, CU.tex:478–500].
@@ -381,7 +381,7 @@ theorem two_lt_pseudoExponent (G : Type*)
   have pbc : b * c ≤ Fintype.card G := by omega
   have hsome : 2 ≤ a ∨ 2 ≤ b ∨ 2 ≤ c := by
     by_contra hcon
-    push_neg at hcon
+    simp only [not_or, not_le] at hcon
     obtain ⟨hca, hcb, hcc⟩ := hcon
     have hae : a = 1 := by omega
     have hbe : b = 1 := by omega
