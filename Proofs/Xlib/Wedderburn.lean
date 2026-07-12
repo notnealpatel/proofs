@@ -36,7 +36,7 @@ block sizes of such a decomposition are unique up to permutation.
   `eq_factorIdeal_of_mem_isotypicComponents`), and the `i`-th one has the length
   of `A i` over itself (`length_factorIdeal`).
 * `colIdeal`: a square matrix ring over a division ring is, as a module over
-  itself, the direct sum of its (simple) column ideals, so
+  itself, the direct product of its (simple) column ideals, so
   `Module.length (Matrix m m K) (Matrix m m K) = Fintype.card m`
   (`length_matrix_self`).
 
@@ -174,7 +174,7 @@ lemma mapIdeal_le_iff : mapIdeal e I ≤ mapIdeal e J ↔ I ≤ J := by
 
 lemma mapIdeal_bot (e : R ≃+* R') : mapIdeal e (⊥ : Ideal R) = ⊥ := by
   ext x
-  simp [mem_mapIdeal, Submodule.mem_bot, EmbeddingLike.map_eq_zero_iff]
+  rw [mem_mapIdeal, Submodule.mem_bot, Submodule.mem_bot, EmbeddingLike.map_eq_zero_iff]
 
 lemma mapIdeal_eq_bot_iff : mapIdeal e I = ⊥ ↔ I = ⊥ := by
   constructor
@@ -183,7 +183,7 @@ lemma mapIdeal_eq_bot_iff : mapIdeal e I = ⊥ ↔ I = ⊥ := by
   · rintro rfl
     exact mapIdeal_bot e
 
-lemma IsTwoSided.mapIdeal (h : I.IsTwoSided) : (mapIdeal e I).IsTwoSided := by
+lemma mapIdeal_isTwoSided (h : I.IsTwoSided) : (mapIdeal e I).IsTwoSided := by
   constructor
   rintro _ b ⟨x, hx, rfl⟩
   exact ⟨x * e.symm b, h.mul_mem_of_left _ hx, by rw [map_mul, e.apply_symm_apply]⟩
@@ -193,9 +193,9 @@ lemma mapIdeal_isFullyInvariant_iff :
   rw [isFullyInvariant_iff_isTwoSided, isFullyInvariant_iff_isTwoSided]
   constructor
   · intro h
-    have := h.mapIdeal (e := e.symm)
+    have := mapIdeal_isTwoSided (e := e.symm) h
     rwa [mapIdeal_symm_mapIdeal] at this
-  · exact IsTwoSided.mapIdeal
+  · exact mapIdeal_isTwoSided
 
 /-- `mapIdeal` preserves `Module.length`, via the bijective `e`-semilinear
 equivalence `I → mapIdeal e I`. -/
@@ -242,8 +242,8 @@ theorem isotypicLengthMultiset_eq_of_ringEquiv (e : R ≃+* R') [IsSemisimpleRin
       invFun := fun c => ⟨mapIdeal e.symm c.1, mapIdeal_mem_isotypicComponents e.symm c.2⟩
       left_inv := fun c => Subtype.ext (mapIdeal_symm_mapIdeal e c.1)
       right_inv := fun c => Subtype.ext (mapIdeal_mapIdeal_symm e c.1) }
-  rw [isotypicLengthMultiset, isotypicLengthMultiset, ← Multiset.map_univ_val_equiv φ,
-    Multiset.map_map]
+  unfold isotypicLengthMultiset
+  rw [← Multiset.map_univ_val_equiv φ, Multiset.map_map]
   exact Multiset.map_congr rfl fun c _ => (congrArg ENat.toNat (length_mapIdeal e c.1)).symm
 
 end Transport
@@ -276,14 +276,13 @@ theorem isSimpleModule_colIdeal (k : m) :
   rw [isSimpleModule_iff_toSpanSingleton_surjective]
   constructor
   · refine (Submodule.nontrivial_iff_ne_bot).mpr ((Submodule.ne_bot_iff _).mpr
-      ⟨(fun p q => if q = k then 1 else 0 : Matrix m m K), fun p q hq => if_neg hq, fun h => ?_⟩)
+      ⟨Matrix.of fun p q => if q = k then 1 else 0, fun p q hq => if_neg hq, fun h => ?_⟩)
     have := congrFun (congrFun h k) k
-    rw [if_pos rfl] at this
-    exact one_ne_zero (by simpa using this)
+    simp at this
   · rintro ⟨x, hx⟩ hx0
     have hxe : ∃ i₀, x i₀ k ≠ 0 := by
       by_contra h
-      push_neg at h
+      simp only [not_exists, not_ne_iff] at h
       refine hx0 (Subtype.ext ?_)
       funext p q
       rcases eq_or_ne q k with rfl | hq
@@ -291,61 +290,65 @@ theorem isSimpleModule_colIdeal (k : m) :
       · exact hx p q hq
     obtain ⟨i₀, hi₀⟩ := hxe
     rintro ⟨w, hw⟩
-    refine ⟨(fun p r => if r = i₀ then w p k * (x i₀ k)⁻¹ else 0 : Matrix m m K),
-      Subtype.ext ?_⟩
-    show (fun p r => if r = i₀ then w p k * (x i₀ k)⁻¹ else 0 : Matrix m m K) * x = w
-    funext p q
+    refine ⟨Matrix.of fun p r => if r = i₀ then w p k * (x i₀ k)⁻¹ else 0, Subtype.ext ?_⟩
+    rw [LinearMap.toSpanSingleton_apply, Submodule.coe_smul, smul_eq_mul]
+    ext p q
     rw [Matrix.mul_apply]
-    have hsum : ∀ c : K, (∑ r, (if r = i₀ then c else 0) * x r q) = c * x i₀ q := fun c => by
-      rw [Finset.sum_eq_single i₀ (fun r _ hr => by rw [if_neg hr, zero_mul])
-        (fun h => absurd (Finset.mem_univ i₀) h), if_pos rfl]
+    simp only [Matrix.of_apply]
+    rw [Finset.sum_eq_single i₀ (fun r _ hr => by rw [if_neg hr, zero_mul])
+      (fun h => absurd (Finset.mem_univ i₀) h), if_pos rfl]
     rcases eq_or_ne q k with rfl | hq
-    · rw [hsum, mul_assoc, inv_mul_cancel₀ hi₀, mul_one]
-    · rw [hsum, hx i₀ q hq, mul_zero, hw p q hq]
+    · rw [mul_assoc, inv_mul_cancel₀ hi₀, mul_one]
+    · rw [hx i₀ q hq, mul_zero, hw p q hq]
 
 /-- A square matrix ring, as a module over itself, is the direct product of its
 column ideals. -/
 def matrixColEquiv :
     Matrix m m K ≃ₗ[Matrix m m K] Π k : m, colIdeal K k where
-  toFun x k := ⟨fun p q => if q = k then x p q else 0, fun p q hq => if_neg hq⟩
+  toFun x k := ⟨Matrix.of fun p q => if q = k then x p q else 0, fun p q hq => if_neg hq⟩
   map_add' x y := by
     funext k
     apply Subtype.ext
-    funext p q
-    show (if q = k then (x + y) p q else 0) =
-      (if q = k then x p q else 0) + (if q = k then y p q else 0)
+    show (Matrix.of fun p q => if q = k then (x + y) p q else 0) =
+      (Matrix.of fun p q => if q = k then x p q else 0) +
+        (Matrix.of fun p q => if q = k then y p q else 0)
+    ext p q
+    simp only [Matrix.of_apply, Matrix.add_apply]
     rcases eq_or_ne q k with rfl | hq
-    · rw [if_pos rfl, if_pos rfl, if_pos rfl, Matrix.add_apply]
+    · rw [if_pos rfl, if_pos rfl, if_pos rfl]
     · rw [if_neg hq, if_neg hq, if_neg hq, add_zero]
   map_smul' a x := by
     funext k
     apply Subtype.ext
-    funext p q
-    show (if q = k then (a * x) p q else 0) =
-      (a * (fun p q => if q = k then x p q else 0) : Matrix m m K) p q
+    show (Matrix.of fun p q => if q = k then (a * x) p q else 0) =
+      a * Matrix.of fun p q => if q = k then x p q else 0
+    ext p q
+    simp only [Matrix.of_apply, Matrix.mul_apply]
     rcases eq_or_ne q k with rfl | hq
-    · rw [if_pos rfl, Matrix.mul_apply, Matrix.mul_apply]
+    · rw [if_pos rfl]
       exact Finset.sum_congr rfl fun r _ => by rw [if_pos rfl]
-    · rw [if_neg hq, Matrix.mul_apply]
+    · rw [if_neg hq]
       exact (Finset.sum_eq_zero fun r _ => by rw [if_neg hq, mul_zero]).symm
   invFun c := ∑ k, (c k : Matrix m m K)
   left_inv x := by
-    funext p q
+    dsimp only
+    ext p q
     rw [Matrix.sum_apply]
-    simp only
-    rw [Finset.sum_apply, Finset.sum_eq_single q
-      (fun k _ hk => if_neg (Ne.symm hk).symm) (fun h => absurd (Finset.mem_univ q) h)]
-    · exact if_pos rfl
+    simp only [Matrix.of_apply]
+    rw [Finset.sum_ite_eq]
+    exact if_pos (Finset.mem_univ q)
   right_inv c := by
+    dsimp only
     funext k
     apply Subtype.ext
-    funext p q
-    show (if q = k then (∑ j, ((c j : Matrix m m K))) p q else 0) = (c k : Matrix m m K) p q
+    show (Matrix.of fun p q => if q = k then (∑ j, ((c j : Matrix m m K))) p q else 0) =
+      (c k : Matrix m m K)
+    ext p q
+    rw [Matrix.of_apply]
     rcases eq_or_ne q k with rfl | hq
     · rw [if_pos rfl, Matrix.sum_apply]
-      simp only
-      rw [Finset.sum_apply, Finset.sum_eq_single k
-        (fun j _ hj => (c j).2 p q (Ne.symm hj)) (fun h => absurd (Finset.mem_univ k) h)]
+      exact Finset.sum_eq_single q (fun j _ hj => (c j).2 p q (Ne.symm hj))
+        (fun h => absurd (Finset.mem_univ q) h)
     · rw [if_neg hq, ((c k).2 p q hq)]
 
 /-- **The length of a matrix ring over itself** is the number of columns. -/
@@ -364,7 +367,7 @@ end MatrixColumns
 
 section PiFactor
 
-variable {ι : Type*} [Fintype ι] [DecidableEq ι] {A : ι → Type*} [∀ i, Ring (A i)]
+variable {ι : Type*} {A : ι → Type*} [∀ i, Ring (A i)]
 
 /-- The `i`-th factor ideal of a finite product of rings: elements supported on
 the `i`-th coordinate. -/
@@ -378,6 +381,8 @@ def factorIdeal (A : ι → Type*) [∀ i, Ring (A i)] (i : ι) : Ideal (Π j, A
 
 lemma mem_factorIdeal {i : ι} {x : Π j, A j} :
     x ∈ factorIdeal A i ↔ ∀ j, j ≠ i → x j = 0 := Iff.rfl
+
+variable [DecidableEq ι]
 
 lemma single_mem_factorIdeal (i : ι) (y : A i) : Pi.single i y ∈ factorIdeal A i :=
   fun _ hj => Pi.single_eq_of_ne hj y
@@ -395,10 +400,10 @@ lemma mul_single_one (x : Π j, A j) (i : ι) : x * Pi.single i 1 = Pi.single i 
   · rw [Pi.mul_apply, Pi.single_eq_same, Pi.single_eq_same, mul_one]
   · rw [Pi.mul_apply, Pi.single_eq_of_ne hj, Pi.single_eq_of_ne hj, mul_zero]
 
+omit [DecidableEq ι] in
 lemma factorIdeal_isTwoSided (i : ι) : (factorIdeal A i).IsTwoSided := by
   constructor
-  intro x b hx
-  intro j hj
+  intro x b hx j hj
   rw [Pi.mul_apply, hx j hj, zero_mul]
 
 lemma factorIdeal_ne_bot (i : ι) [Nontrivial (A i)] : factorIdeal A i ≠ ⊥ := by
@@ -406,7 +411,7 @@ lemma factorIdeal_ne_bot (i : ι) [Nontrivial (A i)] : factorIdeal A i ≠ ⊥ :
   refine ⟨Pi.single i 1, single_mem_factorIdeal i 1, fun h => ?_⟩
   have := congrFun h i
   rw [Pi.single_eq_same] at this
-  exact one_ne_zero (by simpa using this)
+  exact one_ne_zero this
 
 lemma factorIdeal_injective [∀ i, Nontrivial (A i)] :
     Function.Injective (factorIdeal A) := by
@@ -475,7 +480,7 @@ theorem eq_factorIdeal_of_mem_isotypicComponents [∀ i, IsSimpleRing (A i)]
   obtain ⟨x, hxc, hx0⟩ := (Submodule.ne_bot_iff c).mp hne
   obtain ⟨i, hxi⟩ : ∃ i, x i ≠ 0 := by
     by_contra h
-    push_neg at h
+    simp only [not_exists, not_ne_iff] at h
     exact hx0 (funext h)
   refine ⟨i, ?_⟩
   have hsx : Pi.single i (x i) ∈ c := by
@@ -522,7 +527,8 @@ theorem length_factorIdeal (i : ι) :
 
 /-- **The isotypic length multiset of a finite product of simple rings** is the
 multiset of the factors' self-lengths. -/
-theorem isotypicLengthMultiset_pi [∀ i, IsSimpleRing (A i)] [IsSemisimpleRing (Π i, A i)]
+theorem isotypicLengthMultiset_pi [Fintype ι] [∀ i, IsSimpleRing (A i)]
+    [IsSemisimpleRing (Π i, A i)]
     [Fintype ↥(isotypicComponents (Π j, A j) (Π j, A j))] :
     isotypicLengthMultiset (Π j, A j) =
       Finset.univ.val.map fun i => (Module.length (A i) (A i)).toNat := by
@@ -531,7 +537,8 @@ theorem isotypicLengthMultiset_pi [∀ i, IsSimpleRing (A i)] [IsSemisimpleRing 
       ⟨fun i j h => factorIdeal_injective (congrArg Subtype.val h),
        fun c => (eq_factorIdeal_of_mem_isotypicComponents c.2).imp
          fun i hi => Subtype.ext hi.symm⟩
-  rw [isotypicLengthMultiset, ← Multiset.map_univ_val_equiv ψ, Multiset.map_map]
+  unfold isotypicLengthMultiset
+  rw [← Multiset.map_univ_val_equiv ψ, Multiset.map_map]
   exact Multiset.map_congr rfl fun i _ => congrArg ENat.toNat (length_factorIdeal i)
 
 end PiFactor
