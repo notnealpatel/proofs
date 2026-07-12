@@ -164,7 +164,7 @@ theorem resid_flat_rank (W0 W1 : Fin 4 → ZMod 2) :
   have hinv : Msub W0 W1 * Msub W0 W1 = 1 := by
     ext a b
     fin_cases a <;> fin_cases b <;>
-      simp [Matrix.mul_apply, Fin.sum_univ_four, Msub, Matrix.one_apply, hadd]
+      simp [Matrix.mul_apply, Fin.sum_univ_four, Msub, hadd]
   have hU : IsUnit (Msub W0 W1) := IsUnit.of_mul_eq_one _ hinv
   calc (4 : ℕ) = Fintype.card (Fin 4) := (Fintype.card_fin 4).symm
     _ = (Msub W0 W1).rank := (Matrix.rank_of_isUnit _ hU).symm
@@ -189,7 +189,88 @@ and `c₁₀` are single products that any decomposition may be assumed to
 compute literally, using up two terms; the residual flattens to rank ≥ 4
 for every completion. -/
 theorem six_le_rank_T4 : 6 ≤ rank T4 := by
-  sorry
+  suffices h : ∀ (r : ℕ) (u : Fin r → Fin 2 → ZMod 2) (v : Fin r → Fin 4 → ZMod 2)
+      (w : Fin r → Fin 4 → ZMod 2),
+      (T4 = fun i j l => ∑ s, u s i * v s j * w s l) → 6 ≤ r by
+    obtain ⟨u, v, w, hT⟩ := rankLE_rank T4
+    exact h _ u v w hT
+  intro r u v w hT
+  have zne1 : ∀ x : ZMod 2, x ≠ 1 → x = 0 := by decide
+  -- The C-slice at c₀₀ is the single product a₀₁ ⊗ b₁₀ = p0 ⊗ q0.
+  have h0 : ∀ (i : Fin 2) (j : Fin 4), T4 i j 0 = p0 i * q0 j := by decide
+  have hslice0 : ∀ (i : Fin 2) (j : Fin 4), ∑ s, u s i * v s j * w s 0 = p0 i * q0 j := by
+    intro i j
+    have e : T4 i j 0 = ∑ s, u s i * v s j * w s 0 := by rw [hT]
+    rw [← e]; exact h0 i j
+  -- Some term carries the c₀₀ slice, else the slice would vanish.
+  obtain ⟨s0, hs0⟩ : ∃ s0, w s0 0 = 1 := by
+    by_contra hcon
+    simp only [not_exists] at hcon
+    have hz : ∀ s, w s 0 = 0 := fun s => zne1 _ (hcon s)
+    have hbad : (p0 0 : ZMod 2) * q0 2 = 0 := by
+      rw [← hslice0 0 2]
+      exact Finset.sum_eq_zero fun s _ => by rw [hz s]; ring
+    revert hbad; decide
+  -- Swap 1: force term s0 to be a₀₁ ⊗ b₁₀ ⊗ w_{s0}.
+  obtain ⟨u1, v1, w1, hsum1, hu1, hv1, hunch1⟩ := swap_forced u v w 0 p0 q0 hslice0 s0 hs0
+  have hT1 : T4 = fun i j l => ∑ s, u1 s i * v1 s j * w1 s l := by
+    funext i j l; rw [hT]; exact (hsum1 i j l).symm
+  -- The C-slice at c₁₀ is the single product a₀₁ ⊗ b₁₁ = p0 ⊗ q1.
+  have h2 : ∀ (i : Fin 2) (j : Fin 4), T4 i j 2 = p0 i * q1 j := by decide
+  have hslice1 : ∀ (i : Fin 2) (j : Fin 4), ∑ s, u1 s i * v1 s j * w1 s 2 = p0 i * q1 j := by
+    intro i j
+    have e : T4 i j 2 = ∑ s, u1 s i * v1 s j * w1 s 2 := by rw [hT1]
+    rw [← e]; exact h2 i j
+  -- A different term carries the c₁₀ slice: else it would be a multiple of
+  -- the c₀₀ product a₀₁⊗b₁₀, impossible since a₀₁⊗b₁₁ is independent of it.
+  obtain ⟨s1, hs1ne, hs1⟩ : ∃ s1, s1 ≠ s0 ∧ w1 s1 2 = 1 := by
+    by_contra hcon
+    simp only [not_exists, not_and] at hcon
+    have hz : ∀ s, s ≠ s0 → w1 s 2 = 0 := fun s h => zne1 _ (hcon s h)
+    have key : ∑ s, u1 s 0 * v1 s 3 * w1 s 2 = p0 0 * q0 3 * w1 s0 2 := by
+      rw [← Finset.add_sum_erase _ _ (Finset.mem_univ s0),
+        Finset.sum_eq_zero fun s hs => by rw [hz s (Finset.ne_of_mem_erase hs)]; ring,
+        hu1, hv1]
+      ring
+    rw [hslice1 0 3] at key
+    simp only [p0, q0, q1, Matrix.cons_val_zero, Matrix.head_cons,
+      Matrix.tail_cons, Matrix.cons_val_three, mul_zero, zero_mul, mul_one] at key
+    exact one_ne_zero key
+  -- Swap 2: force term s1 to be a₀₁ ⊗ b₁₁ ⊗ w1_{s1}; term s0 keeps its A,B parts.
+  obtain ⟨u2, v2, w2, hsum2, hu2s1, hv2s1, hunch2⟩ := swap_forced u1 v1 w1 2 p0 q1 hslice1 s1 hs1
+  have hT2 : T4 = fun i j l => ∑ s, u2 s i * v2 s j * w2 s l := by
+    funext i j l; rw [hT1]; exact (hsum2 i j l).symm
+  have hu2s0 : u2 s0 = p0 := (hunch2 s0 (Ne.symm hs1ne)).1.trans hu1
+  have hv2s0 : v2 s0 = q0 := (hunch2 s0 (Ne.symm hs1ne)).2.trans hv1
+  -- Strip the two forced terms: the residual is `Xres (w2 s0) (w2 s1)`.
+  set S := (Finset.univ.erase s0).erase s1 with hS
+  have hXeq : Xres (w2 s0) (w2 s1) = fun i j l => ∑ s ∈ S, u2 s i * v2 s j * w2 s l := by
+    funext i j l
+    have strip : (∑ s ∈ S, u2 s i * v2 s j * w2 s l)
+        = (∑ s, u2 s i * v2 s j * w2 s l) - u2 s0 i * v2 s0 j * w2 s0 l
+          - u2 s1 i * v2 s1 j * w2 s1 l := by
+      have e1 : (∑ s, u2 s i * v2 s j * w2 s l)
+          = u2 s0 i * v2 s0 j * w2 s0 l
+            + ∑ s ∈ Finset.univ.erase s0, u2 s i * v2 s j * w2 s l :=
+        (Finset.add_sum_erase _ _ (Finset.mem_univ s0)).symm
+      have e2 : (∑ s ∈ Finset.univ.erase s0, u2 s i * v2 s j * w2 s l)
+          = u2 s1 i * v2 s1 j * w2 s1 l + ∑ s ∈ S, u2 s i * v2 s j * w2 s l :=
+        (Finset.add_sum_erase _ _ (Finset.mem_erase.mpr ⟨hs1ne, Finset.mem_univ s1⟩)).symm
+      rw [e1, e2]; ring
+    have hT2v : (∑ s, u2 s i * v2 s j * w2 s l) = T4 i j l := by rw [hT2]
+    rw [strip, hT2v, hu2s0, hv2s0, hu2s1, hv2s1]
+    simp only [Xres]
+  have hRank : RankLE (Xres (w2 s0) (w2 s1)) S.card := by
+    rw [hXeq]; exact rankLE_of_finset_sum S u2 v2 w2
+  have hScard : S.card = r - 2 := by
+    have h1 : s1 ∈ Finset.univ.erase s0 := Finset.mem_erase.mpr ⟨hs1ne, Finset.mem_univ s1⟩
+    have e := Finset.card_erase_of_mem h1
+    rw [Finset.card_erase_of_mem (Finset.mem_univ s0), Finset.card_univ, Fintype.card_fin] at e
+    omega
+  have hflat : (flattening (cyc (Xres (w2 s0) (w2 s1)))).rank ≤ S.card :=
+    hRank.cyc.rank_flattening_le
+  have hge := resid_flat_rank (w2 s0) (w2 s1)
+  omega
 
 /-! ## 3. Top-level per-orbit key step
 
