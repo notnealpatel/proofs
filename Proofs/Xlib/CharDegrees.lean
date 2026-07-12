@@ -1,4 +1,5 @@
 import Xlib.TPP
+import Xlib.Wedderburn
 
 /-!
 # Character degrees: the indexed representation-theory foundation
@@ -17,37 +18,46 @@ and the two power-sum invariants built on it,
 together with the minimal nontrivial irrep dimension `minNontrivIrrepDim G`
 (the `n(G)` of the Blasiak–Church–Cohn–Grochow–Umans barrier).
 
-## The foundation debt is a single `sorry`
+## The canonical definition and the bridge lemma
 
-The *only* `sorry` in the definitional layer is in `charDegrees` itself. At the
-present Mathlib coverage there is no canonical **enumeration** of the
-irreducible complex representations of `G`. Mathlib has the *unindexed*
-Wedderburn–Artin decomposition
-`IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed`
-(`ℂ[G] ≃ₐ[ℂ] Π i : Fin n, Matrix (Fin (dᵢ)) (Fin (dᵢ)) ℂ` with `dᵢ ≠ 0`), and the
-semisimplicity / finite-dimensionality of `ℂ[G]` (Maschke,
-`Mathlib.RepresentationTheory.Maschke`), but it does **not** package the
-decomposition as an indexed family tied to the isomorphism classes of simple
-`ℂ[G]`-modules, nor does it record either of the two classical identities
+`charDegrees G` is defined **canonically and choice-free** as the multiset of
+`(Module.length ℂ[G] c).toNat` over the isotypic components
+`c ∈ isotypicComponents ℂ[G] ℂ[G]` of the group algebra as a module over itself
+(via `Xlib.Wedderburn.isotypicLengthMultiset`).  Maschke
+(`Mathlib.RepresentationTheory.Maschke`, `char ℂ = 0`) makes `ℂ[G]` semisimple,
+so the components are finitely many, one per isomorphism class of simple
+`ℂ[G]`-modules (= irreducible complex representations), and the length of a
+component counts the multiplicity of its simple in `ℂ[G]` — which equals the
+dimension of the corresponding irrep.  That this multiset agrees with the
+matrix-block sizes of **any** Wedderburn–Artin decomposition is the content of
+the bridge lemma
 
-  `Σᵢ dᵢ² = |G|`   and   `#{irreps} = #{conjugacy classes}`.
+  `charDegrees_eq_of_algEquiv :
+    (e : ℂ[G] ≃ₐ[ℂ] Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ) →
+    charDegrees G = Finset.univ.val.map d`,
 
-Both are confirmed **absent** from Mathlib (`leandoc` finds `FDRep.character`,
-`FDRep.Simple`, `char_orthonormal`, but no irrep-indexing / `Σ dᵢ² = |G|` /
-irrep-count declaration).
+i.e. **Wedderburn uniqueness** over an algebraically closed field
+(`Xlib.Wedderburn.isotypicLengthMultiset_eq_of_algEquiv`; the existence half is
+Mathlib's `IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed`, and the
+uniqueness half is an explicit Mathlib TODO).
 
-The single `sorry` in `charDegrees` isolates this entire debt: every other
-declaration below is a **total, `sorry`-free** function of the abstract multiset,
-so a future task landing the indexed Wedderburn layer replaces that one `sorry`
-and the whole file becomes `sorry`-free. The two classical identities are stated
-as named theorems (`charDegreeSum_two` and `card_charDegrees`), each a `sorry`
-with the standard-proof citation, so downstream files (CU Thm 4.1, the `n(G)`
-barrier) import them by name rather than re-deriving them.
+The two classical identities
+
+  `Σᵢ dᵢ² = |G|`   and   `#{irreps} = #{conjugacy classes}`
+
+remain **absent** from Mathlib and are the two remaining `sorry`s of this file,
+stated as named theorems (`charDegreeSum_two` and `card_charDegrees`) with their
+standard proofs cited, so downstream files (CU Thm 4.1, the `n(G)` barrier)
+import them by name rather than re-deriving them.  Both are now provable over
+the bridge lemma: extract any decomposition with
+`exists_algEquiv_pi_matrix_of_isAlgClosed`, rewrite with
+`charDegrees_eq_of_algEquiv`, and count dimensions (resp. match centers).
 
 ## Main definitions
 
 * `Xlib.CharDegrees.charDegrees` — the multiset of irreducible complex character
-  degrees of `G`. **The single foundation `sorry`.**
+  degrees of `G`, defined canonically via the isotypic components of `ℂ[G]`
+  (**`sorry`-free**).
 * `Xlib.CharDegrees.charDegreeSum` — `Dᵣ(G) = Σᵢ dᵢʳ`, the `ℕ`-exponent power sum.
 * `Xlib.CharDegrees.charDegreeSumReal` — `D_x(G) = Σᵢ dᵢˣ`, the `ℝ`-exponent power
   sum (via `Real.rpow`), the form CU Thm 4.1 compares the TPP capacity against.
@@ -56,6 +66,9 @@ barrier) import them by name rather than re-deriving them.
 
 ## Main results
 
+* `Xlib.CharDegrees.charDegrees_eq_of_algEquiv` — **the bridge lemma**
+  (`sorry`-free): `charDegrees G` equals the block-size multiset `{d i}` of
+  *any* Wedderburn decomposition `ℂ[G] ≃ₐ[ℂ] Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ`.
 * `Xlib.CharDegrees.charDegreeSum_two` — **(`sorry`)** `D₂(G) = |G|`, i.e.
   `Σᵢ dᵢ² = |G|`. The fundamental identity (Wedderburn + `dim ℂ[G] = |G|`).
 * `Xlib.CharDegrees.card_charDegrees` — **(`sorry`)** the number of irreducible
@@ -80,7 +93,7 @@ open scoped BigOperators
 
 namespace Xlib.CharDegrees
 
-/-! ### The character-degree multiset (the single foundation `sorry`) -/
+/-! ### The character-degree multiset (canonical, choice-free) -/
 
 /-- **The character-degree multiset.** `charDegrees G` is the multiset of
 dimensions `d₁, …, d_r` of the irreducible complex representations of the finite
@@ -89,21 +102,35 @@ has degrees `1, 1, 2` — and the power sums below count each irrep, so a
 `Multiset` rather than a `Finset` is the faithful container; a `Finset` would
 collapse `1, 1, 2 ↦ {1, 2}` and break `Σ dᵢ² = |G|`).
 
-**This is the single `sorry` of the entire foundation.** Constructing it requires
-the *indexed* Wedderburn–Artin decomposition of `ℂ[G]` — i.e. extracting the
-family `d : Fin n → ℕ` of matrix-block sizes from
-`IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed` (applied to the
-finite-dimensional semisimple ℂ-algebra `ℂ[G]`; finite-dimensionality from
-`Fintype G`, semisimplicity from Maschke since `char ℂ = 0`) and identifying the
-blocks with the isomorphism classes of simple `ℂ[G]`-modules. That indexing is
-not yet in Mathlib, so the body is `sorry`.
-
-A future task landing the indexed Wedderburn layer replaces this `sorry` with
-`(Finset.univ : Finset (Fin n)).val.map d` (equivalently, the multiset of
-`Module.finrank ℂ Vᵢ` over isomorphism classes of simple `FDRep ℂ G`); every
-declaration below then becomes `sorry`-free. -/
+**Canonical, choice-free definition**: the multiset of
+`(Module.length ℂ[G] c).toNat` over the isotypic components
+`c ∈ isotypicComponents ℂ[G] ℂ[G]` of the group algebra as a module over itself.
+Maschke (`char ℂ = 0`, `Mathlib.RepresentationTheory.Maschke`) makes `ℂ[G]`
+semisimple, so there are finitely many components, one per isomorphism class of
+simple `ℂ[G]`-modules (= irreducible representations); the component of a simple
+`S` is isomorphic to `S ^ (dim S)`, so its length is exactly the degree of the
+corresponding character.  The identification with the block sizes of any
+Wedderburn decomposition is `charDegrees_eq_of_algEquiv` below. -/
 noncomputable def charDegrees (G : Type*) [Group G] [Fintype G] : Multiset ℕ :=
-  sorry
+  haveI : NeZero (Nat.card G : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
+  letI : Fintype ↥(isotypicComponents (MonoidAlgebra ℂ G) (MonoidAlgebra ℂ G)) :=
+    Fintype.ofFinite _
+  Wedderburn.isotypicLengthMultiset (MonoidAlgebra ℂ G)
+
+/-- **The bridge lemma (Wedderburn uniqueness for `ℂ[G]`).**  The canonical
+character-degree multiset equals the block-size multiset `{d i}` of **any**
+pi-matrix Wedderburn decomposition of the group algebra.  This is the
+well-definedness statement that lets downstream results extract an arbitrary
+decomposition from `IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed`
+and transport its block data to `charDegrees`. -/
+theorem charDegrees_eq_of_algEquiv (G : Type*) [Group G] [Fintype G] {n : ℕ}
+    {d : Fin n → ℕ} [∀ i, NeZero (d i)]
+    (e : MonoidAlgebra ℂ G ≃ₐ[ℂ] Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ) :
+    charDegrees G = Finset.univ.val.map d := by
+  haveI : NeZero (Nat.card G : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
+  letI : Fintype ↥(isotypicComponents (MonoidAlgebra ℂ G) (MonoidAlgebra ℂ G)) :=
+    Fintype.ofFinite _
+  exact Wedderburn.isotypicLengthMultiset_eq_of_algEquiv e
 
 /-! ### The character-degree power sums `Dᵣ` (`sorry`-free over `charDegrees`) -/
 
@@ -163,8 +190,10 @@ theorem charDegreeSumReal_natCast (G : Type*) [Group G] [Fintype G] (r : ℕ) :
 These are the two standard representation-theory facts that justify the whole
 program but are **absent from Mathlib**. They are stated here as named theorems
 so downstream files import them by name. Each is a `sorry` with its standard
-proof cited; landing the indexed Wedderburn layer (the same layer that discharges
-the `charDegrees` `sorry`) discharges both. -/
+proof cited; both are now provable over the bridge lemma
+`charDegrees_eq_of_algEquiv` (extract a decomposition from
+`IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed`, transport, and
+count `ℂ`-dimensions resp. match centers). -/
 
 /-- **Sum of squared degrees equals the group order:** `D₂(G) = |G|`, i.e.
 `Σᵢ dᵢ² = |G|`.

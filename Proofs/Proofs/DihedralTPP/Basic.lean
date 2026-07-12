@@ -1,4 +1,5 @@
 import Mathlib
+import Xlib.TPP
 
 /-!
 # The subset triple-product-property ratio of dihedral groups is at most 4/3
@@ -589,5 +590,60 @@ theorem card_mul_le_of_isTPP' {S T U : Finset (DihedralGroup n)} (h : IsTPP S T 
   have hb := card_mul_le_of_isTPP h
   rw [DihedralGroup.card]
   linarith
+
+/-! ## Re-homing onto the canonical `Xlib.TPP` API
+
+`IsTPP` above is byte-identical to the right-quotient TPP
+`Xlib.TPP.TripleProductPropertyR`, while the canonical definition is the
+left-quotient `Xlib.TPP.TripleProductProperty`.  On the *same* ordered
+triple the two conventions differ, but they transfer through the inversion
+bridge `Xlib.TPP.tripleProductProperty_iff_inv`, and `Finset.card_inv`
+preserves all three cardinalities.  This section re-homes the 4/3 bound
+onto the canonical definition and derives the capacity bound
+`3 * β(D_{2n}) ≤ 8 * n`. -/
+
+/-- `IsTPP` is definitionally the right-quotient TPP
+`Xlib.TPP.TripleProductPropertyR` (in any group). -/
+theorem isTPP_iff {G : Type*} [Group G] [DecidableEq G] (S T U : Finset G) :
+    IsTPP S T U ↔ Xlib.TPP.TripleProductPropertyR S T U :=
+  Iff.rfl
+
+/-- **Main theorem, canonical convention.**  Any triple of finsets in the
+dihedral group of order `2n` satisfying the (left-quotient) triple product
+property `Xlib.TPP.TripleProductProperty` has
+`3 * (|S| * |T| * |U|) ≤ 8 * n`.  Transfer from `card_mul_le_of_isTPP`
+through the inversion bridge: `(S, T, U)` is left-TPP iff
+`(S⁻¹, T⁻¹, U⁻¹)` is right-TPP, and inversion preserves cardinalities. -/
+theorem card_mul_le_of_tripleProductProperty {S T U : Finset (DihedralGroup n)}
+    (h : Xlib.TPP.TripleProductProperty S T U) :
+    3 * (S.card * T.card * U.card) ≤ 8 * n := by
+  have hR : IsTPP S⁻¹ T⁻¹ U⁻¹ :=
+    (isTPP_iff _ _ _).mpr (Xlib.TPP.tripleProductProperty_iff_inv.mp h)
+  have hb := card_mul_le_of_isTPP hR
+  simpa only [Finset.card_inv] using hb
+
+/-- The canonical-convention bound in terms of the group order:
+`3 |S| |T| |U| ≤ 4 |D_{2n}|`. -/
+theorem card_mul_le_of_tripleProductProperty' {S T U : Finset (DihedralGroup n)}
+    (h : Xlib.TPP.TripleProductProperty S T U) :
+    3 * (S.card * T.card * U.card) ≤ 4 * Fintype.card (DihedralGroup n) := by
+  have hb := card_mul_le_of_tripleProductProperty h
+  rw [DihedralGroup.card]
+  linarith
+
+/-- **Capacity form of the 4/3 bound:** the TPP capacity of the dihedral
+group satisfies `3 * β(D_{2n}) ≤ 8 * n`, i.e. `ρ(D_{2n}) ≤ 4/3`.  Since
+`β` is a `Finset.sup` and the bound `8 * n` is not divisible by `3` in
+general, we extract a triple attaining the sup and apply the per-triple
+bound. -/
+theorem three_mul_tppCapacity_le :
+    3 * Xlib.TPP.tppCapacity (DihedralGroup n) ≤ 8 * n := by
+  obtain ⟨⟨S, T, U⟩, hmem, hsup⟩ :=
+    Finset.exists_mem_eq_sup (Xlib.TPP.tppTriples (DihedralGroup n))
+      ⟨(Finset.univ, {1}, {1}), Xlib.TPP.mem_tppTriples.mpr Xlib.TPP.tpp_trivial⟩
+      (fun p => p.1.card * p.2.1.card * p.2.2.card)
+  have hcap : Xlib.TPP.tppCapacity (DihedralGroup n) = S.card * T.card * U.card := hsup
+  rw [hcap]
+  exact card_mul_le_of_tripleProductProperty (Xlib.TPP.mem_tppTriples.mp hmem)
 
 end DihedralTPP
