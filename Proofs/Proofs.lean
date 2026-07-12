@@ -22,4 +22,8 @@ import Proofs.Erdos880.RestrictedSumset
 import Proofs.Vp2.BorderRank
 import Proofs.Vp2.Circuit
 import Proofs.Vp2.Vp2
+import Proofs.BilinearComplexity.Basic
+import Proofs.BilinearComplexity.RankCalculus
+import Proofs.BilinearComplexity.Flattening
+import Proofs.BilinearComplexity.Strassen
 import Proofs.Scratch
