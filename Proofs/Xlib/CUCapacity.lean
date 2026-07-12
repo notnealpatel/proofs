@@ -188,6 +188,142 @@ theorem pseudoExponent_eq_three_of_commGroup {H : Type*} [CommGroup H] [Fintype 
   have hlog_ne : Real.log (Fintype.card H) ≠ 0 := ne_of_gt hlog_pos
   rw [pseudoExponent, tppCapacity_eq_card, mul_div_assoc, div_self hlog_ne, mul_one]
 
+/-! ### Pairwise product bounds for the universal lower bound
+
+The lower bound `α(G) > 2` (below) rests on the three *pairwise* product bounds
+of Cohn–Umans [math/0307321, CU.tex:487–494]: a TPP triple `(S, T, U)` satisfies
+`|S|·|T| ≤ |G|`, with strict inequality unless `|U| = 1`. We package both into a
+single inequality `|S|·|T| + |U| ≤ |G| + 1` (`pairSumBound`): the injective
+product map `(x, y) ↦ x·y⁻¹` embeds `S ×ˢ T` into `G` with image disjoint from
+the translate `s₀·(Q(U) \ {1})·t₀⁻¹` of the punctured left quotient set, which
+has `≥ |U| - 1` elements. Since `TripleProductProperty` is the *left*-quotient
+convention while CU use the right, the two permutation helpers `tpp_perm_swap23`
+and `tpp_perm_rotate` supply the cyclic/reflected orderings needed to apply the
+`(S, T)` bound to the `(S, U)` and `(T, U)` pairs. -/
+
+section PairwiseBounds
+
+variable {G : Type*} [Group G] [Fintype G] [DecidableEq G]
+
+/-- **Permutation invariance (transpose the last two):** the (left) TPP is
+symmetric under swapping `T` and `U`. Proved through the quotient-set
+characterization `tripleProductProperty_iff_leftQuot`: a relation
+`q₁ q₂ q₃ = 1` with `q₂ ∈ Q(U)`, `q₃ ∈ Q(T)` inverts and cyclically rotates to
+`q₁⁻¹ q₃⁻¹ q₂⁻¹ = 1` in the `(S, T, U)` order, where the original TPP applies. -/
+theorem tpp_perm_swap23 {S T U : Finset G} (h : TripleProductProperty S T U) :
+    TripleProductProperty S U T := by
+  rw [tripleProductProperty_iff_leftQuot] at h ⊢
+  intro q₁ hq₁ q₂ hq₂ q₃ hq₃ heq
+  have hcyc : q₂ * q₃ * q₁ = 1 := by
+    calc q₂ * q₃ * q₁ = q₁⁻¹ * (q₁ * q₂ * q₃) * q₁ := by group
+      _ = q₁⁻¹ * 1 * q₁ := by rw [heq]
+      _ = 1 := by group
+  have hkey : q₁⁻¹ * q₃⁻¹ * q₂⁻¹ = 1 := by
+    calc q₁⁻¹ * q₃⁻¹ * q₂⁻¹ = (q₂ * q₃ * q₁)⁻¹ := by group
+      _ = (1 : G)⁻¹ := by rw [hcyc]
+      _ = 1 := inv_one
+  obtain ⟨e1, e3, e2⟩ := h q₁⁻¹ (inv_mem_leftQuot hq₁) q₃⁻¹ (inv_mem_leftQuot hq₃)
+    q₂⁻¹ (inv_mem_leftQuot hq₂) hkey
+  exact ⟨inv_eq_one.mp e1, inv_eq_one.mp e2, inv_eq_one.mp e3⟩
+
+/-- **Permutation invariance (cyclic rotation):** the (left) TPP is symmetric
+under the cyclic rotation `(S, T, U) ↦ (T, U, S)`. A relation `q₁ q₂ q₃ = 1`
+with `q₁ ∈ Q(T)`, `q₂ ∈ Q(U)`, `q₃ ∈ Q(S)` rotates to `q₃ q₁ q₂ = 1` in the
+`(S, T, U)` order, where the original TPP applies. -/
+theorem tpp_perm_rotate {S T U : Finset G} (h : TripleProductProperty S T U) :
+    TripleProductProperty T U S := by
+  rw [tripleProductProperty_iff_leftQuot] at h ⊢
+  intro q₁ hq₁ q₂ hq₂ q₃ hq₃ heq
+  have hcyc : q₃ * q₁ * q₂ = 1 := by
+    calc q₃ * q₁ * q₂ = (q₁ * q₂)⁻¹ * (q₁ * q₂ * q₃) * (q₁ * q₂) := by group
+      _ = (q₁ * q₂)⁻¹ * 1 * (q₁ * q₂) := by rw [heq]
+      _ = 1 := by group
+  obtain ⟨e3, e1, e2⟩ := h q₃ hq₃ q₁ hq₁ q₂ hq₂ hcyc
+  exact ⟨e1, e2, e3⟩
+
+/-- **The pairwise sum-product bound** [math/0307321, CU.tex:487–494]: for a TPP
+triple `(S, T, U)` of nonempty finsets, `|S|·|T| + |U| ≤ |G| + 1`.
+
+The product map `f(x, y) = x·y⁻¹` is injective on `S ×ˢ T` (if `x₁ y₁⁻¹ = x₂ y₂⁻¹`
+then `x₂⁻¹ x₁ = y₂⁻¹ y₁ ∈ Q(S) ∩ Q(T) = {1}` by `leftQuot_inter_ST`), so its
+image `Im` has `|S|·|T|` elements. Choosing base points `s₀ ∈ S`, `t₀ ∈ T`, the
+translate `W = s₀·(Q(U) \ {1})·t₀⁻¹` has `|Q(U)| - 1 ≥ |U| - 1` elements and is
+disjoint from `Im`: a common element yields `q₁ q₂ q⁻¹ = 1` with
+`q₁ = s₀⁻¹ x ∈ Q(S)`, `q₂ = y⁻¹ t₀ ∈ Q(T)`, `q ∈ Q(U) \ {1}`, contradicting the
+TPP via `tripleProductProperty_iff_leftQuot`. Disjoint union in `G` gives the
+bound. Taking `|U| ≥ 1` recovers `|S|·|T| ≤ |G|`; `|U| ≥ 2` makes it strict. -/
+theorem pairSumBound {S T U : Finset G} (h : TripleProductProperty S T U)
+    (hS : S.Nonempty) (hT : T.Nonempty) (hU : U.Nonempty) :
+    S.card * T.card + U.card ≤ Fintype.card G + 1 := by
+  classical
+  obtain ⟨s₀, hs₀⟩ := hS
+  obtain ⟨t₀, ht₀⟩ := hT
+  -- the injective product image `Im = { x * y⁻¹ : x ∈ S, y ∈ T }`
+  have hinj : Set.InjOn (fun p : G × G => p.1 * p.2⁻¹) (↑(S ×ˢ T) : Set (G × G)) := by
+    intro a ha b hb hab
+    obtain ⟨x, y⟩ := a
+    obtain ⟨x', y'⟩ := b
+    rw [Finset.mem_coe, Finset.mem_product] at ha hb
+    simp only at hab
+    have hq : x'⁻¹ * x = y'⁻¹ * y := by
+      calc x'⁻¹ * x = x'⁻¹ * (x * y⁻¹) * y := by group
+        _ = x'⁻¹ * (x' * y'⁻¹) * y := by rw [hab]
+        _ = y'⁻¹ * y := by group
+    have hmem : x'⁻¹ * x ∈ leftQuot S ∩ leftQuot T := Finset.mem_inter.mpr
+      ⟨mem_leftQuot.mpr ⟨x, ha.1, x', hb.1, rfl⟩,
+       by rw [hq]; exact mem_leftQuot.mpr ⟨y, ha.2, y', hb.2, rfl⟩⟩
+    rw [leftQuot_inter_ST h ⟨s₀, hs₀⟩ ⟨t₀, ht₀⟩ hU, Finset.mem_singleton] at hmem
+    have hxx : x = x' := (inv_mul_eq_one.mp hmem).symm
+    have hyy : y = y' := (inv_mul_eq_one.mp (hq.symm.trans hmem)).symm
+    simp only [Prod.mk.injEq]
+    exact ⟨hxx, hyy⟩
+  have hIm_card : ((S ×ˢ T).image (fun p : G × G => p.1 * p.2⁻¹)).card
+      = S.card * T.card := by
+    rw [Finset.card_image_of_injOn hinj, Finset.card_product]
+  -- the disjoint translate `W = s₀ * (Q(U) \ {1}) * t₀⁻¹`
+  have hg_inj : Function.Injective (fun q : G => s₀ * q * t₀⁻¹) := by
+    intro a b hab
+    simp only at hab
+    exact mul_left_cancel (mul_right_cancel hab)
+  have hW_card : (((leftQuot U).erase 1).image (fun q : G => s₀ * q * t₀⁻¹)).card
+      = ((leftQuot U).erase 1).card := Finset.card_image_of_injective _ hg_inj
+  have hdisj : Disjoint ((S ×ˢ T).image (fun p : G × G => p.1 * p.2⁻¹))
+      (((leftQuot U).erase 1).image (fun q : G => s₀ * q * t₀⁻¹)) := by
+    rw [Finset.disjoint_left]
+    intro w hwIm hwW
+    rw [Finset.mem_image] at hwIm hwW
+    obtain ⟨⟨x, y⟩, hxy, hw1⟩ := hwIm
+    rw [Finset.mem_product] at hxy
+    simp only at hw1
+    obtain ⟨q, hqE, hw2⟩ := hwW
+    simp only at hw2
+    rw [Finset.mem_erase] at hqE
+    obtain ⟨hqne, hqU⟩ := hqE
+    have hq1 : s₀⁻¹ * x ∈ leftQuot S := mem_leftQuot.mpr ⟨x, hxy.1, s₀, hs₀, rfl⟩
+    have hq2 : y⁻¹ * t₀ ∈ leftQuot T := mem_leftQuot.mpr ⟨t₀, ht₀, y, hxy.2, rfl⟩
+    have hq3 : q⁻¹ ∈ leftQuot U := inv_mem_leftQuot hqU
+    have hxyq : x * y⁻¹ = s₀ * q * t₀⁻¹ := by rw [hw1, ← hw2]
+    have hprod12 : (s₀⁻¹ * x) * (y⁻¹ * t₀) = q := by
+      calc (s₀⁻¹ * x) * (y⁻¹ * t₀) = s₀⁻¹ * (x * y⁻¹) * t₀ := by group
+        _ = s₀⁻¹ * (s₀ * q * t₀⁻¹) * t₀ := by rw [hxyq]
+        _ = q := by group
+    have hprod : (s₀⁻¹ * x) * (y⁻¹ * t₀) * q⁻¹ = 1 := by rw [hprod12]; group
+    obtain ⟨_, _, hq3eq⟩ := (tripleProductProperty_iff_leftQuot.mp h)
+      (s₀⁻¹ * x) hq1 (y⁻¹ * t₀) hq2 q⁻¹ hq3 hprod
+    exact hqne (inv_eq_one.mp hq3eq)
+  -- counting: the disjoint union sits inside `G`
+  have hunion : (((S ×ˢ T).image (fun p : G × G => p.1 * p.2⁻¹)) ∪
+      (((leftQuot U).erase 1).image (fun q : G => s₀ * q * t₀⁻¹))).card
+      ≤ Fintype.card G := by
+    rw [← Finset.card_univ]; exact Finset.card_le_card (Finset.subset_univ _)
+  rw [Finset.card_union_of_disjoint hdisj, hIm_card, hW_card] at hunion
+  have hUcard : ((leftQuot U).erase 1).card + 1 = (leftQuot U).card :=
+    Finset.card_erase_add_one (one_mem_leftQuot hU)
+  have hUge : U.card ≤ (leftQuot U).card := card_le_card_leftQuot hU
+  omega
+
+end PairwiseBounds
+
 /-! ### The universal lower bound: `α(G) > 2` (sorry) -/
 
 /-- **The universal pseudo-exponent lower bound:** every nontrivial finite group

@@ -76,6 +76,51 @@ tensor. -/
 theorem T4_eq_contract : T4 = contract₁ P_base (matMulTensor (ZMod 2) 2 2 2) := by
   decide
 
+/-- **Single forced-product swap (Hopcroft–Kerr exchange, one step).** In a
+decomposition `∑ u_s ⊗ v_s ⊗ w_s` whose slice at a fixed C-coordinate `z₀`
+is the single product `p ⊗ q`, any term `s₀` with `w_{s₀}(z₀) = 1` can be
+exchanged so that term `s₀` becomes literally `p ⊗ q ⊗ w_{s₀}`, keeping the
+same number of terms and leaving every other term's `A,B` parts unchanged. -/
+theorem swap_forced {k : Type*} [CommRing k] {a b c r : ℕ}
+    (u : Fin r → Fin a → k) (v : Fin r → Fin b → k) (w : Fin r → Fin c → k)
+    (z₀ : Fin c) (p : Fin a → k) (q : Fin b → k)
+    (hslice : ∀ i j, ∑ s, u s i * v s j * w s z₀ = p i * q j)
+    (s₀ : Fin r) (hs₀ : w s₀ z₀ = 1) :
+    ∃ (u' : Fin r → Fin a → k) (v' : Fin r → Fin b → k) (w' : Fin r → Fin c → k),
+      (∀ i j l, ∑ s, u' s i * v' s j * w' s l = ∑ s, u s i * v s j * w s l) ∧
+      u' s₀ = p ∧ v' s₀ = q ∧ (∀ s, s ≠ s₀ → u' s = u s ∧ v' s = v s) := by
+  refine ⟨fun s => if s = s₀ then p else u s,
+          fun s => if s = s₀ then q else v s,
+          fun s => if s = s₀ then w s₀ else fun l => w s l - w s z₀ * w s₀ l,
+          ?_, by simp, by simp, ?_⟩
+  · intro i j l
+    have key : ∀ s, (if s = s₀ then p else u s) i * (if s = s₀ then q else v s) j *
+          (if s = s₀ then w s₀ else fun l => w s l - w s z₀ * w s₀ l) l
+        = u s i * v s j * w s l +
+          (if s = s₀ then p i * q j - u s₀ i * v s₀ j
+            else -(u s i * v s j * w s z₀)) * w s₀ l := by
+      intro s
+      by_cases hs : s = s₀
+      · subst hs; simp only [if_pos rfl]; ring
+      · simp only [if_neg hs]; ring
+    have hzero : (∑ s, if s = s₀ then p i * q j - u s₀ i * v s₀ j
+        else -(u s i * v s j * w s z₀)) = 0 := by
+      have h1 : (∑ s, ((if s = s₀ then p i * q j - u s₀ i * v s₀ j
+            else -(u s i * v s j * w s z₀)) + u s i * v s j * w s z₀))
+          = ∑ s, (if s = s₀ then p i * q j else 0) := by
+        apply Finset.sum_congr rfl
+        intro s _
+        by_cases hs : s = s₀
+        · subst hs; simp only [if_pos rfl, hs₀, mul_one]; ring
+        · simp only [if_neg hs]; ring
+      rw [Finset.sum_add_distrib, Finset.sum_ite_eq' Finset.univ s₀ (fun _ => p i * q j),
+        Finset.mem_univ, if_true, hslice i j] at h1
+      linear_combination h1
+    rw [Finset.sum_congr rfl (fun s _ => key s), Finset.sum_add_distrib, ← Finset.sum_mul,
+      hzero, zero_mul, add_zero]
+  · intro s hs
+    simp [hs]
+
 /-- **Hopcroft–Kerr forced product (orbit 4).** The 2×4×4 tensor `T4` has
 rank at least 6. This is the hard core: the two rank-1 C-slices at `c₀₀`
 and `c₁₀` are single products that any decomposition may be assumed to
