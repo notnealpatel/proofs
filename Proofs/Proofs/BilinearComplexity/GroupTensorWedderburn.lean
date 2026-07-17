@@ -82,7 +82,13 @@ private theorem trace_eq_pair {d : ℕ} (X Y Z : Matrix (Fin d) (Fin d) ℂ) :
     Matrix.trace (X * Y * Z)
       = ∑ x, ∑ y, ∑ z, matMulTensor ℂ d d d x y z
           * (flat X x * flat Y y * flat Z z) := by
-  sorry
+  simp only [← Equiv.sum_comp (finProdFinEquiv : Fin d × Fin d ≃ Fin (d * d)),
+    matMulTensor_apply, flat, Equiv.symm_apply_apply, Fintype.sum_prod_type,
+    ite_and, ite_mul, one_mul, zero_mul, Finset.sum_ite_irrel,
+    Finset.sum_ite_eq, Finset.sum_ite_eq', Finset.sum_const_zero,
+    Finset.mem_univ, if_true]
+  simp only [Matrix.trace, Matrix.diag_apply, Matrix.mul_apply, Finset.sum_mul]
+  exact Finset.sum_congr rfl fun p _ => Finset.sum_comm
 
 /-- Pairing a triad-decomposed tensor against three vectors factors as a sum
 of products of linear evaluations. -/
@@ -91,7 +97,29 @@ private theorem pair_of_decomp {a b c r : ℕ} (u : Fin r → Fin a → ℂ)
     (X : Fin a → ℂ) (Y : Fin b → ℂ) (Z : Fin c → ℂ) :
     ∑ x, ∑ y, ∑ z, (∑ s, u s x * v s y * w s z) * (X x * Y y * Z z)
       = ∑ s, (∑ x, u s x * X x) * (∑ y, v s y * Y y) * (∑ z, w s z * Z z) := by
-  sorry
+  simp only [Finset.sum_mul, Finset.mul_sum]
+  have h1 : ∀ (F : Fin a → Fin b → Fin c → Fin r → ℂ),
+      ∑ x, ∑ y, ∑ z, ∑ s, F x y z s = ∑ s, ∑ x, ∑ y, ∑ z, F x y z s := fun F =>
+    calc ∑ x, ∑ y, ∑ z, ∑ s, F x y z s
+        = ∑ x, ∑ y, ∑ s, ∑ z, F x y z s :=
+          Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun y _ =>
+            Finset.sum_comm
+      _ = ∑ x, ∑ s, ∑ y, ∑ z, F x y z s :=
+          Finset.sum_congr rfl fun x _ => Finset.sum_comm
+      _ = ∑ s, ∑ x, ∑ y, ∑ z, F x y z s := Finset.sum_comm
+  have h2 : ∀ (F : Fin a → Fin b → Fin c → ℂ),
+      ∑ z, ∑ y, ∑ x, F x y z = ∑ x, ∑ y, ∑ z, F x y z := fun F =>
+    calc ∑ z, ∑ y, ∑ x, F x y z
+        = ∑ z, ∑ x, ∑ y, F x y z :=
+          Finset.sum_congr rfl fun z _ => Finset.sum_comm
+      _ = ∑ x, ∑ z, ∑ y, F x y z := Finset.sum_comm
+      _ = ∑ x, ∑ y, ∑ z, F x y z :=
+          Finset.sum_congr rfl fun x _ => Finset.sum_comm
+  rw [h1]
+  refine Finset.sum_congr rfl fun s _ => ?_
+  rw [h2]
+  exact Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun y _ =>
+    Finset.sum_congr rfl fun z _ => by ring
 
 /-! ## 3. Linear functionals on a matrix algebra are `tr (Λ · —)` -/
 
@@ -106,7 +134,21 @@ representing matrix: `tr (lamMat μ * W) = μ W`. -/
 private theorem trace_lamMat_mul {d : ℕ}
     (μ : Matrix (Fin d) (Fin d) ℂ →ₗ[ℂ] ℂ) (W : Matrix (Fin d) (Fin d) ℂ) :
     Matrix.trace (lamMat μ * W) = μ W := by
-  sorry
+  have hL : Matrix.trace (lamMat μ * W)
+      = ∑ q, ∑ p, μ (Matrix.single p q 1) * W p q := by
+    simp only [Matrix.trace, Matrix.diag_apply, Matrix.mul_apply, lamMat,
+      Matrix.of_apply]
+  have hR : μ W = ∑ p, ∑ q, W p q * μ (Matrix.single p q 1) := by
+    conv_lhs => rw [Matrix.matrix_eq_sum_single W]
+    rw [map_sum]
+    refine Finset.sum_congr rfl fun p _ => ?_
+    rw [map_sum]
+    refine Finset.sum_congr rfl fun q _ => ?_
+    rw [show Matrix.single p q (W p q) = (W p q) • Matrix.single p q (1 : ℂ) by
+      rw [Matrix.smul_single, smul_eq_mul, mul_one], map_smul, smul_eq_mul]
+  rw [hL, hR, Finset.sum_comm]
+  exact Finset.sum_congr rfl fun p _ => Finset.sum_congr rfl fun q _ =>
+    mul_comm _ _
 
 /-! ## 4. The per-block decomposition -/
 
@@ -122,7 +164,11 @@ private theorem blockDecomp {d r : ℕ} {u v w : Fin r → Fin (d * d) → ℂ}
       = ∑ s, (∑ x', u s x' * flat (lamMat μ * X) x')
           * (∑ y', v s y' * flat Y y')
           * (∑ z', w s z' * flat Z z') := by
-  sorry
+  rw [← trace_lamMat_mul μ (X * Y * Z),
+    show lamMat μ * (X * Y * Z) = lamMat μ * X * Y * Z by
+      simp only [mul_assoc],
+    trace_eq_pair, h]
+  exact pair_of_decomp u v w (flat (lamMat μ * X)) (flat Y) (flat Z)
 
 /-! ## 5. The coefficient-of-identity functional on the group algebra -/
 
