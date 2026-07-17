@@ -25,6 +25,7 @@ from sage.all import PermutationGroup, PermutationGroupElement, libgap
 
 
 def parse_args():
+    argv = [a for a in sys.argv[1:] if a != "--"]
     parser = argparse.ArgumentParser(description="Verify a TPP witness")
     parser.add_argument("--target", help="GAP constructor string")
     parser.add_argument("--p", type=int, help="Prime for B = C_p")
@@ -39,7 +40,7 @@ def parse_args():
                         help="U' is untwisted (f_U = 0)")
     parser.add_argument("--stdin", action="store_true",
                         help="Read JSON config from stdin")
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def unique_index_p_kernel(H, p):

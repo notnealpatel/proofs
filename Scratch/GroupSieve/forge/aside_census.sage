@@ -47,29 +47,41 @@
 #         plus a summary record per (target, p)).
 
 import json
+import os
 import sys
 import time
 import itertools
 import argparse
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from forgelib import sanitize, dump_jsonl
+
 from sage.all import libgap, GF, matrix
 
 
+def jdumps(obj):
+    """JSON-serialize with Sage type sanitization."""
+    return dump_jsonl(obj)
+
+
 # ---------------------------------------------------------------------------
-# Argument parsing
+# Argument parsing (strip Sage's '--' from argv)
 # ---------------------------------------------------------------------------
 
 def parse_args():
+    argv = [a for a in sys.argv[1:] if a != "--"]
     parser = argparse.ArgumentParser(description="A-side census")
     parser.add_argument("--target", required=True,
                         help="GAP constructor string, e.g. AlternatingGroup(5)")
     parser.add_argument("--threshold", type=int, default=0,
-                        help="beta_0(G); configs with |Sigma| <= threshold are skipped")
+                        help="beta_0(G); configs with |Sigma| <= threshold are skipped in shape filter")
     parser.add_argument("--primes", default="2,3",
                         help="Comma-separated primes for B = C_p")
     parser.add_argument("--mode", choices=["census", "hunt"], default="census",
                         help="census = exhaustive; hunt = stop at first |Sigma| > threshold")
-    return parser.parse_args()
+    parser.add_argument("--raw", action="store_true",
+                        help="Raw mode: skip pruning assumptions 1,3 (for calibration vs blockedscan)")
+    return parser.parse_args(argv)
 
 
 # ---------------------------------------------------------------------------
@@ -78,17 +90,180 @@ def parse_args():
 
 def make_group(target_str):
     """Construct a GAP group from a string like 'AlternatingGroup(5)'."""
-    G = libgap.eval(target_str)
-    return G
+    return libgap.eval(target_str)
 
 
 # ---------------------------------------------------------------------------
-# Subgroup lattice and metadata
+# Character data for a subgroup (mod-p abelianization)
+# ---------------------------------------------------------------------------
+
+def compute_char_data(H, p):
+    """Compute F_p character data for H.
+
+    Returns dict with:
+      "dim":     dimension of H^ab tensor F_p
+      "vecs":    list of F_p-vectors, one per element of H (same order as Elements(H))
+      "elems":   list of GAP elements of H
+      "kernels": list of frozensets of element indices (one per distinct nontrivial kernel)
+    """
+    D = libgap.DerivedSubgroup(H)
+    q = libgap.NaturalHomomorphismByNormalSubgroup(H, D)
+    F = libgap.Image(q)
+    libgap.IsAbelian(F)
+    invs = [int(v) for v in libgap.AbelianInvariants(F)]
+    slots = [j for j, d in enumerate(invs) if d % p == 0]
+    dim = len(slots)
+    elems = list(libgap.Elements(H))
+    vecs = []
+    for x in elems:
+        if not invs:
+            vecs.append(())
+            continue
+        img = libgap.Image(q, x)
+        ex = [int(t) for t in libgap.IndependentGeneratorExponents(F, img)]
+        vecs.append(tuple(ex[j] % p for j in slots))
+
+    # Enumerate all distinct nontrivial kernels
+    kernels = set()
+    for lam in itertools.product(range(p), repeat=dim):
+        if not any(lam):
+            continue
+        ker = frozenset(i for i, v in enumerate(vecs)
+                        if sum(a * b for a, b in zip(lam, v)) % p == 0)
+        kernels.add(ker)
+    kernels = list(kernels)
+    return {"dim": dim, "vecs": vecs, "elems": elems, "kernels": kernels}
+
+
+# ---------------------------------------------------------------------------
+# Blockedness check (Assumption 4)
+# ---------------------------------------------------------------------------
+
+def consistent_ones(vs, p):
+    """Does there exist lambda in F_p^dim with <lambda, v> = 1 (mod p)
+    for all v in vs?  Returns True iff such lambda exists (member UNBLOCKED).
+    Rouché-Capelli: solvable iff rank(A) == rank(A|1)."""
+    if not vs:
+        return True
+    d = len(vs[0])
+    if d == 0:
+        return False
+    Fp = GF(p)
+    A = matrix(Fp, vs)
+    Ab = A.augment(matrix(Fp, [[1]] * len(vs)))
+    return A.rank() == Ab.rank()
+
+
+def member_blocked(vecs, coll_indices, p):
+    """Is member X blocked?  Blocked iff no lambda with lambda(x_c)=1
+    for every collision c."""
+    vs = [vecs[i] for i in coll_indices]
+    return not consistent_ones(vs, p)
+
+
+# ---------------------------------------------------------------------------
+# Raw exhaustive census (blockedscan-compatible, for S_4 calibration)
+# ---------------------------------------------------------------------------
+
+def run_raw_census(G, target_name, p):
+    """Exhaustive enumeration matching blockedscan.sage: all ordered triples
+    of subgroups (sizes >= 2), all character triples with k >= 1.
+    Returns (n_eligible, n_blocked)."""
+    t0 = time.time()
+    e1 = libgap.One(G)
+
+    # Collect all subgroups
+    subs = []
+    for c in libgap.ConjugacyClassesSubgroups(G):
+        for H in libgap.AsList(c):
+            subs.append(H)
+    n = len(subs)
+    sizes = [int(libgap.Size(H)) for H in subs]
+    print("RAW census: %d subgroups, p=%d" % (n, p), flush=True)
+
+    # Precompute element lists and char data
+    elts = [list(libgap.Elements(H)) for H in subs]
+    keys = [{str(x): i for i, x in enumerate(E)} for E in elts]
+    cds = [compute_char_data(H, p) for H in subs]
+
+    n_eligible = 0
+    n_blocked = 0
+    last_progress = time.time()
+
+    for iS in range(n):
+        if sizes[iS] < 2:
+            continue
+        dS = cds[iS]
+        for iT in range(n):
+            if sizes[iT] < 2:
+                continue
+            dT = cds[iT]
+            for iU in range(n):
+                if sizes[iU] < 2:
+                    continue
+                dU = cds[iU]
+
+                # Collision list
+                colls = []
+                for a, x in enumerate(elts[iS]):
+                    for b, y in enumerate(elts[iT]):
+                        z = (x * y) ** (-1)
+                        kz = keys[iU].get(str(z))
+                        if kz is not None:
+                            if x == e1 and y == e1 and z == e1:
+                                continue
+                            colls.append((a, b, kz))
+                if not colls:
+                    continue
+
+                # Character triple enumeration (k >= 1: not all zero)
+                for lamS in itertools.product(range(p), repeat=dS["dim"]):
+                    for lamT in itertools.product(range(p), repeat=dT["dim"]):
+                        for lamU in itertools.product(range(p), repeat=dU["dim"]):
+                            if not any(lamS) and not any(lamT) and not any(lamU):
+                                continue
+                            ok = True
+                            for (a, b, c) in colls:
+                                psi = (sum(x * y for x, y in zip(lamS, dS["vecs"][a]))
+                                       + sum(x * y for x, y in zip(lamT, dT["vecs"][b]))
+                                       + sum(x * y for x, y in zip(lamU, dU["vecs"][c]))) % p
+                                if psi == 0:
+                                    ok = False
+                                    break
+                            if not ok:
+                                continue
+                            n_eligible += 1
+                            bS = member_blocked(dS["vecs"], [a for (a, _, _) in colls], p)
+                            if not bS:
+                                continue
+                            bT = member_blocked(dT["vecs"], [b for (_, b, _) in colls], p)
+                            if not bT:
+                                continue
+                            bU = member_blocked(dU["vecs"], [c for (_, _, c) in colls], p)
+                            if not bU:
+                                continue
+                            n_blocked += 1
+
+                now = time.time()
+                if now - last_progress >= 15:
+                    print("RAW progress: iS=%d/%d eligible=%d blocked=%d elapsed=%.1fs"
+                          % (iS, n, n_eligible, n_blocked, now - t0), flush=True)
+                    last_progress = now
+
+    elapsed = time.time() - t0
+    result = {"type": "raw_summary", "target": target_name, "p": int(p),
+              "n_subs": int(n), "eligible": int(n_eligible), "blocked": int(n_blocked),
+              "elapsed_seconds": float(elapsed)}
+    print(jdumps(result), flush=True)
+    return n_eligible, n_blocked
+
+
+# ---------------------------------------------------------------------------
+# Subgroup lattice
 # ---------------------------------------------------------------------------
 
 def build_lattice(G):
-    """Return list of (class_rep, copies_list, order, sd, n_idx_p_subs)
-    for each conjugacy class of subgroups."""
+    """Build subgroup conjugacy class list with copies."""
     nG = int(libgap.Size(G))
     classes = []
     for c in libgap.ConjugacyClassesSubgroups(G):
@@ -99,31 +274,21 @@ def build_lattice(G):
                   for rc in libgap.RightTransversal(G, N)]
         sd = str(libgap.StructureDescription(rep))
         classes.append({
-            "rep": rep,
-            "copies": copies,
-            "order": order,
-            "sd": sd,
-            "n_copies": len(copies),
+            "rep": rep, "copies": copies, "order": order,
+            "sd": sd, "n_copies": len(copies),
         })
     return classes, nG
 
 
-def twistable_classes(classes, p):
-    """Return indices of classes whose members admit a C_p quotient
-    (have a normal subgroup of index p).  Also annotate each class
-    with the number of distinct C_p characters."""
+def twistable_indices(classes, p):
+    """Indices of classes admitting a C_p quotient."""
     result = []
     for i, cl in enumerate(classes):
-        H = cl["rep"]
-        order = cl["order"]
-        if order < p:
+        if cl["order"] < p or cl["order"] % p != 0:
             continue
-        if order % p != 0:
-            continue
-        # Count normal subgroups of index p
         n_chars = 0
-        for K in libgap.NormalSubgroups(H):
-            if int(libgap.Size(K)) * p == order:
+        for K in libgap.NormalSubgroups(cl["rep"]):
+            if int(libgap.Size(K)) * p == cl["order"]:
                 n_chars += 1
         if n_chars > 0:
             cl["n_p_chars"] = n_chars
@@ -131,169 +296,55 @@ def twistable_classes(classes, p):
     return result
 
 
-def all_class_sizes(classes):
-    """Return sorted list of unique orders."""
-    return sorted(set(cl["order"] for cl in classes))
-
-
-# ---------------------------------------------------------------------------
-# Character data for a subgroup (mod-p abelianization)
-# ---------------------------------------------------------------------------
-
-def char_data_p2(H):
-    """Compute F_2 character data for H (p=2).
-    Returns: {"dim": d, "vecs": [tuple_per_element], "kernels": [frozenset_of_element_indices]}
-    where element indices are positions in list(Elements(H))."""
-    D = libgap.DerivedSubgroup(H)
-    q = libgap.NaturalHomomorphismByNormalSubgroup(H, D)
-    F = libgap.Image(q)
-    libgap.IsAbelian(F)
-    invs = [int(v) for v in libgap.AbelianInvariants(F)]
-    slots = [j for j, d in enumerate(invs) if d % 2 == 0]
-    dim = len(slots)
-    elems = list(libgap.Elements(H))
-    vecs = []
-    for x in elems:
-        if len(invs) == 0:
-            vecs.append(())
-            continue
-        img = libgap.Image(q, x)
-        ex = [int(t) for t in libgap.IndependentGeneratorExponents(F, img)]
-        vecs.append(tuple(ex[j] % 2 for j in slots))
-    # Enumerate all nontrivial characters (nonzero lambda in F_2^dim)
-    kernels = []
-    for lam in itertools.product([0, 1], repeat=dim):
-        if not any(lam):
-            continue
-        ker = frozenset(i for i, v in enumerate(vecs)
-                        if sum(a * b for a, b in zip(lam, v)) % 2 == 0)
-        kernels.append(ker)
-    # Deduplicate kernels
-    kernels = list(set(kernels))
-    return {"dim": dim, "vecs": vecs, "elems": elems, "kernels": kernels}
-
-
-def char_data_p3(H):
-    """Compute F_3 character data for H (p=3).
-    Returns same schema as char_data_p2 but for p=3 characters."""
-    D = libgap.DerivedSubgroup(H)
-    q = libgap.NaturalHomomorphismByNormalSubgroup(H, D)
-    F = libgap.Image(q)
-    libgap.IsAbelian(F)
-    invs = [int(v) for v in libgap.AbelianInvariants(F)]
-    slots = [j for j, d in enumerate(invs) if d % 3 == 0]
-    dim = len(slots)
-    elems = list(libgap.Elements(H))
-    vecs = []
-    for x in elems:
-        if len(invs) == 0:
-            vecs.append(())
-            continue
-        img = libgap.Image(q, x)
-        ex = [int(t) for t in libgap.IndependentGeneratorExponents(F, img)]
-        vecs.append(tuple(ex[j] % 3 for j in slots))
-    # Enumerate all nontrivial characters (nonzero lambda in F_3^dim)
-    kernels = []
-    for lam in itertools.product(range(3), repeat=dim):
-        if not any(lam):
-            continue
-        ker = frozenset(i for i, v in enumerate(vecs)
-                        if sum(a * b for a, b in zip(lam, v)) % 3 == 0)
-        kernels.append(ker)
-    kernels = list(set(kernels))
-    return {"dim": dim, "vecs": vecs, "elems": elems, "kernels": kernels}
-
-
-def char_data(H, p):
-    if p == 2:
-        return char_data_p2(H)
-    elif p == 3:
-        return char_data_p3(H)
-    else:
-        raise ValueError("unsupported prime %d" % p)
-
-
-# ---------------------------------------------------------------------------
-# Blockedness check (Assumption 4)
-# ---------------------------------------------------------------------------
-
-def consistent_ones_p(vs, p):
-    """Check if there exists lambda in F_p^dim with <lambda, v> = 1 (mod p)
-    for all v in vs.  Returns True if such lambda exists (member is unblocked).
-    For p=2: rank(A) == rank(A|1) over GF(2).
-    For p=3: rank(A) == rank(A|1) over GF(3)."""
-    if not vs:
-        return True  # no collisions => trivially unblocked
-    d = len(vs[0])
-    if d == 0:
-        return False  # only zero character; can never satisfy <lam,v>=1
-    Fp = GF(p)
-    A = matrix(Fp, vs)
-    ones = matrix(Fp, [[1]] * len(vs))
-    Ab = A.augment(ones)
-    return A.rank() == Ab.rank()
-
-
-def is_blocked(member_vecs, collision_component_indices, p):
-    """A member X is blocked iff no character lambda of X has
-    lambda(x_c) = 1 for every collision c.  Equivalently, the
-    F_p system {<lam, vec(x_c)> = 1} is inconsistent."""
-    vs = [member_vecs[i] for i in collision_component_indices]
-    return not consistent_ones_p(vs, p)
-
-
 # ---------------------------------------------------------------------------
 # Forced-intersection cache
 # ---------------------------------------------------------------------------
 
-def build_forced_intersection_cache(classes, nG):
-    """For each pair of class indices (i, j) with i <= j, determine whether
-    any pairwise-trivial pair of copies exists.  Returns dict (i,j) -> bool."""
+def build_fi_cache(classes, nG):
+    """For each pair of class indices (i,j), i<=j, check whether any
+    pair of copies has trivial intersection."""
     cache = {}
-    n = len(classes)
     t0 = time.time()
-    for i in range(n):
-        for j in range(i, n):
-            ci = classes[i]
-            cj = classes[j]
-            if ci["order"] * cj["order"] > nG:
+    for i in range(len(classes)):
+        for j in range(i, len(classes)):
+            if classes[i]["order"] * classes[j]["order"] > nG:
                 cache[(i, j)] = False
                 continue
             found = False
-            # Check all pairs of copies
-            for Hi in ci["copies"]:
-                for Hj in cj["copies"]:
-                    inter = libgap.Intersection(Hi, Hj)
-                    if int(libgap.Size(inter)) == 1:
+            for Hi in classes[i]["copies"]:
+                for Hj in classes[j]["copies"]:
+                    if int(libgap.Size(libgap.Intersection(Hi, Hj))) == 1:
                         found = True
                         break
                 if found:
                     break
             cache[(i, j)] = found
-    elapsed = time.time() - t0
-    print("FORCED-INTERSECTION cache built: %d pairs in %.1fs" % (len(cache), elapsed),
+    print("FORCED-INTERSECTION cache: %d pairs in %.1fs" % (len(cache), time.time() - t0),
           flush=True)
     return cache
 
 
-def pair_trivial_possible(cache, i, j):
-    """Can classes i and j have a pairwise-trivial pair?"""
+def fi_possible(cache, i, j):
     key = (min(i, j), max(i, j))
     return cache.get(key, False)
 
 
 # ---------------------------------------------------------------------------
-# Shape enumeration (spec section 1.2, step 1)
+# Shape enumeration (spec 1.2 step 1)
 # ---------------------------------------------------------------------------
 
-def enumerate_shapes(classes, twist_idx, all_sizes_idx, p, threshold, nG):
-    """Enumerate shapes (iS, iT, iU) with |Sigma| > threshold.
-    For k=3: all three indices in twist_idx.
-    For k=2: exactly two in twist_idx, third can be any class."""
+def enumerate_shapes(classes, twist_idx, p, threshold, nG):
+    """Enumerate (iA, iB, iC, k, sigma) shapes above threshold.
+    k=3: all three in twist_idx.
+    k=2: exactly two in twist_idx (the third is any class, untwisted)."""
     shapes = []
+    twist_set = set(twist_idx)
+    n_classes = len(classes)
 
-    # Assumption 3: k >= 2 characters must be nontrivial.
-    # k=3: all three members are twisted.
+    # Assumption 1: pairwise product bound s*t <= |G| (case alpha)
+    # Assumption 3: k >= 2
+
+    # k=3: all twisted
     for a in range(len(twist_idx)):
         iA = twist_idx[a]
         sA = classes[iA]["order"]
@@ -308,11 +359,11 @@ def enumerate_shapes(classes, twist_idx, all_sizes_idx, p, threshold, nG):
                 if sA * sC > nG or sB * sC > nG:
                     continue
                 sigma = sA * sB * sC // p
-                if sigma > threshold:
+                if sigma >= threshold:
                     shapes.append((iA, iB, iC, 3, sigma))
 
-    # k=2: exactly two twisted, one untwisted (f=0 slot).
-    # The untwisted member can be any subgroup class.
+    # k=2: two twisted (iA, iB), one untwisted (iC = any class)
+    # The untwisted member has f=0.
     for a in range(len(twist_idx)):
         iA = twist_idx[a]
         sA = classes[iA]["order"]
@@ -321,471 +372,265 @@ def enumerate_shapes(classes, twist_idx, all_sizes_idx, p, threshold, nG):
             sB = classes[iB]["order"]
             if sA * sB > nG:
                 continue
-            # Third (untwisted) slot: any class
-            for iC in range(len(classes)):
-                if iC in (iA, iB):
-                    # same class is ok (distinct copies), but handle via k=3 above
-                    # only skip if iC is a twist class already handled
-                    pass
+            for iC in range(n_classes):
                 sC = classes[iC]["order"]
                 if sA * sC > nG or sB * sC > nG:
                     continue
                 sigma = sA * sB * sC // p
                 if sigma <= threshold:
                     continue
-                # Ensure this isn't a duplicate of a k=3 shape
-                triple = tuple(sorted([iA, iB, iC]))
-                if iC in twist_idx:
-                    # This would be a k=3 shape, already enumerated above
-                    # Only count it as k=2 if iC is NOT in twist_idx
-                    # Actually, k=2 means we specifically set f_C=0.
-                    # So even if iC is twistable, we can have k=2 with f_C=0.
-                    # But the k=3 enumeration already covers (iA,iB,iC) with all three twisted.
-                    # k=2 with iC twistable but f_C=0 is a DIFFERENT character assignment.
-                    pass
                 shapes.append((iA, iB, iC, 2, sigma))
 
-    # Sort by sigma descending (for hunt mode: find biggest first)
+    # Deduplicate: a k=2 shape (iA, iB, iC) where iC is twistable
+    # is distinct from a k=3 shape (iA, iB, iC) because k=2 has f_C=0.
+    # Both are valid and must be checked.
+
+    # Sort by sigma descending (for hunt mode)
     shapes.sort(key=lambda s: -s[4])
     return shapes
 
 
 # ---------------------------------------------------------------------------
-# Frame enumeration (spec section 1.2, step 3)
+# Census pipeline per (target, p)
 # ---------------------------------------------------------------------------
 
-def enumerate_frames(classes, iS, iT, iU, fi_cache):
-    """Enumerate covering pairwise-trivial triples of actual subgroup copies.
-    Assumption 1: S' ∩ T' = S' ∩ U' = T' ∩ U' = 1 (case alpha)."""
-    # Check forced-intersection first
-    if not pair_trivial_possible(fi_cache, iS, iT):
-        return []
-    if not pair_trivial_possible(fi_cache, iS, iU):
-        return []
-    if not pair_trivial_possible(fi_cache, iT, iU):
-        return []
-
-    frames = []
-    cS = classes[iS]
-    cT = classes[iT]
-    cU = classes[iU]
-
-    # Fix one copy of S (WLOG by conjugation)
-    S0 = cS["copies"][0]
-    S0_set = set(libgap.Elements(S0))
-
-    for T in cT["copies"]:
-        T_set = set(libgap.Elements(T))
-        # Assumption 1: S' ∩ T' = 1
-        if len(S0_set & T_set) > 1:
-            continue
-        for U in cU["copies"]:
-            U_set = set(libgap.Elements(U))
-            # Assumption 1: S' ∩ U' = 1, T' ∩ U' = 1
-            if len(S0_set & U_set) > 1:
-                continue
-            if len(T_set & U_set) > 1:
-                continue
-            # Covering: <S', T', U'> = G
-            gen = libgap.Subgroup(classes[0]["copies"][0].Parent(),
-                                  list(libgap.GeneratorsOfGroup(S0)) +
-                                  list(libgap.GeneratorsOfGroup(T)) +
-                                  list(libgap.GeneratorsOfGroup(U)))
-            if int(libgap.Size(gen)) != int(libgap.Size(S0.Parent())):
-                continue
-            frames.append((S0, T, U))
-    return frames
-
-
-# ---------------------------------------------------------------------------
-# Collision enumeration and eligibility check (spec section 1.2, steps 4-5)
-# ---------------------------------------------------------------------------
-
-def compute_collisions(S_elems, T_elems, U_keys, e1):
-    """Compute collision list: (iS, iT, iU) indices where xyz=1,
-    x in S', y in T', z in U', not all identity.
-    x = (y*z)^{-1}.  We iterate over (y, z) pairs."""
-    colls = []
-    S_set = {str(x): i for i, x in enumerate(S_elems)}
-    for iT, y in enumerate(T_elems):
-        for iU, z in enumerate(U_keys):
-            x = (y * z[1]) ** (-1)
-            xs = str(x)
-            iS = S_set.get(xs)
-            if iS is not None:
-                if x == e1 and y == e1 and z[1] == e1:
-                    continue
-                colls.append((iS, iT, iU))
-    return colls
-
-
-def check_eligibility_and_blockedness(colls, cd_S, cd_T, cd_U,
-                                       k, twisted_slots, p):
-    """For each character triple with the given k-structure, check
-    eligibility (psi != 0 for all collisions) and blockedness.
-
-    twisted_slots: set of slot names ('S','T','U') that carry nontrivial chars.
-    For k=3: {'S','T','U'}.
-    For k=2: two of the three.
-
-    Returns list of eligible fully-blocked configs."""
-
-    results = []
-    n_eligible = 0
-
-    # Character enumeration per spec section 1.2 step 4
-    # For each twisted slot, enumerate nontrivial characters (kernel sets).
-    # For untwisted slot, the character is the zero map.
-    def slot_chars(cd, slot_name):
-        if slot_name not in twisted_slots:
-            # Untwisted: f = 0, kernel = all elements
-            return [frozenset(range(len(cd["elems"])))]
-        return cd["kernels"]
-
-    S_chars = slot_chars(cd_S, 'S')
-    T_chars = slot_chars(cd_T, 'T')
-    U_chars = slot_chars(cd_U, 'U')
-
-    for kerS in S_chars:
-        for kerT in T_chars:
-            for kerU in U_chars:
-                # Assumption 3: k >= 2 nontrivial characters
-                # Already enforced by construction.
-
-                # Eligibility check (spec step 5):
-                # For each collision, psi = f_S(x) + f_T(y) + f_U(z) mod p
-                # where f_X(x) = 0 if x in ker, else some nonzero value.
-                # For B = C_p, f_X maps to {0, 1, ..., p-1}.
-                # The character value for x not in ker is determined by
-                # which coset x lies in.  For p=2, it's simply 0/1.
-                # For p=3, we need actual coset values.
-                #
-                # Simpler approach for eligibility: psi != 0 means
-                # NOT ALL of (f_S(x), f_T(y), f_U(z)) sum to 0 mod p.
-                # For p=2: psi = (0 if x in kerS else 1) + (0 if y in kerT else 1)
-                #          + (0 if z in kerU else 1) mod 2.
-                # For p=3: we need the actual F_3 character values.
-
-                ok = True
-                for (iS, iT, iU) in colls:
-                    if p == 2:
-                        psi = ((0 if iS in kerS else 1) +
-                               (0 if iT in kerT else 1) +
-                               (0 if iU in kerU else 1)) % 2
-                    elif p == 3:
-                        # For p=3, use the vec representation.
-                        # The character value is sum(lam_j * vec_j) mod 3.
-                        # But we stored kernels as frozensets, not actual
-                        # character vectors.  We need the character values.
-                        # Use the vecs directly.
-                        vS = cd_S["vecs"][iS]
-                        vT = cd_T["vecs"][iT]
-                        vU = cd_U["vecs"][iU]
-                        # For untwisted slot, value is 0 regardless.
-                        fS_val = 0 if iS in kerS else None
-                        fT_val = 0 if iT in kerT else None
-                        fU_val = 0 if iU in kerU else None
-                        # We need the actual character value, not just in/out of kernel.
-                        # Abandon the kernel approach for p=3; use char vectors below.
-                        psi = -1  # sentinel
-                    else:
-                        psi = -1
-                    if p == 2:
-                        if psi == 0:
-                            ok = False
-                            break
-
-                if p == 3:
-                    # For p=3, we need to re-check using explicit character vectors.
-                    # This is handled in the p=3 path below.
-                    pass
-                elif not ok:
-                    continue
-                else:
-                    n_eligible += 1
-                    # Blockedness check (Assumption 4)
-                    bS = is_blocked(cd_S["vecs"], [iS for (iS, _, _) in colls], p)
-                    bT = is_blocked(cd_T["vecs"], [iT for (_, iT, _) in colls], p)
-                    bU = is_blocked(cd_U["vecs"], [iU for (_, _, iU) in colls], p)
-                    results.append({
-                        "n_eligible": 1,
-                        "blocked": [bS, bT, bU],
-                        "all_blocked": bS and bT and bU,
-                        "ncolls": len(colls),
-                    })
-                    continue
-
-    return results, n_eligible
-
-
-# ---------------------------------------------------------------------------
-# p=3 eligibility path using explicit character vectors
-# ---------------------------------------------------------------------------
-
-def check_eligibility_blockedness_p3(colls, cd_S, cd_T, cd_U,
-                                      k, twisted_slots):
-    """p=3 path: enumerate character triples as vectors in F_3^dim,
-    compute psi as sum of character values mod 3."""
-    results = []
-    n_eligible = 0
-    p = 3
-
-    def slot_lambdas(cd, slot_name):
-        """Return list of (lambda_vec,) for enumeration.
-        Untwisted: [(0,...,0)].
-        Twisted: all nonzero vectors in F_3^dim."""
-        dim = cd["dim"]
-        if slot_name not in twisted_slots:
-            return [tuple(0 for _ in range(dim))]
-        # All nonzero vectors in F_3^dim
-        nontrivial = []
-        for lam in itertools.product(range(3), repeat=dim):
-            if any(lam):
-                nontrivial.append(lam)
-        return nontrivial
-
-    S_lams = slot_lambdas(cd_S, 'S')
-    T_lams = slot_lambdas(cd_T, 'T')
-    U_lams = slot_lambdas(cd_U, 'U')
-
-    for lamS in S_lams:
-        for lamT in T_lams:
-            for lamU in U_lams:
-                ok = True
-                for (iS, iT, iU) in colls:
-                    vS = cd_S["vecs"][iS]
-                    vT = cd_T["vecs"][iT]
-                    vU = cd_U["vecs"][iU]
-                    fS_val = sum(a * b for a, b in zip(lamS, vS)) % 3
-                    fT_val = sum(a * b for a, b in zip(lamT, vT)) % 3
-                    fU_val = sum(a * b for a, b in zip(lamU, vU)) % 3
-                    psi = (fS_val + fT_val + fU_val) % 3
-                    if psi == 0:
-                        ok = False
-                        break
-                if not ok:
-                    continue
-                n_eligible += 1
-
-                # Blockedness check
-                bS = is_blocked(cd_S["vecs"], [iS for (iS, _, _) in colls], p)
-                bT = is_blocked(cd_T["vecs"], [iT for (_, iT, _) in colls], p)
-                bU = is_blocked(cd_U["vecs"], [iU for (_, _, iU) in colls], p)
-                results.append({
-                    "n_eligible": 1,
-                    "blocked": [bS, bT, bU],
-                    "all_blocked": bS and bT and bU,
-                    "ncolls": len(colls),
-                })
-    return results, n_eligible
-
-
-# ---------------------------------------------------------------------------
-# Main census loop
-# ---------------------------------------------------------------------------
-
-def run_census(G, target_name, primes, threshold, mode):
-    """Run the A-side census for one target group G."""
-
-    t_start = time.time()
-    nG = int(libgap.Size(G))
+def run_pipeline(G, classes, fi_cache, nG, target_name, p, threshold, mode):
+    """Run the census pipeline for one prime."""
+    tp_start = time.time()
     e1 = libgap.One(G)
-    print("TARGET %s |G|=%d threshold=%d mode=%s primes=%s"
-          % (target_name, nG, threshold, mode, primes), flush=True)
 
-    # Build subgroup lattice
-    print("Building subgroup lattice...", flush=True)
-    classes, nG = build_lattice(G)
-    n_subs = sum(cl["n_copies"] for cl in classes)
-    print("Lattice: %d classes, %d subgroups" % (len(classes), n_subs), flush=True)
+    twist_idx = twistable_indices(classes, p)
+    print("Twistable (p=%d): %s"
+          % (p, [(i, classes[i]["order"], classes[i]["sd"],
+                  classes[i].get("n_p_chars", 0)) for i in twist_idx]),
+          flush=True)
 
-    # Build forced-intersection cache
-    fi_cache = build_forced_intersection_cache(classes, nG)
+    if len(twist_idx) < 2:
+        print("Fewer than 2 twistable classes for p=%d; skip." % p, flush=True)
+        return {"type": "summary", "target": target_name, "p": p,
+                "max_sigma": 0, "configs_eligible": 0, "configs_blocked": 0,
+                "semantics": "exact" if mode == "census" else "lower_bound",
+                "beta0": threshold, "margin": -threshold if threshold else None,
+                "elapsed_seconds": time.time() - tp_start}
 
-    all_results = []
+    # Shape enumeration
+    # Assumption 1: case-alpha pairwise bound s*t <= |G|
+    # Assumption 3: k >= 2
+    shapes = enumerate_shapes(classes, twist_idx, p, threshold, nG)
+    print("Shapes above threshold: %d" % len(shapes), flush=True)
 
-    for p in primes:
-        tp_start = time.time()
-        print("\n=== PRIME p=%d ===" % p, flush=True)
+    max_sigma = 0       # max |Sigma| among fully-blocked eligible configs
+    max_elig_sigma = 0  # max |Sigma| among all eligible configs (diagnostic)
+    total_frames = 0
+    total_eligible = 0
+    total_blocked = 0
+    shapes_done = 0
+    last_progress = time.time()
+    kill_hit = None
 
-        # Identify twistable classes
-        twist_idx = twistable_classes(classes, p)
-        twist_sizes = [(i, classes[i]["order"], classes[i]["sd"],
-                        classes[i].get("n_p_chars", 0))
-                       for i in twist_idx]
-        print("Twistable classes (p=%d): %s" % (p, twist_sizes), flush=True)
+    for si, (iA, iB, iC, k, sigma) in enumerate(shapes):
+        shape_t0 = time.time()
 
-        if len(twist_idx) < 2:
-            print("Fewer than 2 twistable classes for p=%d; skip." % p, flush=True)
+        # Forced-intersection filter (Assumption 1)
+        if not fi_possible(fi_cache, iA, iB):
+            shapes_done += 1
+            continue
+        if not fi_possible(fi_cache, iA, iC):
+            shapes_done += 1
+            continue
+        if not fi_possible(fi_cache, iB, iC):
+            shapes_done += 1
             continue
 
-        # Shape enumeration (spec section 1.2, step 1)
-        # Assumption 1: case-alpha => pairwise product bound s*t <= |G|
-        # Assumption 3: k >= 2
-        shapes = enumerate_shapes(classes, twist_idx, list(range(len(classes))),
-                                  p, threshold, nG)
-        print("Shapes above threshold: %d" % len(shapes), flush=True)
+        # Determine twisted slots
+        if k == 3:
+            twisted = ('S', 'T', 'U')
+        else:
+            twisted = ('S', 'T')  # iC is untwisted
 
-        max_sigma = 0
-        total_frames = 0
-        total_eligible = 0
-        total_blocked = 0
-        shapes_checked = 0
-        last_progress = time.time()
+        # Frame enumeration: fix one copy of S (WLOG), iterate T, U copies
+        # Assumption 1: all pairwise intersections trivial
+        S0 = classes[iA]["copies"][0]
+        S0_elems = list(libgap.Elements(S0))
+        S0_set = set(str(x) for x in S0_elems)
+        S0_eidx = {str(x): i for i, x in enumerate(S0_elems)}
 
-        for si, (iA, iB, iC, k, sigma) in enumerate(shapes):
-            shape_t0 = time.time()
+        shape_frames = 0
+        shape_eligible = 0
+        shape_blocked = 0
 
-            # Forced-intersection filter (spec step 2)
-            # Already checked inside enumerate_frames, but pre-check here
-            # to avoid expensive frame enumeration.
-            skip = False
-            pairs_to_check = [(iA, iB), (iA, iC), (iB, iC)]
-            for (x, y) in pairs_to_check:
-                if not pair_trivial_possible(fi_cache, x, y):
-                    skip = True
-                    break
-            if skip:
-                shapes_checked += 1
-                now = time.time()
-                if now - last_progress >= 30:
-                    print("SHAPE (%d,%d,%d) p=%d k=%d: KILLED by forced-intersection [%d/%d shapes]"
-                          % (classes[iA]["order"], classes[iB]["order"], classes[iC]["order"],
-                             p, k, si + 1, len(shapes)), flush=True)
-                    last_progress = now
+        for T in classes[iB]["copies"]:
+            T_elems = list(libgap.Elements(T))
+            T_set = set(str(x) for x in T_elems)
+            # Assumption 1: S' ∩ T' = 1
+            if len(S0_set & T_set) > 1:
                 continue
+            T_eidx = {str(x): i for i, x in enumerate(T_elems)}
 
-            # Determine twisted slots
-            if k == 3:
-                twisted_slots = {'S', 'T', 'U'}
-            else:
-                # k=2: iA and iB are twisted, iC is untwisted
-                twisted_slots = {'S', 'T'}
+            for U in classes[iC]["copies"]:
+                U_elems = list(libgap.Elements(U))
+                U_set = set(str(x) for x in U_elems)
+                # Assumption 1: S' ∩ U' = 1, T' ∩ U' = 1
+                if len(S0_set & U_set) > 1:
+                    continue
+                if len(T_set & U_set) > 1:
+                    continue
 
-            # Frame enumeration (spec step 3)
-            frames = enumerate_frames(classes, iA, iB, iC, fi_cache)
+                # Covering check: <S', T', U'> = G
+                gen = libgap.Subgroup(G,
+                    list(libgap.GeneratorsOfGroup(S0)) +
+                    list(libgap.GeneratorsOfGroup(T)) +
+                    list(libgap.GeneratorsOfGroup(U)))
+                if int(libgap.Size(gen)) != nG:
+                    continue
 
-            shape_eligible = 0
-            shape_blocked = 0
-
-            for (S, T, U) in frames:
+                shape_frames += 1
                 total_frames += 1
 
-                # Compute character data for this frame's actual subgroup copies
-                cd_S = char_data(S, p)
-                cd_T = char_data(T, p)
-                cd_U = char_data(U, p)
+                # Compute char data for these specific copies
+                cd_S = compute_char_data(S0, p)
+                cd_T = compute_char_data(T, p)
+                cd_U = compute_char_data(U, p)
 
-                # Collision enumeration
-                S_elems = cd_S["elems"]
-                T_elems = cd_T["elems"]
-                U_elems_with_idx = list(enumerate(cd_U["elems"]))
-                U_keys = [(i, e) for i, e in U_elems_with_idx]
-
-                colls = compute_collisions(S_elems, T_elems, U_keys, e1)
+                # Collision enumeration: xyz=1, x in S', y in T', z in U'
+                U_eidx = {str(x): i for i, x in enumerate(U_elems)}
+                colls = []
+                for iT_idx, y in enumerate(T_elems):
+                    for iU_idx, z in enumerate(U_elems):
+                        x = (y * z) ** (-1)
+                        iS_idx = S0_eidx.get(str(x))
+                        if iS_idx is not None:
+                            if x == e1 and y == e1 and z == e1:
+                                continue
+                            colls.append((iS_idx, iT_idx, iU_idx))
 
                 if not colls:
-                    # No nontrivial collisions: honest triple, not interesting
-                    # (every character triple is eligible but no member is blocked)
                     continue
 
-                # Check eligibility and blockedness (spec steps 5-6)
-                if p == 2:
-                    results, n_elig = check_eligibility_and_blockedness(
-                        colls, cd_S, cd_T, cd_U, k, twisted_slots, p)
-                else:
-                    results, n_elig = check_eligibility_blockedness_p3(
-                        colls, cd_S, cd_T, cd_U, k, twisted_slots)
+                # Character enumeration and eligibility check
+                # For twisted slots: enumerate nontrivial lambda in F_p^dim
+                # For untwisted slot: lambda = 0 (f=0)
+                def get_lambdas(cd, is_twisted):
+                    if not is_twisted:
+                        return [tuple(0 for _ in range(cd["dim"]))]
+                    result = []
+                    for lam in itertools.product(range(p), repeat=cd["dim"]):
+                        if any(lam):
+                            result.append(lam)
+                    return result
 
-                shape_eligible += n_elig
-                total_eligible += n_elig
+                lams_S = get_lambdas(cd_S, 'S' in twisted)
+                lams_T = get_lambdas(cd_T, 'T' in twisted)
+                lams_U = get_lambdas(cd_U, 'U' in twisted)
 
-                for r in results:
-                    if r["all_blocked"]:
-                        shape_blocked += 1
-                        total_blocked += 1
-                        if sigma > max_sigma:
-                            max_sigma = sigma
+                for lamS in lams_S:
+                    for lamT in lams_T:
+                        for lamU in lams_U:
+                            # Eligibility: psi != 0 for all collisions
+                            ok = True
+                            for (a, b, c) in colls:
+                                fS_val = sum(x * y for x, y in zip(lamS, cd_S["vecs"][a])) % p
+                                fT_val = sum(x * y for x, y in zip(lamT, cd_T["vecs"][b])) % p
+                                fU_val = sum(x * y for x, y in zip(lamU, cd_U["vecs"][c])) % p
+                                psi = (fS_val + fT_val + fU_val) % p
+                                if psi == 0:
+                                    ok = False
+                                    break
+                            if not ok:
+                                continue
 
-                        # Emit config record
-                        rec = {
-                            "type": "config",
-                            "target": target_name,
-                            "p": p,
-                            "shape": [classes[iA]["order"], classes[iB]["order"],
-                                      classes[iC]["order"]],
-                            "shape_sd": [classes[iA]["sd"], classes[iB]["sd"],
-                                         classes[iC]["sd"]],
-                            "sigma": sigma,
-                            "k": k,
-                            "ncolls": r["ncolls"],
-                            "blocked": r["blocked"],
-                            "semantics": "exact" if mode == "census" else "lower_bound",
-                        }
-                        print(json.dumps(rec), flush=True)
+                            shape_eligible += 1
+                            total_eligible += 1
+                            if sigma > max_elig_sigma:
+                                max_elig_sigma = sigma
 
-                        # KILL check
-                        if sigma > threshold and threshold > 0:
-                            print("*** KILL CANDIDATE: |Sigma|=%d > beta_0=%d ***"
-                                  % (sigma, threshold), flush=True)
-                            if mode == "hunt":
-                                print("HUNT mode: stopping at first |Sigma| > threshold.",
-                                      flush=True)
-                                # Emit summary and return
-                                summary = {
-                                    "type": "summary",
-                                    "target": target_name,
-                                    "p": p,
-                                    "max_sigma": max_sigma,
-                                    "shapes_checked": shapes_checked,
-                                    "frames_checked": total_frames,
-                                    "configs_eligible": total_eligible,
-                                    "configs_blocked": total_blocked,
-                                    "semantics": "lower_bound",
-                                    "beta0": threshold,
-                                    "margin": max_sigma - threshold,
-                                    "elapsed_seconds": time.time() - tp_start,
+                            # Blockedness check (Assumption 4)
+                            bS = member_blocked(cd_S["vecs"],
+                                                [a for (a, _, _) in colls], p)
+                            bT = member_blocked(cd_T["vecs"],
+                                                [b for (_, b, _) in colls], p)
+                            bU = member_blocked(cd_U["vecs"],
+                                                [c for (_, _, c) in colls], p)
+
+                            if bS and bT and bU:
+                                shape_blocked += 1
+                                total_blocked += 1
+                                if sigma > max_sigma:
+                                    max_sigma = sigma
+
+                                rec = {
+                                    "type": "config",
+                                    "target": target_name, "p": p,
+                                    "shape": [classes[iA]["order"],
+                                              classes[iB]["order"],
+                                              classes[iC]["order"]],
+                                    "shape_sd": [classes[iA]["sd"],
+                                                 classes[iB]["sd"],
+                                                 classes[iC]["sd"]],
+                                    "sigma": sigma, "k": k,
+                                    "ncolls": len(colls),
+                                    "blocked": [bS, bT, bU],
+                                    "S_gens": str(list(libgap.GeneratorsOfGroup(S0))),
+                                    "T_gens": str(list(libgap.GeneratorsOfGroup(T))),
+                                    "U_gens": str(list(libgap.GeneratorsOfGroup(U))),
+                                    "semantics": "exact" if mode == "census" else "lower_bound",
                                 }
-                                print(json.dumps(summary), flush=True)
-                                return [summary]
+                                print(jdumps(rec), flush=True)
 
-            shapes_checked += 1
-            now = time.time()
-            if now - last_progress >= 5 or shape_eligible > 0:
-                print("SHAPE (%d,%d,%d) p=%d k=%d |Sigma|=%d: frames=%d eligible=%d blocked=%d max_sigma=%d elapsed=%.1fs [%d/%d shapes]"
-                      % (classes[iA]["order"], classes[iB]["order"], classes[iC]["order"],
-                         p, k, sigma, len(frames), shape_eligible, shape_blocked,
-                         max_sigma, now - shape_t0, si + 1, len(shapes)),
-                      flush=True)
-                last_progress = now
+                                if threshold > 0 and sigma > threshold:
+                                    print("*** KILL CANDIDATE: |Sigma|=%d > beta_0=%d ***"
+                                          % (sigma, threshold), flush=True)
+                                    kill_hit = rec
+                                    if mode == "hunt":
+                                        break
+                            if kill_hit and mode == "hunt":
+                                break
+                        if kill_hit and mode == "hunt":
+                            break
+                    if kill_hit and mode == "hunt":
+                        break
+                if kill_hit and mode == "hunt":
+                    break
+            if kill_hit and mode == "hunt":
+                break
 
-        # Emit summary for this prime
-        tp_elapsed = time.time() - tp_start
-        margin = max_sigma - threshold if threshold > 0 else None
-        summary = {
-            "type": "summary",
-            "target": target_name,
-            "p": p,
-            "max_sigma": max_sigma,
-            "shapes_checked": shapes_checked,
-            "frames_checked": total_frames,
-            "configs_eligible": total_eligible,
-            "configs_blocked": total_blocked,
-            "semantics": "exact" if mode == "census" else "lower_bound",
-            "beta0": threshold,
-            "margin": margin,
-            "elapsed_seconds": tp_elapsed,
-        }
-        print(json.dumps(summary), flush=True)
-        all_results.append(summary)
+        shapes_done += 1
+        now = time.time()
+        if now - last_progress >= 5 or shape_eligible > 0 or kill_hit:
+            print("SHAPE (%d,%d,%d) p=%d k=%d |Sigma|=%d: frames=%d eligible=%d blocked=%d max_sigma=%d elapsed=%.1fs [%d/%d shapes]"
+                  % (classes[iA]["order"], classes[iB]["order"], classes[iC]["order"],
+                     p, k, sigma, shape_frames, shape_eligible, shape_blocked,
+                     max_sigma, now - shape_t0, si + 1, len(shapes)),
+                  flush=True)
+            last_progress = now
 
-        print("\n--- p=%d DONE: max_sigma=%d eligible=%d blocked=%d margin=%s elapsed=%.1fs ---"
-              % (p, max_sigma, total_eligible, total_blocked, margin, tp_elapsed),
-              flush=True)
+        if kill_hit and mode == "hunt":
+            break
 
-    total_elapsed = time.time() - t_start
-    print("\nTOTAL elapsed: %.1fs" % total_elapsed, flush=True)
-    return all_results
+    tp_elapsed = time.time() - tp_start
+    margin = max_sigma - threshold if threshold > 0 else None
+    summary = {
+        "type": "summary", "target": target_name, "p": p,
+        "max_sigma_blocked": max_sigma,
+        "max_sigma_eligible": max_elig_sigma,
+        "shapes_checked": shapes_done,
+        "shapes_total": len(shapes),
+        "frames_checked": total_frames,
+        "configs_eligible": total_eligible,
+        "configs_blocked": total_blocked,
+        "semantics": ("exact" if mode == "census" and not kill_hit
+                      else "lower_bound"),
+        "beta0": threshold,
+        "margin": margin,
+        "elapsed_seconds": tp_elapsed,
+    }
+    if kill_hit:
+        summary["kill"] = True
+    print(jdumps(summary), flush=True)
+    print("\n--- p=%d DONE: max_blocked_sigma=%d max_elig_sigma=%d eligible=%d blocked=%d margin=%s elapsed=%.1fs ---"
+          % (p, max_sigma, max_elig_sigma, total_eligible, total_blocked, margin, tp_elapsed),
+          flush=True)
+    return summary
 
 
 # ---------------------------------------------------------------------------
@@ -796,9 +641,35 @@ def main():
     args = parse_args()
     primes = [int(x) for x in args.primes.split(",")]
     G = make_group(args.target)
+    nG = int(libgap.Size(G))
     target_name = args.target
-    run_census(G, target_name, primes, args.threshold, args.mode)
+
+    print("TARGET %s |G|=%d threshold=%d mode=%s primes=%s raw=%s"
+          % (target_name, nG, args.threshold, args.mode, primes, args.raw),
+          flush=True)
+
+    if args.raw:
+        for p in primes:
+            run_raw_census(G, target_name, p)
+        return
+
+    # Build lattice and forced-intersection cache
+    print("Building subgroup lattice...", flush=True)
+    classes, nG = build_lattice(G)
+    n_subs = sum(cl["n_copies"] for cl in classes)
+    print("Lattice: %d classes, %d subgroups" % (len(classes), n_subs), flush=True)
+
+    fi_cache = build_fi_cache(classes, nG)
+
+    results = []
+    for p in primes:
+        print("\n=== PRIME p=%d ===" % p, flush=True)
+        r = run_pipeline(G, classes, fi_cache, nG, target_name, p,
+                         args.threshold, args.mode)
+        results.append(r)
+
+    total_elapsed = sum(r.get("elapsed_seconds", 0) for r in results)
+    print("\nTOTAL elapsed: %.1fs" % total_elapsed, flush=True)
 
 
-if __name__ == "__main__":
-    main()
+main()
