@@ -23,10 +23,10 @@ equivalently, writing `β(G) = |S|·|T|·|U|` for an optimal TPP triple (so that
 This is *the* edge crossing from group theory to complexity theory: it converts
 "`G` has a good TPP triple (large `β(G)`)" into "`ω ≤ X`".
 
-## The foundational debt
+## The foundational debts — all discharged
 
-This is a **sorry-skeleton**: the *type-level statements* are the deliverable.
-One foundation is missing from Mathlib and is isolated here:
+Historically this file was a sorry-skeleton with two isolated foundational
+debts; both are now discharged and **the file is `sorry`-free**:
 
 1. ~~**The matrix-multiplication exponent `ω` itself.**~~ **Discharged.** The
    exponent `ω` is now defined as `BilinearComplexity.omega := sInf omegaSet`
@@ -36,22 +36,26 @@ One foundation is missing from Mathlib and is isolated here:
    The local alias `matrixExponent := BilinearComplexity.omega` and scoped
    notation `ω` are retained for downstream compatibility.
 
-2. **The proof of Theorem 4.1.** Its proof (CU.tex:621–666) embeds an
-   `⟨n,m,p⟩` matrix product into `ℂ[G]`, transports through the *indexed*
-   Wedderburn decomposition (the `Pf4` debt, `Xlib.CharDegrees.charDegrees`),
-   and invokes the tensor-rank inequalities `(n'm'p')^{ω/3} ≤ R(⟨n',m',p'⟩)`
-   and `R(⟨k,k,k⟩) ≤ C k^{ω+ε}` (Bürgisser–Clausen–Shokrollahi 15.5/15.1) — none
-   of which exist in Mathlib. The statement is `sorry`d.
+2. ~~**The proof of Theorem 4.1.**~~ **Discharged.** The proof (CU.tex:621–666)
+   is assembled in the `CohnUmansChain` section below from the delivered
+   planks: the Cohn–Umans/Murthy TPP embedding
+   (`Proofs.BilinearComplexity.GroupTensor`), TPP product closure
+   (`Xlib.TPPProd`), Wedderburn transport of the group-tensor rank
+   (`Proofs.BilinearComplexity.GroupTensorWedderburn`), multiplicativity of
+   the character-degree power sum (`Xlib.CharDegreesMul`), and the two
+   tensor-rank facts `n^ω ≤ R_ℂ⟨n,n,n⟩` and `R_ℂ⟨k,k,k⟩ ≤ C·k^{ω+ε}`
+   (Bürgisser–Clausen–Shokrollahi 15.5/15.1;
+   `Proofs.BilinearComplexity.Complexify` / `Omega.lean` §4).
 
-Everything *between* these debts is built on the (`sorry`-free) TPP/character-
-degree API of `Xlib.TPP` and `Xlib.CharDegrees` and **proved here in full**: the
-abelian case `α(G) = 3` (`pseudoExponent_eq_three_of_commGroup`), the
-equivalence of the `β`- and pseudo-exponent forms of Theorem 4.1
-(`card_rpow_le_charDegreeSumReal` derives from `capacity_rpow_le_charDegreeSumReal`
-via the identity `β(G) = |G|^{3/α(G)}`), the `D₃` certificate
+Everything else is built on the (`sorry`-free) TPP/character-degree API of
+`Xlib.TPP` and `Xlib.CharDegrees` and **proved here in full**: the abelian
+case `α(G) = 3` (`pseudoExponent_eq_three_of_commGroup`), the universal lower
+bound `α(G) > 2` (`two_lt_pseudoExponent`), the equivalence of the `β`- and
+pseudo-exponent forms of Theorem 4.1 (`card_rpow_le_charDegreeSumReal`
+derives from `capacity_rpow_le_charDegreeSumReal` via the identity
+`β(G) = |G|^{3/α(G)}`), the `D₃` certificate
 (`betaExceedsD3_certifies_subcubic` derives from Theorem 4.1), and the `D₃`
-threshold equivalence (`subcubic_certificate_iff`). The only remaining `sorry`s
-are Theorem 4.1 itself (debt 2) and the universal lower bound `α(G) > 2`.
+threshold equivalence (`subcubic_certificate_iff`).
 
 ## Main definitions
 
@@ -60,15 +64,14 @@ are Theorem 4.1 itself (debt 2) and the universal lower bound `α(G) > 2`.
 * `Xlib.CUCapacity.pseudoExponent` — `α(G) = 3·log|G| / log β(G)`, the
   Cohn–Umans pseudo-exponent (`theorem:bound` preamble, CU.tex:460–467).
 * `Xlib.CUCapacity.BetaExceedsD3` — the `D₃` threshold predicate
-  `D₃(G) < β(G)` (CU Question `fundamentalq`, CU.tex:774–781). **Correct as
-  stated, but currently junk-valued**: its `D₃(G)` side is computed from the
-  `sorry`d `Xlib.CharDegrees.charDegrees`, so its truth value is undetermined
-  until that upstream `sorry` lands.
+  `D₃(G) < β(G)` (CU Question `fundamentalq`, CU.tex:774–781). Fully defined:
+  both sides are `sorry`-free (`Xlib.CharDegrees.charDegrees` landed with the
+  `Wd` campaign).
 
 ## Main results
 
-* `Xlib.CUCapacity.capacity_rpow_le_charDegreeSumReal` — **(`sorry`, debt 2)** CU
-  Theorem 4.1 in `β`-form: `β(G)^{ω/3} ≤ D_ω(G)`.
+* `Xlib.CUCapacity.capacity_rpow_le_charDegreeSumReal` — **(proved,
+  `sorry`-free)** CU Theorem 4.1 in `β`-form: `β(G)^{ω/3} ≤ D_ω(G)`.
 * `Xlib.CUCapacity.card_rpow_le_charDegreeSumReal` — **(proved from the `β`-form)**
   the equivalent pseudo-exponent form `|G|^{ω/α(G)} ≤ D_ω(G)`.
 * `Xlib.CUCapacity.card_rpow_three_div_pseudoExponent` — **(proved,
@@ -77,20 +80,18 @@ are Theorem 4.1 itself (debt 2) and the universal lower bound `α(G) > 2`.
 * `Xlib.CUCapacity.pseudoExponent_eq_three_of_commGroup` — **(proved,
   `sorry`-free)** `α(G) = 3` for a nontrivial commutative `G` (the abelian
   barrier, via `Xlib.TPP.tppCapacity_eq_card`).
-* `Xlib.CUCapacity.two_lt_pseudoExponent` — **(`sorry`)** `α(G) > 2` for every
-  nontrivial finite `G` (CU pseudo-exponent lemma, CU.tex:478–500).
+* `Xlib.CUCapacity.two_lt_pseudoExponent` — **(proved, `sorry`-free)**
+  `α(G) > 2` for every nontrivial finite `G` (CU pseudo-exponent lemma,
+  CU.tex:478–500).
 * `Xlib.CUCapacity.betaExceedsD3_certifies_subcubic` — **(proved from Theorem
-  4.1)** the `D₃` certificate: `D₃(G) < β(G) ⟹ ω < 3` (a single group certifies
-  `ω < 3`). Correct as stated, but **conditional on the `charDegrees` `sorry`**
-  through its junk-valued hypothesis `BetaExceedsD3 G`; the inherited debt is the
-  Theorem 4.1 `sorry` *and* the `charDegrees` `sorry`.
-* `Xlib.CUCapacity.subcubic_certificate_iff` — **(proved, `sorry`-free body)** a
+  4.1, `sorry`-free)** the `D₃` certificate: `D₃(G) < β(G) ⟹ ω < 3` (a single
+  group certifies `ω < 3`).
+* `Xlib.CUCapacity.subcubic_certificate_iff` — **(proved, `sorry`-free)** a
   *trivial arithmetic unfolding*: the Theorem 4.1 expression evaluated at exponent
   `3` is violated iff `D₃(G) < β(G)`. This is `not_le` after `3/3 = 1` and
-  `rpow_one` — it restates `BetaExceedsD3` in negated-bound shape and is **not**
-  the substantive "rules out `ω = 3`" equivalence (which would require Theorem 4.1,
-  debt 2); it makes no claim about `ω`. Its `sorryAx` dependency is inherited
-  *only* from the upstream `charDegrees` debt.
+  `rpow_one` — it restates `BetaExceedsD3` in negated-bound shape and makes no
+  claim about `ω` (the substantive "rules out `ω = 3`" implication is
+  `betaExceedsD3_certifies_subcubic`).
 
 ## References
 
@@ -658,14 +659,12 @@ private theorem pow_omega_pow_le_of_tpp {G : Type*} [Group G] [Fintype G]
       ≤ C * charDegreeSumReal G (BilinearComplexity.omega + ε) ^ ℓ := by
     refine le_trans ?_ h5
     exact_mod_cast le_trans h3 h4
-  have hid : (((N : ℕ) : ℝ) ^ BilinearComplexity.omega) ^ ℓ
-      = ((N ^ ℓ : ℕ) : ℝ) ^ BilinearComplexity.omega := by
-    rw [Nat.cast_pow,
-      ← Real.rpow_natCast_mul (Nat.cast_nonneg N) ℓ BilinearComplexity.omega,
-      ← Real.rpow_mul_natCast (Nat.cast_nonneg N) BilinearComplexity.omega ℓ,
-      mul_comm]
   calc (((N : ℕ) : ℝ) ^ BilinearComplexity.omega) ^ ℓ
-      = ((N ^ ℓ : ℕ) : ℝ) ^ BilinearComplexity.omega := hid
+      = ((N ^ ℓ : ℕ) : ℝ) ^ BilinearComplexity.omega := by
+        rw [Nat.cast_pow,
+          ← Real.rpow_natCast_mul (Nat.cast_nonneg N) ℓ BilinearComplexity.omega,
+          ← Real.rpow_mul_natCast (Nat.cast_nonneg N) BilinearComplexity.omega ℓ,
+          mul_comm]
     _ ≤ (rank (matMulTensor ℂ (N ^ ℓ) (N ^ ℓ) (N ^ ℓ)) : ℝ) := h1
     _ ≤ (rank (matMulTensor ℂ (S.card ^ ℓ) (T.card ^ ℓ) (U.card ^ ℓ)) : ℝ) ^ 3 := by
         exact_mod_cast h2
@@ -798,8 +797,8 @@ in full** from the `β`-form (`capacity_rpow_le_charDegreeSumReal`) via the
 identity `β(G) = |G|^{3/α(G)}` (`card_rpow_three_div_pseudoExponent`): writing
 `ω/α = (ω/3)·(3/α)`, `rpow_mul` gives
 `|G|^{ω/α} = (|G|^{3/α})^{ω/3} = β(G)^{ω/3}`, and the `β`-form bounds the
-right-hand side. It therefore carries no `sorry` of its own — only the inherited
-debt of Theorem 4.1. -/
+right-hand side. With Theorem 4.1 now proved, this form is `sorry`-free
+end-to-end. -/
 theorem card_rpow_le_charDegreeSumReal (G : Type*)
     [Group G] [Fintype G] [DecidableEq G] [Nontrivial G] :
     (Fintype.card G : ℝ) ^ (ω / pseudoExponent G) ≤ charDegreeSumReal G ω := by
@@ -812,7 +811,7 @@ theorem card_rpow_le_charDegreeSumReal (G : Type*)
   rw [hsplit]
   exact capacity_rpow_le_charDegreeSumReal G
 
-/-! ### The `D₃` threshold certificate (sorry)
+/-! ### The `D₃` threshold certificate (proved)
 
 CU.tex:749–769 and Question `fundamentalq` (CU.tex:774–781). With the full set
 of character degrees in hand, there is a *single arithmetic condition* deciding
@@ -830,22 +829,12 @@ when its TPP capacity strictly exceeds the cubic character-degree sum
 `D₃(G) = Σᵢ dᵢ³`. This is the (open) condition under which a single group
 certifies `ω < 3`.
 
-**⚠ Conditional on the `charDegrees` `sorry` (`Xlib.CharDegrees.charDegrees`).**
-This predicate is the *mathematically correct* statement of the `D₃` threshold
-condition, but its **truth value is currently undetermined**: the left-hand side
-`charDegreeSum G 3 = Σᵢ dᵢ³` is computed from `Xlib.CharDegrees.charDegrees`,
-whose body is `sorry` (the indexed-Wedderburn debt — no canonical enumeration of
-irreps in Mathlib). So `BetaExceedsD3 G` asserts a property of an **unresolved
-(junk) definition**: the `β(G) = tppCapacity G` side is fully defined and
-`sorry`-free, but the `D₃(G)` side is junk until that one upstream `sorry` is
-discharged. Both the predicate and the theorem `betaExceedsD3_certifies_subcubic`
-that consumes it are *correct as stated* and become meaningful verbatim once the
-indexed Wedderburn layer lands; nothing about them needs to change at that point.
-
-Concretely, `#print axioms BetaExceedsD3` reports
-`[propext, sorryAx, Classical.choice, Quot.sound]`: the `sorryAx` here enters
-**solely** through `charDegrees` (via `charDegreeSum`); no `matrixExponent` family
-axiom appears, since the predicate does not mention `ω`. -/
+Fully defined and `sorry`-free: the `D₃(G) = charDegreeSum G 3` side is
+computed from the canonical `Xlib.CharDegrees.charDegrees` (the indexed
+Wedderburn layer, landed with the `Wd` campaign), and the
+`β(G) = tppCapacity G` side is the `sorry`-free TPP capacity. Concretely,
+`#print axioms BetaExceedsD3` reports exactly
+`[propext, Classical.choice, Quot.sound]`. -/
 def BetaExceedsD3 (G : Type*) [Group G] [Fintype G] [DecidableEq G] : Prop :=
   (charDegreeSum G 3 : ℝ) < (tppCapacity G : ℝ)
 
@@ -855,29 +844,16 @@ the matrix-multiplication exponent is strictly subcubic, `ω < 3`.
 
 This is the precise sense in which "a single group certifies `ω < 3`", and it is
 **proved here in full from Theorem 4.1** (`capacity_rpow_le_charDegreeSumReal`)
-together with `matrixExponent_le_three` — it carries *no* `sorry` of its own,
-only the inherited debts of those two. The argument is the boundary evaluation,
+together with `matrixExponent_le_three`. The argument is the boundary evaluation,
 not the general convexity step: were `ω = 3`, Theorem 4.1 would read
 `β(G)^{3/3} = β(G) ≤ charDegreeSumReal G 3 = D₃(G)` (via `Real.rpow_one` and
 `Xlib.CharDegrees.charDegreeSumReal_natCast`), contradicting `D₃(G) < β(G)`;
 hence `ω ≠ 3`, and `ω ≤ 3` then forces `ω < 3`.
 
-**⚠ Conditional on the `charDegrees` `sorry`, via the hypothesis `BetaExceedsD3`.**
-The theorem is a *correct* statement and its tactic body is `sorry`-free, but the
-hypothesis `h : BetaExceedsD3 G` is the junk-valued predicate above (its `D₃(G)`
-side is computed from the `sorry`d `Xlib.CharDegrees.charDegrees`). So this is a
-correct implication *out of* a currently-undetermined antecedent: it is not
-vacuously discharged, and it becomes verbatim-meaningful — with no change to the
-statement — once the indexed Wedderburn `sorry` is discharged.
-
-The inherited debt chain is therefore **two `sorry`s** (no foundation axioms
-remain): (1) Theorem 4.1 `capacity_rpow_le_charDegreeSumReal` is itself `sorry`d
-(tensor-rank debt 2); (2) the hypothesis `BetaExceedsD3 G` drags in the
-`charDegrees` `sorry` through `charDegreeSum`/`charDegreeSumReal_natCast`.
-Concretely, `#print axioms betaExceedsD3_certifies_subcubic` reports
-`[propext, sorryAx, Classical.choice, Quot.sound]`. The single `sorryAx`
-entry collapses both independent `sorry` sources — debt 2 and the `charDegrees`
-debt — into one axiom name. -/
+Proved end-to-end with no remaining debt: Theorem 4.1
+(`capacity_rpow_le_charDegreeSumReal`) and the `charDegrees` foundation are
+both `sorry`-free, so `#print axioms betaExceedsD3_certifies_subcubic` reports
+exactly `[propext, Classical.choice, Quot.sound]`. -/
 theorem betaExceedsD3_certifies_subcubic (G : Type*)
     [Group G] [Fintype G] [DecidableEq G] (h : BetaExceedsD3 G) :
     ω < 3 := by
@@ -903,22 +879,19 @@ CU.tex:766–768]: the Theorem 4.1 expression, evaluated at exponent `3`, is
 **This theorem is fully proved (`sorry`-free body) and is mathematically
 trivial — it is an arithmetic unfolding, not a substantive equivalence.** It does
 *not* capture any nontrivial content of CU's "equivalent to the above stated
-condition"; that equivalence is real only because Theorem 4.1 holds (debt 2,
-`capacity_rpow_le_charDegreeSumReal`), which this statement neither invokes nor
-needs. All this says is that the two *literal expressions* coincide: after
+condition"; that equivalence is real only because Theorem 4.1 holds
+(`capacity_rpow_le_charDegreeSumReal`, now proved), which this statement
+neither invokes nor needs. All this says is that the two *literal expressions*
+coincide: after
 collapsing the exponent `3/3 = 1` (so `β^{3/3} = β` by `Real.rpow_one`) and
 bridging `charDegreeSumReal G 3 = (charDegreeSum G 3 : ℝ)`
 (`Xlib.CharDegrees.charDegreeSumReal_natCast`), the goal is exactly
 `¬ (β ≤ D₃) ↔ D₃ < β`, which is `not_le`. In short it restates `BetaExceedsD3`
 in the "negated-bound" shape; it makes no claim about `ω` at all.
 
-Axiom footprint accordingly: `#print axioms subcubic_certificate_iff` reports
-`[propext, sorryAx, Classical.choice, Quot.sound]`. The lone `sorryAx` enters
-**only** through the upstream `charDegrees` `sorry` (via `charDegreeSum` on both
-sides of the iff); crucially **no** `matrixExponent` family axiom appears —
-unlike `betaExceedsD3_certifies_subcubic`, this statement never mentions `ω`, so
-it does not even depend on the existence of the exponent, only on the still-junk
-`charDegrees`. -/
+Axiom footprint: `#print axioms subcubic_certificate_iff` reports exactly
+`[propext, Classical.choice, Quot.sound]` — this statement never mentions `ω`,
+so it does not even depend on the existence of the exponent. -/
 theorem subcubic_certificate_iff (G : Type*)
     [Group G] [Fintype G] [DecidableEq G] :
     ¬ ((tppCapacity G : ℝ) ^ ((3 : ℝ) / 3) ≤ charDegreeSumReal G 3)
