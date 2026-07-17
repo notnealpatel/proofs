@@ -30,19 +30,35 @@ which is implicit in the `NeZero (d i)` hypothesis at the
 
 ## Mathematical route
 
-The proof of `charDegrees_prod` requires a composite algebra equivalence
+The proof of `charDegrees_prod` builds a composite algebra equivalence
   `ℂ[G × H] ≃ₐ[ℂ] Π (i,j), Mat_{d_i · e_j}(ℂ)`
-constructed via `MonoidAlgebra.curryAlgEquiv`, `MonoidAlgebra.mapAlgEquiv`,
-`piMonoidAlgEquiv` (monoid algebra distributes over Pi; proved here),
-and a matrix-valued monoid algebra equivalence
-  `MonoidAlgebra (Matrix m m ℂ) G ≃ₐ[ℂ] Matrix m m (MonoidAlgebra ℂ G)`
-which requires custom glue absent from Mathlib (see `md1-notes.md` for the
-exact gap).  The multiset bookkeeping and all corollaries are proved
-conditional on `charDegrees_prod`.
+from Wedderburn decompositions `eG : ℂ[G] ≃ₐ Π i, Mat_{d_i}(ℂ)` and
+`eH : ℂ[H] ≃ₐ Π j, Mat_{e_j}(ℂ)`, via `MonoidAlgebra.curryAlgEquiv`,
+`MonoidAlgebra.mapAlgEquiv`, and three planks proved here because they are
+absent from Mathlib:
+
+* `piMonoidAlgEquiv` — monoid algebra distributes over Pi,
+* `matrixMonoidAlgEquiv` — matrix-valued monoid algebras are matrices over
+  monoid algebras, `MonoidAlgebra (Matrix m m A) G ≃ₐ[R] Matrix m m (MonoidAlgebra A G)`
+  (Mathlib's `MonoidAlgebra.tensorEquiv` requires commutative coefficients and
+  a commutative monoid, so it cannot produce this; built directly from
+  `liftNCAlgHom`),
+* `matrixPiAlgEquiv` / `piProdAlgEquiv` — matrices distribute over Pi, and
+  Pi over a product index curries.
+
+Everything is `sorry`-free; `charDegrees_eq_of_algEquiv` (Wedderburn
+uniqueness) transports the block multisets on both sides, and the multiset
+bookkeeping is `univ_val_map_mul_finProdFinEquiv_symm`.
+
+Note on coercions: `charDegreeSumReal` elaborates its `ℕ → ℝ` cast as the
+*monadic container cast* `do let a ← s; pure ↑a`, not as `Multiset.map (↑·)`;
+`rpow_sum_bind_map` normalizes this via `Multiset.bind_def`/`pure_def`/
+`bind_singleton` before transferring to the `Multiset ℝ` version.
 
 ## Upstream candidates
 
-`charDegrees_prod`, `one_le_of_mem_charDegrees`, `piMonoidAlgEquiv`, and
+`charDegrees_prod`, `one_le_of_mem_charDegrees`, `piMonoidAlgEquiv`,
+`matrixMonoidAlgEquiv`, `matrixPiAlgEquiv`, `charDegrees_eq_of_mulEquiv`, and
 `charDegreeSumReal_prod` are natural Mathlib candidates (provenance note
 only, no upstreaming per user directive).
 -/
@@ -325,6 +341,17 @@ theorem charDegrees_prod (G H : Type*) [Group G] [Fintype G] [Group H] [Fintype 
     charDegrees_eq_of_algEquiv H eH]
   exact univ_val_map_mul_finProdFinEquiv_symm dG dH
 
+/-- **`charDegrees` is a group-isomorphism invariant**: transport along
+`MonoidAlgebra.domCongr` and apply Wedderburn uniqueness on both sides. -/
+theorem charDegrees_eq_of_mulEquiv {G : Type*} [Group G] [Fintype G] {H : Type*} [Group H]
+    [Fintype H] (e : G ≃* H) : charDegrees G = charDegrees H := by
+  haveI : NeZero (Nat.card H : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
+  obtain ⟨n, d, hne, ⟨eH⟩⟩ :=
+    IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed ℂ (MonoidAlgebra ℂ H)
+  haveI := hne
+  rw [charDegrees_eq_of_algEquiv H eH,
+    charDegrees_eq_of_algEquiv G ((MonoidAlgebra.domCongr ℂ ℂ e).trans eH)]
+
 /-! ### Multiset bookkeeping for the rpow sum -/
 
 /-- The rpow sum over a bind/map product factors as a product of rpow sums. -/
@@ -384,25 +411,46 @@ theorem charDegreeSumReal_prod (G H : Type*) [Group G] [Fintype G] [Group H] [Fi
 **Power carrier: `Fin ℓ → G`** with `Pi.group`. Downstream cards (Tp1) must
 use this same carrier. -/
 
+/-- **`charDegreeSumReal` is a group-isomorphism invariant.** -/
+theorem charDegreeSumReal_congr {G : Type*} [Group G] [Fintype G] {H : Type*} [Group H]
+    [Fintype H] (e : G ≃* H) (x : ℝ) : charDegreeSumReal G x = charDegreeSumReal H x := by
+  unfold charDegreeSumReal
+  rw [charDegrees_eq_of_mulEquiv e]
+
+/-- The group isomorphism `(Fin (n+1) → G) ≃* G × (Fin n → G)`: evaluation at
+`0` paired with the tail (`Fin.consEquiv`, upgraded — multiplication on both
+sides is componentwise, so `map_mul` is definitional). -/
+private def piFinSuccMulEquiv (n : ℕ) (G : Type*) [Group G] :
+    (Fin (n + 1) → G) ≃* G × (Fin n → G) :=
+  { (Fin.consEquiv (fun _ : Fin (n + 1) => G)).symm with
+    map_mul' := fun _ _ => rfl }
+
 /-- **The power form:** `D_x(G^ℓ) = D_x(G)^ℓ` where `G^ℓ = Fin ℓ → G`. -/
 theorem charDegreeSumReal_pi_fin (G : Type*) [Group G] [Fintype G]
     (ℓ : ℕ) (x : ℝ) :
     charDegreeSumReal (Fin ℓ → G) x = (charDegreeSumReal G x) ^ ℓ := by
   induction ℓ with
   | zero =>
-    -- Fin 0 → G is the trivial group (unique element), charDegreeSumReal = 1^x = 1
-    simp only [pow_zero]
-    -- charDegreeSumReal (Fin 0 → G) x = sum over charDegrees of (Fin 0 → G)
-    -- Fin 0 → G has only one element, so it's a trivial group
-    -- Its only irrep is the trivial one of degree 1, so charDegrees = {1}
-    -- and charDegreeSumReal = 1^x = 1
-    sorry
+    -- `Fin 0 → G` is the trivial group: exactly one conjugacy class, so exactly
+    -- one character degree `d`, and `d² = |Fin 0 → G| = 1` forces `d = 1`.
+    haveI : Subsingleton (ConjClasses (Fin 0 → G)) :=
+      ConjClasses.mk_surjective.subsingleton
+    have hcard : Multiset.card (charDegrees (Fin 0 → G)) = 1 := by
+      rw [card_charDegrees, Nat.card_eq_one_iff_unique]
+      exact ⟨inferInstance, ⟨ConjClasses.mk 1⟩⟩
+    obtain ⟨d, hd⟩ := Multiset.card_eq_one.mp hcard
+    have h2 : d ^ 2 = 1 := by
+      have h := charDegreeSum_two (Fin 0 → G)
+      rw [Fintype.card_unique] at h
+      unfold charDegreeSum at h
+      rw [hd] at h
+      simpa using h
+    have hd1 : d = 1 := (pow_eq_one_iff_left two_ne_zero).mp h2
+    unfold charDegreeSumReal
+    rw [hd, hd1, pow_zero]
+    simp
   | succ n ih =>
-    -- Fin (n+1) → G ≅ G × (Fin n → G) via Fin.cons
-    -- charDegreeSumReal (Fin (n+1) → G) x
-    --   = charDegreeSumReal G x * charDegreeSumReal (Fin n → G) x   (by prod)
-    --   = charDegreeSumReal G x * (charDegreeSumReal G x) ^ n        (by ih)
-    --   = (charDegreeSumReal G x) ^ (n+1)
-    sorry
+    rw [charDegreeSumReal_congr (piFinSuccMulEquiv n G) x, charDegreeSumReal_prod, ih,
+      ← pow_succ']
 
 end Xlib.CharDegreesMul

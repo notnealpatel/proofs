@@ -1,5 +1,6 @@
 import Xlib.TPP
 import Xlib.CharDegrees
+import Proofs.BilinearComplexity.Omega
 
 /-!
 # Cohn–Umans Theorem 4.1: the capacity bound on `ω`

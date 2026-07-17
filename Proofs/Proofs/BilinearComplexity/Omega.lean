@@ -239,4 +239,80 @@ theorem omega_lt_three : omega < 3 := by
     exact (Real.logb_lt_iff_lt_rpow (by norm_num) (by norm_num)).mpr hlt
   exact lt_of_le_of_lt omega_le_logb_two_seven h37
 
+/-! ## 4. Asymptotic upper bound R(k,k,k) ≤ C · k^(ω+ε) -/
+
+/-- **Asymptotic upper bound.** For every `ε > 0` there exists `C > 0` such
+that for all `k ≥ 1`, `R⟨k,k,k⟩ ≤ C · k^(ω+ε)` (where `^` is `Real.rpow`).
+
+Since `ω = sInf omegaSet` and `ε > 0`, there is an admissible exponent
+`x ∈ omegaSet` with `x < ω + ε` (by `Real.lt_sInf_add_pos`). From
+`x ∈ omegaSet`, the bound `R⟨k,k,k⟩ ≤ k^x` holds for all `k` above some
+threshold `n₀`. Since `x ≤ ω + ε` and `k ≥ 1` entails `k^x ≤ k^(ω+ε)`,
+the bound holds for `k ≥ n₀` with `C = 1`. For the finitely many
+`k ∈ {1, …, n₀-1}`, each `R⟨k,k,k⟩ ≤ R(k) · 1 ≤ R(k) · k^(ω+ε)` (since
+`k^(ω+ε) ≥ 1`), so taking `C` to be the max over these ranks (floored at 1)
+handles all cases uniformly. -/
+theorem exists_rank_le_rpow (ε : ℝ) (hε : 0 < ε) :
+    ∃ C : ℝ, 0 < C ∧ ∀ k : ℕ, 1 ≤ k →
+      (rank (matMulTensor ℝ k k k) : ℝ) ≤ C * (k : ℝ) ^ (omega + ε) := by
+  -- Step 1: extract an admissible exponent x < omega + ε from omegaSet.
+  obtain ⟨x, hx_mem, hx_lt⟩ :=
+    Real.lt_sInf_add_pos ⟨3, three_mem_omegaSet⟩ hε
+  -- Step 2: from x ∈ omegaSet, extract threshold n₀ such that the bound
+  -- holds for all k ≥ n₀.
+  have hx_ev : ∀ᶠ k : ℕ in Filter.atTop,
+      (rank (matMulTensor ℝ k k k) : ℝ) ≤ (k : ℝ) ^ x := hx_mem
+  obtain ⟨n₀, hn₀⟩ :=
+    (Filter.eventually_forall_ge_atTop.mpr hx_ev).exists
+  -- hn₀ : ∀ k ≥ n₀, R(k,k,k) ≤ k^x
+  -- The exponent x is at most omega + ε (strictly less, but ≤ suffices).
+  have hx_le : x ≤ omega + ε := le_of_lt hx_lt
+  -- Step 3: define C as the max of 1 and all ranks for k < n₀.
+  -- We use Finset.sup over Finset.range n₀ with ⊥ = 0 in ℕ, then cast.
+  set M : ℕ := (Finset.range n₀).sup (fun k => rank (matMulTensor ℝ k k k))
+  set C : ℝ := max 1 (M : ℝ) with hC_def
+  refine ⟨C, lt_of_lt_of_le one_pos (le_max_left 1 (M : ℝ)), fun k hk => ?_⟩
+  -- omega + ε > 0 (since omega ≥ 2 and ε > 0)
+  have hωε : 0 < omega + ε := by linarith [two_le_omega]
+  have hk0 : (0 : ℝ) < (k : ℝ) := by exact_mod_cast (show 0 < k by omega)
+  have hk1 : (1 : ℝ) ≤ (k : ℝ) := by exact_mod_cast hk
+  have hkpow1 : (1 : ℝ) ≤ (k : ℝ) ^ (omega + ε) := Real.one_le_rpow hk1 hωε.le
+  by_cases hkn : n₀ ≤ k
+  · -- Large case: k ≥ n₀. Use the eventually bound + exponent monotonicity.
+    have h1 : (rank (matMulTensor ℝ k k k) : ℝ) ≤ (k : ℝ) ^ x := hn₀ k hkn
+    have h2 : (k : ℝ) ^ x ≤ (k : ℝ) ^ (omega + ε) :=
+      Real.rpow_le_rpow_of_exponent_le hk1 hx_le
+    calc (rank (matMulTensor ℝ k k k) : ℝ)
+        ≤ (k : ℝ) ^ (omega + ε) := le_trans h1 h2
+      _ = 1 * (k : ℝ) ^ (omega + ε) := (one_mul _).symm
+      _ ≤ C * (k : ℝ) ^ (omega + ε) :=
+          mul_le_mul_of_nonneg_right (le_max_left 1 (M : ℝ)) (by positivity)
+  · -- Small case: k < n₀. Use the finite max bound.
+    push Not at hkn
+    have hk_range : k ∈ Finset.range n₀ := Finset.mem_range.mpr hkn
+    have hM : rank (matMulTensor ℝ k k k) ≤ M :=
+      Finset.le_sup (f := fun k => rank (matMulTensor ℝ k k k)) hk_range
+    calc (rank (matMulTensor ℝ k k k) : ℝ)
+        ≤ (M : ℝ) := by exact_mod_cast hM
+      _ ≤ C := le_max_right 1 (M : ℝ)
+      _ = C * 1 := (mul_one C).symm
+      _ ≤ C * (k : ℝ) ^ (omega + ε) :=
+          mul_le_mul_of_nonneg_left hkpow1 (lt_of_lt_of_le one_pos (le_max_left 1 _)).le
+
+/-- **Complex corollary.** The same asymptotic upper bound holds over `ℂ`:
+for every `ε > 0` there exists `C > 0` such that for all `k ≥ 1`,
+`R_ℂ⟨k,k,k⟩ ≤ C · k^(ω+ε)`. Since `R_ℂ⟨k,k,k⟩ ≤ R_ℝ⟨k,k,k⟩`
+(by `rank_matMulTensor_hom_le` along `algebraMap ℝ ℂ`), the real bound
+transfers immediately. -/
+theorem exists_rank_le_rpow_complex (ε : ℝ) (hε : 0 < ε) :
+    ∃ C : ℝ, 0 < C ∧ ∀ k : ℕ, 1 ≤ k →
+      (rank (matMulTensor ℂ k k k) : ℝ) ≤ C * (k : ℝ) ^ (omega + ε) := by
+  obtain ⟨C, hC_pos, hC_bound⟩ := exists_rank_le_rpow ε hε
+  refine ⟨C, hC_pos, fun k hk => ?_⟩
+  have htransfer : rank (matMulTensor ℂ k k k) ≤ rank (matMulTensor ℝ k k k) :=
+    rank_matMulTensor_hom_le ℝ ℂ (algebraMap ℝ ℂ) k k k
+  calc (rank (matMulTensor ℂ k k k) : ℝ)
+      ≤ (rank (matMulTensor ℝ k k k) : ℝ) := by exact_mod_cast htransfer
+    _ ≤ C * (k : ℝ) ^ (omega + ε) := hC_bound k hk
+
 end BilinearComplexity
