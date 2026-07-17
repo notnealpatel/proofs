@@ -1,6 +1,3 @@
-7. PSL(2,11) A-side census:
-sage aside_census.sage -- --target "PSL(2,11)" --primes 2,3 --threshold <beta0>
-
 8. M_10 export:
 sage export_tpp.sage -- --target-id pl15_M10
 
@@ -8,7 +5,7 @@ sage export_tpp.sage -- --target-id pl15_M10
 /tmp/beta0probe exact --data out/tpp-data/pl15_M10.json --output out/pl15_results.jsonl --target-budget 10m
 
 10. M_10 A-side census:
-sage aside_census.sage -- --target "Stabilizer(MathieuGroup(11),1)" --primes 2,3 --threshold <beta0>
+sage aside_census.sage -- --target "Stabilizer(MathieuGroup(11),1)" --primes 2,3 --threshold <beta0> | tee out/pl15_census_M10.log
 
 11. S_6 export (--skip-ab per the export doc, 1,455 subgroups):
 sage export_tpp.sage -- --target-id pl15_S6 --skip-ab
@@ -17,10 +14,10 @@ sage export_tpp.sage -- --target-id pl15_S6 --skip-ab
 /tmp/beta0probe exact --data out/tpp-data/pl15_S6.json --output out/pl15_results.jsonl --target-budget 10m
 
 13. S_6 A-side census:
-sage aside_census.sage -- --target "SymmetricGroup(6)" --primes 2,3 --threshold <beta0>
+sage aside_census.sage -- --target "SymmetricGroup(6)" --primes 2,3 --threshold <beta0> | tee out/pl15_census_S6.log
 
-14. A_7 B-side (once step 1's JSON has landed; ~41 s projected):
+14. A_7 B-side (JSON already landed; ~41 s projected):
 /tmp/beta0probe exact --data out/tpp-data/pl15_A7.json --output out/pl15_results.jsonl --target-budget 10m
 
 15. A_7 A-side census (1–30 min; progress prints every shape):
-timeout 600 sage aside_census.sage -- --target "AlternatingGroup(7)" --primes 2,3 --threshold <beta0>
+timeout 600 sage aside_census.sage -- --target "AlternatingGroup(7)" --primes 2,3 --threshold <beta0> | tee out/pl15_census_A7.log

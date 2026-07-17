@@ -1,0 +1,22 @@
+TARGET SymmetricGroup(5) |G|=120 threshold=256 mode=census primes=[2, 3] raw=False
+Building subgroup lattice...
+Lattice: 19 classes, 156 subgroups
+FORCED-INTERSECTION cache: 190 pairs in 0.2s
+
+=== PRIME p=2 ===
+Twistable (p=2): [(1, 2, 'C2', 1), (2, 2, 'C2', 1), (4, 4, 'C2 x C2', 3), (5, 4, 'C4', 1), (6, 4, 'C2 x C2', 3), (8, 6, 'S3', 1), (9, 6, 'S3', 1), (10, 6, 'C6', 1), (11, 8, 'D8', 3), (12, 10, 'D10', 1), (14, 12, 'D12', 3), (15, 20, 'C5 : C4', 1), (16, 24, 'S4', 1), (18, 120, 'S5', 1)]
+Shapes above threshold: 87
+SHAPE (8,8,8) p=2 k=3 |Sigma|=256: frames=32 eligible=112 blocked=0 max_sigma=0 elapsed=0.1s [86/87 shapes]
+SHAPE (8,8,8) p=2 k=2 |Sigma|=256: frames=32 eligible=32 blocked=0 max_sigma=0 elapsed=0.1s [87/87 shapes]
+{"type":"summary","target":"SymmetricGroup(5)","p":2,"max_sigma_blocked":0,"max_sigma_eligible":256,"shapes_checked":87,"shapes_total":87,"frames_checked":550,"configs_eligible":144,"configs_blocked":0,"semantics":"exact","beta0":256,"margin":-256,"elapsed_seconds":1.0040435791015625}
+
+--- p=2 DONE: max_blocked_sigma=0 max_elig_sigma=256 eligible=144 blocked=0 margin=-256 elapsed=1.0s ---
+
+=== PRIME p=3 ===
+Twistable (p=3): [(3, 3, 'C3', 1), (10, 6, 'C6', 1), (13, 12, 'A4', 1)]
+Shapes above threshold: 0
+{"type":"summary","target":"SymmetricGroup(5)","p":3,"max_sigma_blocked":0,"max_sigma_eligible":0,"shapes_checked":0,"shapes_total":0,"frames_checked":0,"configs_eligible":0,"configs_blocked":0,"semantics":"exact","beta0":256,"margin":-256,"elapsed_seconds":0.0013098716735839844}
+
+--- p=3 DONE: max_blocked_sigma=0 max_elig_sigma=0 eligible=0 blocked=0 margin=-256 elapsed=0.0s ---
+
+TOTAL elapsed: 1.0s

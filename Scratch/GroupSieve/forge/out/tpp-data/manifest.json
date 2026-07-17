@@ -1,12 +1,12 @@
 [
   {
-    "id": "pl15_PSL_2_11",
-    "description": "PSL_2_11 (order 660, PSL(2,11))",
+    "id": "pl15_S6",
+    "description": "S6 (order 720, SymmetricGroup(6))",
     "category": "pl15_probe",
     "expected_rho0": null,
     "constructor": [
       "PermGroup",
-      "PSL_2_11"
+      "S6"
     ]
   }
 ]
