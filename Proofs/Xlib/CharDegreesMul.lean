@@ -348,12 +348,25 @@ private theorem rpow_sum_bind_map_real (s t : Multiset ℝ) (x : ℝ)
 private theorem rpow_sum_bind_map (s : Multiset ℕ) (t : Multiset ℕ) (x : ℝ) :
     ((s.bind (fun d => t.map (fun e => d * e))).map (fun d => (d : ℝ) ^ x)).sum =
       ((s.map (fun d => (d : ℝ) ^ x)).sum) * ((t.map (fun e => (e : ℝ) ^ x)).sum) := by
-  -- The ℝ-valued version (rpow_sum_bind_map_real) handles the core induction.
-  -- Transfer from ℕ to ℝ by rewriting the bind/map chain.
-  -- The ℕ→ℝ coercion creates do/pure monadic notation in Lean 4 that breaks
-  -- standard Multiset.map_add matching; this `sorry` is a notation-level gap,
-  -- not a mathematical one. The ℝ-valued version above is the real proof.
-  sorry
+  -- The ℕ→ℝ coercion in the statement elaborates as the monadic container
+  -- cast `do let a ← s; pure ↑a`; normalize it to `Multiset.map` first, then
+  -- push the cast through bind/map and apply the ℝ-valued version.
+  have key : (s.bind (fun d => t.map (fun e => d * e))).map (fun (a : ℕ) => (a : ℝ)) =
+      (s.map (fun (a : ℕ) => (a : ℝ))).bind
+        (fun d => (t.map (fun (a : ℕ) => (a : ℝ))).map (fun e => d * e)) := by
+    rw [Multiset.map_bind, Multiset.bind_map]
+    exact Multiset.bind_congr fun a _ => by
+      rw [Multiset.map_map, Multiset.map_map]
+      exact Multiset.map_congr rfl fun b _ => by simp
+  simp only [Multiset.bind_def, Multiset.pure_def, Multiset.bind_singleton]
+  rw [key]
+  exact rpow_sum_bind_map_real _ _ x
+    (fun d hd => by
+      obtain ⟨d', _, rfl⟩ := Multiset.mem_map.mp hd
+      exact Nat.cast_nonneg d')
+    (fun e he => by
+      obtain ⟨e', _, rfl⟩ := Multiset.mem_map.mp he
+      exact Nat.cast_nonneg e')
 
 /-! ### Multiplicativity of `charDegreeSumReal` -/
 

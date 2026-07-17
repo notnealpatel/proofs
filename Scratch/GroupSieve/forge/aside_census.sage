@@ -377,7 +377,7 @@ def enumerate_shapes(classes, twist_idx, p, threshold, nG):
                 if sA * sC > nG or sB * sC > nG:
                     continue
                 sigma = sA * sB * sC // p
-                if sigma <= threshold:
+                if sigma < threshold:
                     continue
                 shapes.append((iA, iB, iC, 2, sigma))
 
