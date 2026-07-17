@@ -851,7 +851,7 @@ def generate_summary(start_order, end_order):
         f.write("\n### Downstream artifacts\n\n")
         f.write("- Tier-4 ranking and anchor validation: "
                 "`.tasks/f5exp/docs/Im3-ranking.md` "
-                "(program: `cmd/tier4rank/`, features: `tier4.sage`)\n")
+                "(program: `cmd/tier4rank/`, features: `forge/features.sage`)\n")
         f.write("- Survivor census (direct factors, ES types, T3b rationals): "
                 "`survivors-census*.jsonl` via `census.sage`; early analysis "
                 "in `.tasks/f5exp/docs/orch-Cj-census-early.md`\n")

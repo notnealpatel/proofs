@@ -1,7 +1,7 @@
 """
 features.sage — Survivor feature census for TPP group sieve data.
 
-Merged from census.sage (base-tier) and tier4.sage (deep-tier), built
+Merged from census.sage (base-tier) and tier4.sage [deleted] (deep-tier), built
 on forge/forgelib.py for parallel sharded execution.
 
 Library survey (GAP costs/semantics, mandatory per sieve-spec v1.2):
