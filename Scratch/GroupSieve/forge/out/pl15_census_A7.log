@@ -1,0 +1,80 @@
+TARGET AlternatingGroup(7) |G|=2520 threshold=10584 mode=census primes=[2, 3] raw=False
+Building subgroup lattice...
+Lattice: 40 classes, 3786 subgroups
+FORCED-INTERSECTION cache: 820 pairs in 24.9s
+
+=== PRIME p=2 ===
+Twistable (p=2): [(1, 2, 'C2', 1), (4, 4, 'C2 x C2', 3), (5, 4, 'C2 x C2', 3), (6, 4, 'C4', 1), (8, 6, 'C6', 1), (9, 6, 'S3', 1), (10, 6, 'S3', 1), (12, 8, 'D8', 3), (14, 10, 'D10', 1), (17, 12, 'C6 x C2', 3), (19, 12, 'C3 : C4', 1), (21, 12, 'D12', 3), (22, 18, '(C3 x C3) : C2', 1), (23, 20, 'C5 : C4', 1), (25, 24, 'S4', 1), (26, 24, '(C6 x C2) : C2', 3), (27, 24, 'S4', 1), (28, 24, 'S4', 1), (29, 24, 'S4', 1), (31, 36, '(C3 x C3) : C4', 1), (34, 72, '(C3 x A4) : C2', 1), (35, 120, 'S5', 1)]
+Shapes above threshold: 291
+SHAPE (36,36,36) p=2 k=2 |Sigma|=23328: frames=288 eligible=0 blocked=0 max_sigma=0 elapsed=2.1s [18/291 shapes]
+SHAPE (24,24,60) p=2 k=2 |Sigma|=17280: frames=456 eligible=0 blocked=0 max_sigma=0 elapsed=3.2s [127/291 shapes]
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(2,5)(3,6,4,7), (2,3,4)]","U_gens":"[(1,3,5,6)(4,7), (3,6,7)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(2,4)(3,5,6,7), (2,3,6)]","U_gens":"[(1,3,6,4)(5,7), (3,4,7)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(2,4)(3,6,7,5), (2,3,7)]","U_gens":"[(1,4,5,6)(3,7), (1,7,5)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(2,3)(4,6,5,7), (2,4,5)]","U_gens":"[(1,5,4,6)(3,7), (5,6,7)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(2,3)(4,6,7,5), (2,5,6)]","U_gens":"[(1,4,6,5)(3,7), (4,5,7)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(2,3)(4,5,6,7), (2,5,7)]","U_gens":"[(1,5,3,6)(4,7), (1,7,3)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,3,6,4)(5,7), (3,4,7)]","U_gens":"[(2,4)(3,5,6,7), (2,3,6)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,3,5,6)(4,7), (3,6,7)]","U_gens":"[(2,5)(3,6,4,7), (2,3,4)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,5,3,6)(4,7), (1,7,3)]","U_gens":"[(2,3)(4,5,6,7), (2,5,7)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,4,6,5)(3,7), (4,5,7)]","U_gens":"[(2,3)(4,6,7,5), (2,5,6)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,5,4,6)(3,7), (5,6,7)]","U_gens":"[(2,3)(4,6,5,7), (2,4,5)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,4,5,6)(3,7), (1,7,5)]","U_gens":"[(2,4)(3,6,7,5), (2,3,7)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,7,6,4)(2,5), (2,7,4)]","U_gens":"[(1,3,7,6)(2,4), (2,3,6)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,5,6,7)(2,4), (2,7,5)]","U_gens":"[(1,6,7,4)(2,3), (2,4,6)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,7,5,6)(2,4), (2,7,6)]","U_gens":"[(1,3,6,4)(2,7), (2,3,4)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,4,6,5)(2,7), (2,4,5)]","U_gens":"[(1,7,4,6)(2,3), (2,7,6)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,6,5,4)(2,7), (2,4,6)]","U_gens":"[(1,7,6,3)(2,4), (2,3,7)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,5,4,6)(2,7), (2,5,6)]","U_gens":"[(1,4,6,7)(2,3), (2,4,7)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,3,6,4)(2,7), (2,3,4)]","U_gens":"[(1,7,5,6)(2,4), (2,7,6)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,7,6,3)(2,4), (2,3,7)]","U_gens":"[(1,6,5,4)(2,7), (2,4,6)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,3,7,6)(2,4), (2,3,6)]","U_gens":"[(1,7,6,4)(2,5), (2,7,4)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,4,6,7)(2,3), (2,4,7)]","U_gens":"[(1,5,4,6)(2,7), (2,5,6)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,6,7,4)(2,3), (2,4,6)]","U_gens":"[(1,5,6,7)(2,4), (2,7,5)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+{"type":"config","target":"AlternatingGroup(7)","p":2,"shape":[24,36,36],"shape_sd":["(C6 x C2) : C2","(C3 x C3) : C4","(C3 x C3) : C4"],"sigma":15552,"k":3,"ncolls":9,"blocked":[true,true,true],"S_gens":"[(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)]","T_gens":"[(1,7,4,6)(2,3), (2,7,6)]","U_gens":"[(1,4,6,5)(2,7), (2,4,5)]","semantics":"exact"}
+*** KILL CANDIDATE: |Sigma|=15552 > beta_0=10584 ***
+SHAPE (24,36,36) p=2 k=3 |Sigma|=15552: frames=240 eligible=24 blocked=24 max_sigma=15552 elapsed=1.8s [148/291 shapes]
+SHAPE (24,36,36) p=2 k=3 |Sigma|=15552: frames=336 eligible=0 blocked=0 max_sigma=15552 elapsed=2.4s [149/291 shapes]
+SHAPE (24,36,36) p=2 k=3 |Sigma|=15552: frames=216 eligible=0 blocked=0 max_sigma=15552 elapsed=1.6s [150/291 shapes]
+SHAPE (24,36,36) p=2 k=3 |Sigma|=15552: frames=288 eligible=0 blocked=0 max_sigma=15552 elapsed=2.1s [151/291 shapes]
+SHAPE (24,36,36) p=2 k=2 |Sigma|=15552: frames=312 eligible=0 blocked=0 max_sigma=15552 elapsed=2.2s [162/291 shapes]
+SHAPE (24,36,36) p=2 k=2 |Sigma|=15552: frames=288 eligible=0 blocked=0 max_sigma=15552 elapsed=2.0s [163/291 shapes]
+SHAPE (24,36,36) p=2 k=2 |Sigma|=15552: frames=312 eligible=0 blocked=0 max_sigma=15552 elapsed=2.3s [165/291 shapes]
+SHAPE (24,36,36) p=2 k=2 |Sigma|=15552: frames=240 eligible=0 blocked=0 max_sigma=15552 elapsed=1.8s [166/291 shapes]
+SHAPE (24,36,36) p=2 k=2 |Sigma|=15552: frames=288 eligible=0 blocked=0 max_sigma=15552 elapsed=2.1s [168/291 shapes]
+SHAPE (24,36,36) p=2 k=2 |Sigma|=15552: frames=336 eligible=0 blocked=0 max_sigma=15552 elapsed=2.5s [169/291 shapes]
+SHAPE (24,36,36) p=2 k=2 |Sigma|=15552: frames=120 eligible=0 blocked=0 max_sigma=15552 elapsed=1.0s [171/291 shapes]
+SHAPE (24,36,36) p=2 k=2 |Sigma|=15552: frames=216 eligible=0 blocked=0 max_sigma=15552 elapsed=1.7s [172/291 shapes]
+SHAPE (24,36,36) p=2 k=2 |Sigma|=15552: frames=312 eligible=0 blocked=0 max_sigma=15552 elapsed=2.3s [174/291 shapes]
+SHAPE (24,36,36) p=2 k=2 |Sigma|=15552: frames=288 eligible=0 blocked=0 max_sigma=15552 elapsed=2.2s [175/291 shapes]
+SHAPE (36,36,24) p=2 k=2 |Sigma|=15552: frames=432 eligible=0 blocked=0 max_sigma=15552 elapsed=2.6s [177/291 shapes]
+SHAPE (36,36,24) p=2 k=2 |Sigma|=15552: frames=360 eligible=0 blocked=0 max_sigma=15552 elapsed=2.1s [178/291 shapes]
+SHAPE (36,36,24) p=2 k=2 |Sigma|=15552: frames=504 eligible=0 blocked=0 max_sigma=15552 elapsed=2.9s [179/291 shapes]
+SHAPE (36,36,24) p=2 k=2 |Sigma|=15552: frames=324 eligible=0 blocked=0 max_sigma=15552 elapsed=2.0s [180/291 shapes]
+SHAPE (36,36,24) p=2 k=2 |Sigma|=15552: frames=432 eligible=0 blocked=0 max_sigma=15552 elapsed=2.7s [181/291 shapes]
+SHAPE (12,120,21) p=2 k=2 |Sigma|=15120: frames=1440 eligible=0 blocked=0 max_sigma=15552 elapsed=17.5s [182/291 shapes]
+SHAPE (12,120,21) p=2 k=2 |Sigma|=15120: frames=1440 eligible=0 blocked=0 max_sigma=15552 elapsed=17.6s [183/291 shapes]
+SHAPE (20,24,60) p=2 k=2 |Sigma|=14400: frames=300 eligible=0 blocked=0 max_sigma=15552 elapsed=2.0s [201/291 shapes]

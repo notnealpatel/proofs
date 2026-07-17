@@ -1,5 +1,0 @@
-14. A_7 B-side (JSON already landed; ~41 s projected):
-/tmp/beta0probe exact --data out/tpp-data/pl15_A7.json --output out/pl15_results.jsonl --target-budget 10m
-
-15. A_7 A-side census (1–30 min; progress prints every shape):
-timeout 600 sage aside_census.sage -- --target "AlternatingGroup(7)" --primes 2,3 --threshold <beta0> | tee out/pl15_census_A7.log

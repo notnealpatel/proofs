@@ -102,6 +102,53 @@ theorem finrank_simple_ideal_matrix
 
 end MatrixSimple
 
+/-! ### finrank of an ideal within a factor ideal -/
+
+section FactorFinrank
+
+variable {K : Type*} [CommSemiring K] {ι : Type*} [DecidableEq ι]
+  {A : ι → Type*} [∀ i, Ring (A i)] [∀ i, Algebra K (A i)]
+
+/-- The `j`-th projection of an ideal within `factorIdeal A j`, as an ideal of `A j`.
+For `I ≤ factorIdeal A j`, every element is `Pi.single j (x j)`, so this is the
+image of the evaluation map, but constructed as a concrete ideal rather than
+via `Ideal.map` (which uses the span/sInf machinery). -/
+def factorProj (I : Ideal (Π i, A i)) (j : ι) : Ideal (A j) where
+  carrier := { y | Pi.single j y ∈ I }
+  add_mem' {a b} (ha : Pi.single j a ∈ I) (hb : Pi.single j b ∈ I) :=
+    show Pi.single j (a + b) ∈ I from
+      (Pi.single_add (f := A) j a b).symm ▸ I.add_mem ha hb
+  zero_mem' := show Pi.single j (0 : A j) ∈ I from
+    (Pi.single_zero (M := A) j).symm ▸ I.zero_mem
+  smul_mem' c y (hy : Pi.single j y ∈ I) :=
+    show Pi.single j (c * y) ∈ I by
+      rw [Pi.single_mul]
+      exact I.mul_mem_left _ hy
+
+/-- For `I ≤ factorIdeal A j`, the projection `x ↦ x j` gives a `K`-linear
+equivalence `I ≃ₗ[K] factorProj hI`. -/
+noncomputable def factorIdealLinearEquiv {I : Ideal (Π i, A i)} {j : ι}
+    (hI : I ≤ factorIdeal A j) : I ≃ₗ[K] (factorProj I j : Ideal (A j)) where
+  toFun x := ⟨(x : Π i, A i) j, by
+    have hx := x.property
+    have heq := eq_single_of_mem_factorIdeal (hI hx)
+    rw [heq] at hx
+    exact hx⟩
+  map_add' x y := Subtype.ext rfl
+  map_smul' r x := Subtype.ext rfl
+  invFun y := ⟨Pi.single j y, y.2⟩
+  left_inv x := by
+    apply Subtype.ext
+    exact (eq_single_of_mem_factorIdeal (hI x.property)).symm
+  right_inv y := Subtype.ext (Pi.single_eq_same j (y : A j))
+
+theorem finrank_le_factorIdeal {I : Ideal (Π i, A i)} {j : ι}
+    (hI : I ≤ factorIdeal A j) :
+    Module.finrank K I = Module.finrank K (factorProj I j : Ideal (A j)) :=
+  (factorIdealLinearEquiv hI).finrank_eq
+
+end FactorFinrank
+
 /-! ### The bridge: isotypic length = finrank of simple submodule -/
 
 section Bridge
