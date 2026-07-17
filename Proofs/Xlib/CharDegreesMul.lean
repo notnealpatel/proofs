@@ -117,25 +117,168 @@ noncomputable def piMonoidAlgEquiv (R : Type*) [CommSemiring R]
           AlgHom.coe_mk, Pi.evalAlgHom]
         rfl⟩
 
+/-! ### Matrices distribute over Pi
+
+The algebra equivalence `Matrix m m (Π i, B i) ≃ₐ[R] Π i, Matrix m m (B i)`:
+evaluate every entry at the component `i`.  Entrywise this is a transposition of
+total function arguments, so everything is (nearly) definitional. -/
+
+/-- **Matrices over a product of algebras are the product of matrix algebras.**
+`Matrix m m (Π i, B i) ≃ₐ[R] Π i, Matrix m m (B i)` by entrywise evaluation.
+Absent from Mathlib. -/
+noncomputable def matrixPiAlgEquiv (R : Type*) [CommSemiring R]
+    (m : Type*) [Fintype m] [DecidableEq m]
+    (ι : Type*) (B : ι → Type*) [∀ i, Semiring (B i)] [∀ i, Algebra R (B i)] :
+    Matrix m m (Π i, B i) ≃ₐ[R] Π i, Matrix m m (B i) where
+  toFun M i := M.map (fun v => v i)
+  invFun P := Matrix.of fun r c i => P i r c
+  left_inv _ := rfl
+  right_inv _ := rfl
+  map_mul' M N := by
+    funext i
+    ext r c
+    simp [Matrix.mul_apply, Finset.sum_apply]
+  map_add' _ _ := rfl
+  commutes' r := by
+    funext i
+    ext r' c
+    simp only [Matrix.map_apply, Matrix.algebraMap_matrix_apply, Pi.algebraMap_apply]
+    split_ifs <;> simp
+
+/-- **Pi over a product index curries.**
+`(Π i, Π j, C i j) ≃ₐ[R] Π p : ι × κ, C p.1 p.2`; all fields are definitional. -/
+noncomputable def piProdAlgEquiv (R : Type*) [CommSemiring R] (ι κ : Type*)
+    (C : ι → κ → Type*) [∀ i j, Semiring (C i j)] [∀ i j, Algebra R (C i j)] :
+    (Π i, Π j, C i j) ≃ₐ[R] Π p : ι × κ, C p.1 p.2 where
+  toFun f p := f p.1 p.2
+  invFun f i j := f (i, j)
+  left_inv _ := rfl
+  right_inv _ := rfl
+  map_mul' _ _ := rfl
+  map_add' _ _ := rfl
+  commutes' _ := rfl
+
+/-! ### Matrix-valued monoid algebras are matrices over monoid algebras
+
+This was the named gap of Md1: an algebra equivalence
+  `MonoidAlgebra (Matrix m m A) G ≃ₐ[R] Matrix m m (MonoidAlgebra A G)`.
+Mathlib's `MonoidAlgebra.tensorEquiv` / `scalarTensorEquiv` require
+`CommSemiring` coefficients **and** a `CommMonoid` monoid, so they cannot be
+used for noncommutative `Matrix m m ℂ` over a noncommutative group.  We build
+the equivalence directly: the forward algebra homomorphism is
+`MonoidAlgebra.liftNCAlgHom` on the generators (coefficient matrices go to
+matrices of `single 1` coefficients; group elements go to scalar matrices
+`single g 1 • 1`), whose pointwise value is the index transposition
+`x g i j` (proved by `induction_linear`); bijectivity is then immediate from
+the explicit formula. -/
+
+/-- The forward algebra homomorphism
+`MonoidAlgebra (Matrix m m A) G →ₐ[R] Matrix m m (MonoidAlgebra A G)`,
+via the non-commutative universal property `liftNCAlgHom`. -/
+noncomputable def matrixMonoidAlgFwd (R A : Type*) [CommSemiring R] [Semiring A]
+    [Algebra R A] (m : Type*) [Fintype m] [DecidableEq m] (G : Type*) [Monoid G] :
+    MonoidAlgebra (Matrix m m A) G →ₐ[R] Matrix m m (MonoidAlgebra A G) :=
+  MonoidAlgebra.liftNCAlgHom
+    (AlgHom.mapMatrix (MonoidAlgebra.singleOneAlgHom :
+      A →ₐ[R] MonoidAlgebra A G))
+    ((Matrix.scalar m).toMonoidHom.comp (MonoidAlgebra.of A G))
+    (fun X g => by
+      show _ * _ = _ * _
+      ext i j
+      simp only [RingHom.toMonoidHom_eq_coe, MonoidHom.coe_comp, MonoidHom.coe_coe,
+        Function.comp_apply, MonoidAlgebra.of_apply, Matrix.scalar_apply,
+        AlgHom.mapMatrix_apply, Matrix.mul_diagonal, Matrix.diagonal_mul,
+        Matrix.map_apply, MonoidAlgebra.singleOneAlgHom_apply,
+        MonoidAlgebra.single_mul_single, one_mul, mul_one])
+
+/-- The pointwise value of `matrixMonoidAlgFwd` is the index transposition. -/
+private theorem matrixMonoidAlgFwd_apply (R A : Type*) [CommSemiring R] [Semiring A]
+    [Algebra R A] (m : Type*) [Fintype m] [DecidableEq m] (G : Type*) [Monoid G]
+    (x : MonoidAlgebra (Matrix m m A) G) (i j : m) (g : G) :
+    matrixMonoidAlgFwd R A m G x i j g = x g i j := by
+  classical
+  induction x using MonoidAlgebra.induction_linear with
+  | zero => rw [map_zero]; rfl
+  | add f h hf hh => simp [hf, hh]
+  | single g' X =>
+    simp only [matrixMonoidAlgFwd, MonoidAlgebra.coe_liftNCAlgHom,
+      MonoidAlgebra.liftNC_single, AddMonoidHom.coe_coe, RingHom.toMonoidHom_eq_coe,
+      MonoidHom.coe_comp, MonoidHom.coe_coe, Function.comp_apply, MonoidAlgebra.of_apply,
+      Matrix.scalar_apply, AlgHom.mapMatrix_apply, Matrix.mul_diagonal, Matrix.map_apply,
+      MonoidAlgebra.singleOneAlgHom_apply, MonoidAlgebra.single_mul_single, one_mul, mul_one,
+      MonoidAlgebra.single_apply]
+    split_ifs <;> simp
+
+/-- **Matrix-valued monoid algebras are matrices over monoid algebras**:
+`MonoidAlgebra (Matrix m m A) G ≃ₐ[R] Matrix m m (MonoidAlgebra A G)`.
+
+This was the named gap of Md1.  Mathlib cannot provide it via tensor products
+(`MonoidAlgebra.tensorEquiv` requires commutative coefficients and a
+commutative monoid), so it is built directly from `liftNCAlgHom` and the
+pointwise transposition formula.  Absent from Mathlib. -/
+noncomputable def matrixMonoidAlgEquiv (R A : Type*) [CommSemiring R] [Semiring A]
+    [Algebra R A] (m : Type*) [Fintype m] [DecidableEq m] (G : Type*) [Monoid G] :
+    MonoidAlgebra (Matrix m m A) G ≃ₐ[R] Matrix m m (MonoidAlgebra A G) :=
+  AlgEquiv.ofBijective (matrixMonoidAlgFwd R A m G) ⟨
+    fun x y h => by
+      ext g i j
+      have h' : matrixMonoidAlgFwd R A m G x i j g =
+          matrixMonoidAlgFwd R A m G y i j g := by rw [h]
+      rwa [matrixMonoidAlgFwd_apply, matrixMonoidAlgFwd_apply] at h',
+    fun M => by
+      classical
+      refine ⟨Finsupp.onFinset
+        (Finset.univ.biUnion fun i => Finset.univ.biUnion fun j => (M i j).support)
+        (fun g => Matrix.of fun i j => M i j g) (fun g hg => ?_), ?_⟩
+      · simp only [Finset.mem_biUnion, Finset.mem_univ, true_and]
+        by_contra hall
+        simp only [not_exists, Finsupp.mem_support_iff, not_not] at hall
+        exact hg (by ext i j; exact hall i j)
+      · ext i j g
+        rw [matrixMonoidAlgFwd_apply]
+        simp⟩
+
 /-! ### Character degrees of a product group
 
-**Named gap: `matrixMonoidAlgEquiv`.**  The proof requires an algebra equivalence
-`MonoidAlgebra (Matrix m m ℂ) G ≃ₐ[ℂ] Matrix m m (MonoidAlgebra ℂ G)` — matrix-valued
-monoid algebras are isomorphic to matrices over monoid algebras.  This is
-mathematically trivial (transpose the `G`-index and the matrix indices) but
-requires custom `AlgEquiv` glue: Mathlib's `MonoidAlgebra.tensorEquiv` and
-`matrixEquivTensor` both require `CommSemiring` on the noncommutative factor,
-so cannot be composed for noncommutative groups.  The combinatorial corollaries
-(`charDegreeSumReal_prod`, `charDegreeSumReal_pi_fin`) are proved assuming
-`charDegrees_prod` and do not introduce further sorries.
+The equivalence chain (Wedderburn data `eG : ℂ[G] ≃ₐ Π i, Mat_{d_i}(ℂ)` and
+`eH : ℂ[H] ≃ₐ Π j, Mat_{e_j}(ℂ)`):
 
-See `.tasks/f5exp/docs/md1-notes.md` for the full gap specification.
+  `ℂ[G × H] ≃ₐ ℂ[H × G]`                                   (domCongr prodComm)
+  `ℂ[H × G] ≃ₐ ℂ[G][H]`                                    (curryAlgEquiv)
+  `ℂ[G][H] ≃ₐ (Π i, Mat_{d_i}(ℂ))[H]`                      (mapAlgEquiv eG)
+  `(Π i, Mat_{d_i}(ℂ))[H] ≃ₐ Π i, Mat_{d_i}(ℂ)[H]`         (piMonoidAlgEquiv)
+  `Π i, Mat_{d_i}(ℂ)[H] ≃ₐ Π i, Mat_{d_i}(ℂ[H])`           (matrixMonoidAlgEquiv)
+  `Π i, Mat_{d_i}(ℂ[H]) ≃ₐ Π i, Mat_{d_i}(Π j, Mat_{e_j})` (mapMatrix eH)
+  `≃ₐ Π i, Π j, Mat_{d_i}(Mat_{e_j}(ℂ))`                   (matrixPiAlgEquiv)
+  `≃ₐ Π i, Π j, Mat_{d_i · e_j}(ℂ)`                        (compAlgEquiv, reindex)
+  `≃ₐ Π p : Fin n_G × Fin n_H, Mat_{d_{p.1} · e_{p.2}}(ℂ)` (piProdAlgEquiv)
+  `≃ₐ Π k : Fin (n_G · n_H), Mat_{dd k}(ℂ)`                (piCongrLeft')
 
-The available sorry-free chain so far:
-  `ℂ[G × H] ≃ₐ ℂ[H][G]`               (curryAlgEquiv)
-  `ℂ[H][G] ≃ₐ (Π j, Mat_{e_j}(ℂ))[G]` (mapAlgEquiv using eH)
-  `(Π j, Mat_{e_j}(ℂ))[G] ≃ₐ Π j, Mat_{e_j}(ℂ)[G]`  (piMonoidAlgEquiv)
-The remaining step Mat_{e_j}(ℂ)[G] ≃ₐ Π i, Mat_{d_i · e_j}(ℂ) is the gap. -/
+and then `charDegrees_eq_of_algEquiv` on both sides plus multiset bookkeeping
+(`univ_val_map_mul_finProdFinEquiv_symm`). -/
+
+/-- Multiset bookkeeping: enumerating `dG p.1 * dH p.2` over the flattened index
+`Fin (nG * nH)` (via `finProdFinEquiv.symm`) gives exactly the bind/map multiset
+of pairwise products. -/
+private theorem univ_val_map_mul_finProdFinEquiv_symm {nG nH : ℕ}
+    (dG : Fin nG → ℕ) (dH : Fin nH → ℕ) :
+    (Finset.univ.val.map (fun k : Fin (nG * nH) =>
+        dG (finProdFinEquiv.symm k).1 * dH (finProdFinEquiv.symm k).2)) =
+      (Finset.univ.val.map dG).bind
+        (fun d => (Finset.univ.val.map dH).map (fun e => d * e)) := by
+  rw [← Finset.map_univ_equiv (finProdFinEquiv : Fin nG × Fin nH ≃ Fin (nG * nH)),
+    Finset.map_val, Multiset.map_map]
+  have h1 : (Finset.univ.val.map
+      ((fun k : Fin (nG * nH) => dG (finProdFinEquiv.symm k).1 * dH (finProdFinEquiv.symm k).2)
+        ∘ (finProdFinEquiv : Fin nG × Fin nH ≃ Fin (nG * nH)).toEmbedding)) =
+      Finset.univ.val.map (fun p : Fin nG × Fin nH => dG p.1 * dH p.2) :=
+    Multiset.map_congr rfl fun p _ => by
+      simp only [Function.comp_apply, Equiv.coe_toEmbedding, Equiv.symm_apply_apply]
+  rw [h1, ← Finset.univ_product_univ, Finset.product_val]
+  show ((Finset.univ.val.bind fun a => Finset.univ.val.map (Prod.mk a)).map
+    (fun p : Fin nG × Fin nH => dG p.1 * dH p.2)) = _
+  rw [Multiset.map_bind, Multiset.bind_map]
+  exact Multiset.bind_congr fun a _ => by rw [Multiset.map_map, Multiset.map_map]; rfl
 
 /-- **Character degrees multiply over products.** The character-degree multiset
 of `G × H` is the multiset of all pairwise products `d * e` for `d ∈ charDegrees G`
@@ -147,17 +290,40 @@ theorem charDegrees_prod (G H : Type*) [Group G] [Fintype G] [Group H] [Fintype 
   haveI : NeZero (Nat.card G : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
   haveI : NeZero (Nat.card H : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
   haveI : NeZero (Nat.card (G × H) : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
+  letI : DecidableEq H := Classical.decEq H
   obtain ⟨nG, dG, hneG, ⟨eG⟩⟩ :=
     IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed ℂ (MonoidAlgebra ℂ G)
   obtain ⟨nH, dH, hneH, ⟨eH⟩⟩ :=
     IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed ℂ (MonoidAlgebra ℂ H)
   haveI := hneG; haveI := hneH
-  -- Rewrite LHS and RHS via charDegrees_eq_of_algEquiv
-  rw [charDegrees_eq_of_algEquiv G eG, charDegrees_eq_of_algEquiv H eH]
-  -- LHS needs a decomposition of ℂ[G × H] into blocks of size dG i * dH j
-  -- RHS = (Finset.univ.val.map dG).bind (fun d => (Finset.univ.val.map dH).map (d * ·))
-  -- Gap: constructing the AlgEquiv ℂ[G × H] ≃ₐ Π (i,j), Mat_{dG i * dH j}(ℂ)
-  sorry
+  haveI : ∀ k : Fin (nG * nH),
+      NeZero (dG (finProdFinEquiv.symm k).1 * dH (finProdFinEquiv.symm k).2) :=
+    fun k => ⟨Nat.mul_ne_zero (NeZero.ne _) (NeZero.ne _)⟩
+  -- Assemble the block decomposition of ℂ[G × H] with blocks of size dG i * dH j
+  have E : MonoidAlgebra ℂ (G × H) ≃ₐ[ℂ] Π k : Fin (nG * nH),
+      Matrix (Fin (dG (finProdFinEquiv.symm k).1 * dH (finProdFinEquiv.symm k).2))
+        (Fin (dG (finProdFinEquiv.symm k).1 * dH (finProdFinEquiv.symm k).2)) ℂ :=
+    (MonoidAlgebra.domCongr ℂ ℂ (MulEquiv.prodComm : G × H ≃* H × G)).trans <|
+      (MonoidAlgebra.curryAlgEquiv ℂ).trans <|
+        (MonoidAlgebra.mapAlgEquiv ℂ H eG).trans <|
+          (piMonoidAlgEquiv ℂ (Fin nG) (fun i => Matrix (Fin (dG i)) (Fin (dG i)) ℂ) H).trans <|
+            (AlgEquiv.piCongrRight fun i =>
+              (matrixMonoidAlgEquiv ℂ ℂ (Fin (dG i)) H).trans <|
+                (AlgEquiv.mapMatrix eH).trans <|
+                  (matrixPiAlgEquiv ℂ (Fin (dG i)) (Fin nH)
+                    (fun j => Matrix (Fin (dH j)) (Fin (dH j)) ℂ)).trans <|
+                    AlgEquiv.piCongrRight fun j =>
+                      (Matrix.compAlgEquiv (Fin (dG i)) (Fin (dH j)) ℂ ℂ).trans
+                        (Matrix.reindexAlgEquiv ℂ ℂ finProdFinEquiv)).trans <|
+              (piProdAlgEquiv ℂ (Fin nG) (Fin nH)
+                (fun i j => Matrix (Fin (dG i * dH j)) (Fin (dG i * dH j)) ℂ)).trans <|
+                AlgEquiv.piCongrLeft' ℂ
+                  (fun p : Fin nG × Fin nH =>
+                    Matrix (Fin (dG p.1 * dH p.2)) (Fin (dG p.1 * dH p.2)) ℂ)
+                  finProdFinEquiv
+  rw [charDegrees_eq_of_algEquiv (G × H) E, charDegrees_eq_of_algEquiv G eG,
+    charDegrees_eq_of_algEquiv H eH]
+  exact univ_val_map_mul_finProdFinEquiv_symm dG dH
 
 /-! ### Multiset bookkeeping for the rpow sum -/
 

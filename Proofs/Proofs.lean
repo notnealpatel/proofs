@@ -32,5 +32,6 @@ import Proofs.BilinearComplexity.KroneckerMatMul
 import Proofs.BilinearComplexity.MatMulMono
 import Proofs.BilinearComplexity.GroupTensor
 import Proofs.BilinearComplexity.GroupTensorWedderburn
+import Proofs.BilinearComplexity.Complexify
 import Proofs.BilinearComplexity.Winograd
 import Proofs.Scratch
