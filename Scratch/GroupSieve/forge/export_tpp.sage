@@ -35,8 +35,17 @@ import sys
 import time
 from pathlib import Path
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-OUT_DIR = SCRIPT_DIR / "out" / "tpp-data"
+REPO_ROOT = Path("/home/exedev/p/proofs")
+FORGE_DIR = REPO_ROOT / "Scratch" / "GroupSieve" / "forge"
+OUT_DIR = FORGE_DIR / "out" / "tpp-data"
+
+
+class SageEncoder(json.JSONEncoder):
+    """JSON encoder that handles Sage Integer/RealNumber types."""
+    def default(self, obj):
+        if hasattr(obj, '__index__'):
+            return int(obj)
+        return super().default(obj)
 
 
 def build_manifest(stretch=False):
@@ -306,7 +315,7 @@ def export_target(target):
     # Atomic write: write to temp file then rename.
     tmp_path = out_path.with_suffix(".tmp")
     with open(tmp_path, "w") as f:
-        json.dump(result, f)
+        json.dump(result, f, cls=SageEncoder)
     os.rename(str(tmp_path), str(out_path))
 
     elapsed = time.time() - t0
@@ -373,7 +382,7 @@ def main(argv):
     # Write manifest file.
     manifest_path = OUT_DIR / "manifest.json"
     with open(manifest_path, "w") as f:
-        json.dump(manifest_data, f, indent=2)
+        json.dump(manifest_data, f, indent=2, cls=SageEncoder)
     print("Manifest written: %s" % manifest_path, flush=True)
 
     if errors:
