@@ -231,6 +231,7 @@ type witness struct {
 	sIdx    int
 	tIdx    int
 	uIdx    int
+	valid   bool
 }
 
 func runExact(ctx context.Context, g *tpp.Group, workers int, crossCheck bool) beta0Result {
@@ -272,7 +273,6 @@ func runExact(ctx context.Context, g *tpp.Group, workers int, crossCheck bool) b
 	runWorkers(ctx, g, classes, work, workers, &bestProduct, func(prod int64, ci, cj, ck int, sIdx, tIdx, uIdx, tCopy, uCopy int) {
 		bestMu.Lock()
 		if prod > best.product {
-			// Find copy index for S (always rep, so copy 0).
 			best = witness{
 				product: prod,
 				orders:  [3]int{classes[ci].order, classes[cj].order, classes[ck].order},
@@ -281,6 +281,7 @@ func runExact(ctx context.Context, g *tpp.Group, workers int, crossCheck bool) b
 				sIdx:    sIdx,
 				tIdx:    tIdx,
 				uIdx:    uIdx,
+				valid:   true,
 			}
 		}
 		bestMu.Unlock()
@@ -309,7 +310,7 @@ func runExact(ctx context.Context, g *tpp.Group, workers int, crossCheck bool) b
 	rho := tpp.NewRational(bp, nG)
 
 	var witnessElts [3][]int
-	if best.sIdx > 0 || best.tIdx > 0 || best.uIdx > 0 {
+	if best.valid {
 		witnessElts = extractWitnessElts(g, best.sIdx, best.tIdx, best.uIdx)
 	}
 
@@ -387,6 +388,7 @@ func runHunt(ctx context.Context, g *tpp.Group, workers int, threshold int64, cr
 				sIdx:    sIdx,
 				tIdx:    tIdx,
 				uIdx:    uIdx,
+				valid:   true,
 			}
 			bestMu.Unlock()
 			huntCancel() // Stop all workers.
@@ -412,7 +414,7 @@ func runHunt(ctx context.Context, g *tpp.Group, workers int, threshold int64, cr
 	// Brute-force re-check any hunt hit.
 	huntKill := false
 	bruteOK := false
-	if best.product > threshold {
+	if best.valid && best.product > threshold {
 		sRep := &g.Subgroups[best.sIdx]
 		tSub := &g.Subgroups[best.tIdx]
 		uSub := &g.Subgroups[best.uIdx]
@@ -434,7 +436,7 @@ func runHunt(ctx context.Context, g *tpp.Group, workers int, threshold int64, cr
 	rho := tpp.NewRational(bp, nG)
 
 	var witnessElts [3][]int
-	if best.sIdx > 0 || best.tIdx > 0 || best.uIdx > 0 {
+	if best.valid {
 		witnessElts = extractWitnessElts(g, best.sIdx, best.tIdx, best.uIdx)
 	}
 
