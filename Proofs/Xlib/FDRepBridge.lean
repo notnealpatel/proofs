@@ -113,27 +113,23 @@ The proof uses a dimensional argument. Given a Wedderburn decomposition
 section Bridge
 
 /-- The `F`-dimension of a factor ideal of `Π Mat_{d_i}(F)` is `(d j)²`. -/
-noncomputable def factorIdealLinearEquiv {F : Type*} [Field F]
-    {n : ℕ} {d : Fin n → ℕ} [∀ i, NeZero (d i)]
-    [∀ i, Nonempty (Fin (d i))] (j : Fin n) :
-    factorIdeal (fun i => Matrix (Fin (d i)) (Fin (d i)) F) j ≃ₗ[F]
-      Matrix (Fin (d j)) (Fin (d j)) F where
-  toFun x := (x : Π i, Matrix (Fin (d i)) (Fin (d i)) F) j
-  map_add' _ _ := rfl
-  map_smul' _ _ := rfl
-  invFun M := ⟨Pi.single j M, single_mem_factorIdeal j M⟩
-  left_inv x := Subtype.ext (eq_single_of_mem_factorIdeal (show
-    (x : Π i, _) ∈ factorIdeal _ j from x.2)).symm
-  right_inv M := by show (Pi.single j M) j = M; exact Pi.single_eq_same j M
-
 theorem finrank_factorIdeal_matrix {F : Type*} [Field F]
     {n : ℕ} {d : Fin n → ℕ} [∀ i, NeZero (d i)] (j : Fin n) :
     Module.finrank F (factorIdeal (fun i => Matrix (Fin (d i)) (Fin (d i)) F) j) =
       d j * d j := by
   haveI : ∀ i, Nonempty (Fin (d i)) := fun i =>
     ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne (d i))⟩⟩
-  rw [(factorIdealLinearEquiv j).finrank_eq, Module.finrank_matrix, Fintype.card_fin,
-    Fintype.card_fin, Module.finrank_self]
+  set A := fun i => Matrix (Fin (d i)) (Fin (d i)) F
+  -- Build the linear equivalence with more explicit typing
+  have φ : factorIdeal A j ≃ₗ[F] A j :=
+  { toFun := fun x => (x : Π i, A i) j
+    map_add' := fun _ _ => rfl
+    map_smul' := fun _ _ => rfl
+    invFun := fun M => ⟨Pi.single j M, single_mem_factorIdeal j M⟩
+    left_inv := fun x => Subtype.ext
+      (eq_single_of_mem_factorIdeal (show (x : Π i, A i) ∈ factorIdeal A j from x.2)).symm
+    right_inv := fun M => Pi.single_eq_same j M }
+  rw [φ.finrank_eq, Module.finrank_matrix, Module.finrank_self, Fintype.card_fin]
   ring
 
 /-- **Bridge theorem.** In a f.d. semisimple algebra over an alg-closed field,
