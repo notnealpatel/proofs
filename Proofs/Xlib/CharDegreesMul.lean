@@ -43,8 +43,8 @@ absent from Mathlib:
   (Mathlib's `MonoidAlgebra.tensorEquiv` requires commutative coefficients and
   a commutative monoid, so it cannot produce this; built directly from
   `liftNCAlgHom`),
-* `matrixPiAlgEquiv` / `piProdAlgEquiv` — matrices distribute over Pi, and
-  Pi over a product index curries.
+* `piProdAlgEquiv` — Pi over a product index curries,
+* `Matrix.piAlgEquiv` (Mathlib) — matrices distribute over Pi.
 
 Everything is `sorry`-free; `charDegrees_eq_of_algEquiv` (Wedderburn
 uniqueness) transports the block multisets on both sides, and the multiset
@@ -58,7 +58,7 @@ Note on coercions: `charDegreeSumReal` elaborates its `ℕ → ℝ` cast as the
 ## Upstream candidates
 
 `charDegrees_prod`, `one_le_of_mem_charDegrees`, `piMonoidAlgEquiv`,
-`matrixMonoidAlgEquiv`, `matrixPiAlgEquiv`, `charDegrees_eq_of_mulEquiv`, and
+`matrixMonoidAlgEquiv`, `charDegrees_eq_of_mulEquiv`, and
 `charDegreeSumReal_prod` are natural Mathlib candidates (provenance note
 only, no upstreaming per user directive).
 -/
@@ -132,34 +132,6 @@ noncomputable def piMonoidAlgEquiv (R : Type*) [CommSemiring R]
         simp only [piMonoidAlgFwd, Pi.algHom, MonoidAlgebra.mapAlgHom,
           AlgHom.coe_mk, Pi.evalAlgHom]
         rfl⟩
-
-/-! ### Matrices distribute over Pi
-
-The algebra equivalence `Matrix m m (Π i, B i) ≃ₐ[R] Π i, Matrix m m (B i)`:
-evaluate every entry at the component `i`.  Entrywise this is a transposition of
-total function arguments, so everything is (nearly) definitional. -/
-
-/-- **Matrices over a product of algebras are the product of matrix algebras.**
-`Matrix m m (Π i, B i) ≃ₐ[R] Π i, Matrix m m (B i)` by entrywise evaluation.
-Absent from Mathlib. -/
-noncomputable def matrixPiAlgEquiv (R : Type*) [CommSemiring R]
-    (m : Type*) [Fintype m] [DecidableEq m]
-    (ι : Type*) (B : ι → Type*) [∀ i, Semiring (B i)] [∀ i, Algebra R (B i)] :
-    Matrix m m (Π i, B i) ≃ₐ[R] Π i, Matrix m m (B i) where
-  toFun M i := M.map (fun v => v i)
-  invFun P := Matrix.of fun r c i => P i r c
-  left_inv _ := rfl
-  right_inv _ := rfl
-  map_mul' M N := by
-    funext i
-    ext r c
-    simp [Matrix.mul_apply, Finset.sum_apply]
-  map_add' _ _ := rfl
-  commutes' r := by
-    funext i
-    ext r' c
-    simp only [Matrix.map_apply, Matrix.algebraMap_matrix_apply, Pi.algebraMap_apply]
-    split_ifs <;> simp
 
 /-- **Pi over a product index curries.**
 `(Π i, Π j, C i j) ≃ₐ[R] Π p : ι × κ, C p.1 p.2`; all fields are definitional. -/
@@ -265,7 +237,7 @@ The equivalence chain (Wedderburn data `eG : ℂ[G] ≃ₐ Π i, Mat_{d_i}(ℂ)`
   `(Π i, Mat_{d_i}(ℂ))[H] ≃ₐ Π i, Mat_{d_i}(ℂ)[H]`         (piMonoidAlgEquiv)
   `Π i, Mat_{d_i}(ℂ)[H] ≃ₐ Π i, Mat_{d_i}(ℂ[H])`           (matrixMonoidAlgEquiv)
   `Π i, Mat_{d_i}(ℂ[H]) ≃ₐ Π i, Mat_{d_i}(Π j, Mat_{e_j})` (mapMatrix eH)
-  `≃ₐ Π i, Π j, Mat_{d_i}(Mat_{e_j}(ℂ))`                   (matrixPiAlgEquiv)
+  `≃ₐ Π i, Π j, Mat_{d_i}(Mat_{e_j}(ℂ))`                   (Matrix.piAlgEquiv)
   `≃ₐ Π i, Π j, Mat_{d_i · e_j}(ℂ)`                        (compAlgEquiv, reindex)
   `≃ₐ Π p : Fin n_G × Fin n_H, Mat_{d_{p.1} · e_{p.2}}(ℂ)` (piProdAlgEquiv)
   `≃ₐ Π k : Fin (n_G · n_H), Mat_{dd k}(ℂ)`                (piCongrLeft')
@@ -326,8 +298,7 @@ theorem charDegrees_prod (G H : Type*) [Group G] [Fintype G] [Group H] [Fintype 
             (AlgEquiv.piCongrRight fun i =>
               (matrixMonoidAlgEquiv ℂ ℂ (Fin (dG i)) H).trans <|
                 (AlgEquiv.mapMatrix eH).trans <|
-                  (matrixPiAlgEquiv ℂ (Fin (dG i)) (Fin nH)
-                    (fun j => Matrix (Fin (dH j)) (Fin (dH j)) ℂ)).trans <|
+                  (Matrix.piAlgEquiv ℂ).trans <|
                     AlgEquiv.piCongrRight fun j =>
                       (Matrix.compAlgEquiv (Fin (dG i)) (Fin (dH j)) ℂ ℂ).trans
                         (Matrix.reindexAlgEquiv ℂ ℂ finProdFinEquiv)).trans <|

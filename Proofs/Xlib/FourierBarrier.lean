@@ -399,7 +399,8 @@ section Frobenius
 open scoped Matrix.Norms.Frobenius
 
 omit [Group G] [Fintype G] [DecidableEq G] in
-/-- The squared Frobenius norm as an entry sum. -/
+/-- The squared Frobenius norm as an entry sum.
+Immediate from `Matrix.frobenius_norm_def`. -/
 private lemma sq_frobenius_norm {m n : Type*} [Fintype m] [Fintype n]
     (M : Matrix m n ℂ) : ‖M‖ ^ 2 = ∑ r, ∑ c, ‖M r c‖ ^ 2 := by
   rw [Matrix.frobenius_norm_def, ← Real.rpow_natCast _ 2,
@@ -498,21 +499,14 @@ private def conjAlgEquiv {m : ℕ} (B B' : Matrix (Fin m) (Fin m) ℂ)
 
 omit [Group G] [Fintype G] [DecidableEq G] in
 /-- Blockwise conjugation by an inverse pair, as an algebra automorphism of the
-product of matrix algebras. -/
+product of matrix algebras.  Wraps `AlgEquiv.piCongrRight` applied to
+`conjAlgEquiv` at each block. -/
 private def piConjAlgEquiv {k : ℕ} {d : Fin k → ℕ}
     (B B' : ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ)
     (hBB' : ∀ i, B i * B' i = 1) (hB'B : ∀ i, B' i * B i = 1) :
     (∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ) ≃ₐ[ℂ]
       (∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ) :=
   AlgEquiv.piCongrRight fun i => conjAlgEquiv (B i) (B' i) (hBB' i) (hB'B i)
-
-omit [Group G] [Fintype G] [DecidableEq G] in
-private lemma piConjAlgEquiv_apply {k : ℕ} {d : Fin k → ℕ}
-    (B B' : ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ)
-    (hBB' : ∀ i, B i * B' i = 1) (hB'B : ∀ i, B' i * B i = 1)
-    (y : ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ) (i : Fin k) :
-    piConjAlgEquiv B B' hBB' hB'B y i = B i * y i * B' i :=
-  rfl
 
 omit [DecidableEq G] in
 open scoped ComplexOrder MatrixOrder in
