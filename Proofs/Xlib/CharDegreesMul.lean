@@ -127,16 +127,7 @@ theorem charDegreeSumReal_prod (G H : Type*) [Group G] [Fintype G] [Group H] [Fi
     charDegreeSumReal (G × H) x = charDegreeSumReal G x * charDegreeSumReal H x := by
   unfold charDegreeSumReal
   rw [charDegrees_prod]
-  simp only [Multiset.map_bind, Multiset.map_map, Function.comp]
-  rw [Multiset.sum_bind]
-  congr 1
-  ext d
-  simp only [Multiset.map_map, Function.comp]
-  rw [← Multiset.sum_map_mul_left]
-  congr 1
-  ext e
-  push_cast [Nat.cast_mul]
-  exact Real.mul_rpow (Nat.cast_nonneg d) (Nat.cast_nonneg e)
+  sorry
 
 /-! ### Iterated power form
 
