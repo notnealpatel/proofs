@@ -162,20 +162,41 @@ theorem charDegrees_prod (G H : Type*) [Group G] [Fintype G] [Group H] [Fintype 
 /-! ### Multiset bookkeeping for the rpow sum -/
 
 /-- The rpow sum over a bind/map product factors as a product of rpow sums. -/
-private theorem rpow_sum_bind_map (s : Multiset ℕ) (t : Multiset ℕ) (x : ℝ) :
-    ((s.bind (fun d => t.map (fun e => d * e))).map (fun d => (d : ℝ) ^ x)).sum =
-      ((s.map (fun d => (d : ℝ) ^ x)).sum) * ((t.map (fun e => (e : ℝ) ^ x)).sum) := by
+-- Use ℝ-valued multiset versions to avoid ℕ→ℝ coercion/monadic friction
+private theorem rpow_sum_bind_map_real (s t : Multiset ℝ) (x : ℝ)
+    (hs : ∀ d ∈ s, (0 : ℝ) ≤ d) (ht : ∀ e ∈ t, (0 : ℝ) ≤ e) :
+    ((s.bind (fun d => t.map (fun e => d * e))).map (· ^ x)).sum =
+      ((s.map (· ^ x)).sum) * ((t.map (· ^ x)).sum) := by
   induction s using Multiset.induction with
   | empty => simp
   | cons a s ih =>
-    simp only [Multiset.bind_cons, Multiset.map_add, Multiset.sum_add, Multiset.map_cons,
-      Multiset.sum_cons, Multiset.map_map, Function.comp]
-    rw [ih, add_mul]
+    rw [Multiset.cons_bind, Multiset.map_add, Multiset.sum_add,
+      ih (fun d hd => hs d (Multiset.mem_cons_of_mem hd)),
+      Multiset.map_cons, Multiset.sum_cons, add_mul]
     congr 1
-    rw [← Multiset.sum_map_mul_left]
+    rw [Multiset.map_map, ← Multiset.sum_map_mul_left]
     congr 1; ext e
-    push_cast [Nat.cast_mul]
-    exact Real.mul_rpow (Nat.cast_nonneg a) (Nat.cast_nonneg e)
+    intro he
+    exact Real.mul_rpow (hs a (Multiset.mem_cons_self a s)) (ht e he)
+
+private theorem rpow_sum_bind_map (s : Multiset ℕ) (t : Multiset ℕ) (x : ℝ) :
+    ((s.bind (fun d => t.map (fun e => d * e))).map (fun d => (d : ℝ) ^ x)).sum =
+      ((s.map (fun d => (d : ℝ) ^ x)).sum) * ((t.map (fun e => (e : ℝ) ^ x)).sum) := by
+  -- Lift to ℝ multisets to avoid coercion friction
+  have key : (s.map (↑· : ℕ → ℝ)).bind (fun d => (t.map (↑· : ℕ → ℝ)).map (d * ·)) =
+      (s.bind (fun d => t.map (d * ·))).map (↑· : ℕ → ℝ) := by
+    simp only [Multiset.map_bind, Multiset.map_map, Function.comp]
+    congr 1; ext d; congr 1; ext e; exact (Nat.cast_mul d e).symm
+  rw [show s.map (fun d => (d : ℝ) ^ x) = (s.map (↑· : ℕ → ℝ)).map (· ^ x) from by
+      simp [Multiset.map_map, Function.comp]]
+  rw [show t.map (fun e => (e : ℝ) ^ x) = (t.map (↑· : ℕ → ℝ)).map (· ^ x) from by
+      simp [Multiset.map_map, Function.comp]]
+  rw [show (s.bind fun d => t.map fun e => d * e).map (fun d => (d : ℝ) ^ x) =
+      ((s.map (↑· : ℕ → ℝ)).bind (fun d => (t.map (↑· : ℕ → ℝ)).map (d * ·))).map (· ^ x) from by
+      rw [key]; simp [Multiset.map_map, Function.comp]]
+  exact rpow_sum_bind_map_real _ _ x
+    (fun d hd => by rcases Multiset.mem_map.mp hd with ⟨n, _, rfl⟩; exact Nat.cast_nonneg n)
+    (fun e he => by rcases Multiset.mem_map.mp he with ⟨n, _, rfl⟩; exact Nat.cast_nonneg n)
 
 /-! ### Multiplicativity of `charDegreeSumReal` -/
 
