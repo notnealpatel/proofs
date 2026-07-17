@@ -67,12 +67,9 @@ section ScalarRestrict
 
 variable {K : Type*} [CommSemiring K] {R : Type*} [Ring R] [Algebra K R]
 
-noncomputable def idealRestrictScalars {I J : Ideal R} (e : I ≃ₗ[R] J) : I ≃ₗ[K] J :=
-  e.restrictScalars K
-
 theorem finrank_eq_of_linearEquiv_ideal {I J : Ideal R}
     (e : I ≃ₗ[R] J) : Module.finrank K I = Module.finrank K J :=
-  (idealRestrictScalars (K := K) e).finrank_eq
+  (e.restrictScalars K).finrank_eq
 
 end ScalarRestrict
 
@@ -90,78 +87,58 @@ theorem finrank_simple_ideal_matrix
   set k : Fin n := ⟨0, Nat.pos_of_ne_zero (NeZero.ne n)⟩
   haveI : IsSimpleModule (Matrix (Fin n) (Fin n) K) (colIdeal K k) :=
     isSimpleModule_colIdeal k
-  -- Matrix ring is simple Artinian hence isotypic: all simple modules ≃
   have hiso := IsSimpleRing.isIsotypic (Matrix (Fin n) (Fin n) K)
     (Matrix (Fin n) (Fin n) K)
-  -- Apply isotypic to I: all simple submodules are isomorphic to I
-  have hI_type : IsIsotypicOfType (Matrix (Fin n) (Fin n) K)
-      (Matrix (Fin n) (Fin n) K) I := hiso I
-  -- In particular colIdeal K k ≃ₗ[R] I
-  obtain ⟨e⟩ := hI_type (colIdeal K k)
+  obtain ⟨e⟩ := (hiso I) (colIdeal K k)
   rw [← finrank_eq_of_linearEquiv_ideal (K := K) e, finrank_colIdeal, Fintype.card_fin]
 
 end MatrixSimple
 
-/-! ### finrank of an ideal within a factor ideal -/
+/-! ### The bridge: isotypic length = finrank of simple submodule
 
-section FactorFinrank
+The proof uses a dimensional argument. Given a Wedderburn decomposition
+`e : A ≃ₐ[F] Π Mat_{d_i}(F)`:
 
-variable {K : Type*} [CommSemiring K] {ι : Type*} [DecidableEq ι]
-  {A : ι → Type*} [∀ i, Ring (A i)] [∀ i, Algebra K (A i)]
+1. The isotypic component `c` maps to the `j`-th factor ideal, with
+   `length A c = d_j` (from `length_factorIdeal` + `length_matrix_self`).
 
-/-- The `j`-th projection of an ideal within `factorIdeal A j`, as an ideal of `A j`.
-For `I ≤ factorIdeal A j`, every element is `Pi.single j (x j)`, so this is the
-image of the evaluation map, but constructed as a concrete ideal rather than
-via `Ideal.map` (which uses the span/sInf machinery). -/
-def factorProj (I : Ideal (Π i, A i)) (j : ι) : Ideal (A j) where
-  carrier := { y | Pi.single j y ∈ I }
-  add_mem' {a b} (ha : Pi.single j a ∈ I) (hb : Pi.single j b ∈ I) :=
-    show Pi.single j (a + b) ∈ I from
-      (Pi.single_add (f := A) j a b).symm ▸ I.add_mem ha hb
-  zero_mem' := show Pi.single j (0 : A j) ∈ I from
-    (Pi.single_zero (M := A) j).symm ▸ I.zero_mem
-  smul_mem' c y (hy : Pi.single j y ∈ I) :=
-    show Pi.single j (c * y) ∈ I by
-      rw [Pi.single_mul]
-      exact I.mul_mem_left _ hy
+2. The factor ideal has `finrank F = (d_j)²` (matrix algebra dimension).
 
-/-- For `I ≤ factorIdeal A j`, the projection `x ↦ x j` gives a `K`-linear
-equivalence `I ≃ₗ[K] factorProj hI`. -/
-noncomputable def factorIdealLinearEquiv {I : Ideal (Π i, A i)} {j : ι}
-    (hI : I ≤ factorIdeal A j) : I ≃ₗ[K] (factorProj I j : Ideal (A j)) where
-  toFun x := ⟨(x : Π i, A i) j, by
-    have hx := x.property
-    have heq := eq_single_of_mem_factorIdeal (hI hx)
-    rw [heq] at hx
-    exact hx⟩
-  map_add' x y := Subtype.ext rfl
-  map_smul' r x := Subtype.ext rfl
-  invFun y := ⟨Pi.single j y, y.2⟩
-  left_inv x := by
-    apply Subtype.ext
-    exact (eq_single_of_mem_factorIdeal (hI x.property)).symm
-  right_inv y := Subtype.ext (Pi.single_eq_same j (y : A j))
+3. `c` is isotypic of type `S`, so `c ≃ₗ[A] Fin m → S` where
+   `m = length A c = d_j`, giving `finrank F c = d_j · finrank F S`.
 
-theorem finrank_le_factorIdeal {I : Ideal (Π i, A i)} {j : ι}
-    (hI : I ≤ factorIdeal A j) :
-    Module.finrank K I = Module.finrank K (factorProj I j : Ideal (A j)) :=
-  (factorIdealLinearEquiv hI).finrank_eq
-
-end FactorFinrank
-
-/-! ### The bridge: isotypic length = finrank of simple submodule -/
+4. Since `finrank F c = (d_j)² = d_j · finrank F S` and `d_j ≠ 0`,
+   we get `finrank F S = d_j = length A c`. -/
 
 section Bridge
 
-/-- **Bridge theorem.** In a finite-dimensional semisimple algebra `A` over an
-algebraically closed field `F`, for each isotypic component `c` of `A` (as a
-module over itself), and any simple submodule `S ≤ c`:
+/-- The `F`-dimension of a factor ideal of `Π Mat_{d_i}(F)` is `(d j)²`. -/
+noncomputable def factorIdealLinearEquiv {F : Type*} [Field F]
+    {n : ℕ} {d : Fin n → ℕ} [∀ i, NeZero (d i)]
+    [∀ i, Nonempty (Fin (d i))] (j : Fin n) :
+    factorIdeal (fun i => Matrix (Fin (d i)) (Fin (d i)) F) j ≃ₗ[F]
+      Matrix (Fin (d j)) (Fin (d j)) F where
+  toFun x := (x : Π i, Matrix (Fin (d i)) (Fin (d i)) F) j
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+  invFun M := ⟨Pi.single j M, single_mem_factorIdeal j M⟩
+  left_inv x := Subtype.ext (eq_single_of_mem_factorIdeal (show
+    (x : Π i, _) ∈ factorIdeal _ j from x.2)).symm
+  right_inv M := by show (Pi.single j M) j = M; exact Pi.single_eq_same j M
 
-  `(Module.length A c).toNat = Module.finrank F S`
+theorem finrank_factorIdeal_matrix {F : Type*} [Field F]
+    {n : ℕ} {d : Fin n → ℕ} [∀ i, NeZero (d i)] (j : Fin n) :
+    Module.finrank F (factorIdeal (fun i => Matrix (Fin (d i)) (Fin (d i)) F) j) =
+      d j * d j := by
+  haveI : ∀ i, Nonempty (Fin (d i)) := fun i =>
+    ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne (d i))⟩⟩
+  rw [(factorIdealLinearEquiv j).finrank_eq, Module.finrank_matrix, Fintype.card_fin,
+    Fintype.card_fin, Module.finrank_self]
+  ring
 
-This is the missing plank between the ring-theoretic `charDegrees` definition
-(via isotypic lengths) and the representation-theoretic multiset (via dimensions
-of irreducible representations). -/
+/-- **Bridge theorem.** In a f.d. semisimple algebra over an alg-closed field,
+the isotypic length of a component equals the `F`-dimension of any simple
+submodule in it. -/
 theorem isotypicLength_eq_finrank_simple
     {F : Type*} [Field F] [IsAlgClosed F]
     {A : Type*} [Ring A] [Algebra F A] [FiniteDimensional F A] [IsSemisimpleRing A]
@@ -180,27 +157,41 @@ theorem isotypicLength_eq_finrank_simple
   haveI : Fintype ↥(isotypicComponents
       (Π i, Matrix (Fin (d i)) (Fin (d i)) F)
       (Π i, Matrix (Fin (d i)) (Fin (d i)) F)) := Fintype.ofFinite _
-  -- c maps to a factor ideal
+  -- c maps to a factor ideal j
   have hcmap : mapIdeal e.toRingEquiv c.1 ∈ isotypicComponents _ _ :=
     mapIdeal_mem_isotypicComponents e.toRingEquiv c.2
-  obtain ⟨i, hi⟩ := eq_factorIdeal_of_mem_isotypicComponents hcmap
-  -- length of c equals d i
-  have hlength : (Module.length A c.1).toNat = d i := by
-    have h1 : Module.length A c.1 =
-        Module.length _ (mapIdeal e.toRingEquiv c.1) :=
-      (length_mapIdeal e.toRingEquiv c.1).symm
-    rw [h1, hi, length_factorIdeal, length_matrix_self, Fintype.card_fin, ENat.toNat_coe]
-  -- S maps to a simple submodule within the i-th factor
-  have hSmap : mapIdeal e.toRingEquiv S ≤ factorIdeal _ i := by
-    rw [← hi]; exact mapIdeal_le_iff.mpr hS
-  -- finrank of S equals finrank of mapIdeal e S
-  have hfr : Module.finrank F S = Module.finrank F (mapIdeal e.toRingEquiv S) := by
-    exact (finrank_mapIdeal e S).symm
-  -- Need: finrank F (mapIdeal e S) = d i
-  -- The mapIdeal e S is a simple ideal within factorIdeal i, which is
-  -- isomorphic to Mat_{d_i}(F). Its finrank should be d i.
-  rw [hlength, hfr]
-  sorry
+  obtain ⟨j, hj⟩ := eq_factorIdeal_of_mem_isotypicComponents hcmap
+  -- Step 1: length A c = d j
+  have hlength : (Module.length A c.1).toNat = d j := by
+    have h1 := (length_mapIdeal e.toRingEquiv c.1).symm
+    rw [h1, hj, length_factorIdeal, length_matrix_self, Fintype.card_fin, ENat.toNat_coe]
+  -- Step 2: finrank F c = (d j)²
+  have hfr_c : Module.finrank F c.1 = d j * d j := by
+    rw [← finrank_mapIdeal e c.1, hj, finrank_factorIdeal_matrix]
+  -- Step 3: c is isotypic of type S, so c ≃ₗ[A] Fin m → S
+  have hiso_type : IsIsotypicOfType A c.1 S := by
+    have h := eq_isotypicComponent_of_le c.2 hS
+    rw [h]; exact IsIsotypicOfType.isotypicComponent A A S
+  -- The isotypic decomposition gives c ≃ₗ[A] Fin m → S for some m
+  haveI : Module.Finite A c.1 := inferInstance
+  obtain ⟨m, ⟨φ⟩⟩ := hiso_type.linearEquiv_fun
+  -- finrank F c = m * finrank F S
+  have hfr_decomp : Module.finrank F c.1 = m * Module.finrank F S := by
+    rw [(φ.restrictScalars F).finrank_eq, Module.finrank_pi_fintype, Finset.sum_const,
+      Finset.card_univ, Fintype.card_fin, smul_eq_mul]
+  -- m = length A c = d j
+  have hm : m = d j := by
+    have hlen_c : Module.length A c.1 = (m : ℕ∞) := by
+      rw [φ.length_eq, Module.length_pi_of_fintype]
+      simp [Module.length_eq_one, Finset.sum_const, Finset.card_univ, Fintype.card_fin,
+        nsmul_eq_mul, mul_one]
+    have := congrArg ENat.toNat hlen_c
+    simp [ENat.toNat_coe] at this
+    linarith [hlength]
+  -- Step 4: (d j)² = (d j) * finrank F S, so finrank F S = d j
+  have hpos : 0 < d j := Nat.pos_of_ne_zero (NeZero.ne (d j))
+  rw [hlength]
+  nlinarith [hfr_c, hfr_decomp, hm]
 
 end Bridge
 
