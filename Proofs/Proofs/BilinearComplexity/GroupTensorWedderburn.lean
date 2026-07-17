@@ -182,42 +182,87 @@ private theorem evalOne_apply {G : Type*} [Group G] (f : MonoidAlgebra ℂ G) :
 
 /-! ## 6. The Wedderburn transport -/
 
+section Transport
+
+variable {G : Type*} [Group G] [Fintype G] {N : ℕ} {d : Fin N → ℕ}
+
+/-- The transported functional `λ = τ ∘ e.symm` on the matrix side. -/
+private def wLam
+    (e : MonoidAlgebra ℂ G ≃ₐ[ℂ] Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ) :
+    (Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ) →ₗ[ℂ] ℂ :=
+  (evalOne G).comp e.symm.toLinearMap
+
+/-- The per-block component of `wLam`: precompose with the block inclusion. -/
+private def wMu
+    (e : MonoidAlgebra ℂ G ≃ₐ[ℂ] Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ)
+    (i : Fin N) : Matrix (Fin (d i)) (Fin (d i)) ℂ →ₗ[ℂ] ℂ :=
+  (wLam e).comp (LinearMap.single ℂ (fun j => Matrix (Fin (d j)) (Fin (d j)) ℂ) i)
+
+/-- The matrix image of the `x`-th group basis element. -/
+private def wA
+    (e : MonoidAlgebra ℂ G ≃ₐ[ℂ] Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ)
+    (x : Fin (Fintype.card G)) : Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ :=
+  e (MonoidAlgebra.single ((Fintype.equivFin G).symm x) 1)
+
+omit [Fintype G] in
+private theorem wLam_e_apply
+    (e : MonoidAlgebra ℂ G ≃ₐ[ℂ] Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ)
+    (W : MonoidAlgebra ℂ G) : wLam e (e W) = W 1 := by
+  simp [wLam, evalOne_apply]
+
+/-- The tensor entry is the transported functional of the triple product. -/
+private theorem mulTensor_eq_wLam [DecidableEq G]
+    (e : MonoidAlgebra ℂ G ≃ₐ[ℂ] Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ)
+    (x y z : Fin (Fintype.card G)) :
+    mulTensor ℂ G x y z = wLam e (wA e x * wA e y * wA e z) := by
+  have hprod : wA e x * wA e y * wA e z
+      = e (MonoidAlgebra.single ((Fintype.equivFin G).symm x
+          * (Fintype.equivFin G).symm y * (Fintype.equivFin G).symm z) 1) := by
+    simp only [wA, ← map_mul, MonoidAlgebra.single_mul_single, one_mul]
+  rw [mulTensor_apply, hprod, wLam_e_apply, MonoidAlgebra.single_apply]
+
+omit [Fintype G] in
+/-- The transported functional splits over the matrix blocks. -/
+private theorem wLam_split
+    (e : MonoidAlgebra ℂ G ≃ₐ[ℂ] Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ)
+    (M : Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ) :
+    wLam e M = ∑ i, wMu e i (M i) := by
+  conv_lhs => rw [← LinearMap.sum_single_apply _ M]
+  rw [map_sum]
+  exact Finset.sum_congr rfl fun i _ => rfl
+
 /-- **Wedderburn transport of the group-tensor rank** (Cohn–Umans Thm 4.1,
 middle step), decomposition form: along any algebra isomorphism
 `e : ℂ[G] ≃ₐ[ℂ] Π i, Mat_{dᵢ}(ℂ)`, the group tensor decomposes into
 `∑ i, R⟨dᵢ,dᵢ,dᵢ⟩` rank-one triads. No `NeZero` hypothesis on the block
 sizes is needed. -/
-theorem rankLE_mulTensor_of_algEquiv {G : Type*} [Group G] [Fintype G]
-    [DecidableEq G] {N : ℕ} {d : Fin N → ℕ}
+theorem rankLE_mulTensor_of_algEquiv [DecidableEq G]
     (e : MonoidAlgebra ℂ G ≃ₐ[ℂ] Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ) :
     RankLE (mulTensor ℂ G)
       (∑ i, rank (matMulTensor ℂ (d i) (d i) (d i))) := by
-  classical
   -- optimal triad decompositions of the block matmul tensors
   have hdec : ∀ i : Fin N, RankLE (matMulTensor ℂ (d i) (d i) (d i))
       (rank (matMulTensor ℂ (d i) (d i) (d i))) := fun i => rankLE_rank _
   choose u v w huvw using hdec
-  -- the functional λ = τ ∘ e.symm and its per-block components
-  let lam : (Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ) →ₗ[ℂ] ℂ :=
-    (evalOne G).comp e.symm.toLinearMap
-  let mu : ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ →ₗ[ℂ] ℂ :=
-    fun i => lam.comp (LinearMap.single ℂ (fun j => Matrix (Fin (d j)) (Fin (d j)) ℂ) i)
-  -- the matrix images of the group basis
-  let A : Fin (Fintype.card G) → ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ :=
-    fun x => e (MonoidAlgebra.single ((Fintype.equivFin G).symm x) 1)
   -- the entrywise triad identity, indexed by Σ i, Fin rᵢ
   have key : ∀ x y z, mulTensor ℂ G x y z
       = ∑ p : Σ i : Fin N, Fin (rank (matMulTensor ℂ (d i) (d i) (d i))),
-          (∑ x', u p.1 p.2 x' * flat (lamMat (mu p.1) * A x p.1) x')
-        * (∑ y', v p.1 p.2 y' * flat (A y p.1) y')
-        * (∑ z', w p.1 p.2 z' * flat (A z p.1) z') := by
-    sorry
+          (∑ x', u p.1 p.2 x' * flat (lamMat (wMu e p.1) * wA e x p.1) x')
+        * (∑ y', v p.1 p.2 y' * flat (wA e y p.1) y')
+        * (∑ z', w p.1 p.2 z' * flat (wA e z p.1) z') := by
+    intro x y z
+    rw [mulTensor_eq_wLam e x y z, wLam_split]
+    conv_rhs => rw [Fintype.sum_sigma]
+    exact Finset.sum_congr rfl fun i _ =>
+      blockDecomp (huvw i) (wMu e i) (wA e x i) (wA e y i) (wA e z i)
   have hR := RankLE.of_fintype_sum
       (fun (p : Σ i : Fin N, Fin (rank (matMulTensor ℂ (d i) (d i) (d i)))) x =>
-        ∑ x', u p.1 p.2 x' * flat (lamMat (mu p.1) * A x p.1) x')
-      (fun p y => ∑ y', v p.1 p.2 y' * flat (A y p.1) y')
-      (fun p z => ∑ z', w p.1 p.2 z' * flat (A z p.1) z') key
+        ∑ x', u p.1 p.2 x' * flat (lamMat (wMu e p.1) * wA e x p.1) x')
+      (fun p y => ∑ y', v p.1 p.2 y' * flat (wA e y p.1) y')
+      (fun p z => ∑ z', w p.1 p.2 z' * flat (wA e z p.1) z') key
   simpa using hR
+
+end Transport
 
 /-- **Wedderburn transport of the group-tensor rank** (Cohn–Umans
 arXiv:math/0307321, Theorem 4.1, middle step): over `ℂ`, the rank of the
