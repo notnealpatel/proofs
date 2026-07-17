@@ -218,7 +218,7 @@ def export_target(target):
         try:
             with open(out_path) as f:
                 data = json.load(f)
-            if data.get("n") and data.get("n") > 0:
+            if data.get("n") and data.get("n") > 0 and data.get("abelianization") is not None:
                 print("  SKIP (already exported): %s" % out_path, flush=True)
                 return out_path
         except (json.JSONDecodeError, KeyError):

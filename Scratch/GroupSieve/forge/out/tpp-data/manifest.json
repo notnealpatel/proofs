@@ -1,13 +1,13 @@
 [
   {
-    "id": "ctrl_8_3",
-    "description": "control [8,3] D8",
+    "id": "ctrl_8_4",
+    "description": "control [8,4] Q8",
     "category": "kill_test_control",
     "expected_rho0": "1",
     "constructor": [
       "SmallGroup",
       8,
-      3
+      4
     ]
   }
 ]

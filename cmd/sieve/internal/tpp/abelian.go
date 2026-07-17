@@ -15,6 +15,7 @@ package tpp
 
 import (
 	"encoding/binary"
+	"fmt"
 	"sort"
 )
 
@@ -202,6 +203,15 @@ func enumElements(invs []int) [][]int {
 // PackExponentVec packs a raw exponent vector (from the export data)
 // into the same uint64 key format used by AbelianLattice.
 // The vector is reduced mod the corresponding invariants.
+// Panics if len(v) > 8 or any invariant > 255 (packing overflow).
 func PackExponentVec(v []int, invs []int) uint64 {
+	if len(v) > 8 {
+		panic(fmt.Sprintf("PackExponentVec: %d components exceeds uint64 packing limit of 8", len(v)))
+	}
+	for i, d := range invs {
+		if d > 255 {
+			panic(fmt.Sprintf("PackExponentVec: invariant[%d]=%d exceeds byte packing limit of 255", i, d))
+		}
+	}
 	return packVec(v, invs)
 }
