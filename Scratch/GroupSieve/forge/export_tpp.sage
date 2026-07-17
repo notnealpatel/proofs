@@ -299,6 +299,52 @@ def export_target(target):
         for s in class_subs:
             subgroups.append(s)
 
+    # --- Abelianization data per subgroup (Fg5: lemma sweep) ---
+    # For each subgroup H, compute:
+    #   derived_order: |H'|
+    #   abelian_invariants: AbelianInvariants(H/H') as sorted tuple
+    #   exponent_vectors: map element_index -> exponent vector in H/H'
+    #
+    # Note: IndependentGeneratorExponents requires IsAbelian to be set
+    # on the quotient group (the GAP filter must be stored). We call
+    # IsAbelian(F) explicitly for this reason.
+    print("  Computing abelianization data...", flush=True)
+    t_ab = time.time()
+    ab_data = []
+    for si, s in enumerate(subgroups):
+        h_elts_idx = s["elements"]
+        h_elts_gap = [elts[j] for j in h_elts_idx]
+
+        # Reconstruct subgroup as GAP group from its elements.
+        H = libgap.Group(h_elts_gap)
+        D = libgap.DerivedSubgroup(H)
+        q = libgap.NaturalHomomorphismByNormalSubgroup(H, D)
+        F = libgap.Image(q)
+        libgap.IsAbelian(F)  # store filter for IndependentGeneratorExponents
+
+        d_order = int(libgap.Size(D))
+        invs = [int(v) for v in libgap.AbelianInvariants(F)]
+
+        # Exponent vectors: for each element index in H, the image
+        # under the quotient map as IndependentGeneratorExponents.
+        evecs = {}
+        if len(invs) == 0:
+            for idx in h_elts_idx:
+                evecs[str(idx)] = []
+        else:
+            for idx, g_elt in zip(h_elts_idx, h_elts_gap):
+                img = libgap.Image(q, g_elt)
+                ex = libgap.IndependentGeneratorExponents(F, img)
+                evecs[str(idx)] = [int(t) for t in ex]
+
+        ab_data.append({
+            "derived_order": d_order,
+            "abelian_invariants": invs,
+            "exponent_vectors": evecs,
+        })
+    t_ab_elapsed = time.time() - t_ab
+    print("  Abelianization data computed (%.1fs)" % t_ab_elapsed, flush=True)
+
     result = {
         "id": target["id"],
         "description": target["description"],
@@ -310,6 +356,7 @@ def export_target(target):
         "n_conjugacy_classes": n_classes,
         "n_subgroups": total_subgroups,
         "subgroups": subgroups,
+        "abelianization": ab_data,
     }
 
     # Atomic write: write to temp file then rename.

@@ -133,6 +133,15 @@ type Subgroup struct {
 	Class    int  // conjugacy class index
 	IsRep    bool // true if this is the class representative
 	IsNormal bool
+
+	// Abelianization data (Fg5: lemma sweep).
+	// DerivedOrder is |H'| where H' = [H,H].
+	DerivedOrder int
+	// AbelianInvariants of H/H' (GAP AbelianInvariants ordering).
+	AbelianInvariants []int
+	// ExponentVectors maps element index -> exponent vector in H/H'.
+	// The vector has len(AbelianInvariants) components.
+	ExponentVectors map[uint16][]int
 }
 
 // Mul returns the product of elements a and b in the group.
@@ -147,10 +156,6 @@ func (g *Group) Mul(a, b uint16) uint16 {
 // This is O(|T||U|) to build TU plus O(nWords) for the intersection tests.
 func (g *Group) TPPSetCheck(s, t, u *Subgroup) bool {
 	// Fast check: T cap U = {1}.
-	if s.Elts.IntersectsExcluding(&t.Elts) {
-		// Wrong: this checks S cap T. We need T cap U.
-		// Corrected below.
-	}
 	if t.Elts.IntersectsExcluding(&u.Elts) {
 		return false
 	}

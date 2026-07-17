@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 )
 
 // jsonGroup is the on-disk JSON format written by export_tpp.sage.
@@ -26,6 +27,11 @@ type jsonGroup struct {
 		IsRep    bool  `json:"is_rep"`
 		IsNormal bool  `json:"is_normal"`
 	} `json:"subgroups"`
+	Abelianization []struct {
+		DerivedOrder      int                `json:"derived_order"`
+		AbelianInvariants []int              `json:"abelian_invariants"`
+		ExponentVectors   map[string][]int   `json:"exponent_vectors"`
+	} `json:"abelianization"`
 }
 
 // LoadGroup loads a group from a JSON file produced by export_tpp.sage.
@@ -96,6 +102,22 @@ func LoadGroup(path string) (*Group, error) {
 			Class:    js.Class,
 			IsRep:    js.IsRep,
 			IsNormal: js.IsNormal,
+		}
+
+		// Populate abelianization data if present.
+		if si < len(jg.Abelianization) {
+			ab := jg.Abelianization[si]
+			subs[si].DerivedOrder = ab.DerivedOrder
+			subs[si].AbelianInvariants = ab.AbelianInvariants
+			evecs := make(map[uint16][]int, len(ab.ExponentVectors))
+			for kStr, vec := range ab.ExponentVectors {
+				idx, err := strconv.Atoi(kStr)
+				if err != nil {
+					return nil, fmt.Errorf("%s: subgroup %d: bad exponent vector key %q: %w", path, si, kStr, err)
+				}
+				evecs[uint16(idx)] = vec
+			}
+			subs[si].ExponentVectors = evecs
 		}
 
 		classMap[js.Class] = append(classMap[js.Class], si)
