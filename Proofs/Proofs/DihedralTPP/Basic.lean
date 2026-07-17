@@ -51,10 +51,12 @@ namespace DihedralTPP
 /-- The triple product property for finset triples in a group, in the
 right-quotient convention of Neumann and Hedtke–Murthy: whenever
 `q₁ ∈ S * S⁻¹`, `q₂ ∈ T * T⁻¹`, `q₃ ∈ U * U⁻¹` multiply to `1`, all
-three are `1`. -/
-def IsTPP {G : Type*} [Group G] [DecidableEq G] (S T U : Finset G) : Prop :=
-  ∀ q₁ ∈ S * S⁻¹, ∀ q₂ ∈ T * T⁻¹, ∀ q₃ ∈ U * U⁻¹,
-    q₁ * q₂ * q₃ = 1 → q₁ = 1 ∧ q₂ = 1 ∧ q₃ = 1
+three are `1`.
+
+This is an abbreviation for the canonical `Xlib.TPP.TripleProductPropertyR`,
+retained for source compatibility in the dihedral proof. -/
+abbrev IsTPP {G : Type*} [Group G] [DecidableEq G] (S T U : Finset G) : Prop :=
+  Xlib.TPP.TripleProductPropertyR S T U
 
 variable {n : ℕ} [NeZero n]
 

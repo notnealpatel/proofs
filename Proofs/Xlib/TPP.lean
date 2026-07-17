@@ -524,7 +524,7 @@ omit [Fintype G] in
 /-- Double inversion of a finset is the identity. (Mathlib has no
 `InvolutiveInv (Finset G)` instance, so generic `inv_inv` does not apply;
 we record the group case here.) -/
-theorem finset_inv_inv (X : Finset G) : X⁻¹⁻¹ = X := by
+@[simp] theorem finset_inv_inv (X : Finset G) : X⁻¹⁻¹ = X := by
   ext g; simp
 
 omit [Fintype G] in

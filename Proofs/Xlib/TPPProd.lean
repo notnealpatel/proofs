@@ -13,7 +13,6 @@ iterated power `Fin ℓ → G` via `Fintype.piFinset`.
 
 * `Xlib.TPP.TripleProductProperty.prod` — binary product closure.
 * `Xlib.TPP.TripleProductProperty.piFinset` — iterated closure on `Fin ℓ → G`.
-* `Xlib.TPP.card_piFinset_const_eq` — `(piFinset (fun _ => S)).card = S.card ^ ℓ`.
 * `Xlib.TPP.le_tppCapacity_pi` — capacity corollary: TPP in `G` gives
   `(|S|·|T|·|U|)^ℓ ≤ β(Fin ℓ → G)`.
 -/
@@ -50,12 +49,6 @@ theorem TripleProductProperty.prod
     u.2 hu.2 u'.2 hu'.2 heq2
   exact ⟨Prod.ext hs1 hs2, Prod.ext ht1 ht2, Prod.ext hu1 hu2⟩
 
-/-- Cardinality of a product finset: `(S ×ˢ S').card = S.card * S'.card`.
-(Re-export of `Finset.card_product` for use in capacity arguments.) -/
-theorem card_prod_eq {α β : Type*} (S : Finset α) (S' : Finset β) :
-    (S ×ˢ S').card = S.card * S'.card :=
-  Finset.card_product S S'
-
 /-! ### Iterated product closure on `Fin ℓ → G` -/
 
 /-- **Iterated product closure.** If `(S, T, U)` has the TPP in `G`, then
@@ -84,13 +77,6 @@ theorem TripleProductProperty.piFinset
   · exact (h (s i) (hs i) (s' i) (hs' i) (t i) (ht i) (t' i) (ht' i)
       (u i) (hu i) (u' i) (hu' i) (coord i)).2.2
 
-/-- Cardinality of a constant `piFinset`:
-`(piFinset (fun _ : Fin ℓ => S)).card = S.card ^ ℓ`. -/
-theorem card_piFinset_const_eq
-    {G : Type*} (S : Finset G) (ℓ : ℕ) :
-    (Fintype.piFinset fun _ : Fin ℓ => S).card = S.card ^ ℓ :=
-  Fintype.card_piFinset_const S ℓ
-
 /-! ### Capacity corollary -/
 
 /-- **Capacity corollary.** A TPP triple in `G` gives
@@ -103,7 +89,8 @@ theorem le_tppCapacity_pi
       ≤ tppCapacity (Fin ℓ → G) := by
   have htpp := h.piFinset ℓ
   have hle := le_tppCapacity htpp
-  rw [card_piFinset_const_eq, card_piFinset_const_eq, card_piFinset_const_eq] at hle
+  rw [Fintype.card_piFinset_const, Fintype.card_piFinset_const,
+    Fintype.card_piFinset_const] at hle
   rwa [← mul_pow, ← mul_pow] at hle
 
 end Xlib.TPP

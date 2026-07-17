@@ -352,4 +352,25 @@ theorem higherCommProb_quotient_ge (G : Type*) [Group G] [Finite G] (N : Subgrou
     _ = (Nat.card (commTuples (G ⧸ N) r) : ℚ) * ((Nat.card (G ⧸ N) : ℚ) * Nat.card N) ^ r := by
         rw [mul_pow]; ring
 
+/-! ### Link to Mathlib's `commProb` at `r = 2` -/
+
+/-- Bijection between `commTuples G 2` and the subtype of commuting pairs `{p : G × G // …}`
+used in Mathlib's `commProb`. -/
+def commTuples_two_equiv (G : Type*) [Mul G] :
+    commTuples G 2 ≃ { p : G × G // Commute p.1 p.2 } where
+  toFun f := ⟨(f.1 0, f.1 1), f.2 0 1⟩
+  invFun p := ⟨![p.1.1, p.1.2], by
+    intro i j; fin_cases i <;> fin_cases j <;> simp [Matrix.cons_val_zero, Matrix.cons_val_one,
+      Commute.refl, p.2, p.2.symm]⟩
+  left_inv f := by
+    apply Subtype.ext; funext i; fin_cases i <;> simp [Matrix.cons_val_zero, Matrix.cons_val_one]
+  right_inv p := by
+    apply Subtype.ext; simp [Matrix.cons_val_zero, Matrix.cons_val_one]
+
+/-- `higherCommProb G 2` agrees with Mathlib's `commProb G`. -/
+@[simp]
+theorem higherCommProb_two (G : Type*) [Mul G] :
+    higherCommProb G 2 = commProb G := by
+  simp only [higherCommProb_def, commProb, Nat.card_congr (commTuples_two_equiv G)]
+
 end

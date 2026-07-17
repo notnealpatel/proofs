@@ -444,10 +444,18 @@ section CohnUmansChain
 open BilinearComplexity Xlib.CharDegreesMul
 open scoped Pointwise
 
-/-- Unfolding of `charDegreeSumReal` with the coercion normalized to a plain
-`Multiset.map` over `ℕ` (the definition's `(d : ℝ)` cast elaborates as the
-monadic container cast; see the note in `Xlib.CharDegreesMul`). -/
-private theorem charDegreeSumReal_eq_map_sum (G : Type*) [Group G] [Fintype G]
+/-- **Normalized unfolding of `charDegreeSumReal`** as a plain `Multiset.map`
+over `ℕ`, bypassing the monadic container cast.
+
+The definition's `(d : ℝ)` cast inside `Multiset.map` elaborates as
+`Lean.Internal.coeM` (i.e. `do let a ← s; pure ↑a`), **not** as
+`Multiset.map Nat.cast` — see the root-cause note in the Md2 ledger entry
+(`.tasks/f5exp/docs/formalization-ledger.md`, Md2 section,
+"Monadic-coercion friction"). Any lemma that pattern-matches on
+`charDegreeSumReal`'s multiset internals must normalize through
+`Multiset.bind_def`/`bind_singleton` first; this theorem packages that
+normalization once. Intended consumer: `STPPWreath` campaign (Pl19). -/
+theorem charDegreeSumReal_eq_map_sum (G : Type*) [Group G] [Fintype G]
     (x : ℝ) :
     charDegreeSumReal G x
       = ((charDegrees G).map (fun d : ℕ => (d : ℝ) ^ x)).sum := by
@@ -456,9 +464,14 @@ private theorem charDegreeSumReal_eq_map_sum (G : Type*) [Group G] [Fintype G]
     Multiset.map_map]
   rfl
 
-/-- `1 ≤ D_x(G)` for `x ≥ 0`: the degree multiset is nonempty (else
-`Σᵢ dᵢ² = |G| ≥ 1` would fail) and each entry contributes `dᵢˣ ≥ 1`. -/
-private theorem one_le_charDegreeSumReal (G : Type*) [Group G] [Fintype G]
+/-- **Positivity of the character-degree power sum:** `1 ≤ D_x(G)` for `x ≥ 0`.
+
+The degree multiset `charDegrees G` is nonempty (otherwise
+`Σᵢ dᵢ² = |G| ≥ 1` from `charDegreeSum_two` would fail) and every entry
+`dᵢ ≥ 1` (`one_le_of_mem_charDegrees`), so each term `dᵢˣ ≥ 1`.
+Intended consumer: the degenerate-capacity (`N ≤ 1`) branch of
+`capacity_rpow_le_charDegreeSumReal` and the `STPPWreath` campaign (Pl19). -/
+theorem one_le_charDegreeSumReal (G : Type*) [Group G] [Fintype G]
     {x : ℝ} (hx : 0 ≤ x) : 1 ≤ charDegreeSumReal G x := by
   have hne : charDegrees G ≠ 0 := by
     intro h0
@@ -478,11 +491,14 @@ private theorem one_le_charDegreeSumReal (G : Type*) [Group G] [Fintype G]
         obtain ⟨m, -, rfl⟩ := Multiset.mem_map.mp hy
         exact Real.rpow_nonneg (Nat.cast_nonneg m) x
 
-/-- **The `ε`-shift bound** `D_{x+ε}(G) ≤ |G|^ε · D_x(G)` for `ε ≥ 0`:
-entrywise `d^{x+ε} = d^x · d^ε ≤ d^x · |G|^ε`, using `1 ≤ d ≤ |G|`
+/-- **The `ε`-shift bound** `D_{x+ε}(G) ≤ |G|^ε · D_x(G)` for `ε ≥ 0`.
+
+Entrywise `d^{x+ε} = d^x · d^ε ≤ d^x · |G|^ε`, using `1 ≤ d ≤ |G|`
 (`d ≤ d² ≤ Σᵢ dᵢ² = |G|`, `charDegreeSum_two`). This elementary bound
-replaces the continuity argument for the `ε → 0⁺` limit of Theorem 4.1. -/
-private theorem charDegreeSumReal_add_le (G : Type*) [Group G] [Fintype G]
+replaces the continuity argument for the `ε → 0⁺` limit in the proof of
+Theorem 4.1 (`capacity_rpow_le_charDegreeSumReal`). Intended consumer:
+`STPPWreath` campaign (Pl19), any future `ε → 0` capacity limit. -/
+theorem charDegreeSumReal_add_le (G : Type*) [Group G] [Fintype G]
     (x : ℝ) {ε : ℝ} (hε : 0 ≤ ε) :
     charDegreeSumReal G (x + ε)
       ≤ (Fintype.card G : ℝ) ^ ε * charDegreeSumReal G x := by
@@ -506,10 +522,15 @@ private theorem charDegreeSumReal_add_le (G : Type*) [Group G] [Fintype G]
           (Real.rpow_nonneg (Nat.cast_nonneg d) x)
     _ = (Fintype.card G : ℝ) ^ ε * (d : ℝ) ^ x := mul_comm _ _
 
-/-- **Geometric-growth constant absorption** (the `ℓ`-th root / `ℓ → ∞` step
-of Theorem 4.1, in Archimedean form): if `x^ℓ ≤ K · y^ℓ` for all `ℓ ≥ 1` with
-`y ≥ 0`, then `x ≤ y` — otherwise `(x/y)^ℓ` eventually exceeds `K`. -/
-private theorem le_of_pow_le_const_mul_pow {x y K : ℝ} (hy : 0 ≤ y)
+/-- **Geometric-growth constant absorption** (the `ℓ → ∞` limit engine):
+if `x^ℓ ≤ K · y^ℓ` for all `ℓ ≥ 1` with `y ≥ 0`, then `x ≤ y`.
+
+Otherwise `(x/y)^ℓ` eventually exceeds `K` by `pow_unbounded_of_one_lt`.
+This is the Archimedean-form limit that absorbs the BCS 15.1 constant in
+the proof of Theorem 4.1 (`capacity_rpow_le_charDegreeSumReal`). Has no
+Mathlib equivalent (the constant-free `le_of_pow_le_pow_left₀` handles
+only `K = 1`). Intended consumer: `STPPWreath` capacity bounds (Pl19). -/
+theorem le_of_pow_le_const_mul_pow {x y K : ℝ} (hy : 0 ≤ y)
     (h : ∀ ℓ : ℕ, 1 ≤ ℓ → x ^ ℓ ≤ K * y ^ ℓ) : x ≤ y := by
   rcases eq_or_lt_of_le hy with hy0 | hy0
   · have h1 := h 1 le_rfl
@@ -528,10 +549,15 @@ private theorem le_of_pow_le_const_mul_pow {x y K : ℝ} (hy : 0 ≤ y)
       exact hle
     linarith
 
-/-- **Root convergence** (the `ε → 0⁺` step of Theorem 4.1, along the
-diagonal `ε := 1/ℓ`): if `x ≤ B^{1/ℓ} · s` for all `ℓ ≥ 1` with `B > 0`,
-then `x ≤ s`, since `B^{1/ℓ} → B⁰ = 1`. -/
-private theorem le_of_forall_rpow_one_div_mul {x s B : ℝ} (hB : 0 < B)
+/-- **Root convergence** (the `B^{1/ℓ} → 1` limit engine): if
+`x ≤ B^{1/ℓ} · s` for all `ℓ ≥ 1` with `B > 0`, then `x ≤ s`.
+
+Assembled from `Filter.Tendsto.rpow`, `tendsto_one_div_atTop_nhds_zero_nat`,
+and `ge_of_tendsto` (all Mathlib). The composed statement is absent from
+Mathlib. Used in Theorem 4.1 to send the `ε := 1/ℓ` slack to zero along
+the diagonal without a continuity argument on `charDegreeSumReal`.
+Intended consumer: `STPPWreath` wreath-capacity limits (Pl19). -/
+theorem le_of_forall_rpow_one_div_mul {x s B : ℝ} (hB : 0 < B)
     (h : ∀ ℓ : ℕ, 1 ≤ ℓ → x ≤ B ^ (1 / (ℓ : ℝ)) * s) : x ≤ s := by
   have h0 : Filter.Tendsto (fun ℓ : ℕ => B ^ (1 / (ℓ : ℝ))) Filter.atTop
       (nhds (B ^ (0 : ℝ))) :=
@@ -545,12 +571,15 @@ private theorem le_of_forall_rpow_one_div_mul {x s B : ℝ} (hB : 0 < B)
   refine ge_of_tendsto htend ?_
   filter_upwards [Filter.eventually_ge_atTop 1] with ℓ hℓ using h ℓ hℓ
 
-/-- **Symmetrization** (the cubic reduction inside BCS Prop. 15.5):
-`R⟨abc,abc,abc⟩ ≤ R⟨a,b,c⟩³`. The Kronecker square/cube
-`⟨a,b,c⟩ ⊗ ⟨b,c,a⟩ ⊗ ⟨c,a,b⟩` is `⟨abc,abc,abc⟩` up to reindexing
-(`rank_matMulTensor_mul_le`), and the three cyclic rotations share one rank
-(`rank_matMulTensor_cyc`). -/
-private theorem rank_matMulTensor_cube_le (k : Type*) [CommSemiring k]
+/-- **Cubic symmetrization** `R⟨abc,abc,abc⟩ ≤ R⟨a,b,c⟩³`
+(the rectangular-to-cubic reduction inside BCS Prop. 15.5).
+
+The Kronecker product `⟨a,b,c⟩ ⊗ ⟨b,c,a⟩ ⊗ ⟨c,a,b⟩` is `⟨abc,abc,abc⟩`
+up to reindexing (`rank_matMulTensor_mul_le`), and the three cyclic rotations
+share one rank (`rank_matMulTensor_cyc`). This is the generic
+rectangular-to-cubic reduction any future `ω`-from-rectangular-certificate
+argument needs. Intended consumer: `STPPWreath` campaign (Pl19). -/
+theorem rank_matMulTensor_cube_le (k : Type*) [CommSemiring k]
     (a b c : ℕ) :
     rank (matMulTensor k (a * b * c) (a * b * c) (a * b * c))
       ≤ rank (matMulTensor k a b c) ^ 3 := by
@@ -572,12 +601,17 @@ private theorem rank_matMulTensor_cube_le (k : Type*) [CommSemiring k]
           * rank (matMulTensor k a b c) := Nat.mul_le_mul h1 le_rfl
     _ = rank (matMulTensor k a b c) ^ 3 := by ring
 
-/-- **Murthy 4.13 across the TPP convention bridge**: a left-quotient TPP
-triple `(S, T, U)` embeds `⟨|S|,|T|,|U|⟩` into the group tensor. The inversion
-bridge `tripleProductProperty_iff_inv` supplies the right-quotient
-`DihedralTPP.IsTPP` for `(S⁻¹, T⁻¹, U⁻¹)` (definitionally
-`TripleProductPropertyR`), whose cardinalities agree with `(S, T, U)`. -/
-private theorem rank_matMulTensor_le_rank_mulTensor {G : Type*} [Group G]
+/-- **Convention-bridged Cohn–Umans embedding**: a left-quotient TPP triple
+`(S, T, U)` embeds `⟨|S|,|T|,|U|⟩` into the group tensor,
+i.e. `R⟨|S|,|T|,|U|⟩ ≤ R(mulTensor ℂ G)`.
+
+The inversion bridge `tripleProductProperty_iff_inv` supplies the
+right-quotient `DihedralTPP.IsTPP` for `(S⁻¹, T⁻¹, U⁻¹)` (definitionally
+`TripleProductPropertyR`), whose cardinalities agree with `(S, T, U)`.
+This is the convention adapter between `Xlib.TPP.TripleProductProperty`
+(left quotients) and `BilinearComplexity.GroupTensor`'s Murthy 4.13
+(right quotients). Intended consumer: `STPPWreath` campaign (Pl19). -/
+theorem rank_matMulTensor_le_rank_mulTensor {G : Type*} [Group G]
     [Fintype G] [DecidableEq G] {S T U : Finset G}
     (h : TripleProductProperty S T U) :
     rank (matMulTensor ℂ S.card T.card U.card) ≤ rank (mulTensor ℂ G) := by
@@ -623,8 +657,8 @@ private theorem pow_omega_pow_le_of_tpp {G : Type*} [Group G] [Fintype G]
   have h3 : rank (matMulTensor ℂ (S.card ^ ℓ) (T.card ^ ℓ) (U.card ^ ℓ))
       ≤ rank (mulTensor ℂ (Fin ℓ → G)) := by
     have hb := rank_matMulTensor_le_rank_mulTensor (h.piFinset ℓ)
-    rwa [card_piFinset_const_eq S ℓ, card_piFinset_const_eq T ℓ,
-      card_piFinset_const_eq U ℓ] at hb
+    rwa [Fintype.card_piFinset_const S ℓ, Fintype.card_piFinset_const T ℓ,
+      Fintype.card_piFinset_const U ℓ] at hb
   -- (4) Wedderburn transport
   have h4 : rank (mulTensor ℂ (Fin ℓ → G))
       ≤ ((charDegrees (Fin ℓ → G)).map
