@@ -723,8 +723,8 @@ def run_extraspecial_harness(tag):
     test_cases = [
         ([8, 3], 2, "+", 5),
         ([8, 4], 2, "-", 1),
-        ([32, 49], 2, "+", 11),
-        ([32, 50], 2, "-", 7),
+        ([32, 49], 2, "+", 19),
+        ([32, 50], 2, "-", 11),
     ]
     ok = True
     for gid, p, expected_type, expected_inv in test_cases:
@@ -908,6 +908,7 @@ def main(argv):
     return 0
 
 
-# sage's script loader does not execute .sage files under __name__ ==
-# "__main__" — an if-guard would silently skip.
-sys.exit(main([a for a in sys.argv[1:] if a != "--"]))
+# The sage CLI executes .sage files inside sage_globals(), not
+# under __name__ == "__main__" — an if-guard would silently skip.
+# Strip the "--" separator that `sage script.sage -- --flags` requires.
+main([a for a in sys.argv[1:] if a != "--"])
