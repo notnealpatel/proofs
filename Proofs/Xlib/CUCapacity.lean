@@ -1,6 +1,10 @@
 import Xlib.TPP
 import Xlib.CharDegrees
+import Xlib.CharDegreesMul
+import Xlib.TPPProd
 import Proofs.BilinearComplexity.Omega
+import Proofs.BilinearComplexity.Complexify
+import Proofs.BilinearComplexity.GroupTensorWedderburn
 
 /-!
 # Cohn–Umans Theorem 4.1: the capacity bound on `ω`
@@ -415,7 +419,297 @@ theorem two_lt_pseudoExponent (G : Type*)
   apply Real.log_lt_log (pow_pos hβpos 2)
   exact_mod_cast hβcube
 
-/-! ### Cohn–Umans Theorem 4.1 (sorry) -/
+/-! ### The Cohn–Umans chain: analytic and combinatorial glue
+
+The proof of Theorem 4.1 below composes the delivered planks
+(`Proofs.BilinearComplexity.{GroupTensor, GroupTensorWedderburn, Complexify,
+Omega}`, `Xlib.TPPProd`, `Xlib.CharDegreesMul`) through the per-triple chain:
+for a TPP triple `(S, T, U)` with `N = |S|·|T|·|U| ≥ 2`, every `ℓ ≥ 1` and
+`ε > 0` (writing `s_ε := charDegreeSumReal G (ω+ε)`),
+
+  `N^{ℓω} ≤ R_ℂ⟨N^ℓ,N^ℓ,N^ℓ⟩`                            (`rpow_omega_le_rank_complex`)
+  `      ≤ R_ℂ⟨|S|^ℓ,|T|^ℓ,|U|^ℓ⟩³`                       (symmetrization, below)
+  `      ≤ R_ℂ(mulTensor ℂ (Fin ℓ → G))³`                 (TPP power triple + Murthy 4.13)
+  `      ≤ (Σ_{d ∈ charDegrees (Fin ℓ → G)} R_ℂ⟨d,d,d⟩)³` (Wedderburn transport)
+  `      ≤ (C · s_ε^ℓ)³`                                  (BCS 15.1 + degree multiplicativity),
+
+whence `(N^ω)^ℓ ≤ C³ · (s_ε³)^ℓ`; the geometric-growth helper absorbs `C³`
+(`ℓ → ∞`), a cube root gives `N^{ω/3} ≤ s_ε`, and `ε := 1/ℓ → 0⁺` converges
+`s_ε → s_0` through the elementary bound `s_ε ≤ |G|^ε · s_0` (every degree is
+at most `|G|`, since `d ≤ d² ≤ Σᵢ dᵢ² = |G|`). -/
+
+section CohnUmansChain
+
+open BilinearComplexity Xlib.CharDegreesMul
+open scoped Pointwise
+
+/-- Unfolding of `charDegreeSumReal` with the coercion normalized to a plain
+`Multiset.map` over `ℕ` (the definition's `(d : ℝ)` cast elaborates as the
+monadic container cast; see the note in `Xlib.CharDegreesMul`). -/
+private theorem charDegreeSumReal_eq_map_sum (G : Type*) [Group G] [Fintype G]
+    (x : ℝ) :
+    charDegreeSumReal G x
+      = ((charDegrees G).map (fun d : ℕ => (d : ℝ) ^ x)).sum := by
+  unfold charDegreeSumReal
+  simp only [Multiset.bind_def, Multiset.pure_def, Multiset.bind_singleton,
+    Multiset.map_map]
+  rfl
+
+/-- `1 ≤ D_x(G)` for `x ≥ 0`: the degree multiset is nonempty (else
+`Σᵢ dᵢ² = |G| ≥ 1` would fail) and each entry contributes `dᵢˣ ≥ 1`. -/
+private theorem one_le_charDegreeSumReal (G : Type*) [Group G] [Fintype G]
+    {x : ℝ} (hx : 0 ≤ x) : 1 ≤ charDegreeSumReal G x := by
+  have hne : charDegrees G ≠ 0 := by
+    intro h0
+    have h2 := charDegreeSum_two G
+    unfold charDegreeSum at h2
+    rw [h0, Multiset.map_zero, Multiset.sum_zero] at h2
+    have hpos := Fintype.card_pos (α := G)
+    omega
+  obtain ⟨d, hd⟩ := Multiset.exists_mem_of_ne_zero hne
+  have hd1R : (1 : ℝ) ≤ (d : ℝ) := by
+    exact_mod_cast one_le_of_mem_charDegrees hd
+  rw [charDegreeSumReal_eq_map_sum]
+  calc (1 : ℝ) ≤ (d : ℝ) ^ x := Real.one_le_rpow hd1R hx
+    _ ≤ ((charDegrees G).map (fun m : ℕ => (m : ℝ) ^ x)).sum := by
+        refine Multiset.single_le_sum (fun y hy => ?_) _
+          (Multiset.mem_map_of_mem _ hd)
+        obtain ⟨m, -, rfl⟩ := Multiset.mem_map.mp hy
+        exact Real.rpow_nonneg (Nat.cast_nonneg m) x
+
+/-- **The `ε`-shift bound** `D_{x+ε}(G) ≤ |G|^ε · D_x(G)` for `ε ≥ 0`:
+entrywise `d^{x+ε} = d^x · d^ε ≤ d^x · |G|^ε`, using `1 ≤ d ≤ |G|`
+(`d ≤ d² ≤ Σᵢ dᵢ² = |G|`, `charDegreeSum_two`). This elementary bound
+replaces the continuity argument for the `ε → 0⁺` limit of Theorem 4.1. -/
+private theorem charDegreeSumReal_add_le (G : Type*) [Group G] [Fintype G]
+    (x : ℝ) {ε : ℝ} (hε : 0 ≤ ε) :
+    charDegreeSumReal G (x + ε)
+      ≤ (Fintype.card G : ℝ) ^ ε * charDegreeSumReal G x := by
+  rw [charDegreeSumReal_eq_map_sum, charDegreeSumReal_eq_map_sum,
+    ← Multiset.sum_map_mul_left]
+  refine Multiset.sum_map_le_sum_map _ _ fun d hd => ?_
+  have hd1 : 1 ≤ d := one_le_of_mem_charDegrees hd
+  have hd1R : (1 : ℝ) ≤ (d : ℝ) := by exact_mod_cast hd1
+  have hd0R : (0 : ℝ) < (d : ℝ) := lt_of_lt_of_le one_pos hd1R
+  have hdG : d ≤ Fintype.card G := by
+    have h2 : d ^ 2 ≤ ((charDegrees G).map (fun m => m ^ 2)).sum :=
+      Multiset.single_le_sum (fun y _ => Nat.zero_le y) _
+        (Multiset.mem_map_of_mem _ hd)
+    have hsum : ((charDegrees G).map (fun m => m ^ 2)).sum = Fintype.card G :=
+      charDegreeSum_two G
+    exact le_trans (le_self_pow hd1 two_ne_zero) (le_trans h2 hsum.le)
+  have hdGR : (d : ℝ) ≤ (Fintype.card G : ℝ) := by exact_mod_cast hdG
+  calc (d : ℝ) ^ (x + ε) = (d : ℝ) ^ x * (d : ℝ) ^ ε := Real.rpow_add hd0R x ε
+    _ ≤ (d : ℝ) ^ x * (Fintype.card G : ℝ) ^ ε :=
+        mul_le_mul_of_nonneg_left (Real.rpow_le_rpow hd0R.le hdGR hε)
+          (Real.rpow_nonneg (Nat.cast_nonneg d) x)
+    _ = (Fintype.card G : ℝ) ^ ε * (d : ℝ) ^ x := mul_comm _ _
+
+/-- **Geometric-growth constant absorption** (the `ℓ`-th root / `ℓ → ∞` step
+of Theorem 4.1, in Archimedean form): if `x^ℓ ≤ K · y^ℓ` for all `ℓ ≥ 1` with
+`y ≥ 0`, then `x ≤ y` — otherwise `(x/y)^ℓ` eventually exceeds `K`. -/
+private theorem le_of_pow_le_const_mul_pow {x y K : ℝ} (hy : 0 ≤ y)
+    (h : ∀ ℓ : ℕ, 1 ≤ ℓ → x ^ ℓ ≤ K * y ^ ℓ) : x ≤ y := by
+  rcases eq_or_lt_of_le hy with hy0 | hy0
+  · have h1 := h 1 le_rfl
+    rw [← hy0] at h1 ⊢
+    simpa using h1
+  · by_contra hcon
+    rw [not_le] at hcon
+    have hr : 1 < x / y := (one_lt_div hy0).mpr hcon
+    obtain ⟨j, hj⟩ := pow_unbounded_of_one_lt K hr
+    have hj' : K < (x / y) ^ (j + 1) :=
+      lt_of_lt_of_le hj (pow_le_pow_right₀ hr.le (Nat.le_succ j))
+    have hle := h (j + 1) (Nat.le_add_left 1 j)
+    have hyp : (0 : ℝ) < y ^ (j + 1) := pow_pos hy0 _
+    have hK : (x / y) ^ (j + 1) ≤ K := by
+      rw [div_pow, div_le_iff₀ hyp]
+      exact hle
+    linarith
+
+/-- **Root convergence** (the `ε → 0⁺` step of Theorem 4.1, along the
+diagonal `ε := 1/ℓ`): if `x ≤ B^{1/ℓ} · s` for all `ℓ ≥ 1` with `B > 0`,
+then `x ≤ s`, since `B^{1/ℓ} → B⁰ = 1`. -/
+private theorem le_of_forall_rpow_one_div_mul {x s B : ℝ} (hB : 0 < B)
+    (h : ∀ ℓ : ℕ, 1 ≤ ℓ → x ≤ B ^ (1 / (ℓ : ℝ)) * s) : x ≤ s := by
+  have h0 : Filter.Tendsto (fun ℓ : ℕ => B ^ (1 / (ℓ : ℝ))) Filter.atTop
+      (nhds (B ^ (0 : ℝ))) :=
+    Filter.Tendsto.rpow tendsto_const_nhds tendsto_one_div_atTop_nhds_zero_nat
+      (Or.inl hB.ne')
+  rw [Real.rpow_zero] at h0
+  have htend : Filter.Tendsto (fun ℓ : ℕ => B ^ (1 / (ℓ : ℝ)) * s) Filter.atTop
+      (nhds s) := by
+    have hmul := h0.mul_const s
+    rwa [one_mul] at hmul
+  refine ge_of_tendsto htend ?_
+  filter_upwards [Filter.eventually_ge_atTop 1] with ℓ hℓ using h ℓ hℓ
+
+/-- **Symmetrization** (the cubic reduction inside BCS Prop. 15.5):
+`R⟨abc,abc,abc⟩ ≤ R⟨a,b,c⟩³`. The Kronecker square/cube
+`⟨a,b,c⟩ ⊗ ⟨b,c,a⟩ ⊗ ⟨c,a,b⟩` is `⟨abc,abc,abc⟩` up to reindexing
+(`rank_matMulTensor_mul_le`), and the three cyclic rotations share one rank
+(`rank_matMulTensor_cyc`). -/
+private theorem rank_matMulTensor_cube_le (k : Type*) [CommSemiring k]
+    (a b c : ℕ) :
+    rank (matMulTensor k (a * b * c) (a * b * c) (a * b * c))
+      ≤ rank (matMulTensor k a b c) ^ 3 := by
+  have h1 : rank (matMulTensor k (a * b) (b * c) (c * a))
+      ≤ rank (matMulTensor k a b c) * rank (matMulTensor k b c a) :=
+    rank_matMulTensor_mul_le k a b c b c a
+  have h2 : rank (matMulTensor k (a * b * c) (b * c * a) (c * a * b))
+      ≤ rank (matMulTensor k (a * b) (b * c) (c * a))
+          * rank (matMulTensor k c a b) :=
+    rank_matMulTensor_mul_le k (a * b) (b * c) (c * a) c a b
+  rw [show b * c * a = a * b * c from by ring,
+    show c * a * b = a * b * c from by ring] at h2
+  rw [← rank_matMulTensor_cyc k a b c] at h1
+  rw [← rank_matMulTensor_cyc k b c a, ← rank_matMulTensor_cyc k a b c] at h2
+  calc rank (matMulTensor k (a * b * c) (a * b * c) (a * b * c))
+      ≤ rank (matMulTensor k (a * b) (b * c) (c * a))
+          * rank (matMulTensor k a b c) := h2
+    _ ≤ rank (matMulTensor k a b c) * rank (matMulTensor k a b c)
+          * rank (matMulTensor k a b c) := Nat.mul_le_mul h1 le_rfl
+    _ = rank (matMulTensor k a b c) ^ 3 := by ring
+
+/-- **Murthy 4.13 across the TPP convention bridge**: a left-quotient TPP
+triple `(S, T, U)` embeds `⟨|S|,|T|,|U|⟩` into the group tensor. The inversion
+bridge `tripleProductProperty_iff_inv` supplies the right-quotient
+`DihedralTPP.IsTPP` for `(S⁻¹, T⁻¹, U⁻¹)` (definitionally
+`TripleProductPropertyR`), whose cardinalities agree with `(S, T, U)`. -/
+private theorem rank_matMulTensor_le_rank_mulTensor {G : Type*} [Group G]
+    [Fintype G] [DecidableEq G] {S T U : Finset G}
+    (h : TripleProductProperty S T U) :
+    rank (matMulTensor ℂ S.card T.card U.card) ≤ rank (mulTensor ℂ G) := by
+  have hIs : DihedralTPP.IsTPP S⁻¹ T⁻¹ U⁻¹ := tripleProductProperty_iff_inv.mp h
+  rw [← Finset.card_inv S, ← Finset.card_inv T, ← Finset.card_inv U]
+  exact rank_matMulTensor_le_of_isTPP (k := ℂ) hIs
+
+/-- **The per-`(ℓ, ε)` chain of Theorem 4.1**: for a TPP triple with
+`N = |S|·|T|·|U| ≥ 2` and a BCS 15.1 constant `C` for slack `ε`,
+
+  `(N^ω)^ℓ ≤ C³ · (D_{ω+ε}(G)³)^ℓ`   for every `ℓ ≥ 1`.
+
+Chain: `ω` lower bound at `N^ℓ` (over ℂ), symmetrization to
+`R_ℂ⟨|S|^ℓ,|T|^ℓ,|U|^ℓ⟩³`, TPP power-triple embedding into
+`mulTensor ℂ (Fin ℓ → G)`, Wedderburn transport to the degree multiset of the
+power group, the per-degree bound `R_ℂ⟨d,d,d⟩ ≤ C·d^{ω+ε}`, and
+multiplicativity `D_{ω+ε}(G^ℓ) = D_{ω+ε}(G)^ℓ`. -/
+private theorem pow_omega_pow_le_of_tpp {G : Type*} [Group G] [Fintype G]
+    [DecidableEq G] {S T U : Finset G} (h : TripleProductProperty S T U)
+    (hN : 2 ≤ S.card * T.card * U.card) {ε C : ℝ}
+    (hC : ∀ k : ℕ, 1 ≤ k → (rank (matMulTensor ℂ k k k) : ℝ)
+      ≤ C * (k : ℝ) ^ (BilinearComplexity.omega + ε))
+    {ℓ : ℕ} (hℓ : 1 ≤ ℓ) :
+    (((S.card * T.card * U.card : ℕ) : ℝ) ^ BilinearComplexity.omega) ^ ℓ
+      ≤ C ^ 3 * (charDegreeSumReal G (BilinearComplexity.omega + ε) ^ 3) ^ ℓ := by
+  set N : ℕ := S.card * T.card * U.card with hNdef
+  have hNℓ : 2 ≤ N ^ ℓ :=
+    le_trans hN (by
+      calc N = N ^ 1 := (pow_one N).symm
+        _ ≤ N ^ ℓ := Nat.pow_le_pow_right (by omega) hℓ)
+  -- (1) the `ω` lower bound at dimension `N^ℓ`
+  have h1 : ((N ^ ℓ : ℕ) : ℝ) ^ BilinearComplexity.omega
+      ≤ (rank (matMulTensor ℂ (N ^ ℓ) (N ^ ℓ) (N ^ ℓ)) : ℝ) :=
+    rpow_omega_le_rank_complex hNℓ
+  -- (2) symmetrization to the rectangular power triple
+  have h2 : rank (matMulTensor ℂ (N ^ ℓ) (N ^ ℓ) (N ^ ℓ))
+      ≤ rank (matMulTensor ℂ (S.card ^ ℓ) (T.card ^ ℓ) (U.card ^ ℓ)) ^ 3 := by
+    have hsplit : N ^ ℓ = S.card ^ ℓ * T.card ^ ℓ * U.card ^ ℓ := by
+      rw [hNdef, mul_pow, mul_pow]
+    rw [hsplit]
+    exact rank_matMulTensor_cube_le ℂ _ _ _
+  -- (3) the TPP power triple embeds into the power-group tensor
+  have h3 : rank (matMulTensor ℂ (S.card ^ ℓ) (T.card ^ ℓ) (U.card ^ ℓ))
+      ≤ rank (mulTensor ℂ (Fin ℓ → G)) := by
+    have hb := rank_matMulTensor_le_rank_mulTensor (h.piFinset ℓ)
+    rwa [card_piFinset_const_eq S ℓ, card_piFinset_const_eq T ℓ,
+      card_piFinset_const_eq U ℓ] at hb
+  -- (4) Wedderburn transport
+  have h4 : rank (mulTensor ℂ (Fin ℓ → G))
+      ≤ ((charDegrees (Fin ℓ → G)).map
+          (fun d => rank (matMulTensor ℂ d d d))).sum :=
+    rank_mulTensor_le_sum_charDegrees (Fin ℓ → G)
+  -- (5) per-degree BCS 15.1 bound and degree multiplicativity
+  have h5 : ((((charDegrees (Fin ℓ → G)).map
+        (fun d => rank (matMulTensor ℂ d d d))).sum : ℕ) : ℝ)
+      ≤ C * charDegreeSumReal G (BilinearComplexity.omega + ε) ^ ℓ := by
+    have hcast : ((((charDegrees (Fin ℓ → G)).map
+          (fun d => rank (matMulTensor ℂ d d d))).sum : ℕ) : ℝ)
+        = ((charDegrees (Fin ℓ → G)).map
+            (fun d : ℕ => (rank (matMulTensor ℂ d d d) : ℝ))).sum := by
+      rw [Nat.cast_multiset_sum, Multiset.map_map]
+      rfl
+    rw [hcast]
+    calc ((charDegrees (Fin ℓ → G)).map
+          (fun d : ℕ => (rank (matMulTensor ℂ d d d) : ℝ))).sum
+        ≤ ((charDegrees (Fin ℓ → G)).map
+            (fun d : ℕ => C * (d : ℝ) ^ (BilinearComplexity.omega + ε))).sum :=
+          Multiset.sum_map_le_sum_map _ _
+            (fun d hd => hC d (one_le_of_mem_charDegrees hd))
+      _ = C * ((charDegrees (Fin ℓ → G)).map
+            (fun d : ℕ => (d : ℝ) ^ (BilinearComplexity.omega + ε))).sum :=
+          Multiset.sum_map_mul_left
+      _ = C * charDegreeSumReal (Fin ℓ → G) (BilinearComplexity.omega + ε) := by
+          rw [charDegreeSumReal_eq_map_sum]
+      _ = C * charDegreeSumReal G (BilinearComplexity.omega + ε) ^ ℓ := by
+          rw [charDegreeSumReal_pi_fin]
+  -- assemble, cube, and collapse the powers
+  have h6 : (rank (matMulTensor ℂ (S.card ^ ℓ) (T.card ^ ℓ) (U.card ^ ℓ)) : ℝ)
+      ≤ C * charDegreeSumReal G (BilinearComplexity.omega + ε) ^ ℓ := by
+    refine le_trans ?_ h5
+    exact_mod_cast le_trans h3 h4
+  have hid : (((N : ℕ) : ℝ) ^ BilinearComplexity.omega) ^ ℓ
+      = ((N ^ ℓ : ℕ) : ℝ) ^ BilinearComplexity.omega := by
+    rw [Nat.cast_pow,
+      ← Real.rpow_natCast_mul (Nat.cast_nonneg N) ℓ BilinearComplexity.omega,
+      ← Real.rpow_mul_natCast (Nat.cast_nonneg N) BilinearComplexity.omega ℓ,
+      mul_comm]
+  calc (((N : ℕ) : ℝ) ^ BilinearComplexity.omega) ^ ℓ
+      = ((N ^ ℓ : ℕ) : ℝ) ^ BilinearComplexity.omega := hid
+    _ ≤ (rank (matMulTensor ℂ (N ^ ℓ) (N ^ ℓ) (N ^ ℓ)) : ℝ) := h1
+    _ ≤ (rank (matMulTensor ℂ (S.card ^ ℓ) (T.card ^ ℓ) (U.card ^ ℓ)) : ℝ) ^ 3 := by
+        exact_mod_cast h2
+    _ ≤ (C * charDegreeSumReal G (BilinearComplexity.omega + ε) ^ ℓ) ^ 3 :=
+        pow_le_pow_left₀ (Nat.cast_nonneg _) h6 3
+    _ = C ^ 3 * (charDegreeSumReal G (BilinearComplexity.omega + ε) ^ 3) ^ ℓ := by
+        rw [mul_pow, pow_right_comm]
+
+/-- **The per-`ε` capacity bound**: for a TPP triple with
+`N = |S|·|T|·|U| ≥ 2` and every `ε > 0`, `N^{ω/3} ≤ D_{ω+ε}(G)`. Extract the
+BCS 15.1 constant (`exists_rank_le_rpow_complex`), run the per-`(ℓ, ε)` chain,
+absorb the constant by geometric growth, and take the cube root. -/
+private theorem rpow_le_charDegreeSumReal_add {G : Type*} [Group G] [Fintype G]
+    [DecidableEq G] {S T U : Finset G} (h : TripleProductProperty S T U)
+    (hN : 2 ≤ S.card * T.card * U.card) {ε : ℝ} (hε : 0 < ε) :
+    ((S.card * T.card * U.card : ℕ) : ℝ) ^ (BilinearComplexity.omega / 3)
+      ≤ charDegreeSumReal G (BilinearComplexity.omega + ε) := by
+  obtain ⟨C, -, hC⟩ := exists_rank_le_rpow_complex ε hε
+  have homega0 : (0 : ℝ) ≤ BilinearComplexity.omega :=
+    le_trans (by norm_num) two_le_omega
+  have hs1 : (1 : ℝ) ≤ charDegreeSumReal G (BilinearComplexity.omega + ε) :=
+    one_le_charDegreeSumReal G (by linarith)
+  have hs0 : (0 : ℝ) ≤ charDegreeSumReal G (BilinearComplexity.omega + ε) :=
+    le_trans zero_le_one hs1
+  have hcube_id : (((S.card * T.card * U.card : ℕ) : ℝ)
+        ^ (BilinearComplexity.omega / 3)) ^ 3
+      = ((S.card * T.card * U.card : ℕ) : ℝ) ^ BilinearComplexity.omega := by
+    rw [← Real.rpow_mul_natCast (Nat.cast_nonneg _)
+      (BilinearComplexity.omega / 3) 3]
+    congr 1
+    push_cast
+    ring
+  have hA : (((S.card * T.card * U.card : ℕ) : ℝ)
+        ^ (BilinearComplexity.omega / 3)) ^ 3
+      ≤ charDegreeSumReal G (BilinearComplexity.omega + ε) ^ 3 := by
+    refine le_of_pow_le_const_mul_pow (K := C ^ 3) (pow_nonneg hs0 3)
+      fun ℓ hℓ => ?_
+    rw [hcube_id]
+    exact pow_omega_pow_le_of_tpp h hN hC hℓ
+  exact le_of_pow_le_pow_left₀ (by norm_num) hs0 hA
+
+end CohnUmansChain
+
+/-! ### Cohn–Umans Theorem 4.1 (proved) -/
 
 /-- **Cohn–Umans Theorem 4.1, `β`-form** [math/0307321, `theorem:bound`,
 CU.tex:603–609].
@@ -429,17 +723,45 @@ This is the form the program actually uses: a single group with large `β(G)`
 and small `D_ω(G)` bounds `ω`. (It is equivalent to the pseudo-exponent form
 `card_rpow_le_charDegreeSumReal` via `β(G) = |G|^{3/α(G)}`.)
 
-**Proof debt** (CU.tex:621–666): embed an `⟨n,m,p⟩` product with `nmp = β(G)`
-into `ℂ[G]`, transport through the indexed Wedderburn decomposition to
-`⊕ᵢ ⟨dᵢ,dᵢ,dᵢ⟩`, then apply the tensor-rank facts `(nmp)^{ω/3} ≤ R(⟨n,m,p⟩)`
-and `R(⟨k,k,k⟩) ≤ C k^{ω+ε}` (Bürgisser–Clausen–Shokrollahi 15.5/15.1), take
-the `ℓ`-th tensor power, `ℓ`-th root, `ℓ → ∞`, and `ε → 0` by continuity. None
-of tensor rank, bilinear complexity, or the indexed Wedderburn layer is in
-Mathlib. `sorry`. -/
+**Proof** (CU.tex:621–666, assembled from the `CohnUmansChain` section): the
+capacity is attained by a TPP triple `(S, T, U)` with `N = |S|·|T|·|U|`
+(`Finset.exists_mem_eq_sup`). If `N ≤ 1` the bound reads `1 ≤ D_ω(G)`
+(`one_le_charDegreeSumReal`). For `N ≥ 2`, the per-`(ℓ, ε)` chain gives
+`(N^ω)^ℓ ≤ C³·(D_{ω+ε}(G)³)^ℓ`; letting `ℓ → ∞` absorbs `C³`
+(`le_of_pow_le_const_mul_pow`), a cube root gives `N^{ω/3} ≤ D_{ω+ε}(G)`,
+and `ε := 1/ℓ → 0⁺` closes via `D_{ω+ε}(G) ≤ |G|^ε·D_ω(G)`
+(`charDegreeSumReal_add_le`, `le_of_forall_rpow_one_div_mul`). -/
 theorem capacity_rpow_le_charDegreeSumReal (G : Type*)
     [Group G] [Fintype G] [DecidableEq G] :
-    (tppCapacity G : ℝ) ^ (ω / 3) ≤ charDegreeSumReal G ω :=
-  sorry
+    (tppCapacity G : ℝ) ^ (ω / 3) ≤ charDegreeSumReal G ω := by
+  show (tppCapacity G : ℝ) ^ (BilinearComplexity.omega / 3)
+      ≤ charDegreeSumReal G BilinearComplexity.omega
+  have homega0 : (0 : ℝ) ≤ BilinearComplexity.omega :=
+    le_trans (by norm_num) BilinearComplexity.two_le_omega
+  -- the capacity is attained by a TPP triple
+  have hne : (tppTriples G).Nonempty :=
+    ⟨(Finset.univ, {1}, {1}), mem_tppTriples.mpr tpp_trivial⟩
+  obtain ⟨p, hpmem, hpsup⟩ :=
+    Finset.exists_mem_eq_sup (tppTriples G) hne
+      (fun p => p.1.card * p.2.1.card * p.2.2.card)
+  obtain ⟨S, T, U⟩ := p
+  have hTPP : TripleProductProperty S T U := mem_tppTriples.mp hpmem
+  have hβeq : tppCapacity G = S.card * T.card * U.card := hpsup
+  rw [hβeq]
+  rcases le_or_gt (S.card * T.card * U.card) 1 with hN1 | hN2
+  · -- degenerate maximizer (`N ≤ 1`, i.e. the trivial group): `1 ≤ D_ω(G)`
+    have hle1 : ((S.card * T.card * U.card : ℕ) : ℝ) ≤ 1 := by exact_mod_cast hN1
+    exact le_trans
+      (Real.rpow_le_one (Nat.cast_nonneg _) hle1
+        (div_nonneg homega0 (by norm_num)))
+      (one_le_charDegreeSumReal G homega0)
+  · -- `N ≥ 2`: the `ε := 1/ℓ` diagonal against root convergence
+    refine le_of_forall_rpow_one_div_mul (B := (Fintype.card G : ℝ))
+      (by exact_mod_cast Fintype.card_pos) fun ℓ hℓ => ?_
+    have hℓR : (0 : ℝ) < (ℓ : ℝ) := by exact_mod_cast Nat.lt_of_lt_of_le Nat.zero_lt_one hℓ
+    have hεpos : (0 : ℝ) < 1 / (ℓ : ℝ) := one_div_pos.mpr hℓR
+    exact le_trans (rpow_le_charDegreeSumReal_add hTPP hN2 hεpos)
+      (charDegreeSumReal_add_le G BilinearComplexity.omega hεpos.le)
 
 /-- `0 < β(G)`: the TPP capacity of a (nonempty, finite) group is positive, since
 `|G| ≤ β(G)` and `|G| ≥ 1`. A positivity side-condition for the `rpow` algebra
