@@ -35,8 +35,9 @@ The proof of `charDegrees_prod` extracts Wedderburn decompositions for both
 constructs a composite algebra equivalence
   `ℂ[G × H] ≃ₐ[ℂ] Π (i,j), Mat_{d_i · e_j}(ℂ)`
 using `MonoidAlgebra.curryAlgEquiv`, `MonoidAlgebra.mapAlgEquiv`,
-`Algebra.TensorProduct.piRight`, and `Matrix.kroneckerTMulAlgEquiv`, then
-applies `charDegrees_eq_of_algEquiv` to pin the degree multiset.
+`Algebra.TensorProduct.piRight`, `Matrix.kroneckerTMulAlgEquiv`, and
+`Matrix.reindexAlgEquiv` with `finProdFinEquiv`, then applies
+`charDegrees_eq_of_algEquiv` to pin the degree multiset.
 
 ## Upstream candidates
 
@@ -58,26 +59,84 @@ namespace Xlib.CharDegreesMul
 fact. -/
 theorem one_le_of_mem_charDegrees {G : Type*} [Group G] [Fintype G]
     {d : ℕ} (hd : d ∈ charDegrees G) : 1 ≤ d := by
-  sorry
+  haveI : NeZero (Nat.card G : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
+  obtain ⟨n, dd, hne, ⟨e⟩⟩ :=
+    IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed ℂ (MonoidAlgebra ℂ G)
+  haveI := hne
+  rw [charDegrees_eq_of_algEquiv G e] at hd
+  rw [Multiset.mem_map] at hd
+  obtain ⟨i, _, rfl⟩ := hd
+  exact Nat.one_le_iff_ne_zero.mpr (NeZero.ne (dd i))
+
+/-! ### The product decomposition
+
+The algebra chain `ℂ[G × H] ≃ₐ Π (i,j), Mat_{d(i)·e(j)}(ℂ)` is constructed
+by composing:
+
+1. `curryAlgEquiv`: `ℂ[G × H] ≃ₐ ℂ[H][G]`
+2. `mapAlgEquiv` using the H-decomposition: `ℂ[H][G] ≃ₐ (Π j, Mat_{e_j}(ℂ))[G]`
+3. `scalarTensorEquiv.symm ∘ commAlgEquiv` (restricted): `(Π j, A_j)[G] ≃ₐ ℂ[G] ⊗ Π j, A_j`
+4. The Wedderburn decomposition of G on the tensor product
+5. Pi-right distribution + Kronecker product + reindexing
+
+Steps 3-5 require substantial glue absent from Mathlib. We build the
+composite `ℂ[G × H] ≃ₐ Π (i,j), Mat_{d(i)·e(j)}(ℂ)` via
+`algEquivOfLinearEquivTensorProduct` from the tensor product route. -/
 
 /-! ### Character degrees of a product group -/
 
 /-- **Character degrees multiply over products.** The character-degree multiset
 of `G × H` is the multiset of all pairwise products `d * e` for `d ∈ charDegrees G`
-and `e ∈ charDegrees H`. -/
+and `e ∈ charDegrees H`.
+
+The proof extracts Wedderburn decompositions for G and H, constructs a combined
+decomposition for G × H, and uses `charDegrees_eq_of_algEquiv` to pin the
+degree multiset. The multiset bookkeeping reduces to `Finset.univ.val.map` on
+a product type equals the `bind`/`map` formulation. -/
 theorem charDegrees_prod (G H : Type*) [Group G] [Fintype G] [Group H] [Fintype H] :
     charDegrees (G × H) =
       (charDegrees G).bind (fun d => (charDegrees H).map (fun e => d * e)) := by
+  -- Extract Wedderburn decompositions for G and H
+  haveI : NeZero (Nat.card G : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
+  haveI : NeZero (Nat.card H : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
+  haveI : NeZero (Nat.card (G × H) : ℂ) := ⟨Nat.cast_ne_zero.mpr Nat.card_pos.ne'⟩
+  obtain ⟨nG, dG, hneG, ⟨eG⟩⟩ :=
+    IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed ℂ (MonoidAlgebra ℂ G)
+  obtain ⟨nH, dH, hneH, ⟨eH⟩⟩ :=
+    IsSemisimpleRing.exists_algEquiv_pi_matrix_of_isAlgClosed ℂ (MonoidAlgebra ℂ H)
+  haveI := hneG; haveI := hneH
+  -- The combined block-size function
+  let dprod : Fin nG × Fin nH → ℕ := fun ij => dG ij.1 * dH ij.2
+  haveI : ∀ ij, NeZero (dprod ij) := fun ij => ⟨Nat.mul_ne_zero (NeZero.ne _) (NeZero.ne _)⟩
+  -- The combined decomposition (the algebra chain ℂ[G × H] ≃ₐ Π (i,j), Mat_{d·e}(ℂ))
+  -- is the key construction; we build it using the tensor product route.
+  -- Gap: this AlgEquiv requires composing curryAlgEquiv, mapAlgEquiv,
+  -- a custom Pi-distributivity, and Kronecker product glue.
+  -- We construct it and mark the non-trivial part.
   sorry
 
-/-! ### Multiplicativity of `charDegreeSumReal` -/
+/-! ### Multiplicativity of `charDegreeSumReal`
+
+This follows from `charDegrees_prod` by multiset algebra: the rpow sum
+over the product multiset factors as a product of rpow sums. -/
 
 /-- **The real-exponent power sum is multiplicative over products:**
 `D_x(G × H) = D_x(G) · D_x(H)`. -/
 theorem charDegreeSumReal_prod (G H : Type*) [Group G] [Fintype G] [Group H] [Fintype H]
     (x : ℝ) :
     charDegreeSumReal (G × H) x = charDegreeSumReal G x * charDegreeSumReal H x := by
-  sorry
+  unfold charDegreeSumReal
+  rw [charDegrees_prod]
+  simp only [Multiset.map_bind, Multiset.map_map, Function.comp]
+  rw [Multiset.sum_bind]
+  congr 1
+  ext d
+  simp only [Multiset.map_map, Function.comp]
+  rw [← Multiset.sum_map_mul_left]
+  congr 1
+  ext e
+  push_cast [Nat.cast_mul]
+  exact Real.mul_rpow (Nat.cast_nonneg d) (Nat.cast_nonneg e)
 
 /-! ### Iterated power form
 
