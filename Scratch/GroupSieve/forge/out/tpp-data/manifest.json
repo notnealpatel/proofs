@@ -1,13 +1,12 @@
 [
   {
-    "id": "ctrl_8_4",
-    "description": "control [8,4] Q8",
-    "category": "kill_test_control",
-    "expected_rho0": "1",
+    "id": "pl15_A5",
+    "description": "A5 (order 60, AlternatingGroup(5))",
+    "category": "pl15_probe",
+    "expected_rho0": null,
     "constructor": [
-      "SmallGroup",
-      8,
-      4
+      "PermGroup",
+      "A5"
     ]
   }
 ]
