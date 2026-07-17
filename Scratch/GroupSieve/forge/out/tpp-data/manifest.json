@@ -1,12 +1,12 @@
 [
   {
-    "id": "pl15_A6",
-    "description": "A6 (order 360, AlternatingGroup(6))",
+    "id": "pl15_PSL_2_11",
+    "description": "PSL_2_11 (order 660, PSL(2,11))",
     "category": "pl15_probe",
-    "expected_rho0": "27/10",
+    "expected_rho0": null,
     "constructor": [
       "PermGroup",
-      "A6"
+      "PSL_2_11"
     ]
   }
 ]

@@ -19,19 +19,18 @@ equivalently, writing `β(G) = |S|·|T|·|U|` for an optimal TPP triple (so that
 This is *the* edge crossing from group theory to complexity theory: it converts
 "`G` has a good TPP triple (large `β(G)`)" into "`ω ≤ X`".
 
-## The two foundational debts
+## The foundational debt
 
 This is a **sorry-skeleton**: the *type-level statements* are the deliverable.
-Two distinct foundations are missing from Mathlib and are isolated here:
+One foundation is missing from Mathlib and is isolated here:
 
-1. **The matrix-multiplication exponent `ω` itself** (`matrixExponent`). Its
-   genuine definition is the infimum of feasible exponents of bilinear matrix
-   multiplication, which requires *tensor rank / bilinear complexity* — entirely
-   **absent from Mathlib**. We introduce `ω` and its two elementary bounds
-   `2 ≤ ω ≤ 3` as **axioms** (`matrixExponent`, `two_le_matrixExponent`,
-   `matrixExponent_le_three`) — the standard, importable, `#print axioms`-auditable
-   idiom for a constant not yet definable but reasoned about via stated bounds. A
-   future task landing bilinear complexity replaces these three axioms.
+1. ~~**The matrix-multiplication exponent `ω` itself.**~~ **Discharged.** The
+   exponent `ω` is now defined as `BilinearComplexity.omega := sInf omegaSet`
+   (the infimum of admissible exponents of the matrix-multiplication tensor),
+   with its two elementary bounds `2 ≤ ω` and `ω ≤ 3` proved from the
+   sorry-free tensor-rank calculus (`Proofs/BilinearComplexity/Omega.lean`).
+   The local alias `matrixExponent := BilinearComplexity.omega` and scoped
+   notation `ω` are retained for downstream compatibility.
 
 2. **The proof of Theorem 4.1.** Its proof (CU.tex:621–666) embeds an
    `⟨n,m,p⟩` matrix product into `ℂ[G]`, transports through the *indexed*
@@ -53,7 +52,7 @@ are Theorem 4.1 itself (debt 2) and the universal lower bound `α(G) > 2`.
 ## Main definitions
 
 * `Xlib.CUCapacity.matrixExponent` — `ω`, the exponent of matrix multiplication.
-  **Foundation axiom #1** (tensor rank absent from Mathlib).
+  Alias for `BilinearComplexity.omega` (discharged foundation).
 * `Xlib.CUCapacity.pseudoExponent` — `α(G) = 3·log|G| / log β(G)`, the
   Cohn–Umans pseudo-exponent (`theorem:bound` preamble, CU.tex:460–467).
 * `Xlib.CUCapacity.BetaExceedsD3` — the `D₃` threshold predicate
@@ -105,19 +104,13 @@ namespace Xlib.CUCapacity
 
 open Xlib.TPP Xlib.CharDegrees
 
-/-! ### The matrix-multiplication exponent `ω` (foundation axiom #1)
+/-! ### The matrix-multiplication exponent `ω` (discharged foundation)
 
-`ω` is **not definable in current Mathlib** — its genuine definition is the
-infimum of feasible exponents of bilinear matrix multiplication, requiring
-*tensor rank / bilinear complexity* which Mathlib lacks entirely. Rather than a
-`noncomputable def … := sorry` (which would poison `ω` with the `sorryAx`
-dependency and force every bound to be a `sorry` as well), we introduce `ω` and
-its two elementary bounds as **axioms**: this is the standard idiom for "a
-constant we cannot yet define but must reason about with stated bounds", keeps
-the constant importable with no `sorry` noise, makes the bounds first-class
-facts downstream, and is cleanly auditable via `#print axioms`. A future task
-landing bilinear complexity replaces these three axioms with a genuine `def` and
-two theorems. -/
+`ω` is defined as `BilinearComplexity.omega := sInf omegaSet` in
+`Proofs/BilinearComplexity/Omega.lean`, with `2 ≤ ω` and `ω ≤ 3` proved from
+the sorry-free tensor-rank calculus (flattening lower bound and cubic upper
+bound). The local alias `matrixExponent` and scoped notation `ω` are retained
+for downstream compatibility (`Xlib.STPPWreath`, the `Dᵣ` sieve). -/
 
 /-- **The exponent of matrix multiplication** `ω`.
 
@@ -125,24 +118,23 @@ two theorems. -/
 with `O(n^{c+ε})` arithmetic operations for every `ε > 0`; equivalently the
 infimum of feasible exponents of the matrix-multiplication tensor `⟨n,n,n⟩`.
 
-**Foundation axiom** (tensor rank / bilinear complexity absent from Mathlib).
-This is the single real constant the capacity bound (`theorem:bound`) compares
-against; downstream files (`Xlib.STPPWreath`, the `Dᵣ` sieve) reference it by
-this name. -/
-axiom matrixExponent : ℝ
+Defined as `BilinearComplexity.omega := sInf omegaSet` on top of the sorry-free
+tensor-rank calculus. This is the single real constant the capacity bound
+(`theorem:bound`) compares against; downstream files (`Xlib.STPPWreath`, the
+`Dᵣ` sieve) reference it by this name. -/
+noncomputable def matrixExponent : ℝ := BilinearComplexity.omega
 
 @[inherit_doc] scoped notation "ω" => matrixExponent
 
 /-- **`2 ≤ ω`.** Multiplying two `n × n` matrices must read all `2n²` input
-entries, so the exponent is at least `2`. Elementary mathematically, but
-unprovable without the bilinear-complexity foundation that *defines* `ω`;
-recorded as a **foundation axiom** so downstream files consume it by name. -/
-axiom two_le_matrixExponent : 2 ≤ ω
+entries, so the exponent is at least `2`. Proved from the flattening lower bound
+`n² ≤ R⟨n,n,n⟩` via `BilinearComplexity.two_le_omega`. -/
+theorem two_le_matrixExponent : 2 ≤ ω := BilinearComplexity.two_le_omega
 
 /-- **`ω ≤ 3`.** Schoolbook matrix multiplication uses `O(n³)` operations, so the
-exponent is at most `3`. A **foundation axiom** (same foundation as
-`two_le_matrixExponent`). -/
-axiom matrixExponent_le_three : ω ≤ 3
+exponent is at most `3`. Proved from the cubic upper bound `R⟨n,n,n⟩ ≤ n³` via
+`BilinearComplexity.omega_le_three`. -/
+theorem matrixExponent_le_three : ω ≤ 3 := BilinearComplexity.omega_le_three
 
 /-- `0 ≤ ω`, an immediate consequence of `2 ≤ ω`; convenient for the `rpow`
 positivity side-conditions in the capacity bound. -/
@@ -556,16 +548,12 @@ correct implication *out of* a currently-undetermined antecedent: it is not
 vacuously discharged, and it becomes verbatim-meaningful — with no change to the
 statement — once the indexed Wedderburn `sorry` is discharged.
 
-The inherited debt chain is therefore **two `sorry`s plus two axioms**:
-(1) Theorem 4.1 `capacity_rpow_le_charDegreeSumReal` is itself `sorry`d
+The inherited debt chain is therefore **two `sorry`s** (no foundation axioms
+remain): (1) Theorem 4.1 `capacity_rpow_le_charDegreeSumReal` is itself `sorry`d
 (tensor-rank debt 2); (2) the hypothesis `BetaExceedsD3 G` drags in the
-`charDegrees` `sorry` through `charDegreeSum`/`charDegreeSumReal_natCast`; plus
-the two foundation axioms `matrixExponent` (`ω` exists) and
-`matrixExponent_le_three` (`ω ≤ 3`). Concretely,
-`#print axioms betaExceedsD3_certifies_subcubic` reports
-`[propext, sorryAx, Classical.choice, Quot.sound, matrixExponent,
-matrixExponent_le_three]`. Note `two_le_matrixExponent` does **not** appear (the
-boundary argument uses only the upper bound `ω ≤ 3`), and the single `sorryAx`
+`charDegrees` `sorry` through `charDegreeSum`/`charDegreeSumReal_natCast`.
+Concretely, `#print axioms betaExceedsD3_certifies_subcubic` reports
+`[propext, sorryAx, Classical.choice, Quot.sound]`. The single `sorryAx`
 entry collapses both independent `sorry` sources — debt 2 and the `charDegrees`
 debt — into one axiom name. -/
 theorem betaExceedsD3_certifies_subcubic (G : Type*)
