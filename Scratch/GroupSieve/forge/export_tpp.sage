@@ -5,7 +5,7 @@ Serializes per-target group data (Cayley table, subgroup conjugacy classes)
 to JSONL files consumed by the Go TPP search engine (cmd/sieve/rho0).
 
 USAGE:
-  sage export_tpp.sage -- [--target-id ID] [--stretch]
+  sage export_tpp.sage -- [--target-id ID] [--stretch] [--skip-ab] [--probe-products]
   sage export_tpp.sage -- --list
 
 Output: one JSON file per target under forge/out/tpp-data/<id>.json
@@ -48,7 +48,18 @@ class SageEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-def build_manifest(stretch=False):
+PERM_GROUP_WHITELIST = {
+    "A5":       lambda: libgap.AlternatingGroup(5),
+    "S5":       lambda: libgap.SymmetricGroup(5),
+    "A6":       lambda: libgap.AlternatingGroup(6),
+    "S6":       lambda: libgap.SymmetricGroup(6),
+    "A7":       lambda: libgap.AlternatingGroup(7),
+    "PSL_2_11": lambda: libgap.PSL(2, 11),
+    "M10":      lambda: libgap.MathieuGroup(10),
+}
+
+
+def build_manifest(stretch=False, probe_products=False):
     """Build the ordered target manifest."""
     targets = []
 
@@ -172,6 +183,39 @@ def build_manifest(stretch=False):
             "category": "lamplighter_stretch",
         })
 
+    # --- Pl15 probe targets (permutation groups) ---
+    pl15_probes = [
+        ("A5",       60,   "AlternatingGroup(5)",   None),
+        ("S5",       120,  "SymmetricGroup(5)",      None),
+        ("A6",       360,  "AlternatingGroup(6)",    "27/10"),
+        ("PSL_2_11", 660,  "PSL(2,11)",              None),
+        ("M10",      720,  "MathieuGroup(10)",       None),
+        ("S6",       720,  "SymmetricGroup(6)",      None),
+        ("A7",       2520, "AlternatingGroup(7)",    None),
+    ]
+    for name, order, gap_desc, rho0 in pl15_probes:
+        targets.append({
+            "id": "pl15_%s" % name,
+            "description": "%s (order %d, %s)" % (name, order, gap_desc),
+            "constructor": ("PermGroup", name),
+            "expected_rho0": rho0,
+            "category": "pl15_probe",
+        })
+
+    # --- Pl15 product probes: C_p x PermGroup (behind --probe-products) ---
+    if probe_products:
+        cp_factors = [("C2", 2), ("C3", 3), ("C5", 5)]
+        for name, order, gap_desc, rho0 in pl15_probes:
+            for cp_name, cp_order in cp_factors:
+                prod_order = cp_order * order
+                targets.append({
+                    "id": "pl15_%s_x_%s" % (cp_name, name),
+                    "description": "%s x %s (order %d)" % (cp_name, name, prod_order),
+                    "constructor": ("CpxPermGroup", cp_name, cp_order, name),
+                    "expected_rho0": rho0,
+                    "category": "pl15_probe",
+                })
+
     return targets
 
 
@@ -202,23 +246,38 @@ def construct_group(spec):
         base = libgap.CyclicGroup(libgap.IsPermGroup, spec[1])
         top = libgap.CyclicGroup(libgap.IsPermGroup, spec[2])
         return libgap.WreathProduct(base, top)
+    elif kind == "PermGroup":
+        name = spec[1]
+        if name not in PERM_GROUP_WHITELIST:
+            raise ValueError("Unknown PermGroup name: %s (whitelist: %s)" %
+                             (name, ", ".join(sorted(PERM_GROUP_WHITELIST))))
+        return PERM_GROUP_WHITELIST[name]()
+    elif kind == "CpxPermGroup":
+        cp_name, cp_order, perm_name = spec[1], spec[2], spec[3]
+        if perm_name not in PERM_GROUP_WHITELIST:
+            raise ValueError("Unknown PermGroup name: %s" % perm_name)
+        A = libgap.CyclicGroup(cp_order)
+        G = PERM_GROUP_WHITELIST[perm_name]()
+        return libgap.DirectProduct(A, G)
     else:
         raise ValueError("Unknown constructor kind: %s" % kind)
 
 
-def export_target(target):
+def export_target(target, skip_ab=False):
     """Export a single target's group data to JSON.
 
     Returns the output path on success.
+    If skip_ab=True, abelianization data is set to null instead of computed.
     """
     out_path = OUT_DIR / ("%s.json" % target["id"])
 
-    # Resumable: skip if file exists and validates
+    # Resumable: skip if file exists and validates.
+    # Accept both abelianization=null (--skip-ab) and abelianization=[...].
     if out_path.exists():
         try:
             with open(out_path) as f:
                 data = json.load(f)
-            if data.get("n") and data.get("n") > 0 and data.get("abelianization") is not None:
+            if data.get("n") and data.get("n") > 0 and "abelianization" in data:
                 print("  SKIP (already exported): %s" % out_path, flush=True)
                 return out_path
         except (json.JSONDecodeError, KeyError):
@@ -248,8 +307,11 @@ def export_target(target):
 
     # Cayley table: table[i*n + j] = index of elts[i]*elts[j].
     print("  Building Cayley table (%d x %d)..." % (n, n), flush=True)
+    t_ct = time.time()
     table = [0] * (n * n)
     for i in range(n):
+        if n > 60 and i % max(1, n // 10) == 0 and i > 0:
+            print("    cayley: row %d/%d (%.1fs)..." % (i, n, time.time() - t_ct), flush=True)
         ei = elts[i]
         for j in range(n):
             prod = ei * elts[j]
@@ -308,42 +370,51 @@ def export_target(target):
     # Note: IndependentGeneratorExponents requires IsAbelian to be set
     # on the quotient group (the GAP filter must be stored). We call
     # IsAbelian(F) explicitly for this reason.
-    print("  Computing abelianization data...", flush=True)
-    t_ab = time.time()
-    ab_data = []
-    for si, s in enumerate(subgroups):
-        h_elts_idx = s["elements"]
-        h_elts_gap = [elts[j] for j in h_elts_idx]
+    #
+    # --skip-ab: omit abelianization (dominant cost for large lattices).
+    ab_data = None
+    if skip_ab:
+        print("  Abelianization: SKIPPED (--skip-ab)", flush=True)
+    else:
+        print("  Computing abelianization data...", flush=True)
+        t_ab = time.time()
+        ab_data = []
+        for si, s in enumerate(subgroups):
+            if total_subgroups > 200 and si % 100 == 0 and si > 0:
+                print("    abelianization: %d/%d subgroups (%.1fs)..." %
+                      (si, total_subgroups, time.time() - t_ab), flush=True)
+            h_elts_idx = s["elements"]
+            h_elts_gap = [elts[j] for j in h_elts_idx]
 
-        # Reconstruct subgroup as GAP group from its elements.
-        H = libgap.Group(h_elts_gap)
-        D = libgap.DerivedSubgroup(H)
-        q = libgap.NaturalHomomorphismByNormalSubgroup(H, D)
-        F = libgap.Image(q)
-        libgap.IsAbelian(F)  # store filter for IndependentGeneratorExponents
+            # Reconstruct subgroup as GAP group from its elements.
+            H = libgap.Group(h_elts_gap)
+            D = libgap.DerivedSubgroup(H)
+            q = libgap.NaturalHomomorphismByNormalSubgroup(H, D)
+            F = libgap.Image(q)
+            libgap.IsAbelian(F)  # store filter for IndependentGeneratorExponents
 
-        d_order = int(libgap.Size(D))
-        invs = [int(v) for v in libgap.AbelianInvariants(F)]
+            d_order = int(libgap.Size(D))
+            invs = [int(v) for v in libgap.AbelianInvariants(F)]
 
-        # Exponent vectors: for each element index in H, the image
-        # under the quotient map as IndependentGeneratorExponents.
-        evecs = {}
-        if len(invs) == 0:
-            for idx in h_elts_idx:
-                evecs[str(idx)] = []
-        else:
-            for idx, g_elt in zip(h_elts_idx, h_elts_gap):
-                img = libgap.Image(q, g_elt)
-                ex = libgap.IndependentGeneratorExponents(F, img)
-                evecs[str(idx)] = [int(t) for t in ex]
+            # Exponent vectors: for each element index in H, the image
+            # under the quotient map as IndependentGeneratorExponents.
+            evecs = {}
+            if len(invs) == 0:
+                for idx in h_elts_idx:
+                    evecs[str(idx)] = []
+            else:
+                for idx, g_elt in zip(h_elts_idx, h_elts_gap):
+                    img = libgap.Image(q, g_elt)
+                    ex = libgap.IndependentGeneratorExponents(F, img)
+                    evecs[str(idx)] = [int(t) for t in ex]
 
-        ab_data.append({
-            "derived_order": d_order,
-            "abelian_invariants": invs,
-            "exponent_vectors": evecs,
-        })
-    t_ab_elapsed = time.time() - t_ab
-    print("  Abelianization data computed (%.1fs)" % t_ab_elapsed, flush=True)
+            ab_data.append({
+                "derived_order": d_order,
+                "abelian_invariants": invs,
+                "exponent_vectors": evecs,
+            })
+        t_ab_elapsed = time.time() - t_ab
+        print("  Abelianization data computed (%.1fs)" % t_ab_elapsed, flush=True)
 
     result = {
         "id": target["id"],
@@ -379,9 +450,14 @@ def main(argv):
                         help="list all target IDs and exit")
     parser.add_argument("--stretch", action="store_true",
                         help="include stretch targets (C2 wr C7)")
+    parser.add_argument("--skip-ab", action="store_true",
+                        help="omit abelianization data (schema field present but null)")
+    parser.add_argument("--probe-products", action="store_true",
+                        help="include C_p x PermGroup product targets (pl15)")
     args = parser.parse_args(argv)
 
-    manifest = build_manifest(stretch=args.stretch)
+    manifest = build_manifest(stretch=args.stretch,
+                              probe_products=args.probe_products)
 
     if args.list:
         for t in manifest:
@@ -420,7 +496,7 @@ def main(argv):
         print("[%d/%d] %s" % (i + 1, len(manifest), target["description"]),
               flush=True)
         try:
-            export_target(target)
+            export_target(target, skip_ab=args.skip_ab)
         except Exception as e:
             print("  ERROR: %s" % e, flush=True)
             errors.append((target["id"], str(e)))
