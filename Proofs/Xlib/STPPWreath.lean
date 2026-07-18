@@ -1251,14 +1251,13 @@ private theorem two_le_wreathGammaExact {m : ℕ} (hm : 2 ≤ m) :
     _ ≤ Real.log ((2 * m : ℝ) ^ m * (m.factorial : ℝ)) :=
         Real.log_le_log (by positivity) hge
 
-/-- The exact wreath gamma satisfies `γ(m) ≤ 1 + log(2m)/(log(m) − 1)` for `m ≥ 3`
+/-- The exact wreath gamma satisfies `γ(m) ≤ 2 + (1+log 2)/(log(m) − 1)` for `m ≥ 3`
 (using Stirling's lower bound `log(m!) ≥ m·log(m) − m`). -/
 private theorem wreathGammaExact_le {m : ℕ} (hm : 3 ≤ m) :
     Real.log ((2 * m : ℝ) ^ m * (m.factorial : ℝ)) / Real.log (m.factorial : ℝ) ≤
-      1 + Real.log (2 * m : ℝ) / (Real.log m - 1) := by
+      2 + (1 + Real.log 2) / (Real.log m - 1) := by
   have hm1 : m ≠ 0 := by omega
   have hm2 : 2 ≤ m.factorial := le_trans (by omega : 2 ≤ m) (Nat.self_le_factorial m)
-  have hmR : (1 : ℝ) < (m : ℝ) := by exact_mod_cast (show 1 < m by omega)
   have hlog_m : 1 < Real.log (m : ℝ) := by
     calc Real.log (m : ℝ) ≥ Real.log 3 := Real.log_le_log (by norm_num) (by exact_mod_cast hm)
       _ > 1 := by
@@ -1267,42 +1266,46 @@ private theorem wreathGammaExact_le {m : ℕ} (hm : 3 ≤ m) :
   have hlog_m_sub : 0 < Real.log (m : ℝ) - 1 := by linarith
   have hfR : (1 : ℝ) < (m.factorial : ℝ) := by exact_mod_cast Nat.lt_of_lt_of_le one_lt_two hm2
   have hlog_fact : 0 < Real.log (m.factorial : ℝ) := Real.log_pos hfR
-  -- Stirling lower bound: log(m!) ≥ m·log(m) − m
-  have hstirling : (m : ℝ) * Real.log m - m ≤ Real.log (m.factorial : ℝ) := by
+  -- Stirling lower bound: log(m!) ≥ m·log(m) − m = m·(log(m) − 1)
+  have hstirling : (m : ℝ) * (Real.log m - 1) ≤ Real.log (m.factorial : ℝ) := by
     have := Stirling.le_log_factorial_stirling hm1
-    linarith [Real.log_nonneg (by exact_mod_cast (show 1 ≤ m by omega) : (1 : ℝ) ≤ (m : ℝ)),
-              Real.log_nonneg (show (1 : ℝ) ≤ 2 * Real.pi by
-                calc (1 : ℝ) ≤ 2 * 3 := by norm_num
-                  _ ≤ 2 * Real.pi := by linarith [Real.pi_gt_three])]
+    have h1 := Real.log_nonneg (by exact_mod_cast (show 1 ≤ m by omega) : (1 : ℝ) ≤ (m : ℝ))
+    have h2 := Real.log_nonneg (show (1 : ℝ) ≤ 2 * Real.pi by linarith [Real.pi_gt_three])
+    linarith
   -- log((2m)^m · m!) = m·log(2m) + log(m!)
-  have h2mpos : (0 : ℝ) < (2 * m : ℝ) := by positivity
   have hfact_ne : (m.factorial : ℝ) ≠ 0 := ne_of_gt (by positivity)
   have h2m_ne : (2 * m : ℝ) ^ m ≠ 0 := by positivity
   have hlog_split : Real.log ((2 * m : ℝ) ^ m * (m.factorial : ℝ)) =
-      m * Real.log (2 * m : ℝ) + Real.log (m.factorial : ℝ) := by
+      ↑m * Real.log (2 * m : ℝ) + Real.log (m.factorial : ℝ) := by
     rw [Real.log_mul h2m_ne hfact_ne, Real.log_pow]
-  rw [hlog_split]
-  -- (m·log(2m) + log(m!)) / log(m!) = 1 + m·log(2m)/log(m!)
-  rw [add_div, div_self (ne_of_gt hlog_fact)]
-  -- Need: m·log(2m)/log(m!) ≤ log(2m)/(log(m) − 1)
-  -- Equivalently: m·log(2m)·(log(m)−1) ≤ log(2m)·log(m!)
-  -- i.e.: m·(log(m)−1) ≤ log(m!) (since log(2m) > 0)
-  -- i.e.: m·log(m) − m ≤ log(m!)  ← Stirling
-  gcongr
+  rw [hlog_split, add_div, div_self (ne_of_gt hlog_fact)]
+  -- Need: 1 + m·log(2m)/log(m!) ≤ 2 + (1+log 2)/(log(m)−1)
+  -- i.e. m·log(2m)/log(m!) ≤ 1 + (1+log 2)/(log(m)−1)
+  -- = (log(m)−1 + 1+log 2)/(log(m)−1) = (log(m) + log 2)/(log(m)−1) = log(2m)/(log(m)−1)
+  -- So: m·log(2m)/log(m!) ≤ log(2m)/(log(m)−1)
+  -- ⟸ m·(log(m)−1) ≤ log(m!)  [divide both sides by log(2m) > 0 and cross-multiply]
+  -- ⟸ Stirling ✓
+  have hlog_2m : 0 < Real.log (2 * (m : ℝ)) := by
+    apply Real.log_pos; exact_mod_cast (show 1 < 2 * m by omega)
+  -- Rewrite RHS: 1 + (1+log 2)/(log(m)−1) = log(2m)/(log(m)−1)
+  -- since 1 + log 2 = log 2 + 1 and log(2m) = log 2 + log m
+  -- so log(2m)/(log(m)−1) = (log 2 + log m)/(log(m)−1)
+  --    = 1 + (1 + log 2)/(log(m)−1)
+  suffices h : ↑m * Real.log (2 * ↑m) / Real.log ↑m.factorial ≤
+      Real.log (2 * ↑m) / (Real.log ↑m - 1) by
+    have key : Real.log (2 * (m : ℝ)) / (Real.log m - 1) =
+        1 + (1 + Real.log 2) / (Real.log m - 1) := by
+      rw [Real.log_mul (by positivity : (2 : ℝ) ≠ 0) (by positivity : (m : ℝ) ≠ 0)]
+      field_simp
+      ring
+    linarith [key]
+  -- m·log(2m)/log(m!) ≤ log(2m)/(log(m)−1)
+  -- ⟸ log(m!) ≥ m·(log(m)−1)  and  log(2m) > 0
   rw [div_le_div_iff hlog_fact hlog_m_sub]
-  calc (m : ℝ) * Real.log (2 * m : ℝ) * (Real.log m - 1)
-      ≤ (m : ℝ) * Real.log (2 * m : ℝ) * Real.log m := by
-        gcongr; linarith
-    _ = Real.log (2 * m : ℝ) * ((m : ℝ) * Real.log m) := by ring
-    _ ≤ Real.log (2 * m : ℝ) * Real.log (m.factorial : ℝ) := by
-        gcongr
-        calc (m : ℝ) * Real.log m = (m : ℝ) * Real.log m - m + m := by ring
-          _ ≤ Real.log (m.factorial : ℝ) + m := by linarith [hstirling]
-          _ ≤ Real.log (m.factorial : ℝ) + Real.log (m.factorial : ℝ) := by
-              gcongr; calc (m : ℝ) ≤ (m.factorial : ℝ) := by exact_mod_cast Nat.self_le_factorial m
-                _ ≤ Real.log (m.factorial : ℝ) + Real.log (m.factorial : ℝ) := sorry
-          _ = 2 * Real.log (m.factorial : ℝ) := by ring
-  sorry
+  calc ↑m * Real.log (2 * ↑m) * (Real.log ↑m - 1)
+      ≤ Real.log (2 * ↑m) * (↑m * (Real.log ↑m - 1)) := by ring_nf
+    _ ≤ Real.log (2 * ↑m) * Real.log ↑m.factorial := by
+        exact mul_le_mul_of_nonneg_left hstirling hlog_2m.le
 
 /-- **The wreath amplification limit** [math/0307321, CU.tex:1248–1255]: the
 pseudo-exponent of the Cohn–Umans wreath family converges to `2`,
