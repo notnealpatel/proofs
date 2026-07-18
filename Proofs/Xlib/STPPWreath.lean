@@ -65,7 +65,7 @@ element equality then following from the per-triple ordinary TPP.
 * `Xlib.STPPWreath.wreathGamma` — `γ(Gₙ) = 2 + (1+log 2)/log n`, the leading
   asymptotic bound on the pseudo-exponent.
 
-## Main results (all `sorry`-skeleton)
+## Main results (one `sorry` remains: `stpp_capacity_le`, the asi layer)
 
 * `Xlib.STPPWreath.SimultaneousTPP.tpp_of` — the STPP entails the per-index TPP.
 * `Xlib.STPPWreath.SimultaneousTPP.prod` / `Xlib.STPPWreath.SimultaneousTPP.pow`
@@ -79,8 +79,8 @@ element equality then following from the per-triple ordinary TPP.
   character-degree bound `∑ⱼ cⱼ^ω ≤ (n!)^{ω-1} · (∑ₖ dₖ^ω)^n` for abelian `H`
   (the abelian branch of CKSU `lemma:wreath-char-degrees`, FOCS'05 tex 313–320;
   see Pl19 Clifford triage; the general-`H` version is Clifford-blocked, Gh1).
-* `Xlib.STPPWreath.stpp_to_tpp_wreath` — **(`sorry`)** STPP triples in `H` lift
-  to ordinary TPP subsets in `Sₙ ⋉ Hⁿ` (CKSU `theorem:STPP2TPP`).
+* `Xlib.STPPWreath.stpp_to_tpp_wreath` — **(`sorry`-free)** STPP triples in `H`
+  lift to ordinary TPP subsets in `Sₙ ⋉ Hⁿ` (CKSU `theorem:STPP2TPP`).
 * `Xlib.STPPWreath.wreathH₁`/`wreathH₂`/`wreathH₃`,
   `Xlib.STPPWreath.tripleProductProperty_wreathWitness`,
   `Xlib.STPPWreath.factorial_pow_three_le_tppCapacity` — **(`sorry`-free)** the
@@ -1474,7 +1474,7 @@ private theorem tripleProductProperty_familyWitness {D : Type*} [CommGroup D]
             ((ρ₁ * ρ₂)⁻¹ (ρ₁ j)) = 1 :=
       congrFun (congrArg SemidirectProduct.left heq') (ρ₁ j)
     simp only [familyCocycleHom_left_apply, e₁, e₂, e₃, Pi.one_apply, inv_one,
-      one_mul, mul_one] at hL
+      one_mul] at hL
     -- hL : g^{(ρ₂⁻¹j)+1} · (g^{j+1})⁻¹ · (g^{n−ρ₁j} · (g^{n−ρ₂⁻¹j})⁻¹) = 1
     have hb₁ := j.isLt
     have hb₂ := (ρ₂⁻¹ j).isLt
