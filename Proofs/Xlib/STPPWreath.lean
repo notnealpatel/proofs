@@ -1168,27 +1168,56 @@ matching CU.tex:1279). -/
 noncomputable def wreathGamma (n : ℕ) : ℝ :=
   2 + (1 + Real.log 2) / Real.log n
 
-/-- **The Cohn–Umans wreath pseudo-exponent bound** [math/0307321,
-CU.tex:1248–1255]: for `Gₙ = C₂ₙ ≀ Sₙ`,
+/-- **The Cohn–Umans wreath pseudo-exponent bound (faithful restatement)**
+[math/0307321, CU.tex:1248–1255]: for `Gₙ = C₂ₙ ≀ Sₙ`,
 
-  `α(Gₙ) ≤ γ(Gₙ) = 2 + (1+log 2)/log n + O(1/(log n)²)`.
+  `α(Gₙ) ≤ γ(Gₙ) = log((2n)ⁿ · n!) / log(n!)`.
 
-We state the inequality against the two-term `wreathGamma n`; the `O`-term is the
-gap between `wreathGamma n` and the exact `γ(Gₙ) = log|Gₙ|/log(n!)`, absorbed
-into the bound. (`2 ≤ n` keeps `log n > 0` and `Gₙ` nontrivial.)
+We state the inequality against the *exact* `γ(Gₙ) = log|Gₙ|/log(n!)`, the CU
+ratio `log((2n)ⁿ·n!)/log(n!)`. The two-term asymptotic expansion
+`2 + (1+log 2)/log n + O(1/(log n)²)` of this ratio is `wreathGamma n` plus a
+*positive* remainder, so `wreathGamma n < γ_exact(n)` for all `n ≥ 2` (see
+`.tasks/f5exp/docs/Lg1-counterexample.md`); the previous statement against
+`wreathGamma` was therefore strictly stronger than CU's theorem and unprovable.
 
-**Proof debt** (CU wreath theorem, CU.tex:1257–1300): exhibit the three
-order-`n!` subgroups `H₁ = {(π,0)}`, `H₂ = {(π, πu−u)}`, `H₃ = {(π, πv−v)}` of
-`Gₙ` (with `u = (1,…,n)`, `v = (n,…,1)`), prove they satisfy the TPP (the
-`π(i)+σ(i)=2i ⟹ π=σ=1` argument in `ℤ/2nℤ`), so `Gₙ` realizes `⟨n!,n!,n!⟩` and
-`tppCapacity Gₙ ≥ (n!)³`; then with `|Gₙ| = (2n)ⁿ·n!`
-(`ImprimitiveWreathProduct.card`), `α(Gₙ) = 3·log|Gₙ|/log(tppCapacity Gₙ) ≤
-log|Gₙ|/log(n!) = log((2n)ⁿ·n!)/log(n!)`, and expand by Stirling. The TPP-witness
-construction inside `ImprimitiveWreathProduct` and the `log`-asymptotics are
-unported. `sorry`. -/
+**Proof** (from `factorial_pow_three_le_tppCapacity`, ~20 lines): the TPP witness
+gives `β(Gₙ) ≥ (n!)³`, so `α = 3·log|G|/log β ≤ 3·log|G| / (3·log(n!)) =
+log|G|/log(n!)`, and `|G| = (2n)ⁿ·n!` (`ImprimitiveWreathProduct.card`). -/
 theorem pseudoExponent_wreath_le_gamma (n : ℕ) (hn : 2 ≤ n) [NeZero (2 * n)] :
-    pseudoExponent (wreathGroup n) ≤ wreathGamma n :=
-  sorry
+    pseudoExponent (wreathGroup n) ≤
+      Real.log ((2 * n : ℝ) ^ n * (n.factorial : ℝ)) / Real.log (n.factorial : ℝ) := by
+  -- β(Gₙ) ≥ (n!)³
+  have hβ := factorial_pow_three_le_tppCapacity n
+  -- n! ≥ 2 for n ≥ 2
+  have hn2 : 2 ≤ n.factorial := le_trans hn (Nat.le_of_dvd (by omega) n.factorial_dvd_self)
+  have hfact_pos : (0 : ℝ) < (n.factorial : ℝ) := Nat.cast_pos.mpr n.factorial_pos
+  have hlog_fact : 0 < Real.log (n.factorial : ℝ) := by
+    apply Real.log_pos; exact_mod_cast hn2
+  -- log(β) ≥ log((n!)³) = 3 · log(n!)
+  have hlog_β : 3 * Real.log (n.factorial : ℝ) ≤ Real.log (tppCapacity (wreathGroup n) : ℝ) := by
+    rw [← Real.log_pow]
+    exact Real.log_le_log (by positivity) (by exact_mod_cast hβ)
+  -- 0 ≤ 3 · log |G|
+  have hcard_pos : (0 : ℝ) < (Fintype.card (wreathGroup n) : ℝ) :=
+    Nat.cast_pos.mpr Fintype.card_pos
+  have hlog_card : 0 ≤ Real.log (Fintype.card (wreathGroup n) : ℝ) :=
+    Real.log_nonneg (by exact_mod_cast Fintype.one_le_card)
+  -- α = 3 · log|G| / log(β) ≤ 3 · log|G| / (3 · log(n!))
+  have key : pseudoExponent (wreathGroup n) ≤
+      3 * Real.log (Fintype.card (wreathGroup n) : ℝ) / (3 * Real.log (n.factorial : ℝ)) := by
+    rw [pseudoExponent]
+    exact div_le_div_of_nonneg_left (by positivity) (by positivity) hlog_β
+  -- 3 · log|G| / (3 · log(n!)) = log|G| / log(n!)
+  rw [mul_div_mul_left _ _ (by norm_num : (3 : ℝ) ≠ 0)] at key
+  -- |G| = (2n)ⁿ · n!
+  have hcard : (Fintype.card (wreathGroup n) : ℝ) = (2 * n : ℝ) ^ n * (n.factorial : ℝ) := by
+    rw [Fintype.card_eq_nat_card]
+    have h1 := ImprimitiveWreathProduct.card (cyclicGroup n) n
+    have h2 : Nat.card (cyclicGroup n) = 2 * n := by
+      rw [Nat.card_congr Multiplicative.ofAdd.symm, Nat.card_zmod]
+    rw [h2] at h1; exact_mod_cast h1
+  rw [hcard] at key
+  exact key
 
 /-- **The wreath amplification limit** [math/0307321, CU.tex:1248–1255]: the
 pseudo-exponent of the Cohn–Umans wreath family converges to `2`,
