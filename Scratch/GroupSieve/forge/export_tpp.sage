@@ -56,6 +56,8 @@ PERM_GROUP_WHITELIST = {
     "A7":       lambda: libgap.AlternatingGroup(7),
     "PSL_2_11": lambda: libgap.PSL(2, 11),
     "M10":      lambda: libgap.MathieuGroup(10),
+    "PGL_2_9":  lambda: libgap.PGL(2, 9),
+    "PSL_2_13": lambda: libgap.PSL(2, 13),
 }
 
 
@@ -191,6 +193,8 @@ def build_manifest(stretch=False, probe_products=False):
         ("PSL_2_11", 660,  "PSL(2,11)",              None),
         ("M10",      720,  "MathieuGroup(10)",       None),
         ("S6",       720,  "SymmetricGroup(6)",      None),
+        ("PGL_2_9",  720,  "PGL(2,9)",               None),
+        ("PSL_2_13", 1092, "PSL(2,13)",              None),
         ("A7",       2520, "AlternatingGroup(7)",    None),
     ]
     for name, order, gap_desc, rho0 in pl15_probes:

@@ -1,14 +1,12 @@
 [
   {
-    "id": "pl15_C2_x_A6",
-    "description": "C2 x A6 (order 720)",
+    "id": "pl15_PSL_2_13",
+    "description": "PSL_2_13 (order 1092, PSL(2,13))",
     "category": "pl15_probe",
-    "expected_rho0": "27/10",
+    "expected_rho0": null,
     "constructor": [
-      "CpxPermGroup",
-      "C2",
-      2,
-      "A6"
+      "PermGroup",
+      "PSL_2_13"
     ]
   }
 ]
