@@ -30,7 +30,6 @@ private theorem exists_isotypic_of_mem_charDegrees {G : Type*} [Group G] [Fintyp
   obtain ⟨c, -, hc⟩ := Multiset.mem_map.mp hn
   exact ⟨c, hc⟩
 
-set_option backward.isDefEq.respectTransparency false in
 /-- Phase 1: a simple `ℂ[G]`-submodule of the regular module contains a common
 eigenvector for a commutative subgroup `A`. -/
 private theorem exists_eigenvector (A : Subgroup G) [IsMulCommutative A]
@@ -59,7 +58,7 @@ private theorem exists_eigenvector (A : Subgroup G) [IsMulCommutative A]
   haveI := hW
   obtain ⟨I, ⟨e⟩⟩ := IsSemisimpleRing.exists_linearEquiv_ideal_of_isSimpleModule
     (R := MonoidAlgebra ℂ ↥A) (M := ↥W)
-  haveI : IsSimpleModule (MonoidAlgebra ℂ ↥A) ↥I := IsSimpleModule.congr e.symm
+  haveI : IsSimpleModule (MonoidAlgebra ℂ ↥A) ↥I := by exact IsSimpleModule.congr e.symm
   have hmem : isotypicComponent (MonoidAlgebra ℂ ↥A) (MonoidAlgebra ℂ ↥A) ↥I
       ∈ isotypicComponents (MonoidAlgebra ℂ ↥A) (MonoidAlgebra ℂ ↥A) :=
     ⟨I, inferInstance, rfl⟩
