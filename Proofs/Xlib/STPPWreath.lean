@@ -187,6 +187,56 @@ theorem SimultaneousTPP.simultaneous {n : ℕ} [Group G] [Fintype G] [DecidableE
     (heq : aᵢ * (aⱼ')⁻¹ * bⱼ * (bₖ')⁻¹ * cₖ * (cᵢ')⁻¹ = 1) : i = j ∧ j = k :=
   h.2 i j k aᵢ haᵢ aⱼ' haⱼ' bⱼ hbⱼ bₖ' hbₖ' cₖ hcₖ cᵢ' hcᵢ' heq
 
+/-! ### Abelian equivalence with the pre-Df1 definition
+
+The pre-Df1 `SimultaneousTPP` used the left-quotient `TripleProductProperty` in
+its per-triple conjunct. For commutative groups the two conventions coincide on
+the same triple, so the old and new definitions are equivalent. -/
+
+/-- The pre-Df1 definition of `SimultaneousTPP`, with the left-quotient
+`TripleProductProperty` in the per-triple conjunct. Used only in the abelian
+equivalence lemma `simultaneousTPP_left_iff_comm`. -/
+def SimultaneousTPP_left {n : ℕ} [Fintype G] [DecidableEq G]
+    (A B C : Fin n → Finset G) : Prop :=
+  (∀ i, TripleProductProperty (A i) (B i) (C i)) ∧
+    (∀ i j k : Fin n,
+      ∀ aᵢ ∈ A i, ∀ aⱼ' ∈ A j, ∀ bⱼ ∈ B j, ∀ bₖ' ∈ B k, ∀ cₖ ∈ C k, ∀ cᵢ' ∈ C i,
+        aᵢ * (aⱼ')⁻¹ * bⱼ * (bₖ')⁻¹ * cₖ * (cᵢ')⁻¹ = 1 → i = j ∧ j = k)
+
+/-- In a **commutative** group the right-quotient `TripleProductPropertyR`
+entails the left-quotient `TripleProductProperty` on the same triple (the
+reverse direction of `tripleProductPropertyR_of_comm`). -/
+theorem tripleProductProperty_of_commR {H : Type*} [CommGroup H] [Fintype H]
+    [DecidableEq H] {S T U : Finset H} (h : TripleProductPropertyR S T U) :
+    TripleProductProperty S T U := by
+  intro s hs s' hs' t ht t' ht' u hu u' hu' hquot
+  have hright : s * s'⁻¹ * (t * t'⁻¹) * (u * u'⁻¹) = 1 := by
+    have hcomm : s * s'⁻¹ * (t * t'⁻¹) * (u * u'⁻¹)
+        = s'⁻¹ * s * t'⁻¹ * t * u'⁻¹ * u := by
+      simp only [mul_comm, mul_left_comm, mul_assoc]
+    rw [hcomm, hquot]
+  obtain ⟨h1, h2, h3⟩ := h (s * s'⁻¹)
+    (mem_mul_inv.mpr ⟨s, hs, s', hs', rfl⟩)
+    (t * t'⁻¹)
+    (mem_mul_inv.mpr ⟨t, ht, t', ht', rfl⟩)
+    (u * u'⁻¹)
+    (mem_mul_inv.mpr ⟨u, hu, u', hu', rfl⟩)
+    hright
+  exact ⟨by rwa [mul_inv_eq_one] at h1, by rwa [mul_inv_eq_one] at h2,
+    by rwa [mul_inv_eq_one] at h3⟩
+
+/-- **Abelian equivalence (Df1 transport).** For commutative groups, the pre-Df1
+`SimultaneousTPP_left` (with left-quotient per-triple) and the corrected
+`SimultaneousTPP` (with right-quotient per-triple) are equivalent. The adapter
+`tripleProductPropertyR_of_comm` (forward) and `tripleProductProperty_of_commR`
+(reverse) bridge the per-triple conjunct; the simultaneous conjunct is identical
+in both definitions. -/
+theorem simultaneousTPP_left_iff_comm {H : Type*} [CommGroup H] [Fintype H]
+    [DecidableEq H] {n : ℕ} (A B C : Fin n → Finset H) :
+    SimultaneousTPP_left A B C ↔ SimultaneousTPP A B C :=
+  ⟨fun ⟨h1, h2⟩ => ⟨fun i => tripleProductPropertyR_of_comm (h1 i), h2⟩,
+   fun ⟨h1, h2⟩ => ⟨fun i => tripleProductProperty_of_commR (h1 i), h2⟩⟩
+
 /-! ### STPP direct-product closure (CKSU `lemma:directprod`)
 
 The STPP is closed under direct products [math/0511460,
@@ -232,7 +282,8 @@ open scoped Pointwise in
 `TripleProductPropertyR`, then the `piFinset` triple satisfies the right-quotient
 TPP in `Fin ℓ → G`. The right-quotient companion of
 `tripleProductProperty_piFinset`. -/
-theorem tripleProductPropertyR_piFinset {ℓ : ℕ} {S T U : Fin ℓ → Finset G}
+theorem tripleProductPropertyR_piFinset [Fintype G] [DecidableEq G]
+    {ℓ : ℕ} {S T U : Fin ℓ → Finset G}
     (h : ∀ t, TripleProductPropertyR (S t) (T t) (U t)) :
     TripleProductPropertyR (Fintype.piFinset S) (Fintype.piFinset T)
       (Fintype.piFinset U) := by
@@ -792,6 +843,7 @@ theorem tripleProductPropertyR_wreathCarrier {H : Type*} [Group H] [Fintype H]
     rw [hσ₃, inv_one, Equiv.Perm.one_apply]
     exact (helem i).2.2
 
+open scoped Pointwise in
 /-- **CKSU Theorem `theorem:STPP2TPP`** [math/0511460]: STPP triples in the base
 group `H` lift to an ordinary TPP triple in the wreath product
 `G = Sₙ ⋉ Hⁿ` (here `ImprimitiveWreathProduct H n`).
@@ -825,16 +877,15 @@ This is the form the `theorem:asi` assembly (`stpp_capacity_le`) consumes: the
 capacity bound CU Thm 4.1 applied to the wreath group needs the product
 `|S|·|T|·|U|` of the lifted triple.
 
-The commutativity hypothesis makes the right-quotient per-triple TPP automatic
-(`tripleProductPropertyR_of_comm`), which the CKSU carrier verification
-`tripleProductPropertyR_wreathCarrier` requires; the witness triple is the
-inverse-image `(wreathCarrier A)⁻¹, (wreathCarrier B)⁻¹, (wreathCarrier C)⁻¹`
-of the CKSU carriers under the convention bridge
+With the corrected `SimultaneousTPP` (Df1), the per-triple right-quotient
+hypothesis is directly the first conjunct, so `tripleProductPropertyR_wreathCarrier`
+applies without a separate adapter. Now works for general `Group H` (previously
+required `CommGroup` to derive the right-quotient per-triple TPP via
+`tripleProductPropertyR_of_comm`). The witness triple is the inverse-image
+`(wreathCarrier A)⁻¹, …` of the CKSU carriers under the convention bridge
 `tripleProductPropertyR_iff_inv`, with the same cardinalities
-(`Finset.card_inv`). The downstream consumers (`stpp_capacity_le` via the
-Ab1/Ab2/Ab3 chain, and both wreath-family limits) are all abelian-based, so no
-generality is lost where it is consumed. -/
-theorem stpp_to_tpp_wreath_card {H : Type*} [CommGroup H] [Fintype H]
+(`Finset.card_inv`). -/
+theorem stpp_to_tpp_wreath_card {H : Type*} [Group H] [Fintype H]
     [DecidableEq H] {n : ℕ} (A B C : Fin n → Finset H)
     (h : SimultaneousTPP A B C) :
     ∃ S T U : Finset (ImprimitiveWreathProduct H n),
@@ -842,10 +893,8 @@ theorem stpp_to_tpp_wreath_card {H : Type*} [CommGroup H] [Fintype H]
         ∧ S.card = n.factorial * ∏ i, (A i).card
         ∧ T.card = n.factorial * ∏ i, (B i).card
         ∧ U.card = n.factorial * ∏ i, (C i).card := by
-  have hR : ∀ i, TripleProductPropertyR (A i) (B i) (C i) := fun i =>
-    tripleProductPropertyR_of_comm (h.tpp_of i)
   refine ⟨(wreathCarrier A)⁻¹, (wreathCarrier B)⁻¹, (wreathCarrier C)⁻¹,
-    tripleProductPropertyR_iff_inv.mp (tripleProductPropertyR_wreathCarrier h hR),
+    tripleProductPropertyR_iff_inv.mp (tripleProductPropertyR_wreathCarrier h),
     ?_, ?_, ?_⟩
   · rw [Finset.card_inv, wreathCarrier_card]
   · rw [Finset.card_inv, wreathCarrier_card]
