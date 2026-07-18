@@ -1262,7 +1262,7 @@ private theorem wreathGammaExact_le {m : ℕ} (hm : 3 ≤ m) :
     calc Real.log (m : ℝ) ≥ Real.log 3 := Real.log_le_log (by norm_num) (by exact_mod_cast hm)
       _ > 1 := by
         rw [show (1 : ℝ) = Real.log (Real.exp 1) from (Real.log_exp 1).symm]
-        exact Real.log_lt_log (Real.exp_pos 1) (by norm_num [Real.exp_one_lt_d9])
+        exact Real.log_lt_log (Real.exp_pos 1) (by linarith [Real.exp_one_lt_d9])
   have hlog_m_sub : 0 < Real.log (m : ℝ) - 1 := by linarith
   have hfR : (1 : ℝ) < (m.factorial : ℝ) := by exact_mod_cast Nat.lt_of_lt_of_le one_lt_two hm2
   have hlog_fact : 0 < Real.log (m.factorial : ℝ) := Real.log_pos hfR
@@ -1301,11 +1301,11 @@ private theorem wreathGammaExact_le {m : ℕ} (hm : 3 ≤ m) :
     linarith [key]
   -- m·log(2m)/log(m!) ≤ log(2m)/(log(m)−1)
   -- ⟸ log(m!) ≥ m·(log(m)−1)  and  log(2m) > 0
-  rw [div_le_div_iff hlog_fact hlog_m_sub]
+  rw [div_le_div_iff₀ hlog_fact hlog_m_sub]
   calc ↑m * Real.log (2 * ↑m) * (Real.log ↑m - 1)
-      ≤ Real.log (2 * ↑m) * (↑m * (Real.log ↑m - 1)) := by ring_nf
-    _ ≤ Real.log (2 * ↑m) * Real.log ↑m.factorial := by
-        exact mul_le_mul_of_nonneg_left hstirling hlog_2m.le
+      = Real.log (2 * ↑m) * (↑m * (Real.log ↑m - 1)) := by ring
+    _ ≤ Real.log (2 * ↑m) * Real.log ↑m.factorial :=
+        mul_le_mul_of_nonneg_left hstirling hlog_2m.le
 
 /-- **The wreath amplification limit** [math/0307321, CU.tex:1248–1255]: the
 pseudo-exponent of the Cohn–Umans wreath family converges to `2`,
@@ -1320,8 +1320,42 @@ and the exact wreath upper bound `α(Gₙ) ≤ log((2n)ⁿ·n!)/log(n!)`
 theorem pseudoExponent_wreath_tendsto_two :
     Filter.Tendsto
       (fun n : ℕ => pseudoExponent (wreathGroup (n + 1)))
-      Filter.atTop (nhds 2) :=
-  sorry
+      Filter.atTop (nhds 2) := by
+  -- Squeeze: 2 ≤ α(G_{n+1}) ≤ γ_exact(n+1) ≤ 2 + (1+log 2)/(log(n+1)−1)
+  -- with 2 → 2 and the upper bound → 2.
+  apply tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    tendsto_const_nhds
+    (show Filter.Tendsto
+      (fun n : ℕ => 2 + (1 + Real.log 2) / (Real.log (n + 1 : ℝ) - 1))
+      Filter.atTop (nhds 2) from ?_)
+    (show ∀ᶠ n in Filter.atTop, 2 ≤ pseudoExponent (wreathGroup (n + 1)) from ?_)
+    (show ∀ᶠ n in Filter.atTop, pseudoExponent (wreathGroup (n + 1)) ≤
+      2 + (1 + Real.log 2) / (Real.log (n + 1 : ℝ) - 1) from ?_)
+  -- Goal 1: the upper bound 2 + c/(log(n+1)−1) → 2
+  · have : Filter.Tendsto (fun n : ℕ => (1 + Real.log 2) /
+        (Real.log (n + 1 : ℝ) - 1)) Filter.atTop (nhds 0) := by
+      apply Filter.Tendsto.div_atTop tendsto_const_nhds
+      apply Filter.Tendsto.atTop_sub_const
+      exact Real.tendsto_log_atTop.comp
+        (Filter.tendsto_natCast_atTop_atTop.comp (Filter.tendsto_atTop_add_const_right _ 1
+          Filter.tendsto_id))
+    convert this.const_add 2 using 1
+    · ext n; ring
+    · ring
+  -- Goal 2: 2 ≤ α(G_{n+1}) eventually
+  · apply Filter.Eventually.of_forall
+    intro n
+    exact le_of_lt (two_lt_pseudoExponent (wreathGroup (n + 1)))
+  -- Goal 3: α(G_{n+1}) ≤ 2 + c/(log(n+1)−1) eventually
+  · refine (Filter.eventually_atTop.mpr ⟨2, fun n hn => ?_⟩)
+    have hn1 : 2 ≤ n + 1 := by omega
+    have hn3 : 3 ≤ n + 1 := by omega
+    calc pseudoExponent (wreathGroup (n + 1))
+        ≤ Real.log ((2 * (n + 1 : ℝ)) ^ (n + 1) * ((n + 1).factorial : ℝ)) /
+            Real.log ((n + 1).factorial : ℝ) :=
+          pseudoExponent_wreath_le_gamma (n + 1) hn1
+      _ ≤ 2 + (1 + Real.log 2) / (Real.log (n + 1 : ℝ) - 1) := by
+          exact_mod_cast wreathGammaExact_le hn3
 
 /-! ### CU "Proposition 11": abelian base ⟹ `α → 2` (`sorry`)
 

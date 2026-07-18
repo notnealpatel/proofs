@@ -1,19 +1,29 @@
 import Mathlib
-import Xlib.TPP
-import Xlib.CUCapacity
-import Xlib.STPPWreath
 
-open Xlib.STPPWreath Xlib.CUCapacity Xlib.TPP
+-- log(n+1) - 1 → atTop
+-- = log(n+1) + (-1), with log(n+1) → atTop and (-1) → nhds(-1)
 
--- Can Lean infer Nontrivial (wreathGroup (n+1))?
-example (n : ℕ) : Nontrivial (wreathGroup (n + 1)) := by
-  apply Fintype.one_lt_card_iff_nontrivial.mp
-  rw [Fintype.card_eq_nat_card]
-  have h1 := ImprimitiveWreathProduct.card (cyclicGroup (n+1)) (n+1)
-  have h2 : Nat.card (cyclicGroup (n+1)) = 2 * (n+1) := by
-    rw [Nat.card_congr Multiplicative.ofAdd.symm, Nat.card_zmod]
-  rw [h2] at h1; rw [h1]
-  calc 1 < 2 * (n + 1) := by omega
-    _ ≤ (2 * (n + 1)) ^ (n + 1) := Nat.le_self_pow (by omega) _
-    _ ≤ (2 * (n + 1)) ^ (n + 1) * (n + 1).factorial :=
-        Nat.le_mul_of_pos_right _ (Nat.factorial_pos _)
+-- Step 1: (n+1 : ℝ) → atTop as n → atTop
+-- Step 2: log ∘ above → atTop
+-- Step 3: log(n+1) + (-1) → atTop
+
+-- Let me try the full chain
+example : Filter.Tendsto (fun n : ℕ => Real.log (↑n + 1) - 1)
+    Filter.atTop Filter.atTop := by
+  have h1 : Filter.Tendsto (fun n : ℕ => (↑n + 1 : ℝ)) Filter.atTop Filter.atTop := by
+    apply Filter.tendsto_atTop_add_const_right _ 1
+    exact Filter.tendsto_natCast_atTop_atTop
+  have h2 : Filter.Tendsto (fun n : ℕ => Real.log (↑n + 1 : ℝ)) Filter.atTop Filter.atTop :=
+    Real.tendsto_log_atTop.comp h1
+  show Filter.Tendsto (fun n : ℕ => Real.log (↑n + 1) + (-1 : ℝ)) Filter.atTop Filter.atTop
+  exact h2.atTop_add tendsto_const_nhds
+
+-- Now: c / (log(n+1) - 1) → 0
+example : Filter.Tendsto (fun n : ℕ => (1 + Real.log 2) / (Real.log (↑n + 1) - 1))
+    Filter.atTop (nhds 0) := by
+  have : Filter.Tendsto (fun n : ℕ => Real.log (↑n + 1) - 1)
+      Filter.atTop Filter.atTop := by
+    have h1 : Filter.Tendsto (fun n : ℕ => (↑n + 1 : ℝ)) Filter.atTop Filter.atTop :=
+      Filter.tendsto_atTop_add_const_right _ 1 Filter.tendsto_natCast_atTop_atTop
+    exact (Real.tendsto_log_atTop.comp h1).atTop_add tendsto_const_nhds
+  exact tendsto_const_nhds.div_atTop this
