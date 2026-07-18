@@ -121,7 +121,11 @@ instance {H K L : Subgroup Γ} [Fintype Γ] [DecidableEq Γ]
 (Pf13 D3, cyclic generator). -/
 theorem IsTPPTriple.rotate {H K L : Subgroup Γ} (h : IsTPPTriple H K L) :
     IsTPPTriple K L H := by
-  sorry
+  intro s hs t ht u hu hstu
+  have hst : s * t = u⁻¹ := mul_eq_one_iff_eq_inv.mp hstu
+  have h1 : u * s * t = 1 := by rw [mul_assoc, hst, mul_inv_cancel]
+  obtain ⟨hu1, hs1, ht1⟩ := h u hu s hs t ht h1
+  exact ⟨hs1, ht1, hu1⟩
 
 /-- A collision-form TPP triple satisfies the left-quotient
 `TripleProductProperty` on carrier finsets — for *any* `Fintype` instances
@@ -132,7 +136,14 @@ theorem IsTPPTriple.tripleProductProperty_toFinset {H K L : Subgroup Γ}
     (h : IsTPPTriple H K L) :
     TripleProductProperty (H : Set Γ).toFinset (K : Set Γ).toFinset
       (L : Set Γ).toFinset := by
-  sorry
+  intro s hs s' hs' t ht t' ht' u hu u' hu' heq
+  rw [Set.mem_toFinset, SetLike.mem_coe] at hs hs' ht ht' hu hu'
+  have hq : (s'⁻¹ * s) * (t'⁻¹ * t) * (u'⁻¹ * u) = 1 := by
+    rw [← heq]; group
+  obtain ⟨h1, h2, h3⟩ := h _ (H.mul_mem (H.inv_mem hs') hs)
+    _ (K.mul_mem (K.inv_mem ht') ht) _ (L.mul_mem (L.inv_mem hu') hu) hq
+  exact ⟨(inv_mul_eq_one.mp h1).symm, (inv_mul_eq_one.mp h2).symm,
+    (inv_mul_eq_one.mp h3).symm⟩
 
 /-- Converse of `IsTPPTriple.tripleProductProperty_toFinset`. -/
 theorem IsTPPTriple.of_tripleProductProperty_toFinset {H K L : Subgroup Γ}
@@ -140,7 +151,12 @@ theorem IsTPPTriple.of_tripleProductProperty_toFinset {H K L : Subgroup Γ}
     (h : TripleProductProperty (H : Set Γ).toFinset (K : Set Γ).toFinset
       (L : Set Γ).toFinset) :
     IsTPPTriple H K L := by
-  sorry
+  intro s hs t ht u hu hstu
+  have hmem : ∀ {M : Subgroup Γ} [Fintype (M : Set Γ)] {x : Γ}, x ∈ M →
+      x ∈ (M : Set Γ).toFinset := fun hx => Set.mem_toFinset.mpr hx
+  have key : (1 : Γ)⁻¹ * s * 1⁻¹ * t * 1⁻¹ * u = 1 := by simpa using hstu
+  exact h s (hmem hs) 1 (hmem H.one_mem) t (hmem ht) 1 (hmem K.one_mem)
+    u (hmem hu) 1 (hmem L.one_mem) key
 
 /-- The subgroup TPP of `Xlib.TPP` is exactly the collision form. -/
 theorem subgroupTripleProductProperty_iff_isTPPTriple
@@ -154,14 +170,49 @@ theorem subgroupTripleProductProperty_iff_isTPPTriple
 theorem IsTPPTriple.le_stppCapacity [Fintype Γ] [DecidableEq Γ]
     {H K L : Subgroup Γ} (h : IsTPPTriple H K L) :
     Nat.card H * Nat.card K * Nat.card L ≤ stppCapacity Γ := by
-  sorry
+  unfold stppCapacity
+  refine le_trans ?_ (Finset.le_sup (Finset.mem_univ (H, K, L)))
+  simp only
+  split_ifs with hc
+  · exact le_refl _
+  · exact absurd h.tripleProductProperty_toFinset hc
+
+/-- `β₀` bounded above by a uniform bound on collision-form TPP triples. -/
+theorem stppCapacity_le_of_forall [Fintype Γ] [DecidableEq Γ] {N : ℕ}
+    (h : ∀ H K L : Subgroup Γ, IsTPPTriple H K L →
+      Nat.card H * Nat.card K * Nat.card L ≤ N) :
+    stppCapacity Γ ≤ N := by
+  unfold stppCapacity
+  refine Finset.sup_le ?_
+  rintro ⟨H, K, L⟩ -
+  simp only
+  split_ifs with hc
+  · exact h H K L (.of_tripleProductProperty_toFinset hc)
+  · exact Nat.zero_le _
 
 /-- `β₀` is achieved by a collision-form TPP triple. -/
 theorem exists_isTPPTriple_card_eq_stppCapacity
     (Γ : Type*) [Group Γ] [Fintype Γ] [DecidableEq Γ] :
     ∃ H K L : Subgroup Γ, IsTPPTriple H K L ∧
       stppCapacity Γ = Nat.card H * Nat.card K * Nat.card L := by
-  sorry
+  have hbot : IsTPPTriple (⊥ : Subgroup Γ) ⊥ ⊥ := by
+    intro s hs t ht u hu _
+    rw [Subgroup.mem_bot] at hs ht hu
+    exact ⟨hs, ht, hu⟩
+  unfold stppCapacity
+  obtain ⟨⟨H, K, L⟩, -, hsup⟩ :=
+    Finset.exists_mem_eq_sup Finset.univ ⟨(⊥, ⊥, ⊥), Finset.mem_univ _⟩ _
+  rw [hsup]
+  simp only
+  split_ifs with hc
+  · exact ⟨H, K, L, .of_tripleProductProperty_toFinset hc, rfl⟩
+  · exfalso
+    have hle := Finset.le_sup (f := _)
+      (Finset.mem_univ ((⊥, ⊥, ⊥) : Subgroup Γ × Subgroup Γ × Subgroup Γ))
+    rw [hsup] at hle
+    simp only at hle
+    rw [if_neg hc, if_pos hbot.tripleProductProperty_toFinset] at hle
+    simp [Subgroup.card_bot] at hle
 
 end CollisionForm
 

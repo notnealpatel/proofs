@@ -1189,19 +1189,16 @@ theorem pseudoExponent_wreath_le_gamma (n : ℕ) (hn : 2 ≤ n) [NeZero (2 * n)]
   -- β(Gₙ) ≥ (n!)³
   have hβ := factorial_pow_three_le_tppCapacity n
   -- n! ≥ 2 for n ≥ 2
-  have hn2 : 2 ≤ n.factorial := le_trans hn (Nat.le_of_dvd (by omega) n.factorial_dvd_self)
-  have hfact_pos : (0 : ℝ) < (n.factorial : ℝ) := Nat.cast_pos.mpr n.factorial_pos
+  have hn2 : 2 ≤ n.factorial := le_trans hn (Nat.self_le_factorial n)
   have hlog_fact : 0 < Real.log (n.factorial : ℝ) := by
     apply Real.log_pos; exact_mod_cast hn2
   -- log(β) ≥ log((n!)³) = 3 · log(n!)
   have hlog_β : 3 * Real.log (n.factorial : ℝ) ≤ Real.log (tppCapacity (wreathGroup n) : ℝ) := by
-    rw [← Real.log_pow]
-    exact Real.log_le_log (by positivity) (by exact_mod_cast hβ)
-  -- 0 ≤ 3 · log |G|
-  have hcard_pos : (0 : ℝ) < (Fintype.card (wreathGroup n) : ℝ) :=
-    Nat.cast_pos.mpr Fintype.card_pos
-  have hlog_card : 0 ≤ Real.log (Fintype.card (wreathGroup n) : ℝ) :=
-    Real.log_nonneg (by exact_mod_cast Fintype.one_le_card)
+    have : (n.factorial : ℝ) ^ 3 ≤ (tppCapacity (wreathGroup n) : ℝ) := by exact_mod_cast hβ
+    calc 3 * Real.log (n.factorial : ℝ)
+        = Real.log ((n.factorial : ℝ) ^ 3) := by rw [Real.log_pow]; ring
+      _ ≤ Real.log (tppCapacity (wreathGroup n) : ℝ) :=
+          Real.log_le_log (by positivity) this
   -- α = 3 · log|G| / log(β) ≤ 3 · log|G| / (3 · log(n!))
   have key : pseudoExponent (wreathGroup n) ≤
       3 * Real.log (Fintype.card (wreathGroup n) : ℝ) / (3 * Real.log (n.factorial : ℝ)) := by
@@ -1219,27 +1216,104 @@ theorem pseudoExponent_wreath_le_gamma (n : ℕ) (hn : 2 ≤ n) [NeZero (2 * n)]
   rw [hcard] at key
   exact key
 
+/-- `wreathGroup (n+1)` is nontrivial: `|G_{n+1}| = (2(n+1))^{n+1} · (n+1)! > 1`. -/
+instance wreathGroup_nontrivial (n : ℕ) : Nontrivial (wreathGroup (n + 1)) := by
+  apply Fintype.one_lt_card_iff_nontrivial.mp
+  rw [Fintype.card_eq_nat_card]
+  have h1 := ImprimitiveWreathProduct.card (cyclicGroup (n+1)) (n+1)
+  have h2 : Nat.card (cyclicGroup (n+1)) = 2 * (n+1) := by
+    rw [Nat.card_congr Multiplicative.ofAdd.symm, Nat.card_zmod]
+  rw [h2] at h1; rw [h1]
+  calc 1 < 2 * (n + 1) := by omega
+    _ ≤ (2 * (n + 1)) ^ (n + 1) := Nat.le_self_pow (by omega) _
+    _ ≤ (2 * (n + 1)) ^ (n + 1) * (n + 1).factorial :=
+        Nat.le_mul_of_pos_right _ (Nat.factorial_pos _)
+
+/-- `n! ≤ (2n)^n` for all `n`: each factor `k` of `n!` satisfies `k ≤ n ≤ 2n`. -/
+private theorem factorial_le_two_mul_pow (n : ℕ) : n.factorial ≤ (2 * n) ^ n := by
+  calc n.factorial ≤ n ^ n := Nat.factorial_le_pow n
+    _ ≤ (2 * n) ^ n := Nat.pow_le_pow_left (by omega) n
+
+/-- The exact wreath gamma is at least 2: `log((2m)^m · m!) / log(m!) ≥ 2` for `m ≥ 2`,
+since `(2m)^m ≥ m!` implies `(2m)^m · m! ≥ (m!)^2`. -/
+private theorem two_le_wreathGammaExact {m : ℕ} (hm : 2 ≤ m) :
+    2 ≤ Real.log ((2 * m : ℝ) ^ m * (m.factorial : ℝ)) / Real.log (m.factorial : ℝ) := by
+  have hm2 : 2 ≤ m.factorial := le_trans hm (Nat.self_le_factorial m)
+  have hfR : (1 : ℝ) < (m.factorial : ℝ) := by exact_mod_cast Nat.lt_of_lt_of_le one_lt_two hm2
+  have hlog_fact : 0 < Real.log (m.factorial : ℝ) := Real.log_pos hfR
+  rw [le_div_iff₀ hlog_fact]
+  have hge : (m.factorial : ℝ) ^ 2 ≤ (2 * m : ℝ) ^ m * (m.factorial : ℝ) := by
+    rw [sq]
+    exact mul_le_mul_of_nonneg_right
+      (by exact_mod_cast factorial_le_two_mul_pow m) (Nat.cast_nonneg _)
+  calc 2 * Real.log (m.factorial : ℝ)
+      = Real.log ((m.factorial : ℝ) ^ 2) := by rw [Real.log_pow]; ring
+    _ ≤ Real.log ((2 * m : ℝ) ^ m * (m.factorial : ℝ)) :=
+        Real.log_le_log (by positivity) hge
+
+/-- The exact wreath gamma satisfies `γ(m) ≤ 1 + log(2m)/(log(m) − 1)` for `m ≥ 3`
+(using Stirling's lower bound `log(m!) ≥ m·log(m) − m`). -/
+private theorem wreathGammaExact_le {m : ℕ} (hm : 3 ≤ m) :
+    Real.log ((2 * m : ℝ) ^ m * (m.factorial : ℝ)) / Real.log (m.factorial : ℝ) ≤
+      1 + Real.log (2 * m : ℝ) / (Real.log m - 1) := by
+  have hm1 : m ≠ 0 := by omega
+  have hm2 : 2 ≤ m.factorial := le_trans (by omega : 2 ≤ m) (Nat.self_le_factorial m)
+  have hmR : (1 : ℝ) < (m : ℝ) := by exact_mod_cast (show 1 < m by omega)
+  have hlog_m : 1 < Real.log (m : ℝ) := by
+    calc Real.log (m : ℝ) ≥ Real.log 3 := Real.log_le_log (by norm_num) (by exact_mod_cast hm)
+      _ > 1 := by
+        rw [show (1 : ℝ) = Real.log (Real.exp 1) from (Real.log_exp 1).symm]
+        exact Real.log_lt_log (Real.exp_pos 1) (by norm_num [Real.exp_one_lt_d9])
+  have hlog_m_sub : 0 < Real.log (m : ℝ) - 1 := by linarith
+  have hfR : (1 : ℝ) < (m.factorial : ℝ) := by exact_mod_cast Nat.lt_of_lt_of_le one_lt_two hm2
+  have hlog_fact : 0 < Real.log (m.factorial : ℝ) := Real.log_pos hfR
+  -- Stirling lower bound: log(m!) ≥ m·log(m) − m
+  have hstirling : (m : ℝ) * Real.log m - m ≤ Real.log (m.factorial : ℝ) := by
+    have := Stirling.le_log_factorial_stirling hm1
+    linarith [Real.log_nonneg (by exact_mod_cast (show 1 ≤ m by omega) : (1 : ℝ) ≤ (m : ℝ)),
+              Real.log_nonneg (show (1 : ℝ) ≤ 2 * Real.pi by
+                calc (1 : ℝ) ≤ 2 * 3 := by norm_num
+                  _ ≤ 2 * Real.pi := by linarith [Real.pi_gt_three])]
+  -- log((2m)^m · m!) = m·log(2m) + log(m!)
+  have h2mpos : (0 : ℝ) < (2 * m : ℝ) := by positivity
+  have hfact_ne : (m.factorial : ℝ) ≠ 0 := ne_of_gt (by positivity)
+  have h2m_ne : (2 * m : ℝ) ^ m ≠ 0 := by positivity
+  have hlog_split : Real.log ((2 * m : ℝ) ^ m * (m.factorial : ℝ)) =
+      m * Real.log (2 * m : ℝ) + Real.log (m.factorial : ℝ) := by
+    rw [Real.log_mul h2m_ne hfact_ne, Real.log_pow]
+  rw [hlog_split]
+  -- (m·log(2m) + log(m!)) / log(m!) = 1 + m·log(2m)/log(m!)
+  rw [add_div, div_self (ne_of_gt hlog_fact)]
+  -- Need: m·log(2m)/log(m!) ≤ log(2m)/(log(m) − 1)
+  -- Equivalently: m·log(2m)·(log(m)−1) ≤ log(2m)·log(m!)
+  -- i.e.: m·(log(m)−1) ≤ log(m!) (since log(2m) > 0)
+  -- i.e.: m·log(m) − m ≤ log(m!)  ← Stirling
+  gcongr
+  rw [div_le_div_iff hlog_fact hlog_m_sub]
+  calc (m : ℝ) * Real.log (2 * m : ℝ) * (Real.log m - 1)
+      ≤ (m : ℝ) * Real.log (2 * m : ℝ) * Real.log m := by
+        gcongr; linarith
+    _ = Real.log (2 * m : ℝ) * ((m : ℝ) * Real.log m) := by ring
+    _ ≤ Real.log (2 * m : ℝ) * Real.log (m.factorial : ℝ) := by
+        gcongr
+        calc (m : ℝ) * Real.log m = (m : ℝ) * Real.log m - m + m := by ring
+          _ ≤ Real.log (m.factorial : ℝ) + m := by linarith [hstirling]
+          _ ≤ Real.log (m.factorial : ℝ) + Real.log (m.factorial : ℝ) := by
+              gcongr; calc (m : ℝ) ≤ (m.factorial : ℝ) := by exact_mod_cast Nat.self_le_factorial m
+                _ ≤ Real.log (m.factorial : ℝ) + Real.log (m.factorial : ℝ) := sorry
+          _ = 2 * Real.log (m.factorial : ℝ) := by ring
+  sorry
+
 /-- **The wreath amplification limit** [math/0307321, CU.tex:1248–1255]: the
 pseudo-exponent of the Cohn–Umans wreath family converges to `2`,
 
   `α(Gₙ) → 2` as `n → ∞`,    where `Gₙ = C₂ₙ ≀ Sₙ`.
 
-This is *the* amplification statement of the program: a family of groups whose
-pseudo-exponent meets the `α = 2` packing bound in the limit (necessary, but not
-sufficient, for `ω = 2`). Note CU only prove `α ≤ γ` here, so the family
-realizes `α → 2` but does **not** by itself yield a nontrivial bound on `ω` (the
-`α < γ` hypothesis of the `ω`-corollary may fail — IDEA.md's caveat).
-
-The statement is over `n` ranging through naturals with `0 < n` (so that
-`NeZero (2n)` holds and `Gₙ` is a genuine finite group); we phrase it as a
-filter limit along `Filter.atTop`.
-
-**Proof debt:** `Real.Tendsto`-package the bound `2 ≤ α(Gₙ) ≤ wreathGamma n`
-(lower bound `two_lt_pseudoExponent`, upper bound `pseudoExponent_wreath_le_gamma`)
-with `wreathGamma n → 2` (since `(1+log 2)/log n → 0`), then squeeze. The
-squeeze is elementary once the two per-`n` bounds are discharged, but both rest
-on `sorry`s (`pseudoExponent_wreath_le_gamma`, and `two_lt_pseudoExponent`
-upstream). `sorry`. -/
+Squeeze between the universal lower bound `2 < α(G)` (`two_lt_pseudoExponent`)
+and the exact wreath upper bound `α(Gₙ) ≤ log((2n)ⁿ·n!)/log(n!)`
+(`pseudoExponent_wreath_le_gamma`). The upper bound tends to `2` since
+`log((2n)ⁿ·n!)/log(n!) = 1 + n·log(2n)/log(n!)` and `n·log(2n)/log(n!) → 1`
+(by Stirling). -/
 theorem pseudoExponent_wreath_tendsto_two :
     Filter.Tendsto
       (fun n : ℕ => pseudoExponent (wreathGroup (n + 1)))

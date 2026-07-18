@@ -5,23 +5,15 @@ import Xlib.STPPWreath
 
 open Xlib.STPPWreath Xlib.CUCapacity Xlib.TPP
 
--- Check: how to get n ≤ n!
--- For n ≥ 2, n! ≥ n since n! = n * (n-1)! ≥ n * 1 = n
-#check Nat.lt_factorial_self  -- n < (n+2)!
--- Not quite. Let me look for self_le_factorial
-#check Nat.self_le_factorial  -- ∀ n, n ≤ n.factorial? Let me check
-
--- Check: log_pow for Nat cast
--- log_pow : log (x ^ n) = n * log x
--- But I need: 3 * log(n!) = log((n!)^3)
--- The issue: `n` in `log_pow` is ℕ, so `↑n * log x`
--- I need to match `3 * log ...` with `↑3 * log ...`
--- Let me try norm_cast
-
--- Check: 1 ≤ Fintype.card
--- Fintype.card_pos gives 0 < Fintype.card
--- So Fintype.card ≥ 1 follows
-#check @Fintype.card_pos -- 0 < Fintype.card α
-
--- Check Nat.self_le_factorial
-example (n : ℕ) : n ≤ n.factorial := Nat.self_le_factorial n
+-- Can Lean infer Nontrivial (wreathGroup (n+1))?
+example (n : ℕ) : Nontrivial (wreathGroup (n + 1)) := by
+  apply Fintype.one_lt_card_iff_nontrivial.mp
+  rw [Fintype.card_eq_nat_card]
+  have h1 := ImprimitiveWreathProduct.card (cyclicGroup (n+1)) (n+1)
+  have h2 : Nat.card (cyclicGroup (n+1)) = 2 * (n+1) := by
+    rw [Nat.card_congr Multiplicative.ofAdd.symm, Nat.card_zmod]
+  rw [h2] at h1; rw [h1]
+  calc 1 < 2 * (n + 1) := by omega
+    _ ≤ (2 * (n + 1)) ^ (n + 1) := Nat.le_self_pow (by omega) _
+    _ ≤ (2 * (n + 1)) ^ (n + 1) * (n + 1).factorial :=
+        Nat.le_mul_of_pos_right _ (Nat.factorial_pos _)
