@@ -68,6 +68,11 @@ element equality then following from the per-triple ordinary TPP.
 ## Main results (all `sorry`-skeleton)
 
 * `Xlib.STPPWreath.SimultaneousTPP.tpp_of` — the STPP entails the per-index TPP.
+* `Xlib.STPPWreath.SimultaneousTPP.prod` / `Xlib.STPPWreath.SimultaneousTPP.pow`
+  — **(`sorry`-free)** the STPP direct-product closure, CKSU `lemma:directprod`
+  (binary on `G × G'`, and iterated on the power carrier `Fin ℓ → G`), stated
+  in selection form over an injective index map; with the dependent-fibre TPP
+  closure `tripleProductProperty_piFinset`.
 * `Xlib.STPPWreath.stpp_capacity_le` — **(`sorry`)** the STPP capacity
   inequality `∑ᵢ (|Aᵢ|·|Bᵢ|·|Cᵢ|)^{ω/3} ≤ D_ω(H)` (CKSU `theorem:asi`).
 * `Xlib.STPPWreath.wreath_charDegree_bound` — **(`sorry`-free)** the wreath
