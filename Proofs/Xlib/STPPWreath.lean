@@ -36,7 +36,8 @@ all of which sit one level below `Xlib.CUCapacity` and `Xlib.CharDegrees`).
 
 `n` triples of subsets `(Aᵢ, Bᵢ, Cᵢ)` of a group `H` satisfy the STPP when
 
-* **(per-triple)** for each `i`, `(Aᵢ, Bᵢ, Cᵢ)` satisfies the ordinary TPP; and
+* **(per-triple, right-quotient)** for each `i`, `(Aᵢ, Bᵢ, Cᵢ)` satisfies the
+  right-quotient `TripleProductPropertyR`; and
 * **(simultaneous)** for *all* `i, j, k` and all `aᵢ ∈ Aᵢ`, `aⱼ' ∈ Aⱼ`,
   `bⱼ ∈ Bⱼ`, `bₖ' ∈ Bₖ`, `cₖ ∈ Cₖ`, `cᵢ' ∈ Cᵢ`,
   `aᵢ (aⱼ')⁻¹ · bⱼ (bₖ')⁻¹ · cₖ (cᵢ')⁻¹ = 1` forces `i = j = k`.
@@ -66,9 +67,12 @@ element equality then following from the per-triple ordinary TPP.
 * `Xlib.STPPWreath.wreathGamma` — `γ(Gₙ) = 2 + (1+log 2)/log n`, the leading
   asymptotic bound on the pseudo-exponent.
 
-## Main results (one `sorry` remains: `stpp_capacity_le`, the asi layer)
+## Main results (sorry audit: `stpp_capacity_le` and `stpp_capacity_le_of_wreath`)
 
-* `Xlib.STPPWreath.SimultaneousTPP.tpp_of` — the STPP entails the per-index TPP.
+* `Xlib.STPPWreath.SimultaneousTPP.tppR_of` — the STPP entails the per-index
+  right-quotient TPP.
+* `Xlib.STPPWreath.simultaneousTPP_left_iff_comm` — **(`sorry`-free)** abelian
+  equivalence with the pre-Df1 (left-quotient per-triple) definition.
 * `Xlib.STPPWreath.SimultaneousTPP.prod` / `Xlib.STPPWreath.SimultaneousTPP.pow`
   — **(`sorry`-free)** the STPP direct-product closure, CKSU `lemma:directprod`
   (binary on `G × G'`, and iterated on the power carrier `Fin ℓ → G`), stated
@@ -186,56 +190,6 @@ theorem SimultaneousTPP.simultaneous {n : ℕ} [Group G] [Fintype G] [DecidableE
     (cₖ : G) (hcₖ : cₖ ∈ C k) (cᵢ' : G) (hcᵢ' : cᵢ' ∈ C i)
     (heq : aᵢ * (aⱼ')⁻¹ * bⱼ * (bₖ')⁻¹ * cₖ * (cᵢ')⁻¹ = 1) : i = j ∧ j = k :=
   h.2 i j k aᵢ haᵢ aⱼ' haⱼ' bⱼ hbⱼ bₖ' hbₖ' cₖ hcₖ cᵢ' hcᵢ' heq
-
-/-! ### Abelian equivalence with the pre-Df1 definition
-
-The pre-Df1 `SimultaneousTPP` used the left-quotient `TripleProductProperty` in
-its per-triple conjunct. For commutative groups the two conventions coincide on
-the same triple, so the old and new definitions are equivalent. -/
-
-/-- The pre-Df1 definition of `SimultaneousTPP`, with the left-quotient
-`TripleProductProperty` in the per-triple conjunct. Used only in the abelian
-equivalence lemma `simultaneousTPP_left_iff_comm`. -/
-def SimultaneousTPP_left {n : ℕ} [Fintype G] [DecidableEq G]
-    (A B C : Fin n → Finset G) : Prop :=
-  (∀ i, TripleProductProperty (A i) (B i) (C i)) ∧
-    (∀ i j k : Fin n,
-      ∀ aᵢ ∈ A i, ∀ aⱼ' ∈ A j, ∀ bⱼ ∈ B j, ∀ bₖ' ∈ B k, ∀ cₖ ∈ C k, ∀ cᵢ' ∈ C i,
-        aᵢ * (aⱼ')⁻¹ * bⱼ * (bₖ')⁻¹ * cₖ * (cᵢ')⁻¹ = 1 → i = j ∧ j = k)
-
-/-- In a **commutative** group the right-quotient `TripleProductPropertyR`
-entails the left-quotient `TripleProductProperty` on the same triple (the
-reverse direction of `tripleProductPropertyR_of_comm`). -/
-theorem tripleProductProperty_of_commR {H : Type*} [CommGroup H] [Fintype H]
-    [DecidableEq H] {S T U : Finset H} (h : TripleProductPropertyR S T U) :
-    TripleProductProperty S T U := by
-  intro s hs s' hs' t ht t' ht' u hu u' hu' hquot
-  have hright : s * s'⁻¹ * (t * t'⁻¹) * (u * u'⁻¹) = 1 := by
-    have hcomm : s * s'⁻¹ * (t * t'⁻¹) * (u * u'⁻¹)
-        = s'⁻¹ * s * t'⁻¹ * t * u'⁻¹ * u := by
-      simp only [mul_comm, mul_left_comm, mul_assoc]
-    rw [hcomm, hquot]
-  obtain ⟨h1, h2, h3⟩ := h (s * s'⁻¹)
-    (mem_mul_inv.mpr ⟨s, hs, s', hs', rfl⟩)
-    (t * t'⁻¹)
-    (mem_mul_inv.mpr ⟨t, ht, t', ht', rfl⟩)
-    (u * u'⁻¹)
-    (mem_mul_inv.mpr ⟨u, hu, u', hu', rfl⟩)
-    hright
-  exact ⟨by rwa [mul_inv_eq_one] at h1, by rwa [mul_inv_eq_one] at h2,
-    by rwa [mul_inv_eq_one] at h3⟩
-
-/-- **Abelian equivalence (Df1 transport).** For commutative groups, the pre-Df1
-`SimultaneousTPP_left` (with left-quotient per-triple) and the corrected
-`SimultaneousTPP` (with right-quotient per-triple) are equivalent. The adapter
-`tripleProductPropertyR_of_comm` (forward) and `tripleProductProperty_of_commR`
-(reverse) bridge the per-triple conjunct; the simultaneous conjunct is identical
-in both definitions. -/
-theorem simultaneousTPP_left_iff_comm {H : Type*} [CommGroup H] [Fintype H]
-    [DecidableEq H] {n : ℕ} (A B C : Fin n → Finset H) :
-    SimultaneousTPP_left A B C ↔ SimultaneousTPP A B C :=
-  ⟨fun ⟨h1, h2⟩ => ⟨fun i => tripleProductPropertyR_of_comm (h1 i), h2⟩,
-   fun ⟨h1, h2⟩ => ⟨fun i => tripleProductProperty_of_commR (h1 i), h2⟩⟩
 
 /-! ### STPP direct-product closure (CKSU `lemma:directprod`)
 
@@ -733,6 +687,56 @@ theorem tripleProductPropertyR_of_comm {H : Type*} [CommGroup H] [Fintype H]
   obtain ⟨h1, h2, h3⟩ := h s hs s' hs' t ht t' ht' u hu u' hu' hquot
   exact ⟨by rw [h1, mul_inv_cancel], by rw [h2, mul_inv_cancel],
     by rw [h3, mul_inv_cancel]⟩
+
+/-! ### Abelian equivalence with the pre-Df1 definition
+
+The pre-Df1 `SimultaneousTPP` used the left-quotient `TripleProductProperty` in
+its per-triple conjunct. For commutative groups the two conventions coincide on
+the same triple, so the old and new definitions are equivalent. -/
+
+/-- The pre-Df1 definition of `SimultaneousTPP`, with the left-quotient
+`TripleProductProperty` in the per-triple conjunct. Used only in the abelian
+equivalence lemma `simultaneousTPP_left_iff_comm`. -/
+def SimultaneousTPP_left {H : Type*} [Group H] [Fintype H] [DecidableEq H]
+    {n : ℕ} (A B C : Fin n → Finset H) : Prop :=
+  (∀ i, TripleProductProperty (A i) (B i) (C i)) ∧
+    (∀ i j k : Fin n,
+      ∀ aᵢ ∈ A i, ∀ aⱼ' ∈ A j, ∀ bⱼ ∈ B j, ∀ bₖ' ∈ B k, ∀ cₖ ∈ C k, ∀ cᵢ' ∈ C i,
+        aᵢ * (aⱼ')⁻¹ * bⱼ * (bₖ')⁻¹ * cₖ * (cᵢ')⁻¹ = 1 → i = j ∧ j = k)
+
+/-- In a **commutative** group the right-quotient `TripleProductPropertyR`
+entails the left-quotient `TripleProductProperty` on the same triple (the
+reverse direction of `tripleProductPropertyR_of_comm`). -/
+theorem tripleProductProperty_of_commR {H : Type*} [CommGroup H] [Fintype H]
+    [DecidableEq H] {S T U : Finset H} (h : TripleProductPropertyR S T U) :
+    TripleProductProperty S T U := by
+  intro s hs s' hs' t ht t' ht' u hu u' hu' hquot
+  have hright : s * s'⁻¹ * (t * t'⁻¹) * (u * u'⁻¹) = 1 := by
+    have hcomm : s * s'⁻¹ * (t * t'⁻¹) * (u * u'⁻¹)
+        = s'⁻¹ * s * t'⁻¹ * t * u'⁻¹ * u := by
+      simp only [mul_comm, mul_left_comm, mul_assoc]
+    rw [hcomm, hquot]
+  obtain ⟨h1, h2, h3⟩ := h (s * s'⁻¹)
+    (mem_mul_inv.mpr ⟨s, hs, s', hs', rfl⟩)
+    (t * t'⁻¹)
+    (mem_mul_inv.mpr ⟨t, ht, t', ht', rfl⟩)
+    (u * u'⁻¹)
+    (mem_mul_inv.mpr ⟨u, hu, u', hu', rfl⟩)
+    hright
+  exact ⟨by rwa [mul_inv_eq_one] at h1, by rwa [mul_inv_eq_one] at h2,
+    by rwa [mul_inv_eq_one] at h3⟩
+
+/-- **Abelian equivalence (Df1 transport).** For commutative groups, the pre-Df1
+`SimultaneousTPP_left` (with left-quotient per-triple) and the corrected
+`SimultaneousTPP` (with right-quotient per-triple) are equivalent. The adapter
+`tripleProductPropertyR_of_comm` (forward) and `tripleProductProperty_of_commR`
+(reverse) bridge the per-triple conjunct; the simultaneous conjunct is identical
+in both definitions. -/
+theorem simultaneousTPP_left_iff_comm {H : Type*} [CommGroup H] [Fintype H]
+    [DecidableEq H] {n : ℕ} (A B C : Fin n → Finset H) :
+    SimultaneousTPP_left A B C ↔ SimultaneousTPP A B C :=
+  ⟨fun ⟨h1, h2⟩ => ⟨fun i => tripleProductPropertyR_of_comm (h1 i), h2⟩,
+   fun ⟨h1, h2⟩ => ⟨fun i => tripleProductProperty_of_commR (h1 i), h2⟩⟩
 
 /-- **The CKSU `theorem:STPP2TPP` carrier verification**
 [math/0511460, FOCS05-10page.tex:1508–1559], in the coherent **right-quotient**
