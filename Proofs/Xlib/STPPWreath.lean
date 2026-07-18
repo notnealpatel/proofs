@@ -425,8 +425,93 @@ theorem tripleProductPropertyR_wreathCarrier {H : Type*} [Group H] [Fintype H]
     [DecidableEq H] {n : ℕ} {A B C : Fin n → Finset H}
     (h : SimultaneousTPP A B C)
     (hR : ∀ i, TripleProductPropertyR (A i) (B i) (C i)) :
-    TripleProductPropertyR (wreathCarrier A) (wreathCarrier B) (wreathCarrier C) :=
-  sorry
+    TripleProductPropertyR (wreathCarrier A) (wreathCarrier B) (wreathCarrier C) := by
+  intro q₁ hq₁ q₂ hq₂ q₃ hq₃ heq
+  obtain ⟨x, hx, x', hx', rfl⟩ := mem_mul_inv.mp hq₁
+  obtain ⟨y, hy, y', hy', rfl⟩ := mem_mul_inv.mp hq₂
+  obtain ⟨z, hz, z', hz', rfl⟩ := mem_mul_inv.mp hq₃
+  rw [mem_wreathCarrier] at hx hx' hy hy' hz hz'
+  obtain ⟨f₁, π₁⟩ := x
+  obtain ⟨f₁', π₁'⟩ := x'
+  obtain ⟨f₂, π₂⟩ := y
+  obtain ⟨f₂', π₂'⟩ := y'
+  obtain ⟨f₃, π₃⟩ := z
+  obtain ⟨f₃', π₃'⟩ := z'
+  -- The permutation identity `σ₁σ₂σ₃ = 1` (CKSU `equation:stppperm`).
+  have hperm : π₁ * π₁'⁻¹ * (π₂ * π₂'⁻¹) * (π₃ * π₃'⁻¹) = 1 :=
+    congrArg SemidirectProduct.right heq
+  -- The coordinatewise identity, in the simultaneous conjunct's exact shape:
+  -- at each `i` the six factors sit at indices `(i, σ₁⁻¹i, σ₁⁻¹i, (σ₁σ₂)⁻¹i,
+  -- (σ₁σ₂)⁻¹i, i)` — the CKSU `(i, j, k)`-chain.
+  have hflat : ∀ i : Fin n,
+      f₁ i * (f₁' ((π₁ * π₁'⁻¹)⁻¹ i))⁻¹ * f₂ ((π₁ * π₁'⁻¹)⁻¹ i)
+          * (f₂' ((π₁ * π₁'⁻¹ * (π₂ * π₂'⁻¹))⁻¹ i))⁻¹
+          * f₃ ((π₁ * π₁'⁻¹ * (π₂ * π₂'⁻¹))⁻¹ i) * (f₃' i)⁻¹ = 1 := by
+    intro i
+    have hproj : f₁ i * (f₁' ((π₁ * π₁'⁻¹)⁻¹ i))⁻¹
+        * (f₂ ((π₁ * π₁'⁻¹)⁻¹ i) * (f₂' ((π₁ * π₁'⁻¹ * (π₂ * π₂'⁻¹))⁻¹ i))⁻¹)
+        * (f₃ ((π₁ * π₁'⁻¹ * (π₂ * π₂'⁻¹))⁻¹ i)
+            * (f₃' ((π₁ * π₁'⁻¹ * (π₂ * π₂'⁻¹) * (π₃ * π₃'⁻¹))⁻¹ i))⁻¹) = 1 :=
+      congrFun (congrArg SemidirectProduct.left heq) i
+    have hlast : (π₁ * π₁'⁻¹ * (π₂ * π₂'⁻¹) * (π₃ * π₃'⁻¹))⁻¹ i = i := by
+      rw [hperm, inv_one, Equiv.Perm.one_apply]
+    rw [hlast] at hproj
+    simpa only [mul_assoc] using hproj
+  -- The simultaneous conjunct collapses the permutations (CKSU: `π = ρ = 1`).
+  have hcollapse : ∀ i : Fin n,
+      i = (π₁ * π₁'⁻¹)⁻¹ i
+        ∧ (π₁ * π₁'⁻¹)⁻¹ i = (π₁ * π₁'⁻¹ * (π₂ * π₂'⁻¹))⁻¹ i := fun i =>
+    h.2 i ((π₁ * π₁'⁻¹)⁻¹ i) ((π₁ * π₁'⁻¹ * (π₂ * π₂'⁻¹))⁻¹ i)
+      (f₁ i) (hx i)
+      (f₁' ((π₁ * π₁'⁻¹)⁻¹ i)) (hx' ((π₁ * π₁'⁻¹)⁻¹ i))
+      (f₂ ((π₁ * π₁'⁻¹)⁻¹ i)) (hy ((π₁ * π₁'⁻¹)⁻¹ i))
+      (f₂' ((π₁ * π₁'⁻¹ * (π₂ * π₂'⁻¹))⁻¹ i)) (hy' ((π₁ * π₁'⁻¹ * (π₂ * π₂'⁻¹))⁻¹ i))
+      (f₃ ((π₁ * π₁'⁻¹ * (π₂ * π₂'⁻¹))⁻¹ i)) (hz ((π₁ * π₁'⁻¹ * (π₂ * π₂'⁻¹))⁻¹ i))
+      (f₃' i) (hz' i)
+      (hflat i)
+  have hσ₁ : π₁ * π₁'⁻¹ = 1 := by
+    refine Equiv.ext fun i => ?_
+    rw [Equiv.Perm.one_apply]
+    exact Equiv.Perm.eq_inv_iff_eq.mp (hcollapse i).1
+  have hσ₂ : π₂ * π₂'⁻¹ = 1 := by
+    refine Equiv.ext fun i => ?_
+    rw [Equiv.Perm.one_apply]
+    have h2 := (hcollapse i).2
+    rw [hσ₁] at h2
+    simp only [inv_one, Equiv.Perm.one_apply, one_mul] at h2
+    exact Equiv.Perm.eq_inv_iff_eq.mp h2
+  have hσ₃ : π₃ * π₃'⁻¹ = 1 := by
+    rw [hσ₁, hσ₂, one_mul, one_mul] at hperm
+    exact hperm
+  -- With trivial permutations, the residual coordinatewise identity is the
+  -- right-quotient per-triple premise; `hR` finishes (CKSU's final step).
+  have helem : ∀ i : Fin n,
+      f₁ i * (f₁' i)⁻¹ = 1 ∧ f₂ i * (f₂' i)⁻¹ = 1 ∧ f₃ i * (f₃' i)⁻¹ = 1 := by
+    intro i
+    have hflat0 := hflat i
+    rw [hσ₁, hσ₂] at hflat0
+    simp only [one_mul, inv_one, Equiv.Perm.one_apply] at hflat0
+    exact hR i (f₁ i * (f₁' i)⁻¹)
+      (mem_mul_inv.mpr ⟨f₁ i, hx i, f₁' i, hx' i, rfl⟩)
+      (f₂ i * (f₂' i)⁻¹)
+      (mem_mul_inv.mpr ⟨f₂ i, hy i, f₂' i, hy' i, rfl⟩)
+      (f₃ i * (f₃' i)⁻¹)
+      (mem_mul_inv.mpr ⟨f₃ i, hz i, f₃' i, hz' i, rfl⟩)
+      (by simpa only [mul_assoc] using hflat0)
+  refine ⟨SemidirectProduct.ext ?_ hσ₁, SemidirectProduct.ext ?_ hσ₂,
+    SemidirectProduct.ext ?_ hσ₃⟩
+  · funext i
+    show f₁ i * (f₁' ((π₁ * π₁'⁻¹)⁻¹ i))⁻¹ = (1 : Fin n → H) i
+    rw [hσ₁, inv_one, Equiv.Perm.one_apply]
+    exact (helem i).1
+  · funext i
+    show f₂ i * (f₂' ((π₂ * π₂'⁻¹)⁻¹ i))⁻¹ = (1 : Fin n → H) i
+    rw [hσ₂, inv_one, Equiv.Perm.one_apply]
+    exact (helem i).2.1
+  · funext i
+    show f₃ i * (f₃' ((π₃ * π₃'⁻¹)⁻¹ i))⁻¹ = (1 : Fin n → H) i
+    rw [hσ₃, inv_one, Equiv.Perm.one_apply]
+    exact (helem i).2.2
 
 /-- **CKSU Theorem `theorem:STPP2TPP`** [math/0511460]: STPP triples in the base
 group `H` lift to an ordinary TPP triple in the wreath product
@@ -469,6 +554,7 @@ of the CKSU carriers under the convention bridge
 (`Finset.card_inv`). The downstream consumers (`stpp_capacity_le` via the
 Ab1/Ab2/Ab3 chain, and both wreath-family limits) are all abelian-based, so no
 generality is lost where it is consumed. -/
+open scoped Pointwise in
 theorem stpp_to_tpp_wreath_card {H : Type*} [CommGroup H] [Fintype H]
     [DecidableEq H] {n : ℕ} (A B C : Fin n → Finset H)
     (h : SimultaneousTPP A B C) :
@@ -476,8 +562,15 @@ theorem stpp_to_tpp_wreath_card {H : Type*} [CommGroup H] [Fintype H]
       TripleProductProperty S T U
         ∧ S.card = n.factorial * ∏ i, (A i).card
         ∧ T.card = n.factorial * ∏ i, (B i).card
-        ∧ U.card = n.factorial * ∏ i, (C i).card :=
-  sorry
+        ∧ U.card = n.factorial * ∏ i, (C i).card := by
+  have hR : ∀ i, TripleProductPropertyR (A i) (B i) (C i) := fun i =>
+    tripleProductPropertyR_of_comm (h.tpp_of i)
+  refine ⟨(wreathCarrier A)⁻¹, (wreathCarrier B)⁻¹, (wreathCarrier C)⁻¹,
+    tripleProductPropertyR_iff_inv.mp (tripleProductPropertyR_wreathCarrier h hR),
+    ?_, ?_, ?_⟩
+  · rw [Finset.card_inv, wreathCarrier_card]
+  · rw [Finset.card_inv, wreathCarrier_card]
+  · rw [Finset.card_inv, wreathCarrier_card]
 
 /-! ### Wreath pseudo-exponent amplification: `α(Gₙ) ≤ γ(Gₙ) → 2` (CU)
 
