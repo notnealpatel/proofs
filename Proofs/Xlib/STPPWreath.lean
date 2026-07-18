@@ -81,6 +81,12 @@ element equality then following from the per-triple ordinary TPP.
   see Pl19 Clifford triage; the general-`H` version is Clifford-blocked, Gh1).
 * `Xlib.STPPWreath.stpp_to_tpp_wreath` — **(`sorry`)** STPP triples in `H` lift
   to ordinary TPP subsets in `Sₙ ⋉ Hⁿ` (CKSU `theorem:STPP2TPP`).
+* `Xlib.STPPWreath.wreathH₁`/`wreathH₂`/`wreathH₃`,
+  `Xlib.STPPWreath.tripleProductProperty_wreathWitness`,
+  `Xlib.STPPWreath.factorial_pow_three_le_tppCapacity` — **(`sorry`-free)** the
+  CU wreath TPP witness (CU.tex:1257–1299): the three order-`n!` subgroup
+  carriers `H₁ = {(π,0)}`, `H₂ = {(π, π•u−u)}`, `H₃ = {(π, π•v−v)}` of
+  `Gₙ = C₂ₙ ≀ Sₙ` satisfy the TPP, hence `(n!)³ ≤ β(Gₙ)`.
 * `Xlib.STPPWreath.pseudoExponent_wreath_le_gamma` — **(`sorry`)** the per-`n`
   pseudo-exponent bound `α(Gₙ) ≤ γ(Gₙ)` (CU wreath theorem).
 * `Xlib.STPPWreath.pseudoExponent_wreath_tendsto_two` — **(`sorry`)** the
