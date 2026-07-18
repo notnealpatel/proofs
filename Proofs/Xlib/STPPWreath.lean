@@ -1,6 +1,8 @@
 import Mathlib
 import Xlib.TPP
 import Xlib.CUCapacity
+import Xlib.CharDegreesComm
+import Xlib.CharDegreesIndexBound
 
 /-!
 # The Simultaneous Triple Product Property and wreath amplification
@@ -68,9 +70,10 @@ element equality then following from the per-triple ordinary TPP.
 * `Xlib.STPPWreath.SimultaneousTPP.tpp_of` — the STPP entails the per-index TPP.
 * `Xlib.STPPWreath.stpp_capacity_le` — **(`sorry`)** the STPP capacity
   inequality `∑ᵢ (|Aᵢ|·|Bᵢ|·|Cᵢ|)^{ω/3} ≤ D_ω(H)` (CKSU `theorem:asi`).
-* `Xlib.STPPWreath.wreath_charDegree_bound` — **(`sorry`)** the wreath
-  character-degree bound `∑ⱼ cⱼ^ω ≤ (n!)^{ω-1} · (∑ₖ dₖ^ω)^n` (CKSU
-  `lemma:wreath-char-degrees`, via Huppert / Clifford theory).
+* `Xlib.STPPWreath.wreath_charDegree_bound` — **(`sorry`-free)** the wreath
+  character-degree bound `∑ⱼ cⱼ^ω ≤ (n!)^{ω-1} · (∑ₖ dₖ^ω)^n` for abelian `H`
+  (the abelian branch of CKSU `lemma:wreath-char-degrees`, FOCS'05 tex 313–320;
+  see Pl19 Clifford triage; the general-`H` version is Clifford-blocked, Gh1).
 * `Xlib.STPPWreath.stpp_to_tpp_wreath` — **(`sorry`)** STPP triples in `H` lift
   to ordinary TPP subsets in `Sₙ ⋉ Hⁿ` (CKSU `theorem:STPP2TPP`).
 * `Xlib.STPPWreath.pseudoExponent_wreath_le_gamma` — **(`sorry`)** the per-`n`
@@ -290,8 +293,9 @@ partitions of `n` decorated by characters of `H`, with dimensions built from
 multinomial coefficients and the symmetric-group irrep dimensions. The single
 *inequality* the capacity proof needs is the power-sum bound below. -/
 
-/-- **CKSU Lemma `lemma:wreath-char-degrees`** [math/0511460]: the wreath
-character-degree power-sum bound. If `H` has character-degree power sum
+/-- **CKSU Lemma `lemma:wreath-char-degrees`** [math/0511460], abelian instance:
+the wreath character-degree power-sum bound for a **commutative** base group.
+If `H` is a finite abelian group with character-degree power sum
 `D_ω(H) = ∑ₖ dₖ^ω`, then the wreath product `G = Sₙ ⋉ Hⁿ` has
 
   `D_ω(G) = ∑ⱼ cⱼ^ω ≤ (n!)^{ω-1} · (∑ₖ dₖ^ω)^n`.
@@ -299,17 +303,104 @@ character-degree power-sum bound. If `H` has character-degree power sum
 Here `Fintype.card (Equiv.Perm (Fin n)) = n!` is the index `[G : Hⁿ]` and the
 permutation factor `(n!)^{ω-1}`.
 
-**Proof debt** (CKSU `lemma:wreath-char-degrees`, proof sketch via Huppert
-Theorem 25.6 / Clifford theory): for abelian `H` the degrees of `Sₙ ⋉ Hⁿ` are
-at most `n!` with `∑ⱼ cⱼ² = |Sₙ ⋉ Hⁿ|`; the general case follows from Huppert's
-character-degree description of the wreath product. The indexed character theory
-of wreath products is absent from Mathlib (`Xlib.CharDegrees.charDegrees` is
-itself a `sorry`). `sorry`. -/
-theorem wreath_charDegree_bound {H : Type*} [Group H] [Fintype H] [DecidableEq H]
+CKSU state the lemma for general `H` (via Huppert Theorem 25.6 / Clifford theory);
+we formalize the abelian instance — which is all any consumer in this codebase
+uses (`abelian_wreath_family_tendsto_two` is `[CommGroup H]`; `wreathGroup n` has
+abelian base `C₂ₙ`) — and the general-`H` version is Clifford-blocked (shelved
+follow-on Gh1; see `.tasks/f5exp/docs/Pl19-clifford-triage.md` §1–2).
+
+**Proof** (CKSU FOCS'05 tex 313–320, the abelian branch of their own proof):
+`A := (SemidirectProduct.inl).range` is an abelian subgroup of index `n!`;
+every character degree `c` satisfies `1 ≤ c ≤ n!`
+(`one_le_of_mem_charDegrees`, `charDegree_le_index_of_comm`), so
+`c^ω ≤ c² · (n!)^{ω-2}`; summing gives
+`∑ c^ω ≤ (n!)^{ω-2} · |G| = (n!)^{ω-1} · |H|ⁿ = (n!)^{ω-1} · D_ω(H)ⁿ`
+(via `charDegreeSum_two`, `ImprimitiveWreathProduct.card`,
+`charDegreeSumReal_of_commGroup`). -/
+theorem wreath_charDegree_bound {H : Type*} [CommGroup H] [Fintype H] [DecidableEq H]
     (n : ℕ) :
     charDegreeSumReal (ImprimitiveWreathProduct H n) ω
-      ≤ (Nat.factorial n : ℝ) ^ (ω - 1) * (charDegreeSumReal H ω) ^ n :=
-  sorry
+      ≤ (Nat.factorial n : ℝ) ^ (ω - 1) * (charDegreeSumReal H ω) ^ n := by
+  set G := ImprimitiveWreathProduct H n
+  -- The abelian subgroup A = inl.range ≅ Fin n → H
+  set A : Subgroup G := (SemidirectProduct.inl (φ := permArrowHom H n)).range
+  haveI : IsMulCommutative (Fin n → H) := ⟨⟨fun a b => mul_comm a b⟩⟩
+  haveI : IsMulCommutative A := Subgroup.range_isMulCommutative _
+  -- A.index = n!
+  have hcardA : Nat.card A = Nat.card H ^ n := by
+    rw [A, Nat.card_range_of_injective SemidirectProduct.inl_injective, Nat.card_fun, Nat.card_fin]
+  have hcardG : Nat.card G = Nat.card H ^ n * n.factorial :=
+    ImprimitiveWreathProduct.card H n
+  have hHpos : 0 < Nat.card H := Nat.card_pos
+  have hindex : A.index = n.factorial := by
+    have h := Subgroup.card_mul_index A
+    rw [hcardA, hcardG] at h
+    exact Nat.eq_of_mul_eq_left (Nat.pos_of_ne_zero (by positivity)) h
+  -- ω ≥ 2
+  have hω2 : 2 ≤ ω := two_le_matrixExponent
+  have hω2sub : (0 : ℝ) ≤ ω - 2 := by linarith
+  -- Per-entry bound: c ≤ A.index = n!
+  have hcle : ∀ c ∈ charDegrees G, c ≤ n.factorial := by
+    intro c hc
+    rw [← hindex]
+    exact Xlib.CharDegreesIndexBound.charDegree_le_index_of_comm A hc
+  -- Per-entry bound: 1 ≤ c
+  have hc1 : ∀ c ∈ charDegrees G, 1 ≤ c := fun c hc =>
+    Xlib.CharDegreesMul.one_le_of_mem_charDegrees hc
+  -- Entrywise: c^ω ≤ c^2 · (n!)^(ω-2)
+  -- Rewrite the LHS as a map-sum
+  rw [charDegreeSumReal_eq_map_sum]
+  -- Rewrite the RHS: (n!)^(ω-1) · (charDegreeSumReal H ω)^n
+  -- = (n!)^(ω-1) · (Fintype.card H)^n   [by charDegreeSumReal_of_commGroup]
+  -- = (n!)^(ω-1) · |H|^n
+  rw [Xlib.CharDegreesComm.charDegreeSumReal_of_commGroup]
+  -- Now: ∑ (c : ℝ)^ω ≤ (n!)^(ω-1) · (Fintype.card H : ℝ)^n
+  -- Chain: ∑ c^ω ≤ (n!)^(ω-2) · ∑ c^2 = (n!)^(ω-2) · |G|
+  --        = (n!)^(ω-2) · |H|^n · n! = (n!)^(ω-1) · |H|^n
+  -- Step 1: entrywise bound ∑ c^ω ≤ (n!)^(ω-2) · ∑ c^2
+  have hstep1 : ((charDegrees G).map (fun d : ℕ => (d : ℝ) ^ ω)).sum
+      ≤ (n.factorial : ℝ) ^ (ω - 2) *
+        ((charDegrees G).map (fun d : ℕ => (d : ℝ) ^ (2 : ℝ))).sum := by
+    rw [← Multiset.sum_map_mul_left]
+    refine Multiset.sum_map_le_sum_map _ _ fun d hd => ?_
+    have hd1 : 1 ≤ d := hc1 d hd
+    have hd0 : (0 : ℝ) < (d : ℝ) := by exact_mod_cast Nat.lt_of_lt_pred (by omega)
+    have hdnf : (d : ℝ) ≤ (n.factorial : ℝ) := by exact_mod_cast hcle d hd
+    calc (d : ℝ) ^ ω
+        = (d : ℝ) ^ (2 + (ω - 2)) := by ring_nf
+      _ = (d : ℝ) ^ (2 : ℝ) * (d : ℝ) ^ (ω - 2) := Real.rpow_add hd0 2 (ω - 2)
+      _ ≤ (d : ℝ) ^ (2 : ℝ) * (n.factorial : ℝ) ^ (ω - 2) := by
+          exact mul_le_mul_of_nonneg_left
+            (Real.rpow_le_rpow hd0.le hdnf hω2sub)
+            (Real.rpow_nonneg (Nat.cast_nonneg d) 2)
+      _ = (n.factorial : ℝ) ^ (ω - 2) * (d : ℝ) ^ (2 : ℝ) := mul_comm _ _
+  -- Step 2: ∑ c^2 = |G| (via charDegreeSum_two and the ℕ↔ℝ bridge)
+  have hstep2 : ((charDegrees G).map (fun d : ℕ => (d : ℝ) ^ (2 : ℝ))).sum
+      = (Fintype.card G : ℝ) := by
+    have := charDegreeSumReal_natCast G 2
+    rw [charDegreeSumReal_eq_map_sum] at this
+    simp only [Real.rpow_natCast] at this ⊢
+    rw [this, charDegreeSum_two]
+  -- Step 3: |G| = |H|^n · n!
+  have hstep3 : (Fintype.card G : ℝ) = (Fintype.card H : ℝ) ^ n * (n.factorial : ℝ) := by
+    have := ImprimitiveWreathProduct.card H n
+    rw [Nat.card_eq_fintype_card, Nat.card_eq_fintype_card] at this
+    exact_mod_cast this
+  -- Step 4: (n!)^(ω-2) · |H|^n · n! = (n!)^(ω-1) · |H|^n
+  have hstep4 : (n.factorial : ℝ) ^ (ω - 2) * ((Fintype.card H : ℝ) ^ n * (n.factorial : ℝ))
+      = (n.factorial : ℝ) ^ (ω - 1) * (Fintype.card H : ℝ) ^ n := by
+    rw [mul_comm ((Fintype.card H : ℝ) ^ n) (n.factorial : ℝ)]
+    rw [← mul_assoc]
+    rw [← Real.rpow_natCast (n.factorial : ℝ) 1, ← Real.rpow_add (by positivity : (0 : ℝ) < (n.factorial : ℝ))]
+    congr 1
+    · ring
+  calc ((charDegrees G).map (fun d : ℕ => (d : ℝ) ^ ω)).sum
+      ≤ (n.factorial : ℝ) ^ (ω - 2) *
+        ((charDegrees G).map (fun d : ℕ => (d : ℝ) ^ (2 : ℝ))).sum := hstep1
+    _ = (n.factorial : ℝ) ^ (ω - 2) * (Fintype.card G : ℝ) := by rw [hstep2]
+    _ = (n.factorial : ℝ) ^ (ω - 2) * ((Fintype.card H : ℝ) ^ n * (n.factorial : ℝ)) := by
+        rw [hstep3]
+    _ = (n.factorial : ℝ) ^ (ω - 1) * (Fintype.card H : ℝ) ^ n := hstep4
 
 /-! ### STPP triples lift to TPP in the wreath product (CKSU `theorem:STPP2TPP`)
 
