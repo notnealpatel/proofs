@@ -87,14 +87,17 @@ element equality then following from the per-triple ordinary TPP.
   CU wreath TPP witness (CU.tex:1257–1299): the three order-`n!` subgroup
   carriers `H₁ = {(π,0)}`, `H₂ = {(π, π•u−u)}`, `H₃ = {(π, π•v−v)}` of
   `Gₙ = C₂ₙ ≀ Sₙ` satisfy the TPP, hence `(n!)³ ≤ β(Gₙ)`.
-* `Xlib.STPPWreath.pseudoExponent_wreath_le_gamma` — **(`sorry`)** the per-`n`
-  pseudo-exponent bound `α(Gₙ) ≤ γ(Gₙ)` (CU wreath theorem).
-* `Xlib.STPPWreath.pseudoExponent_wreath_tendsto_two` — **(`sorry`)** the
+* `Xlib.STPPWreath.pseudoExponent_wreath_le_gamma` — **(`sorry`-free)** the
+  per-`n` pseudo-exponent bound `α(Gₙ) ≤ γ(Gₙ)` (CU wreath theorem).
+* `Xlib.STPPWreath.pseudoExponent_wreath_tendsto_two` — **(`sorry`-free)** the
   amplification limit `α(Gₙ) → 2` as `n → ∞`.
-* `Xlib.STPPWreath.abelian_wreath_family_tendsto_two` — **(`sorry`)** CU
-  "Prop 11": for *abelian* `H`, the wreath family `Sₙ ⋉ Hⁿ` drives the
-  pseudo-exponent to `2` (the abelian-base case; the non-abelian case is the
-  BCGPU open frontier).
+* `Xlib.STPPWreath.abelian_wreath_family_tendsto_two` — **(`sorry`-free)** the
+  growing-base abelian wreath theorem (the Hu8-2a restatement of the ungrounded
+  fixed-`H` "CU Prop 11", whose truth is unknown): an abelian base *sequence*
+  `H n` with separation (`∃ g, 2n ≤ orderOf g`) and growth
+  (`log|H n|/log n → 1`) drives `α(Sₙ ⋉ (H n)ⁿ) → 2`; the cyclic instance
+  `H n = C₂ₙ` recovers the CU family
+  (`abelian_wreath_family_tendsto_two_cyclic`).
 
 ## References
 
@@ -451,8 +454,9 @@ permutation factor `(n!)^{ω-1}`.
 
 CKSU state the lemma for general `H` (via Huppert Theorem 25.6 / Clifford theory);
 we formalize the abelian instance — which is all any consumer in this codebase
-uses (`abelian_wreath_family_tendsto_two` is `[CommGroup H]`; `wreathGroup n` has
-abelian base `C₂ₙ`) — and the general-`H` version is Clifford-blocked (shelved
+uses (`abelian_wreath_family_tendsto_two` takes a sequence of `CommGroup` bases;
+`wreathGroup n` has abelian base `C₂ₙ`) — and the general-`H` version is
+Clifford-blocked (shelved
 follow-on Gh1; see `.tasks/f5exp/docs/Pl19-clifford-triage.md` §1–2).
 
 **Proof** (CKSU FOCS'05 tex 313–320, the abelian branch of their own proof):
@@ -1689,7 +1693,36 @@ theorem abelian_wreath_family_tendsto_two
     Filter.Tendsto
       (fun n : ℕ => pseudoExponent (ImprimitiveWreathProduct (H n) n))
       Filter.atTop (nhds 2) := by
-  sorry
+  -- The upper-bound sequence `log(|H n|ⁿ·n!)/log(n!) = 1 + n·log|H n|/log(n!)`
+  -- tends to `2 = 1 + (lim log|H n|/log n)·(lim n·log n/log(n!))`.
+  have hub : Filter.Tendsto
+      (fun n : ℕ => Real.log ((Fintype.card (H n) : ℝ) ^ n * (n.factorial : ℝ)) /
+        Real.log (n.factorial : ℝ)) Filter.atTop (nhds 2) := by
+    have h := (hgrowth.mul tendsto_mul_log_div_log_factorial).const_add 1
+    have h2 : (1 : ℝ) + 1 * 1 = 2 := by norm_num
+    rw [h2] at h
+    refine h.congr' (Filter.eventually_atTop.mpr ⟨2, fun n hn => ?_⟩)
+    have h2f : 2 ≤ n.factorial := le_trans hn (Nat.self_le_factorial n)
+    have hlf : 0 < Real.log (n.factorial : ℝ) := by
+      apply Real.log_pos; exact_mod_cast h2f
+    have hln : 0 < Real.log (n : ℝ) := by
+      apply Real.log_pos; exact_mod_cast (by omega : 1 < n)
+    have hc0 : (0 : ℝ) < (Fintype.card (H n) : ℝ) := by
+      exact_mod_cast Fintype.card_pos
+    have hfne : (n.factorial : ℝ) ≠ 0 := by positivity
+    beta_reduce
+    rw [Real.log_mul (pow_pos hc0 n).ne' hfne, Real.log_pow, add_div,
+      div_self hlf.ne']
+    field_simp
+    ring
+  -- Squeeze between the universal `2 < α` and the witness upper bound.
+  apply tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hub
+  · refine Filter.eventually_atTop.mpr ⟨2, fun n hn => ?_⟩
+    haveI := nontrivial_imprimitiveWreathProduct (D := H n) hn
+    exact (two_lt_pseudoExponent (ImprimitiveWreathProduct (H n) n)).le
+  · refine Filter.eventually_atTop.mpr ⟨2, fun n hn => ?_⟩
+    obtain ⟨g, hg⟩ := hsep n
+    exact pseudoExponent_family_le hn g hg
 
 /-- **The cyclic instance recovers the CU family** (target 4b): applying the
 growing-base theorem to `H n = C₂ₙ = Multiplicative (ZMod (2n))` — patched at
@@ -1699,6 +1732,36 @@ with `g = ofAdd 1` of order exactly `2n`; growth is `log(2n)/log n → 1`. -/
 theorem abelian_wreath_family_tendsto_two_cyclic :
     Filter.Tendsto (fun n : ℕ => pseudoExponent (wreathGroup (n + 1)))
       Filter.atTop (nhds 2) := by
-  sorry
+  -- The patched family: `C₂ₙ` for `n ≥ 1`, `C₂` at the dead index `n = 0`.
+  haveI : ∀ n : ℕ, NeZero (if n = 0 then 2 else 2 * n) := fun n => ⟨by split <;> omega⟩
+  have hsep : ∀ n : ℕ,
+      ∃ g : Multiplicative (ZMod (if n = 0 then 2 else 2 * n)), 2 * n ≤ orderOf g := by
+    intro n
+    rcases Nat.eq_zero_or_pos n with rfl | hn
+    · exact ⟨1, by omega⟩
+    · refine ⟨Multiplicative.ofAdd (1 : ZMod (if n = 0 then 2 else 2 * n)), ?_⟩
+      rw [orderOf_ofAdd_eq_addOrderOf, ZMod.addOrderOf_one, if_neg hn.ne']
+  have hgrowth : Filter.Tendsto (fun n : ℕ =>
+      Real.log (Fintype.card (Multiplicative (ZMod (if n = 0 then 2 else 2 * n))) : ℝ) /
+        Real.log (n : ℝ)) Filter.atTop (nhds 1) := by
+    have hlim : Filter.Tendsto (fun n : ℕ => 1 + Real.log 2 / Real.log (n : ℝ))
+        Filter.atTop (nhds 1) := by
+      have h0 : Filter.Tendsto (fun n : ℕ => Real.log 2 / Real.log (n : ℝ))
+          Filter.atTop (nhds 0) :=
+        tendsto_const_nhds.div_atTop
+          (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop)
+      have := h0.const_add 1
+      rwa [add_zero] at this
+    refine hlim.congr' (Filter.eventually_atTop.mpr ⟨2, fun n hn => ?_⟩)
+    have hne : n ≠ 0 := by omega
+    have hln : 0 < Real.log (n : ℝ) := by
+      apply Real.log_pos; exact_mod_cast (by omega : 1 < n)
+    beta_reduce
+    rw [Fintype.card_multiplicative, ZMod.card, if_neg hne]
+    push_cast
+    rw [Real.log_mul two_ne_zero (by exact_mod_cast hne : (n : ℝ) ≠ 0), add_div,
+      div_self hln.ne', add_comm]
+  exact (abelian_wreath_family_tendsto_two hsep hgrowth).comp
+    (Filter.tendsto_add_atTop_nat 1)
 
 end Xlib.STPPWreath
