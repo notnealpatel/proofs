@@ -1,0 +1,86 @@
+## Session-9 standing context
+
+The following findings from the Hu9 analysis session (o46max-8
+advisor) are binding context for this session. Ground all
+dispatch and triage decisions in them.
+
+### Barrier landscape
+
+Five barrier results constrain the group-theoretic approach:
+
+| Family | Status | Reference |
+|--------|--------|-----------|
+| Bounded-exponent abelian (STPP) | DEAD | BCCGNS+U 2017, arXiv:1605.06702 |
+| Bounded-exponent nilpotent (STPP) | DEAD | BCCGU 2018, arXiv:1712.02302 |
+| Groups of Lie type (TPP) | DEAD (can't reach omega < 2+ε) | BCGPU 2022, arXiv:2204.03826 |
+| Young subgroups of S_n | DEAD | BCCGU 2018, arXiv:1712.02302 |
+| CW_q tensors (universal method) | omega >= 2.168 | Alman 2019, arXiv:1812.08731 |
+
+The Lie type barrier identifies the **second-smallest irrep
+dimension** as the key obstruction — directly the alpha < gamma
+question. PSL(2,q) are groups of Lie type and are therefore
+killed for omega; the Im15/Im16/Im17 sweeps of PSL(2,q) are
+structural data only.
+
+The SDPP conjecture (CKSU Conjecture 4.1/4.7, "two-families")
+is the **last surviving CKSU conjecture** that would imply
+omega = 2. It lives in abelian groups of possibly unbounded
+exponent. Pratt 2023 [arXiv:2309.03878] showed its truth would
+require large skew corner-free sets, suggesting it may be
+false, but the conjecture remains open. An SDPP machinery audit
+is in `.tasks/f5exp/docs/Hu9-sdpp-audit.md`.
+
+### The alpha = gamma wall
+
+CU03 proved alpha(C_{2n} wr S_n) -> 2, but this gives **no
+omega bound**: the character-degree parameter gamma converges
+at the same rate (alpha = gamma), making the capacity
+inequality (CKSU Theorem 5.1) trivial. The C_{2n} route was
+fully analyzed in CU03 and has not advanced since. Aw1
+formalizes a generalization of this known-to-be-insufficient
+result.
+
+**The non-abelian case (Pl21) matters because non-abelian
+groups can have alpha < gamma** — the character degrees might
+grow slowly enough to give a nontrivial omega bound. That is
+the open frontier. Prioritize Pl21 and its dependencies
+(Ca1, Df1) accordingly.
+
+### Manuscript framing
+
+`Manuscripts/Drafts/abelian-factor-refutation.md` has been
+reframed as a contribution to the structural theory of TPP
+capacity (the Hedtke-Murthy / Murthy line), not to the
+omega = 2 program. The lift law at p = 2 is machine-checked
+(`Proofs/Xlib/TPPLift.lean`, sorry-free). The general-p
+lift law is not formalized. Hu9 (manuscript sign-off) is
+active and awaiting the USER's verdict.
+
+### DAG priority ordering
+
+1. **Pl21** (Clifford, general-H wreath) — highest value;
+   the alpha < gamma frontier.
+2. **Ca1 / Df1** — prerequisites to Pl21; keep unblocked.
+3. **Sq1** — general pseudoExponent convergence; feeds Ca1.
+4. **Aw1** — growing abelian base; true but known-insufficient
+   for omega. Do not block the critical path on it.
+5. **Pl18 downstreams** (Im14-Im17, Pd1, Hu11-12, Pl23) —
+   structural data collection; lower priority than the
+   formal proof chain.
+6. **Pl22 track (S)** — formalizing BCCGNS+U Theorem B;
+   strategically interesting, not urgent.
+
+### Citation corrections applied
+
+The manuscript's references were re-checked 2026-07-18.
+Murthy arXiv:2602.15796 removed (wrong citations); Murthy
+arXiv:2512.16730 and arXiv:2602.15796 added with correct
+attributions; BCCGNS+U added; three Hedtke-Murthy 2012
+reproductions acknowledged; CU03 Lemma 2.2 added.
+
+### Documents produced
+
+- `.tasks/f5exp/docs/Hu9-literature-crosscheck.md`
+- `.tasks/f5exp/docs/Hu9-product-relevance.md`
+- `.tasks/f5exp/docs/Hu9-barrier-analysis.md`
+- `.tasks/f5exp/docs/Hu9-sdpp-audit.md`
