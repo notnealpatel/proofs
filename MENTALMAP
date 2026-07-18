@@ -66,15 +66,16 @@ SDPP (CKSU Conj 4.7)                                         IDLE
          | GAP
     best known: n log n / sqrt(log log n)
          ^
-         | Pratt Conj 1.2: sets are O(n^{1+eps})
+         | Pratt Conj 1.1: sets are O(n^{1+eps})
          |                       |
-         +-- would kill SDPP     +-- would kill STPP/Z_q^l
+         +-- Thm 1.2: kills      +-- Thm 1.1: kills
+             CKSU 4.7                 STPP/Z_q^l
 
 
 COHERENT CONFIGURATIONS (CU13)                                UNEXPLORED
 
   s-rank exponent = 2 => omega = 2
-  no barrier touches this. BCCGNS+U explicitly excludes it.
+  no barrier touches this. outside BCCGNS+U's scope (not explicitly excluded).
   no known candidate configurations.
 
 
@@ -98,7 +99,7 @@ DEAD ROUTES
   bounded-exp nilpotent STPP   BCCGU 2018      1712.02302
   Lie type groups (DIRECT use) BCGPU 2022      2204.03826
   Young subgroups of S_n       BCCGU 2018      1712.02302
-  CW_q universal method        Alman 2019      1812.08731
+  CW_q universal method        Alman 2018      1812.08731
 
   ! BCGPU kills Lie type DIRECTLY, not as wreath base
   ! A_n survives BCGPU -- only finite simple family that does

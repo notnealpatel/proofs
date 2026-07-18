@@ -882,19 +882,19 @@ See the docstring on `stpp_capacity_le` for the full mathematical statement.
 **Blocker:** the multinomial assembly — producing the hypothesis of
 `sum_le_of_multinomial_prod_pow_le` from the wreath capacity chain. -/
 theorem stpp_capacity_le_of_wreath
-    {G : Type*} [Group G] [Fintype G] [DecidableEq G]
+    {G : Type*} [CommGroup G] [Fintype G] [DecidableEq G]
     {n : ℕ} (A B C : Fin n → Finset G) (h : SimultaneousTPP A B C)
-    (htpp : ∀ (H : Type*) [Group H] [Fintype H] [DecidableEq H]
-      (m : ℕ) (A' B' C' : Fin m → Finset H),
+    (htpp : ∀ (ℓ : ℕ) (m : ℕ) (A' B' C' : Fin m → Finset (Fin ℓ → G)),
       SimultaneousTPP A' B' C' →
-      ∃ S T U : Finset (ImprimitiveWreathProduct H m),
+      ∃ S T U : Finset (ImprimitiveWreathProduct (Fin ℓ → G) m),
         TripleProductProperty S T U
         ∧ S.card = m.factorial * ∏ i, (A' i).card
         ∧ T.card = m.factorial * ∏ i, (B' i).card
         ∧ U.card = m.factorial * ∏ i, (C' i).card)
-    (hbound : ∀ (H : Type*) [Group H] [Fintype H] [DecidableEq H] (m : ℕ),
-      charDegreeSumReal (ImprimitiveWreathProduct H m) ω
-        ≤ (Nat.factorial m : ℝ) ^ (ω - 1) * (charDegreeSumReal H ω) ^ m) :
+    (hbound : ∀ (ℓ m : ℕ),
+      charDegreeSumReal (ImprimitiveWreathProduct (Fin ℓ → G) m) ω
+        ≤ (Nat.factorial m : ℝ) ^ (ω - 1)
+          * (charDegreeSumReal (Fin ℓ → G) ω) ^ m) :
     ∑ i, ((A i).card * (B i).card * (C i).card : ℝ) ^ (ω / 3)
       ≤ charDegreeSumReal G ω := by
   sorry
@@ -907,11 +907,11 @@ theorem stpp_capacity_le_comm
     {n : ℕ} (A B C : Fin n → Finset G) (h : SimultaneousTPP A B C) :
     ∑ i, ((A i).card * (B i).card * (C i).card : ℝ) ^ (ω / 3)
       ≤ charDegreeSumReal G ω := by
-  exact stpp_capacity_le_of_wreath A B C h
-    (fun H _ _ _ m A' B' C' hstpp =>
-      stpp_to_tpp_wreath_card A' B' C' hstpp)
-    (fun H _ _ _ m =>
-      wreath_charDegree_bound m)
+  apply stpp_capacity_le_of_wreath A B C h
+  · intro ℓ m A' B' C' hstpp
+    exact stpp_to_tpp_wreath_card A' B' C' hstpp
+  · intro ℓ m
+    exact wreath_charDegree_bound m
 
 /-! ### The Cohn–Umans wreath TPP witness: `Gₙ` realizes `⟨n!, n!, n!⟩` (CU.tex:1257–1299)
 
