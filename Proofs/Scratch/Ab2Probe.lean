@@ -30,6 +30,12 @@ private theorem exists_isotypic_of_mem_charDegrees {G : Type*} [Group G] [Fintyp
   obtain ⟨c, -, hc⟩ := Multiset.mem_map.mp hn
   exact ⟨c, hc⟩
 
+/-- Clean-context generator extraction from `finrank ℂ V = 1`. -/
+private theorem exists_generator_of_finrank_eq_one {V : Type*} [AddCommGroup V] [Module ℂ V]
+    (h : Module.finrank ℂ V = 1) : ∃ v : V, v ≠ 0 ∧ ∀ w : V, ∃ c : ℂ, c • v = w := by
+  obtain ⟨v, h0, hs⟩ := finrank_eq_one_iff'.mp h
+  exact ⟨v, h0, hs⟩
+
 /-- Phase 1: a simple `ℂ[G]`-submodule of the regular module contains a common
 eigenvector for a commutative subgroup `A`. -/
 private theorem exists_eigenvector (A : Subgroup G) [IsMulCommutative A]
@@ -58,7 +64,9 @@ private theorem exists_eigenvector (A : Subgroup G) [IsMulCommutative A]
   haveI := hW
   obtain ⟨I, ⟨e⟩⟩ := IsSemisimpleRing.exists_linearEquiv_ideal_of_isSimpleModule
     (R := MonoidAlgebra ℂ ↥A) (M := ↥W)
-  haveI : IsSimpleModule (MonoidAlgebra ℂ ↥A) ↥I := by exact IsSimpleModule.congr e.symm
+  haveI : IsSimpleModule (MonoidAlgebra ℂ ↥A) ↥I :=
+    @IsSimpleModule.congr (MonoidAlgebra ℂ ↥A) _ ↥I (Submodule.addCommGroup I)
+      (Submodule.module I) ↥W (Submodule.addCommGroup W) (Submodule.module W) e.symm hW
   have hmem : isotypicComponent (MonoidAlgebra ℂ ↥A) (MonoidAlgebra ℂ ↥A) ↥I
       ∈ isotypicComponents (MonoidAlgebra ℂ ↥A) (MonoidAlgebra ℂ ↥A) :=
     ⟨I, inferInstance, rfl⟩
@@ -71,11 +79,11 @@ private theorem exists_eigenvector (A : Subgroup G) [IsMulCommutative A]
   have hW1 : Module.finrank ℂ ↥W = 1 := by
     rw [(e.restrictScalars ℂ).finrank_eq]
     exact hI1
-  obtain ⟨w₀, hw₀0, hsp⟩ := finrank_eq_one_iff'.mp hW1
+  obtain ⟨w₀, hw₀0, hsp⟩ := exists_generator_of_finrank_eq_one (V := ↥W) hW1
   refine ⟨((w₀ : ↥S) : MonoidAlgebra ℂ G), (w₀ : ↥S).2, ?_, ?_⟩
   · simpa [ZeroMemClass.coe_eq_zero] using hw₀0
   · intro a
-    obtain ⟨c, hc⟩ := hsp ((MonoidAlgebra.single a 1 : MonoidAlgebra ℂ ↥A) • w₀)
+    obtain ⟨c, hc⟩ := hsp (((MonoidAlgebra.single a 1 : MonoidAlgebra ℂ ↥A) • w₀ : ↥W))
     refine ⟨c, ?_⟩
     calc MonoidAlgebra.single (a : G) 1 * ((w₀ : ↥S) : MonoidAlgebra ℂ G)
         = φ (MonoidAlgebra.single a 1) * ((w₀ : ↥S) : MonoidAlgebra ℂ G) := by
