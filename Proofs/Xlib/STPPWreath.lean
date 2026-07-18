@@ -200,10 +200,7 @@ arbitrary *injective* index selection `Φ : Fin N → Fin n × Fin m`
 equivalence with `Fin (n*m)` (resp. `Fin (n^ℓ)`). An equivalence instantiation
 (`finProdFinEquiv.symm`, resp. `finFunctionFinEquiv.symm`) recovers the full
 closure verbatim; a subset-enumeration instantiation performs the multinomial
-selection step of CKSU's `theorem:asi` proof in the same application. Both
-conjuncts of the STPP project componentwise, so the mixed quotient conventions
-of `SimultaneousTPP` (left-quotient per-triple, right-quotient simultaneous —
-see its orientation note) transport without interaction. -/
+selection step of CKSU's `theorem:asi` proof in the same application. Both conjuncts of the STPP project componentwise (right-quotient throughout). -/
 
 /-- **Dependent-fibre iterated TPP closure** on the power carrier `Fin ℓ → G`
 (componentwise `Pi.group`): if each fibre triple `(S t, T t, U t)` satisfies
@@ -233,15 +230,35 @@ open scoped Pointwise in
 /-- **Dependent-fibre iterated right-quotient TPP closure** on the power carrier
 `Fin ℓ → G`: if each fibre triple `(S t, T t, U t)` satisfies the right-quotient
 `TripleProductPropertyR`, then the `piFinset` triple satisfies the right-quotient
-TPP in `Fin ℓ → G`. The right-quotient companion of `tripleProductProperty_piFinset`,
-via the inversion bridge. -/
+TPP in `Fin ℓ → G`. The right-quotient companion of
+`tripleProductProperty_piFinset`. -/
 theorem tripleProductPropertyR_piFinset {ℓ : ℕ} {S T U : Fin ℓ → Finset G}
     (h : ∀ t, TripleProductPropertyR (S t) (T t) (U t)) :
     TripleProductPropertyR (Fintype.piFinset S) (Fintype.piFinset T)
       (Fintype.piFinset U) := by
-  rw [tripleProductPropertyR_iff_inv]
-  refine tripleProductProperty_piFinset fun t => ?_
-  exact tripleProductPropertyR_iff_inv.mp (h t)
+  intro q₁ hq₁ q₂ hq₂ q₃ hq₃ heq
+  obtain ⟨s, hs, s', hs', rfl⟩ := mem_mul_inv.mp hq₁
+  obtain ⟨t, ht, t', ht', rfl⟩ := mem_mul_inv.mp hq₂
+  obtain ⟨u, hu, u', hu', rfl⟩ := mem_mul_inv.mp hq₃
+  simp only [Fintype.mem_piFinset] at hs hs' ht ht' hu hu'
+  have coord : ∀ i, s i * (s' i)⁻¹ * (t i * (t' i)⁻¹) * (u i * (u' i)⁻¹) = 1 := by
+    intro i
+    have := congr_fun heq i
+    simp only [Pi.mul_apply, Pi.inv_apply, Pi.one_apply] at this
+    simpa only [mul_assoc] using this
+  have key : ∀ i, s i * (s' i)⁻¹ = 1 ∧ t i * (t' i)⁻¹ = 1 ∧ u i * (u' i)⁻¹ = 1 := by
+    intro i
+    exact h i (s i * (s' i)⁻¹)
+      (mem_mul_inv.mpr ⟨s i, hs i, s' i, hs' i, rfl⟩)
+      (t i * (t' i)⁻¹)
+      (mem_mul_inv.mpr ⟨t i, ht i, t' i, ht' i, rfl⟩)
+      (u i * (u' i)⁻¹)
+      (mem_mul_inv.mpr ⟨u i, hu i, u' i, hu' i, rfl⟩)
+      (coord i)
+  refine ⟨funext fun i => ?_, funext fun i => ?_, funext fun i => ?_⟩
+  · show s i * (s' i)⁻¹ = 1; exact (key i).1
+  · show t i * (t' i)⁻¹ = 1; exact (key i).2.1
+  · show u i * (u' i)⁻¹ = 1; exact (key i).2.2
 
 /-- **CKSU Lemma `lemma:directprod`** [math/0511460,
 FOCS05-10page.tex:1239–1246], the **binary direct-product closure of the
@@ -257,8 +274,8 @@ with `N := n * m` recovers CKSU's statement verbatim: the full family of all
 `(A i ×ˢ A' i').card = (A i).card * (A' i').card`.
 
 Both conjuncts project componentwise (`Prod.fst`/`Prod.snd` are group
-homomorphisms): the per-triple conjunct is Tp1's
-`Xlib.TPP.TripleProductProperty.prod`; the simultaneous conjunct's
+homomorphisms): the per-triple conjunct is
+`Xlib.TPP.TripleProductPropertyR.prod`; the simultaneous conjunct's
 right-quotient premise at indices `(Φ p, Φ q, Φ r)` projects to the same-shaped
 premises at `((Φ p).1, (Φ q).1, (Φ r).1)` in `G` and
 `((Φ p).2, (Φ q).2, (Φ r).2)` in `G'`, the two componentwise index collapses
@@ -272,7 +289,7 @@ theorem SimultaneousTPP.prod [Fintype G] [DecidableEq G]
       (fun p => A (Φ p).1 ×ˢ A' (Φ p).2)
       (fun p => B (Φ p).1 ×ˢ B' (Φ p).2)
       (fun p => C (Φ p).1 ×ˢ C' (Φ p).2) := by
-  refine ⟨fun p => (h.tpp_of (Φ p).1).prod (h'.tpp_of (Φ p).2), ?_⟩
+  refine ⟨fun p => (h.tppR_of (Φ p).1).prod (h'.tppR_of (Φ p).2), ?_⟩
   intro p q r a ha a' ha' b hb b' hb' c hc c' hc' heq
   simp only [Finset.mem_product] at ha ha' hb hb' hc hc'
   have heq₁ : a.1 * (a'.1)⁻¹ * b.1 * (b'.1)⁻¹ * c.1 * (c'.1)⁻¹ = 1 := by
@@ -314,7 +331,7 @@ Size bookkeeping is `Fintype.card_piFinset`:
 
 The proof projects both conjuncts componentwise (evaluation at each
 `t : Fin ℓ` is a group homomorphism): the per-triple conjunct is
-`tripleProductProperty_piFinset`; the simultaneous conjunct's right-quotient
+`tripleProductPropertyR_piFinset`; the simultaneous conjunct's right-quotient
 premise at `(Φ p, Φ q, Φ r)` evaluates at `t` to the premise at
 `(Φ p t, Φ q t, Φ r t)`, the index collapse holds at every `t`, and `funext`
 plus the injectivity of `Φ` gives `p = q ∧ q = r`. -/
@@ -325,7 +342,7 @@ theorem SimultaneousTPP.pow [Fintype G] [DecidableEq G]
       (fun p => Fintype.piFinset fun t => A (Φ p t))
       (fun p => Fintype.piFinset fun t => B (Φ p t))
       (fun p => Fintype.piFinset fun t => C (Φ p t)) := by
-  refine ⟨fun p => tripleProductProperty_piFinset fun t => h.tpp_of (Φ p t), ?_⟩
+  refine ⟨fun p => tripleProductPropertyR_piFinset fun t => h.tppR_of (Φ p t), ?_⟩
   intro p q r a ha a' ha' b hb b' hb' c hc c' hc' heq
   simp only [Fintype.mem_piFinset] at ha ha' hb hb' hc hc'
   have coord : ∀ t, a t * (a' t)⁻¹ * b t * (b' t)⁻¹ * c t * (c' t)⁻¹ = 1 := by
@@ -668,21 +685,12 @@ theorem tripleProductPropertyR_of_comm {H : Type*} [CommGroup H] [Fintype H]
 
 /-- **The CKSU `theorem:STPP2TPP` carrier verification**
 [math/0511460, FOCS05-10page.tex:1508–1559], in the coherent **right-quotient**
-convention (the convention of CKSU's paper): if the `n` triples satisfy the
-`SimultaneousTPP` *and* each per-index triple additionally satisfies the
-right-quotient `TripleProductPropertyR`, then the three CKSU carriers
+convention (the convention of CKSU's paper): the three CKSU carriers
 `wreathCarrier A`, `wreathCarrier B`, `wreathCarrier C` satisfy the
 right-quotient TPP in the imprimitive wreath product `Sₙ ⋉ Hⁿ`.
 
-The extra hypothesis `hR` is CKSU's own per-triple hypothesis: their STPP is
-stated wholly in the right-quotient convention, whereas
-`Xlib.STPPWreath.SimultaneousTPP`'s per-triple conjunct invokes the
-left-quotient `Xlib.TPP.TripleProductProperty` (see the orientation note in its
-docstring). The two per-triple conventions are **not** equivalent on the same
-triple, and the CKSU carrier argument genuinely consumes the right-quotient
-form at its final elementwise step, so it is carried as an explicit hypothesis
-here; for commutative `H` it is automatic (`tripleProductPropertyR_of_comm`,
-consumed by `stpp_to_tpp_wreath_card`).
+The per-triple right-quotient hypothesis is now directly the first conjunct of
+`SimultaneousTPP` (Df1 correction); no separate `hR` is needed.
 
 Proof shape (CKSU, recomputed in Mathlib's `SemidirectProduct` conventions
 `(f,π)·(g,σ) = (f · (g ∘ π⁻¹), πσ)` and `(f,π)⁻¹ = ((f ∘ π)⁻¹, π⁻¹)`):
@@ -691,11 +699,11 @@ a right-quotient triple product forces the permutation identity
 `f₁(i)·f₁'(σ₁⁻¹i)⁻¹·f₂(σ₁⁻¹i)·f₂'((σ₁σ₂)⁻¹i)⁻¹·f₃((σ₁σ₂)⁻¹i)·f₃'(i)⁻¹ = 1` —
 exactly the simultaneous conjunct's premise at `(i, σ₁⁻¹i, (σ₁σ₂)⁻¹i)`, which
 collapses `σ₁ = σ₂ = σ₃ = 1`; the residual coordinatewise identity is the
-right-quotient per-triple premise, and `hR` finishes. -/
+right-quotient per-triple premise, and the per-triple TPP (first conjunct of
+`SimultaneousTPP`) finishes. -/
 theorem tripleProductPropertyR_wreathCarrier {H : Type*} [Group H] [Fintype H]
     [DecidableEq H] {n : ℕ} {A B C : Fin n → Finset H}
-    (h : SimultaneousTPP A B C)
-    (hR : ∀ i, TripleProductPropertyR (A i) (B i) (C i)) :
+    (h : SimultaneousTPP A B C) :
     TripleProductPropertyR (wreathCarrier A) (wreathCarrier B) (wreathCarrier C) := by
   intro q₁ hq₁ q₂ hq₂ q₃ hq₃ heq
   obtain ⟨x, hx, x', hx', rfl⟩ := mem_mul_inv.mp hq₁
@@ -755,14 +763,14 @@ theorem tripleProductPropertyR_wreathCarrier {H : Type*} [Group H] [Fintype H]
     rw [hσ₁, hσ₂, one_mul, one_mul] at hperm
     exact hperm
   -- With trivial permutations, the residual coordinatewise identity is the
-  -- right-quotient per-triple premise; `hR` finishes (CKSU's final step).
+  -- right-quotient per-triple premise; `h.1` (the STPP per-triple conjunct) finishes.
   have helem : ∀ i : Fin n,
       f₁ i * (f₁' i)⁻¹ = 1 ∧ f₂ i * (f₂' i)⁻¹ = 1 ∧ f₃ i * (f₃' i)⁻¹ = 1 := by
     intro i
     have hflat0 := hflat i
     rw [hσ₁, hσ₂] at hflat0
     simp only [one_mul, inv_one, Equiv.Perm.one_apply] at hflat0
-    exact hR i (f₁ i * (f₁' i)⁻¹)
+    exact h.1 i (f₁ i * (f₁' i)⁻¹)
       (mem_mul_inv.mpr ⟨f₁ i, hx i, f₁' i, hx' i, rfl⟩)
       (f₂ i * (f₂' i)⁻¹)
       (mem_mul_inv.mpr ⟨f₂ i, hy i, f₂' i, hy' i, rfl⟩)
@@ -793,50 +801,17 @@ with `π` an arbitrary permutation and the `i`-th coordinate of `h` lying in
 `A i` (resp. `B i`, `C i`); each has size `n! · ∏ᵢ |A i|` (resp. `B`, `C`). We
 state the bare existence of a TPP triple in `G`.
 
-**Proof note (witness choice).** The full CKSU carriers are delivered by
-`tripleProductPropertyR_wreathCarrier` (the carrier verification, general `H`
-plus the right-quotient per-triple hypothesis) and `stpp_to_tpp_wreath_card`
-(commutative `H`, carrier sizes carried). For *general* `H` the CKSU carrier
-verification is **not derivable** from `SimultaneousTPP` as stated: its final
-elementwise step consumes the per-triple TPP in the right-quotient convention,
-while `SimultaneousTPP`'s per-triple conjunct is the left-quotient
-`TripleProductProperty`, and the two are not equivalent on the same triple
-(see `Xlib.TPP.TripleProductPropertyR`; a Sage witness in `S₃` with `n = 2`
-exhibits a left-per-triple + right-simultaneous family whose CKSU carriers
-fail the right-quotient TPP in `S₂ ⋉ S₃²`). This bare-existence statement is
-therefore witnessed by the base-diagonal carriers
-`{⟨f, 1⟩ : f i ∈ A i}` (resp. `B`, `C`) of size `∏ᵢ |·|` — the image of the
-per-triple TPP under the embedding `Hⁿ →* Sₙ ⋉ Hⁿ`, which consumes only the
-per-triple conjunct and is valid for every `H`. -/
+**Proof note (Df1).** With the corrected `SimultaneousTPP` (Df1), the per-triple
+conjunct is the right-quotient `TripleProductPropertyR`, which is exactly what
+`tripleProductPropertyR_wreathCarrier` consumes. The full CKSU carriers are
+therefore directly derivable for general `H`, via the inversion bridge
+`tripleProductPropertyR_iff_inv`. -/
 theorem stpp_to_tpp_wreath {H : Type*} [Group H] [Fintype H] [DecidableEq H]
     {n : ℕ} (A B C : Fin n → Finset H) (h : SimultaneousTPP A B C) :
     ∃ S T U : Finset (ImprimitiveWreathProduct H n),
-      TripleProductProperty S T U := by
-  refine ⟨(Fintype.piFinset A).image SemidirectProduct.inl,
-    (Fintype.piFinset B).image SemidirectProduct.inl,
-    (Fintype.piFinset C).image SemidirectProduct.inl, ?_⟩
-  intro s hs s' hs' t ht t' ht' u hu u' hu' hprod
-  obtain ⟨f₁, hf₁, rfl⟩ := Finset.mem_image.mp hs
-  obtain ⟨f₁', hf₁', rfl⟩ := Finset.mem_image.mp hs'
-  obtain ⟨f₂, hf₂, rfl⟩ := Finset.mem_image.mp ht
-  obtain ⟨f₂', hf₂', rfl⟩ := Finset.mem_image.mp ht'
-  obtain ⟨f₃, hf₃, rfl⟩ := Finset.mem_image.mp hu
-  obtain ⟨f₃', hf₃', rfl⟩ := Finset.mem_image.mp hu'
-  have hbase : f₁'⁻¹ * f₁ * f₂'⁻¹ * f₂ * f₃'⁻¹ * f₃ = 1 := by
-    apply SemidirectProduct.inl_injective (φ := permArrowHom H n)
-    rw [map_one]
-    simpa only [map_mul, map_inv] using hprod
-  have key : ∀ i, f₁ i = f₁' i ∧ f₂ i = f₂' i ∧ f₃ i = f₃' i := fun i =>
-    h.1 i (f₁ i) (Fintype.mem_piFinset.mp hf₁ i)
-      (f₁' i) (Fintype.mem_piFinset.mp hf₁' i)
-      (f₂ i) (Fintype.mem_piFinset.mp hf₂ i)
-      (f₂' i) (Fintype.mem_piFinset.mp hf₂' i)
-      (f₃ i) (Fintype.mem_piFinset.mp hf₃ i)
-      (f₃' i) (Fintype.mem_piFinset.mp hf₃' i)
-      (congrFun hbase i)
-  exact ⟨congrArg _ (funext fun i => (key i).1),
-    congrArg _ (funext fun i => (key i).2.1),
-    congrArg _ (funext fun i => (key i).2.2)⟩
+      TripleProductProperty S T U :=
+  ⟨(wreathCarrier A)⁻¹, (wreathCarrier B)⁻¹, (wreathCarrier C)⁻¹,
+    tripleProductPropertyR_iff_inv.mp (tripleProductPropertyR_wreathCarrier h)⟩
 
 open scoped Pointwise in
 /-- **CKSU Theorem `theorem:STPP2TPP` with the carrier cardinalities**
