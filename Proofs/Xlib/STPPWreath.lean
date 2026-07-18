@@ -135,8 +135,9 @@ variable {G : Type*} [Group G]
 The `n` triples of subsets `(A i, B i, C i)` of a finite group `G`
 (`A B C : Fin n → Finset G`) satisfy the STPP when:
 
-* **per-triple TPP:** for each index `i`, the triple `(A i, B i, C i)` satisfies
-  the ordinary `Xlib.TPP.TripleProductProperty`; and
+* **per-triple TPP (right-quotient):** for each index `i`, the triple
+  `(A i, B i, C i)` satisfies the right-quotient
+  `Xlib.TPP.TripleProductPropertyR`; and
 
 * **the simultaneous (cyclically-chained) condition:** for all indices
   `i j k : Fin n` and all `aᵢ ∈ A i`, `aⱼ' ∈ A j`, `bⱼ ∈ B j`, `bₖ' ∈ B k`,
@@ -148,35 +149,31 @@ conclusion collapses the indices, and element equality follows afterward from
 the per-triple TPP. (In CKSU's additive notation for abelian `G` this reads
 `aᵢ - aⱼ' + bⱼ - bₖ' + cₖ - cᵢ' = 0 ⟹ i = j = k`.)
 
-**Orientation note (quotient direction).** The simultaneous condition above uses
-the **right** quotients `aᵢ(aⱼ')⁻¹`, `bⱼ(bₖ')⁻¹`, `cₖ(cᵢ')⁻¹`, transcribed
-*verbatim* from CKSU's primary definition
-[math/0511460, FOCS05-10page.tex:1121–1127] (which fixes `Q(S) = {s₁s₂⁻¹}`, the
-right quotient set, at line 363). The ordinary `Xlib.TPP.TripleProductProperty`
-invoked in the *per-triple* conjunct instead uses the **left** quotient
-`s'⁻¹ * s` — the Murthy/Wikipedia rendering, which `Xlib.TPP` documents as
-equivalent to CU's right-quotient `Q(S)` form. The two conjuncts therefore use
-different quotient sides, but each is faithful to the orientation of *its own*
-source: bullet 1 to CU via the (documented-equivalent) `Xlib.TPP` form, bullet 2
-to CKSU verbatim. We keep the right-quotient form here rather than rewriting it
-left-handed precisely so that this definition reads identically to the cited
-CKSU definition; the right- and left-quotient simultaneous conditions are
-equivalent (both are universally quantified over *all* elements of the sets, and
-the right quotient set `{xy⁻¹}` is the inverse-image of the left quotient set
-`{y⁻¹x}`), so no generality is lost. -/
+**Quotient convention (CKSU-faithful, Df1).** Both conjuncts now use the
+**right-quotient** convention, faithful to CKSU's primary definition
+[math/0511460, FOCS05-10page.tex:1121–1127] which fixes `Q(S) = {s₁s₂⁻¹}` (the
+right quotient set, line 363). The previous definition used the left-quotient
+`Xlib.TPP.TripleProductProperty` in the per-triple conjunct and the
+right-quotient in the simultaneous conjunct; this mixed convention was refuted
+for nonabelian `G` by a Sage counterexample family in `S₂ ⋉ S₃²` (Wr1,
+2026-07-18): the CKSU `n!`-carrier construction
+(`tripleProductPropertyR_wreathCarrier`) genuinely consumes the right-quotient
+per-triple TPP at its final elementwise step, and the left-quotient form is not
+equivalent on the same triple. For commutative `G` the two conventions coincide
+(`tripleProductPropertyR_of_comm`). -/
 def SimultaneousTPP {n : ℕ} [Fintype G] [DecidableEq G]
     (A B C : Fin n → Finset G) : Prop :=
-  (∀ i, TripleProductProperty (A i) (B i) (C i)) ∧
+  (∀ i, TripleProductPropertyR (A i) (B i) (C i)) ∧
     (∀ i j k : Fin n,
       ∀ aᵢ ∈ A i, ∀ aⱼ' ∈ A j, ∀ bⱼ ∈ B j, ∀ bₖ' ∈ B k, ∀ cₖ ∈ C k, ∀ cᵢ' ∈ C i,
         aᵢ * (aⱼ')⁻¹ * bⱼ * (bₖ')⁻¹ * cₖ * (cᵢ')⁻¹ = 1 → i = j ∧ j = k)
 
 omit [Group G] in
-/-- The STPP entails the ordinary TPP of each individual triple `(A i, B i, C i)`
-(the first conjunct). -/
-theorem SimultaneousTPP.tpp_of {n : ℕ} [Group G] [Fintype G] [DecidableEq G]
+/-- The STPP entails the right-quotient TPP of each individual triple
+`(A i, B i, C i)` (the first conjunct). -/
+theorem SimultaneousTPP.tppR_of {n : ℕ} [Group G] [Fintype G] [DecidableEq G]
     {A B C : Fin n → Finset G} (h : SimultaneousTPP A B C) (i : Fin n) :
-    TripleProductProperty (A i) (B i) (C i) :=
+    TripleProductPropertyR (A i) (B i) (C i) :=
   h.1 i
 
 omit [Group G] in
@@ -231,6 +228,20 @@ theorem tripleProductProperty_piFinset {ℓ : ℕ} {S T U : Fin ℓ → Finset G
       (u i) (hu i) (u' i) (hu' i) (coord i)).2.1
   · exact (h i (s i) (hs i) (s' i) (hs' i) (t i) (ht i) (t' i) (ht' i)
       (u i) (hu i) (u' i) (hu' i) (coord i)).2.2
+
+open scoped Pointwise in
+/-- **Dependent-fibre iterated right-quotient TPP closure** on the power carrier
+`Fin ℓ → G`: if each fibre triple `(S t, T t, U t)` satisfies the right-quotient
+`TripleProductPropertyR`, then the `piFinset` triple satisfies the right-quotient
+TPP in `Fin ℓ → G`. The right-quotient companion of `tripleProductProperty_piFinset`,
+via the inversion bridge. -/
+theorem tripleProductPropertyR_piFinset {ℓ : ℕ} {S T U : Fin ℓ → Finset G}
+    (h : ∀ t, TripleProductPropertyR (S t) (T t) (U t)) :
+    TripleProductPropertyR (Fintype.piFinset S) (Fintype.piFinset T)
+      (Fintype.piFinset U) := by
+  rw [tripleProductPropertyR_iff_inv]
+  refine tripleProductProperty_piFinset fun t => ?_
+  exact tripleProductPropertyR_iff_inv.mp (h t)
 
 /-- **CKSU Lemma `lemma:directprod`** [math/0511460,
 FOCS05-10page.tex:1239–1246], the **binary direct-product closure of the

@@ -50,6 +50,22 @@ theorem TripleProductProperty.prod
     u.2 hu.2 u'.2 hu'.2 heq2
   exact ⟨Prod.ext hs1 hs2, Prod.ext ht1 ht2, Prod.ext hu1 hu2⟩
 
+open scoped Pointwise in
+/-- **Product closure of the right-quotient TPP.** If `(S, T, U)` has the
+right-quotient TPP in `G` and `(S', T', U')` has the right-quotient TPP in `H`,
+then `(S ×ˢ S', T ×ˢ T', U ×ˢ U')` has the right-quotient TPP in `G × H`. Via
+the inversion bridge and the left-quotient `TripleProductProperty.prod`. -/
+theorem TripleProductPropertyR.prod
+    {G : Type*} {H : Type*}
+    [Group G] [DecidableEq G] [Fintype G] [Group H] [DecidableEq H] [Fintype H]
+    {S T U : Finset G} {S' T' U' : Finset H}
+    (hG : TripleProductPropertyR S T U)
+    (hH : TripleProductPropertyR S' T' U') :
+    TripleProductPropertyR (S ×ˢ S') (T ×ˢ T') (U ×ˢ U') := by
+  rw [tripleProductPropertyR_iff_inv] at hG hH ⊢
+  convert (hG.prod hH) using 1 <;>
+    ext ⟨a, b⟩ <;> simp [Finset.mem_inv', Finset.mem_product]
+
 /-- Cardinality of a product finset: `(S ×ˢ S').card = S.card * S'.card`.
 (Re-export of `Finset.card_product` for use in capacity arguments.) -/
 theorem card_prod_eq {α β : Type*} (S : Finset α) (S' : Finset β) :
