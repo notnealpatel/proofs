@@ -1354,42 +1354,351 @@ theorem pseudoExponent_wreath_tendsto_two :
           wreathGammaExact_le (by omega)
       _ = ub n := by simp [hub]
 
-/-! ### CU "Proposition 11": abelian base ⟹ `α → 2` (`sorry`)
+/-! ### The growing-base abelian wreath family: `α → 2` (Hu8-2a restatement)
 
-IDEA.md's "CU Prop 11" (the abelian-base wreath case). The wreath construction
-`Sₙ ⋉ Hⁿ` and its character-degree bound `wreath_charDegree_bound` hold for
-*any* `H`; the *abelian* restriction enters only in collapsing `D_ω(H) = |H|`
-(via `Σ dᵢ² = |H|` and all `dᵢ = 1`), which is what drives the pseudo-exponent
-of the family to `2`. The **non-abelian** base is the BCGPU open frontier:
-whether a non-abelian `H` can push the per-copy pseudo-exponent below the
-abelian value while still meeting the packing bound. -/
+**Restatement provenance (Hu8 verdict 2a, USER 2026-07-18).** This theorem
+previously claimed `α(Sₙ ⋉ Hⁿ) → 2` for a *fixed* nontrivial abelian `H`,
+citing "CU Prop 11". That statement was ungrounded — "CU Prop 11" matches
+nothing in CU [math/0307321] or CKSU [math/0511460]; the citation traces to a
+deleted internal IDEA.md — and every known proof route breaks for fixed `H`
+(see the theorem docstring below). The honest CU-grounded generalization,
+formalized here, parametrizes over a *sequence* of abelian bases `H n` growing
+with the wreath rank; CU's own wreath theorem is the cyclic instance
+`H n = C₂ₙ` (`abelian_wreath_family_tendsto_two_cyclic`).
 
-/-- **CU "Proposition 11"** (the abelian-base wreath case; IDEA.md): for an
-*abelian* finite group `H`, the wreath family `Gₙ = H ≀ Sₙ = Sₙ ⋉ Hⁿ` drives the
-pseudo-exponent to `2`,
+The private `family*` declarations generalize the CU witness machinery
+(`wreathCocycleHom` … `factorial_pow_three_le_tppCapacity`, Le1) from the
+cyclic base `C₂ₙ = Multiplicative (ZMod (2n))` to an arbitrary abelian base
+equipped with an element of order `≥ 2n`; the limit assembly mirrors the
+squeeze of `pseudoExponent_wreath_tendsto_two` (Sq1), with the Stirling ratio
+`n·log n / log n! → 1` replacing the fixed `C₂ₙ` log-arithmetic (Lg1). -/
 
-  `α(Gₙ) → 2` as `n → ∞`.
+/-- The graph of the multiplicative coboundary `∂w : π ↦ (i ↦ w (π⁻¹ i) · (w i)⁻¹)`
+attached to a vector `w : Fin n → D` over an *abelian* base `D`, as a
+homomorphic section `Sₙ →* Dⁿ ⋊ Sₙ` of `SemidirectProduct.rightHom` — the
+`CommGroup` generalization of `wreathCocycleHom` (whose `ZMod (2n)` form stays
+untouched above, serving the concrete `wreathGroup` family). -/
+private def familyCocycleHom {D : Type*} [CommGroup D] {n : ℕ} (w : Fin n → D) :
+    Equiv.Perm (Fin n) →* ImprimitiveWreathProduct D n where
+  toFun π := ⟨fun i => w (π⁻¹ i) * (w i)⁻¹, π⟩
+  map_one' := by
+    refine SemidirectProduct.ext (funext fun i => ?_) rfl
+    simp
+  map_mul' π σ := by
+    refine SemidirectProduct.ext (funext fun i => ?_) rfl
+    simp only [SemidirectProduct.mul_left, Pi.mul_apply, permArrowHom_apply,
+      mul_inv_rev, Equiv.Perm.mul_apply]
+    simp only [← div_eq_mul_inv]
+    exact (div_mul_div_cancel' _ _ _).symm
 
-The abelian hypothesis is used *only* in the `D_ω`-collapse step
-(`∑ₖ dₖ^ω = |H|`, since every irreducible character degree of an abelian group
-is `1`); the wreath TPP construction (`stpp_to_tpp_wreath`) and the
-character-degree bound (`wreath_charDegree_bound`) are valid for general `H`.
-The cyclic instance `H = C₂ₙ` is the concrete `pseudoExponent_wreath_tendsto_two`.
+@[simp] private theorem familyCocycleHom_right {D : Type*} [CommGroup D] {n : ℕ}
+    (w : Fin n → D) (π : Equiv.Perm (Fin n)) : (familyCocycleHom w π).right = π :=
+  rfl
 
-We require `0 < n` per member (via `NeZero` on `Equiv.Perm`-sized data); the
-limit is along `Filter.atTop`.
+/-- Pointwise formula for the function part of `familyCocycleHom` (`rfl`). -/
+private theorem familyCocycleHom_left_apply {D : Type*} [CommGroup D] {n : ℕ}
+    (w : Fin n → D) (π : Equiv.Perm (Fin n)) (i : Fin n) :
+    (familyCocycleHom w π).left i = w (π⁻¹ i) * (w i)⁻¹ :=
+  rfl
 
-**Proof debt:** for abelian `H`, `wreath_charDegree_bound` becomes
-`D_ω(Gₙ) ≤ (n!)^{ω-1}·|H|^n`, so via CU Theorem 4.1
-(`Xlib.CUCapacity.card_rpow_le_charDegreeSumReal`) and `|Gₙ| = |H|^n·n!`, the
-pseudo-exponent `α(Gₙ) = 3·log|Gₙ|/log β(Gₙ)` is squeezed to `2` as `n → ∞`.
-Rests on the abelian char-degree collapse (`Xlib.CharDegrees`, a `sorry`) and
-the wreath `sorry`s above. `sorry`. -/
-theorem abelian_wreath_family_tendsto_two {H : Type*} [CommGroup H] [Fintype H]
-    [DecidableEq H] [Nontrivial H] :
+private theorem familyCocycleHom_injective {D : Type*} [CommGroup D] {n : ℕ}
+    (w : Fin n → D) : Function.Injective (familyCocycleHom w) := fun π σ hπσ => by
+  simpa using congrArg SemidirectProduct.right hπσ
+
+/-- The generalized CU witness carrier `{⟨π•w − w, π⟩ : π ∈ Sₙ}` over an abelian
+base (multiplicatively written), as a `Finset` of `Dⁿ ⋊ Sₙ`. -/
+private def familyCarrier {D : Type*} [CommGroup D] [DecidableEq D] {n : ℕ}
+    (w : Fin n → D) : Finset (ImprimitiveWreathProduct D n) :=
+  Finset.univ.image (familyCocycleHom w)
+
+private theorem mem_familyCarrier {D : Type*} [CommGroup D] [DecidableEq D] {n : ℕ}
+    {w : Fin n → D} {x : ImprimitiveWreathProduct D n} :
+    x ∈ familyCarrier w ↔ ∃ π, familyCocycleHom w π = x := by
+  simp [familyCarrier]
+
+private theorem familyCarrier_card {D : Type*} [CommGroup D] [DecidableEq D] {n : ℕ}
+    (w : Fin n → D) : (familyCarrier w).card = n.factorial := by
+  rw [familyCarrier, Finset.card_image_of_injective _ (familyCocycleHom_injective w),
+    Finset.card_univ, Fintype.card_perm, Fintype.card_fin]
+
+/-- **The generalized CU wreath TPP witness** (the separation hypothesis at
+work): if the abelian base `D` has an element `g` of order at least `2n`, the
+three order-`n!` carriers attached to the vectors `1`, `uᵢ = g^{i+1}`,
+`vᵢ = g^{n−i}` satisfy the Triple Product Property in `Dⁿ ⋊ Sₙ`. At
+`D = C₂ₙ`, `g` a generator, these are CU's `H₁, H₂, H₃`
+(`tripleProductProperty_wreathWitness`); the `2n ≤ orderOf g` hypothesis is
+exactly what makes the coordinate identity `2·φ(j) = j + ψ(j)` lift from
+`⟨g⟩` to `ℤ` with no wraparound, after which `perm_eq_one_of_two_mul_val_eq`
+forces rigidity. -/
+private theorem tripleProductProperty_familyWitness {D : Type*} [CommGroup D]
+    [DecidableEq D] {n : ℕ} (g : D) (hg : 2 * n ≤ orderOf g) :
+    TripleProductProperty
+      (familyCarrier (1 : Fin n → D))
+      (familyCarrier fun i : Fin n => g ^ ((i : ℕ) + 1))
+      (familyCarrier fun i : Fin n => g ^ (n - (i : ℕ))) := by
+  intro s hs s' hs' t ht t' ht' u hu u' hu' heq
+  obtain ⟨π₁, rfl⟩ := mem_familyCarrier.mp hs
+  obtain ⟨π₁', rfl⟩ := mem_familyCarrier.mp hs'
+  obtain ⟨π₂, rfl⟩ := mem_familyCarrier.mp ht
+  obtain ⟨π₂', rfl⟩ := mem_familyCarrier.mp ht'
+  obtain ⟨π₃, rfl⟩ := mem_familyCarrier.mp hu
+  obtain ⟨π₃', rfl⟩ := mem_familyCarrier.mp hu'
+  -- Fuse each quotient pair through the section homomorphism.
+  have heq' : familyCocycleHom (1 : Fin n → D) (π₁'⁻¹ * π₁)
+      * familyCocycleHom (fun i : Fin n => g ^ ((i : ℕ) + 1)) (π₂'⁻¹ * π₂)
+      * familyCocycleHom (fun i : Fin n => g ^ (n - (i : ℕ))) (π₃'⁻¹ * π₃) = 1 := by
+    simpa only [map_mul, map_inv, mul_assoc] using heq
+  set ρ₁ := π₁'⁻¹ * π₁ with hρ₁def
+  set ρ₂ := π₂'⁻¹ * π₂ with hρ₂def
+  set ρ₃ := π₃'⁻¹ * π₃ with hρ₃def
+  -- The permutation identity `ρ₁ρ₂ρ₃ = 1`.
+  have hright : ρ₁ * ρ₂ * ρ₃ = 1 := by
+    simpa using congrArg SemidirectProduct.right heq'
+  have h3 : ρ₁ * ρ₂ = ρ₃⁻¹ := mul_eq_one_iff_eq_inv.mp hright
+  -- The coordinate identity `2·(ρ₂⁻¹ j) = j + ρ₁ j`, lifted to ℕ through `⟨g⟩`.
+  have hcoord : ∀ j : Fin n, 2 * (ρ₂⁻¹ j).val = j.val + (ρ₁ j).val := by
+    intro j
+    have e₁ : ρ₁⁻¹ (ρ₁ j) = j := by simp
+    have e₂ : (ρ₁ * ρ₂)⁻¹ (ρ₁ j) = ρ₂⁻¹ j := by simp [mul_inv_rev]
+    have e₃ : ρ₃⁻¹ (ρ₂⁻¹ j) = ρ₁ j := by
+      rw [← h3, Equiv.Perm.mul_apply]
+      simp
+    -- Left component of `heq'` at coordinate `ρ₁ j`.
+    have hL : (familyCocycleHom (1 : Fin n → D) ρ₁).left (ρ₁ j)
+        * (familyCocycleHom (fun i : Fin n => g ^ ((i : ℕ) + 1)) ρ₂).left (ρ₁⁻¹ (ρ₁ j))
+        * (familyCocycleHom (fun i : Fin n => g ^ (n - (i : ℕ))) ρ₃).left
+            ((ρ₁ * ρ₂)⁻¹ (ρ₁ j)) = 1 :=
+      congrFun (congrArg SemidirectProduct.left heq') (ρ₁ j)
+    simp only [familyCocycleHom_left_apply, e₁, e₂, e₃, Pi.one_apply, inv_one,
+      one_mul, mul_one] at hL
+    -- hL : g^{(ρ₂⁻¹j)+1} · (g^{j+1})⁻¹ · (g^{n−ρ₁j} · (g^{n−ρ₂⁻¹j})⁻¹) = 1
+    have hb₁ := j.isLt
+    have hb₂ := (ρ₂⁻¹ j).isLt
+    have hb₃ := (ρ₁ j).isLt
+    -- Repackage as a single ℤ-power of `g`.
+    have hz : g ^ (2 * ((ρ₂⁻¹ j).val : ℤ) - (j.val : ℤ) - ((ρ₁ j).val : ℤ)) = 1 := by
+      have hrw : 2 * ((ρ₂⁻¹ j).val : ℤ) - (j.val : ℤ) - ((ρ₁ j).val : ℤ)
+          = ((((ρ₂⁻¹ j).val + 1 : ℕ) : ℤ) - ((j.val + 1 : ℕ) : ℤ))
+            + ((((n - (ρ₁ j).val) : ℕ) : ℤ) - (((n - (ρ₂⁻¹ j).val) : ℕ) : ℤ)) := by
+        push_cast [Nat.cast_sub hb₃.le, Nat.cast_sub hb₂.le]
+        ring
+      rw [hrw, zpow_add, zpow_sub, zpow_sub, zpow_natCast, zpow_natCast,
+        zpow_natCast, zpow_natCast]
+      exact hL
+    -- No wraparound: `|2·(ρ₂⁻¹j) − j − ρ₁j| < 2n ≤ orderOf g` forces `0`.
+    have hzero : 2 * ((ρ₂⁻¹ j).val : ℤ) - (j.val : ℤ) - ((ρ₁ j).val : ℤ) = 0 := by
+      have h2n : (2 * n : ℤ) ≤ (orderOf g : ℤ) := by exact_mod_cast hg
+      exact Int.eq_zero_of_abs_lt_dvd (orderOf_dvd_iff_zpow_eq_one.mpr hz)
+        (abs_lt.mpr ⟨by omega, by omega⟩)
+    omega
+  -- Rigidity: all three quotient permutations are trivial.
+  obtain ⟨hφ, hψ⟩ := perm_eq_one_of_two_mul_val_eq hcoord
+  have hρ₂one : ρ₂ = 1 := inv_eq_one.mp hφ
+  have hρ₃one : ρ₃ = 1 := by
+    rw [hψ, hρ₂one, one_mul, one_mul] at hright
+    exact hright
+  have hπ₁ : π₁' = π₁ := inv_mul_eq_one.mp (hρ₁def.symm.trans hψ)
+  have hπ₂ : π₂' = π₂ := inv_mul_eq_one.mp (hρ₂def.symm.trans hρ₂one)
+  have hπ₃ : π₃' = π₃ := inv_mul_eq_one.mp (hρ₃def.symm.trans hρ₃one)
+  rw [hπ₁, hπ₂, hπ₃]
+  exact ⟨rfl, rfl, rfl⟩
+
+/-- The witness half for the family: `(n!)³ ≤ β(Sₙ ⋉ (H n)ⁿ)` from the
+separation hypothesis (generalizing `factorial_pow_three_le_tppCapacity`). -/
+private theorem factorial_pow_three_le_tppCapacity_family {D : Type*} [CommGroup D]
+    [Fintype D] [DecidableEq D] {n : ℕ} (g : D) (hg : 2 * n ≤ orderOf g) :
+    n.factorial ^ 3 ≤ tppCapacity (ImprimitiveWreathProduct D n) := by
+  have h := le_tppCapacity (tripleProductProperty_familyWitness g hg)
+  simp only [familyCarrier_card] at h
+  calc n.factorial ^ 3 = n.factorial * n.factorial * n.factorial := by ring
+    _ ≤ tppCapacity (ImprimitiveWreathProduct D n) := h
+
+/-- The per-`n` pseudo-exponent bound for the family:
+`α(Sₙ ⋉ Dⁿ) ≤ log(|D|ⁿ·n!)/log(n!)` (generalizing
+`pseudoExponent_wreath_le_gamma` from `|C₂ₙ| = 2n` to any admissible base). -/
+private theorem pseudoExponent_family_le {D : Type*} [CommGroup D] [Fintype D]
+    [DecidableEq D] {n : ℕ} (hn : 2 ≤ n) (g : D) (hg : 2 * n ≤ orderOf g) :
+    pseudoExponent (ImprimitiveWreathProduct D n) ≤
+      Real.log ((Fintype.card D : ℝ) ^ n * (n.factorial : ℝ)) /
+        Real.log (n.factorial : ℝ) := by
+  have hβ := factorial_pow_three_le_tppCapacity_family g hg
+  have hn2 : 2 ≤ n.factorial := le_trans hn (Nat.self_le_factorial n)
+  have hlog_fact : 0 < Real.log (n.factorial : ℝ) := by
+    apply Real.log_pos; exact_mod_cast hn2
+  have hlog_β : 3 * Real.log (n.factorial : ℝ)
+      ≤ Real.log (tppCapacity (ImprimitiveWreathProduct D n) : ℝ) := by
+    have h : (n.factorial : ℝ) ^ 3
+        ≤ (tppCapacity (ImprimitiveWreathProduct D n) : ℝ) := by exact_mod_cast hβ
+    calc 3 * Real.log (n.factorial : ℝ)
+        = Real.log ((n.factorial : ℝ) ^ 3) := by rw [Real.log_pow]; ring
+      _ ≤ Real.log (tppCapacity (ImprimitiveWreathProduct D n) : ℝ) :=
+          Real.log_le_log (by positivity) h
+  have key : pseudoExponent (ImprimitiveWreathProduct D n) ≤
+      3 * Real.log (Fintype.card (ImprimitiveWreathProduct D n) : ℝ)
+        / (3 * Real.log (n.factorial : ℝ)) := by
+    rw [pseudoExponent]
+    exact div_le_div_of_nonneg_left (by positivity) (by positivity) hlog_β
+  rw [mul_div_mul_left _ _ (by norm_num : (3 : ℝ) ≠ 0)] at key
+  have hcard : (Fintype.card (ImprimitiveWreathProduct D n) : ℝ)
+      = (Fintype.card D : ℝ) ^ n * (n.factorial : ℝ) := by
+    have h1 := ImprimitiveWreathProduct.card D n
+    simp only [Nat.card_eq_fintype_card] at h1
+    exact_mod_cast h1
+  rw [hcard] at key
+  exact key
+
+/-- `Sₙ ⋉ Dⁿ` is nontrivial once `2 ≤ n` (the permutation factor already is). -/
+private theorem nontrivial_imprimitiveWreathProduct {D : Type*} [Group D]
+    [Fintype D] [DecidableEq D] {n : ℕ} (hn : 2 ≤ n) :
+    Nontrivial (ImprimitiveWreathProduct D n) := by
+  apply Fintype.one_lt_card_iff_nontrivial.mp
+  have h1 := ImprimitiveWreathProduct.card D n
+  simp only [Nat.card_eq_fintype_card] at h1
+  rw [h1]
+  have hD : 1 ≤ Fintype.card D := Fintype.card_pos
+  have h2 : 2 ≤ n.factorial := le_trans hn (Nat.self_le_factorial n)
+  calc 1 < n.factorial := by omega
+    _ = 1 * n.factorial := (one_mul _).symm
+    _ ≤ Fintype.card D ^ n * n.factorial :=
+        Nat.mul_le_mul_right _ (Nat.one_le_pow _ _ hD)
+
+/-- **The Stirling ratio** `n·log n / log(n!) → 1`: the log-arithmetic engine of
+the growing-base limit, squeezing between `1 ≤ n·log n/log(n!)` (from
+`n! ≤ nⁿ`) and `n·log n/log(n!) ≤ log n/(log n − 1) → 1` (from Stirling's
+lower bound `n·(log n − 1) ≤ log(n!)`). -/
+private theorem tendsto_mul_log_div_log_factorial :
+    Filter.Tendsto (fun n : ℕ => (n : ℝ) * Real.log n / Real.log (n.factorial : ℝ))
+      Filter.atTop (nhds 1) := by
+  -- Comparison sequence: `log n / (log n − 1) = 1 + 1/(log n − 1) → 1`.
+  have hlog_atTop : Filter.Tendsto (fun n : ℕ => Real.log n - 1)
+      Filter.atTop Filter.atTop :=
+    (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop).atTop_add
+      tendsto_const_nhds
+  have hupper : Filter.Tendsto (fun n : ℕ => 1 + 1 / (Real.log n - 1))
+      Filter.atTop (nhds 1) := by
+    have hzero : Filter.Tendsto (fun n : ℕ => 1 / (Real.log n - 1))
+        Filter.atTop (nhds 0) := tendsto_const_nhds.div_atTop hlog_atTop
+    have := hzero.const_add 1
+    rwa [add_zero] at this
+  apply tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hupper
+  -- Lower bound: `1 ≤ n·log n / log(n!)` for `n ≥ 2`, from `n! ≤ nⁿ`.
+  · refine Filter.eventually_atTop.mpr ⟨2, fun n hn => ?_⟩
+    have h2f : 2 ≤ n.factorial := le_trans hn (Nat.self_le_factorial n)
+    have hlf : 0 < Real.log (n.factorial : ℝ) := by
+      apply Real.log_pos; exact_mod_cast h2f
+    rw [le_div_iff₀ hlf, one_mul]
+    calc Real.log (n.factorial : ℝ) ≤ Real.log ((n : ℝ) ^ n) :=
+          Real.log_le_log (by positivity) (by exact_mod_cast Nat.factorial_le_pow n)
+      _ = (n : ℝ) * Real.log n := by rw [Real.log_pow]
+  -- Upper bound: `n·log n / log(n!) ≤ log n/(log n − 1)` for `n ≥ 3` (Stirling).
+  · refine Filter.eventually_atTop.mpr ⟨3, fun n hn => ?_⟩
+    have hm1 : n ≠ 0 := by omega
+    have h2f : 2 ≤ n.factorial := le_trans (by omega : 2 ≤ n) (Nat.self_le_factorial n)
+    have hlf : 0 < Real.log (n.factorial : ℝ) := by
+      apply Real.log_pos; exact_mod_cast h2f
+    have hlog_m : 1 < Real.log (n : ℝ) := by
+      calc Real.log (n : ℝ) ≥ Real.log 3 :=
+            Real.log_le_log (by norm_num) (by exact_mod_cast hn)
+        _ > 1 := by
+          rw [show (1 : ℝ) = Real.log (Real.exp 1) from (Real.log_exp 1).symm]
+          exact Real.log_lt_log (Real.exp_pos 1) (by linarith [Real.exp_one_lt_d9])
+    have hlog_m_sub : 0 < Real.log (n : ℝ) - 1 := by linarith
+    have hstirling : (n : ℝ) * (Real.log n - 1) ≤ Real.log (n.factorial : ℝ) := by
+      have := Stirling.le_log_factorial_stirling hm1
+      have h1 := Real.log_nonneg
+        (by exact_mod_cast (show 1 ≤ n by omega) : (1 : ℝ) ≤ (n : ℝ))
+      have h2 := Real.log_nonneg
+        (show (1 : ℝ) ≤ 2 * Real.pi by linarith [Real.pi_gt_three])
+      linarith
+    have step : (n : ℝ) * Real.log n / Real.log (n.factorial : ℝ)
+        ≤ Real.log n / (Real.log n - 1) := by
+      rw [div_le_div_iff₀ hlf hlog_m_sub]
+      calc (n : ℝ) * Real.log n * (Real.log n - 1)
+          = Real.log n * ((n : ℝ) * (Real.log n - 1)) := by ring
+        _ ≤ Real.log n * Real.log (n.factorial : ℝ) :=
+            mul_le_mul_of_nonneg_left hstirling (by linarith)
+    have eqform : Real.log (n : ℝ) / (Real.log n - 1) = 1 + 1 / (Real.log n - 1) := by
+      have hne := hlog_m_sub.ne'
+      field_simp
+      ring
+    exact step.trans_eq eqform
+
+/-- **The growing-base abelian wreath theorem** (the Hu8-2a restatement of the
+former "CU Prop 11"): for a sequence `H n` of finite abelian base groups
+satisfying
+
+* **separation** — `H n` contains an element of order at least `2n`
+  (equivalently, since `H n` is abelian, `2n ≤` its exponent); and
+* **growth** — `log |H n| / log n → 1`,
+
+the imprimitive wreath family `Gₙ = Sₙ ⋉ (H n)ⁿ` drives the pseudo-exponent
+to `2`: `α(Gₙ) → 2` as `n → ∞`.
+
+**Provenance and scope (Hu8 verdict 2a, recorded 2026-07-18).** The previous
+statement of this theorem — *fixed* nontrivial abelian `H`,
+`α(Sₙ ⋉ Hⁿ) → 2` — was ungrounded: its citation "CU Prop 11" matches nothing
+in CU [math/0307321] or CKSU [math/0511460] (the provenance traces to a
+deleted internal IDEA.md), and all known proof routes break for fixed `H` —
+the CU cocycle witness needs the `n` base values `g¹, …, gⁿ` free of
+`2n`-wraparound, impossible once `2n` exceeds the exponent of `H` (for
+`H = C₂` the witness already fails past `n = 2`). The truth of the fixed-`H`
+statement is UNKNOWN: "likely false" is a route-failure inference, not a
+refutation (`.tasks/f5exp/docs/hu8-q2-literature-check.md`). This restated
+version is the honest CU-grounded generalization — CU's wreath theorem is
+exactly the cyclic instance `H n = C₂ₙ`, recovered as
+`abelian_wreath_family_tendsto_two_cyclic`
+(= `pseudoExponent_wreath_tendsto_two` statement-for-statement).
+
+**The hypothesis pair is a design decision of this restatement** (per the
+Hu8-2a verdict), chosen to abstract exactly what CU's `C₂ₙ` construction
+consumes:
+
+* *Separation* is what the cocycle witness needs: with `2n ≤ orderOf g`, the
+  CU vectors `uᵢ = g^{i+1}`, `vᵢ = g^{n−i}` give three order-`n!` subgroup
+  carriers whose TPP verification reduces to `2·φ(j) = j + ψ(j)` in `ℤ` with
+  no wraparound (`tripleProductProperty_familyWitness`), whence
+  `(n!)³ ≤ β(Gₙ)`. A raw cardinality bound `2n ≤ |H n|` would *not* suffice:
+  `(C₂)^m` has `2^m ≥ 2n` elements but no long progression — precisely the
+  fixed-`C₂` failure mode. Order-based separation also traces the BCCGNSU
+  barrier boundary [1605.06702]: abelian groups of *bounded exponent* cannot
+  reach `ω = 2` via the STPP capacity inequality, and their caveat exempts
+  exactly the groups with a large cyclic factor — the regime this hypothesis
+  enforces.
+* *Growth* pins `|H n|` to `n^{1+o(1)}`: the witness bound gives
+  `α(Gₙ) ≤ 1 + n·log|H n|/log(n!) → 1 + lim log|H n|/log n`, so any
+  polynomial excess `|H n| ≈ n^C` (`C > 1`) parks the bound at `1 + C > 2`
+  (Sage-probed: `|H n| = (2n)²` parks at `3`). Separation already forces the
+  `liminf` side `≥ 1`, so the tendsto form is the clean packaging.
+
+The old proof-debt sketch routed through the `D_ω` collapse; that route is
+directionally broken — capacity plus char-degree machinery *upper*-bounds
+`β`, hence *lower*-bounds `α`, and can never give `α ≤ 2 + ε` — and it does
+not survive this restatement. The proof instead squeezes between the
+universal `2 < α` (`two_lt_pseudoExponent`) and the witness bound
+`α(Gₙ) ≤ log(|H n|ⁿ·n!)/log(n!)` (`pseudoExponent_family_le`), whose limit
+is `2` by the growth hypothesis and the Stirling ratio
+(`tendsto_mul_log_div_log_factorial`). The non-abelian base remains the
+BCGPU open frontier. -/
+theorem abelian_wreath_family_tendsto_two
+    {H : ℕ → Type*} [∀ n, CommGroup (H n)] [∀ n, Fintype (H n)]
+    [∀ n, DecidableEq (H n)]
+    (hsep : ∀ n : ℕ, ∃ g : H n, 2 * n ≤ orderOf g)
+    (hgrowth : Filter.Tendsto
+      (fun n : ℕ => Real.log (Fintype.card (H n) : ℝ) / Real.log (n : ℝ))
+      Filter.atTop (nhds 1)) :
     Filter.Tendsto
-      (fun n : ℕ => pseudoExponent (ImprimitiveWreathProduct H (n + 1)))
-      Filter.atTop (nhds 2) :=
+      (fun n : ℕ => pseudoExponent (ImprimitiveWreathProduct (H n) n))
+      Filter.atTop (nhds 2) := by
+  sorry
+
+/-- **The cyclic instance recovers the CU family** (target 4b): applying the
+growing-base theorem to `H n = C₂ₙ = Multiplicative (ZMod (2n))` — patched at
+the empty index `n = 0`, where `ZMod 0 = ℤ` is infinite — reproduces
+`pseudoExponent_wreath_tendsto_two` statement-for-statement. Separation holds
+with `g = ofAdd 1` of order exactly `2n`; growth is `log(2n)/log n → 1`. -/
+theorem abelian_wreath_family_tendsto_two_cyclic :
+    Filter.Tendsto (fun n : ℕ => pseudoExponent (wreathGroup (n + 1)))
+      Filter.atTop (nhds 2) := by
   sorry
 
 end Xlib.STPPWreath
