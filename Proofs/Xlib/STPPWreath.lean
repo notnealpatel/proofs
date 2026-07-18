@@ -328,14 +328,16 @@ theorem wreath_charDegree_bound {H : Type*} [CommGroup H] [Fintype H] [Decidable
   haveI : IsMulCommutative A := Subgroup.range_isMulCommutative _
   -- A.index = n!
   have hcardA : Nat.card A = Nat.card H ^ n := by
-    rw [A, Nat.card_range_of_injective SemidirectProduct.inl_injective, Nat.card_fun, Nat.card_fin]
+    rw [show Nat.card A = Nat.card (Fin n → H) from
+      Nat.card_congr (MonoidHom.ofInjective SemidirectProduct.inl_injective).toEquiv.symm,
+      Nat.card_fun, Nat.card_fin]
   have hcardG : Nat.card G = Nat.card H ^ n * n.factorial :=
     ImprimitiveWreathProduct.card H n
   have hHpos : 0 < Nat.card H := Nat.card_pos
   have hindex : A.index = n.factorial := by
     have h := Subgroup.card_mul_index A
     rw [hcardA, hcardG] at h
-    exact Nat.eq_of_mul_eq_left (Nat.pos_of_ne_zero (by positivity)) h
+    exact Nat.eq_of_mul_eq_mul_left (by positivity) h
   -- ω ≥ 2
   have hω2 : 2 ≤ ω := two_le_matrixExponent
   have hω2sub : (0 : ℝ) ≤ ω - 2 := by linarith
@@ -364,7 +366,7 @@ theorem wreath_charDegree_bound {H : Type*} [CommGroup H] [Fintype H] [Decidable
     rw [← Multiset.sum_map_mul_left]
     refine Multiset.sum_map_le_sum_map _ _ fun d hd => ?_
     have hd1 : 1 ≤ d := hc1 d hd
-    have hd0 : (0 : ℝ) < (d : ℝ) := by exact_mod_cast Nat.lt_of_lt_pred (by omega)
+    have hd0 : (0 : ℝ) < (d : ℝ) := Nat.cast_pos.mpr (by omega)
     have hdnf : (d : ℝ) ≤ (n.factorial : ℝ) := by exact_mod_cast hcle d hd
     calc (d : ℝ) ^ ω
         = (d : ℝ) ^ (2 + (ω - 2)) := by ring_nf
@@ -377,10 +379,15 @@ theorem wreath_charDegree_bound {H : Type*} [CommGroup H] [Fintype H] [Decidable
   -- Step 2: ∑ c^2 = |G| (via charDegreeSum_two and the ℕ↔ℝ bridge)
   have hstep2 : ((charDegrees G).map (fun d : ℕ => (d : ℝ) ^ (2 : ℝ))).sum
       = (Fintype.card G : ℝ) := by
-    have := charDegreeSumReal_natCast G 2
-    rw [charDegreeSumReal_eq_map_sum] at this
-    simp only [Real.rpow_natCast] at this ⊢
-    rw [this, charDegreeSum_two]
+    -- Normalize rpow 2 to pow 2 via Multiset.map_congr
+    have hcongr : (charDegrees G).map (fun d : ℕ => (d : ℝ) ^ (2 : ℝ))
+        = (charDegrees G).map (fun d : ℕ => ((d : ℝ) ^ 2 : ℝ)) :=
+      Multiset.map_congr rfl fun d _ => Real.rpow_natCast d 2
+    rw [hcongr]
+    have h := charDegreeSumReal_natCast G 2
+    rw [charDegreeSumReal_eq_map_sum] at h
+    simp only [Real.rpow_natCast] at h
+    rw [h, charDegreeSum_two]
   -- Step 3: |G| = |H|^n · n!
   have hstep3 : (Fintype.card G : ℝ) = (Fintype.card H : ℝ) ^ n * (n.factorial : ℝ) := by
     have := ImprimitiveWreathProduct.card H n
@@ -389,11 +396,16 @@ theorem wreath_charDegree_bound {H : Type*} [CommGroup H] [Fintype H] [Decidable
   -- Step 4: (n!)^(ω-2) · |H|^n · n! = (n!)^(ω-1) · |H|^n
   have hstep4 : (n.factorial : ℝ) ^ (ω - 2) * ((Fintype.card H : ℝ) ^ n * (n.factorial : ℝ))
       = (n.factorial : ℝ) ^ (ω - 1) * (Fintype.card H : ℝ) ^ n := by
-    rw [mul_comm ((Fintype.card H : ℝ) ^ n) (n.factorial : ℝ)]
-    rw [← mul_assoc]
-    rw [← Real.rpow_natCast (n.factorial : ℝ) 1, ← Real.rpow_add (by positivity : (0 : ℝ) < (n.factorial : ℝ))]
+    have hnfpos : (0 : ℝ) < (n.factorial : ℝ) := Nat.cast_pos.mpr n.factorial_pos
+    -- (n!)^(ω-2) * (|H|^n * n!) = (n!)^(ω-2) * n! * |H|^n
+    rw [mul_comm ((Fintype.card H : ℝ) ^ n) (n.factorial : ℝ), ← mul_assoc]
+    -- (n!)^(ω-2) * n! = (n!)^(ω-1)
     congr 1
-    · ring
+    calc (n.factorial : ℝ) ^ (ω - 2) * (n.factorial : ℝ)
+        = (n.factorial : ℝ) ^ (ω - 2) * (n.factorial : ℝ) ^ (1 : ℝ) := by
+          rw [Real.rpow_one]
+      _ = (n.factorial : ℝ) ^ (ω - 2 + 1) := (Real.rpow_add hnfpos (ω - 2) 1).symm
+      _ = (n.factorial : ℝ) ^ (ω - 1) := by ring_nf
   calc ((charDegrees G).map (fun d : ℕ => (d : ℝ) ^ ω)).sum
       ≤ (n.factorial : ℝ) ^ (ω - 2) *
         ((charDegrees G).map (fun d : ℕ => (d : ℝ) ^ (2 : ℝ))).sum := hstep1
