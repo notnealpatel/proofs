@@ -60,3 +60,10 @@ Three open questions this data raises:
 1. What does α look like for A₈, A₉, ...? Is it monotone increasing?
 2. Does α(A_n) → 2 as n → ∞?
 3. What does α(A_n ≀ S_m) look like after wreath amplification?
+
+>>> In this context:
+
+The "brute force search" framing is apt in one sense: the sieve is searching the space of TPP triples in finite groups, finding explicit algorithms for specific matrix sizes. Each hit is a real algorithm. But none of these finite hits alone constrains omega — for that you need the asymptotic machinery (wreath amplification, Pl21) to turn finite groups into infinite families with α → 2.
+
+>>> The above is true; however, does this not give us a
+>>> more clever way of doing something AlphaTensor-like?

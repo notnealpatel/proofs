@@ -1,0 +1,131 @@
+MENTAL MAP: omega = 2
+=====================
+2026-07-18
+
+Two attack lanes. One diagnostic framework.
+Everything else is dead or feeds these.
+
+
+                              omega = 2
+                                 ^
+                 +---------------+---------------+
+                 |                               |
+           LANE 1                          LANE 2
+           algebraic-structural            tensor-geometric
+           (embed matmul into              (analyze tensors
+            algebraic structures)           directly)
+                 |                               |
+          +------+------+                  non-CW tensors,
+          |      |      |                  non-universal methods
+        SDPP   Pl21   CU13                       |
+               (a<g)  (s-rank)             current best: w<2.372
+                                           no conjecture it hits 2
+                                     +---------------------------+
+                                     | CVZ: diagnostic framework |
+                                     | lower bounds & barriers   |
+                                     | NOT an attack lane        |
+                                     +---------------------------+
+
+
+LANE 1 ROUTES
+=============
+
+  Route A: non-abelian wreath (Pl21)          STATUS: active
+  ----------------------------------------
+  H wr S_n, H non-abelian. Need alpha < gamma.
+
+    alpha = pseudo-exponent from STPP triples in H
+    gamma = character-degree growth of H wr S_n
+    abelian H: alpha = gamma (trivial bound). DEAD.
+    non-abelian H: alpha < gamma possible. OPEN.
+
+  Critical path: Ca1 -> Df1 -> Pl21
+
+  Best candidate base: A_n (alternating groups)
+    - only finite simple family surviving BCGPU
+    - n(A_n) = n-1, |A_n| = n!/2, subpolynomial growth
+
+    | group   | |G|  | alpha | w=3/a | gamma | a<g? |
+    |---------|------|-------|-------|-------|------|
+    | A6      |  360 | 1.169 | 2.567 | 2.207 |  Y   |
+    | A7      | 2520 | 1.183 | 2.535 | 1.844 |  Y   |
+    | C2 x A5 |  120 | 1.123 | 2.672 | 1.848 |  Y   |
+    | C2 x A6 |  720 | 1.151 | 2.607 | 1.958 |  Y   |
+
+    A7 KILL at p=2: STPP triples exceed character bound beta0
+
+    ? does alpha(A_n) -> 2 as n -> inf?
+    ? does alpha(A_n wr S_m) -> 2 after wreath amplification?
+
+
+  Route B: SDPP (CKSU Conj 4.7)              STATUS: idle
+  ----------------------------------------
+  Two-families in unbounded-exp abelian groups.
+  Zero infrastructure. Pratt 2023 conditional barrier:
+
+    CKSU 4.7 true -----> omega = 2
+         |
+         | requires (Pratt)
+         v
+    skew corner-free sets >= n^{4/3-eps}
+         ^
+         | GAP
+    best known: n log n / sqrt(log log n)
+         ^
+         | Pratt Conj 1.2: sets are O(n^{1+eps})
+         |                       |
+         +-- would kill SDPP     +-- would kill STPP/Z_q^l
+
+
+  Route C: coherent configs (CU13)           STATUS: unexplored
+  ----------------------------------------
+  s-rank exponent = 2 => omega = 2
+  No barrier touches this. BCCGNS+U explicitly excludes it.
+  No known candidate configurations.
+
+
+LANE 2
+======
+  Strassen-Bini lineage. Orbits, border rank, laser method.
+  Alman barrier: CW_q + universal method >= 2.168.
+  Non-CW or non-universal: open, but no conjecture it reaches 2.
+
+
+CVZ DIAGNOSTIC
+==============
+  quantum functionals = support functionals (SDW 2026)
+  lower bounds on asymptotic rank (wrong direction for omega=2)
+  if R~(CW_2) = 3 then omega = 2, but proving <= 3 needs a construction
+
+
+DEAD ROUTES
+===========
+  bounded-exp abelian STPP     BCCGNS+U 2017   1605.06702
+  bounded-exp nilpotent STPP   BCCGU 2018      1712.02302
+  Lie type groups (DIRECT use) BCGPU 2022      2204.03826
+  Young subgroups of S_n       BCCGU 2018      1712.02302
+  CW_q universal method        Alman 2019      1812.08731
+
+  ! BCGPU kills Lie type DIRECTLY, not as wreath base
+  ! A_n survives BCGPU -- only finite simple family that does
+
+
+REFERENCES (in References/)
+============================
+  CU03    math/0307321    groups -> matmul
+  CKSU05  math/0511460    TPP/STPP/SDPP/USP conjectures
+  CU13    1207.6528       coherent configs, s-rank
+  CVZ17   1709.07851      quantum functionals (JAMS 2023)
+  CVZ18   1812.06952      irreversibility barriers
+  CVZ20   2012.14412      weighted slice rank
+  SDW26   2601.21553      support = quantum functionals
+  Pratt   2309.03878      SDPP -> skew corner-free sets
+  BCGPU   2204.03826      Lie type barrier
+
+
+OPEN QUESTIONS
+==============
+  1. alpha(A_n) -> 2 as n -> inf?
+  2. alpha(A_n wr S_m) -> 2 after wreath amplification?
+  3. coherent configs with s-rank approaching n^2?
+  4. non-CW tensors escaping Alman's barrier?
