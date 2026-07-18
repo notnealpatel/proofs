@@ -320,6 +320,114 @@ that lets `stpp_capacity_le` be proved from CU Theorem 4.1. We state the
 existence of the three TPP carriers; the explicit carriers are
 `Hₗ = {h π : πᵢ permutation, hᵢ ∈ (A/B/C) i}` with `|Hₗ| = n! · ∏ᵢ |·|`. -/
 
+/-- Pointwise formula for the coordinate-permutation action: `permArrowHom D n σ`
+sends `f` to `f ∘ σ⁻¹`, so at coordinate `i` it reads `f (σ⁻¹ i)`. (`rfl`;
+recorded to make the wreath coordinate computations below readable.) -/
+theorem permArrowHom_apply {D : Type*} [Group D] {n : ℕ} (σ : Equiv.Perm (Fin n))
+    (f : Fin n → D) (i : Fin n) : permArrowHom D n σ f i = f (σ⁻¹ i) :=
+  rfl
+
+/-- The **CKSU wreath carrier** `Hₗ = {h·π : π ∈ Sₙ, hᵢ ∈ X i for each i}`
+(CKSU `theorem:STPP2TPP`, FOCS05-10page.tex:1514–1524) attached to a family
+`X : Fin n → Finset H`: the finset of all `⟨f, π⟩` in the imprimitive wreath
+product `Sₙ ⋉ Hⁿ` whose function part is coordinatewise constrained
+(`f i ∈ X i`) and whose permutation part is arbitrary. Realized as the image of
+`Fintype.piFinset X ×ˢ univ` under the (componentwise-injective) constructor
+`(f, π) ↦ ⟨f, π⟩`; its cardinality is `n! · ∏ᵢ |X i|` (`wreathCarrier_card`). -/
+def wreathCarrier {H : Type*} [Group H] [DecidableEq H] {n : ℕ}
+    (X : Fin n → Finset H) : Finset (ImprimitiveWreathProduct H n) :=
+  ((Fintype.piFinset X) ×ˢ (Finset.univ : Finset (Equiv.Perm (Fin n)))).image
+    fun p => ⟨p.1, p.2⟩
+
+/-- Membership in the CKSU wreath carrier: the permutation part is free and the
+function part is constrained coordinatewise, `w ∈ wreathCarrier X ↔ ∀ i,
+w.left i ∈ X i`. -/
+theorem mem_wreathCarrier {H : Type*} [Group H] [DecidableEq H] {n : ℕ}
+    {X : Fin n → Finset H} {w : ImprimitiveWreathProduct H n} :
+    w ∈ wreathCarrier X ↔ ∀ i, w.left i ∈ X i := by
+  constructor
+  · intro hw
+    rw [wreathCarrier, Finset.mem_image] at hw
+    obtain ⟨p, hp, rfl⟩ := hw
+    rw [Finset.mem_product] at hp
+    exact fun i => Fintype.mem_piFinset.mp hp.1 i
+  · intro hw
+    rw [wreathCarrier, Finset.mem_image]
+    exact ⟨(w.left, w.right),
+      Finset.mem_product.mpr ⟨Fintype.mem_piFinset.mpr hw, Finset.mem_univ _⟩, rfl⟩
+
+/-- **The CKSU carrier size** `|Hₗ| = n! · ∏ᵢ |X i|` (CKSU `theorem:STPP2TPP`):
+the constructor `(f, π) ↦ ⟨f, π⟩` is injective, so the carrier has the size of
+`Fintype.piFinset X ×ˢ univ`. -/
+theorem wreathCarrier_card {H : Type*} [Group H] [DecidableEq H] {n : ℕ}
+    (X : Fin n → Finset H) :
+    (wreathCarrier X).card = n.factorial * ∏ i, (X i).card := by
+  have hinj : Function.Injective
+      (fun p : (Fin n → H) × Equiv.Perm (Fin n) =>
+        (⟨p.1, p.2⟩ : ImprimitiveWreathProduct H n)) := by
+    intro p q hpq
+    exact Prod.ext (congrArg SemidirectProduct.left hpq)
+      (congrArg SemidirectProduct.right hpq)
+  rw [wreathCarrier, Finset.card_image_of_injective _ hinj, Finset.card_product,
+    Fintype.card_piFinset, Finset.card_univ, Fintype.card_perm, Fintype.card_fin,
+    mul_comm]
+
+/-- In a **commutative** group the left-quotient `TripleProductProperty` entails
+the right-quotient `TripleProductPropertyR` on the *same* ordered triple:
+commutativity rearranges the right-quotient product `s s'⁻¹ t t'⁻¹ u u'⁻¹` into
+the left-quotient product `s'⁻¹ s t'⁻¹ t u'⁻¹ u`. (For general groups the two
+conventions differ on the same triple — see the docstring of
+`Xlib.TPP.TripleProductPropertyR`; the correct general bridge is
+`tripleProductPropertyR_iff_inv`, which inverts the sets.) -/
+theorem tripleProductPropertyR_of_comm {H : Type*} [CommGroup H] [Fintype H]
+    [DecidableEq H] {S T U : Finset H} (h : TripleProductProperty S T U) :
+    TripleProductPropertyR S T U := by
+  intro q₁ hq₁ q₂ hq₂ q₃ hq₃ heq
+  obtain ⟨s, hs, s', hs', rfl⟩ := mem_mul_inv.mp hq₁
+  obtain ⟨t, ht, t', ht', rfl⟩ := mem_mul_inv.mp hq₂
+  obtain ⟨u, hu, u', hu', rfl⟩ := mem_mul_inv.mp hq₃
+  have hquot : s'⁻¹ * s * t'⁻¹ * t * u'⁻¹ * u = 1 := by
+    have hcomm : s'⁻¹ * s * t'⁻¹ * t * u'⁻¹ * u
+        = s * s'⁻¹ * (t * t'⁻¹) * (u * u'⁻¹) := by
+      simp only [mul_comm, mul_left_comm, mul_assoc]
+    rw [hcomm, heq]
+  obtain ⟨h1, h2, h3⟩ := h s hs s' hs' t ht t' ht' u hu u' hu' hquot
+  exact ⟨by rw [h1, mul_inv_cancel], by rw [h2, mul_inv_cancel],
+    by rw [h3, mul_inv_cancel]⟩
+
+/-- **The CKSU `theorem:STPP2TPP` carrier verification**
+[math/0511460, FOCS05-10page.tex:1508–1559], in the coherent **right-quotient**
+convention (the convention of CKSU's paper): if the `n` triples satisfy the
+`SimultaneousTPP` *and* each per-index triple additionally satisfies the
+right-quotient `TripleProductPropertyR`, then the three CKSU carriers
+`wreathCarrier A`, `wreathCarrier B`, `wreathCarrier C` satisfy the
+right-quotient TPP in the imprimitive wreath product `Sₙ ⋉ Hⁿ`.
+
+The extra hypothesis `hR` is CKSU's own per-triple hypothesis: their STPP is
+stated wholly in the right-quotient convention, whereas
+`Xlib.STPPWreath.SimultaneousTPP`'s per-triple conjunct invokes the
+left-quotient `Xlib.TPP.TripleProductProperty` (see the orientation note in its
+docstring). The two per-triple conventions are **not** equivalent on the same
+triple, and the CKSU carrier argument genuinely consumes the right-quotient
+form at its final elementwise step, so it is carried as an explicit hypothesis
+here; for commutative `H` it is automatic (`tripleProductPropertyR_of_comm`,
+consumed by `stpp_to_tpp_wreath_card`).
+
+Proof shape (CKSU, recomputed in Mathlib's `SemidirectProduct` conventions
+`(f,π)·(g,σ) = (f · (g ∘ π⁻¹), πσ)` and `(f,π)⁻¹ = ((f ∘ π)⁻¹, π⁻¹)`):
+a right-quotient triple product forces the permutation identity
+`σ₁σ₂σ₃ = 1` (`σₗ = πₗπₗ'⁻¹`) on `rightHom`, and coordinatewise reads
+`f₁(i)·f₁'(σ₁⁻¹i)⁻¹·f₂(σ₁⁻¹i)·f₂'((σ₁σ₂)⁻¹i)⁻¹·f₃((σ₁σ₂)⁻¹i)·f₃'(i)⁻¹ = 1` —
+exactly the simultaneous conjunct's premise at `(i, σ₁⁻¹i, (σ₁σ₂)⁻¹i)`, which
+collapses `σ₁ = σ₂ = σ₃ = 1`; the residual coordinatewise identity is the
+right-quotient per-triple premise, and `hR` finishes. -/
+theorem tripleProductPropertyR_wreathCarrier {H : Type*} [Group H] [Fintype H]
+    [DecidableEq H] {n : ℕ} {A B C : Fin n → Finset H}
+    (h : SimultaneousTPP A B C)
+    (hR : ∀ i, TripleProductPropertyR (A i) (B i) (C i)) :
+    TripleProductPropertyR (wreathCarrier A) (wreathCarrier B) (wreathCarrier C) :=
+  sorry
+
 /-- **CKSU Theorem `theorem:STPP2TPP`** [math/0511460]: STPP triples in the base
 group `H` lift to an ordinary TPP triple in the wreath product
 `G = Sₙ ⋉ Hⁿ` (here `ImprimitiveWreathProduct H n`).
@@ -339,6 +447,36 @@ theorem stpp_to_tpp_wreath {H : Type*} [Group H] [Fintype H] [DecidableEq H]
     {n : ℕ} (A B C : Fin n → Finset H) (h : SimultaneousTPP A B C) :
     ∃ S T U : Finset (ImprimitiveWreathProduct H n),
       TripleProductProperty S T U :=
+  sorry
+
+/-- **CKSU Theorem `theorem:STPP2TPP` with the carrier cardinalities**
+[math/0511460, FOCS05-10page.tex:1508–1559], for a **commutative** base group:
+the witness TPP triple in the wreath product `Sₙ ⋉ Hⁿ` can be chosen with the
+CKSU carrier sizes
+
+  `|S| = n! · ∏ᵢ |A i|`, `|T| = n! · ∏ᵢ |B i|`, `|U| = n! · ∏ᵢ |C i|`.
+
+This is the form the `theorem:asi` assembly (`stpp_capacity_le`) consumes: the
+capacity bound CU Thm 4.1 applied to the wreath group needs the product
+`|S|·|T|·|U|` of the lifted triple.
+
+The commutativity hypothesis makes the right-quotient per-triple TPP automatic
+(`tripleProductPropertyR_of_comm`), which the CKSU carrier verification
+`tripleProductPropertyR_wreathCarrier` requires; the witness triple is the
+inverse-image `(wreathCarrier A)⁻¹, (wreathCarrier B)⁻¹, (wreathCarrier C)⁻¹`
+of the CKSU carriers under the convention bridge
+`tripleProductPropertyR_iff_inv`, with the same cardinalities
+(`Finset.card_inv`). The downstream consumers (`stpp_capacity_le` via the
+Ab1/Ab2/Ab3 chain, and both wreath-family limits) are all abelian-based, so no
+generality is lost where it is consumed. -/
+theorem stpp_to_tpp_wreath_card {H : Type*} [CommGroup H] [Fintype H]
+    [DecidableEq H] {n : ℕ} (A B C : Fin n → Finset H)
+    (h : SimultaneousTPP A B C) :
+    ∃ S T U : Finset (ImprimitiveWreathProduct H n),
+      TripleProductProperty S T U
+        ∧ S.card = n.factorial * ∏ i, (A i).card
+        ∧ T.card = n.factorial * ∏ i, (B i).card
+        ∧ U.card = n.factorial * ∏ i, (C i).card :=
   sorry
 
 /-! ### Wreath pseudo-exponent amplification: `α(Gₙ) ≤ γ(Gₙ) → 2` (CU)
