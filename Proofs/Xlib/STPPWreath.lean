@@ -522,18 +522,52 @@ with `π` an arbitrary permutation and the `i`-th coordinate of `h` lying in
 `A i` (resp. `B i`, `C i`); each has size `n! · ∏ᵢ |A i|` (resp. `B`, `C`). We
 state the bare existence of a TPP triple in `G`.
 
-**Proof debt** (CKSU `theorem:STPP2TPP`, CU.tex analogue of the wreath TPP):
-a wreath triple product reduces to the permutation identity
-`π₁π₁'⁻¹π₂π₂'⁻¹π₃π₃'⁻¹ = 1` together with a coordinatewise condition; the STPP
-forces the permutations trivial and the per-triple TPP forces element equality.
-The construction of the carrier finsets inside `ImprimitiveWreathProduct` and the
-coordinatewise bookkeeping are mechanical but unported. `sorry`. -/
+**Proof note (witness choice).** The full CKSU carriers are delivered by
+`tripleProductPropertyR_wreathCarrier` (the carrier verification, general `H`
+plus the right-quotient per-triple hypothesis) and `stpp_to_tpp_wreath_card`
+(commutative `H`, carrier sizes carried). For *general* `H` the CKSU carrier
+verification is **not derivable** from `SimultaneousTPP` as stated: its final
+elementwise step consumes the per-triple TPP in the right-quotient convention,
+while `SimultaneousTPP`'s per-triple conjunct is the left-quotient
+`TripleProductProperty`, and the two are not equivalent on the same triple
+(see `Xlib.TPP.TripleProductPropertyR`; a Sage witness in `S₃` with `n = 2`
+exhibits a left-per-triple + right-simultaneous family whose CKSU carriers
+fail the right-quotient TPP in `S₂ ⋉ S₃²`). This bare-existence statement is
+therefore witnessed by the base-diagonal carriers
+`{⟨f, 1⟩ : f i ∈ A i}` (resp. `B`, `C`) of size `∏ᵢ |·|` — the image of the
+per-triple TPP under the embedding `Hⁿ →* Sₙ ⋉ Hⁿ`, which consumes only the
+per-triple conjunct and is valid for every `H`. -/
 theorem stpp_to_tpp_wreath {H : Type*} [Group H] [Fintype H] [DecidableEq H]
     {n : ℕ} (A B C : Fin n → Finset H) (h : SimultaneousTPP A B C) :
     ∃ S T U : Finset (ImprimitiveWreathProduct H n),
-      TripleProductProperty S T U :=
-  sorry
+      TripleProductProperty S T U := by
+  refine ⟨(Fintype.piFinset A).image SemidirectProduct.inl,
+    (Fintype.piFinset B).image SemidirectProduct.inl,
+    (Fintype.piFinset C).image SemidirectProduct.inl, ?_⟩
+  intro s hs s' hs' t ht t' ht' u hu u' hu' hprod
+  obtain ⟨f₁, hf₁, rfl⟩ := Finset.mem_image.mp hs
+  obtain ⟨f₁', hf₁', rfl⟩ := Finset.mem_image.mp hs'
+  obtain ⟨f₂, hf₂, rfl⟩ := Finset.mem_image.mp ht
+  obtain ⟨f₂', hf₂', rfl⟩ := Finset.mem_image.mp ht'
+  obtain ⟨f₃, hf₃, rfl⟩ := Finset.mem_image.mp hu
+  obtain ⟨f₃', hf₃', rfl⟩ := Finset.mem_image.mp hu'
+  have hbase : f₁'⁻¹ * f₁ * f₂'⁻¹ * f₂ * f₃'⁻¹ * f₃ = 1 := by
+    apply SemidirectProduct.inl_injective (φ := permArrowHom H n)
+    rw [map_one]
+    simpa only [map_mul, map_inv] using hprod
+  have key : ∀ i, f₁ i = f₁' i ∧ f₂ i = f₂' i ∧ f₃ i = f₃' i := fun i =>
+    h.1 i (f₁ i) (Fintype.mem_piFinset.mp hf₁ i)
+      (f₁' i) (Fintype.mem_piFinset.mp hf₁' i)
+      (f₂ i) (Fintype.mem_piFinset.mp hf₂ i)
+      (f₂' i) (Fintype.mem_piFinset.mp hf₂' i)
+      (f₃ i) (Fintype.mem_piFinset.mp hf₃ i)
+      (f₃' i) (Fintype.mem_piFinset.mp hf₃' i)
+      (congrFun hbase i)
+  exact ⟨congrArg _ (funext fun i => (key i).1),
+    congrArg _ (funext fun i => (key i).2.1),
+    congrArg _ (funext fun i => (key i).2.2)⟩
 
+open scoped Pointwise in
 /-- **CKSU Theorem `theorem:STPP2TPP` with the carrier cardinalities**
 [math/0511460, FOCS05-10page.tex:1508–1559], for a **commutative** base group:
 the witness TPP triple in the wreath product `Sₙ ⋉ Hⁿ` can be chosen with the
@@ -554,7 +588,6 @@ of the CKSU carriers under the convention bridge
 (`Finset.card_inv`). The downstream consumers (`stpp_capacity_le` via the
 Ab1/Ab2/Ab3 chain, and both wreath-family limits) are all abelian-based, so no
 generality is lost where it is consumed. -/
-open scoped Pointwise in
 theorem stpp_to_tpp_wreath_card {H : Type*} [CommGroup H] [Fintype H]
     [DecidableEq H] {n : ℕ} (A B C : Fin n → Finset H)
     (h : SimultaneousTPP A B C) :
