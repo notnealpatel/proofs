@@ -1,0 +1,33 @@
+Upper bounds on non-commutative products in matrix multiplication
+Algorithm	tensor rank	naive tensor rank	construction	ratio	complexity	stabilizer
+⟨2×2×2:7⟩	7	8	Strassen 1969 [DOI]	.8750000000	2.807354922	S3×S3
+⟨3×3×3:23⟩	23	27	Laderman 1976 [DOI]	.8518518518	2.854049830	(C2×C2)⋊S3
+⟨4×4×4:48⟩	48	64	Novikov et ali (AlphaEvolve 2025) [pdf]	.7500000000	2.792481250	(C2×C4)⋊D4
+⟨5×5×5:93⟩	93	125	Moosbauer and Poole 2025 [arXiv]	.7440000000	2.816262409	C3
+⟨6×6×6:153⟩	153	216	Moosbauer and Poole 2025 [arXiv]	.7083333333	2.807540860	C1
+⟨7×7×7:249⟩	249	343	⟨4×4×4:48⟩ + 3 ⟨3×3×4:29⟩ + 3 ⟨3×4×4:38⟩	.7259475219	2.835409898	C1
+⟨8×8×8:336⟩	336	512	⟨2×2×2:7⟩ ⊗ ⟨4×4×4:48⟩	.6562500000	2.797439141	S3×S3×C2×C4
+⟨9×9×9:486⟩	486	729	Perminov 2026 [ GitHub repository ]	.6666666667	2.815464877	C1
+⟨10×10×10:651⟩	651	1000	⟨2×2×2:7⟩ ⊗ ⟨5×5×5:93⟩	.6510000000	2.813580989	S3×S3×C3
+⟨11×11×11:873⟩	873	1331	⟨6×6×6:153⟩ + 3 ⟨5×5×6:110⟩ + 3 ⟨5×6×6:130⟩	.6558978212	2.824116479	C1
+⟨12×12×12:1040⟩	1040	1728	⟨2×4×4:26⟩ ⊗ ⟨6×3×3:40⟩	.6018518518	2.795668800	C2×(C2×C2)⋊S4
+⟨13×13×13:1421⟩	1421	2197	Perminov 2026 [ GitHub repository ]	.6467910787	2.830120644	C1
+⟨14×14×14:1719⟩	1719	2744	⟨7×7×7:249⟩ + 3 TA(⟨7×7×7⟩, ⟨7×7×7⟩)	.6264577260	2.822787486	C1
+⟨15×15×15:2058⟩	2058	3375	6 ⟨5×5×7:127⟩ + 9 ⟨5×5×8:144⟩	.6097777778	2.817336958	C1
+⟨16×16×16:2304⟩	2304	4096	(⟨4×4×4:48⟩ ⊗  2)	.5625000000	2.792481250	C2×C4×C2×C4
+⟨17×17×17:2930⟩	2930	4913	⟨8×8×8:336⟩ + ⟨8×8×9:388⟩ + ⟨9×9×9:486⟩ + 4 ⟨8×9×9:430⟩	.5963769591	2.817563216	C1
+⟨18×18×18:3200⟩	3200	5832	⟨3×3×6:40⟩ ⊗ ⟨6×6×3:80⟩	.5486968450	2.792341873	(C2×C2)⋊S4×(C2×C2)⋊S4×C2
+⟨19×19×19:4016⟩	4016	6859	Khoruzhii, Gelß and Pokutta 2026 [ GitHub repository ]	.5855080916	2.818208059	C1
+⟨20×20×20:4340⟩	4340	8000	Drevet, Nazrul Islam and Schost 2011 [DOI]	.5425000000	2.795853856	(S20)⋊C2
+⟨21×21×21:5198⟩	5198	9261	Khoruzhii, Gelß and Pokutta 2026 [ GitHub repository ]	.5612784796	2.810302565	C1
+⟨22×22×22:5566⟩	5566	10648	Drevet, Nazrul Islam and Schost 2011 [DOI]	.5227272727	2.790137008	(S22)⋊C2
+⟨23×23×23:6586⟩	6586	12167	Khoruzhii, Gelß and Pokutta 2026 [ GitHub repository ]	.5413002384	2.804247387	C1
+⟨24×24×24:7000⟩	7000	13824	Drevet, Nazrul Islam and Schost 2011 [DOI]	.5063657407	2.785876483	(S24)⋊C2
+⟨25×25×25:8196⟩	8196	15625	Khoruzhii, Gelß and Pokutta 2026 [ GitHub repository ]	.5245440000	2.799549284	C1
+⟨26×26×26:8652⟩	8652	17576	Khoruzhii, Gelß and Pokutta 2026 [ GitHub repository ]	.4922621757	2.782466904	(S26)⋊C2
+⟨27×27×27:10045⟩	10045	19683	Khoruzhii, Gelß and Pokutta 2026 [ GitHub repository ]	.5103388711	2.795899995	C1
+⟨28×28×28:10535⟩	10535	21952	Khoruzhii, Gelß and Pokutta 2026 [ GitHub repository ]	.4799107143	2.779678828	C1
+⟨29×29×29:12147⟩	12147	24389	Khoruzhii, Gelß and Pokutta 2026 [ GitHub repository ]	.4980524007	2.792994135	C1
+⟨30×30×30:12672⟩	12672	27000	Khoruzhii, Gelß and Pokutta 2026 [ GitHub repository ]	.4693333333	2.777595374	C1
+⟨31×31×31:14519⟩	14519	29791	Khoruzhii, Gelß and Pokutta 2026 [ GitHub repository ]	.4873619550	2.790695726	C1
+⟨32×32×32:15079⟩	15079	32768	Khoruzhii, Gelß and Pokutta 2026 [ GitHub repository ]	.4601745606	2.776050627	C1
