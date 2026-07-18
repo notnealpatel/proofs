@@ -167,6 +167,141 @@ theorem SimultaneousTPP.simultaneous {n : ℕ} [Group G] [Fintype G] [DecidableE
     (heq : aᵢ * (aⱼ')⁻¹ * bⱼ * (bₖ')⁻¹ * cₖ * (cᵢ')⁻¹ = 1) : i = j ∧ j = k :=
   h.2 i j k aᵢ haᵢ aⱼ' haⱼ' bⱼ hbⱼ bₖ' hbₖ' cₖ hcₖ cᵢ' hcᵢ' heq
 
+/-! ### STPP direct-product closure (CKSU `lemma:directprod`)
+
+The STPP is closed under direct products [math/0511460,
+FOCS05-10page.tex:1239–1246]: `n` triples in `H` and `n'` triples in `H'`
+combine to `n·n'` triples in `H × H'` under the index pairing `(i, i')`; and
+iterating on one group gives product families on the power carrier
+`Fin ℓ → G`. Since `SimultaneousTPP` is `Fin`-indexed, both closure lemmas are
+stated in **selection form**: the closed family is presented through an
+arbitrary *injective* index selection `Φ : Fin N → Fin n × Fin m`
+(resp. `Φ : Fin N → (Fin ℓ → Fin n)`) rather than through a baked-in
+equivalence with `Fin (n*m)` (resp. `Fin (n^ℓ)`). An equivalence instantiation
+(`finProdFinEquiv.symm`, resp. `finFunctionFinEquiv.symm`) recovers the full
+closure verbatim; a subset-enumeration instantiation performs the multinomial
+selection step of CKSU's `theorem:asi` proof in the same application. Both
+conjuncts of the STPP project componentwise, so the mixed quotient conventions
+of `SimultaneousTPP` (left-quotient per-triple, right-quotient simultaneous —
+see its orientation note) transport without interaction. -/
+
+/-- **Dependent-fibre iterated TPP closure** on the power carrier `Fin ℓ → G`
+(componentwise `Pi.group`): if each fibre triple `(S t, T t, U t)` satisfies
+the ordinary TPP in `G`, then the `Fintype.piFinset` triple satisfies the TPP
+in `Fin ℓ → G`. Generalizes the constant-fibre
+`Xlib.TPP.TripleProductProperty.piFinset` (Tp1) by the same componentwise
+projection, fibre by fibre; it supplies the per-triple conjunct of
+`SimultaneousTPP.pow`. -/
+theorem tripleProductProperty_piFinset {ℓ : ℕ} {S T U : Fin ℓ → Finset G}
+    (h : ∀ t, TripleProductProperty (S t) (T t) (U t)) :
+    TripleProductProperty (Fintype.piFinset S) (Fintype.piFinset T)
+      (Fintype.piFinset U) := by
+  intro s hs s' hs' t ht t' ht' u hu u' hu' heq
+  simp only [Fintype.mem_piFinset] at hs hs' ht ht' hu hu'
+  have coord : ∀ i, (s' i)⁻¹ * s i * (t' i)⁻¹ * t i * (u' i)⁻¹ * u i = 1 := by
+    intro i
+    simpa only [Pi.mul_apply, Pi.inv_apply, Pi.one_apply] using congr_fun heq i
+  refine ⟨funext fun i => ?_, funext fun i => ?_, funext fun i => ?_⟩
+  · exact (h i (s i) (hs i) (s' i) (hs' i) (t i) (ht i) (t' i) (ht' i)
+      (u i) (hu i) (u' i) (hu' i) (coord i)).1
+  · exact (h i (s i) (hs i) (s' i) (hs' i) (t i) (ht i) (t' i) (ht' i)
+      (u i) (hu i) (u' i) (hu' i) (coord i)).2.1
+  · exact (h i (s i) (hs i) (s' i) (hs' i) (t i) (ht i) (t' i) (ht' i)
+      (u i) (hu i) (u' i) (hu' i) (coord i)).2.2
+
+/-- **CKSU Lemma `lemma:directprod`** [math/0511460,
+FOCS05-10page.tex:1239–1246], the **binary direct-product closure of the
+STPP**, in selection form: if `n` triples satisfy the STPP in `G` and `m`
+triples satisfy the STPP in `G'`, then the paired product triples
+`(A i ×ˢ A' i', B i ×ˢ B' i', C i ×ˢ C' i')` — selected along any injective
+`Φ : Fin N → Fin n × Fin m`, with `(i, i') = Φ p` — satisfy the STPP in
+`G × G'`.
+
+Instantiating `Φ := ⇑finProdFinEquiv.symm` (an equivalence, hence injective)
+with `N := n * m` recovers CKSU's statement verbatim: the full family of all
+`n·m` product triples. Sizes multiply by `Finset.card_product`:
+`(A i ×ˢ A' i').card = (A i).card * (A' i').card`.
+
+Both conjuncts project componentwise (`Prod.fst`/`Prod.snd` are group
+homomorphisms): the per-triple conjunct is Tp1's
+`Xlib.TPP.TripleProductProperty.prod`; the simultaneous conjunct's
+right-quotient premise at indices `(Φ p, Φ q, Φ r)` projects to the same-shaped
+premises at `((Φ p).1, (Φ q).1, (Φ r).1)` in `G` and
+`((Φ p).2, (Φ q).2, (Φ r).2)` in `G'`, the two componentwise index collapses
+reassemble by `Prod.ext`, and the injectivity of `Φ` yields `p = q ∧ q = r`. -/
+theorem SimultaneousTPP.prod [Fintype G] [DecidableEq G]
+    {G' : Type*} [Group G'] [Fintype G'] [DecidableEq G']
+    {n m : ℕ} {A B C : Fin n → Finset G} {A' B' C' : Fin m → Finset G'}
+    (h : SimultaneousTPP A B C) (h' : SimultaneousTPP A' B' C')
+    {N : ℕ} (Φ : Fin N → Fin n × Fin m) (hΦ : Function.Injective Φ) :
+    SimultaneousTPP
+      (fun p => A (Φ p).1 ×ˢ A' (Φ p).2)
+      (fun p => B (Φ p).1 ×ˢ B' (Φ p).2)
+      (fun p => C (Φ p).1 ×ˢ C' (Φ p).2) := by
+  refine ⟨fun p => (h.tpp_of (Φ p).1).prod (h'.tpp_of (Φ p).2), ?_⟩
+  intro p q r a ha a' ha' b hb b' hb' c hc c' hc' heq
+  simp only [Finset.mem_product] at ha ha' hb hb' hc hc'
+  have heq₁ : a.1 * (a'.1)⁻¹ * b.1 * (b'.1)⁻¹ * c.1 * (c'.1)⁻¹ = 1 := by
+    simpa only [Prod.fst_mul, Prod.fst_inv, Prod.fst_one]
+      using congr_arg Prod.fst heq
+  have heq₂ : a.2 * (a'.2)⁻¹ * b.2 * (b'.2)⁻¹ * c.2 * (c'.2)⁻¹ = 1 := by
+    simpa only [Prod.snd_mul, Prod.snd_inv, Prod.snd_one]
+      using congr_arg Prod.snd heq
+  have k₁ := h.simultaneous (Φ p).1 (Φ q).1 (Φ r).1 a.1 ha.1 a'.1 ha'.1
+    b.1 hb.1 b'.1 hb'.1 c.1 hc.1 c'.1 hc'.1 heq₁
+  have k₂ := h'.simultaneous (Φ p).2 (Φ q).2 (Φ r).2 a.2 ha.2 a'.2 ha'.2
+    b.2 hb.2 b'.2 hb'.2 c.2 hc.2 c'.2 hc'.2 heq₂
+  exact ⟨hΦ (Prod.ext k₁.1 k₂.1), hΦ (Prod.ext k₁.2 k₂.2)⟩
+
+/-- **CKSU Lemma `lemma:directprod`, iterated (power) form** [math/0511460,
+FOCS05-10page.tex:1239–1246]: the `ℓ`-fold direct-product step of CKSU's
+`theorem:asi` proof, on the campaign power carrier `Fin ℓ → G` with the
+componentwise `Pi.group` structure (matching Md1/Tp1's
+`Xlib.TPP.TripleProductProperty.piFinset`). An STPP family of `n` triples in
+`G` yields the STPP family of product triples
+`(piFinset (A ∘ φ), piFinset (B ∘ φ), piFinset (C ∘ φ))` in `Fin ℓ → G`,
+mathematically indexed by the functions `φ : Fin ℓ → Fin n`.
+
+**Index-carrier choice (for the Ca1 assembly).** The index carrier is
+`Fin ℓ → Fin n`, presented through an arbitrary **injective selection**
+`Φ : Fin N → (Fin ℓ → Fin n)` — not the equiv-packaged `Fin (n ^ ℓ)`. Reason:
+`SimultaneousTPP` is `Fin`-indexed, so *some* enumeration is forced either
+way, and the selection form lets Ca1's multinomial step — restricting to the
+`Nat.multinomial`-many functions of a fixed type `μ` — instantiate `Φ` with an
+enumeration of the type-`μ` subset (e.g. via `Finset.orderIsoOfFin`) and land
+directly on the selected sub-family in one application, with the concrete
+function `Φ p` visible for size bookkeeping; an equiv-packaged statement would
+instead force Ca1 to compute through `finFunctionFinEquiv.symm` on every
+cardinality. The full `n^ℓ`-triple power is the instantiation
+`Φ := ⇑finFunctionFinEquiv.symm` (`N := n ^ ℓ`), and any further sub-selection
+is `Φ ∘ g` for injective `g`, so no separate restriction lemma is needed.
+Size bookkeeping is `Fintype.card_piFinset`:
+`(Fintype.piFinset fun t => A (Φ p t)).card = ∏ t, (A (Φ p t)).card`.
+
+The proof projects both conjuncts componentwise (evaluation at each
+`t : Fin ℓ` is a group homomorphism): the per-triple conjunct is
+`tripleProductProperty_piFinset`; the simultaneous conjunct's right-quotient
+premise at `(Φ p, Φ q, Φ r)` evaluates at `t` to the premise at
+`(Φ p t, Φ q t, Φ r t)`, the index collapse holds at every `t`, and `funext`
+plus the injectivity of `Φ` gives `p = q ∧ q = r`. -/
+theorem SimultaneousTPP.pow [Fintype G] [DecidableEq G]
+    {n : ℕ} {A B C : Fin n → Finset G} (h : SimultaneousTPP A B C)
+    {ℓ N : ℕ} (Φ : Fin N → Fin ℓ → Fin n) (hΦ : Function.Injective Φ) :
+    SimultaneousTPP
+      (fun p => Fintype.piFinset fun t => A (Φ p t))
+      (fun p => Fintype.piFinset fun t => B (Φ p t))
+      (fun p => Fintype.piFinset fun t => C (Φ p t)) := by
+  refine ⟨fun p => tripleProductProperty_piFinset fun t => h.tpp_of (Φ p t), ?_⟩
+  intro p q r a ha a' ha' b hb b' hb' c hc c' hc' heq
+  simp only [Fintype.mem_piFinset] at ha ha' hb hb' hc hc'
+  have coord : ∀ t, a t * (a' t)⁻¹ * b t * (b' t)⁻¹ * c t * (c' t)⁻¹ = 1 := by
+    intro t
+    simpa only [Pi.mul_apply, Pi.inv_apply, Pi.one_apply] using congr_fun heq t
+  have key : ∀ t, Φ p t = Φ q t ∧ Φ q t = Φ r t := fun t =>
+    h.simultaneous (Φ p t) (Φ q t) (Φ r t) (a t) (ha t) (a' t) (ha' t)
+      (b t) (hb t) (b' t) (hb' t) (c t) (hc t) (c' t) (hc' t) (coord t)
+  exact ⟨hΦ (funext fun t => (key t).1), hΦ (funext fun t => (key t).2)⟩
+
 /-! ### The STPP capacity inequality (CKSU `theorem:asi`, `sorry`)
 
 The multi-triple analogue of `Xlib.CUCapacity.capacity_rpow_le_charDegreeSumReal`
