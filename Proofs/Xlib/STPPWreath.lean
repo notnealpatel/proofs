@@ -1323,39 +1323,36 @@ theorem pseudoExponent_wreath_tendsto_two :
       Filter.atTop (nhds 2) := by
   -- Squeeze: 2 ≤ α(G_{n+1}) ≤ γ_exact(n+1) ≤ 2 + (1+log 2)/(log(n+1)−1)
   -- with 2 → 2 and the upper bound → 2.
+  set ub := fun n : ℕ => 2 + (1 + Real.log 2) / (Real.log (↑n + 1) - 1) with hub
   apply tendsto_of_tendsto_of_tendsto_of_le_of_le'
     tendsto_const_nhds
-    (show Filter.Tendsto
-      (fun n : ℕ => 2 + (1 + Real.log 2) / (Real.log (n + 1 : ℝ) - 1))
-      Filter.atTop (nhds 2) from ?_)
+    (show Filter.Tendsto ub Filter.atTop (nhds 2) from ?_)
     (show ∀ᶠ n in Filter.atTop, 2 ≤ pseudoExponent (wreathGroup (n + 1)) from ?_)
-    (show ∀ᶠ n in Filter.atTop, pseudoExponent (wreathGroup (n + 1)) ≤
-      2 + (1 + Real.log 2) / (Real.log (n + 1 : ℝ) - 1) from ?_)
+    (show ∀ᶠ n in Filter.atTop, pseudoExponent (wreathGroup (n + 1)) ≤ ub n from ?_)
   -- Goal 1: the upper bound 2 + c/(log(n+1)−1) → 2
-  · have : Filter.Tendsto (fun n : ℕ => (1 + Real.log 2) /
-        (Real.log (n + 1 : ℝ) - 1)) Filter.atTop (nhds 0) := by
-      apply Filter.Tendsto.div_atTop tendsto_const_nhds
-      apply Filter.Tendsto.atTop_sub_const
-      exact Real.tendsto_log_atTop.comp
-        (Filter.tendsto_natCast_atTop_atTop.comp (Filter.tendsto_atTop_add_const_right _ 1
-          Filter.tendsto_id))
-    convert this.const_add 2 using 1
-    · ext n; ring
-    · ring
+  · have hlog_atTop : Filter.Tendsto (fun n : ℕ => Real.log (↑n + 1) - 1)
+        Filter.atTop Filter.atTop := by
+      have h1 : Filter.Tendsto (fun n : ℕ => (↑n + 1 : ℝ)) Filter.atTop Filter.atTop :=
+        Filter.tendsto_atTop_add_const_right _ 1 tendsto_natCast_atTop_atTop
+      exact (Real.tendsto_log_atTop.comp h1).atTop_add tendsto_const_nhds
+    have hzero : Filter.Tendsto (fun n : ℕ => (1 + Real.log 2) /
+        (Real.log (↑n + 1) - 1)) Filter.atTop (nhds 0) :=
+      tendsto_const_nhds.div_atTop hlog_atTop
+    have := hzero.const_add 2
+    rw [add_zero] at this
+    exact this
   -- Goal 2: 2 ≤ α(G_{n+1}) eventually
-  · apply Filter.Eventually.of_forall
-    intro n
-    exact le_of_lt (two_lt_pseudoExponent (wreathGroup (n + 1)))
+  · exact Filter.Eventually.of_forall fun n =>
+      le_of_lt (two_lt_pseudoExponent (wreathGroup (n + 1)))
   -- Goal 3: α(G_{n+1}) ≤ 2 + c/(log(n+1)−1) eventually
-  · refine (Filter.eventually_atTop.mpr ⟨2, fun n hn => ?_⟩)
-    have hn1 : 2 ≤ n + 1 := by omega
-    have hn3 : 3 ≤ n + 1 := by omega
+  · refine Filter.eventually_atTop.mpr ⟨2, fun n hn => ?_⟩
     calc pseudoExponent (wreathGroup (n + 1))
-        ≤ Real.log ((2 * (n + 1 : ℝ)) ^ (n + 1) * ((n + 1).factorial : ℝ)) /
-            Real.log ((n + 1).factorial : ℝ) :=
-          pseudoExponent_wreath_le_gamma (n + 1) hn1
-      _ ≤ 2 + (1 + Real.log 2) / (Real.log (n + 1 : ℝ) - 1) := by
-          exact_mod_cast wreathGammaExact_le hn3
+        ≤ Real.log ((2 * ↑(n + 1)) ^ (n + 1) * ↑(n + 1).factorial) /
+            Real.log ↑(n + 1).factorial :=
+          pseudoExponent_wreath_le_gamma (n + 1) (by omega)
+      _ ≤ 2 + (1 + Real.log 2) / (Real.log ↑(n + 1) - 1) :=
+          wreathGammaExact_le (by omega)
+      _ = ub n := by simp [hub]
 
 /-! ### CU "Proposition 11": abelian base ⟹ `α → 2` (`sorry`)
 

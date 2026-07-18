@@ -345,6 +345,66 @@ private theorem card_triple {HS HT HU : Subgroup G} :
     Nat.card (HS × HT × HU) = Nat.card HS * Nat.card HT * Nat.card HU := by
   rw [Nat.card_prod, Nat.card_prod, mul_assoc]
 
+/-- Case-A upper count (Pf13 Theorem 1, Case A): `|Π| ≤ 2 |Σ|`, since `Σ` is
+the kernel of `ψ : Π →* C₂` and the image has order at most `2`. -/
+private theorem card_triple_le_two_mul_sigmaCard {HS HT HU : Subgroup G}
+    (χS : HS →* C₂) (χT : HT →* C₂) (χU : HU →* C₂) :
+    Nat.card (HS × HT × HU) ≤ 2 * sigmaCard χS χT χU := by
+  have h1 := card_ker_mul_card_range (signSum χS χT χU)
+  have h2 : Nat.card (signSum χS χT χU).range ≤ 2 := by
+    have h3 := Subgroup.card_le_card_group (signSum χS χT χU).range
+    rwa [card_C₂] at h3
+  calc Nat.card (HS × HT × HU)
+      = Nat.card (signSum χS χT χU).ker * Nat.card (signSum χS χT χU).range :=
+        h1.symm
+    _ ≤ Nat.card (signSum χS χT χU).ker * 2 := Nat.mul_le_mul le_rfl h2
+    _ = 2 * sigmaCard χS χT χU := by rw [mul_comm]; rfl
+
+/-- Twisted exact count (Pf13 Theorem 1, Case A, `k ≥ 1` subcase):
+if `ψ ≠ 1` then `ψ` is onto `C₂` and `|Π| = 2 |Σ|`. -/
+private theorem card_triple_eq_two_mul_sigmaCard_of_ne_one
+    {HS HT HU : Subgroup G} {χS : HS →* C₂} {χT : HT →* C₂} {χU : HU →* C₂}
+    (hψ : signSum χS χT χU ≠ 1) :
+    Nat.card (HS × HT × HU) = 2 * sigmaCard χS χT χU := by
+  have hrange : (signSum χS χT χU).range = ⊤ := by
+    obtain ⟨p, hp⟩ := DFunLike.ne_iff.mp hψ
+    have hp' : signSum χS χT χU p ≠ 1 := by simpa using hp
+    rw [Subgroup.eq_top_iff']
+    intro c
+    by_cases hc : c = 1
+    · exact hc ▸ Subgroup.one_mem _
+    · have heq : signSum χS χT χU p = c := C₂_eq_of_ne_one _ c hp' hc
+      exact heq ▸ MonoidHom.mem_range.mpr ⟨p, rfl⟩
+  have h1 := card_ker_mul_card_range (signSum χS χT χU)
+  rw [hrange, Subgroup.card_top, card_C₂] at h1
+  rw [← h1, mul_comm]
+  rfl
+
+/-- Untwisted count (Pf13 Theorem 1, Case A, `k = 0` subcase): if `ψ = 1`
+then `Σ` is all of `Π`. -/
+private theorem sigmaCard_eq_of_signSum_eq_one {HS HT HU : Subgroup G}
+    {χS : HS →* C₂} {χT : HT →* C₂} {χU : HU →* C₂}
+    (hψ : signSum χS χT χU = 1) :
+    sigmaCard χS χT χU = Nat.card (HS × HT × HU) := by
+  unfold sigmaCard
+  rw [MonoidHom.ker_eq_top_iff.mpr hψ, Subgroup.card_top]
+
+/-- Untwisted sign-killed configurations are honest TPP triples of `G`
+(Pf13 Theorem 1, Case A, `k = 0`): with `ψ = 1` the sign-killed condition
+says there are no nontrivial collisions at all. -/
+private theorem isTPPTriple_of_signKilled_of_eq_one {HS HT HU : Subgroup G}
+    {χS : HS →* C₂} {χT : HT →* C₂} {χU : HU →* C₂}
+    (hSK : SignKilled χS χT χU) (hψ : signSum χS χT χU = 1) :
+    IsTPPTriple HS HT HU := by
+  intro s hs t ht u hu hstu
+  by_contra hne
+  have hone : χS ⟨s, hs⟩ * χT ⟨t, ht⟩ * χU ⟨u, hu⟩ = 1 := by
+    have hcong := DFunLike.congr_fun hψ (⟨s, hs⟩, ⟨t, ht⟩, ⟨u, hu⟩)
+    simpa using hcong
+  refine hSK ⟨s, hs⟩ ⟨t, ht⟩ ⟨u, hu⟩ hstu (fun hcon => hne ?_) hone
+  exact ⟨OneMemClass.coe_eq_one.mpr hcon.1, OneMemClass.coe_eq_one.mpr hcon.2.1,
+    OneMemClass.coe_eq_one.mpr hcon.2.2⟩
+
 /-- Goursat trichotomy for `C₂ × G`, full case (Pf13 Lemma G(iii)): a
 subgroup containing the central sign `(σ, 1)` is a full product `C₂ × W`. -/
 theorem eq_prod_top_of_sgn_mem {P : Subgroup (C₂ × G)}
@@ -455,6 +515,164 @@ private theorem exists_sigmaMaxLift_witness :
     ⟨_, ⟨⊥, ⊥, ⊥, (1 : (⊥ : Subgroup G) →* C₂), (1 : (⊥ : Subgroup G) →* C₂),
       (1 : (⊥ : Subgroup G) →* C₂), hbotSK, rfl⟩⟩
   exact Nat.sSup_mem hne bddAbove_sigmaSet
+
+variable [DecidableEq G]
+
+/-- Case-B lift (Pf13 Theorem 1, Case B): an honest TPP triple of `G` lifts
+to `(1 × H, 1 × K, C₂ × L)`, doubling the size. -/
+theorem two_mul_le_stppCapacity_of_isTPPTriple {H K L : Subgroup G}
+    (h : IsTPPTriple H K L) :
+    2 * (Nat.card H * Nat.card K * Nat.card L) ≤ stppCapacity (C₂ × G) := by
+  have hlift : IsTPPTriple ((⊥ : Subgroup C₂).prod H) ((⊥ : Subgroup C₂).prod K)
+      ((⊤ : Subgroup C₂).prod L) := by
+    rintro ⟨cs, s⟩ hs ⟨ct, t⟩ ht ⟨cu, u⟩ hu hprod
+    rw [Subgroup.mem_prod] at hs ht hu
+    rw [Subgroup.mem_bot] at hs ht
+    obtain ⟨rfl, hs⟩ := hs
+    obtain ⟨rfl, ht⟩ := ht
+    obtain ⟨-, hu⟩ := hu
+    rw [Prod.mk_mul_mk, Prod.mk_mul_mk, Prod.mk_eq_one] at hprod
+    obtain ⟨hc, hg⟩ := hprod
+    obtain ⟨hs1, ht1, hu1⟩ := h s hs t ht u hu hg
+    refine ⟨?_, ?_, ?_⟩ <;> rw [Prod.mk_eq_one]
+    · exact ⟨rfl, hs1⟩
+    · exact ⟨rfl, ht1⟩
+    · exact ⟨by simpa using hc, hu1⟩
+  have hle := hlift.le_stppCapacity
+  simp only [card_subgroup_prod, Subgroup.card_bot, Subgroup.card_top, card_C₂,
+    one_mul] at hle
+  calc 2 * (Nat.card H * Nat.card K * Nat.card L)
+      = Nat.card H * Nat.card K * (2 * Nat.card L) := by ring
+    _ ≤ stppCapacity (C₂ × G) := hle
+
+/-- **Per-witness capacity bound** (Pf13 8.1, "eligibility implies
+realizability"): a sign-killed configuration gives `2 |Σ| ≤ β₀(C₂ × G)`.
+This is the seam consumed by census certificates: `SignKilled` is decidable
+on concrete data, and this bound turns each census eligible-config +
+character-combo into a Lean witness. -/
+theorem two_mul_sigmaCard_le_stppCapacity {HS HT HU : Subgroup G}
+    {χS : HS →* C₂} {χT : HT →* C₂} {χU : HU →* C₂}
+    (h : SignKilled χS χT χU) :
+    2 * sigmaCard χS χT χU ≤ stppCapacity (C₂ × G) := by
+  by_cases hψ : signSum χS χT χU = 1
+  · rw [sigmaCard_eq_of_signSum_eq_one hψ, card_triple]
+    exact two_mul_le_stppCapacity_of_isTPPTriple
+      (isTPPTriple_of_signKilled_of_eq_one h hψ)
+  · rw [← card_triple_eq_two_mul_sigmaCard_of_ne_one hψ, card_triple]
+    have hTPP := (isTPPTriple_charLift_iff χS χT χU).mpr h
+    have hle := hTPP.le_stppCapacity
+    rwa [card_charLift, card_charLift, card_charLift] at hle
+
+/-- Case-B bound: a TPP triple of `C₂ × G` whose first two members avoid the
+central sign and whose third contains it has size at most `2 β₀(G)`
+(Pf13 Theorem 1, Case B). -/
+private theorem caseB_core {P Q R : Subgroup (C₂ × G)} (h : IsTPPTriple P Q R)
+    (hP : ((sgn, (1 : G)) : C₂ × G) ∉ P) (hQ : ((sgn, (1 : G)) : C₂ × G) ∉ Q)
+    (hR : ((sgn, (1 : G)) : C₂ × G) ∈ R) :
+    Nat.card P * Nat.card Q * Nat.card R ≤ 2 * stppCapacity G := by
+  obtain ⟨H₁, χ₁, rfl⟩ := eq_charLift_of_sgn_not_mem hP
+  obtain ⟨H₂, χ₂, rfl⟩ := eq_charLift_of_sgn_not_mem hQ
+  obtain ⟨W, rfl⟩ := eq_prod_top_of_sgn_mem hR
+  have hbase : IsTPPTriple H₁ H₂ W := by
+    intro s hs t ht w hw hstw
+    have h3 : (((χ₁ ⟨s, hs⟩ * χ₂ ⟨t, ht⟩)⁻¹ : C₂), w) ∈
+        (⊤ : Subgroup C₂).prod W :=
+      Subgroup.mem_prod.mpr ⟨Subgroup.mem_top _, hw⟩
+    have hprod : (((χ₁ ⟨s, hs⟩ : C₂), s) : C₂ × G) * ((χ₂ ⟨t, ht⟩ : C₂), t) *
+        ((χ₁ ⟨s, hs⟩ * χ₂ ⟨t, ht⟩)⁻¹, w) = 1 := by
+      rw [Prod.mk_mul_mk, Prod.mk_mul_mk, Prod.mk_eq_one]
+      exact ⟨mul_inv_cancel _, hstw⟩
+    obtain ⟨e1, e2, e3⟩ := h _ (charLift_mem χ₁ ⟨s, hs⟩)
+      _ (charLift_mem χ₂ ⟨t, ht⟩) _ h3 hprod
+    rw [Prod.mk_eq_one] at e1 e2 e3
+    exact ⟨e1.2, e2.2, e3.2⟩
+  have hle := hbase.le_stppCapacity
+  rw [card_charLift, card_charLift, card_subgroup_prod, Subgroup.card_top,
+    card_C₂]
+  calc Nat.card H₁ * Nat.card H₂ * (2 * Nat.card W)
+      = 2 * (Nat.card H₁ * Nat.card H₂ * Nat.card W) := by ring
+    _ ≤ 2 * stppCapacity G := Nat.mul_le_mul le_rfl hle
+
+/-- **The lift law, upper bound**: every subgroup TPP triple of `C₂ × G` is
+Goursat-classified and counted (Pf13 Theorem 1, Cases A and B). -/
+theorem stppCapacity_prod_le :
+    stppCapacity (C₂ × G) ≤ 2 * max (stppCapacity G) (SigmaMaxLift G) := by
+  refine stppCapacity_le_of_forall ?_
+  intro P Q R hTPP
+  by_cases hP : ((sgn, (1 : G)) : C₂ × G) ∈ P
+  · by_cases hQ : ((sgn, (1 : G)) : C₂ × G) ∈ Q
+    · -- two members sharing the central sign: impossible
+      exfalso
+      have hcol : ((sgn, (1 : G)) : C₂ × G) * (sgn, (1 : G)) * 1 = 1 := by
+        rw [mul_one, Prod.mk_mul_mk, Prod.mk_eq_one]
+        exact ⟨sgn_mul_self, mul_one 1⟩
+      have h1 := (hTPP _ hP _ hQ _ R.one_mem hcol).1
+      rw [Prod.mk_eq_one] at h1
+      exact sgn_ne_one h1.1
+    · by_cases hR : ((sgn, (1 : G)) : C₂ × G) ∈ R
+      · exfalso
+        have hcol : ((sgn, (1 : G)) : C₂ × G) * 1 * (sgn, (1 : G)) = 1 := by
+          rw [mul_one, Prod.mk_mul_mk, Prod.mk_eq_one]
+          exact ⟨sgn_mul_self, mul_one 1⟩
+        have h1 := (hTPP _ hP _ Q.one_mem _ hR hcol).1
+        rw [Prod.mk_eq_one] at h1
+        exact sgn_ne_one h1.1
+      · -- Case B, full member in slot 1: rotate to (Q, R, P)
+        have hb := caseB_core hTPP.rotate hQ hR hP
+        have hcomm : Nat.card P * Nat.card Q * Nat.card R
+            = Nat.card Q * Nat.card R * Nat.card P := by ring
+        rw [hcomm]
+        exact le_trans hb (Nat.mul_le_mul le_rfl (le_max_left _ _))
+  · by_cases hQ : ((sgn, (1 : G)) : C₂ × G) ∈ Q
+    · by_cases hR : ((sgn, (1 : G)) : C₂ × G) ∈ R
+      · exfalso
+        have hcol : (1 : C₂ × G) * (sgn, (1 : G)) * (sgn, (1 : G)) = 1 := by
+          rw [one_mul, Prod.mk_mul_mk, Prod.mk_eq_one]
+          exact ⟨sgn_mul_self, mul_one 1⟩
+        have h1 := (hTPP _ P.one_mem _ hQ _ hR hcol).2.1
+        rw [Prod.mk_eq_one] at h1
+        exact sgn_ne_one h1.1
+      · -- Case B, full member in slot 2: rotate twice to (R, P, Q)
+        have hb := caseB_core hTPP.rotate.rotate hR hP hQ
+        have hcomm : Nat.card P * Nat.card Q * Nat.card R
+            = Nat.card R * Nat.card P * Nat.card Q := by ring
+        rw [hcomm]
+        exact le_trans hb (Nat.mul_le_mul le_rfl (le_max_left _ _))
+    · by_cases hR : ((sgn, (1 : G)) : C₂ × G) ∈ R
+      · -- Case B, full member in slot 3
+        exact le_trans (caseB_core hTPP hP hQ hR)
+          (Nat.mul_le_mul le_rfl (le_max_left _ _))
+      · -- Case A: all three members are graphs
+        obtain ⟨HS, χS, rfl⟩ := eq_charLift_of_sgn_not_mem hP
+        obtain ⟨HT, χT, rfl⟩ := eq_charLift_of_sgn_not_mem hQ
+        obtain ⟨HU, χU, rfl⟩ := eq_charLift_of_sgn_not_mem hR
+        have hSK := (isTPPTriple_charLift_iff χS χT χU).mp hTPP
+        rw [card_charLift, card_charLift, card_charLift, ← card_triple]
+        refine le_trans (card_triple_le_two_mul_sigmaCard χS χT χU) ?_
+        exact Nat.mul_le_mul le_rfl
+          (le_trans (sigmaCard_le_sigmaMaxLift hSK) (le_max_right _ _))
+
+/-- **The lift law** (Pf13 Theorem 1 at p = 2, maxima-transport form):
+
+`β₀(C₂ × G) = 2 · max(β₀(G), Σ_max^lift(G, 2))`
+
+for every finite group `G`. Census maxima compose formally through
+`SigmaMaxLift`; the lower bound is witnessed by the Case-B lift of a
+`β₀(G)`-achiever and the graph lift of a `Σ_max^lift`-achiever, the upper
+bound by the Goursat trichotomy. -/
+theorem stppCapacity_prod_eq_two_mul_max :
+    stppCapacity (C₂ × G) = 2 * max (stppCapacity G) (SigmaMaxLift G) := by
+  refine le_antisymm stppCapacity_prod_le ?_
+  have h1 : 2 * stppCapacity G ≤ stppCapacity (C₂ × G) := by
+    obtain ⟨H, K, L, hTPP, hcard⟩ := exists_isTPPTriple_card_eq_stppCapacity G
+    rw [hcard]
+    exact two_mul_le_stppCapacity_of_isTPPTriple hTPP
+  have h2 : 2 * SigmaMaxLift G ≤ stppCapacity (C₂ × G) := by
+    obtain ⟨HS, HT, HU, χS, χT, χU, hSK, hval⟩ :=
+      exists_sigmaMaxLift_witness (G := G)
+    rw [hval]
+    exact two_mul_sigmaCard_le_stppCapacity hSK
+  omega
 
 end LiftLaw
 
