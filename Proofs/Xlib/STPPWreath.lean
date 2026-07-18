@@ -854,6 +854,293 @@ theorem stpp_to_tpp_wreath_card {H : Type*} [CommGroup H] [Fintype H]
   · rw [Finset.card_inv, wreathCarrier_card]
   · rw [Finset.card_inv, wreathCarrier_card]
 
+/-! ### The Cohn–Umans wreath TPP witness: `Gₙ` realizes `⟨n!, n!, n!⟩` (CU.tex:1257–1299)
+
+The three order-`n!` subgroups-as-finsets of `Gₙ = C₂ₙ ≀ Sₙ` from the CU wreath
+theorem's proof,
+
+  `H₁ = {(π, 0)}`,  `H₂ = {(π, π•u − u)}`,  `H₃ = {(π, π•v − v)}`  (`π ∈ Sₙ`),
+
+with `u = (1, 2, …, n)` and `v = (n, n−1, …, 1)` in `(ℤ/2nℤ)ⁿ`. Each is the
+graph of the coboundary `∂w : π ↦ π•w − w` (`w ∈ {0, u, v}`), i.e. the range of
+a homomorphic section `Sₙ →* Gₙ` of `rightHom` (`wreathCocycleHom`) — in
+particular a subgroup carrier of order `n!` (`wreathCocycleCarrier_card`).
+
+**Conventions recomputed, not transcribed.** CU verify the TPP with the
+multiplication `(π, u)(π', v) = (ππ', π'u + v)` and the coordinate action
+`(πu)ᵢ = u_{π(i)}`; Mathlib's `SemidirectProduct` multiplies
+`⟨f, π⟩·⟨g, σ⟩ = ⟨f · (π • g), πσ⟩` with `(π • g)ᵢ = g_{π⁻¹(i)}`
+(`permArrowHom`). Since each `Hₗ` is a subgroup, its left quotient set is
+itself, and the left-quotient TPP premise reduces to `x·y·z = 1` with `x ∈ H₁`,
+`y ∈ H₂`, `z ∈ H₃`. Redoing CU's coordinate computation in Mathlib's
+conventions, that premise yields (writing `ρ₁, ρ₂, ρ₃` for the three quotient
+permutations) the coordinate identity `2·(ρ₂⁻¹ j) = j + ρ₁ j` in `ℤ/2nℤ` for
+every `j` — the transposed form of CU's `π(i) + σ(i) = 2i`. All values lie in
+`{0, …, n−1}`, so `2n`-wraparound is impossible and the identity lifts to `ℕ`
+(`ZMod.val_cast_of_lt`); a downward induction from the top value `n−1` (the
+mirror of CU's upward induction from `π(1)+σ(1)=2`) forces `ρ₂⁻¹ = ρ₁ = 1`
+(`perm_eq_one_of_two_mul_val_eq`), and `ρ₃ = 1` follows from the permutation
+identity. The construction was verified exhaustively in the exact Mathlib
+conventions before formalization (all six-element left-quotient tuples for
+`n ≤ 3`; the subgroup triple form for `n ≤ 5`). -/
+
+/-- The CU vector `u = (1, 2, …, n)` [math/0307321, CU.tex:1265], 0-indexed as
+`uᵢ = i + 1 ∈ ℤ/2nℤ` for `i : Fin n`. Only its coboundary `π ↦ π•u − u` enters
+the construction (`wreathH₂`), so any translate would do; we keep CU's literal
+values. -/
+def cuVecU (n : ℕ) : Fin n → ZMod (2 * n) :=
+  fun i => (i.val : ZMod (2 * n)) + 1
+
+/-- The CU vector `v = (n, n−1, …, 1)` [math/0307321, CU.tex:1265], 0-indexed as
+`vᵢ = n − i ∈ ℤ/2nℤ` for `i : Fin n`. Its coboundary is the negative of
+`cuVecU`'s (the two differ by the constant vector `n + 1` and a sign), which is
+what makes the `2i` right-hand side of CU's coordinate identity appear. -/
+def cuVecV (n : ℕ) : Fin n → ZMod (2 * n) :=
+  fun i => (n : ZMod (2 * n)) - (i.val : ZMod (2 * n))
+
+/-- The **graph of the coboundary** `∂w : π ↦ π•w − w` attached to a vector
+`w ∈ (ℤ/2nℤ)ⁿ`, as a homomorphic section `Sₙ →* Gₙ = C₂ₙ ≀ Sₙ` of
+`SemidirectProduct.rightHom`:
+
+  `π ↦ ⟨(∂w)(π), π⟩`,  coordinatewise `(∂w)(π)ᵢ = w_{π⁻¹(i)} − wᵢ`
+
+(`Multiplicative.ofAdd` mediates between the additive `ZMod (2n)` and the
+multiplicative `cyclicGroup n`). That this is a homomorphism is precisely the
+1-cocycle identity `∂w(πσ) = ∂w(π) + π•∂w(σ)` of the coboundary
+[math/0307321, CU.tex:1216–1225, where CU record the general cocycle form of
+the construction]. CU's three witness subgroups are the ranges of this section
+at `w = 0, u, v` (CU.tex:1260–1264); at `w = 0` it is `SemidirectProduct.inr`. -/
+def wreathCocycleHom {n : ℕ} (w : Fin n → ZMod (2 * n)) :
+    Equiv.Perm (Fin n) →* wreathGroup n where
+  toFun π := ⟨fun i => Multiplicative.ofAdd (w (π⁻¹ i) - w i), π⟩
+  map_one' := by
+    refine SemidirectProduct.ext (funext fun i => ?_) rfl
+    simp
+  map_mul' π σ := by
+    refine SemidirectProduct.ext (funext fun i => ?_) rfl
+    simp only [SemidirectProduct.mul_left, Pi.mul_apply, permArrowHom_apply,
+      mul_inv_rev, Equiv.Perm.mul_apply, ← ofAdd_add]
+    exact congrArg Multiplicative.ofAdd (by ring)
+
+@[simp] theorem wreathCocycleHom_right {n : ℕ} (w : Fin n → ZMod (2 * n))
+    (π : Equiv.Perm (Fin n)) : (wreathCocycleHom w π).right = π :=
+  rfl
+
+/-- Pointwise formula for the function part of `wreathCocycleHom`: the
+coboundary coordinate `(∂w)(π)ᵢ = w_{π⁻¹(i)} − wᵢ` (`rfl`; recorded to make the
+TPP coordinate computation readable). -/
+theorem wreathCocycleHom_left_apply {n : ℕ} (w : Fin n → ZMod (2 * n))
+    (π : Equiv.Perm (Fin n)) (i : Fin n) :
+    (wreathCocycleHom w π).left i = Multiplicative.ofAdd (w (π⁻¹ i) - w i) :=
+  rfl
+
+/-- The cocycle section is injective: `rightHom` retracts it. This is what makes
+each CU witness carrier have full size `n!` (`wreathCocycleCarrier_card`). -/
+theorem wreathCocycleHom_injective {n : ℕ} (w : Fin n → ZMod (2 * n)) :
+    Function.Injective (wreathCocycleHom w) := fun π σ hπσ => by
+  simpa using congrArg SemidirectProduct.right hπσ
+
+/-- The **CU witness carrier** attached to `w ∈ (ℤ/2nℤ)ⁿ`: the range
+`{⟨π•w − w, π⟩ : π ∈ Sₙ}` of the cocycle section `wreathCocycleHom w`, as a
+`Finset` of the wreath group `Gₙ`. The three CU witness subgroups are
+`wreathH₁ = wreathCocycleCarrier 0`, `wreathH₂ = wreathCocycleCarrier u`,
+`wreathH₃ = wreathCocycleCarrier v` [math/0307321, CU.tex:1260–1264]. -/
+def wreathCocycleCarrier {n : ℕ} (w : Fin n → ZMod (2 * n)) :
+    Finset (wreathGroup n) :=
+  Finset.univ.image (wreathCocycleHom w)
+
+/-- Membership in a CU witness carrier: exactly the values of the cocycle
+section. -/
+theorem mem_wreathCocycleCarrier {n : ℕ} {w : Fin n → ZMod (2 * n)}
+    {x : wreathGroup n} :
+    x ∈ wreathCocycleCarrier w ↔ ∃ π, wreathCocycleHom w π = x := by
+  simp [wreathCocycleCarrier]
+
+/-- **Each CU witness carrier has order `n!`** [math/0307321, CU.tex:1266]: the
+cocycle section is injective, so its range has the size of `Sₙ`. -/
+theorem wreathCocycleCarrier_card {n : ℕ} (w : Fin n → ZMod (2 * n)) :
+    (wreathCocycleCarrier w).card = n.factorial := by
+  rw [wreathCocycleCarrier,
+    Finset.card_image_of_injective _ (wreathCocycleHom_injective w),
+    Finset.card_univ, Fintype.card_perm, Fintype.card_fin]
+
+/-- **CU witness subgroup `H₁ = {(π, 0) : π ∈ Sₙ}`** [math/0307321,
+CU.tex:1260]: the plain permutation copy of `Sₙ` inside `Gₙ = C₂ₙ ≀ Sₙ` (the
+coboundary of `w = 0` vanishes, so this is the carrier of `inr(Sₙ)`). -/
+abbrev wreathH₁ (n : ℕ) : Finset (wreathGroup n) :=
+  wreathCocycleCarrier (0 : Fin n → ZMod (2 * n))
+
+/-- **CU witness subgroup `H₂ = {(π, π•u − u) : π ∈ Sₙ}`** with `u = (1, …, n)`
+[math/0307321, CU.tex:1261]. -/
+abbrev wreathH₂ (n : ℕ) : Finset (wreathGroup n) :=
+  wreathCocycleCarrier (cuVecU n)
+
+/-- **CU witness subgroup `H₃ = {(π, π•v − v) : π ∈ Sₙ}`** with `v = (n, …, 1)`
+[math/0307321, CU.tex:1262]. -/
+abbrev wreathH₃ (n : ℕ) : Finset (wreathGroup n) :=
+  wreathCocycleCarrier (cuVecV n)
+
+/-- `|H₁| = n!` [math/0307321, CU.tex:1266]. -/
+theorem wreathH₁_card (n : ℕ) : (wreathH₁ n).card = n.factorial :=
+  wreathCocycleCarrier_card _
+
+/-- `|H₂| = n!` [math/0307321, CU.tex:1266]. -/
+theorem wreathH₂_card (n : ℕ) : (wreathH₂ n).card = n.factorial :=
+  wreathCocycleCarrier_card _
+
+/-- `|H₃| = n!` [math/0307321, CU.tex:1266]. -/
+theorem wreathH₃_card (n : ℕ) : (wreathH₃ n).card = n.factorial :=
+  wreathCocycleCarrier_card _
+
+/-- **The CU rigidity lemma** (the inductive heart of the wreath TPP
+verification, [math/0307321, CU.tex:1290–1297], transposed to Mathlib's
+conventions): if two permutations `φ, ψ` of `{0, …, n−1}` satisfy the pointwise
+integer identity `2·φ(j) = j + ψ(j)`, both are the identity.
+
+CU run the induction upward from `π(1) + σ(1) = 2`; in our transposed form the
+argument runs downward from the top value: the preimage `j₁ = φ⁻¹(m)` of the
+current top value `m` satisfies `2m = j₁ + ψ(j₁)` with both summands `≤ m`
+(anything above `m` is already fixed by both permutations, and a permutation
+fixing everything above `m` pointwise cannot send anything `≤ m` above `m`), so
+`j₁ = ψ(j₁) = m`, and both permutations fix `m`. -/
+theorem perm_eq_one_of_two_mul_val_eq {n : ℕ} {φ ψ : Equiv.Perm (Fin n)}
+    (h : ∀ j : Fin n, 2 * (φ j).val = j.val + (ψ j).val) :
+    φ = 1 ∧ ψ = 1 := by
+  -- One downward step: if everything above `j` is fixed by both, so is `j`.
+  have core : ∀ j : Fin n,
+      (∀ j' : Fin n, j.val < j'.val → φ j' = j' ∧ ψ j' = j') →
+      φ j = j ∧ ψ j = j := by
+    intro j above
+    have hφj₁ : φ (φ⁻¹ j) = j := by simp
+    -- The `φ`-preimage of `j` cannot lie above `j`.
+    have hle₁ : (φ⁻¹ j).val ≤ j.val := by
+      by_contra hlt
+      push Not at hlt
+      have hfix := (above (φ⁻¹ j) hlt).1
+      rw [hφj₁] at hfix
+      have := congrArg Fin.val hfix
+      omega
+    have hkey : 2 * j.val = (φ⁻¹ j).val + (ψ (φ⁻¹ j)).val := by
+      have hj := h (φ⁻¹ j)
+      rwa [hφj₁] at hj
+    -- Nor can its `ψ`-image.
+    have hle₂ : (ψ (φ⁻¹ j)).val ≤ j.val := by
+      by_contra hlt
+      push Not at hlt
+      have hfix := (above (ψ (φ⁻¹ j)) hlt).2
+      have heqj := ψ.injective hfix
+      have := congrArg Fin.val heqj
+      omega
+    -- Summing to `2·j` with both summands `≤ j` forces both to equal `j`.
+    have hj₁ : φ⁻¹ j = j := Fin.ext (by omega)
+    constructor
+    · calc φ j = φ (φ⁻¹ j) := by rw [hj₁]
+        _ = j := hφj₁
+    · calc ψ j = ψ (φ⁻¹ j) := by rw [hj₁]
+        _ = j := Fin.ext (by omega)
+  -- Downward induction from the top value `n − 1`.
+  have key : ∀ (k : ℕ) (j : Fin n), n ≤ j.val + k + 1 → φ j = j ∧ ψ j = j := by
+    intro k
+    induction k with
+    | zero => exact fun j hj => core j fun j' hj' => absurd j'.isLt (by omega)
+    | succ k ih => exact fun j hj => core j fun j' hj' => ih j' (by omega)
+  exact ⟨Equiv.ext fun j => (key n j (by omega)).1,
+    Equiv.ext fun j => (key n j (by omega)).2⟩
+
+/-- **The CU wreath TPP witness** [math/0307321, CU.tex:1257–1299]: the three
+order-`n!` subgroup carriers `H₁ = {(π, 0)}`, `H₂ = {(π, π•u − u)}`,
+`H₃ = {(π, π•v − v)}` of `Gₙ = C₂ₙ ≀ Sₙ` satisfy the Triple Product Property.
+
+Stated in the left-quotient `Xlib.TPP.TripleProductProperty` convention. Since
+each carrier is a subgroup, its left quotient set is itself, and CU's
+right-quotient argument transposes directly: the six-element premise fuses (via
+the section homomorphism) into `x·y·z = 1` with `x, y, z` in the three
+subgroups, whose coordinate form is the `2·(ρ₂⁻¹ j) = j + ρ₁ j` identity in
+`ℤ/2nℤ`; values lie in `{0, …, n−1}`, so it lifts to `ℕ` and
+`perm_eq_one_of_two_mul_val_eq` forces all three quotient permutations to be
+trivial. No `NeZero (2n)` hypothesis is needed: the lift is pointwise at
+inhabited `Fin n` (for `n = 0` the carriers are the singleton `{1}` and the
+statement is trivial). -/
+theorem tripleProductProperty_wreathWitness (n : ℕ) :
+    TripleProductProperty (wreathH₁ n) (wreathH₂ n) (wreathH₃ n) := by
+  intro s hs s' hs' t ht t' ht' u hu u' hu' heq
+  obtain ⟨π₁, rfl⟩ := mem_wreathCocycleCarrier.mp hs
+  obtain ⟨π₁', rfl⟩ := mem_wreathCocycleCarrier.mp hs'
+  obtain ⟨π₂, rfl⟩ := mem_wreathCocycleCarrier.mp ht
+  obtain ⟨π₂', rfl⟩ := mem_wreathCocycleCarrier.mp ht'
+  obtain ⟨π₃, rfl⟩ := mem_wreathCocycleCarrier.mp hu
+  obtain ⟨π₃', rfl⟩ := mem_wreathCocycleCarrier.mp hu'
+  -- Fuse each quotient pair through the section homomorphism.
+  have heq' : wreathCocycleHom (0 : Fin n → ZMod (2 * n)) (π₁'⁻¹ * π₁)
+      * wreathCocycleHom (cuVecU n) (π₂'⁻¹ * π₂)
+      * wreathCocycleHom (cuVecV n) (π₃'⁻¹ * π₃) = 1 := by
+    simpa only [map_mul, map_inv, mul_assoc] using heq
+  set ρ₁ := π₁'⁻¹ * π₁ with hρ₁def
+  set ρ₂ := π₂'⁻¹ * π₂ with hρ₂def
+  set ρ₃ := π₃'⁻¹ * π₃ with hρ₃def
+  -- The permutation identity `ρ₁ρ₂ρ₃ = 1` (right component).
+  have hright : ρ₁ * ρ₂ * ρ₃ = 1 := by
+    simpa using congrArg SemidirectProduct.right heq'
+  have h3 : ρ₁ * ρ₂ = ρ₃⁻¹ := mul_eq_one_iff_eq_inv.mp hright
+  -- The coordinate identity `2·(ρ₂⁻¹ j) = j + ρ₁ j`, lifted to ℕ.
+  have hcoord : ∀ j : Fin n, 2 * (ρ₂⁻¹ j).val = j.val + (ρ₁ j).val := by
+    intro j
+    have e₁ : ρ₁⁻¹ (ρ₁ j) = j := by simp
+    have e₂ : (ρ₁ * ρ₂)⁻¹ (ρ₁ j) = ρ₂⁻¹ j := by simp [mul_inv_rev]
+    have e₃ : ρ₃⁻¹ (ρ₂⁻¹ j) = ρ₁ j := by
+      rw [← h3, Equiv.Perm.mul_apply]
+      simp
+    -- Left component of `heq'` at coordinate `ρ₁ j` (definitional unfolding
+    -- of the semidirect multiplication and the permutation action).
+    have hL : (wreathCocycleHom (0 : Fin n → ZMod (2 * n)) ρ₁).left (ρ₁ j)
+        * (wreathCocycleHom (cuVecU n) ρ₂).left (ρ₁⁻¹ (ρ₁ j))
+        * (wreathCocycleHom (cuVecV n) ρ₃).left ((ρ₁ * ρ₂)⁻¹ (ρ₁ j)) = 1 :=
+      congrFun (congrArg SemidirectProduct.left heq') (ρ₁ j)
+    simp only [wreathCocycleHom_left_apply, e₁, e₂, e₃, Pi.zero_apply, sub_self,
+      ofAdd_zero, one_mul] at hL
+    rw [← ofAdd_add, ofAdd_eq_one] at hL
+    simp only [cuVecU, cuVecV] at hL
+    have hb₁ := j.isLt
+    have hb₂ := (ρ₂⁻¹ j).isLt
+    have hb₃ := (ρ₁ j).isLt
+    -- Lift from `ZMod (2n)` to `ℕ`: both sides are `< 2n`.
+    have hzmod : ((2 * (ρ₂⁻¹ j).val : ℕ) : ZMod (2 * n))
+        = ((j.val + (ρ₁ j).val : ℕ) : ZMod (2 * n)) := by
+      push_cast
+      linear_combination hL
+    have hlift := congrArg ZMod.val hzmod
+    rwa [ZMod.val_cast_of_lt (by omega), ZMod.val_cast_of_lt (by omega)] at hlift
+  -- Rigidity: all three quotient permutations are trivial.
+  obtain ⟨hφ, hψ⟩ := perm_eq_one_of_two_mul_val_eq hcoord
+  have hρ₂one : ρ₂ = 1 := inv_eq_one.mp hφ
+  have hρ₃one : ρ₃ = 1 := by
+    rw [hψ, hρ₂one, one_mul, one_mul] at hright
+    exact hright
+  have hπ₁ : π₁' = π₁ := inv_mul_eq_one.mp (hρ₁def.symm.trans hψ)
+  have hπ₂ : π₂' = π₂ := inv_mul_eq_one.mp (hρ₂def.symm.trans hρ₂one)
+  have hπ₃ : π₃' = π₃ := inv_mul_eq_one.mp (hρ₃def.symm.trans hρ₃one)
+  rw [hπ₁, hπ₂, hπ₃]
+  exact ⟨rfl, rfl, rfl⟩
+
+/-- **The CU wreath capacity bound** [math/0307321, CU.tex:1266–1271]: the
+wreath group `Gₙ = C₂ₙ ≀ Sₙ` realizes `⟨n!, n!, n!⟩`, so its TPP capacity is at
+least `(n!)³`,
+
+  `(n!)³ ≤ β(Gₙ)`.
+
+This is the witness half ("Piece A") of the CU wreath pseudo-exponent theorem
+`α(Gₙ) ≤ γ(Gₙ)` (`pseudoExponent_wreath_le_gamma`): combined with
+`|Gₙ| = (2n)ⁿ·n!` (`ImprimitiveWreathProduct.card`) it gives
+`α(Gₙ) = 3·log|Gₙ|/log β(Gₙ) ≤ log|Gₙ|/log(n!)`, whose Stirling expansion is
+the `wreathGamma` bound (the log-arithmetic half, Lg1). The `NeZero (2n)`
+instance supplies `Fintype (wreathGroup n)`, which `tppCapacity` needs. -/
+theorem factorial_pow_three_le_tppCapacity (n : ℕ) [NeZero (2 * n)] :
+    n.factorial ^ 3 ≤ tppCapacity (wreathGroup n) := by
+  have h := le_tppCapacity (tripleProductProperty_wreathWitness n)
+  simp only [wreathCocycleCarrier_card] at h
+  calc n.factorial ^ 3 = n.factorial * n.factorial * n.factorial := by ring
+    _ ≤ tppCapacity (wreathGroup n) := h
+
 /-! ### Wreath pseudo-exponent amplification: `α(Gₙ) ≤ γ(Gₙ) → 2` (CU)
 
 The Cohn–Umans wreath theorem [math/0307321, CU.tex:1248–1255]. With
