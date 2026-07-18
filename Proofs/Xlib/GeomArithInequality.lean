@@ -133,9 +133,9 @@ theorem sum_le_of_multinomial_prod_pow_le {ι : Type*} [Fintype ι]
     intro μ hμ
     exact h N μ ((Finset.mem_piAntidiag.mp hμ).1)
   -- … and there are at most `(N + 1) ^ |ι|` compositions.
-  have hcard : ((Finset.univ.piAntidiag N).card : ℝ)
+  have hcard : ((Finset.univ.piAntidiag N : Finset (ι → ℕ)).card : ℝ)
       ≤ ((N : ℝ) + 1) ^ Fintype.card ι := by
-    have hsub : Finset.univ.piAntidiag N
+    have hsub : (Finset.univ.piAntidiag N : Finset (ι → ℕ))
         ⊆ Fintype.piFinset fun _ : ι => Finset.range (N + 1) := by
       intro μ hμ
       obtain ⟨hsum, -⟩ := Finset.mem_piAntidiag.mp hμ
@@ -150,14 +150,15 @@ theorem sum_le_of_multinomial_prod_pow_le {ι : Type*} [Fintype ι]
         = (N + 1) ^ Fintype.card ι := by
       simp
     rw [hpf] at hle
-    calc ((Finset.univ.piAntidiag N).card : ℝ)
+    calc ((Finset.univ.piAntidiag N : Finset (ι → ℕ)).card : ℝ)
         ≤ (((N + 1) ^ Fintype.card ι : ℕ) : ℝ) := by exact_mod_cast hle
       _ = ((N : ℝ) + 1) ^ Fintype.card ι := by push_cast; ring
   calc ∑ μ ∈ Finset.univ.piAntidiag N,
         (Nat.multinomial Finset.univ μ : ℝ) * ∏ i, s i ^ μ i
-      ≤ (Finset.univ.piAntidiag N).card • C ^ N :=
+      ≤ (Finset.univ.piAntidiag N : Finset (ι → ℕ)).card • C ^ N :=
         Finset.sum_le_card_nsmul _ _ _ hterm
-    _ = ((Finset.univ.piAntidiag N).card : ℝ) * C ^ N := nsmul_eq_mul _ _
+    _ = ((Finset.univ.piAntidiag N : Finset (ι → ℕ)).card : ℝ) * C ^ N :=
+        nsmul_eq_mul _ _
     _ ≤ ((N : ℝ) + 1) ^ Fintype.card ι * C ^ N :=
         mul_le_mul_of_nonneg_right hcard (pow_nonneg hC N)
 
