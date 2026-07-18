@@ -1,69 +1,52 @@
-This is the right question. No, the project's current map doesn't cover the full attackable space. Let me lay out the distinct paradigms.
+The theorem `stab_residual` at `Proofs/Proofs/BilinearComplexity/RankCalculus.lean`
+proves: if g stabilizes T and g stabilizes t, then g stabilizes T - t. This justifies
+orbit reduction at every peeling step.
 
-Paradigm 1: Tensor-geometric (Strassen-Bini lineage)
-Orbits under GL action, tensor rank, border rank (Bini's degeneration), secant varieties, apolarity. The laser method lives here — you take a specific tensor (CW_q), analyze its border rank geometry, extract asymptotic rank. The algebraic face is degeneration/approximation; the geometric face is secant varieties and orbit closures. This produces the current best bounds (ω < 2.372). Alman's barrier kills the universal method on CW_q tensors, but not ALL tensors or ALL analysis methods in this paradigm.
+The following measurements come from Sage (programs in /tmp/):
 
-Paradigm 2: Algebraic-structural (Cohn-Umans lineage)
-Embed M⟨n,n,n⟩ into an algebraic structure — group algebra, association scheme, coherent configuration. TPP/STPP/SDPP/s-rank. You're not analyzing a tensor's geometry; you're finding structures that realize the multiplication. This is the project's home territory.
+```
+Over F₂ for ⟨3,3,3⟩: 133M raw choices → 211 orbits at step 1.  (burnside_n3.sage)
+Symmetry persists through peeling: all residuals have Lie dim ≥ 3 vs generic baseline of 2.
+                                                                   (residual_aut_cascade.sage, n=2)
+Orbit reduction applies at every step, not just step 1.
+The total search tree is compressed at every level.
+```
+---
 
-Paradigm 3: Spectral-entropic (Strassen-CVZ lineage)
-Strassen (1988) defined the asymptotic spectrum abstractly — ω is determined by it. Christandl-Vrana-Zuiddam realized it via quantum functionals (quantum entropies over tensor states). This gives a third way to bound ω: characterize the asymptotic spectrum directly, without going through either tensor geometry or group embeddings. This is arguably the most active frontier in the broader community right now and the project has zero engagement with it.
-
-Paradigm 4: Direct algorithmic
-Explicit bilinear algorithm construction. Historically Strassen's 7-multiplication trick. Recently DeepMind's AlphaTensor (2022). Can't reach ω = 2 this way — you'd need algorithms for all n simultaneously — but it feeds tensors into Paradigms 1 and 3.
-
-What's missing from the project's map:
-
-The project covers Paradigm 2 thoroughly. It has barriers from Paradigm 1 but no positive attack. Paradigm 3 (CVZ / asymptotic spectrum) is entirely absent — and it's the one the broader community considers most promising. CVZ's quantum functionals are not constrained by any of the five barriers in the RECONCILE.
-
-So the honest answer: no, the map has at least one missing lane.
-
-                                ω = 2
-                                  ▲
-           ┌──────────────────────┼──────────────────────┐
-           │                      │                      │
-     Paradigm 2              Paradigm 3             Paradigm 1
-     algebraic-structural    spectral-entropic       tensor-geometric
-           │                      │                      │
-     ┌─────┼─────┐          CVZ quantum            non-CW tensors
-     │     │     │          functionals,            via non-universal
-   SDPP  Pl21  CU13         asymptotic              methods
-         (α<γ) (s-rank)     spectrum                    │
-           │                      │                  Alman barrier
-      no barrier             no barrier             kills CW_q only
+Read the following in FULL: arxiv.org/pdf/2606.13408
+(It's in ./References)
 
 ---
 
-Confidence: high on the taxonomy, medium on "CVZ is the most promising missing piece" (I haven't read the CVZ papers in this session — want me to fetch and ground that claim?).---
+┌───────────────────────────┬───────────────────────────┬──────────────────────────────────────────┐
+│          Program          │       What it gives       │              Why it matters              │
+├───────────────────────────┼───────────────────────────┼──────────────────────────────────────────┤
+│ burnside_n3.sage          │ Exact orbit count via     │ Template for any Burnside computation.   │
+│                           │ conjugacy classes         │ Fast (216 class triples). Gave 211.      │
+├───────────────────────────┼───────────────────────────┼──────────────────────────────────────────┤
+│ residual_aut_cascade.sage │ Lie dim of residuals      │ Proves symmetry cascades — core          │
+│                           │ after peeling             │ justification for iterative orbit search │
+├───────────────────────────┼───────────────────────────┼──────────────────────────────────────────┤
+│ strassen_orbit_id.sage    │ Which orbits a            │ Template for classifying ANY             │
+│                           │ decomposition uses        │ decomposition (including AlphaTensor's)  │
+├───────────────────────────┼───────────────────────────┼──────────────────────────────────────────┤
+│ c7_subtensor_n3.sage      │ Efficient subtensor       │ O(511²) not O(511³). Clean algorithm.    │
+│                           │ enumeration via w_max     │ Confirmed singleton uniqueness.          │
+├───────────────────────────┼───────────────────────────┼──────────────────────────────────────────┤
+│ burnside_ternary_n3.sage  │ Ternary vs F₂ orbit       │ Definitively killed the {-1,0,1} search  │
+│                           │ comparison                │ direction. F₂ wins.                      │
+├───────────────────────────┼───────────────────────────┼──────────────────────────────────────────┤
+│ aut_matmul.sage           │ Lie algebra tangent-space │ Generalizes to any tensor. Confirmed Aut │
+│                           │  dimension                │  = GL_n³·S₂.                             │
+└───────────────────────────┴───────────────────────────┴──────────────────────────────────────────┘
 
-┌───────┬──────┬───────┬───────────────┬───────────┬────────┐
-│ Group │ |G|  │   α   │ ω bound (3/α) │ γ barrier │ α < γ? │
-├───────┼──────┼───────┼───────────────┼───────────┼────────┤
-│ A5    │ 60   │ —     │ —             │ 2.158     │ —      │
-├───────┼──────┼───────┼───────────────┼───────────┼────────┤
-│ A6    │ 360  │ 1.169 │ 2.567         │ 2.207     │ ✓      │
-├───────┼──────┼───────┼───────────────┼───────────┼────────┤
-│ A7    │ 2520 │ 1.183 │ 2.535         │ 1.844     │ ✓      │
-├───────┼──────┼───────┼───────────────┼───────────┼────────┤
-│ C₂×A5 │ 120  │ 1.123 │ 2.672         │ 1.848     │ ✓      │
-├───────┼──────┼───────┼───────────────┼───────────┼────────┤
-│ C₂×A6 │ 720  │ 1.151 │ 2.607         │ 1.958     │ ✓      │
-└───────┴──────┴───────┴───────────────┴───────────┴────────┘
+Exact cover (each support entry hit by exactly one rank-1 term) is a BARRIER, not a search tool:
+- n=2: exact-cover rank = 8 (schoolbook), true rank = 7 (Strassen). Gap = 1.
+- n=4: exact-cover rank = 49 (Strassen recursive), AlphaTensor = 47. Gap = 2.
+- Any improvement over compositional methods REQUIRES interference (multi-hit on support entries).
+- Lacelle 2026 (arXiv:2606.13408) proves composition methods = exact cover (non-overlap theorem).
+- The search must allow interference; exact cover reproduces known compositional results only.
 
-α < γ holds in every case. This is the property the abelian wreath base (C_{2n}) fails — that's why C_{2n} ≀ S_n gives α = γ and a trivial capacity bound. The alternating groups don't have that problem.
-
-But α ≈ 1.15 for these small groups, giving direct omega bounds around 2.5–2.6 — far from 2. The question for the Pl21 route is whether α for A_n grows toward 2 as n increases. That's what the wreath amplification (H ≀ S_n) is supposed to do — but the base α needs to be high enough, or the family needs to be parameterized so the amplified pseudo-exponent converges to 2.
-
-Notable: A7 at p=2 produces a KILL — sigma = 15552 exceeds the character-theoretic bound β₀ = 10584. The STPP triples in A7 are better than what character theory predicts, which is a positive signal that non-abelian groups have room the abelian case doesn't.
-
-Three open questions this data raises:
-1. What does α look like for A₈, A₉, ...? Is it monotone increasing?
-2. Does α(A_n) → 2 as n → ∞?
-3. What does α(A_n ≀ S_m) look like after wreath amplification?
-
->>> In this context:
-
-The "brute force search" framing is apt in one sense: the sieve is searching the space of TPP triples in finite groups, finding explicit algorithms for specific matrix sizes. Each hit is a real algorithm. But none of these finite hits alone constrains omega — for that you need the asymptotic machinery (wreath amplification, Pl21) to turn finite groups into infinite families with α → 2.
-
->>> The above is true; however, does this not give us a
->>> more clever way of doing something AlphaTensor-like?
+Burnside orbit counting + residual cascade measurement + orbit classification of decompositions
+give us a potential definition for orbit-reduced interference search in constructions of matmul
+schemes that beat the naive-Strassen constructions.

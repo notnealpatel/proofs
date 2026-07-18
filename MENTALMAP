@@ -105,6 +105,35 @@ DEAD ROUTES
   ! A_n survives BCGPU -- only finite simple family that does
 
 
+CU03 THEOREM 4.1 (the TPP-to-rank bridge)
+
+  TPP definition: Q(S) = {s1*s2^-1 : s1,s2 in S}  (quotient/difference set)
+  TPP(S,T,U) iff q1*q2*q3 = 1 with qi in Q(Si) implies q1=q2=q3=1
+
+  ! for SUBGROUPS: Q(H) = H, so condition is on H directly
+  ! for SUBSETS:   Q(S) = S-S (difference set), NOT S itself
+
+  TPP(S,T,U) in G  =>  <|S|,|T|,|U|>_F  <=  F[G]   (restriction)
+
+  encoding: A_st -> coeff of s^{-1}t in F[G], not coeff of s
+  R(<|S|,|T|,|U|>)  <=  R(F[G]-mult)  =  sum_i R(<d_i, d_i, d_i>)
+
+  ABELIAN GROUPS: alpha(G) = 3 always (CU03 Lemma)
+    => |S|*|T|*|U| <= |G| for any TPP triple
+    => R <= |G| but |G| >= |S|*|T|*|U| = n^3 (naive cost)
+    => abelian TPP CANNOT beat naive matmul
+    => DEAD for concrete algorithms
+
+  NON-ABELIAN: alpha < 3 possible, but Wedderburn overhead
+    R(F[G]-mult) = sum R(<d_i,d_i,d_i>) > |G|
+    circular when max(d_i) >= n
+    nontrivial only when all d_i < n
+
+  CU03 is an OMEGA tool, not a concrete algorithm tool.
+  it bounds omega via families + wreath amplification (alpha, gamma)
+  it does NOT efficiently produce R bounds for fixed matrix sizes
+
+
 REFERENCES (in References/)
 
   CU03    math/0307321    groups -> matmul

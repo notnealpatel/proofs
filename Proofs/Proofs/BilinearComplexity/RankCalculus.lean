@@ -339,6 +339,48 @@ theorem rank_contract₃_of_invertible (M : Matrix (Fin c) (Fin c) k) [Invertibl
 
 end Contract
 
+/-! ## 4b. Linearity of mode contractions over subtraction -/
+
+section ContractSub
+
+variable {k : Type*} [CommRing k] {a b c a' b' c' : ℕ}
+
+/-- Mode-1 contraction distributes over subtraction. -/
+theorem contract₁_sub (M : Matrix (Fin a') (Fin a) k) (T T' : Tensor k a b c) :
+    contract₁ M (T - T') = contract₁ M T - contract₁ M T' := by
+  funext i' j l
+  simp only [contract₁, Pi.sub_apply, mul_sub, Finset.sum_sub_distrib]
+
+/-- Mode-2 contraction distributes over subtraction. -/
+theorem contract₂_sub (M : Matrix (Fin b') (Fin b) k) (T T' : Tensor k a b c) :
+    contract₂ M (T - T') = contract₂ M T - contract₂ M T' := by
+  funext i j' l
+  simp only [contract₂, Pi.sub_apply, mul_sub, Finset.sum_sub_distrib]
+
+/-- Mode-3 contraction distributes over subtraction. -/
+theorem contract₃_sub (M : Matrix (Fin c') (Fin c) k) (T T' : Tensor k a b c) :
+    contract₃ M (T - T') = contract₃ M T - contract₃ M T' := by
+  funext i j l'
+  simp only [contract₃, Pi.sub_apply, mul_sub, Finset.sum_sub_distrib]
+
+/-- Triple contraction distributes over subtraction. -/
+theorem contract_sub (M₁ : Matrix (Fin a) (Fin a) k) (M₂ : Matrix (Fin b) (Fin b) k)
+    (M₃ : Matrix (Fin c) (Fin c) k) (T t : Tensor k a b c) :
+    contract₁ M₁ (contract₂ M₂ (contract₃ M₃ (T - t)))
+    = contract₁ M₁ (contract₂ M₂ (contract₃ M₃ T))
+      - contract₁ M₁ (contract₂ M₂ (contract₃ M₃ t)) := by
+  rw [contract₃_sub, contract₂_sub, contract₁_sub]
+
+/-- If a triple contraction stabilizes both `T` and `t`, it stabilizes `T - t`. -/
+theorem stab_residual (M₁ : Matrix (Fin a) (Fin a) k) (M₂ : Matrix (Fin b) (Fin b) k)
+    (M₃ : Matrix (Fin c) (Fin c) k) (T t : Tensor k a b c)
+    (hT : contract₁ M₁ (contract₂ M₂ (contract₃ M₃ T)) = T)
+    (ht : contract₁ M₁ (contract₂ M₂ (contract₃ M₃ t)) = t) :
+    contract₁ M₁ (contract₂ M₂ (contract₃ M₃ (T - t))) = T - t := by
+  rw [contract_sub, hT, ht]
+
+end ContractSub
+
 /-! ## 5. Reindexing invariance -/
 
 section ReindexDef
