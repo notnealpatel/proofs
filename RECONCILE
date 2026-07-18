@@ -1,86 +1,62 @@
-## Session-9 standing context
+This is the right question. No, the project's current map doesn't cover the full attackable space. Let me lay out the distinct paradigms.
 
-The following findings from the Hu9 analysis session (o46max-8
-advisor) are binding context for this session. Ground all
-dispatch and triage decisions in them.
+Paradigm 1: Tensor-geometric (Strassen-Bini lineage)
+Orbits under GL action, tensor rank, border rank (Bini's degeneration), secant varieties, apolarity. The laser method lives here — you take a specific tensor (CW_q), analyze its border rank geometry, extract asymptotic rank. The algebraic face is degeneration/approximation; the geometric face is secant varieties and orbit closures. This produces the current best bounds (ω < 2.372). Alman's barrier kills the universal method on CW_q tensors, but not ALL tensors or ALL analysis methods in this paradigm.
 
-### Barrier landscape
+Paradigm 2: Algebraic-structural (Cohn-Umans lineage)
+Embed M⟨n,n,n⟩ into an algebraic structure — group algebra, association scheme, coherent configuration. TPP/STPP/SDPP/s-rank. You're not analyzing a tensor's geometry; you're finding structures that realize the multiplication. This is the project's home territory.
 
-Five barrier results constrain the group-theoretic approach:
+Paradigm 3: Spectral-entropic (Strassen-CVZ lineage)
+Strassen (1988) defined the asymptotic spectrum abstractly — ω is determined by it. Christandl-Vrana-Zuiddam realized it via quantum functionals (quantum entropies over tensor states). This gives a third way to bound ω: characterize the asymptotic spectrum directly, without going through either tensor geometry or group embeddings. This is arguably the most active frontier in the broader community right now and the project has zero engagement with it.
 
-| Family | Status | Reference |
-|--------|--------|-----------|
-| Bounded-exponent abelian (STPP) | DEAD | BCCGNS+U 2017, arXiv:1605.06702 |
-| Bounded-exponent nilpotent (STPP) | DEAD | BCCGU 2018, arXiv:1712.02302 |
-| Groups of Lie type (TPP) | DEAD (can't reach omega < 2+ε) | BCGPU 2022, arXiv:2204.03826 |
-| Young subgroups of S_n | DEAD | BCCGU 2018, arXiv:1712.02302 |
-| CW_q tensors (universal method) | omega >= 2.168 | Alman 2019, arXiv:1812.08731 |
+Paradigm 4: Direct algorithmic
+Explicit bilinear algorithm construction. Historically Strassen's 7-multiplication trick. Recently DeepMind's AlphaTensor (2022). Can't reach ω = 2 this way — you'd need algorithms for all n simultaneously — but it feeds tensors into Paradigms 1 and 3.
 
-The Lie type barrier identifies the **second-smallest irrep
-dimension** as the key obstruction — directly the alpha < gamma
-question. PSL(2,q) are groups of Lie type and are therefore
-killed for omega; the Im15/Im16/Im17 sweeps of PSL(2,q) are
-structural data only.
+What's missing from the project's map:
 
-The SDPP conjecture (CKSU Conjecture 4.1/4.7, "two-families")
-is the **last surviving CKSU conjecture** that would imply
-omega = 2. It lives in abelian groups of possibly unbounded
-exponent. Pratt 2023 [arXiv:2309.03878] showed its truth would
-require large skew corner-free sets, suggesting it may be
-false, but the conjecture remains open. An SDPP machinery audit
-is in `.tasks/f5exp/docs/Hu9-sdpp-audit.md`.
+The project covers Paradigm 2 thoroughly. It has barriers from Paradigm 1 but no positive attack. Paradigm 3 (CVZ / asymptotic spectrum) is entirely absent — and it's the one the broader community considers most promising. CVZ's quantum functionals are not constrained by any of the five barriers in the RECONCILE.
 
-### The alpha = gamma wall
+So the honest answer: no, the map has at least one missing lane.
 
-CU03 proved alpha(C_{2n} wr S_n) -> 2, but this gives **no
-omega bound**: the character-degree parameter gamma converges
-at the same rate (alpha = gamma), making the capacity
-inequality (CKSU Theorem 5.1) trivial. The C_{2n} route was
-fully analyzed in CU03 and has not advanced since. Aw1
-formalizes a generalization of this known-to-be-insufficient
-result.
+                                ω = 2
+                                  ▲
+           ┌──────────────────────┼──────────────────────┐
+           │                      │                      │
+     Paradigm 2              Paradigm 3             Paradigm 1
+     algebraic-structural    spectral-entropic       tensor-geometric
+           │                      │                      │
+     ┌─────┼─────┐          CVZ quantum            non-CW tensors
+     │     │     │          functionals,            via non-universal
+   SDPP  Pl21  CU13         asymptotic              methods
+         (α<γ) (s-rank)     spectrum                    │
+           │                      │                  Alman barrier
+      no barrier             no barrier             kills CW_q only
 
-**The non-abelian case (Pl21) matters because non-abelian
-groups can have alpha < gamma** — the character degrees might
-grow slowly enough to give a nontrivial omega bound. That is
-the open frontier. Prioritize Pl21 and its dependencies
-(Ca1, Df1) accordingly.
+---
 
-### Manuscript framing
+Confidence: high on the taxonomy, medium on "CVZ is the most promising missing piece" (I haven't read the CVZ papers in this session — want me to fetch and ground that claim?).---
 
-`Manuscripts/Drafts/abelian-factor-refutation.md` has been
-reframed as a contribution to the structural theory of TPP
-capacity (the Hedtke-Murthy / Murthy line), not to the
-omega = 2 program. The lift law at p = 2 is machine-checked
-(`Proofs/Xlib/TPPLift.lean`, sorry-free). The general-p
-lift law is not formalized. Hu9 (manuscript sign-off) is
-active and awaiting the USER's verdict.
+┌───────┬──────┬───────┬───────────────┬───────────┬────────┐
+│ Group │ |G|  │   α   │ ω bound (3/α) │ γ barrier │ α < γ? │
+├───────┼──────┼───────┼───────────────┼───────────┼────────┤
+│ A5    │ 60   │ —     │ —             │ 2.158     │ —      │
+├───────┼──────┼───────┼───────────────┼───────────┼────────┤
+│ A6    │ 360  │ 1.169 │ 2.567         │ 2.207     │ ✓      │
+├───────┼──────┼───────┼───────────────┼───────────┼────────┤
+│ A7    │ 2520 │ 1.183 │ 2.535         │ 1.844     │ ✓      │
+├───────┼──────┼───────┼───────────────┼───────────┼────────┤
+│ C₂×A5 │ 120  │ 1.123 │ 2.672         │ 1.848     │ ✓      │
+├───────┼──────┼───────┼───────────────┼───────────┼────────┤
+│ C₂×A6 │ 720  │ 1.151 │ 2.607         │ 1.958     │ ✓      │
+└───────┴──────┴───────┴───────────────┴───────────┴────────┘
 
-### DAG priority ordering
+α < γ holds in every case. This is the property the abelian wreath base (C_{2n}) fails — that's why C_{2n} ≀ S_n gives α = γ and a trivial capacity bound. The alternating groups don't have that problem.
 
-1. **Pl21** (Clifford, general-H wreath) — highest value;
-   the alpha < gamma frontier.
-2. **Ca1 / Df1** — prerequisites to Pl21; keep unblocked.
-3. **Sq1** — general pseudoExponent convergence; feeds Ca1.
-4. **Aw1** — growing abelian base; true but known-insufficient
-   for omega. Do not block the critical path on it.
-5. **Pl18 downstreams** (Im14-Im17, Pd1, Hu11-12, Pl23) —
-   structural data collection; lower priority than the
-   formal proof chain.
-6. **Pl22 track (S)** — formalizing BCCGNS+U Theorem B;
-   strategically interesting, not urgent.
+But α ≈ 1.15 for these small groups, giving direct omega bounds around 2.5–2.6 — far from 2. The question for the Pl21 route is whether α for A_n grows toward 2 as n increases. That's what the wreath amplification (H ≀ S_n) is supposed to do — but the base α needs to be high enough, or the family needs to be parameterized so the amplified pseudo-exponent converges to 2.
 
-### Citation corrections applied
+Notable: A7 at p=2 produces a KILL — sigma = 15552 exceeds the character-theoretic bound β₀ = 10584. The STPP triples in A7 are better than what character theory predicts, which is a positive signal that non-abelian groups have room the abelian case doesn't.
 
-The manuscript's references were re-checked 2026-07-18.
-Murthy arXiv:2602.15796 removed (wrong citations); Murthy
-arXiv:2512.16730 and arXiv:2602.15796 added with correct
-attributions; BCCGNS+U added; three Hedtke-Murthy 2012
-reproductions acknowledged; CU03 Lemma 2.2 added.
-
-### Documents produced
-
-- `.tasks/f5exp/docs/Hu9-literature-crosscheck.md`
-- `.tasks/f5exp/docs/Hu9-product-relevance.md`
-- `.tasks/f5exp/docs/Hu9-barrier-analysis.md`
-- `.tasks/f5exp/docs/Hu9-sdpp-audit.md`
+Three open questions this data raises:
+1. What does α look like for A₈, A₉, ...? Is it monotone increasing?
+2. Does α(A_n) → 2 as n → ∞?
+3. What does α(A_n ≀ S_m) look like after wreath amplification?
