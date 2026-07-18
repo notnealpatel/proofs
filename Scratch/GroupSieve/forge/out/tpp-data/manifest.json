@@ -1,11 +1,13 @@
 [
   {
-    "id": "pl15_S6",
-    "description": "S6 (order 720, SymmetricGroup(6))",
+    "id": "pl15_C2_x_S6",
+    "description": "C2 x S6 (order 1440)",
     "category": "pl15_probe",
     "expected_rho0": null,
     "constructor": [
-      "PermGroup",
+      "CpxPermGroup",
+      "C2",
+      2,
       "S6"
     ]
   }
