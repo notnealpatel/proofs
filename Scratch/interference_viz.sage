@@ -129,16 +129,19 @@ def print_coverage_matrix(title, W, inner_dim, W_ref=None, num_cols_display=None
     print()
 
 
-def print_summary(decompositions, num_cols_display):
-    """Print density and multi-hit summary for each decomposition."""
+def print_summary(decompositions):
+    """Print nnz, density, and multi-hit summary for each decomposition.
+
+    Density is normalized to the decomposition's own footprint (nnz / (rows * r)),
+    so figures are comparable across decompositions of different rank.
+    """
     for label, _, _, W_mat, _, _, _ in decompositions:
         n_outputs = W_mat.nrows()
         r = W_mat.ncols()
-        total_slots = num_cols_display * n_outputs
         total_nz = sum(1 for j in range(n_outputs) for k in range(r) if W_mat[j, k] != 0)
-        density = float(total_nz) / float(total_slots)
+        density = float(total_nz) / float(r * n_outputs)
         multi = sum(1 for k in range(r) if sum(1 for j in range(n_outputs) if W_mat[j, k] != 0) > 1)
-        print(f"  {label:>10}: density={density:.4%}  multi-hit={multi}/{num_cols_display}")
+        print(f"  {label:>10}: nnz={total_nz}  density={density:.4%}  multi-hit={multi}/{r}")
     print()
 
 
@@ -289,4 +292,4 @@ for idx, (label, U, V, W, n, m, p) in enumerate(decompositions):
     ref = W_ref if idx > 0 else None
     print_coverage_matrix(title, W, m, W_ref=ref, num_cols_display=max_rank)
 
-print_summary(decompositions, max_rank)
+print_summary(decompositions)
