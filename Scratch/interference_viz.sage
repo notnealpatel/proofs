@@ -163,7 +163,10 @@ def print_addition_counts(decompositions):
       scalar multiplications = nns (nonzero entries that are not +-1)
     q = total linear operations = additions + scalar mults, summed over U, V, W.
     """
-    print("  Linear operations (Beniamini-Schwartz accounting):")
+    print("  Linear operations (Beniamini-Schwartz accounting):\n")
+    hdr = f"  {'':>10}  {'rank':>4}  {'addU':>4}  {'addV':>4}  {'addW':>4}  {'adds':>4}  {'smul':>4}  {'q':>4}"
+    print(hdr)
+    print(f"  {'-'*10}  {'----':>4}  {'----':>4}  {'----':>4}  {'----':>4}  {'----':>4}  {'----':>4}  {'----':>4}")
     for label, U_mat, V_mat, W_mat, _, _, _ in decompositions:
         r = W_mat.ncols()
         adds_U = _nnz(U_mat) - r
@@ -171,8 +174,8 @@ def print_addition_counts(decompositions):
         adds_W = _nnz(W_mat) - W_mat.nrows()
         adds = adds_U + adds_V + adds_W
         smuls = _nns(U_mat) + _nns(V_mat) + _nns(W_mat)
-        print(f"  {label:>10}: adds={adds} (U:{adds_U} V:{adds_V} W:{adds_W})"
-              f"  scalar-mults={smuls}  q={adds + smuls}")
+        print(f"  {label:>10}  {r:>4}  {adds_U:>4}  {adds_V:>4}  {adds_W:>4}"
+              f"  {adds:>4}  {smuls:>4}  {adds + smuls:>4}")
     print()
 
 
