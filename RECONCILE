@@ -1,52 +1,36 @@
-The theorem `stab_residual` at `Proofs/Proofs/BilinearComplexity/RankCalculus.lean`
-proves: if g stabilizes T and g stabilizes t, then g stabilizes T - t. This justifies
-orbit reduction at every peeling step.
+The search is unbuilt. Everything below it is ready.
 
-The following measurements come from Sage (programs in /tmp/):
+Formal foundation: `stab_residual` in `Proofs/Proofs/BilinearComplexity/RankCalculus.lean`
+  licenses orbit reduction at every peeling step (Stab(T) ∩ Stab(t) ≤ Stab(T-t)).
 
-```
-Over F₂ for ⟨3,3,3⟩: 133M raw choices → 211 orbits at step 1.  (burnside_n3.sage)
-Symmetry persists through peeling: all residuals have Lie dim ≥ 3 vs generic baseline of 2.
-                                                                   (residual_aut_cascade.sage, n=2)
-Orbit reduction applies at every step, not just step 1.
-The total search tree is compressed at every level.
-```
----
+Computational foundation: `Scratch/burnside_n3.sage` (133M→211 orbits for ⟨3,3,3⟩/F₂),
+  `Scratch/residual_aut_cascade.sage` (Lie dim ≥ 3 persists through peeling).
 
-Read the following in FULL: arxiv.org/pdf/2606.13408
-(It's in ./References)
+Diagnostic tooling (this session): `Scratch/interference_viz.sage` (coverage grids with
+  silence detection), `Scratch/residual_trajectory.sage` (peeling trajectory for Laderman,
+  Smirnov-1, Smirnov-2), `Scratch/jm_family.sage` (JM one-parameter family, verified).
+  Factor-rank signatures differ across rank-23 decompositions — hub structure is not universal.
+
+Lacelle 2026 (References/arXiv-2606-13408): composition = non-overlap (Theorem 1).
+  Interference is the mechanism that beats composition. Read in full; no further action needed.
 
 ---
 
-┌───────────────────────────┬───────────────────────────┬──────────────────────────────────────────┐
-│          Program          │       What it gives       │              Why it matters              │
-├───────────────────────────┼───────────────────────────┼──────────────────────────────────────────┤
-│ burnside_n3.sage          │ Exact orbit count via     │ Template for any Burnside computation.   │
-│                           │ conjugacy classes         │ Fast (216 class triples). Gave 211.      │
-├───────────────────────────┼───────────────────────────┼──────────────────────────────────────────┤
-│ residual_aut_cascade.sage │ Lie dim of residuals      │ Proves symmetry cascades — core          │
-│                           │ after peeling             │ justification for iterative orbit search │
-├───────────────────────────┼───────────────────────────┼──────────────────────────────────────────┤
-│ strassen_orbit_id.sage    │ Which orbits a            │ Template for classifying ANY             │
-│                           │ decomposition uses        │ decomposition (including AlphaTensor's)  │
-├───────────────────────────┼───────────────────────────┼──────────────────────────────────────────┤
-│ c7_subtensor_n3.sage      │ Efficient subtensor       │ O(511²) not O(511³). Clean algorithm.    │
-│                           │ enumeration via w_max     │ Confirmed singleton uniqueness.          │
-├───────────────────────────┼───────────────────────────┼──────────────────────────────────────────┤
-│ burnside_ternary_n3.sage  │ Ternary vs F₂ orbit       │ Definitively killed the {-1,0,1} search  │
-│                           │ comparison                │ direction. F₂ wins.                      │
-├───────────────────────────┼───────────────────────────┼──────────────────────────────────────────┤
-│ aut_matmul.sage           │ Lie algebra tangent-space │ Generalizes to any tensor. Confirmed Aut │
-│                           │  dimension                │  = GL_n³·S₂.                             │
-└───────────────────────────┴───────────────────────────┴──────────────────────────────────────────┘
+IMMEDIATE: build and run the orbit-reduced interference search for ⟨3,3,3⟩ over F₂.
 
-Exact cover (each support entry hit by exactly one rank-1 term) is a BARRIER, not a search tool:
-- n=2: exact-cover rank = 8 (schoolbook), true rank = 7 (Strassen). Gap = 1.
-- n=4: exact-cover rank = 49 (Strassen recursive), AlphaTensor = 47. Gap = 2.
-- Any improvement over compositional methods REQUIRES interference (multi-hit on support entries).
-- Lacelle 2026 (arXiv:2606.13408) proves composition methods = exact cover (non-overlap theorem).
-- The search must allow interference; exact cover reproduces known compositional results only.
+  Target: rank 24 (validation — solutions guaranteed, one level shallower than rank 23).
 
-Burnside orbit counting + residual cascade measurement + orbit classification of decompositions
-give us a potential definition for orbit-reduced interference search in constructions of matmul
-schemes that beat the naive-Strassen constructions.
+  Algorithm: at depth k, enumerate orbits of rank-1 terms in F₂⁹⊗F₂⁹⊗F₂⁹ under
+  Stab(R_k), pick representative, subtract from residual, recurse. Prune when residual
+  is infeasible (heuristic: nnz trajectory, support structure).
+
+  Needs built:
+  (1) orbit enumeration under a matrix group acting on rank-1 tensors over F₂
+  (2) stabilizer intersection at each peeling step
+  (3) feasibility pruning test for the residual
+  (4) search driver with backtracking
+
+  Start from: burnside_n3.sage (has orbit enumeration), residual_aut_cascade.sage
+  (has stabilizer computation). These need to be composed into a search loop.
+
+AFTER: rank 23 (reproduce Laderman/F₂), then rank 22 (open problem).
