@@ -129,6 +129,15 @@ def print_coverage_matrix(title, W, inner_dim, W_ref=None, num_cols_display=None
     print()
 
 
+def _nnz(M):
+    return sum(1 for v in M.list() if v != 0)
+
+
+def _nns(M):
+    """Nonzero entries that are not +-1 (each costs a scalar multiplication)."""
+    return sum(1 for v in M.list() if v != 0 and v != 1 and v != -1)
+
+
 def print_summary(decompositions):
     """Print nnz, density, and multi-hit summary for each decomposition.
 
@@ -138,10 +147,32 @@ def print_summary(decompositions):
     for label, _, _, W_mat, _, _, _ in decompositions:
         n_outputs = W_mat.nrows()
         r = W_mat.ncols()
-        total_nz = sum(1 for j in range(n_outputs) for k in range(r) if W_mat[j, k] != 0)
+        total_nz = _nnz(W_mat)
         density = float(total_nz) / float(r * n_outputs)
         multi = sum(1 for k in range(r) if sum(1 for j in range(n_outputs) if W_mat[j, k] != 0) > 1)
         print(f"  {label:>10}: nnz={total_nz}  density={density:.4%}  multi-hit={multi}/{r}")
+    print()
+
+
+def print_addition_counts(decompositions):
+    """Beniamini-Schwartz style linear-operation counts (arXiv:2008.03759, Remark 2).
+
+    Our matrices are transposed relative to theirs: U, V are (n*m x r) / (m*p x r)
+    with columns = products, W is (n*p x r) with rows = outputs. Per side:
+      additions = nnz - (number of linear combinations formed)
+      scalar multiplications = nns (nonzero entries that are not +-1)
+    q = total linear operations = additions + scalar mults, summed over U, V, W.
+    """
+    print("  Linear operations (Beniamini-Schwartz accounting):")
+    for label, U_mat, V_mat, W_mat, _, _, _ in decompositions:
+        r = W_mat.ncols()
+        adds_U = _nnz(U_mat) - r
+        adds_V = _nnz(V_mat) - r
+        adds_W = _nnz(W_mat) - W_mat.nrows()
+        adds = adds_U + adds_V + adds_W
+        smuls = _nns(U_mat) + _nns(V_mat) + _nns(W_mat)
+        print(f"  {label:>10}: adds={adds} (U:{adds_U} V:{adds_V} W:{adds_W})"
+              f"  scalar-mults={smuls}  q={adds + smuls}")
     print()
 
 
@@ -293,3 +324,4 @@ for idx, (label, U, V, W, n, m, p) in enumerate(decompositions):
     print_coverage_matrix(title, W, m, W_ref=ref, num_cols_display=max_rank)
 
 print_summary(decompositions)
+print_addition_counts(decompositions)
