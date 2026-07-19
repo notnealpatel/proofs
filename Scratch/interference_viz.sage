@@ -70,13 +70,16 @@ def sign_char(v):
     return "."
 
 
-def print_coverage_matrix(title, W, inner_dim, W_ref=None, num_cols_display=None):
+def print_coverage_matrix(title, W, inner_dim, W_ref=None, num_cols_display=None,
+                          col_order=None, orbit_boundaries=None):
     """
     Display coverage table from W matrix.
     W has shape (n*p) x r: rows = output entries, columns = products.
     inner_dim: the m in <n,m,p> — schoolbook baseline hits per output.
     W_ref: reference (schoolbook) W matrix for coloring comparisons.
     num_cols_display: pad to this many columns (for alignment across algorithms).
+    col_order: list of column indices defining display order (for orbit grouping).
+    orbit_boundaries: set of display-column indices where an orbit boundary falls.
     """
     n_outputs = W.nrows()
     r = W.ncols()
@@ -84,11 +87,20 @@ def print_coverage_matrix(title, W, inner_dim, W_ref=None, num_cols_display=None
 
     GREEN = "\033[30;102m"
     RED = "\033[30;101m"
+    DIM = "\033[2m"
     RESET = "\033[0m"
 
-    products = [f"m{k+1}" for k in range(r)]
-    while len(products) < num_cols:
-        products.append("  ")
+    if col_order is None:
+        col_order = list(range(r))
+    # Pad col_order to num_cols
+    display_cols = list(col_order)
+    while len(display_cols) < num_cols:
+        display_cols.append(None)  # padding
+
+    if orbit_boundaries is None:
+        orbit_boundaries = set()
+
+    products = [f"m{c+1}" if c is not None else "  " for c in display_cols]
 
     print(f"\n  {title}")
     print(f"  {'=' * len(title)}\n")
@@ -97,33 +109,41 @@ def print_coverage_matrix(title, W, inner_dim, W_ref=None, num_cols_display=None
     out_w = 4
 
     hdr = f"  {'':>{out_w}}"
-    for p in products:
-        hdr += f" {p:^{prod_w}}"
+    for di, p in enumerate(products):
+        sep = "|" if di in orbit_boundaries else " "
+        hdr += f"{sep}{p:^{prod_w}}"
     hdr += "  hits"
     print(hdr)
-    print(f"  {'-'*out_w}" + f" {'-'*prod_w}" * num_cols + "  ----")
+    sep_line = f"  {'-'*out_w}"
+    for di in range(num_cols):
+        sep = "+" if di in orbit_boundaries else " "
+        sep_line += f"{sep}{'-'*prod_w}"
+    sep_line += "  ----"
+    print(sep_line)
 
     for j in range(n_outputs):
         hits = sum(1 for k in range(r) if W[j, k] != 0)
         line = f"  {j+1:<{out_w}}"
-        for k in range(num_cols):
-            if k < r:
+        for di in range(num_cols):
+            k = display_cols[di]
+            if k is not None and k < r:
                 v = W[j, k]
                 c = sign_char(v)
             else:
                 c = "."
+            sep = "|" if di in orbit_boundaries else " "
             if c == ".":
                 cell = f"{'.':^{prod_w}}"
             else:
                 cell = f" {c} "
                 cell = f"{cell:^{prod_w}}"
-                if W_ref is not None and k < W_ref.ncols() and W_ref[j, k] != 0:
+                if W_ref is not None and k is not None and k < W_ref.ncols() and W_ref[j, k] != 0:
                     ref_c = sign_char(W_ref[j, k])
                     if ref_c == c:
                         cell = f"{GREEN}{cell}{RESET}"
                     else:
                         cell = f"{RED}{cell}{RESET}"
-            line += f" {cell}"
+            line += f"{sep}{cell}"
         line += f"  {hits}"
         print(line)
     print()
@@ -299,9 +319,30 @@ def define_schoolbook_333():
     return ("Schoolbook", U_mat, V_mat, W_mat, n, m, p)
 
 
-# === Main ===
+# === Stabilizer cache ===
 
 import sys
+import os
+import json
+
+
+# Use cwd (Scratch/), not __file__ which Sage remaps to a temp copy.
+CACHE_FILE = os.path.join(os.getcwd(), "stabilizer_cache.json")
+
+
+def _load_stab_cache():
+    """Load stabilizer cache; return dict keyed by decomposition label."""
+    if not os.path.exists(CACHE_FILE):
+        return {}
+    try:
+        with open(CACHE_FILE, "r") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return {}
+
+
+# === Main ===
+
 if "--333" in sys.argv:
     decompositions_raw = [define_schoolbook_333(), define_smirnov1(), define_smirnov2(), define_laderman()]
 else:
@@ -311,9 +352,24 @@ else:
 decompositions = []
 for label, U, V, W, n, m, p in decompositions_raw:
     if not verify_decomposition(U, V, W, n, m, p, label):
-        import sys
         sys.exit(1)
     decompositions.append((label, U, V, W, n, m, p))
+
+# Load cached stabilizer annotations (no inline computation)
+stab_cache = _load_stab_cache()
+stab_info = {}
+missing_labels = []
+for label, U, V, W, n, m, p in decompositions:
+    if label == "Schoolbook":
+        continue
+    if label in stab_cache:
+        stab_info[label] = stab_cache[label]
+    else:
+        missing_labels.append(label)
+
+if missing_labels:
+    print(f"  (no stabilizer cache for {', '.join(missing_labels)}; "
+          f"run compute_stabilizers.sage to populate)")
 
 # Determine max rank for column alignment
 max_rank = max(W.ncols() for _, _, _, W, _, _, _ in decompositions)
@@ -322,9 +378,69 @@ max_rank = max(W.ncols() for _, _, _, W, _, _, _ in decompositions)
 W_ref = decompositions[0][3]  # schoolbook W
 for idx, (label, U, V, W, n, m, p) in enumerate(decompositions):
     r = W.ncols()
-    title = f"{label.upper()} (rank {r})"
     ref = W_ref if idx > 0 else None
-    print_coverage_matrix(title, W, m, W_ref=ref, num_cols_display=max_rank)
+
+    # Stabilizer annotation from cache
+    if label in stab_info:
+        si = stab_info[label]
+        status = "contains" if si['lower_bound'] else "="
+        orbit_str = " + ".join(str(len(o)) for o in si['orbits'])
+        title = (f"{label.upper()} (rank {r})  "
+                 f"Sym {status} {si['structure_desc']}, |G|={si['order']}, "
+                 f"orbits: {orbit_str}")
+        col_order = si['col_order']
+        # Compute orbit boundaries (display positions where a new orbit starts)
+        orbit_boundaries = set()
+        pos = 0
+        for orb in si['orbits']:
+            if pos > 0:
+                orbit_boundaries.add(pos)
+            pos += len(orb)
+    else:
+        title = f"{label.upper()} (rank {r})"
+        col_order = None
+        orbit_boundaries = None
+
+    print_coverage_matrix(title, W, m, W_ref=ref, num_cols_display=max_rank,
+                          col_order=col_order, orbit_boundaries=orbit_boundaries)
 
 print_summary(decompositions)
 print_addition_counts(decompositions)
+
+# Stabilizer validation (from cache)
+if stab_info:
+    print("  Stabilizer validation:")
+    for label, si in stab_info.items():
+        status = "contains" if si['lower_bound'] else "="
+        orbit_str = " + ".join(str(len(o)) for o in si['orbits'])
+        orbit_detail = ', '.join(
+            '{' + ','.join(str(x+1) for x in o) + '}' for o in si['orbits']
+        )
+        print(f"    {label}: Sym {status} {si['structure_desc']}, "
+              f"|G|={si['order']}, orbits: {orbit_str}")
+        print(f"      partition: {orbit_detail}")
+
+        # Known ground-truth checks
+        if label == "Strassen" and not si['lower_bound']:
+            expected = 36
+            ok = "PASS" if si['order'] == expected else "FAIL"
+            print(f"      Validation: order={si['order']}, expected={expected} "
+                  f"(S3 x S3, Burichenko 2014 / CILO arXiv:1610.08364) [{ok}]")
+        elif label == "Laderman":
+            ref = "S4, order 24 (Burichenko / BILR arXiv:1801.00843)"
+            ref_orbits = "1 + 4 + 4 + 6 + 8"
+            ref_partition = "{19}, {20,21,22,23}, {4,7,12,16}, {1,3,6,10,11,14}, {2,5,8,9,13,15,17,18}"
+            if si['lower_bound']:
+                print(f"      Reference: {ref}, orbits: {ref_orbits}")
+                print(f"      Reference partition: {ref_partition}")
+                ok = "CONSISTENT" if si['order'] in [1, 2, 3, 4, 6, 8, 12, 24] else "INCONSISTENT"
+                print(f"      Status: lower bound {si['order']} divides 24: {ok}")
+            else:
+                ok = "PASS" if si['order'] == 24 else "FAIL"
+                print(f"      Validation: order={si['order']}, expected=24 ({ref}) [{ok}]")
+        elif "Smirnov" in label:
+            # Expected: Z/3 from cyclic construction, orbits 1 + 8*3
+            expected_orbits = sorted([1] + [3]*8)
+            ok = "PASS" if si['orbit_sizes'] == expected_orbits else "CHECK"
+            print(f"      Expected: Z/3 from cyclic construction, orbits 1 + 3*8 [{ok}]")
+    print()
