@@ -1,3 +1,70 @@
+Problem: multiply two 36x36 matrices        (N = 36)
+
+LEVEL 0   choose recipe <2,2,2>, rank 7, q = 15
+─────────────────────────────────────────────────
+  36x36 seen as a 2x2 matrix of 18x18 blocks:
+
+        ┌─────────┬─────────┐
+        │ A11     │ A12     │     each Aij is an
+        │  18x18  │  18x18  │     18x18 block
+        ├─────────┼─────────┤     (N/2 = 18)
+        │ A21     │ A22     │
+        │  18x18  │  18x18  │
+        └─────────┴─────────┘
+
+  recipe says: form 7 products M1..M7 of 18x18
+  blocks (e.g. M1 = (A11+A22)(B11+B22)), using
+  15 block-additions of size 18x18.
+
+     M1   M2   M3   M4   M5   M6   M7
+      │    │    │    │    │    │    │      each is one
+      ▼    ▼    ▼    ▼    ▼    ▼    ▼      18x18 matmul
+
+LEVEL 1   choose recipe <3,3,3>, rank 23, q = 98
+─────────────────────────────────────────────────
+  each 18x18 product seen as 3x3 of 6x6 blocks:
+
+        ┌──────┬──────┬──────┐
+        │ 6x6  │ 6x6  │ 6x6  │
+        ├──────┼──────┼──────┤    (18/3 = 6)
+        │ 6x6  │ 6x6  │ 6x6  │
+        ├──────┼──────┼──────┤
+        │ 6x6  │ 6x6  │ 6x6  │
+        └──────┴──────┴──────┘
+
+  recipe says: 23 products of 6x6 blocks,
+  98 block-additions of size 6x6.
+
+  running count: 7 x 23 = 16
+
+LEVEL 2   cutoff: schoolbook
+─────────────────────────────────────────────────
+  each 6x6 matmul done direc
+
+TOTAL
+─────────────────────────────────────────────────
+  scalar mults: 7 x 23 x 216
+  schoolbook:   36^3               = 46,656
+  additions:    15 adds on 1
+              + 7 x 98 adds on 6x6 tiles (level 1)
+              = 15x324 + 686
+
+Reading the notation off the
+
+- N×N — the actual matrices
+as you descend: 36 → 18 → 6.
+- ⟨n,n,n⟩ — the recipe chose
+the current tile into n×n blocks and which r block-
+products to form. Level 0 ch
+⟨3,3,3⟩; the schedule was a free choice.
+- r multiplies down the tree
+exponent's origin. q is paid on tiles at each level
+— that's the constant's orig
+q) cuts the addition lines; a lower-rank recipe cuts
+the branching factor.
+
+---
+
 MENTAL MAP: omega = 2
 2026-07-18
 
