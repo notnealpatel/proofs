@@ -40,6 +40,7 @@ import (
 	"flag"
 	"fmt"
 	"math"
+	"math/bits"
 	"math/rand/v2"
 	"os"
 	"sort"
@@ -89,7 +90,7 @@ func loadAlgorithm(path string) (algorithm, error) {
 		if len(e) != 4 {
 			return algorithm{}, fmt.Errorf("bad T entry in %s", path)
 		}
-		alg.T[idx(int(e[0]), int(e[1]), int(e[2]))] = e[3]
+		alg.T[idx(int(e[0]), int(e[1]), int(e[2]))] = reduce(e[3])
 	}
 	alg.Terms = make([][]entry, d.R)
 	for k, term := range d.Terms {
@@ -97,8 +98,12 @@ func loadAlgorithm(path string) (algorithm, error) {
 			if len(e) != 4 {
 				return algorithm{}, fmt.Errorf("bad term entry in %s term %d", path, k)
 			}
+			v := reduce(e[3])
+			if v == 0 {
+				continue // skip zero entries after reduction
+			}
 			alg.Terms[k] = append(alg.Terms[k], entry{
-				A: int(e[0]), B: int(e[1]), C: int(e[2]), Val: e[3],
+				A: int(e[0]), B: int(e[1]), C: int(e[2]), Val: v,
 			})
 		}
 	}
@@ -124,7 +129,7 @@ func subtractTerm(res *[729]int64, term []entry) int {
 	for _, e := range term {
 		i := idx(e.A, e.B, e.C)
 		old := res[i]
-		res[i] -= e.Val
+		res[i] = reduce(res[i] - e.Val)
 		nw := res[i]
 		if old == 0 && nw != 0 {
 			delta++
@@ -140,7 +145,7 @@ func addTerm(res *[729]int64, term []entry) int {
 	for _, e := range term {
 		i := idx(e.A, e.B, e.C)
 		old := res[i]
-		res[i] += e.Val
+		res[i] = reduce(res[i] + e.Val)
 		nw := res[i]
 		if old == 0 && nw != 0 {
 			delta++
@@ -278,13 +283,91 @@ func greedyBestSearch(ctx context.Context, alg *algorithm, restarts int) int {
 }
 
 // ---------------------------------------------------------------
+// Subset bitset for dead-state memoization
+//
+// A flat bitset over the 2^r subset lattice replaces the previous
+// map[uint32]struct{}: one bit test/set per state instead of a hash
+// op plus ~50 bytes per entry. 4 MiB at r=25. Valid for r <= 28.
+// ---------------------------------------------------------------
+
+type subsetSet []uint64
+
+func newSubsetSet(r int) subsetSet { return make(subsetSet, (1<<r)/64+1) }
+
+func (s subsetSet) test(m uint32) bool { return s[m>>6]&(1<<(m&63)) != 0 }
+func (s subsetSet) set(m uint32)       { s[m>>6] |= 1 << (m & 63) }
+
+func (s subsetSet) clearAll() {
+	for i := range s {
+		s[i] = 0
+	}
+}
+
+// ---------------------------------------------------------------
+// F2 bit-packed kernel (used when -mod 2)
+//
+// Over F2 a residual is 729 bits in 12 words; subtracting a term is
+// XOR (self-inverse), and nnz deltas come from popcounts.
+// ---------------------------------------------------------------
+
+const f2Words = (729 + 63) / 64
+
+type f2Tensor [f2Words]uint64
+
+func f2Of(t *[729]int64) f2Tensor {
+	var b f2Tensor
+	for i, v := range t {
+		if v&1 != 0 {
+			b[i>>6] |= 1 << (uint(i) & 63)
+		}
+	}
+	return b
+}
+
+func f2TermsOf(alg *algorithm) []f2Tensor {
+	out := make([]f2Tensor, alg.R)
+	for k, term := range alg.Terms {
+		for _, e := range term {
+			if e.Val&1 != 0 {
+				i := idx(e.A, e.B, e.C)
+				out[k][i>>6] ^= 1 << (uint(i) & 63)
+			}
+		}
+	}
+	return out
+}
+
+func (b *f2Tensor) nnz() int {
+	n := 0
+	for _, w := range b {
+		n += bits.OnesCount64(w)
+	}
+	return n
+}
+
+// f2Xor folds term into res and returns the nnz delta.
+func f2Xor(res, term *f2Tensor) int {
+	delta := 0
+	for w, tw := range term {
+		if tw == 0 {
+			continue
+		}
+		old := bits.OnesCount64(res[w])
+		res[w] ^= tw
+		delta += bits.OnesCount64(res[w]) - old
+	}
+	return delta
+}
+
+// ---------------------------------------------------------------
 // Exact min-peak via iterative threshold DFS
 // ---------------------------------------------------------------
 
 type exactSearch struct {
 	alg       *algorithm
+	f2Terms   []f2Tensor // non-nil iff modP == 2
 	threshold int
-	dead      map[uint32]struct{}
+	dead      subsetSet
 	found     bool
 	deadline  time.Time
 	states    int64
@@ -309,7 +392,7 @@ func (s *exactSearch) dfs(res *[729]int64, mask uint32, curNnz int, depth int) {
 		}
 		newMask := mask | (1 << k)
 
-		if _, ok := s.dead[newMask]; ok {
+		if s.dead.test(newMask) {
 			continue
 		}
 
@@ -327,14 +410,75 @@ func (s *exactSearch) dfs(res *[729]int64, mask uint32, curNnz int, depth int) {
 		addTerm(res, s.alg.Terms[k])
 	}
 
-	s.dead[mask] = struct{}{}
+	// NOTE: only sound because the per-threshold dead set is discarded
+	// on timeout; a deadline-aborted subtree would otherwise be
+	// spuriously marked dead here.
+	s.dead.set(mask)
+}
+
+// dfsF2 mirrors dfs on the bit-packed F2 kernel. XOR is its own
+// inverse, so there is no separate add/subtract pair.
+func (s *exactSearch) dfsF2(res *f2Tensor, mask uint32, curNnz int, depth int) {
+	if s.found || time.Now().After(s.deadline) {
+		return
+	}
+	s.states++
+
+	if depth == s.alg.R {
+		if curNnz == 0 {
+			s.found = true
+		}
+		return
+	}
+
+	for k := 0; k < s.alg.R; k++ {
+		if mask&(1<<k) != 0 {
+			continue
+		}
+		newMask := mask | (1 << k)
+
+		if s.dead.test(newMask) {
+			continue
+		}
+
+		delta := f2Xor(res, &s.f2Terms[k])
+
+		if curNnz+delta <= s.threshold {
+			s.dfsF2(res, newMask, curNnz+delta, depth+1)
+			if s.found {
+				f2Xor(res, &s.f2Terms[k])
+				return
+			}
+		}
+
+		f2Xor(res, &s.f2Terms[k])
+	}
+
+	s.dead.set(mask)
 }
 
 func exactMinPeak(ctx context.Context, alg *algorithm, upperBound int) (int, bool, int, int64) {
-	largestInfeasible := 26
+	if alg.R > 28 {
+		fmt.Fprintf(os.Stderr, "  %s: rank %d exceeds subset-bitset limit 28\n", alg.Name, alg.R)
+		return 0, false, 0, 0
+	}
+
+	// Compute initial nnz of T to set the starting threshold.
+	initCount := nnz(&alg.T)
+	startB := initCount
+	if startB < 1 {
+		startB = 1
+	}
+	largestInfeasible := startB - 1
 	totalStates := int64(0)
 
-	for B := 27; B <= upperBound; B++ {
+	dead := newSubsetSet(alg.R)
+	var f2T []f2Tensor
+	if modP == 2 {
+		f2T = f2TermsOf(alg)
+	}
+
+	for B := startB; B <= upperBound; B++ {
 		select {
 		case <-ctx.Done():
 			return 0, false, largestInfeasible, totalStates
@@ -342,23 +486,28 @@ func exactMinPeak(ctx context.Context, alg *algorithm, upperBound int) (int, boo
 		}
 
 		deadline := time.Now().Add(60 * time.Second)
+		dead.clearAll()
 		s := &exactSearch{
 			alg:       alg,
+			f2Terms:   f2T,
 			threshold: B,
-			dead:      make(map[uint32]struct{}),
+			dead:      dead,
 			deadline:  deadline,
 		}
 
-		var res [729]int64
-		copy(res[:], alg.T[:])
-		initNnz := nnz(&res)
-
-		if initNnz > B {
+		if initCount > B {
 			largestInfeasible = B
 			continue
 		}
 
-		s.dfs(&res, 0, initNnz, 0)
+		if modP == 2 {
+			res := f2Of(&alg.T)
+			s.dfsF2(&res, 0, initCount, 0)
+		} else {
+			var res [729]int64
+			copy(res[:], alg.T[:])
+			s.dfs(&res, 0, initCount, 0)
+		}
 		totalStates += s.states
 
 		if s.found {
@@ -366,14 +515,14 @@ func exactMinPeak(ctx context.Context, alg *algorithm, upperBound int) (int, boo
 		}
 
 		if time.Now().After(deadline) {
-			fmt.Fprintf(os.Stderr, "  %s: B=%d timed out (%d states, %d dead)\n",
-				alg.Name, B, s.states, len(s.dead))
+			fmt.Fprintf(os.Stderr, "  %s: B=%d timed out (%d states)\n",
+				alg.Name, B, s.states)
 			return 0, false, largestInfeasible, totalStates
 		}
 
 		largestInfeasible = B
-		fmt.Fprintf(os.Stderr, "  %s: B=%d infeasible (%d states, %d dead)\n",
-			alg.Name, B, s.states, len(s.dead))
+		fmt.Fprintf(os.Stderr, "  %s: B=%d infeasible (%d states)\n",
+			alg.Name, B, s.states)
 	}
 
 	return upperBound, false, largestInfeasible, totalStates
@@ -416,12 +565,30 @@ func parseModes(s string) (modeSet, error) {
 // Main
 // ---------------------------------------------------------------
 
+// modP is the prime modulus; 0 means integer arithmetic (no reduction).
+var modP int64
+
+// reduce maps v into the canonical representative mod p.
+// When modP == 0 it is the identity.
+func reduce(v int64) int64 {
+	if modP == 0 {
+		return v
+	}
+	v %= modP
+	if v < 0 {
+		v += modP
+	}
+	return v
+}
+
 func main() {
 	var (
 		modeFlag    = flag.String("mode", "all", "comma-separated modes: calibrate,sample,greedy,exact (default: all)")
 		timeout     = flag.Duration("timeout", 10*time.Minute, "global timeout")
+		modFlag     = flag.Int64("mod", 0, "prime modulus for finite-field arithmetic (0 = integers)")
 	)
 	flag.Parse()
+	modP = *modFlag
 
 	if flag.NArg() == 0 {
 		fmt.Fprintf(os.Stderr, "usage: minpeak [flags] file1.json [file2.json ...]\n")
