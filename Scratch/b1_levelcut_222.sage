@@ -128,6 +128,14 @@ def label(mask):
 def pop(mask):
     return Integer(mask).popcount()
 
+ONE = int(1)
+
+def bit_test(mask, s):
+    return (int(mask) >> s) & ONE
+
+def bit_clear(mask, s):
+    return int(mask) & ~(ONE << s)
+
 
 # f(S) for all 128 subsets (S encoded as bitmask, bit s = triad M_{s+1}).
 f = [0] * NSUB
@@ -147,7 +155,7 @@ if f[NSUB - 1] != 0:
 print("  ASSERT OK: f(emptyset) = nnz(T) = %d, f({M1..M7}) = 0" % nnzT)
 
 # Deterministic subset order: by (cardinality, bitmask value).
-order = sorted(range(NSUB), key=lambda m: (pop(m), m))
+order = [int(m) for m in sorted(range(NSUB), key=lambda m: (pop(m), m))]
 
 # ---------------------------- SECTION 1 -----------------------------
 print("")
@@ -170,7 +178,7 @@ g = [0] * NSUB
 for mask in order:
     if mask == 0:
         continue
-    best = min(g[mask & ~(1 << s)] for s in range(r) if (mask >> s) & 1)
+    best = min(g[bit_clear(mask, s)] for s in range(r) if bit_test(mask, s))
     g[mask] = max(f[mask], best)
 minpeak = g[NSUB - 1]
 
@@ -179,9 +187,9 @@ minpeak = g[NSUB - 1]
 chain = [NSUB - 1]
 cur = NSUB - 1
 while cur != 0:
-    cands = [(g[cur & ~(1 << s)], s) for s in range(r) if (cur >> s) & 1]
+    cands = [(g[bit_clear(cur, s)], s) for s in range(r) if bit_test(cur, s)]
     cands.sort()
-    cur = cur & ~(1 << cands[0][1])
+    cur = bit_clear(cur, cands[0][1])
     chain.append(cur)
 chain.reverse()  # emptyset -> ... -> full set
 traj = [f[mask] for mask in chain[1:]]  # j >= 1
@@ -191,7 +199,7 @@ if max(traj) != minpeak:
     sys.exit(1)
 peel_order = []
 for j in range(r):
-    added = chain[j + 1] & ~chain[j]
+    added = int(chain[j + 1]) & ~int(chain[j])
     peel_order.append("M%d" % (Integer(added).exact_log(2) + 1))
 
 print("")
@@ -217,8 +225,8 @@ def blocks(family_set):
     for mask in order:
         if mask == 0 or mask in family_set:
             continue
-        reach[mask] = any(reach[mask & ~(1 << s)]
-                          for s in range(r) if (mask >> s) & 1)
+        reach[mask] = any(reach[bit_clear(mask, s)]
+                          for s in range(r) if bit_test(mask, s))
     return not reach[NSUB - 1]
 
 
@@ -230,15 +238,15 @@ def avoiding_chain(family_set):
     for mask in order:
         if mask == 0 or mask in family_set:
             continue
-        reach[mask] = any(reach[mask & ~(1 << s)]
-                          for s in range(r) if (mask >> s) & 1)
+        reach[mask] = any(reach[bit_clear(mask, s)]
+                          for s in range(r) if bit_test(mask, s))
     # walk back from full set
     ch = [NSUB - 1]
     cur = NSUB - 1
     while cur != 0:
         for s in range(r):
-            prev = cur & ~(1 << s)
-            if (cur >> s) & 1 and reach[prev] and (prev == 0 or prev not in family_set):
+            prev = bit_clear(cur, s)
+            if bit_test(cur, s) and reach[prev] and (prev == 0 or prev not in family_set):
                 cur = prev
                 ch.append(cur)
                 break

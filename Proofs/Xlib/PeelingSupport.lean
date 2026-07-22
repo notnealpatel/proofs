@@ -255,7 +255,8 @@ private lemma mem_foldl_symmDiff_iff_mod [DecidableEq α] (x : α) (acc : Finset
     simp only [List.foldl_cons, List.countP_cons]
     rw [ih]
     simp only [Finset.mem_symmDiff]
-    by_cases hS : x ∈ S <;> by_cases ha : x ∈ acc <;> simp [hS, ha] <;> omega
+    by_cases hS : x ∈ S <;> by_cases ha : x ∈ acc
+    all_goals (simp_all; try omega)
 
 /-- Membership in iterated symmetric difference ↔ odd count. -/
 private lemma mem_foldl_symmDiff' [DecidableEq α] (x : α) (Ss : List (Finset α)) :
@@ -585,10 +586,7 @@ private lemma outMass_pos_of_mass_ge_two {n : ℕ} (τ : Box n) (hm : 2 ≤ τ.m
     le_trans hcube (Nat.pow_le_pow_left hle 2)
   -- m * m² ≤ m², so m ≤ 1 (for m > 0, cancel m²)
   have hm_pos : 0 < τ.mass := by omega
-  have : τ.mass ≤ 1 := by
-    have hmsq_pos : 0 < τ.mass ^ 2 := by positivity
-    rw [show τ.mass ^ 3 = τ.mass * τ.mass ^ 2 from by ring] at this
-    exact le_of_mul_le_mul_right this hmsq_pos
+  have : τ.mass ≤ 1 := by nlinarith [sq_nonneg τ.mass]
   omega
 
 /-- Pigeonhole: if sum of a list ≥ k and length < k, some element ≥ 2. -/
@@ -604,9 +602,16 @@ private lemma exists_ge_two_of_sum_gt_length {L : List ℕ}
     | cons x L' ih =>
       simp only [List.sum_cons, List.length_cons]
       have hx : x < 2 := hall x (List.Mem.head _)
-      have ihL' : L'.sum ≤ L'.length :=
-        ih (fun y hy => hall y (List.Mem.tail _ hy))
-      omega
+      have hall' : ∀ y ∈ L', y < 2 := fun y hy => hall y (List.Mem.tail _ hy)
+      suffices L'.sum ≤ L'.length by omega
+      clear ih hsum hall
+      induction L' with
+      | nil => simp
+      | cons y L'' ihy =>
+        simp only [List.sum_cons, List.length_cons]
+        have hy2 : y < 2 := hall' y (List.Mem.head _)
+        have := ihy (fun z hz => hall' z (List.Mem.tail _ hz))
+        omega
   omega
 
 /-- **L5.** Any decomposition with fewer than `n³` boxes has
@@ -632,7 +637,7 @@ theorem outmass_ge_two {n : ℕ} {L : List (Box n)}
     unfold totalOutMass
     calc 1 ≤ τ.outMass := hout
       _ ≤ (L.map (fun τ => τ.outMass)).sum :=
-          List.le_sum_of_mem (List.mem_map_of_mem _ hτ_mem)
+          List.le_sum_of_mem (List.mem_map_of_mem (f := fun τ : Box n => τ.outMass) hτ_mem)
   -- Step 4: totalOutMass is even, so ≥ 2
   have heven := cover_outmass_even hd
   obtain ⟨k, hk⟩ := heven
