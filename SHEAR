@@ -1,0 +1,117 @@
+# Point addition through a single multiply-add shear
+
+## Problem
+
+Let
+$$p = 2^{256} - 2^{32} - 977,$$
+let $P = (a,b) \in E(\mathbf F_p)$ be fixed, and let $Q = (x,y) \in E(\mathbf F_p)$ vary.
+Away from exceptional cases, define
+$$d = x - a, \qquad \lambda = \frac{y-b}{d},$$
+and
+$$X = \lambda^2 - x - a, \qquad Y = \lambda(a - X) - b.$$
+
+After computing $\lambda$, the current construction rewrites
+$$c := a - X = d + 3a - \lambda^2,$$
+so the remaining transformation is
+$$(c, \lambda) \longmapsto (a - c,\; c\lambda - b).$$
+
+Suppose the permitted nonlinear primitive is the reversible multiply-add shear
+$$M(u,v,w) = (u,\, v,\, w + uv)$$
+on $\mathbf F_p^3$, with affine bijections otherwise free.
+
+Can the generic point-addition map be factored so that:
+
+1. only one application of $M$ is needed after computing $\lambda$;
+2. one of the two coordinate registers supplies the initially zero third argument of $M$;
+3. the final state is exactly $(X, Y)$, with every auxiliary coordinate returned to zero; and
+4. the construction extends to a bijection at $c = 0$, or explicitly handles that exceptional fibre?
+
+## Answer
+
+### Short answer
+
+**Conditions 1 and 2: yes. Condition 3: provably no — not with a single $M$. Condition 4:
+the $c = 0$ fibre is intrinsically exceptional, and the leftover you are forced to keep is
+exactly what keeps the one-shear map a bijection there.**
+
+One shear cleanly lands $(X, Y)$ in two registers, but it *cannot* also return the auxiliary
+to zero. The reason is structural, not a matter of cleverness.
+
+### The construction that works (conditions 1–2)
+
+Verified identities (symbolic, over $\mathbf F_p(a,b,x,y)$):
+$$c = a - X = d + 3a - \lambda^2, \qquad X = a - c, \qquad Y = c\lambda - b.$$
+
+Take registers $(c, \lambda, 0)$ — the third register is the initially-zero coordinate
+register that feeds $w$. Then
+$$
+(c, \lambda, \underbrace{0}_{w})
+\;\xrightarrow{\; M(u=c,\, v=\lambda,\, w) \;}\;
+(c, \lambda,\, c\lambda)
+\;\xrightarrow{\; A_2 \;}\;
+(a - c,\ c\lambda - b,\ \lambda) = (X,\, Y,\, \lambda),
+$$
+with $A_2(u,v,w) = (a - u,\ w - b,\ v)$, an affine **bijection** ($\det L_2 = 1$).
+This uses **one** $M$, takes its zero third argument from a coordinate register, and produces
+$(X, Y)$ — but the third register ends holding $\lambda$, not $0$.
+
+### Why the auxiliary cannot be zeroed with one $M$ (condition 3)
+
+Any $A_2 \circ M \circ A_1$ has the normal form
+$$F(r) = Gr + h + (s_1 s_2)\,\ell, \qquad G \in GL_3,\ \ell = L_2 e_3 \neq 0,$$
+i.e. an affine map plus a **single** product $s_1 s_2$ (two independent affine forms) times a
+fixed vector. After the shear the three registers hold the values $\{c,\ \lambda,\ c\lambda\}$,
+and $M$ *preserves both multiplicands*. To output $(X, Y, 0) = (a - c,\ c\lambda - b,\ 0)$ you
+would need an affine map sending $\{c, \lambda, c\lambda\}$ to a triple whose third entry is
+$\equiv 0$. But $\{1, c, \lambda, c\lambda\}$ are linearly independent as functions (verified:
+the $4\times4$ evaluation matrix is invertible), so the only affine functional vanishing
+identically is the zero functional — which makes that row of $A_2$ zero and destroys
+invertibility.
+
+Concretely: only **one** of the two surviving multiplicands can be absorbed into an output —
+$c$, via $X = a - c$. The other, $\lambda$, appears in *no* output ($X$ needs $c$, $Y$ needs
+$c\lambda$) and is not affinely recoverable from $\{c, c\lambda\}$. So it clogs a register.
+
+This is airtight via injectivity, independent of any wiring: the target 2-D map
+$\Phi : (c, \lambda) \mapsto (a - c,\ c\lambda - b)$ is **not injective** — the whole fibre
+$c = 0$ collapses to $(a, -b)$ (verified: $\Phi(0, \lambda_1) = \Phi(0, \lambda_2)$). A
+composition of shears and affine bijections is a bijection, so it can never reproduce $\Phi$
+on the nose; forcing the aux to $0$ even just on $c \neq 0$ forces (via the normal form, since
+$\ell_3 = 0$ is then required) $F_3 \equiv 0$ on the whole plane, hence
+$F(0, \lambda_1, 0) = F(0, \lambda_2, 0)$ — non-injective. Contradiction.
+
+### The exceptional fibre (condition 4)
+
+$c = 0 \iff X = a$, i.e. $P + Q = (a, -b) = -P$, i.e. $Q = -2P$; and $c = d + 3a - \lambda^2 = 0$
+pins the slope. On this fibre $\Phi$ collapses all $\lambda$. In the one-shear map above,
+$F(0, \lambda, 0) = (a, -b, \lambda)$: the retained $\lambda$ in the auxiliary is precisely the
+"which-$\lambda$" information that keeps $F$ a bijection over the collapsing fibre. So the
+single shear does extend to a global bijection of $\mathbf F_p^3$ — at the cost of a nonzero
+auxiliary — rather than reproducing $\Phi$ with clean aux.
+
+Geometrically, $c = 0$ ($Q = -2P$) is the **tangent line to $E$ at $P$**: the intersection
+cubic is $(x - x_Q)(x - a)^2$ with a double root at $x = a$, so $2P + Q = O$ gives $Q = -2P$
+and $P + Q = -P = (a, -b)$. That is the geometric doubling degeneracy, and it is exactly where
+any pipeline that would need to *divide by $c$* (e.g. to recover $\lambda$ and zero the
+auxiliary) breaks — the same wall that blocks condition 3.
+
+### Bottom line / minimal fix
+
+- One $M$ gives $(X, Y)$ in two registers with the zeroed register as accumulator —
+  conditions 1, 2 met — but necessarily leaves an affine image of $\lambda$ in the third
+  register.
+- Returning the auxiliary to $0$ is impossible with a single multiply-add. It requires a
+  **second** nonlinear step to uncompute $\lambda$, and that uncompute inherently needs the
+  modular inverse/division that formed $\lambda = (y - b)/d$ — you reverse the
+  $\lambda$-computation against the still-live inputs $x, y$. If those inputs have already been
+  discarded, no amount of affine wrapping recovers a clean state.
+- Either way the $c = 0$ ($Q = -2P$) fibre must be handled as an explicit special case; a
+  Bennett-style "keep $\lambda$ as garbage, uncompute later" is the standard reversible way to
+  stay a bijection.
+
+So the honest verdict: **1 and 2 yes; 3 no (one multiply-add is one short); 4 forced — the
+$c = 0$ fibre is genuinely exceptional and is exactly where the un-zeroable auxiliary earns its
+keep.**
+
+(Verification script: `Scratch/shear_ecadd.sage` — all four checks pass over the secp256k1
+prime.)
