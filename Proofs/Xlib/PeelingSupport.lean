@@ -215,29 +215,30 @@ def IsDecomp (n : ℕ) (L : List (Box n)) : Prop :=
 def coverCount (t : Triple n) (L : List (Box n)) : ℕ :=
   (L.filter (fun τ => t ∈ τ.support)).length
 
-/-- Membership in iterated symmetric difference ↔ odd count.
-We use `Nat.bodd` (boolean parity) via a generalized accumulator. -/
-private lemma mem_foldl_symmDiff_acc [DecidableEq α] (x : α)
-    (acc : Finset α) (Ss : List (Finset α)) :
-    x ∈ Ss.foldl (· ∆ ·) acc ↔
-      xor (x ∈ acc) (Nat.bodd (Ss.countP (x ∈ ·))) := by
+/-- If `x ∉ acc` and `x` is in none of the sets, then `x ∉ foldl Δ acc Ss`. -/
+private lemma not_mem_foldl_symmDiff_of_not_mem [DecidableEq α] {x : α}
+    {acc : Finset α} (ha : x ∉ acc)
+    {Ss : List (Finset α)} (hSs : ∀ S ∈ Ss, x ∉ S) :
+    x ∉ Ss.foldl (· ∆ ·) acc := by
   induction Ss generalizing acc with
-  | nil => simp [List.foldl, List.countP, xor, Bool.xor]
+  | nil => simpa [List.foldl]
   | cons S Ss ih =>
-    simp only [List.foldl_cons, List.countP_cons]
-    rw [ih]
-    by_cases hS : x ∈ S <;> by_cases ha : x ∈ acc <;>
-      simp [Finset.mem_symmDiff, hS, ha, xor, Bool.xor,
-            Nat.bodd_add, Nat.bodd_one, Nat.bodd_zero,
-            Bool.not_true, Bool.not_false]
+    simp only [List.foldl_cons]
+    have hS_nmem : x ∉ S := hSs S (List.Mem.head _)
+    have ha' : x ∉ acc ∆ S := by
+      rw [Finset.mem_symmDiff]
+      rintro (⟨hacc, _⟩ | ⟨hS, _⟩)
+      · exact ha hacc
+      · exact hS_nmem hS
+    exact ih ha' (fun S' hS' => hSs S' (List.Mem.tail _ hS'))
 
-private lemma mem_foldl_symmDiff [DecidableEq α] (x : α)
-    (Ss : List (Finset α)) :
-    x ∈ Ss.foldl (· ∆ ·) ∅ ↔ Odd (Ss.countP (x ∈ ·)) := by
-  rw [mem_foldl_symmDiff_acc]
-  simp only [Finset.not_mem_empty, false_and, Bool.false_eq, xor, Bool.xor_false_left]
-  rw [Nat.odd_iff]
-  simp [Nat.bodd_eq]
+/-- If `x ∈ foldl (· ∆ ·) ∅ Ss` then `x` is in some member of `Ss`. -/
+private lemma exists_mem_of_mem_foldl_symmDiff [DecidableEq α] {x : α}
+    {Ss : List (Finset α)} (h : x ∈ Ss.foldl (· ∆ ·) ∅) :
+    ∃ S ∈ Ss, x ∈ S := by
+  by_contra hall
+  simp only [not_exists, not_and] at hall
+  exact not_mem_foldl_symmDiff_of_not_mem (by simp) hall h
 
 /-- **L0 (Bridge).** A list of boxes is a decomposition of `T n` iff
 every cell of `T n` is covered an odd number of times and every
@@ -357,10 +358,31 @@ def totalMass (n : ℕ) (L : List (Box n)) : ℕ :=
 def totalOutMass (n : ℕ) (L : List (Box n)) : ℕ :=
   (L.map (fun τ => τ.outMass)).sum
 
+/-- Each element of T is in some box support for any decomposition. -/
+private lemma mem_some_support_of_isDecomp {n : ℕ} {L : List (Box n)}
+    (hd : IsDecomp n L) {t : Triple n} (ht : t ∈ matmulSupport n) :
+    ∃ τ ∈ L, t ∈ τ.support := by
+  have hfold : t ∈ (L.map Box.support).foldl (· ∆ ·) ∅ := by
+    rw [hd]; exact ht
+  obtain ⟨S, hS_mem, hS⟩ := exists_mem_of_mem_foldl_symmDiff hfold
+  rw [List.mem_map] at hS_mem
+  obtain ⟨τ, hτ_mem, hτ_eq⟩ := hS_mem
+  exact ⟨τ, hτ_mem, hτ_eq ▸ hS⟩
+
 /-- **L3a.** `Σ mᵢ ≥ n³`. -/
 theorem cover_sum_ge {n : ℕ} {L : List (Box n)} (hd : IsDecomp n L) :
     n ^ 3 ≤ totalMass n L := by
-  sorry
+  -- Each element of T is in at least one box, so |T| ≤ Σ |supp ∩ T|
+  rw [← matmulSupport_card n]
+  unfold totalMass
+  -- |T| ≤ Σᵢ |supp(τᵢ) ∩ T|
+  -- Strategy: |T| = |⋃ᵢ (T ∩ supp(τᵢ))| ≤ Σᵢ |T ∩ supp(τᵢ)| = Σᵢ mᵢ
+  calc (matmulSupport n).card
+      ≤ (L.map (fun τ => (τ.support ∩ matmulSupport n).card)).sum := by
+        -- T ⊆ ⋃ᵢ (supp(τᵢ) ∩ T), and |⋃| ≤ Σ|·|
+        sorry
+      _ = (L.map (fun τ => τ.mass)).sum := by
+        congr 1; ext τ; rfl
 
 /-- **L3b.** The total out-mass is even. -/
 theorem cover_outmass_even {n : ℕ} {L : List (Box n)} (hd : IsDecomp n L) :
