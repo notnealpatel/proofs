@@ -885,6 +885,327 @@ theorem triple_bounds₁_of_linearIndependent {u₁ u₂ u₃ : Fin a → ZMod 2
   · have hb := le_nnz_triple_of_isolable₁ h3 v₃ w₃ v₁ w₁ v₂ w₂
     rwa [add_rotate] at hb
 
+/-! ### The (c)-mode ladder — exact slice decomposition
+
+In a mode where the triple is stratum (c) — third factor = sum of the
+first two — the 3-tensor sum decomposes EXACTLY along that mode: each
+slice is `0` or one of the three 2D pair-sums `Pᵢⱼ = vᵢ⊗wᵢ + vⱼ⊗wⱼ`,
+selected by the support pattern of `(u₁, u₂)`.  One dimension down the
+same decomposition resolves each 2D pair into Hamming weights.  The
+recursion 3D → 2D → 1D is the ladder; its quantitative consequence
+(`le_nnz_triple_ccc`) is that a mode-(c)-EVERYWHERE triple can never
+have a sparse sum with uniformly dense factors. -/
+
+/-- Char-2 cancellation: `x + (x + y) = y`. -/
+theorem add_add_cancel₁ {n : ℕ} {x y : Fin n → ZMod 2} : x + (x + y) = y := by
+  rw [← add_assoc, add_eq_zero_iff_eq.mpr rfl, zero_add]
+
+/-- Char-2 cancellation: `x + (y + x) = y`. -/
+theorem add_add_cancel₂ {n : ℕ} {x y : Fin n → ZMod 2} : x + (y + x) = y := by
+  rw [add_comm y x, add_add_cancel₁]
+
+/-- 2D nonzero-entry count (matrix-shaped arrays). -/
+abbrev nnz₂ {k : Type*} [DecidableEq k] {b c : ℕ} (M : Fin b → Fin c → k) : ℕ :=
+  (Finset.univ.filter fun q : Fin b × Fin c => M q.1 q.2 ≠ 0).card
+
+/-- Splitting a filter count by a second predicate. -/
+theorem card_filter_and_split {n : ℕ} (p q : Fin n → Prop)
+    [DecidablePred p] [DecidablePred q] :
+    (Finset.univ.filter fun i => p i).card
+      = (Finset.univ.filter fun i => p i ∧ q i).card
+        + (Finset.univ.filter fun i => p i ∧ ¬ q i).card := by
+  rw [← Finset.filter_filter, ← Finset.filter_filter]
+  exact (Finset.card_filter_add_card_filter_not _).symm
+
+/-- Filter counts of conjunctions are symmetric. -/
+theorem card_filter_and_comm {n : ℕ} (p q : Fin n → Prop)
+    [DecidablePred p] [DecidablePred q] :
+    (Finset.univ.filter fun i => p i ∧ q i).card
+      = (Finset.univ.filter fun i => q i ∧ p i).card := by
+  rw [Finset.filter_and, Finset.filter_and, Finset.inter_comm]
+
+/-- Over `F₂` the support of a sum is the symmetric difference of the
+supports. -/
+theorem wt_add_eq_card_add_card {n : ℕ} (x y : Fin n → ZMod 2) :
+    wt (x + y)
+      = (Finset.univ.filter fun i => x i ≠ 0 ∧ y i = 0).card
+        + (Finset.univ.filter fun i => x i = 0 ∧ y i ≠ 0).card := by
+  have hd : ∀ s : ZMod 2, s = 0 ∨ s = 1 := by decide
+  have key : (Finset.univ.filter fun i => (x + y) i ≠ 0)
+      = Finset.univ.filter
+          fun i => (x i ≠ 0 ∧ y i = 0) ∨ (x i = 0 ∧ y i ≠ 0) := by
+    ext i
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+    rcases hd (x i) with hx | hx <;> rcases hd (y i) with hy | hy <;>
+      rw [Pi.add_apply, hx, hy] <;> decide
+  have hdisj : Disjoint
+      (Finset.univ.filter fun i => x i ≠ 0 ∧ y i = 0)
+      (Finset.univ.filter fun i => x i = 0 ∧ y i ≠ 0) := by
+    rw [Finset.disjoint_left]
+    intro i hi hi'
+    exact ((Finset.mem_filter.mp hi).2.1) ((Finset.mem_filter.mp hi').2.1)
+  rw [wt, key, Finset.filter_or, Finset.card_union_of_disjoint hdisj]
+
+/-- **Ladder, 2D rung.** Over `F₂` a two-generator matrix
+`x ⊗ F + y ⊗ G` counts exactly: rows split by the support pattern of
+`(x, y)` into copies of `F`, `G`, and `H = F + G`. -/
+theorem nnz₂_two_generator {b c : ℕ} (x y : Fin b → ZMod 2)
+    (F G H : Fin c → ZMod 2) (hH : ∀ l, H l = F l + G l) :
+    nnz₂ (fun j l => x j * F l + y j * G l)
+      = (Finset.univ.filter fun j => x j ≠ 0 ∧ y j = 0).card * wt F
+        + (Finset.univ.filter fun j => x j = 0 ∧ y j ≠ 0).card * wt G
+        + (Finset.univ.filter fun j => x j ≠ 0 ∧ y j ≠ 0).card * wt H := by
+  have hd : ∀ s : ZMod 2, s = 0 ∨ s = 1 := by decide
+  set A := (Finset.univ.filter fun j => x j ≠ 0 ∧ y j = 0) ×ˢ
+    (Finset.univ.filter fun l : Fin c => F l ≠ 0) with hA
+  set B := (Finset.univ.filter fun j => x j = 0 ∧ y j ≠ 0) ×ˢ
+    (Finset.univ.filter fun l : Fin c => G l ≠ 0) with hB
+  set C := (Finset.univ.filter fun j => x j ≠ 0 ∧ y j ≠ 0) ×ˢ
+    (Finset.univ.filter fun l : Fin c => H l ≠ 0) with hC
+  have hmain : (Finset.univ.filter fun q : Fin b × Fin c =>
+      x q.1 * F q.2 + y q.1 * G q.2 ≠ 0) = A ∪ B ∪ C := by
+    ext ⟨j, l⟩
+    simp only [hA, hB, hC, Finset.mem_union, Finset.mem_product,
+      Finset.mem_filter, Finset.mem_univ, true_and]
+    rcases hd (x j) with hx | hx <;> rcases hd (y j) with hy | hy <;>
+      simp [hx, hy, hH]
+  have hab : Disjoint A B := by
+    rw [Finset.disjoint_left]
+    rintro ⟨j, l⟩ hj hj'
+    rw [hA, Finset.mem_product, Finset.mem_filter] at hj
+    rw [hB, Finset.mem_product, Finset.mem_filter] at hj'
+    exact hj'.1.2.1 hj.1.2.1
+  have habc : Disjoint (A ∪ B) C := by
+    rw [Finset.disjoint_left]
+    rintro ⟨j, l⟩ hj hj'
+    rw [hC, Finset.mem_product, Finset.mem_filter] at hj'
+    rcases Finset.mem_union.mp hj with hj | hj
+    · rw [hA, Finset.mem_product, Finset.mem_filter] at hj
+      exact hj'.1.2.2 hj.1.2.2
+    · rw [hB, Finset.mem_product, Finset.mem_filter] at hj
+      exact hj'.1.2.1 hj.1.2.1
+  calc nnz₂ (fun j l => x j * F l + y j * G l)
+      = (Finset.univ.filter fun q : Fin b × Fin c =>
+          x q.1 * F q.2 + y q.1 * G q.2 ≠ 0).card := rfl
+    _ = (A ∪ B ∪ C).card := by rw [hmain]
+    _ = A.card + B.card + C.card := by
+        rw [Finset.card_union_of_disjoint habc, Finset.card_union_of_disjoint hab]
+    _ = _ := by
+        rw [hA, hB, hC, Finset.card_product, Finset.card_product,
+          Finset.card_product]
+        rfl
+
+/-- **Ladder, 3D rung.** Over `F₂` a two-generator tensor
+`x ⊗ F + y ⊗ G` (with `F, G` matrices) counts exactly: mode-1 slices
+split by the support pattern of `(x, y)` into copies of `F`, `G`, and
+`H = F + G`. -/
+theorem nnz_two_generator₁ (x y : Fin a → ZMod 2)
+    (F G H : Fin b → Fin c → ZMod 2) (hH : ∀ j l, H j l = F j l + G j l) :
+    nnz (fun i j l => x i * F j l + y i * G j l : Tensor (ZMod 2) a b c)
+      = (Finset.univ.filter fun i => x i ≠ 0 ∧ y i = 0).card * nnz₂ F
+        + (Finset.univ.filter fun i => x i = 0 ∧ y i ≠ 0).card * nnz₂ G
+        + (Finset.univ.filter fun i => x i ≠ 0 ∧ y i ≠ 0).card * nnz₂ H := by
+  have hd : ∀ s : ZMod 2, s = 0 ∨ s = 1 := by decide
+  set A := (Finset.univ.filter fun i => x i ≠ 0 ∧ y i = 0) ×ˢ
+    (Finset.univ.filter fun q : Fin b × Fin c => F q.1 q.2 ≠ 0) with hA
+  set B := (Finset.univ.filter fun i => x i = 0 ∧ y i ≠ 0) ×ˢ
+    (Finset.univ.filter fun q : Fin b × Fin c => G q.1 q.2 ≠ 0) with hB
+  set C := (Finset.univ.filter fun i => x i ≠ 0 ∧ y i ≠ 0) ×ˢ
+    (Finset.univ.filter fun q : Fin b × Fin c => H q.1 q.2 ≠ 0) with hC
+  have hmain : (Finset.univ.filter fun p : Fin a × Fin b × Fin c =>
+      x p.1 * F p.2.1 p.2.2 + y p.1 * G p.2.1 p.2.2 ≠ 0) = A ∪ B ∪ C := by
+    ext ⟨i, j, l⟩
+    simp only [hA, hB, hC, Finset.mem_union, Finset.mem_product,
+      Finset.mem_filter, Finset.mem_univ, true_and]
+    rcases hd (x i) with hx | hx <;> rcases hd (y i) with hy | hy <;>
+      simp [hx, hy, hH]
+  have hab : Disjoint A B := by
+    rw [Finset.disjoint_left]
+    rintro ⟨i, j, l⟩ hj hj'
+    rw [hA, Finset.mem_product, Finset.mem_filter] at hj
+    rw [hB, Finset.mem_product, Finset.mem_filter] at hj'
+    exact hj'.1.2.1 hj.1.2.1
+  have habc : Disjoint (A ∪ B) C := by
+    rw [Finset.disjoint_left]
+    rintro ⟨i, j, l⟩ hj hj'
+    rw [hC, Finset.mem_product, Finset.mem_filter] at hj'
+    rcases Finset.mem_union.mp hj with hj | hj
+    · rw [hA, Finset.mem_product, Finset.mem_filter] at hj
+      exact hj'.1.2.2 hj.1.2.2
+    · rw [hB, Finset.mem_product, Finset.mem_filter] at hj
+      exact hj'.1.2.1 hj.1.2.1
+  calc nnz (fun i j l => x i * F j l + y i * G j l : Tensor (ZMod 2) a b c)
+      = (Finset.univ.filter fun p : Fin a × Fin b × Fin c =>
+          x p.1 * F p.2.1 p.2.2 + y p.1 * G p.2.1 p.2.2 ≠ 0).card := rfl
+    _ = (A ∪ B ∪ C).card := by rw [hmain]
+    _ = A.card + B.card + C.card := by
+        rw [Finset.card_union_of_disjoint habc, Finset.card_union_of_disjoint hab]
+    _ = _ := by
+        rw [hA, hB, hC, Finset.card_product, Finset.card_product,
+          Finset.card_product]
+        rfl
+
+/-- **The (c)-mode exact formula.** A triple of triads whose mode-1
+factors are stratum (c) — `u₃ = u₁ + u₂` — has nonzero count EXACTLY
+determined by the support pattern of `(u₁, u₂)` and the three 2D
+pair-sums `Pᵢⱼ = vᵢ⊗wᵢ + vⱼ⊗wⱼ`; there is no interaction across
+mode-1 slices.  Valid for ARBITRARY `v`s and `w`s. -/
+theorem nnz_triple_ladder₁ (u₁ u₂ : Fin a → ZMod 2)
+    (v₁ v₂ v₃ : Fin b → ZMod 2) (w₁ w₂ w₃ : Fin c → ZMod 2) :
+    nnz (triad u₁ v₁ w₁ + triad u₂ v₂ w₂ + triad (u₁ + u₂) v₃ w₃)
+      = (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i = 0).card
+          * nnz₂ (fun j l => v₁ j * w₁ l + v₃ j * w₃ l)
+        + (Finset.univ.filter fun i => u₁ i = 0 ∧ u₂ i ≠ 0).card
+          * nnz₂ (fun j l => v₂ j * w₂ l + v₃ j * w₃ l)
+        + (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i ≠ 0).card
+          * nnz₂ (fun j l => v₁ j * w₁ l + v₂ j * w₂ l) := by
+  have e : (triad u₁ v₁ w₁ + triad u₂ v₂ w₂ + triad (u₁ + u₂) v₃ w₃)
+      = (fun i j l => u₁ i * (v₁ j * w₁ l + v₃ j * w₃ l)
+          + u₂ i * (v₂ j * w₂ l + v₃ j * w₃ l) : Tensor (ZMod 2) a b c) := by
+    funext i j l
+    show u₁ i * v₁ j * w₁ l + u₂ i * v₂ j * w₂ l
+        + (u₁ i + u₂ i) * v₃ j * w₃ l = _
+    ring
+  rw [e]
+  exact nnz_two_generator₁ u₁ u₂
+    (fun j l => v₁ j * w₁ l + v₃ j * w₃ l)
+    (fun j l => v₂ j * w₂ l + v₃ j * w₃ l)
+    (fun j l => v₁ j * w₁ l + v₂ j * w₂ l)
+    fun j l => by linear_combination -CharTwo.add_self_eq_zero (v₃ j * w₃ l)
+
+/-- **2D pair lower bound.** Over `F₂`, `nnz (v⊗w + v'⊗w')` dominates
+`(max of the three v-side weights) * (min of the three w-side
+weights)` — the three weights being those of `v, v', v + v'` (resp.
+`w, w', w + w'`). -/
+theorem le_nnz₂_pair {b c : ℕ} {M m : ℕ} (v v' : Fin b → ZMod 2)
+    (w w' : Fin c → ZMod 2)
+    (hM : M ≤ max (max (wt v) (wt v')) (wt (v + v')))
+    (h₁ : m ≤ wt w) (h₂ : m ≤ wt w') (h₃ : m ≤ wt (w + w')) :
+    M * m ≤ nnz₂ (fun j l => v j * w l + v' j * w' l) := by
+  rw [nnz₂_two_generator v v' w w' (w + w') fun l => rfl]
+  have hv : wt v
+      = (Finset.univ.filter fun j => v j ≠ 0 ∧ v' j = 0).card
+        + (Finset.univ.filter fun j => v j ≠ 0 ∧ v' j ≠ 0).card :=
+    card_filter_and_split _ _
+  have hv' : wt v'
+      = (Finset.univ.filter fun j => v j = 0 ∧ v' j ≠ 0).card
+        + (Finset.univ.filter fun j => v j ≠ 0 ∧ v' j ≠ 0).card := by
+    rw [card_filter_and_split (fun j => v' j ≠ 0) (fun j => v j = 0),
+      card_filter_and_comm]
+    congr 1
+    exact card_filter_and_comm _ _
+  have hvv' : wt (v + v')
+      = (Finset.univ.filter fun j => v j ≠ 0 ∧ v' j = 0).card
+        + (Finset.univ.filter fun j => v j = 0 ∧ v' j ≠ 0).card :=
+    wt_add_eq_card_add_card v v'
+  have hsum : M ≤ (Finset.univ.filter fun j => v j ≠ 0 ∧ v' j = 0).card
+      + (Finset.univ.filter fun j => v j = 0 ∧ v' j ≠ 0).card
+      + (Finset.univ.filter fun j => v j ≠ 0 ∧ v' j ≠ 0).card := by
+    refine hM.trans (max_le (max_le ?_ ?_) ?_) <;> omega
+  calc M * m
+      ≤ ((Finset.univ.filter fun j => v j ≠ 0 ∧ v' j = 0).card
+          + (Finset.univ.filter fun j => v j = 0 ∧ v' j ≠ 0).card
+          + (Finset.univ.filter fun j => v j ≠ 0 ∧ v' j ≠ 0).card) * m := by
+        gcongr
+    _ = (Finset.univ.filter fun j => v j ≠ 0 ∧ v' j = 0).card * m
+        + (Finset.univ.filter fun j => v j = 0 ∧ v' j ≠ 0).card * m
+        + (Finset.univ.filter fun j => v j ≠ 0 ∧ v' j ≠ 0).card * m := by
+        ring
+    _ ≤ _ := by gcongr
+
+/-- **Density transfer for the irreducible stratum.** For a
+mode-(c)-EVERYWHERE triple — `u₃ = u₁ + u₂`, `v₃ = v₁ + v₂`,
+`w₃ = w₁ + w₂` — the sum's nonzero count dominates
+`(max u-weight) * (max v-weight) * (min w-weight)`.  Since each
+member's count is at most the product of the three maxima, the sum can
+undercut the densest member only by the `w`-side weight spread: NO
+uniformly dense irreducible triple has a sparse sum.  (By the mode
+symmetry of the construction the same holds with the roles of the
+modes permuted.) -/
+theorem le_nnz_triple_ccc (u₁ u₂ : Fin a → ZMod 2) (v₁ v₂ : Fin b → ZMod 2)
+    (w₁ w₂ : Fin c → ZMod 2) :
+    max (max (wt u₁) (wt u₂)) (wt (u₁ + u₂))
+      * max (max (wt v₁) (wt v₂)) (wt (v₁ + v₂))
+      * min (min (wt w₁) (wt w₂)) (wt (w₁ + w₂))
+      ≤ nnz (triad u₁ v₁ w₁ + triad u₂ v₂ w₂
+          + triad (u₁ + u₂) (v₁ + v₂) (w₁ + w₂)) := by
+  rw [nnz_triple_ladder₁]
+  have h13 : max (max (wt v₁) (wt v₂)) (wt (v₁ + v₂))
+      * min (min (wt w₁) (wt w₂)) (wt (w₁ + w₂))
+      ≤ nnz₂ (fun j l => v₁ j * w₁ l + (v₁ + v₂) j * (w₁ + w₂) l) := by
+    refine le_nnz₂_pair v₁ (v₁ + v₂) w₁ (w₁ + w₂) ?_ ?_ ?_ ?_
+    · rw [add_add_cancel₁]
+      exact max_le (max_le (le_max_of_le_left (le_max_left _ _))
+        (le_max_right _ _)) (le_max_of_le_left (le_max_right _ _))
+    · exact le_trans (min_le_left _ _) (min_le_left _ _)
+    · exact min_le_right _ _
+    · rw [add_add_cancel₁]
+      exact le_trans (min_le_left _ _) (min_le_right _ _)
+  have h23 : max (max (wt v₁) (wt v₂)) (wt (v₁ + v₂))
+      * min (min (wt w₁) (wt w₂)) (wt (w₁ + w₂))
+      ≤ nnz₂ (fun j l => v₂ j * w₂ l + (v₁ + v₂) j * (w₁ + w₂) l) := by
+    refine le_nnz₂_pair v₂ (v₁ + v₂) w₂ (w₁ + w₂) ?_ ?_ ?_ ?_
+    · rw [add_add_cancel₂]
+      exact max_le (max_le (le_max_right _ _)
+        (le_max_of_le_left (le_max_left _ _)))
+        (le_max_of_le_left (le_max_right _ _))
+    · exact le_trans (min_le_left _ _) (min_le_right _ _)
+    · exact min_le_right _ _
+    · rw [add_add_cancel₂]
+      exact le_trans (min_le_left _ _) (min_le_left _ _)
+  have h12 : max (max (wt v₁) (wt v₂)) (wt (v₁ + v₂))
+      * min (min (wt w₁) (wt w₂)) (wt (w₁ + w₂))
+      ≤ nnz₂ (fun j l => v₁ j * w₁ l + v₂ j * w₂ l) := by
+    refine le_nnz₂_pair v₁ v₂ w₁ w₂ (le_refl _) ?_ ?_ ?_
+    · exact le_trans (min_le_left _ _) (min_le_left _ _)
+    · exact le_trans (min_le_left _ _) (min_le_right _ _)
+    · exact min_le_right _ _
+  have hu₁ : wt u₁
+      = (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i = 0).card
+        + (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i ≠ 0).card :=
+    card_filter_and_split _ _
+  have hu₂ : wt u₂
+      = (Finset.univ.filter fun i => u₁ i = 0 ∧ u₂ i ≠ 0).card
+        + (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i ≠ 0).card := by
+    rw [card_filter_and_split (fun i => u₂ i ≠ 0) (fun i => u₁ i = 0),
+      card_filter_and_comm]
+    congr 1
+    exact card_filter_and_comm _ _
+  have hu₃ : wt (u₁ + u₂)
+      = (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i = 0).card
+        + (Finset.univ.filter fun i => u₁ i = 0 ∧ u₂ i ≠ 0).card :=
+    wt_add_eq_card_add_card u₁ u₂
+  have hMu : max (max (wt u₁) (wt u₂)) (wt (u₁ + u₂))
+      ≤ (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i = 0).card
+        + (Finset.univ.filter fun i => u₁ i = 0 ∧ u₂ i ≠ 0).card
+        + (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i ≠ 0).card := by
+    refine max_le (max_le ?_ ?_) ?_ <;> omega
+  calc max (max (wt u₁) (wt u₂)) (wt (u₁ + u₂))
+      * max (max (wt v₁) (wt v₂)) (wt (v₁ + v₂))
+      * min (min (wt w₁) (wt w₂)) (wt (w₁ + w₂))
+      = max (max (wt u₁) (wt u₂)) (wt (u₁ + u₂))
+        * (max (max (wt v₁) (wt v₂)) (wt (v₁ + v₂))
+          * min (min (wt w₁) (wt w₂)) (wt (w₁ + w₂))) := by
+        rw [mul_assoc]
+    _ ≤ ((Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i = 0).card
+          + (Finset.univ.filter fun i => u₁ i = 0 ∧ u₂ i ≠ 0).card
+          + (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i ≠ 0).card)
+        * (max (max (wt v₁) (wt v₂)) (wt (v₁ + v₂))
+          * min (min (wt w₁) (wt w₂)) (wt (w₁ + w₂))) := by
+        gcongr
+    _ = (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i = 0).card
+          * (max (max (wt v₁) (wt v₂)) (wt (v₁ + v₂))
+            * min (min (wt w₁) (wt w₂)) (wt (w₁ + w₂)))
+        + (Finset.univ.filter fun i => u₁ i = 0 ∧ u₂ i ≠ 0).card
+          * (max (max (wt v₁) (wt v₂)) (wt (v₁ + v₂))
+            * min (min (wt w₁) (wt w₂)) (wt (w₁ + w₂)))
+        + (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i ≠ 0).card
+          * (max (max (wt v₁) (wt v₂)) (wt (v₁ + v₂))
+            * min (min (wt w₁) (wt w₂)) (wt (w₁ + w₂))) := by
+        ring
+    _ ≤ _ := by
+        gcongr <;> [exact h13; exact h23; exact h12]
+
 end TripleF2
 
 section TripleCollapse
