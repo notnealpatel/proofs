@@ -779,14 +779,30 @@ theorem triple_stratification (x y z : Fin a → ZMod 2)
     ∨ ((x = y ∧ x ≠ z) ∨ (x = z ∧ x ≠ y) ∨ (y = z ∧ x ≠ y))
     ∨ (x ≠ y ∧ x ≠ z ∧ y ≠ z ∧ z = x + y)
     ∨ LinearIndependent (ZMod 2) ![x, y, z] := by
-  sorry
+  by_cases hxy : x = y
+  · by_cases hyz : y = z
+    · exact Or.inl ⟨hxy, hyz⟩
+    · exact Or.inr (Or.inl (Or.inl ⟨hxy, fun hxz => hyz (hxy ▸ hxz)⟩))
+  · by_cases hyz : y = z
+    · exact Or.inr (Or.inl (Or.inr (Or.inr ⟨hyz, hxy⟩)))
+    · by_cases hxz : x = z
+      · exact Or.inr (Or.inl (Or.inr (Or.inl ⟨hxz, hxy⟩)))
+      · by_cases hsum : z = x + y
+        · exact Or.inr (Or.inr (Or.inl ⟨hxy, hxz, hyz, hsum⟩))
+        · refine Or.inr (Or.inr (Or.inr ?_))
+          rw [linearIndependent_triple_iff hx hy hz]
+          exact ⟨hxy, hxz, hyz,
+            fun h => hsum (add_add_eq_zero_iff_right.mp h)⟩
 
 /-- **(a): no isolation.** If all three vectors are equal, no term is
 isolatable. -/
 theorem not_isolable_of_all_eq {x y z : Fin a → ZMod 2}
     (hxy : x = y) (hyz : y = z) :
     ¬ Isolable x y z ∧ ¬ Isolable y x z ∧ ¬ Isolable z x y := by
-  sorry
+  refine ⟨fun h => ?_, fun h => ?_, fun h => ?_⟩
+  · exact (isolable_iff.mp h).2.1 hxy
+  · exact (isolable_iff.mp h).2.1 hxy.symm
+  · exact (isolable_iff.mp h).2.1 (hxy.trans hyz).symm
 
 /-- **(b): exactly the odd term is isolatable.** If `x = y ≠ z` with
 `z ≠ 0`, then `z` is isolatable from `{x, y}` while neither `x` nor
@@ -794,7 +810,12 @@ theorem not_isolable_of_all_eq {x y z : Fin a → ZMod 2}
 theorem isolable_odd_of_two_eq {x y z : Fin a → ZMod 2}
     (hxy : x = y) (hz : z ≠ 0) (hne : z ≠ x) :
     Isolable z x y ∧ ¬ Isolable x y z ∧ ¬ Isolable y x z := by
-  sorry
+  refine ⟨isolable_iff.mpr
+      ⟨hz, hne, fun h => hne (h.trans hxy.symm), fun h => ?_⟩,
+    fun h => (isolable_iff.mp h).2.1 hxy,
+    fun h => (isolable_iff.mp h).2.1 hxy.symm⟩
+  rw [← hxy, add_eq_zero_iff_eq.mpr rfl] at h
+  exact hz h
 
 /-- **(c): NO term is isolatable — the irreducible triple.** If
 `x + y + z = 0` then any functional takes value `0` on one of the
@@ -803,13 +824,25 @@ three whenever it kills the other two (`f(x) = 1, f(y) = 0` forces
 theorem not_isolable_of_sum_eq_zero {x y z : Fin a → ZMod 2}
     (h : x + y + z = 0) :
     ¬ Isolable x y z ∧ ¬ Isolable y x z ∧ ¬ Isolable z x y := by
-  sorry
+  refine ⟨fun hI => ?_, fun hI => ?_, fun hI => ?_⟩
+  · exact (isolable_iff.mp hI).2.2.2 (add_add_eq_zero_iff_left.mp h)
+  · exact (isolable_iff.mp hI).2.2.2 (add_add_eq_zero_iff_mid.mp h)
+  · exact (isolable_iff.mp hI).2.2.2 (add_add_eq_zero_iff_right.mp h)
 
 /-- **(d): every term is isolatable.** -/
 theorem isolable_all_of_linearIndependent {x y z : Fin a → ZMod 2}
     (h : LinearIndependent (ZMod 2) ![x, y, z]) :
     Isolable x y z ∧ Isolable y x z ∧ Isolable z x y := by
-  sorry
+  have hx : x ≠ 0 := h.ne_zero 0
+  have hy : y ≠ 0 := h.ne_zero 1
+  have hz : z ≠ 0 := h.ne_zero 2
+  obtain ⟨hxy, hxz, hyz, hs⟩ := (linearIndependent_triple_iff hx hy hz).mp h
+  exact ⟨isolable_iff.mpr ⟨hx, hxy, hxz,
+      fun he => hs (add_add_eq_zero_iff_left.mpr he)⟩,
+    isolable_iff.mpr ⟨hy, fun he => hxy he.symm, hyz,
+      fun he => hs (add_add_eq_zero_iff_mid.mpr he)⟩,
+    isolable_iff.mpr ⟨hz, fun he => hxz he.symm, fun he => hyz he.symm,
+      fun he => hs (add_add_eq_zero_iff_right.mpr he)⟩⟩
 
 /-- **Reducibility, mode 1.** If the mode-1 factor `u₁` is isolatable
 from `{u₂, u₃}`, C1 contraction by the isolating functional collapses
@@ -822,7 +855,17 @@ theorem le_nnz_triple_of_isolable₁ {u₁ u₂ u₃ : Fin a → ZMod 2}
     (v₃ : Fin b → ZMod 2) (w₃ : Fin c → ZMod 2) :
     wt v₁ * wt w₁
       ≤ nnz (triad u₁ v₁ w₁ + triad u₂ v₂ w₂ + triad u₃ v₃ w₃) := by
-  sorry
+  obtain ⟨g, hg1, hg2, hg3⟩ := h
+  have key : contract₁ (Matrix.of fun _ => g)
+      (triad u₁ v₁ w₁ + triad u₂ v₂ w₂ + triad u₃ v₃ w₃)
+      = triad (fun _ : Fin 1 => (1 : ZMod 2)) v₁ w₁ := by
+    rw [contract₁_add, contract₁_add, contract₁_triad, contract₁_triad,
+      contract₁_triad]
+    simp only [Matrix.of_apply, hg1, hg2, hg3]
+    rw [triad_zero₁, triad_zero₁, add_zero, add_zero]
+  have hle := nnz_contract₁_le (Matrix.of fun _ => g)
+    (triad u₁ v₁ w₁ + triad u₂ v₂ w₂ + triad u₃ v₃ w₃)
+  rwa [key, nnz_triad, wt_one_fin_one, one_mul] at hle
 
 /-- **C2 for triples, mode 1 (stratum (d)).** Linearly independent
 mode-1 factors isolate every term, so the 3-sum dominates ALL three
@@ -834,7 +877,13 @@ theorem triple_bounds₁_of_linearIndependent {u₁ u₂ u₃ : Fin a → ZMod 2
     (v₃ : Fin b → ZMod 2) (w₃ : Fin c → ZMod 2) :
     max (max (wt v₁ * wt w₁) (wt v₂ * wt w₂)) (wt v₃ * wt w₃)
       ≤ nnz (triad u₁ v₁ w₁ + triad u₂ v₂ w₂ + triad u₃ v₃ w₃) := by
-  sorry
+  obtain ⟨h1, h2, h3⟩ := isolable_all_of_linearIndependent h
+  refine max_le (max_le ?_ ?_) ?_
+  · exact le_nnz_triple_of_isolable₁ h1 v₁ w₁ v₂ w₂ v₃ w₃
+  · have hb := le_nnz_triple_of_isolable₁ h2 v₂ w₂ v₁ w₁ v₃ w₃
+    rwa [add_comm (triad u₂ v₂ w₂) (triad u₁ v₁ w₁)] at hb
+  · have hb := le_nnz_triple_of_isolable₁ h3 v₃ w₃ v₁ w₁ v₂ w₂
+    rwa [add_rotate] at hb
 
 end TripleF2
 
