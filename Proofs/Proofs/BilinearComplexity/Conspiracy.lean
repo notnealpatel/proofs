@@ -26,6 +26,8 @@
   AI disclosure: produced with AI assistance (see Proofs/README).
 -/
 import Mathlib.LinearAlgebra.LinearIndependent.Lemmas
+import Mathlib.Tactic.FieldSimp
+import Mathlib.Tactic.LinearCombination
 import Proofs.BilinearComplexity.Support
 import Proofs.BilinearComplexity.RankCalculus
 
@@ -64,18 +66,31 @@ end Cyc
 
 section C1
 
-variable {k : Type*} [DecidableEq k] [CommSemiring k] {a b c a' : ℕ}
+variable {k : Type*} [CommSemiring k] {a b c a' : ℕ}
 
 /-- Mode-1 contraction distributes over sums of tensors. -/
 theorem contract₁_add (M : Matrix (Fin a') (Fin a) k) (S T : Tensor k a b c) :
     contract₁ M (S + T) = contract₁ M S + contract₁ M T := by
-  sorry
+  funext i' j l
+  simp only [contract₁, Pi.add_apply, mul_add]
+  exact Finset.sum_add_distrib
 
 /-- Mode-1 contraction of a triad contracts the mode-1 vector. -/
 theorem contract₁_triad (M : Matrix (Fin a') (Fin a) k)
     (u : Fin a → k) (v : Fin b → k) (w : Fin c → k) :
     contract₁ M (triad u v w) = triad (fun i' => ∑ i, M i' i * u i) v w := by
-  sorry
+  funext i' j l
+  simp only [contract₁, triad]
+  rw [Finset.sum_mul, Finset.sum_mul]
+  exact Finset.sum_congr rfl fun i _ => by ring
+
+/-- A triad whose mode-1 vector vanishes is the zero tensor. -/
+theorem triad_zero₁ (v : Fin b → k) (w : Fin c → k) :
+    triad (fun _ : Fin a => (0 : k)) v w = 0 := by
+  funext i j l
+  simp [triad]
+
+variable [DecidableEq k]
 
 /-- **C1, mode 1.** Contracting mode 1 by a functional (a `1 × a`
 matrix) never increases the nonzero-entry count, over any
@@ -98,16 +113,19 @@ theorem nnz_contract₁_le (M : Matrix (Fin 1) (Fin a) k) (T : Tensor k a b c) :
 /-- **C1, mode 2.** -/
 theorem nnz_contract₂_le (M : Matrix (Fin 1) (Fin b) k) (T : Tensor k a b c) :
     nnz (contract₂ M T) ≤ nnz T := by
-  sorry
+  rw [contract₂_eq_cyc, nnz_cyc, nnz_cyc]
+  exact (nnz_contract₁_le M (cyc T)).trans_eq (nnz_cyc T)
 
 /-- **C1, mode 3.** -/
 theorem nnz_contract₃_le (M : Matrix (Fin 1) (Fin c) k) (T : Tensor k a b c) :
     nnz (contract₃ M T) ≤ nnz T := by
-  sorry
+  rw [contract₃_eq_cyc, nnz_cyc]
+  exact (nnz_contract₁_le M (cyc (cyc T))).trans_eq
+    ((nnz_cyc (cyc T)).trans (nnz_cyc T))
 
 /-- The constant-one vector on `Fin 1` has Hamming weight `1`. -/
 theorem wt_one_fin_one [Nontrivial k] : wt (fun _ : Fin 1 => (1 : k)) = 1 := by
-  sorry
+  simp [wt]
 
 end C1
 
@@ -122,7 +140,8 @@ evaluates at the two points. -/
 theorem sum_two_point_mul (i₀ i₁ : Fin a) (A B : k) (x : Fin a → k) :
     (∑ i, ((if i = i₀ then A else 0) + (if i = i₁ then B else 0)) * x i)
       = A * x i₀ + B * x i₁ := by
-  sorry
+  simp only [add_mul, ite_mul, zero_mul, Finset.sum_add_distrib,
+    Fintype.sum_ite_eq']
 
 end Sums
 
@@ -135,7 +154,22 @@ variable {k : Type*} [Field k] {a : ℕ}
 theorem exists_mul_ne_mul_of_linearIndependent {u u' : Fin a → k}
     (h : LinearIndependent k ![u, u']) :
     ∃ i₀ i₁, u i₀ * u' i₁ ≠ u i₁ * u' i₀ := by
-  sorry
+  by_contra hall
+  push Not at hall
+  rw [LinearIndependent.pair_iff] at h
+  have hu : u ≠ 0 := by
+    rintro rfl
+    exact one_ne_zero (h 1 0 (by simp)).1
+  obtain ⟨j, hj⟩ : ∃ j, u j ≠ 0 := by
+    by_contra h0
+    push Not at h0
+    exact hu (funext fun i => h0 i)
+  have hrel : (u' j / u j) • u + (-1 : k) • u' = 0 := by
+    funext i
+    simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul, Pi.zero_apply]
+    field_simp
+    linear_combination -hall j i
+  exact one_ne_zero (neg_eq_zero.mp (h (u' j / u j) (-1) hrel).2)
 
 /-- **Separating vectors.** A linearly independent pair `u, u'` over a
 field admits dual vectors `g, g'` with `⟨g,u⟩ = 1, ⟨g,u'⟩ = 0` and
@@ -146,7 +180,28 @@ theorem exists_separating_vectors {u u' : Fin a → k}
     ∃ g g' : Fin a → k,
       ((∑ i, g i * u i) = 1 ∧ (∑ i, g i * u' i) = 0) ∧
       ((∑ i, g' i * u i) = 0 ∧ (∑ i, g' i * u' i) = 1) := by
-  sorry
+  obtain ⟨i₀, i₁, hD⟩ := exists_mul_ne_mul_of_linearIndependent h
+  have hD0 : u i₀ * u' i₁ - u i₁ * u' i₀ ≠ 0 := sub_ne_zero.mpr hD
+  set D := u i₀ * u' i₁ - u i₁ * u' i₀ with hDdef
+  refine ⟨fun i => (if i = i₀ then u' i₁ / D else 0)
+            + (if i = i₁ then -(u' i₀) / D else 0),
+          fun i => (if i = i₀ then -(u i₁) / D else 0)
+            + (if i = i₁ then u i₀ / D else 0),
+          ⟨?_, ?_⟩, ⟨?_, ?_⟩⟩
+  · simp only [sum_two_point_mul]
+    field_simp
+    rw [hDdef]
+    ring
+  · simp only [sum_two_point_mul]
+    field_simp
+    ring
+  · simp only [sum_two_point_mul]
+    field_simp
+    ring
+  · simp only [sum_two_point_mul]
+    field_simp
+    rw [hDdef]
+    ring
 
 end Separation
 
@@ -164,7 +219,24 @@ theorem max_le_nnz_triad_add_triad₁ {u u' : Fin a → k}
     (v : Fin b → k) (w : Fin c → k) (v' : Fin b → k) (w' : Fin c → k) :
     max (wt v * wt w) (wt v' * wt w')
       ≤ nnz (triad u v w + triad u' v' w') := by
-  sorry
+  obtain ⟨g, g', ⟨hg1, hg0⟩, hg'0, hg'1⟩ := exists_separating_vectors h
+  apply max_le
+  · have key : contract₁ (Matrix.of fun _ => g) (triad u v w + triad u' v' w')
+        = triad (fun _ : Fin 1 => (1 : k)) v w := by
+      rw [contract₁_add, contract₁_triad, contract₁_triad]
+      simp only [Matrix.of_apply, hg1, hg0]
+      rw [triad_zero₁, add_zero]
+    have hle := nnz_contract₁_le (Matrix.of fun _ => g)
+      (triad u v w + triad u' v' w')
+    rwa [key, nnz_triad, wt_one_fin_one, one_mul] at hle
+  · have key : contract₁ (Matrix.of fun _ => g') (triad u v w + triad u' v' w')
+        = triad (fun _ : Fin 1 => (1 : k)) v' w' := by
+      rw [contract₁_add, contract₁_triad, contract₁_triad]
+      simp only [Matrix.of_apply, hg'0, hg'1]
+      rw [triad_zero₁, zero_add]
+    have hle := nnz_contract₁_le (Matrix.of fun _ => g')
+      (triad u v w + triad u' v' w')
+    rwa [key, nnz_triad, wt_one_fin_one, one_mul] at hle
 
 /-- **C2, mode 2.** -/
 theorem max_le_nnz_triad_add_triad₂ {v v' : Fin b → k}
