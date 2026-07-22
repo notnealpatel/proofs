@@ -475,6 +475,17 @@ theorem linearIndependent_pair_iff_ne {u u' : Fin a → ZMod 2}
     · rw [one_smul, one_smul] at hst
       exact absurd (add_eq_zero_iff_eq.mp hst) hne
 
+/-- **S0/S1 boundary.** Within the shared-modes-2,3 family over `F₂`
+(nonzero shared factors), the pair-sum vanishes exactly on the
+diagonal `u = u'`: S0 is precisely the annihilation locus inside the
+closure of S1. -/
+theorem nnz_triad_add_triad₁_eq_zero_iff {u u' : Fin a → ZMod 2}
+    {v : Fin b → ZMod 2} {w : Fin c → ZMod 2} (hv : v ≠ 0) (hw : w ≠ 0) :
+    nnz (triad u v w + triad u' v w) = 0 ↔ u = u' := by
+  rw [nnz_triad_add_triad₁, Nat.mul_eq_zero, Nat.mul_eq_zero]
+  simp only [wt_eq_zero_iff, hv, hw, or_false]
+  exact add_eq_zero_iff_eq
+
 /-- **C2 over F₂, mode 1, by inequality.** For nonzero unequal mode-1
 factors the independence pair bound applies verbatim. -/
 theorem max_le_nnz_triad_add_triad₁_of_ne {u u' : Fin a → ZMod 2}
