@@ -905,7 +905,8 @@ theorem add_add_cancel₂ {n : ℕ} {x y : Fin n → ZMod 2} : x + (y + x) = y :
   rw [add_comm y x, add_add_cancel₁]
 
 /-- 2D nonzero-entry count (matrix-shaped arrays). -/
-abbrev nnz₂ {k : Type*} [DecidableEq k] {b c : ℕ} (M : Fin b → Fin c → k) : ℕ :=
+abbrev nnz₂ {k : Type*} [DecidableEq k] [Zero k] {b c : ℕ}
+    (M : Fin b → Fin c → k) : ℕ :=
   (Finset.univ.filter fun q : Fin b × Fin c => M q.1 q.2 ≠ 0).card
 
 /-- Splitting a filter count by a second predicate. -/
@@ -916,13 +917,6 @@ theorem card_filter_and_split {n : ℕ} (p q : Fin n → Prop)
         + (Finset.univ.filter fun i => p i ∧ ¬ q i).card := by
   rw [← Finset.filter_filter, ← Finset.filter_filter]
   exact (Finset.card_filter_add_card_filter_not _).symm
-
-/-- Filter counts of conjunctions are symmetric. -/
-theorem card_filter_and_comm {n : ℕ} (p q : Fin n → Prop)
-    [DecidablePred p] [DecidablePred q] :
-    (Finset.univ.filter fun i => p i ∧ q i).card
-      = (Finset.univ.filter fun i => q i ∧ p i).card := by
-  rw [Finset.filter_and, Finset.filter_and, Finset.inter_comm]
 
 /-- Over `F₂` the support of a sum is the symmetric difference of the
 supports. -/
@@ -944,6 +938,27 @@ theorem wt_add_eq_card_add_card {n : ℕ} (x y : Fin n → ZMod 2) :
     rw [Finset.disjoint_left]
     intro i hi hi'
     exact ((Finset.mem_filter.mp hi).2.1) ((Finset.mem_filter.mp hi').2.1)
+  rw [wt, key, Finset.filter_or, Finset.card_union_of_disjoint hdisj]
+
+/-- The weight of the second vector of a pair, split by the support
+pattern of the first. -/
+theorem wt_eq_card_add_card_right {n : ℕ} (x y : Fin n → ZMod 2) :
+    wt y = (Finset.univ.filter fun i => x i = 0 ∧ y i ≠ 0).card
+      + (Finset.univ.filter fun i => x i ≠ 0 ∧ y i ≠ 0).card := by
+  have hd : ∀ s : ZMod 2, s = 0 ∨ s = 1 := by decide
+  have key : (Finset.univ.filter fun i => y i ≠ 0)
+      = Finset.univ.filter
+          fun i => (x i = 0 ∧ y i ≠ 0) ∨ (x i ≠ 0 ∧ y i ≠ 0) := by
+    ext i
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+    rcases hd (x i) with hx | hx <;> rcases hd (y i) with hy | hy <;>
+      rw [hx, hy] <;> decide
+  have hdisj : Disjoint
+      (Finset.univ.filter fun i => x i = 0 ∧ y i ≠ 0)
+      (Finset.univ.filter fun i => x i ≠ 0 ∧ y i ≠ 0) := by
+    rw [Finset.disjoint_left]
+    intro i hi hi'
+    exact (Finset.mem_filter.mp hi').2.1 (Finset.mem_filter.mp hi).2.1
   rw [wt, key, Finset.filter_or, Finset.card_union_of_disjoint hdisj]
 
 /-- **Ladder, 2D rung.** Over `F₂` a two-generator matrix
@@ -974,7 +989,7 @@ theorem nnz₂_two_generator {b c : ℕ} (x y : Fin b → ZMod 2)
     rintro ⟨j, l⟩ hj hj'
     rw [hA, Finset.mem_product, Finset.mem_filter] at hj
     rw [hB, Finset.mem_product, Finset.mem_filter] at hj'
-    exact hj'.1.2.1 hj.1.2.1
+    exact hj.1.2.1 hj'.1.2.1
   have habc : Disjoint (A ∪ B) C := by
     rw [Finset.disjoint_left]
     rintro ⟨j, l⟩ hj hj'
@@ -993,7 +1008,6 @@ theorem nnz₂_two_generator {b c : ℕ} (x y : Fin b → ZMod 2)
     _ = _ := by
         rw [hA, hB, hC, Finset.card_product, Finset.card_product,
           Finset.card_product]
-        rfl
 
 /-- **Ladder, 3D rung.** Over `F₂` a two-generator tensor
 `x ⊗ F + y ⊗ G` (with `F, G` matrices) counts exactly: mode-1 slices
@@ -1024,7 +1038,7 @@ theorem nnz_two_generator₁ (x y : Fin a → ZMod 2)
     rintro ⟨i, j, l⟩ hj hj'
     rw [hA, Finset.mem_product, Finset.mem_filter] at hj
     rw [hB, Finset.mem_product, Finset.mem_filter] at hj'
-    exact hj'.1.2.1 hj.1.2.1
+    exact hj.1.2.1 hj'.1.2.1
   have habc : Disjoint (A ∪ B) C := by
     rw [Finset.disjoint_left]
     rintro ⟨i, j, l⟩ hj hj'
@@ -1043,7 +1057,6 @@ theorem nnz_two_generator₁ (x y : Fin a → ZMod 2)
     _ = _ := by
         rw [hA, hB, hC, Finset.card_product, Finset.card_product,
           Finset.card_product]
-        rfl
 
 /-- **The (c)-mode exact formula.** A triple of triads whose mode-1
 factors are stratum (c) — `u₃ = u₁ + u₂` — has nonzero count EXACTLY
@@ -1089,11 +1102,8 @@ theorem le_nnz₂_pair {b c : ℕ} {M m : ℕ} (v v' : Fin b → ZMod 2)
     card_filter_and_split _ _
   have hv' : wt v'
       = (Finset.univ.filter fun j => v j = 0 ∧ v' j ≠ 0).card
-        + (Finset.univ.filter fun j => v j ≠ 0 ∧ v' j ≠ 0).card := by
-    rw [card_filter_and_split (fun j => v' j ≠ 0) (fun j => v j = 0),
-      card_filter_and_comm]
-    congr 1
-    exact card_filter_and_comm _ _
+        + (Finset.univ.filter fun j => v j ≠ 0 ∧ v' j ≠ 0).card :=
+    wt_eq_card_add_card_right v v'
   have hvv' : wt (v + v')
       = (Finset.univ.filter fun j => v j ≠ 0 ∧ v' j = 0).card
         + (Finset.univ.filter fun j => v j = 0 ∧ v' j ≠ 0).card :=
@@ -1166,11 +1176,8 @@ theorem le_nnz_triple_ccc (u₁ u₂ : Fin a → ZMod 2) (v₁ v₂ : Fin b → 
     card_filter_and_split _ _
   have hu₂ : wt u₂
       = (Finset.univ.filter fun i => u₁ i = 0 ∧ u₂ i ≠ 0).card
-        + (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i ≠ 0).card := by
-    rw [card_filter_and_split (fun i => u₂ i ≠ 0) (fun i => u₁ i = 0),
-      card_filter_and_comm]
-    congr 1
-    exact card_filter_and_comm _ _
+        + (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i ≠ 0).card :=
+    wt_eq_card_add_card_right u₁ u₂
   have hu₃ : wt (u₁ + u₂)
       = (Finset.univ.filter fun i => u₁ i ≠ 0 ∧ u₂ i = 0).card
         + (Finset.univ.filter fun i => u₁ i = 0 ∧ u₂ i ≠ 0).card :=
@@ -1204,7 +1211,7 @@ theorem le_nnz_triple_ccc (u₁ u₂ : Fin a → ZMod 2) (v₁ v₂ : Fin b → 
             * min (min (wt w₁) (wt w₂)) (wt (w₁ + w₂))) := by
         ring
     _ ≤ _ := by
-        gcongr <;> [exact h13; exact h23; exact h12]
+        gcongr
 
 end TripleF2
 
