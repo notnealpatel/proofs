@@ -38,6 +38,25 @@
   a pair-sum strictly below both cross-mode C2 bounds shares modes
   2 and 3, so its cancellation factors through mode 1.
 
+  Cn3 triple ladder (F₂, Pl25 line C, card Cn3): three NONZERO vectors
+  stratify as (a) all equal / (b) exactly two equal / (c) pairwise
+  distinct with `z = x + y` / (d) independent
+  (`triple_stratification`, dichotomy `linearIndependent_triple_iff`).
+  A term is isolatable — a functional pairs to 1 against it, 0 against
+  the others — iff it avoids the span of the other two
+  (`isolable_iff_notMem_span`), concretely iff it avoids
+  `{0, y, z, y + z}` (`isolable_iff`).  Isolation profile by stratum:
+  (a) none, (b) exactly the odd term, (c) NONE — the irreducible
+  3-conspiracy, (d) all three.  Isolation transfers weight through C1
+  (`le_nnz_triple_of_isolable₁`, `triple_bounds₁_of_linearIndependent`
+  — the 3-term C2).  In a (c) mode the count decomposes EXACTLY into
+  2D pair-sums selected by the support pattern (`nnz_triple_ladder₁`),
+  and 2D pairs decompose exactly into weights (`nnz₂_two_generator`);
+  chaining the rungs, a mode-(c)-everywhere triple obeys
+  `nnz ≥ (max u-wt) * (max v-wt) * (min w-wt)` (`le_nnz_triple_ccc`):
+  irreducible triples with uniformly dense members can NOT have sparse
+  sums — sub-member sparsity needs weight spread inside a mode.
+
   AI disclosure: produced with AI assistance (see Proofs/README).
 -/
 import Mathlib.Algebra.CharP.Two
