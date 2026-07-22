@@ -240,27 +240,29 @@ private lemma exists_mem_of_mem_foldl_symmDiff [DecidableEq α] {x : α}
   simp only [not_exists, not_and] at hall
   exact not_mem_foldl_symmDiff_of_not_mem (by simp) hall h
 
-/-- Generalized: x ∈ foldl Δ acc Ss ↔ (Odd count ↔ x ∉ acc). -/
-private lemma mem_foldl_symmDiff_iff [DecidableEq α] (x : α) (acc : Finset α)
+/-- Generalized: x ∈ foldl Δ acc Ss ↔ count parity differs from acc membership. -/
+private lemma mem_foldl_symmDiff_iff_mod [DecidableEq α] (x : α) (acc : Finset α)
     (Ss : List (Finset α)) :
     x ∈ Ss.foldl (· ∆ ·) acc ↔
-      (Odd (Ss.countP (x ∈ ·)) ↔ x ∉ acc) := by
+      (Ss.countP (x ∈ ·) + if x ∈ acc then 1 else 0) % 2 = 1 := by
   induction Ss generalizing acc with
   | nil =>
     simp only [List.foldl_nil, List.countP_nil]
-    tauto
+    constructor
+    · intro h; simp [h]
+    · intro h; by_contra hna; simp [hna] at h
   | cons S Ss ih =>
     simp only [List.foldl_cons, List.countP_cons]
     rw [ih]
     simp only [Finset.mem_symmDiff]
-    by_cases hS : x ∈ S <;> by_cases ha : x ∈ acc <;>
-      simp [hS, ha, Nat.odd_add, Nat.odd_one] <;> tauto
+    by_cases hS : x ∈ S <;> by_cases ha : x ∈ acc <;> simp [hS, ha] <;> omega
 
 /-- Membership in iterated symmetric difference ↔ odd count. -/
-private lemma mem_foldl_symmDiff [DecidableEq α] (x : α) (Ss : List (Finset α)) :
+private lemma mem_foldl_symmDiff' [DecidableEq α] (x : α) (Ss : List (Finset α)) :
     x ∈ Ss.foldl (· ∆ ·) ∅ ↔ Odd (Ss.countP (x ∈ ·)) := by
-  rw [mem_foldl_symmDiff_iff]
-  simp
+  rw [mem_foldl_symmDiff_iff_mod]
+  simp only [show (x ∈ (∅ : Finset α)) = False from by simp, ite_false, Nat.add_zero]
+  rw [Nat.odd_iff]
 
 /-- **L0 (Bridge).** A list of boxes is a decomposition of `T n` iff
 every cell of `T n` is covered an odd number of times and every
@@ -275,7 +277,7 @@ theorem isDecomp_iff_parity {n : ℕ} {L : List (Box n)} :
     constructor
     · intro t ht
       rw [← hd] at ht
-      rw [mem_foldl_symmDiff] at ht
+      rw [mem_foldl_symmDiff'] at ht
       convert ht using 1
       simp only [List.countP_map]
     · intro t ht
@@ -283,12 +285,12 @@ theorem isDecomp_iff_parity {n : ℕ} {L : List (Box n)} :
       intro hodd
       apply ht
       rw [← hd]
-      rw [mem_foldl_symmDiff]
+      rw [mem_foldl_symmDiff']
       convert hodd using 1
       simp only [List.countP_map]
   · intro ⟨hodd, heven⟩
     ext t
-    rw [mem_foldl_symmDiff]
+    rw [mem_foldl_symmDiff']
     constructor
     · intro h
       have := hodd t
