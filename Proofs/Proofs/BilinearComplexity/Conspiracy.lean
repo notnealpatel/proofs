@@ -23,8 +23,25 @@
   `add_le_nnz_triad_add_triad₁`); it holds under explicit two-sided
   support incomparability, which is the optional lemma proved there.
 
+  Cn2 stratification (F₂ = `ZMod 2`, Pl25 line C, card Cn2): over F₂
+  two NONZERO vectors are linearly independent iff they are UNEQUAL
+  (`linearIndependent_pair_iff_ne`), so for a pair of triads with all
+  six factors nonzero the conspiracy question stratifies by the set of
+  unequal factor pairs — S0 (all equal): the sum annihilates in char 2
+  (`tensor_add_self`); S1 (exactly one unequal): the sum collapses to
+  a single triad (`triad_add_triad₁/₂/₃`) with EXACT count
+  `wt (x + x') *` (shared weights) (`nnz_triad_add_triad₁/₂/₃`);
+  S2/S3 (two/three unequal): C2 applies in every unequal mode
+  (`max_le_nnz_triad_add_triad₁/₂/₃_of_ne`, conjunctions
+  `pair_bounds_shared₁/₂/₃`, `pair_bounds_of_ne`), sharply
+  (Scratch/Cn2Sharpness).  Capstone `pair_collapse₁_of_nnz_lt`:
+  a pair-sum strictly below both cross-mode C2 bounds shares modes
+  2 and 3, so its cancellation factors through mode 1.
+
   AI disclosure: produced with AI assistance (see Proofs/README).
 -/
+import Mathlib.Algebra.CharP.Two
+import Mathlib.Algebra.Field.ZMod
 import Mathlib.LinearAlgebra.LinearIndependent.Lemmas
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Tactic.LinearCombination
@@ -324,5 +341,245 @@ theorem add_le_nnz_triad_add_triad₁ {u u' : Fin a → k} {i₀ i₁ : Fin a}
     _ ≤ _ := Finset.card_le_card hsub
 
 end Additive
+
+/-! ## 6. Pair collapse — sums sharing two modes (stratum S1) -/
+
+section Collapse
+
+variable {k : Type*} [CommSemiring k] {a b c : ℕ}
+
+/-- Two triads sharing modes 2 and 3 sum to a single triad: the
+cancellation factors through mode 1 and the sum again has rank ≤ 1. -/
+theorem triad_add_triad₁ (u u' : Fin a → k) (v : Fin b → k) (w : Fin c → k) :
+    triad u v w + triad u' v w = triad (u + u') v w := by
+  funext i j l
+  simp only [Pi.add_apply, triad]
+  ring
+
+/-- Two triads sharing modes 1 and 3 sum to a single triad. -/
+theorem triad_add_triad₂ (u : Fin a → k) (v v' : Fin b → k) (w : Fin c → k) :
+    triad u v w + triad u v' w = triad u (v + v') w := by
+  funext i j l
+  simp only [Pi.add_apply, triad]
+  ring
+
+/-- Two triads sharing modes 1 and 2 sum to a single triad. -/
+theorem triad_add_triad₃ (u : Fin a → k) (v : Fin b → k) (w w' : Fin c → k) :
+    triad u v w + triad u v w' = triad u v (w + w') := by
+  funext i j l
+  simp only [Pi.add_apply, triad]
+  ring
+
+variable [DecidableEq k] [NoZeroDivisors k]
+
+/-- **S1 equality classification, mode 1.** Two triads sharing modes 2
+and 3 have EXACT pair-sum count `wt (u + u') * wt v * wt w`: the
+members are as dense as `u, u'` are, while the sum is sparse exactly
+when `u + u'` is sparse.  This is the complete description of the
+classic two-term conspiracy. -/
+theorem nnz_triad_add_triad₁ (u u' : Fin a → k) (v : Fin b → k) (w : Fin c → k) :
+    nnz (triad u v w + triad u' v w) = wt (u + u') * wt v * wt w := by
+  rw [triad_add_triad₁, nnz_triad]
+
+/-- **S1 equality classification, mode 2.** -/
+theorem nnz_triad_add_triad₂ (u : Fin a → k) (v v' : Fin b → k) (w : Fin c → k) :
+    nnz (triad u v w + triad u v' w) = wt u * wt (v + v') * wt w := by
+  rw [triad_add_triad₂, nnz_triad]
+
+/-- **S1 equality classification, mode 3.** -/
+theorem nnz_triad_add_triad₃ (u : Fin a → k) (v : Fin b → k) (w w' : Fin c → k) :
+    nnz (triad u v w + triad u v w') = wt u * wt v * wt (w + w') := by
+  rw [triad_add_triad₃, nnz_triad]
+
+end Collapse
+
+/-! ## 7. F₂ stratification — annihilation and the equality dichotomy
+
+Over `F₂ = ZMod 2` the only nonzero scalar is `1`, so two NONZERO
+vectors are linearly independent iff they are unequal.  For a pair of
+triads with all six factors nonzero this stratifies the conspiracy
+question by the set of unequal factor pairs:
+
+* **S0** (all three equal): `τ' = τ` and the sum annihilates in
+  characteristic 2 (`tensor_add_self`, `nnz_tensor_add_self`).
+* **S1** (exactly one unequal): the sum collapses to a single triad
+  with exact count — section 6.
+* **S2** (exactly two unequal): C2 applies in both unequal modes
+  (`pair_bounds_shared₁/₂/₃`); the conjunction is sharp
+  (Scratch/Cn2Sharpness).
+* **S3** (all three unequal): C2 applies in all three modes
+  (`pair_bounds_of_ne`); the conjunction is sharp
+  (Scratch/Cn2Sharpness); no additive strengthening survives
+  (support nesting, as in section 5).
+
+Capstone `pair_collapse₁_of_nnz_lt`: a pair-sum strictly below both
+cross-mode C2 bounds must share modes 2 and 3, so its cancellation
+factors through mode 1 and the sum is again rank ≤ 1 — the
+rank-1-specific locality that black-box vector families lack (Bw1). -/
+
+section CharTwoAnnihilation
+
+variable {k : Type*} [CommSemiring k] [CharP k 2] {a b c : ℕ}
+
+/-- **S0 (char-2 annihilation).** In characteristic 2 a tensor plus
+itself vanishes; in particular an identical pair of triads sums to
+`0`.  Degenerate stratum of the pair classification. -/
+theorem tensor_add_self (T : Tensor k a b c) : T + T = 0 := by
+  funext i j l
+  simp only [Pi.add_apply, Pi.zero_apply]
+  exact CharTwo.add_self_eq_zero _
+
+/-- **S0 count.** -/
+theorem nnz_tensor_add_self [DecidableEq k] (T : Tensor k a b c) :
+    nnz (T + T) = 0 := by
+  rw [tensor_add_self, nnz_zero]
+
+end CharTwoAnnihilation
+
+section F2
+
+variable {a b c : ℕ}
+
+/-- Over `F₂`, `x + y = 0` iff `x = y` (vector form of char-2
+cancellation). -/
+theorem add_eq_zero_iff_eq {n : ℕ} {x y : Fin n → ZMod 2} :
+    x + y = 0 ↔ x = y := by
+  constructor
+  · intro h
+    funext i
+    have hi : x i + y i = 0 := congrFun h i
+    exact CharTwo.add_eq_zero.mp hi
+  · rintro rfl
+    funext i
+    exact CharTwo.add_self_eq_zero (x i)
+
+/-- **The F₂ dichotomy.** Two NONZERO vectors over `F₂ = ZMod 2` are
+linearly independent iff they are unequal: the only nonzero scalar is
+`1`, so the only relations available are `x = 0`, `y = 0`, `x = y`.
+This is what makes the pair-conspiracy strata clean over `F₂`. -/
+theorem linearIndependent_pair_iff_ne {u u' : Fin a → ZMod 2}
+    (hu : u ≠ 0) (hu' : u' ≠ 0) :
+    LinearIndependent (ZMod 2) ![u, u'] ↔ u ≠ u' := by
+  rw [LinearIndependent.pair_iff]
+  constructor
+  · rintro h rfl
+    refine one_ne_zero (h 1 1 ?_).1
+    rw [one_smul]
+    exact add_eq_zero_iff_eq.mpr rfl
+  · intro hne s t hst
+    have hd : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide
+    rcases hd s with rfl | rfl <;> rcases hd t with rfl | rfl
+    · exact ⟨rfl, rfl⟩
+    · exact absurd (by simpa using hst) hu'
+    · exact absurd (by simpa using hst) hu
+    · rw [one_smul, one_smul] at hst
+      exact absurd (add_eq_zero_iff_eq.mp hst) hne
+
+/-- **C2 over F₂, mode 1, by inequality.** For nonzero unequal mode-1
+factors the independence pair bound applies verbatim. -/
+theorem max_le_nnz_triad_add_triad₁_of_ne {u u' : Fin a → ZMod 2}
+    (hu : u ≠ 0) (hu' : u' ≠ 0) (hne : u ≠ u')
+    (v : Fin b → ZMod 2) (w : Fin c → ZMod 2)
+    (v' : Fin b → ZMod 2) (w' : Fin c → ZMod 2) :
+    max (wt v * wt w) (wt v' * wt w')
+      ≤ nnz (triad u v w + triad u' v' w') :=
+  max_le_nnz_triad_add_triad₁ ((linearIndependent_pair_iff_ne hu hu').mpr hne)
+    v w v' w'
+
+/-- **C2 over F₂, mode 2, by inequality.** -/
+theorem max_le_nnz_triad_add_triad₂_of_ne {v v' : Fin b → ZMod 2}
+    (hv : v ≠ 0) (hv' : v' ≠ 0) (hne : v ≠ v')
+    (u : Fin a → ZMod 2) (w : Fin c → ZMod 2)
+    (u' : Fin a → ZMod 2) (w' : Fin c → ZMod 2) :
+    max (wt u * wt w) (wt u' * wt w')
+      ≤ nnz (triad u v w + triad u' v' w') :=
+  max_le_nnz_triad_add_triad₂ ((linearIndependent_pair_iff_ne hv hv').mpr hne)
+    u w u' w'
+
+/-- **C2 over F₂, mode 3, by inequality.** -/
+theorem max_le_nnz_triad_add_triad₃_of_ne {w w' : Fin c → ZMod 2}
+    (hw : w ≠ 0) (hw' : w' ≠ 0) (hne : w ≠ w')
+    (u : Fin a → ZMod 2) (v : Fin b → ZMod 2)
+    (u' : Fin a → ZMod 2) (v' : Fin b → ZMod 2) :
+    max (wt u * wt v) (wt u' * wt v')
+      ≤ nnz (triad u v w + triad u' v' w') :=
+  max_le_nnz_triad_add_triad₃ ((linearIndependent_pair_iff_ne hw hw').mpr hne)
+    u v u' v'
+
+/-- **S2, mode 1 shared.** Modes 2 and 3 are nonzero and unequal, mode
+1 is shared: both cross-mode C2 bounds hold.  Sharp
+(Scratch/Cn2Sharpness, up to mode relabelling). -/
+theorem pair_bounds_shared₁ {v v' : Fin b → ZMod 2} {w w' : Fin c → ZMod 2}
+    (hv : v ≠ 0) (hv' : v' ≠ 0) (hnev : v ≠ v')
+    (hw : w ≠ 0) (hw' : w' ≠ 0) (hnew : w ≠ w')
+    (u : Fin a → ZMod 2) :
+    max (wt u * wt w) (wt u * wt w') ≤ nnz (triad u v w + triad u v' w') ∧
+    max (wt u * wt v) (wt u * wt v') ≤ nnz (triad u v w + triad u v' w') :=
+  ⟨max_le_nnz_triad_add_triad₂_of_ne hv hv' hnev u w u w',
+   max_le_nnz_triad_add_triad₃_of_ne hw hw' hnew u v u v'⟩
+
+/-- **S2, mode 2 shared.** -/
+theorem pair_bounds_shared₂ {u u' : Fin a → ZMod 2} {w w' : Fin c → ZMod 2}
+    (hu : u ≠ 0) (hu' : u' ≠ 0) (hneu : u ≠ u')
+    (hw : w ≠ 0) (hw' : w' ≠ 0) (hnew : w ≠ w')
+    (v : Fin b → ZMod 2) :
+    max (wt v * wt w) (wt v * wt w') ≤ nnz (triad u v w + triad u' v w') ∧
+    max (wt u * wt v) (wt u' * wt v) ≤ nnz (triad u v w + triad u' v w') :=
+  ⟨max_le_nnz_triad_add_triad₁_of_ne hu hu' hneu v w v w',
+   max_le_nnz_triad_add_triad₃_of_ne hw hw' hnew u v u' v⟩
+
+/-- **S2, mode 3 shared.** -/
+theorem pair_bounds_shared₃ {u u' : Fin a → ZMod 2} {v v' : Fin b → ZMod 2}
+    (hu : u ≠ 0) (hu' : u' ≠ 0) (hneu : u ≠ u')
+    (hv : v ≠ 0) (hv' : v' ≠ 0) (hnev : v ≠ v')
+    (w : Fin c → ZMod 2) :
+    max (wt v * wt w) (wt v' * wt w) ≤ nnz (triad u v w + triad u' v' w) ∧
+    max (wt u * wt w) (wt u' * wt w) ≤ nnz (triad u v w + triad u' v' w) :=
+  ⟨max_le_nnz_triad_add_triad₁_of_ne hu hu' hneu v w v' w,
+   max_le_nnz_triad_add_triad₂_of_ne hv hv' hnev u w u' w⟩
+
+/-- **S3.** All three factor pairs nonzero and unequal: C2 applies in
+all three modes.  The three-way conjunction is sharp
+(Scratch/Cn2Sharpness); the additive strengthening fails (support
+nesting — same witness). -/
+theorem pair_bounds_of_ne {u u' : Fin a → ZMod 2} {v v' : Fin b → ZMod 2}
+    {w w' : Fin c → ZMod 2}
+    (hu : u ≠ 0) (hu' : u' ≠ 0) (hneu : u ≠ u')
+    (hv : v ≠ 0) (hv' : v' ≠ 0) (hnev : v ≠ v')
+    (hw : w ≠ 0) (hw' : w' ≠ 0) (hnew : w ≠ w') :
+    max (wt v * wt w) (wt v' * wt w') ≤ nnz (triad u v w + triad u' v' w') ∧
+    max (wt u * wt w) (wt u' * wt w') ≤ nnz (triad u v w + triad u' v' w') ∧
+    max (wt u * wt v) (wt u' * wt v') ≤ nnz (triad u v w + triad u' v' w') :=
+  ⟨max_le_nnz_triad_add_triad₁_of_ne hu hu' hneu v w v' w',
+   max_le_nnz_triad_add_triad₂_of_ne hv hv' hnev u w u' w',
+   max_le_nnz_triad_add_triad₃_of_ne hw hw' hnew u v u' v'⟩
+
+/-- **Collapse dichotomy (capstone).** Over `F₂`, a pair-sum of triads
+with nonzero mode-2 and mode-3 factors that is strictly sparser than
+BOTH cross-mode C2 bounds must share modes 2 and 3 — and then the
+cancellation factors through mode 1: the sum collapses to the single
+triad `(u + u') ⊗ v ⊗ w` (rank ≤ 1, and `= 0` exactly when `u' = u`).
+This is the pair-level rank-1 factorization property that black-box
+dense vector families lack (Bw1): conspiracies below the C2 threshold
+exist only through shared-factor structure. -/
+theorem pair_collapse₁_of_nnz_lt {u u' : Fin a → ZMod 2}
+    {v v' : Fin b → ZMod 2} {w w' : Fin c → ZMod 2}
+    (hv : v ≠ 0) (hv' : v' ≠ 0) (hw : w ≠ 0) (hw' : w' ≠ 0)
+    (h₂ : nnz (triad u v w + triad u' v' w') < max (wt u * wt w) (wt u' * wt w'))
+    (h₃ : nnz (triad u v w + triad u' v' w') < max (wt u * wt v) (wt u' * wt v')) :
+    v' = v ∧ w' = w ∧ triad u v w + triad u' v' w' = triad (u + u') v w := by
+  have hveq : v' = v := by
+    by_contra hne
+    exact absurd (max_le_nnz_triad_add_triad₂_of_ne hv hv' (Ne.symm hne) u w u' w')
+      (not_le.mpr h₂)
+  have hweq : w' = w := by
+    by_contra hne
+    exact absurd (max_le_nnz_triad_add_triad₃_of_ne hw hw' (Ne.symm hne) u v u' v')
+      (not_le.mpr h₃)
+  subst hveq
+  subst hweq
+  exact ⟨rfl, rfl, triad_add_triad₁ u u' v' w'⟩
+
+end F2
 
 end BilinearComplexity
