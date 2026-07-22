@@ -240,6 +240,28 @@ private lemma exists_mem_of_mem_foldl_symmDiff [DecidableEq α] {x : α}
   simp only [not_exists, not_and] at hall
   exact not_mem_foldl_symmDiff_of_not_mem (by simp) hall h
 
+/-- Generalized: x ∈ foldl Δ acc Ss ↔ (Odd count ↔ x ∉ acc). -/
+private lemma mem_foldl_symmDiff_iff [DecidableEq α] (x : α) (acc : Finset α)
+    (Ss : List (Finset α)) :
+    x ∈ Ss.foldl (· ∆ ·) acc ↔
+      (Odd (Ss.countP (x ∈ ·)) ↔ x ∉ acc) := by
+  induction Ss generalizing acc with
+  | nil =>
+    simp only [List.foldl_nil, List.countP_nil]
+    tauto
+  | cons S Ss ih =>
+    simp only [List.foldl_cons, List.countP_cons]
+    rw [ih]
+    simp only [Finset.mem_symmDiff]
+    by_cases hS : x ∈ S <;> by_cases ha : x ∈ acc <;>
+      simp [hS, ha, Nat.odd_add, Nat.odd_one] <;> tauto
+
+/-- Membership in iterated symmetric difference ↔ odd count. -/
+private lemma mem_foldl_symmDiff [DecidableEq α] (x : α) (Ss : List (Finset α)) :
+    x ∈ Ss.foldl (· ∆ ·) ∅ ↔ Odd (Ss.countP (x ∈ ·)) := by
+  rw [mem_foldl_symmDiff_iff]
+  simp
+
 /-- **L0 (Bridge).** A list of boxes is a decomposition of `T n` iff
 every cell of `T n` is covered an odd number of times and every
 cell outside `T n` is covered an even number of times. -/
@@ -247,7 +269,40 @@ theorem isDecomp_iff_parity {n : ℕ} {L : List (Box n)} :
     IsDecomp n L ↔
       (∀ t, t ∈ matmulSupport n → Odd (coverCount t L)) ∧
       (∀ t, t ∉ matmulSupport n → Even (coverCount t L)) := by
-  sorry
+  unfold IsDecomp coverCount
+  constructor
+  · intro hd
+    constructor
+    · intro t ht
+      rw [← hd] at ht
+      rw [mem_foldl_symmDiff] at ht
+      convert ht using 1
+      simp only [List.countP_map]
+    · intro t ht
+      rw [Nat.even_iff_not_odd]
+      intro hodd
+      apply ht
+      rw [← hd]
+      rw [mem_foldl_symmDiff]
+      convert hodd using 1
+      simp only [List.countP_map]
+  · intro ⟨hodd, heven⟩
+    ext t
+    rw [mem_foldl_symmDiff]
+    constructor
+    · intro h
+      have := hodd t
+      have := heven t
+      by_contra hnt
+      have hev := heven t hnt
+      rw [Nat.even_iff_not_odd] at hev
+      have : Odd ((L.map Box.support).countP (t ∈ ·)) := h
+      simp only [List.countP_map] at this
+      exact hev this
+    · intro ht
+      have := hodd t ht
+      simp only [List.countP_map]
+      exact this
 
 /-! ### L2: Shadow bound -/
 
@@ -369,20 +424,73 @@ private lemma mem_some_support_of_isDecomp {n : ℕ} {L : List (Box n)}
   obtain ⟨τ, hτ_mem, hτ_eq⟩ := hS_mem
   exact ⟨τ, hτ_mem, hτ_eq ▸ hS⟩
 
+/-- Covering lemma: if `T ⊆ ⋃ Ss` then `|T| ≤ Σᵢ |Sᵢ ∩ T|`. -/
+private lemma card_le_sum_card_inter [DecidableEq α] :
+    ∀ (T : Finset α) (Ss : List (Finset α)),
+    T ⊆ Ss.foldr (· ∪ ·) ∅ →
+    T.card ≤ (Ss.map (fun S => (S ∩ T).card)).sum := by
+  intro T Ss
+  induction Ss generalizing T with
+  | nil => intro h; simp at h; simp [h]
+  | cons S Ss ih =>
+    intro h
+    simp only [List.foldr_cons] at h
+    simp only [List.map_cons, List.sum_cons]
+    have hTS := card_sdiff_add_card_inter T S
+    rw [inter_comm] at hTS
+    -- T \ S ⊆ ⋃ Ss (since everything in T is in S ∪ ⋃Ss)
+    have hTmS : T \ S ⊆ Ss.foldr (· ∪ ·) ∅ := by
+      intro x hx
+      simp only [Finset.mem_sdiff] at hx
+      have := h hx.1
+      simp only [Finset.mem_union] at this
+      exact this.elim (absurd · hx.2) id
+    calc T.card = (T \ S).card + (S ∩ T).card := by omega
+      _ ≤ (Ss.map (fun S' => (S' ∩ (T \ S)).card)).sum + (S ∩ T).card := by
+          exact Nat.add_le_add_right (ih (T \ S) hTmS) _
+      _ ≤ (Ss.map (fun S' => (S' ∩ T).card)).sum + (S ∩ T).card := by
+          apply Nat.add_le_add_right
+          -- pointwise: (S' ∩ (T \ S)).card ≤ (S' ∩ T).card for each S' in Ss
+          have : ∀ (L : List (Finset α)),
+              (L.map (fun S' => (S' ∩ (T \ S)).card)).sum ≤
+              (L.map (fun S' => (S' ∩ T).card)).sum := by
+            intro L
+            induction L with
+            | nil => simp
+            | cons S' L' ihL =>
+              simp only [List.map_cons, List.sum_cons]
+              apply Nat.add_le_add
+              · apply card_le_card
+                intro x hx
+                simp only [mem_inter, mem_sdiff] at hx ⊢
+                exact ⟨hx.1, hx.2.1⟩
+              · exact ihL
+          exact this Ss
+      _ = (S ∩ T).card + (Ss.map (fun S' => (S' ∩ T).card)).sum := by omega
+
 /-- **L3a.** `Σ mᵢ ≥ n³`. -/
 theorem cover_sum_ge {n : ℕ} {L : List (Box n)} (hd : IsDecomp n L) :
     n ^ 3 ≤ totalMass n L := by
-  -- Each element of T is in at least one box, so |T| ≤ Σ |supp ∩ T|
   rw [← matmulSupport_card n]
   unfold totalMass
-  -- |T| ≤ Σᵢ |supp(τᵢ) ∩ T|
-  -- Strategy: |T| = |⋃ᵢ (T ∩ supp(τᵢ))| ≤ Σᵢ |T ∩ supp(τᵢ)| = Σᵢ mᵢ
+  -- Show matmulSupport n ⊆ union of all supports
+  have hcover : matmulSupport n ⊆
+      (L.map Box.support).foldr (· ∪ ·) ∅ := by
+    intro t ht
+    obtain ⟨τ, hτ_mem, hτ⟩ := mem_some_support_of_isDecomp hd ht
+    clear hd ht
+    induction L with
+    | nil => simp at hτ_mem
+    | cons τ' L' ih =>
+      simp only [List.map_cons, List.foldr_cons, Finset.mem_union]
+      rcases List.mem_cons.mp hτ_mem with rfl | hτ_mem'
+      · left; exact hτ
+      · right; exact ih hτ_mem'
   calc (matmulSupport n).card
-      ≤ (L.map (fun τ => (τ.support ∩ matmulSupport n).card)).sum := by
-        -- T ⊆ ⋃ᵢ (supp(τᵢ) ∩ T), and |⋃| ≤ Σ|·|
-        sorry
-      _ = (L.map (fun τ => τ.mass)).sum := by
-        congr 1; ext τ; rfl
+      ≤ ((L.map Box.support).map (fun S => (S ∩ matmulSupport n).card)).sum :=
+        card_le_sum_card_inter _ _ hcover
+    _ = (L.map (fun τ => τ.mass)).sum := by
+        simp only [List.map_map]; rfl
 
 /-- **L3b.** The total out-mass is even. -/
 theorem cover_outmass_even {n : ℕ} {L : List (Box n)} (hd : IsDecomp n L) :
