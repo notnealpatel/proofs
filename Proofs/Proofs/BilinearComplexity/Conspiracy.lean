@@ -42,6 +42,7 @@
 -/
 import Mathlib.Algebra.CharP.Two
 import Mathlib.Algebra.Field.ZMod
+import Mathlib.LinearAlgebra.Dual.Lemmas
 import Mathlib.LinearAlgebra.LinearIndependent.Lemmas
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Tactic.LinearCombination
@@ -592,5 +593,267 @@ theorem pair_collapse₁_of_nnz_lt {u u' : Fin a → ZMod 2}
   exact ⟨rfl, rfl, triad_add_triad₁ u u' v' w'⟩
 
 end F2
+
+/-! ## 8. Cn3 — triple classification, isolation, and reducibility over F₂
+
+For three NONZERO vectors over `F₂ = ZMod 2` the exhaustive strata are
+(a) all equal; (b) exactly two equal; (c) pairwise distinct and
+dependent, forcedly `z = x + y`; (d) linearly independent.  Term `x`
+of a triple is *isolatable* from `{y, z}` when a functional `g` has
+`⟨g,x⟩ = 1, ⟨g,y⟩ = ⟨g,z⟩ = 0`; this happens iff `x ∉ span {y, z}`,
+concretely iff `x ∉ {0, y, z, y + z}`.  Isolation profile by stratum:
+(a) none, (b) exactly the odd term, (c) NONE (the irreducible ladder),
+(d) all three.  An isolatable mode-1 factor makes C1 contraction
+collapse the 3-sum onto that term, transferring its complementary
+weight product below `nnz` — the REDUCIBLE half. -/
+
+section TripleF2
+
+variable {a b c : ℕ}
+
+/-- Char-2 shim: `x + y + z = 0` iff the FIRST vector is the sum of the
+other two. -/
+theorem add_add_eq_zero_iff_left {n : ℕ} {x y z : Fin n → ZMod 2} :
+    x + y + z = 0 ↔ x = y + z := by
+  rw [add_assoc, add_eq_zero_iff_eq]
+
+/-- Char-2 shim: `x + y + z = 0` iff the MIDDLE vector is the sum of the
+other two. -/
+theorem add_add_eq_zero_iff_mid {n : ℕ} {x y z : Fin n → ZMod 2} :
+    x + y + z = 0 ↔ y = x + z := by
+  rw [add_comm x y, add_assoc, add_eq_zero_iff_eq]
+
+/-- Char-2 shim: `x + y + z = 0` iff the LAST vector is the sum of the
+other two. -/
+theorem add_add_eq_zero_iff_right {n : ℕ} {x y z : Fin n → ZMod 2} :
+    x + y + z = 0 ↔ z = x + y := by
+  rw [add_eq_zero_iff_eq, eq_comm]
+
+/-- **Isolation.** Term `x` is isolatable from `{y, z}` (in one mode):
+some functional `g` pairs to `1` against `x` and to `0` against `y`
+and `z`.  Contraction by such a `g` kills the other two terms of a
+triple of triads. -/
+def Isolable (x y z : Fin a → ZMod 2) : Prop :=
+  ∃ g : Fin a → ZMod 2,
+    (∑ i, g i * x i) = 1 ∧ (∑ i, g i * y i) = 0 ∧ (∑ i, g i * z i) = 0
+
+/-- Over `F₂` the span of a pair is the four-element set
+`{0, y, z, y + z}`. -/
+theorem mem_span_pair_f2 {x y z : Fin a → ZMod 2} :
+    x ∈ Submodule.span (ZMod 2) {y, z} ↔
+      x = 0 ∨ x = y ∨ x = z ∨ x = y + z := by
+  rw [Submodule.mem_span_pair]
+  constructor
+  · rintro ⟨s, t, rfl⟩
+    have hd : ∀ u : ZMod 2, u = 0 ∨ u = 1 := by decide
+    rcases hd s with rfl | rfl <;> rcases hd t with rfl | rfl
+    · exact Or.inl (by rw [zero_smul, zero_smul, add_zero])
+    · exact Or.inr (Or.inr (Or.inl (by rw [zero_smul, one_smul, zero_add])))
+    · exact Or.inr (Or.inl (by rw [one_smul, zero_smul, add_zero]))
+    · exact Or.inr (Or.inr (Or.inr (by rw [one_smul, one_smul])))
+  · rintro (rfl | rfl | rfl | rfl)
+    · exact ⟨0, 0, by rw [zero_smul, zero_smul, add_zero]⟩
+    · exact ⟨1, 0, by rw [one_smul, zero_smul, add_zero]⟩
+    · exact ⟨0, 1, by rw [zero_smul, one_smul, zero_add]⟩
+    · exact ⟨1, 1, by rw [one_smul, one_smul]⟩
+
+/-- **Isolation criterion, span form.** Term `x` is isolatable from
+`{y, z}` iff `x` is not in their span.  (⇐ is dual separation on the
+quotient; ⇒ is linearity of the pairing.) -/
+theorem isolable_iff_notMem_span {x y z : Fin a → ZMod 2} :
+    Isolable x y z ↔ x ∉ Submodule.span (ZMod 2) {y, z} := by
+  constructor
+  · rintro ⟨g, hgx, hgy, hgz⟩ hmem
+    obtain ⟨s, t, rfl⟩ := Submodule.mem_span_pair.mp hmem
+    have e : (∑ i, g i * (s • y + t • z) i)
+        = s * (∑ i, g i * y i) + t * (∑ i, g i * z i) := by
+      rw [Finset.mul_sum, Finset.mul_sum, ← Finset.sum_add_distrib]
+      refine Finset.sum_congr rfl fun i _ => ?_
+      simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul]
+      ring
+    rw [e, hgy, hgz, mul_zero, mul_zero, add_zero] at hgx
+    exact one_ne_zero hgx.symm
+  · intro hx
+    obtain ⟨f, hfx, hfmap⟩ :=
+      Submodule.exists_dual_map_eq_bot_of_notMem hx inferInstance
+    have hker : ∀ u ∈ Submodule.span (ZMod 2) {y, z}, f u = 0 := by
+      intro u hu
+      have hmem : f u ∈ (Submodule.span (ZMod 2) {y, z}).map f :=
+        Submodule.mem_map_of_mem hu
+      rwa [hfmap, Submodule.mem_bot] at hmem
+    have hfx1 : f x = 1 := by
+      rcases (by decide : ∀ s : ZMod 2, s = 0 ∨ s = 1) (f x) with h | h
+      · exact absurd h hfx
+      · exact h
+    have key : ∀ u : Fin a → ZMod 2,
+        (∑ i, f (fun j => if i = j then 1 else 0) * u i) = f u := by
+      intro u
+      rw [LinearMap.pi_apply_eq_sum_univ f u]
+      exact Finset.sum_congr rfl fun i _ => by rw [smul_eq_mul, mul_comm]
+    refine ⟨fun i => f (fun j => if i = j then 1 else 0), ?_, ?_, ?_⟩
+    · exact (key x).trans hfx1
+    · exact (key y).trans (hker y (Submodule.subset_span (Set.mem_insert _ _)))
+    · exact (key z).trans (hker z (Submodule.subset_span
+        (Set.mem_insert_of_mem _ rfl)))
+
+/-- **Isolation criterion, concrete form.** Over `F₂`: term `x` is
+isolatable from `{y, z}` iff `x ∉ {0, y, z, y + z}`. -/
+theorem isolable_iff {x y z : Fin a → ZMod 2} :
+    Isolable x y z ↔ x ≠ 0 ∧ x ≠ y ∧ x ≠ z ∧ x ≠ y + z := by
+  rw [isolable_iff_notMem_span, mem_span_pair_f2]
+  simp only [not_or]
+
+/-- **The F₂ triple dichotomy.** Three NONZERO vectors over `F₂` are
+linearly independent iff they are pairwise distinct and do not sum to
+zero — the only nonzero scalars being `1`, the seven candidate
+relations are `x = 0`, `y = 0`, `z = 0`, `x = y`, `x = z`, `y = z`,
+`x + y + z = 0`. -/
+theorem linearIndependent_triple_iff {x y z : Fin a → ZMod 2}
+    (hx : x ≠ 0) (hy : y ≠ 0) (hz : z ≠ 0) :
+    LinearIndependent (ZMod 2) ![x, y, z] ↔
+      x ≠ y ∧ x ≠ z ∧ y ≠ z ∧ x + y + z ≠ 0 := by
+  rw [Fintype.linearIndependent_iff]
+  constructor
+  · intro h
+    refine ⟨?_, ?_, ?_, ?_⟩
+    · intro heq
+      have h0 := h ![1, 1, 0] (by
+        rw [Fin.sum_univ_three]
+        show (1 : ZMod 2) • x + (1 : ZMod 2) • y + (0 : ZMod 2) • z = 0
+        rw [one_smul, one_smul, zero_smul, add_zero]
+        exact add_eq_zero_iff_eq.mpr heq) 0
+      exact one_ne_zero h0
+    · intro heq
+      have h0 := h ![1, 0, 1] (by
+        rw [Fin.sum_univ_three]
+        show (1 : ZMod 2) • x + (0 : ZMod 2) • y + (1 : ZMod 2) • z = 0
+        rw [one_smul, zero_smul, one_smul, add_zero]
+        exact add_eq_zero_iff_eq.mpr heq) 0
+      exact one_ne_zero h0
+    · intro heq
+      have h0 := h ![0, 1, 1] (by
+        rw [Fin.sum_univ_three]
+        show (0 : ZMod 2) • x + (1 : ZMod 2) • y + (1 : ZMod 2) • z = 0
+        rw [zero_smul, one_smul, one_smul, zero_add]
+        exact add_eq_zero_iff_eq.mpr heq) 1
+      exact one_ne_zero h0
+    · intro heq
+      have h0 := h ![1, 1, 1] (by
+        rw [Fin.sum_univ_three]
+        show (1 : ZMod 2) • x + (1 : ZMod 2) • y + (1 : ZMod 2) • z = 0
+        rw [one_smul, one_smul, one_smul]
+        exact heq) 0
+      exact one_ne_zero h0
+  · rintro ⟨hxy, hxz, hyz, hs⟩ g hg
+    have hg' : g 0 • x + g 1 • y + g 2 • z = 0 := by
+      rw [Fin.sum_univ_three] at hg
+      exact hg
+    have hd : ∀ u : ZMod 2, u = 0 ∨ u = 1 := by decide
+    rcases hd (g 0) with h0 | h0 <;> rcases hd (g 1) with h1 | h1 <;>
+      rcases hd (g 2) with h2 | h2 <;> rw [h0, h1, h2] at hg'
+    · intro i
+      fin_cases i
+      exacts [h0, h1, h2]
+    · rw [zero_smul, zero_smul, one_smul, zero_add, zero_add] at hg'
+      exact absurd hg' hz
+    · rw [zero_smul, one_smul, zero_smul, zero_add, add_zero] at hg'
+      exact absurd hg' hy
+    · rw [zero_smul, one_smul, one_smul, zero_add] at hg'
+      exact absurd (add_eq_zero_iff_eq.mp hg') hyz
+    · rw [one_smul, zero_smul, zero_smul, add_zero, add_zero] at hg'
+      exact absurd hg' hx
+    · rw [one_smul, zero_smul, one_smul, add_zero] at hg'
+      exact absurd (add_eq_zero_iff_eq.mp hg') hxz
+    · rw [one_smul, one_smul, zero_smul, add_zero] at hg'
+      exact absurd (add_eq_zero_iff_eq.mp hg') hxy
+    · rw [one_smul, one_smul, one_smul] at hg'
+      exact absurd hg' hs
+
+/-- **Classification (a)/(b)/(c)/(d).** Three nonzero vectors over `F₂`
+are: (a) all equal; (b) exactly two equal; (c) pairwise distinct with
+`z = x + y` (dependent, all pairwise independent); or (d) linearly
+independent.  Exhaustive. -/
+theorem triple_stratification (x y z : Fin a → ZMod 2)
+    (hx : x ≠ 0) (hy : y ≠ 0) (hz : z ≠ 0) :
+    (x = y ∧ y = z)
+    ∨ ((x = y ∧ x ≠ z) ∨ (x = z ∧ x ≠ y) ∨ (y = z ∧ x ≠ y))
+    ∨ (x ≠ y ∧ x ≠ z ∧ y ≠ z ∧ z = x + y)
+    ∨ LinearIndependent (ZMod 2) ![x, y, z] := by
+  sorry
+
+/-- **(a): no isolation.** If all three vectors are equal, no term is
+isolatable. -/
+theorem not_isolable_of_all_eq {x y z : Fin a → ZMod 2}
+    (hxy : x = y) (hyz : y = z) :
+    ¬ Isolable x y z ∧ ¬ Isolable y x z ∧ ¬ Isolable z x y := by
+  sorry
+
+/-- **(b): exactly the odd term is isolatable.** If `x = y ≠ z` with
+`z ≠ 0`, then `z` is isolatable from `{x, y}` while neither `x` nor
+`y` is isolatable. -/
+theorem isolable_odd_of_two_eq {x y z : Fin a → ZMod 2}
+    (hxy : x = y) (hz : z ≠ 0) (hne : z ≠ x) :
+    Isolable z x y ∧ ¬ Isolable x y z ∧ ¬ Isolable y x z := by
+  sorry
+
+/-- **(c): NO term is isolatable — the irreducible triple.** If
+`x + y + z = 0` then any functional takes value `0` on one of the
+three whenever it kills the other two (`f(x) = 1, f(y) = 0` forces
+`f(z) = 1`).  No nonzero/distinctness hypotheses are needed. -/
+theorem not_isolable_of_sum_eq_zero {x y z : Fin a → ZMod 2}
+    (h : x + y + z = 0) :
+    ¬ Isolable x y z ∧ ¬ Isolable y x z ∧ ¬ Isolable z x y := by
+  sorry
+
+/-- **(d): every term is isolatable.** -/
+theorem isolable_all_of_linearIndependent {x y z : Fin a → ZMod 2}
+    (h : LinearIndependent (ZMod 2) ![x, y, z]) :
+    Isolable x y z ∧ Isolable y x z ∧ Isolable z x y := by
+  sorry
+
+/-- **Reducibility, mode 1.** If the mode-1 factor `u₁` is isolatable
+from `{u₂, u₃}`, C1 contraction by the isolating functional collapses
+the 3-sum onto term 1 at full complementary weight: the triple cannot
+conspire below `wt v₁ * wt w₁`. -/
+theorem le_nnz_triple_of_isolable₁ {u₁ u₂ u₃ : Fin a → ZMod 2}
+    (h : Isolable u₁ u₂ u₃)
+    (v₁ : Fin b → ZMod 2) (w₁ : Fin c → ZMod 2)
+    (v₂ : Fin b → ZMod 2) (w₂ : Fin c → ZMod 2)
+    (v₃ : Fin b → ZMod 2) (w₃ : Fin c → ZMod 2) :
+    wt v₁ * wt w₁
+      ≤ nnz (triad u₁ v₁ w₁ + triad u₂ v₂ w₂ + triad u₃ v₃ w₃) := by
+  sorry
+
+/-- **C2 for triples, mode 1 (stratum (d)).** Linearly independent
+mode-1 factors isolate every term, so the 3-sum dominates ALL three
+complementary weight products. -/
+theorem triple_bounds₁_of_linearIndependent {u₁ u₂ u₃ : Fin a → ZMod 2}
+    (h : LinearIndependent (ZMod 2) ![u₁, u₂, u₃])
+    (v₁ : Fin b → ZMod 2) (w₁ : Fin c → ZMod 2)
+    (v₂ : Fin b → ZMod 2) (w₂ : Fin c → ZMod 2)
+    (v₃ : Fin b → ZMod 2) (w₃ : Fin c → ZMod 2) :
+    max (max (wt v₁ * wt w₁) (wt v₂ * wt w₂)) (wt v₃ * wt w₃)
+      ≤ nnz (triad u₁ v₁ w₁ + triad u₂ v₂ w₂ + triad u₃ v₃ w₃) := by
+  sorry
+
+end TripleF2
+
+section TripleCollapse
+
+variable {k : Type*} [CommSemiring k] [CharP k 2] {a b c : ℕ}
+
+/-- **(a), triad level.** A triple of identical tensors collapses to a
+single copy in characteristic 2. -/
+theorem tensor_add_add_self (T : Tensor k a b c) : T + T + T = T := by
+  rw [tensor_add_self, zero_add]
+
+/-- **(b), triad level.** If two of three tensors are equal, the triple
+sum collapses to the remaining single term in characteristic 2 (the
+equal pair annihilates). -/
+theorem tensor_add_add_of_eq {T T' S : Tensor k a b c} (h : T' = T) :
+    T + T' + S = S := by
+  rw [h, tensor_add_self, zero_add]
+
+end TripleCollapse
 
 end BilinearComplexity
