@@ -139,13 +139,16 @@ theorem line_property_23 {n : ℕ} {a₁ a₂ b c : Idx n}
   have ha₂ := congr_arg Prod.fst h₂
   simp only at ha₁ hb₁ hc₁ ha₂ hb₂ hc₂
   rw [ha₁, ha₂]
-  have : j₁ = j₂ := by
+  have hj12 : j₁ = j₂ := by
     have := congr_arg Prod.fst (hb₁.symm.trans hb₂)
     simpa using this
-  have : k₁ = k₂ := by
+  have hk12 : k₁ = k₂ := by
     have := congr_arg Prod.snd (hb₁.symm.trans hb₂)
     simpa using this
-  simp [*]
+  have hi12 : i₁ = i₂ := by
+    have := congr_arg Prod.fst (hc₁.symm.trans hc₂)
+    simpa using this
+  simp [hi12, hj12]
 
 /-- **L1c.** For fixed first and third coordinates `(a, c)`, there is
 at most one second coordinate `b`. -/
@@ -164,13 +167,16 @@ theorem line_property_13 {n : ℕ} {a b₁ b₂ c : Idx n}
   have hc₂ := congr_arg (fun x => x.2.2) h₂
   simp only at ha₁ hb₁ hc₁ ha₂ hb₂ hc₂
   rw [hb₁, hb₂]
-  have : i₁ = i₂ := by
+  have hi12 : i₁ = i₂ := by
     have := congr_arg Prod.fst (ha₁.symm.trans ha₂)
     simpa using this
-  have : k₁ = k₂ := by
+  have hk12 : k₁ = k₂ := by
     have := congr_arg Prod.snd (hc₁.symm.trans hc₂)
     simpa using this
-  simp [*]
+  have hj12 : j₁ = j₂ := by
+    have := congr_arg Prod.snd (ha₁.symm.trans ha₂)
+    simpa using this
+  simp [hj12, hk12]
 
 /-! ### Boxes and decompositions -/
 
@@ -220,25 +226,102 @@ theorem isDecomp_iff_parity {n : ℕ} {L : List (Box n)} :
 
 /-! ### L2: Shadow bound -/
 
+/-- Auxiliary: rewrite a triple as nested pairs. -/
+private lemma triple_eta (t : Triple n) : t = (t.1, t.2.1, t.2.2) := by
+  obtain ⟨a, b, c⟩ := t; rfl
+
+/-- Auxiliary: the projection `(a, b, c) ↦ (a, b)` is injective on `T n`. -/
+lemma proj12_injOn_matmulSupport {n : ℕ} :
+    Set.InjOn (fun (t : Triple n) => (t.1, t.2.1))
+      (↑(matmulSupport n) : Set (Triple n)) := by
+  intro t₁ ht₁ t₂ ht₂ heq
+  simp only [Prod.mk.injEq] at heq
+  obtain ⟨ha, hb⟩ := heq
+  have hT₁ : (t₁.1, t₁.2.1, t₁.2.2) ∈ matmulSupport n := by
+    rwa [← triple_eta t₁]
+  have hT₂ : (t₁.1, t₁.2.1, t₂.2.2) ∈ matmulSupport n := by
+    rw [ha, hb]; rwa [← triple_eta t₂]
+  have hc := line_property_12 hT₁ hT₂
+  rw [triple_eta t₁, triple_eta t₂, ha, hb, hc]
+
 /-- **L2a.** `|supp τ ∩ T n| ≤ |U| * |V|`. -/
 theorem shadow_bound_12 {n : ℕ} (τ : Box n) :
     τ.mass ≤ τ.U.card * τ.V.card := by
-  sorry
+  unfold Box.mass
+  rw [← card_product]
+  apply card_le_card_of_injOn (fun t => (t.1, t.2.1))
+  · intro t ht
+    simp only [Finset.mem_coe, mem_inter, Box.support, mem_product] at ht ⊢
+    exact ⟨ht.1.1, ht.1.2.1⟩
+  · intro t₁ ht₁ t₂ ht₂ heq
+    simp only [Finset.mem_coe, mem_inter] at ht₁ ht₂
+    exact proj12_injOn_matmulSupport (Finset.mem_coe.mpr ht₁.2) (Finset.mem_coe.mpr ht₂.2) heq
+
+/-- Auxiliary: the projection `(a, b, c) ↦ (b, c)` is injective on `T n`. -/
+lemma proj23_injOn_matmulSupport {n : ℕ} :
+    Set.InjOn (fun (t : Triple n) => t.2)
+      (↑(matmulSupport n) : Set (Triple n)) := by
+  intro t₁ ht₁ t₂ ht₂ heq
+  have hb : t₁.2.1 = t₂.2.1 := congr_arg Prod.fst heq
+  have hc : t₁.2.2 = t₂.2.2 := congr_arg Prod.snd heq
+  have hT₁ : (t₁.1, t₁.2.1, t₁.2.2) ∈ matmulSupport n := by rwa [← triple_eta t₁]
+  have hT₂ : (t₂.1, t₁.2.1, t₁.2.2) ∈ matmulSupport n := by
+    rw [hb, hc]; rwa [← triple_eta t₂]
+  have ha := line_property_23 hT₁ hT₂
+  rw [triple_eta t₁, triple_eta t₂, ha, hb, hc]
+
+/-- Auxiliary: the projection `(a, b, c) ↦ (a, c)` is injective on `T n`. -/
+lemma proj13_injOn_matmulSupport {n : ℕ} :
+    Set.InjOn (fun (t : Triple n) => (t.1, t.2.2))
+      (↑(matmulSupport n) : Set (Triple n)) := by
+  intro t₁ ht₁ t₂ ht₂ heq
+  simp only [Prod.mk.injEq] at heq
+  obtain ⟨ha, hc⟩ := heq
+  have hT₁ : (t₁.1, t₁.2.1, t₁.2.2) ∈ matmulSupport n := by rwa [← triple_eta t₁]
+  have hT₂ : (t₁.1, t₂.2.1, t₁.2.2) ∈ matmulSupport n := by
+    rw [ha, hc]; rwa [← triple_eta t₂]
+  have hb := line_property_13 hT₁ hT₂
+  rw [triple_eta t₁, triple_eta t₂, ha, hb, hc]
 
 /-- **L2b.** `|supp τ ∩ T n| ≤ |V| * |W|`. -/
 theorem shadow_bound_23 {n : ℕ} (τ : Box n) :
     τ.mass ≤ τ.V.card * τ.W.card := by
-  sorry
+  unfold Box.mass
+  rw [← card_product]
+  apply card_le_card_of_injOn (fun t => t.2)
+  · intro t ht
+    simp only [Finset.mem_coe, mem_inter, Box.support, mem_product] at ht ⊢
+    exact ht.1.2
+  · intro t₁ ht₁ t₂ ht₂ heq
+    simp only [Finset.mem_coe, mem_inter] at ht₁ ht₂
+    exact proj23_injOn_matmulSupport (Finset.mem_coe.mpr ht₁.2) (Finset.mem_coe.mpr ht₂.2) heq
 
 /-- **L2c.** `|supp τ ∩ T n| ≤ |U| * |W|`. -/
 theorem shadow_bound_13 {n : ℕ} (τ : Box n) :
     τ.mass ≤ τ.U.card * τ.W.card := by
-  sorry
+  unfold Box.mass
+  rw [← card_product]
+  apply card_le_card_of_injOn (fun t => (t.1, t.2.2))
+  · intro t ht
+    simp only [Finset.mem_coe, mem_inter, Box.support, mem_product] at ht ⊢
+    exact ⟨ht.1.1, ht.1.2.2⟩
+  · intro t₁ ht₁ t₂ ht₂ heq
+    simp only [Finset.mem_coe, mem_inter] at ht₁ ht₂
+    exact proj13_injOn_matmulSupport (Finset.mem_coe.mpr ht₁.2) (Finset.mem_coe.mpr ht₂.2) heq
 
 /-- **L2 (cube bound).** `m³ ≤ |τ|²`. -/
 theorem shadow_cube_bound {n : ℕ} (τ : Box n) :
     τ.mass ^ 3 ≤ τ.support.card ^ 2 := by
-  sorry
+  -- m³ ≤ (|U|·|V|) · (|V|·|W|) · (|U|·|W|) = (|U|·|V|·|W|)² = |τ|²
+  have h12 := shadow_bound_12 τ
+  have h23 := shadow_bound_23 τ
+  have h13 := shadow_bound_13 τ
+  rw [τ.card_support]
+  calc τ.mass ^ 3
+      = τ.mass * τ.mass * τ.mass := by ring
+    _ ≤ (τ.U.card * τ.V.card) * (τ.V.card * τ.W.card) * (τ.U.card * τ.W.card) :=
+        Nat.mul_le_mul (Nat.mul_le_mul h12 h23) h13
+    _ = (τ.U.card * τ.V.card * τ.W.card) ^ 2 := by ring
 
 /-! ### L3: Cover parity -/
 
