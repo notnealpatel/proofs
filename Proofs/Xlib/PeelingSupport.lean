@@ -267,44 +267,41 @@ private lemma mem_foldl_symmDiff' [DecidableEq α] (x : α) (Ss : List (Finset �
 /-- **L0 (Bridge).** A list of boxes is a decomposition of `T n` iff
 every cell of `T n` is covered an odd number of times and every
 cell outside `T n` is covered an even number of times. -/
+-- coverCount = countP on the mapped list
+private lemma coverCount_eq_countP {n : ℕ} (t : Triple n) (L : List (Box n)) :
+    coverCount t L = (L.map Box.support).countP (t ∈ ·) := by
+  unfold coverCount
+  rw [← List.countP_eq_length_filter, List.countP_map]
+  rfl
+
 theorem isDecomp_iff_parity {n : ℕ} {L : List (Box n)} :
     IsDecomp n L ↔
       (∀ t, t ∈ matmulSupport n → Odd (coverCount t L)) ∧
       (∀ t, t ∉ matmulSupport n → Even (coverCount t L)) := by
-  unfold IsDecomp coverCount
+  unfold IsDecomp
   constructor
   · intro hd
-    constructor
-    · intro t ht
-      rw [← hd] at ht
-      rw [mem_foldl_symmDiff'] at ht
-      convert ht using 1
-      simp only [List.countP_map]
-    · intro t ht
-      rw [Nat.even_iff_not_odd]
-      intro hodd
-      apply ht
-      rw [← hd]
-      rw [mem_foldl_symmDiff']
-      convert hodd using 1
-      simp only [List.countP_map]
+    refine ⟨fun t ht => ?_, fun t ht => ?_⟩
+    · rw [coverCount_eq_countP, ← mem_foldl_symmDiff']
+      rw [hd]; exact ht
+    · rw [coverCount_eq_countP]
+      by_contra hodd
+      rw [Nat.not_even_iff_odd] at hodd
+      exact ht (hd ▸ (mem_foldl_symmDiff' t _).mpr hodd)
   · intro ⟨hodd, heven⟩
     ext t
     rw [mem_foldl_symmDiff']
     constructor
     · intro h
-      have := hodd t
-      have := heven t
       by_contra hnt
       have hev := heven t hnt
-      rw [Nat.even_iff_not_odd] at hev
-      have : Odd ((L.map Box.support).countP (t ∈ ·)) := h
-      simp only [List.countP_map] at this
-      exact hev this
+      rw [coverCount_eq_countP] at hev
+      rw [Nat.even_iff] at hev
+      rw [Nat.odd_iff] at h
+      omega
     · intro ht
       have := hodd t ht
-      simp only [List.countP_map]
-      exact this
+      rwa [coverCount_eq_countP] at this
 
 /-! ### L2: Shadow bound -/
 
@@ -573,11 +570,72 @@ theorem slack0_tau_le {n : ℕ} (τ : Box n)
 
 /-! ### L5: Out-mass ≥ 2 below n³ terms -/
 
+/-- If m ≥ 2 then |τ| > m (equivalently, outMass ≥ 1). -/
+private lemma outMass_pos_of_mass_ge_two {n : ℕ} (τ : Box n) (hm : 2 ≤ τ.mass) :
+    0 < τ.outMass := by
+  unfold Box.outMass
+  -- If |τ| ≤ m then m³ ≤ |τ|² ≤ m², so m ≤ 1, contradicting m ≥ 2
+  by_contra h
+  simp only [not_lt, Nat.le_zero] at h
+  -- h : τ.support.card - τ.mass = 0, so |τ| ≤ m
+  have hle : τ.support.card ≤ τ.mass := by omega
+  have hcube := shadow_cube_bound τ
+  -- m³ ≤ |τ|² ≤ m²
+  have : τ.mass ^ 3 ≤ τ.mass ^ 2 :=
+    le_trans hcube (Nat.pow_le_pow_left hle 2)
+  -- m * m² ≤ m², so m ≤ 1 (for m > 0, cancel m²)
+  have hm_pos : 0 < τ.mass := by omega
+  have : τ.mass ≤ 1 := by
+    have hmsq_pos : 0 < τ.mass ^ 2 := by positivity
+    rw [show τ.mass ^ 3 = τ.mass * τ.mass ^ 2 from by ring] at this
+    exact le_of_mul_le_mul_right this hmsq_pos
+  omega
+
+/-- Pigeonhole: if sum of a list ≥ k and length < k, some element ≥ 2. -/
+private lemma exists_ge_two_of_sum_gt_length {L : List ℕ}
+    (hsum : L.length < L.sum) :
+    ∃ x ∈ L, 2 ≤ x := by
+  by_contra hall
+  simp only [not_exists, not_and, not_le] at hall
+  -- Every element is ≤ 1, so sum ≤ length
+  have : L.sum ≤ L.length := by
+    induction L with
+    | nil => simp
+    | cons x L' ih =>
+      simp only [List.sum_cons, List.length_cons]
+      have hx : x < 2 := hall x (List.Mem.head _)
+      have ihL' : L'.sum ≤ L'.length :=
+        ih (fun y hy => hall y (List.Mem.tail _ hy))
+      omega
+  omega
+
 /-- **L5.** Any decomposition with fewer than `n³` boxes has
 out-mass ≥ 2. -/
 theorem outmass_ge_two {n : ℕ} {L : List (Box n)}
     (hd : IsDecomp n L) (hr : L.length < n ^ 3) :
     2 ≤ totalOutMass n L := by
-  sorry
+  -- Step 1: totalMass ≥ n³ > r, so some box has mass ≥ 2
+  have hmass := cover_sum_ge hd
+  have hlen : L.length < (L.map (fun τ => τ.mass)).sum := by
+    calc L.length < n ^ 3 := hr
+      _ ≤ totalMass n L := hmass
+      _ = _ := rfl
+  have hlen' : (L.map (fun τ => τ.mass)).length < (L.map (fun τ => τ.mass)).sum := by
+    simp only [List.length_map]; exact hlen
+  obtain ⟨m, hm_mem, hm_ge⟩ := exists_ge_two_of_sum_gt_length hlen'
+  rw [List.mem_map] at hm_mem
+  obtain ⟨τ, hτ_mem, rfl⟩ := hm_mem
+  -- Step 2: that box has outMass ≥ 1
+  have hout := outMass_pos_of_mass_ge_two τ hm_ge
+  -- Step 3: totalOutMass ≥ 1
+  have hout1 : 1 ≤ totalOutMass n L := by
+    unfold totalOutMass
+    calc 1 ≤ τ.outMass := hout
+      _ ≤ (L.map (fun τ => τ.outMass)).sum :=
+          List.le_sum_of_mem (List.mem_map_of_mem _ hτ_mem)
+  -- Step 4: totalOutMass is even, so ≥ 2
+  have heven := cover_outmass_even hd
+  obtain ⟨k, hk⟩ := heven
+  omega
 
 end Xlib.PeelingSupport
