@@ -143,7 +143,7 @@ theorem triad_add_right (u : Fin a → k) (v : Fin b → k) (w₁ w₂ : Fin c �
     ∀ i j l, triad u v (w₁ + w₂) i j l =
       triad u v w₁ i j l + triad u v w₂ i j l := by
   intro i j l
-  simp only [triad, Pi.add_apply, mul_add, add_mul]
+  simp only [triad, Pi.add_apply, mul_add]
 
 /-- The S2 splitting lemma (second-factor variant). -/
 theorem split_last_second_factor {T : Tensor k a b c}
@@ -159,8 +159,7 @@ theorem split_last_second_factor {T : Tensor k a b c}
       TriadData.eval (u, v₁, w) i j l + TriadData.eval (u, v₂, w) i j l =
       TriadData.eval (u, v, w) i j l := by
     intro i j l
-    simp only [TriadData.eval, triad]
-    rw [hSplit, Pi.add_apply, mul_add, add_mul, add_mul]
+    simp only [TriadData.eval, triad, hSplit, Pi.add_apply, mul_add, add_mul]
   exact ⟨isDecomp_split_last hD hEvalSplit, peak_split_last_le hD hEvalSplit hp hnnz⟩
 
 /-- The S2 splitting lemma (third-factor variant). -/
@@ -178,7 +177,7 @@ theorem split_last_third_factor {T : Tensor k a b c}
       TriadData.eval (u, v, w) i j l := by
     intro i j l
     simp only [TriadData.eval, triad]
-    rw [hSplit, Pi.add_apply]; ring
+    simp only [hSplit, Pi.add_apply, mul_add]
   exact ⟨isDecomp_split_last hD hEvalSplit, peak_split_last_le hD hEvalSplit hp hnnz⟩
 
 end BilinearComplexity
