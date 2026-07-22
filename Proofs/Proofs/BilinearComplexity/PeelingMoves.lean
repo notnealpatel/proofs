@@ -70,10 +70,28 @@ theorem decompSum_append (L L' : Decomp k a b c) :
     simp only [List.cons_append, decompSum]
     rw [congr_fun (congr_fun (congr_fun ih i) j) l, add_assoc]
 
+omit [DecidableEq k] [CharP k 2] in
+/-- `residual T L` equals `T` minus the decomposition sum, entrywise. -/
+theorem residual_eq_sub (T : Tensor k a b c) (L : Decomp k a b c) :
+    residual T L = fun i j l => T i j l - decompSum L i j l := by
+  induction L generalizing T with
+  | nil =>
+    funext i j l
+    simp [residual, decompSum]
+  | cons t ts ih =>
+    funext i j l
+    simp only [residual, decompSum]
+    rw [congr_fun (congr_fun (congr_fun (ih _) i) j) l]
+    ring
+
+omit [DecidableEq k] [CharP k 2] in
 /-- The residual of a valid decomposition is zero. -/
 theorem residual_of_isDecomp {T : Tensor k a b c} {L : Decomp k a b c}
     (h : IsDecomp T L) : residual T L = 0 := by
-  sorry
+  rw [residual_eq_sub]
+  simp [IsDecomp] at h
+  funext i j l
+  simp [h]
 
 /-! ## The S1 duplication lemma -/
 
