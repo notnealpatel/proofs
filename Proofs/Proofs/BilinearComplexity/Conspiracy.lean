@@ -244,7 +244,10 @@ theorem max_le_nnz_triad_add_triad₂ {v v' : Fin b → k}
     (u : Fin a → k) (w : Fin c → k) (u' : Fin a → k) (w' : Fin c → k) :
     max (wt u * wt w) (wt u' * wt w')
       ≤ nnz (triad u v w + triad u' v' w') := by
-  sorry
+  have key := max_le_nnz_triad_add_triad₁ h w u w' u'
+  rw [show triad v w u + triad v' w' u' = cyc (triad u v w + triad u' v' w') by
+      rw [cyc_add, cyc_triad, cyc_triad], nnz_cyc] at key
+  simpa [mul_comm] using key
 
 /-- **C2, mode 3.** -/
 theorem max_le_nnz_triad_add_triad₃ {w w' : Fin c → k}
@@ -252,7 +255,11 @@ theorem max_le_nnz_triad_add_triad₃ {w w' : Fin c → k}
     (u : Fin a → k) (v : Fin b → k) (u' : Fin a → k) (v' : Fin b → k) :
     max (wt u * wt v) (wt u' * wt v')
       ≤ nnz (triad u v w + triad u' v' w') := by
-  sorry
+  have key := max_le_nnz_triad_add_triad₁ h u v u' v'
+  rw [show triad w u v = cyc (cyc (triad u v w)) by rw [cyc_triad, cyc_triad],
+    show triad w' u' v' = cyc (cyc (triad u' v' w')) by rw [cyc_triad, cyc_triad],
+    ← cyc_add, ← cyc_add, nnz_cyc, nnz_cyc] at key
+  exact key
 
 end C2
 
@@ -279,7 +286,42 @@ theorem add_le_nnz_triad_add_triad₁ {u u' : Fin a → k} {i₀ i₁ : Fin a}
     (v : Fin b → k) (w : Fin c → k) (v' : Fin b → k) (w' : Fin c → k) :
     wt v * wt w + wt v' * wt w'
       ≤ nnz (triad u v w + triad u' v' w') := by
-  sorry
+  have hne : i₀ ≠ i₁ := by
+    rintro rfl
+    exact hu₀ hu₁
+  set A := ({i₀} : Finset (Fin a)) ×ˢ
+      ((Finset.univ.filter fun j : Fin b => v j ≠ 0) ×ˢ
+       (Finset.univ.filter fun l : Fin c => w l ≠ 0)) with hA
+  set B := ({i₁} : Finset (Fin a)) ×ˢ
+      ((Finset.univ.filter fun j : Fin b => v' j ≠ 0) ×ˢ
+       (Finset.univ.filter fun l : Fin c => w' l ≠ 0)) with hB
+  have hdisj : Disjoint A B := by
+    rw [Finset.disjoint_left]
+    rintro ⟨i, j, l⟩ hmem hmem'
+    simp only [hA, hB, Finset.mem_product, Finset.mem_singleton] at hmem hmem'
+    exact hne (hmem.1.symm.trans hmem'.1)
+  have hsub : A ∪ B ⊆ Finset.univ.filter
+      (fun p : Fin a × Fin b × Fin c =>
+        (triad u v w + triad u' v' w') p.1 p.2.1 p.2.2 ≠ 0) := by
+    rintro ⟨i, j, l⟩ hp
+    refine Finset.mem_filter.mpr ⟨Finset.mem_univ _, ?_⟩
+    rcases Finset.mem_union.mp hp with hmem | hmem
+    · simp only [hA, Finset.mem_product, Finset.mem_singleton, Finset.mem_filter,
+        Finset.mem_univ, true_and] at hmem
+      obtain ⟨rfl, hv, hw⟩ := hmem
+      simp only [Pi.add_apply, triad]
+      rw [hu'₀, zero_mul, zero_mul, add_zero]
+      exact mul_ne_zero (mul_ne_zero hu₀ hv) hw
+    · simp only [hB, Finset.mem_product, Finset.mem_singleton, Finset.mem_filter,
+        Finset.mem_univ, true_and] at hmem
+      obtain ⟨rfl, hv', hw'⟩ := hmem
+      simp only [Pi.add_apply, triad]
+      rw [hu₁, zero_mul, zero_mul, zero_add]
+      exact mul_ne_zero (mul_ne_zero hu'₁ hv') hw'
+  calc wt v * wt w + wt v' * wt w' = A.card + B.card := by
+        simp [hA, hB, wt, Finset.card_product]
+    _ = (A ∪ B).card := (Finset.card_union_of_disjoint hdisj).symm
+    _ ≤ _ := Finset.card_le_card hsub
 
 end Additive
 
