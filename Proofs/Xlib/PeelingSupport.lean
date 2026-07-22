@@ -215,6 +215,30 @@ def IsDecomp (n : ℕ) (L : List (Box n)) : Prop :=
 def coverCount (t : Triple n) (L : List (Box n)) : ℕ :=
   (L.filter (fun τ => t ∈ τ.support)).length
 
+/-- Membership in iterated symmetric difference ↔ odd count.
+We use `Nat.bodd` (boolean parity) via a generalized accumulator. -/
+private lemma mem_foldl_symmDiff_acc [DecidableEq α] (x : α)
+    (acc : Finset α) (Ss : List (Finset α)) :
+    x ∈ Ss.foldl (· ∆ ·) acc ↔
+      xor (x ∈ acc) (Nat.bodd (Ss.countP (x ∈ ·))) := by
+  induction Ss generalizing acc with
+  | nil => simp [List.foldl, List.countP, xor, Bool.xor]
+  | cons S Ss ih =>
+    simp only [List.foldl_cons, List.countP_cons]
+    rw [ih]
+    by_cases hS : x ∈ S <;> by_cases ha : x ∈ acc <;>
+      simp [Finset.mem_symmDiff, hS, ha, xor, Bool.xor,
+            Nat.bodd_add, Nat.bodd_one, Nat.bodd_zero,
+            Bool.not_true, Bool.not_false]
+
+private lemma mem_foldl_symmDiff [DecidableEq α] (x : α)
+    (Ss : List (Finset α)) :
+    x ∈ Ss.foldl (· ∆ ·) ∅ ↔ Odd (Ss.countP (x ∈ ·)) := by
+  rw [mem_foldl_symmDiff_acc]
+  simp only [Finset.not_mem_empty, false_and, Bool.false_eq, xor, Bool.xor_false_left]
+  rw [Nat.odd_iff]
+  simp [Nat.bodd_eq]
+
 /-- **L0 (Bridge).** A list of boxes is a decomposition of `T n` iff
 every cell of `T n` is covered an odd number of times and every
 cell outside `T n` is covered an even number of times. -/
@@ -345,23 +369,75 @@ theorem cover_outmass_even {n : ℕ} {L : List (Box n)} (hd : IsDecomp n L) :
 
 /-! ### L4: Slack-0 move bound -/
 
+/-- The symmetric difference has card = |T \ S| + |S \ T|. -/
+private lemma card_symmDiff [DecidableEq α] (s t : Finset α) :
+    (s ∆ t).card = (s \ t).card + (t \ s).card := by
+  rw [symmDiff_def, Finset.sup_eq_union,
+      (card_union_eq_card_add_card).mpr disjoint_sdiff_sdiff]
+
+/-- Mass is at most box size: `m ≤ |τ|`. -/
+lemma mass_le_card_support (τ : Box n) : τ.mass ≤ τ.support.card :=
+  card_le_card inter_subset_left
+
+/-- Mass is at most `|T n|`: `m ≤ n³`. -/
+lemma mass_le_matmulSupport_card (τ : Box n) :
+    τ.mass ≤ (matmulSupport n).card :=
+  card_le_card inter_subset_right
+
 /-- **L4a.** If `|T n Δ supp τ| ≤ n³`, then `|τ| ≤ 2m`. -/
 theorem slack0_size_bound {n : ℕ} (τ : Box n)
     (h : (matmulSupport n ∆ τ.support).card ≤ n ^ 3) :
     τ.support.card ≤ 2 * τ.mass := by
-  sorry
+  -- |T Δ S| = |T \ S| + |S \ T|
+  rw [card_symmDiff] at h
+  -- |S \ T| + |S ∩ T| = |S|
+  have hSt := card_sdiff_add_card_inter τ.support (matmulSupport n)
+  -- |T \ S| + |T ∩ S| = |T|, and |T ∩ S| = |S ∩ T| = m
+  have hTs := card_sdiff_add_card_inter (matmulSupport n) τ.support
+  rw [matmulSupport_card] at hTs
+  -- Note: mass = |S ∩ T| and inter_comm gives |S ∩ T| = |T ∩ S|
+  have hmass : τ.mass = (τ.support ∩ matmulSupport n).card := rfl
+  have hcomm : (τ.support ∩ matmulSupport n).card =
+      (matmulSupport n ∩ τ.support).card := by rw [inter_comm]
+  -- Now: (T\S).card + mass = n³, (S\T).card + mass = |S|
+  -- And: (T\S).card + (S\T).card ≤ n³
+  -- So: (S\T).card ≤ n³ - (T\S).card = mass
+  -- Hence: |S| = (S\T).card + mass ≤ mass + mass = 2*mass
+  omega
 
 /-- **L4b.** Under the same hypothesis, `m ≤ 4`. -/
 theorem slack0_m_le {n : ℕ} (τ : Box n)
     (h : (matmulSupport n ∆ τ.support).card ≤ n ^ 3) :
     τ.mass ≤ 4 := by
-  sorry
+  -- From L4a: |τ| ≤ 2m. From L2: m³ ≤ |τ|².
+  -- So m³ ≤ (2m)² = 4m², hence m ≤ 4.
+  have hsz := slack0_size_bound τ h
+  have hcube := shadow_cube_bound τ
+  -- m³ ≤ |τ|² ≤ (2m)² = 4m²
+  have h1 : τ.mass ^ 3 ≤ (2 * τ.mass) ^ 2 :=
+    le_trans hcube (Nat.pow_le_pow_left hsz 2)
+  -- m³ ≤ 4m² implies m ≤ 4
+  -- (2m)² = 4m², so m³ ≤ 4m², i.e. m * m² ≤ 4 * m²
+  -- Case m = 0: trivial. Case m > 0: cancel m² to get m ≤ 4.
+  by_cases hm0 : τ.mass = 0
+  · omega
+  · -- m > 0, so m² > 0
+    have hm_pos : 0 < τ.mass := Nat.pos_of_ne_zero hm0
+    -- h1 : m³ ≤ (2m)² = 4m²
+    -- i.e. m * m * m ≤ 4 * (m * m)
+    -- Cancel m * m (positive) to get m ≤ 4
+    have hmsq_pos : 0 < τ.mass ^ 2 := by positivity
+    rw [show τ.mass ^ 3 = τ.mass * τ.mass ^ 2 from by ring,
+        show (2 * τ.mass) ^ 2 = 4 * τ.mass ^ 2 from by ring] at h1
+    exact le_of_mul_le_mul_right h1 hmsq_pos
 
 /-- **L4c.** Under the same hypothesis, `|τ| ≤ 8`. -/
 theorem slack0_tau_le {n : ℕ} (τ : Box n)
     (h : (matmulSupport n ∆ τ.support).card ≤ n ^ 3) :
     τ.support.card ≤ 8 := by
-  sorry
+  calc τ.support.card ≤ 2 * τ.mass := slack0_size_bound τ h
+    _ ≤ 2 * 4 := Nat.mul_le_mul_left 2 (slack0_m_le τ h)
+    _ = 8 := by norm_num
 
 /-! ### L5: Out-mass ≥ 2 below n³ terms -/
 
