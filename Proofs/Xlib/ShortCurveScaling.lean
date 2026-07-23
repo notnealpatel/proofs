@@ -74,8 +74,10 @@ The Mathlib-PR-grade statement is the point-group isomorphism for a full
 admissible change `VariableChange (u, r, s, t)` on a general Weierstrass
 curve (all `aᵢ` nonzero); the group-law transfer there needs the general
 `slope`/`addX`/`addY` covariance under translation and shear, not just the
-diagonal scaling proved here. Left open; this file's `scaleEquiv` is the
-`r = s = t = 0` case.
+diagonal scaling proved here. Done in `Xlib.VariableChangePointEquiv`
+(`pointEquiv : (C • W).toAffine.Point ≃+ W.toAffine.Point`, char-free),
+which recovers this file's `scaleEquiv` statement as `shortScaleEquiv`;
+this file's `scaleEquiv` is kept as the standalone `r = s = t = 0` case.
 -/
 
 noncomputable section

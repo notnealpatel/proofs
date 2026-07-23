@@ -93,4 +93,10 @@ EC point-group isomorphisms:
 │                            │ (Mathlib's VariableChange acts on curves only, no point     │
 │                            │ map); corollary: congruent-number E_n ≃+ E_{4n} for all     │
 │                            │ n : ℚ, the algebraic core of OEIS A319510 (empirical)       │
+├────────────────────────────┼─────────────────────────────────────────────────────────────┤
+│ VariableChangePointEquiv   │ Full admissible-change point-group iso: pointEquiv W C :    │
+│ .lean                      │ (C • W).Point ≃+ W.Point for any VariableChange (u,r,s,t)   │
+│                            │ over any field, char-free; triangular partials transfer,    │
+│                            │ slope covariance ℓ ↦ uℓ+s; functoriality (one/mul) at       │
+│                            │ coordinate + point level; recovers scaleEquiv statement     │
 └────────────────────────────┴─────────────────────────────────────────────────────────────┘

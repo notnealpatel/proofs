@@ -13,3 +13,4 @@ import Xlib.ShortCurveScaling
 import Xlib.TotalDegreeAeval
 import Xlib.TPPLift
 import Xlib.TPPProd
+import Xlib.VariableChangePointEquiv
