@@ -25,6 +25,23 @@ METHODOLOGY:
   The two are independent axes.
 
 
+VERIFIED
+
+  The following passed computational verification
+  and corpus triage (2026-07-23). Nothing here is
+  proved in Lean; these are the vetted candidates
+  awaiting USER approval for a proof campaign.
+
+  A114976-parity-square      S/M    gate PASSED: 43 OEIS terms
+                                    reproduced; both claims
+                                    hold to n=60; rotateSet/
+                                    reflectSet involutions in
+                                    Proofs/Zumkeller.lean apply
+
+  A083207-ianakiev-tau-sigma S/M    attackable once IsZumkeller
+                                    built; sigma-half stays hard
+
+
 BURNDOWN QUEUE
 
   The following are potentially provable now.
@@ -63,8 +80,10 @@ BACKLOG
 
   A000670-bala-mod-k         S/M    fixed small k instances
 
-  A354741-boolean-rank-generic  M/M  VERIFY COMPUTATIONALLY
-                                    FIRST (weak evidence)
+  A354741-boolean-rank-generic  M/M  gate PASSED: exact T(n,k)
+                                    match n<=4; fraction non-
+                                    monotone (min ~0.294 at
+                                    n=4) then 0.99 by n=20
 
   A085805-dihedral-permanent M/?    compute first (Sage);
                                   table def valuable per se
@@ -79,22 +98,28 @@ STATEMENTS
   A000670-egf-family              L/hard  needs EGF layer
   A000670-muljadi-primes-mod4     S/hard
   A083207-ianakiev-sigma-half     S/hard  needs IsZumkeller
-  A083207-ianakiev-tau-sigma      S/?     needs IsZumkeller
   A007691-multiperfect-zumkeller  S/hard  needs IsZumkeller
   A007691-coleman-practical       S-M/hard needs Nat.Practical
   A323653-karttunen               M/hard  pin A351458/A349745
-  A114976-parity-square           S/M     verify comp. first
   A003313-knuth-stolarsky         M/hard  needs AdditionChain
   A230528-slizkov-doubling        M/?     needs AdditionChain
   A005245-hamilton-ballinger      M/hard  needs intComplexity
   A005520-integer-complexity-patterns  M/?
   A076142-quasilog-chain-gap      M/hard  (a(n)>=0 provable)
   A250109-blomberg-recurrence     L/?     needs circuit model
-  A332077-sunflower               S/open  Erdos-Rado bound is
-                                          the adjacent target
+  A332077-sunflower               S/open  grep-clean defs exist
+                                          in Proofs/Erdos20/;
+                                          Erdos-Rado n!(m-1)^n
+                                          bound is a strong
+                                          adjacent MAYBE card
   A236397-peebles                 M/hard  capset def = bridge
                                           to SliceRank.lean
-  A391599-erdos-lovasz            M/L     tau def reusable
+  A391599-erdos-lovasz            M/L     tau def reusable;
+                                          Kahn 1994 PROVED O(n)
+                                          upper bound; open =
+                                          sharp 3n+O(1) const
+                                          (lb (61/20)n, arXiv
+                                          2606.24878)
   A094870-hegarty                 M/hard
   A000001-cdo-iteration           M/hard  gnu def unlocks 4
   A046057-dennis-surjectivity     M/hard  Holder gnu(pq) is
@@ -110,8 +135,17 @@ STATEMENTS
   A060748-sondow                  L/open  rank layer absent
   A273929-bsd-congruent           L/open  point-existence
                                           reformulation is M
-  A046098-squarefree-central-binom S/hard extend Erdos175
-  A039669-erdos-minus-2k          S/hard  covering systems
+  A046098-squarefree-central-binom S/hard extend Erdos175/
+                                          NotSquarefree.lean:
+                                          proved core exists
+                                          (squarefree_
+                                          centralBinom_iff,
+                                          5<=n<=2^30 sorry-free)
+  A039669-erdos-minus-2k          S/hard  covering systems;
+                                          no term below 2^128
+                                          (supersedes brief's
+                                          2^120); erdosproblems
+                                          #1142 open
   A089654-erdos-rows              S/hard  absent from Mathlib
   A002804-euler-ideal-waring      S/open
 
@@ -162,17 +196,30 @@ MATHLIB GAPS
 
   Updated 2026-07-23.
 
-  sunflowers (any def), capsets, covering number tau,
-  addition chains, integer complexity, circuit/mult.
-  complexity, gnu / group counting, commuting graph,
-  character tables as data, Burnside note: Burnside IS
-  present (MulAction.sum_card_fixedBy_eq_card_orbits_
-  mul_card_group), 5/8 commProb bound absent (project
-  CommProbBound is ahead), point-level VariableChange
-  AddEquiv absent (postdoc in flight), Mordell-Weil rank
-  absent, congruent numbers absent, covering congruences
-  absent, Nat.Practical absent, perfect-power predicate
-  absent, EGF API absent, popcount absent (one-liner).
+  sunflowers (any def)          absent
+  capsets                       absent
+  covering number tau           absent
+  addition chains               absent
+  integer complexity            absent
+  circuit/mult. complexity      absent
+  gnu / group counting          absent
+  commuting graph               absent
+  character tables as data      absent
+  5/8 commProb bound            absent (project
+                                CommProbBound is ahead)
+  point-level VariableChange
+    AddEquiv                    absent (postdoc in flight)
+  Mordell-Weil rank             absent
+  congruent numbers             absent
+  covering congruences          absent
+  Nat.Practical                 absent
+  perfect-power predicate       absent
+  EGF API                       absent
+  popcount                      absent (one-liner)
+
+  NOT a gap: Burnside IS present in Mathlib
+  (MulAction.sum_card_fixedBy_eq_card_orbits_
+  mul_card_group).
 
 
 MORE MINING
