@@ -9,6 +9,7 @@ import Xlib.ShearAdditionEC
 import Xlib.ShearCircuit
 import Xlib.ShearInversionLB
 import Xlib.ShearQuadraticRank
+import Xlib.ShortCurveScaling
 import Xlib.TotalDegreeAeval
 import Xlib.TPPLift
 import Xlib.TPPProd

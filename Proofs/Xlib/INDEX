@@ -82,3 +82,15 @@ Reversible EC shear-arithmetic track (T1-T4):
 │ Secp256k1Prime.lean        │ Kernel-checked Pratt/Lucas certificate: 2^256-2^32-977 is   │
 │                            │ prime (no native_decide); discharges the T2/T4 Fact         │
 └────────────────────────────┴─────────────────────────────────────────────────────────────┘
+
+EC point-group isomorphisms:
+
+┌────────────────────────────┬─────────────────────────────────────────────────────────────┐
+│            File            │                          Character                          │
+├────────────────────────────┼─────────────────────────────────────────────────────────────┤
+│ ShortCurveScaling.lean     │ Unit-scaling point-group iso (x,y)↦(u²x,u³y):               │
+│                            │ Point(a₄,a₆) ≃+ Point(u⁴a₄,u⁶a₆) over any field, char-free  │
+│                            │ (Mathlib's VariableChange acts on curves only, no point     │
+│                            │ map); corollary: congruent-number E_n ≃+ E_{4n} for all     │
+│                            │ n : ℚ, the algebraic core of OEIS A319510 (empirical)       │
+└────────────────────────────┴─────────────────────────────────────────────────────────────┘
