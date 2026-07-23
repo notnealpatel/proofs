@@ -57,3 +57,24 @@
 ├────────────────────────────┼─────────────────────────────────────────────────────────────┤
 │ ExtraspecialLattice.lean   │ Extraspecial lattice (not TPP-related)                      │
 └────────────────────────────┴─────────────────────────────────────────────────────────────┘
+
+Reversible EC shear-arithmetic track (T1-T4):
+
+┌────────────────────────────┬─────────────────────────────────────────────────────────────┐
+│            File            │                          Character                          │
+├────────────────────────────┼─────────────────────────────────────────────────────────────┤
+│ ShearAddition.lean         │ One-shear model; ancilla-carries-λ impossibility (s=1)      │
+├────────────────────────────┼─────────────────────────────────────────────────────────────┤
+│ ShearAdditionEC.lean       │ T4 grounding: the map IS Mathlib's Weierstrass group law;   │
+│                            │ c=0 ↔ Q=-2P; secp256k1 instantiation                        │
+├────────────────────────────┼─────────────────────────────────────────────────────────────┤
+│ TotalDegreeAeval.lean      │ T1 Mathlib gap: totalDegree/natDegree of aeval composition  │
+├────────────────────────────┼─────────────────────────────────────────────────────────────┤
+│ ShearCircuit.lean          │ T1 engine: gate lists, poly semantics, degree ≤ 2^s         │
+├────────────────────────────┼─────────────────────────────────────────────────────────────┤
+│ ShearInversionLB.lean      │ T2 flagship: inversion needs ⌈log₂(q-2)⌉ shears; secp256k1  │
+│                            │ needs ≥ 256                                                 │
+├────────────────────────────┼─────────────────────────────────────────────────────────────┤
+│ ShearQuadraticRank.lean    │ T3 tool: quad part of s-shear circuit = sum of ≤ s products │
+│                            │ of linear forms (Strassen base case)                        │
+└────────────────────────────┴─────────────────────────────────────────────────────────────┘

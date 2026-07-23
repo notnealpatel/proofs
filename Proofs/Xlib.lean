@@ -3,5 +3,11 @@ import Xlib.CharDegreesIndexBound
 import Xlib.CharDegreesMul
 import Xlib.FDRepBridge
 import Xlib.GeomArithInequality
+import Xlib.ShearAddition
+import Xlib.ShearAdditionEC
+import Xlib.ShearCircuit
+import Xlib.ShearInversionLB
+import Xlib.ShearQuadraticRank
+import Xlib.TotalDegreeAeval
 import Xlib.TPPLift
 import Xlib.TPPProd
