@@ -110,7 +110,13 @@ lemma shear_eq_add_smul (y : k × k × k) :
 shear with affine maps `Aᵢ x = Lᵢ x + tᵢ` is an affine map `L · + t` plus a *single*
 product of two affine forms `(σ₁· + d₁)` and `(σ₂· + d₂)`, scaled by a fixed vector
 `ℓ`. So one nonscalar multiplication yields a quadratic part of rank ≤ 1; a target
-whose quadratic part has rank ≥ 2 provably needs ≥ 2 shears. -/
+whose quadratic part has rank ≥ 2 provably needs ≥ 2 shears.
+
+Note the EC-step target itself never triggers this criterion: its quadratic part
+is the single product `c·λ` (product-rank 1), which is exactly why `singleShear`
+achieves it in one shear. A genuine rank-2 separation witness is `X₀X₁ + X₂X₃`
+(`Xlib.ShearQuadraticRank.not_isSumOfProducts_one_quad` /
+`two_le_shearCount_of_quad`). -/
 theorem shear_comp_normal_form
     (L₁ L₂ : (k × k × k) →ₗ[k] (k × k × k)) (t₁ t₂ : k × k × k) :
     ∃ (L : (k × k × k) →ₗ[k] (k × k × k)) (t ℓ : k × k × k)
@@ -156,7 +162,9 @@ single-shear composite `F = A₂ ∘ M ∘ A₁`:
   product of two affine forms `(σ₁· + d₁)(σ₂· + d₂)` scaled by a fixed vector `ℓ`.
 
 One nonscalar multiplication buys exactly one rank of nonlinearity; any target whose
-quadratic part has rank ≥ 2 needs ≥ 2 shears. -/
+quadratic part has rank ≥ 2 needs ≥ 2 shears. (Not the EC step itself — its
+quadratic part `c·λ` has product-rank 1; see `Xlib.ShearQuadraticRank` for a
+genuine separation, `X₀X₁ + X₂X₃`.) -/
 theorem shearComp_bijective_and_normal_form
     (L₁ L₂ : (k × k × k) ≃ₗ[k] (k × k × k)) (t₁ t₂ : k × k × k) :
     Function.Bijective (shearComp L₁ L₂ t₁ t₂) ∧
@@ -196,7 +204,15 @@ def addWrap : (k × k × k) ≃ (k × k × k) where
       ring
 
 /-- The concrete **single-shear realisation** of the point-addition step:
-`A₂ ∘ M`. On input `(c, λ, w)` it returns `(a - c, (w + c·λ) - b, λ)`. -/
+`A₂ ∘ M`. On input `(c, λ, w)` it returns `(a - c, (w + c·λ) - b, λ)`.
+
+Input-model caveat: the input `c = a - X = 2a + x - λ²` is quadratic in `λ`,
+so the reparametrization `(x, λ) ↦ (c, λ)` is *not* affine — forming `c`
+from `(x, λ)` costs one further shear (the `λ·λ` square). The impossibility
+and lower-bound results hold a fortiori (granting `c` for free only
+strengthens them), but the one-shear *achievability* is specific to this
+c-given input model, consistent with the classical two-multiplication count
+for the post-slope step. -/
 def singleShear : (k × k × k) ≃ (k × k × k) := shear.trans (addWrap a b)
 
 @[simp] lemma singleShear_apply (c lam w : k) :

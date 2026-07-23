@@ -16,8 +16,11 @@ gap and packages the surrounding kit:
   `≤ p.totalDegree * d`. This is the degree-composition inequality
   `deg (p ∘ f) ≤ deg p · max deg f`, absent from Mathlib for multivariate
   targets.
-* `Xlib.TotalDegreeAeval.totalDegree_aeval_le_sup` — the same with
-  `d = ⊔ i, totalDegree (f i)` over a finite variable set.
+* `Xlib.TotalDegreeAeval.totalDegree_aeval_le_sup_vars` — the sharp form:
+  `d = ⊔ i ∈ p.vars, totalDegree (f i)`, with the sup over the variables
+  actually occurring in `p` (no finiteness assumption on the variable type).
+* `Xlib.TotalDegreeAeval.totalDegree_aeval_le_sup` — corollary over a
+  `Fintype` variable set with `d = ⊔ i, totalDegree (f i)`.
 * `Xlib.TotalDegreeAeval.natDegree_aeval_le` — the one-variable-target bound,
   restated in composition-friendly form; this one is **not** new: it is
   Mathlib's `MvPolynomial.aeval_natDegree_le` (of which it is a direct
@@ -61,13 +64,40 @@ theorem totalDegree_aeval_le (f : σ → MvPolynomial τ R) (p : MvPolynomial σ
     _ ≤ p.totalDegree * d := Nat.mul_le_mul_right _ (le_totalDegree hm)
 
 /-- Composition bound with the sup of the degrees of the substituted
-polynomials: `deg (p ∘ f) ≤ deg p · (⊔ i, deg (f i))`. -/
+polynomials over the variables actually occurring in `p`:
+`deg (p ∘ f) ≤ deg p · (⊔ i ∈ p.vars, deg (f i))`. Sharper than
+`totalDegree_aeval_le_sup`, and with no finiteness assumption on `σ`. -/
+theorem totalDegree_aeval_le_sup_vars (f : σ → MvPolynomial τ R)
+    (p : MvPolynomial σ R) :
+    (aeval f p).totalDegree
+      ≤ p.totalDegree * p.vars.sup fun i => (f i).totalDegree := by
+  conv_lhs => rw [p.as_sum]
+  rw [map_sum]
+  refine totalDegree_finsetSum_le fun m hm => ?_
+  rw [aeval_monomial, MvPolynomial.algebraMap_eq]
+  refine (totalDegree_mul _ _).trans ?_
+  rw [totalDegree_C, zero_add, Finsupp.prod]
+  calc (∏ i ∈ m.support, f i ^ m i).totalDegree
+      ≤ ∑ i ∈ m.support, (f i ^ m i).totalDegree := totalDegree_finsetProd _ _
+    _ ≤ ∑ i ∈ m.support, m i * p.vars.sup fun i => (f i).totalDegree :=
+        Finset.sum_le_sum fun i hi =>
+          (totalDegree_pow _ _).trans (Nat.mul_le_mul_left _
+            (Finset.le_sup (f := fun i => (f i).totalDegree)
+              ((mem_vars_iff_mem_support i).mpr ⟨m, hm, hi⟩)))
+    _ = (m.sum fun _ e => e) * p.vars.sup fun i => (f i).totalDegree := by
+        rw [Finsupp.sum, Finset.sum_mul]
+    _ ≤ p.totalDegree * p.vars.sup fun i => (f i).totalDegree :=
+        Nat.mul_le_mul_right _ (le_totalDegree hm)
+
+/-- Composition bound with the sup of the degrees of the substituted
+polynomials: `deg (p ∘ f) ≤ deg p · (⊔ i, deg (f i))`. Corollary of the
+sharper `totalDegree_aeval_le_sup_vars`. -/
 theorem totalDegree_aeval_le_sup [Fintype σ] (f : σ → MvPolynomial τ R)
     (p : MvPolynomial σ R) :
     (aeval f p).totalDegree
       ≤ p.totalDegree * Finset.univ.sup fun i => (f i).totalDegree :=
-  totalDegree_aeval_le f p fun i =>
-    Finset.le_sup (f := fun i => (f i).totalDegree) (Finset.mem_univ i)
+  (totalDegree_aeval_le_sup_vars f p).trans
+    (Nat.mul_le_mul_left _ (Finset.sup_mono (Finset.subset_univ _)))
 
 /-- **Degree under restriction to one variable.** Substituting one-variable
 polynomials of `natDegree ≤ d` for the variables of `p` produces a

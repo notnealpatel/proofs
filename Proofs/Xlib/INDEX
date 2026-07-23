@@ -76,5 +76,9 @@ Reversible EC shear-arithmetic track (T1-T4):
 │                            │ needs ≥ 256                                                 │
 ├────────────────────────────┼─────────────────────────────────────────────────────────────┤
 │ ShearQuadraticRank.lean    │ T3 tool: quad part of s-shear circuit = sum of ≤ s products │
-│                            │ of linear forms (Strassen base case)                        │
+│                            │ of linear forms (Strassen base case); functional form via   │
+│                            │ Schwartz-Zippel; X₀X₁+X₂X₃ separation witness (≥ 2 shears)  │
+├────────────────────────────┼─────────────────────────────────────────────────────────────┤
+│ Secp256k1Prime.lean        │ Kernel-checked Pratt/Lucas certificate: 2^256-2^32-977 is   │
+│                            │ prime (no native_decide); discharges the T2/T4 Fact         │
 └────────────────────────────┴─────────────────────────────────────────────────────────────┘

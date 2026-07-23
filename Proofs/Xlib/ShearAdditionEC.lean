@@ -85,7 +85,12 @@ concrete single-shear realisation `Xlib.ShearAddition.singleShear` the chord
 offset `c = a - W.addX …` and the slope `λ`, its first two registers hold
 exactly Mathlib's `(W.addX …, W.addY …)` — and the third holds the
 `λ`-garbage that `Xlib.ShearAddition.ancilla_carries_lambda` proves is
-unavoidable. -/
+unavoidable.
+
+Input-model caveat: `c = a - W.addX … = 2a + x - λ²` is quadratic in `λ`, so
+`(x, λ) ↦ (c, λ)` is not affine and forming `c` costs one further shear (the
+`λ·λ` square); the one-shear count is specific to the c-given input model
+(the lower bounds, which grant `c` for free, only get stronger). -/
 theorem singleShear_computes_add (h1 : W.a₁ = 0) (h3 : W.a₃ = 0) (ℓ : F) :
     Xlib.ShearAddition.singleShear a b (a - W.addX a x ℓ, ℓ, 0)
       = (W.addX a x ℓ, W.addY a x b ℓ, ℓ) := by

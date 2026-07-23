@@ -1,6 +1,7 @@
 import Mathlib
 import Xlib.TotalDegreeAeval
 import Xlib.ShearCircuit
+import Xlib.Secp256k1Prime
 
 /-!
 # Reversible modular inversion needs `⌈log₂ (q − 2)⌉` multiply-add shears
@@ -22,7 +23,10 @@ register to a single line keeps that bound
   `(x, 0, …, 0)` satisfies `q - 2 ≤ 2 ^ s`;
 * `clog_le_shearCount` — equivalently `s ≥ ⌈log₂ (q - 2)⌉`;
 * `secp256k1_inversion_needs_256_shears` — for the secp256k1 base field
-  (`p = 2^256 - 2^32 - 977`), at least `256` shears.
+  (`p = 2^256 - 2^32 - 977`), at least `256` shears. This is unconditional:
+  the primality side condition is discharged by the kernel-checked
+  Pratt/Lucas certificate of `Xlib.Secp256k1Prime` (see `secp256k1P_prime`
+  and the `Fact` instance below).
 
 This is the folklore addition-chain-style floor, transplanted to the
 reversible multiply-add model: it explains why reversible (and quantum)
@@ -108,8 +112,13 @@ outputs `x⁻¹` in register `out` for every `x : K`, then
 
   `|K| - 2 ≤ 2 ^ (number of shear gates)`.
 
-Clean reversible modular inversion is exponentially expensive in shear depth:
-the multiply-add cascade must double degree `⌈log₂ (|K| - 2)⌉` times. -/
+The theorem assumes neither cleanliness nor reversibility: it bounds *any*
+shear circuit — affine layers need not be invertible, and every register
+other than `out` may end up holding arbitrary garbage (dirty ancillas are
+allowed), which only strengthens the bound. The cost is linear in the
+bit-length of the field: the multiply-add cascade must double degree
+`⌈log₂ (|K| - 2)⌉` times, i.e. `s ≥ log₂ (q - 2)` (see
+`clog_le_shearCount`). -/
 theorem card_sub_two_le_two_pow_shearCount {n : ℕ} (C : Circuit n K)
     (inp out : Fin n)
     (hspec : ∀ x : K, run C (fun i => if i = inp then x else 0) out = x⁻¹) :
@@ -149,6 +158,21 @@ section Secp256k1
 
 /-- The secp256k1 base-field prime `p = 2^256 - 2^32 - 977`. -/
 def secp256k1P : ℕ := 2 ^ 256 - 2 ^ 32 - 977
+
+/-- `secp256k1P` is prime, by the kernel-checked Pratt/Lucas certificate of
+`Xlib.Secp256k1Prime` (no `native_decide`; axioms:
+`propext, Classical.choice, Quot.sound` only). -/
+theorem secp256k1P_prime : Nat.Prime secp256k1P := by
+  rw [show secp256k1P =
+      115792089237316195423570985008687907853269984665640564039457584007908834671663
+    from by norm_num [secp256k1P]]
+  exact Xlib.Secp256k1Prime.secp256k1P_prime
+
+/-- The primality side condition of the secp256k1 statements, discharged:
+`secp256k1_inversion_needs_256_shears` and
+`Xlib.ShearAdditionEC.secp256k1_some_add_some` are now instantiable with no
+outstanding hypothesis. -/
+instance : Fact (Nat.Prime secp256k1P) := ⟨secp256k1P_prime⟩
 
 /-- **secp256k1 instantiation**: any shear circuit computing modular inversion
 in the secp256k1 base field uses at least `256` multiply-add gates. This is
