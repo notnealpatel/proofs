@@ -1,0 +1,165 @@
+FORMALIZE/ INDEX
+================
+Provenance: OEIS-only conjecture-mining sweep, 2026-07-23.
+Pipeline: 4 flash scouts -> 4 consumer deep-miners ->
+6 consumer Mathlib/leandoc vocabulary audits -> advisor
+cross-cut. Solved/refuted items culled (Neder gap-12,
+Cloitre A051293, Kurkov, A000712 Bala, A340518, A115016,
+Guy prime hypothesis).
+
+Epistemics: every CLAIM is OEIS-sourced via agent relay;
+conjecture attributions were re-checked verbatim by the
+deep miners but NOT re-read by the advisor. Every ROUTE
+is advisor-grade prose (conjecture-level), not a proof.
+Files marked "pin from entry" contain a definitional
+detail that MUST be re-read from `oeis show <seq>`
+before the Lean statement is written.
+
+File schema (uniform): header block
+  seq / claim / status / stmt / proof / module / source
+then sections CLAIM, LEAN (vocabulary status, exact
+Mathlib/project decl pointers), ROUTE (mechanism or
+"none"), EVIDENCE (verification bounds).
+stmt = t-shirt cost to STATE in Lean (S/M/L).
+proof = cost/feasibility to PROVE (S/M/L/hard/open).
+The two are independent axes.
+
+BURNDOWN QUEUE (provable now, ranked)
+-------------------------------------
+1. A060938-schmidt-submult          stmt M proof S-M
+   uses project charDegrees_prod; proves an unproved
+   OEIS comment outright. TOP TARGET.
+2. A267632-palindrome-rows          stmt S proof S
+   (odd-n case only; complement involution)
+3. A064097-quasilog-bounds          stmt S proof S
+   (lower bound only; upper bound is NOT easy)
+4. A000001-lopes-submult            stmt M proof M
+   (coprime case only; order-divides-i recovery)
+5. A003278-stanley-digits           stmt S proof M
+   (greedy = base-3 no-2 chars, then 3 identities)
+6. A014701-rebert-steps             stmt S proof M
+7. A319510-aranda-iso               iso core DONE
+   (sorry-free: Proofs/Scratch/CongrCurveIso.lean,
+   module Scratch.CongrCurveIso; rank corollary
+   still open — no rank layer in Mathlib)
+
+PROVABLE WITH REAL EFFORT
+-------------------------
+A061256-adams-watters      M/M-L  Burnside + cycle index;
+                                  settles open OEIS note
+A135908-A135909-barker-cliques  S/L  max abelian subgroup
+                                  of S_n theorem underneath
+A092482-A093682-no3ap-closed-forms  M/M-L  per-row finite-
+                                  state; rows 0-2 in lit.
+A000670-bala-mod-k         S/M    fixed small k instances
+A354741-boolean-rank-generic  M/M  VERIFY COMPUTATIONALLY
+                                  FIRST (weak evidence)
+A085805-dihedral-permanent M/?    compute first (Sage);
+                                  table def valuable per se
+
+STATEMENT-ARCHIVE (statable; proof open/hard)
+---------------------------------------------
+A000670-egf-family              L/hard  needs EGF layer
+A000670-muljadi-primes-mod4     S/hard
+A083207-ianakiev-sigma-half     S/hard  needs IsZumkeller
+A083207-ianakiev-tau-sigma      S/?     needs IsZumkeller
+A007691-multiperfect-zumkeller  S/hard  needs IsZumkeller
+A007691-coleman-practical       S-M/hard needs Nat.Practical
+A323653-karttunen               M/hard  pin A351458/A349745
+A114976-parity-square           S/M     verify comp. first
+A003313-knuth-stolarsky         M/hard  needs AdditionChain
+A230528-slizkov-doubling        M/?     needs AdditionChain
+A005245-hamilton-ballinger      M/hard  needs intComplexity
+A005520-integer-complexity-patterns  M/?
+A076142-quasilog-chain-gap      M/hard  (a(n)>=0 provable)
+A250109-blomberg-recurrence     L/?     needs circuit model
+A332077-sunflower               S/open  Erdos-Rado bound is
+                                        the adjacent target
+A236397-peebles                 M/hard  capset def = bridge
+                                        to SliceRank.lean
+A391599-erdos-lovasz            M/L     tau def reusable
+A094870-hegarty                 M/hard
+A000001-cdo-iteration           M/hard  gnu def unlocks 4
+A046057-dennis-surjectivity     M/hard  Holder gnu(pq) is
+                                        adjacent target
+A090052-group-perfect           M/hard
+A062733-zabolotskii-sl-n-2      M/L     GL(3,2) char table
+                                        is bounded target
+A000041-sun-perfect-power       S/hard
+A005432-pyber                   M/hard
+A002106-inverse-galois          L/open
+A161682-primes-not-x3-y2        S/hard
+A031507-mordell-rank-records    L/open  rank layer absent
+A060748-sondow                  L/open  rank layer absent
+A273929-bsd-congruent           L/open  point-existence
+                                        reformulation is M
+A046098-squarefree-central-binom S/hard extend Erdos175
+A039669-erdos-minus-2k          S/hard  covering systems
+A089654-erdos-rows              S/hard  absent from Mathlib
+A002804-euler-ideal-waring      S/open
+
+SHARED NEW DEFS (build once; unlock counts)
+-------------------------------------------
+IsZumkeller           unlocks 4 files (A083207 x2,
+                      A007691-zumkeller, + Neder gap-12
+                      as anchor theorem)
+AdditionChain + l(n)  unlocks 4 (A003313, A230528,
+                      A076142, A014701 comparisons)
+gnu(n) via Fin n group structures + decidable iso
+                      unlocks 5 (A000001 x2, A046057,
+                      A090052, feeds A060938 def shape)
+capset in (ZMod 3)^n  unlocks A236397 + future
+                      Ellenberg-Gijswijt vs project
+                      SliceRank.lean (highest-leverage
+                      bridge)
+integer complexity    unlocks A005245, A005520
+covering systems      unlocks A039669, A089654 (+
+                      Sierpinski territory)
+Nat.Practical         unlocks A007691-coleman +
+                      Stewart's theorem
+tau (covering number) unlocks A391599 + intersecting-
+                      family neighborhood
+Boolean semiring rank unlocks A354741 (+ A286331 GF(2)
+                      rank distribution as S-sized bonus)
+
+MATHLIB GAPS CONFIRMED (audit 2026-07-23; all are
+novel-formalization opportunities, per project thesis)
+------------------------------------------------------
+sunflowers (any def), capsets, covering number tau,
+addition chains, integer complexity, circuit/mult.
+complexity, gnu / group counting, commuting graph,
+character tables as data, Burnside note: Burnside IS
+present (MulAction.sum_card_fixedBy_eq_card_orbits_
+mul_card_group), 5/8 commProb bound absent (project
+CommProbBound is ahead), point-level VariableChange
+AddEquiv absent (postdoc in flight), Mordell-Weil rank
+absent, congruent numbers absent, covering congruences
+absent, Nat.Practical absent, perfect-power predicate
+absent, EGF API absent, popcount absent (one-liner).
+
+FURTHER-MINING FRONTIER (not externalized; next sweep
+seeds)
+------------------------------------------------------
+- A363675/A363676 (lcm of char degrees of S_k/A_k):
+  drilled but no conjecture found; recheck comments.
+- GL(n,q) conjugacy-class family A006951, A006952,
+  A049314-16, A182603-12: unwalked.
+- A061256 vs A006908 McKay coincidence ("asks for an
+  explanation" — question, not conjecture).
+- A318895/A380147 isoclinism class counts: few terms,
+  no conjectures yet; data-extension candidates.
+- A086641 (char table permanents general), A393539
+  (random-to-random subalgebra: proof forthcoming in
+  lit., watch), A005520 record tables, A090245 term
+  extension (n=7 capset), A046057/A053403 realization
+  lists.
+- Dry across all sweeps (do not re-search): TPP,
+  Gelfand pairs, Wedderburn, border/slice rank,
+  Strassen, apolarity, catalecticant, omega, secp256k1,
+  division polynomials, covering designs, Delta-system,
+  commutativity degree, Schur multiplier (angle listed
+  but unsearched — actually FRONTIER, try next sweep),
+  representation zeta, stem/capable groups.
+- Waring-adjacent: A079611 (G(n) values conjectural),
+  A174420 deficit form — only A002804 externalized;
+  mine the neighborhood if Waring arc opens.
