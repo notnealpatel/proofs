@@ -1,165 +1,364 @@
-FORMALIZE/ INDEX
-================
-Provenance: OEIS-only conjecture-mining sweep, 2026-07-23.
-Pipeline: 4 flash scouts -> 4 consumer deep-miners ->
-6 consumer Mathlib/leandoc vocabulary audits -> advisor
-cross-cut. Solved/refuted items culled (Neder gap-12,
-Cloitre A051293, Kurkov, A000712 Bala, A340518, A115016,
-Guy prime hypothesis).
+METHODOLOGY:
 
-Epistemics: every CLAIM is OEIS-sourced via agent relay;
-conjecture attributions were re-checked verbatim by the
-deep miners but NOT re-read by the advisor. Every ROUTE
-is advisor-grade prose (conjecture-level), not a proof.
-Files marked "pin from entry" contain a definitional
-detail that MUST be re-read from `oeis show <seq>`
-before the Lean statement is written.
+  Provenance: OEIS-only conjecture-mining sweep, 2026-07-23.
+  Pipeline: 4 flash scouts -> 4 consumer deep-miners ->
+  6 consumer Mathlib/leandoc vocabulary audits -> advisor
+  cross-cut. Solved/refuted items culled (Neder gap-12,
+  Cloitre A051293, Kurkov, A000712 Bala, A340518, A115016,
+  Guy prime hypothesis).
 
-File schema (uniform): header block
-  seq / claim / status / stmt / proof / module / source
-then sections CLAIM, LEAN (vocabulary status, exact
-Mathlib/project decl pointers), ROUTE (mechanism or
-"none"), EVIDENCE (verification bounds).
-stmt = t-shirt cost to STATE in Lean (S/M/L).
-proof = cost/feasibility to PROVE (S/M/L/hard/open).
-The two are independent axes.
+  Epistemics: every CLAIM is OEIS-sourced via agent relay;
+  conjecture attributions were re-checked verbatim by the
+  deep miners but NOT re-read by the advisor. Every ROUTE
+  is advisor-grade prose (conjecture-level), not a proof.
+  Files marked "pin from entry" contain a definitional
+  detail that MUST be re-read from `oeis show <seq>`
+  before the Lean statement is written.
 
-BURNDOWN QUEUE (provable now, ranked)
--------------------------------------
-1. A060938-schmidt-submult          stmt M proof S-M
-   uses project charDegrees_prod; proves an unproved
-   OEIS comment outright. TOP TARGET.
-2. A267632-palindrome-rows          stmt S proof S
-   (odd-n case only; complement involution)
-3. A064097-quasilog-bounds          stmt S proof S
-   (lower bound only; upper bound is NOT easy)
-4. A000001-lopes-submult            stmt M proof M
-   (coprime case only; order-divides-i recovery)
-5. A003278-stanley-digits           stmt S proof M
-   (greedy = base-3 no-2 chars, then 3 identities)
-6. A014701-rebert-steps             stmt S proof M
-7. A319510-aranda-iso               iso core DONE
-   (sorry-free: Proofs/Scratch/CongrCurveIso.lean,
-   module Scratch.CongrCurveIso; rank corollary
-   still open — no rank layer in Mathlib)
+  File schema (uniform): header block
+    seq / claim / status / stmt / proof / module / source
+  then sections CLAIM, LEAN (vocabulary status, exact
+  Mathlib/project decl pointers), ROUTE (mechanism or
+  "none"), EVIDENCE (verification bounds).
+  stmt = t-shirt cost to STATE in Lean (S/M/L).
+  proof = cost/feasibility to PROVE (S/M/L/hard/open).
+  The two are independent axes.
 
-PROVABLE WITH REAL EFFORT
--------------------------
-A061256-adams-watters      M/M-L  Burnside + cycle index;
-                                  settles open OEIS note
-A135908-A135909-barker-cliques  S/L  max abelian subgroup
-                                  of S_n theorem underneath
-A092482-A093682-no3ap-closed-forms  M/M-L  per-row finite-
-                                  state; rows 0-2 in lit.
-A000670-bala-mod-k         S/M    fixed small k instances
-A354741-boolean-rank-generic  M/M  VERIFY COMPUTATIONALLY
-                                  FIRST (weak evidence)
-A085805-dihedral-permanent M/?    compute first (Sage);
+
+BURNDOWN QUEUE
+
+  The following are potentially provable now.
+
+  1. A060938-schmidt-submult          stmt M proof S-M
+     uses project charDegrees_prod; proves an unproved
+     OEIS comment outright. TOP TARGET.
+  2. A267632-palindrome-rows          stmt S proof S
+     (odd-n case only; complement involution)
+  3. A064097-quasilog-bounds          stmt S proof S
+     (lower bound only; upper bound is NOT easy)
+  4. A000001-lopes-submult            stmt M proof M
+     (coprime case only; order-divides-i recovery)
+  5. A003278-stanley-digits           stmt S proof M
+     (greedy = base-3 no-2 chars, then 3 identities)
+  6. A014701-rebert-steps             stmt S proof M
+  7. A319510-aranda-iso               iso core DONE
+     (sorry-free: Proofs/Scratch/CongrCurveIso.lean,
+     module Scratch.CongrCurveIso; rank corollary
+     still open — no rank layer in Mathlib)
+
+
+BACKLOG
+
+  The following are potentially provable.
+
+
+  A061256-adams-watters      M/M-L  Burnside + cycle index;
+                                    settles open OEIS note
+
+  A135908-A135909-barker-cliques  S/L  max abelian subgroup
+                                    of S_n theorem underneath
+
+  A092482-A093682-no3ap-closed-forms  M/M-L  per-row finite-
+                                    state; rows 0-2 in lit.
+
+  A000670-bala-mod-k         S/M    fixed small k instances
+
+  A354741-boolean-rank-generic  M/M  VERIFY COMPUTATIONALLY
+                                    FIRST (weak evidence)
+
+  A085805-dihedral-permanent M/?    compute first (Sage);
                                   table def valuable per se
 
-STATEMENT-ARCHIVE (statable; proof open/hard)
----------------------------------------------
-A000670-egf-family              L/hard  needs EGF layer
-A000670-muljadi-primes-mod4     S/hard
-A083207-ianakiev-sigma-half     S/hard  needs IsZumkeller
-A083207-ianakiev-tau-sigma      S/?     needs IsZumkeller
-A007691-multiperfect-zumkeller  S/hard  needs IsZumkeller
-A007691-coleman-practical       S-M/hard needs Nat.Practical
-A323653-karttunen               M/hard  pin A351458/A349745
-A114976-parity-square           S/M     verify comp. first
-A003313-knuth-stolarsky         M/hard  needs AdditionChain
-A230528-slizkov-doubling        M/?     needs AdditionChain
-A005245-hamilton-ballinger      M/hard  needs intComplexity
-A005520-integer-complexity-patterns  M/?
-A076142-quasilog-chain-gap      M/hard  (a(n)>=0 provable)
-A250109-blomberg-recurrence     L/?     needs circuit model
-A332077-sunflower               S/open  Erdos-Rado bound is
-                                        the adjacent target
-A236397-peebles                 M/hard  capset def = bridge
-                                        to SliceRank.lean
-A391599-erdos-lovasz            M/L     tau def reusable
-A094870-hegarty                 M/hard
-A000001-cdo-iteration           M/hard  gnu def unlocks 4
-A046057-dennis-surjectivity     M/hard  Holder gnu(pq) is
-                                        adjacent target
-A090052-group-perfect           M/hard
-A062733-zabolotskii-sl-n-2      M/L     GL(3,2) char table
-                                        is bounded target
-A000041-sun-perfect-power       S/hard
-A005432-pyber                   M/hard
-A002106-inverse-galois          L/open
-A161682-primes-not-x3-y2        S/hard
-A031507-mordell-rank-records    L/open  rank layer absent
-A060748-sondow                  L/open  rank layer absent
-A273929-bsd-congruent           L/open  point-existence
-                                        reformulation is M
-A046098-squarefree-central-binom S/hard extend Erdos175
-A039669-erdos-minus-2k          S/hard  covering systems
-A089654-erdos-rows              S/hard  absent from Mathlib
-A002804-euler-ideal-waring      S/open
+
+STATEMENTS
+
+  The following are hard problems that
+  can be formalized (but not proven)
+  today.
+
+  A000670-egf-family              L/hard  needs EGF layer
+  A000670-muljadi-primes-mod4     S/hard
+  A083207-ianakiev-sigma-half     S/hard  needs IsZumkeller
+  A083207-ianakiev-tau-sigma      S/?     needs IsZumkeller
+  A007691-multiperfect-zumkeller  S/hard  needs IsZumkeller
+  A007691-coleman-practical       S-M/hard needs Nat.Practical
+  A323653-karttunen               M/hard  pin A351458/A349745
+  A114976-parity-square           S/M     verify comp. first
+  A003313-knuth-stolarsky         M/hard  needs AdditionChain
+  A230528-slizkov-doubling        M/?     needs AdditionChain
+  A005245-hamilton-ballinger      M/hard  needs intComplexity
+  A005520-integer-complexity-patterns  M/?
+  A076142-quasilog-chain-gap      M/hard  (a(n)>=0 provable)
+  A250109-blomberg-recurrence     L/?     needs circuit model
+  A332077-sunflower               S/open  Erdos-Rado bound is
+                                          the adjacent target
+  A236397-peebles                 M/hard  capset def = bridge
+                                          to SliceRank.lean
+  A391599-erdos-lovasz            M/L     tau def reusable
+  A094870-hegarty                 M/hard
+  A000001-cdo-iteration           M/hard  gnu def unlocks 4
+  A046057-dennis-surjectivity     M/hard  Holder gnu(pq) is
+                                          adjacent target
+  A090052-group-perfect           M/hard
+  A062733-zabolotskii-sl-n-2      M/L     GL(3,2) char table
+                                          is bounded target
+  A000041-sun-perfect-power       S/hard
+  A005432-pyber                   M/hard
+  A002106-inverse-galois          L/open
+  A161682-primes-not-x3-y2        S/hard
+  A031507-mordell-rank-records    L/open  rank layer absent
+  A060748-sondow                  L/open  rank layer absent
+  A273929-bsd-congruent           L/open  point-existence
+                                          reformulation is M
+  A046098-squarefree-central-binom S/hard extend Erdos175
+  A039669-erdos-minus-2k          S/hard  covering systems
+  A089654-erdos-rows              S/hard  absent from Mathlib
+  A002804-euler-ideal-waring      S/open
+
 
 SHARED NEW DEFS (build once; unlock counts)
--------------------------------------------
-IsZumkeller           unlocks 4 files (A083207 x2,
-                      A007691-zumkeller, + Neder gap-12
-                      as anchor theorem)
-AdditionChain + l(n)  unlocks 4 (A003313, A230528,
-                      A076142, A014701 comparisons)
-gnu(n) via Fin n group structures + decidable iso
-                      unlocks 5 (A000001 x2, A046057,
-                      A090052, feeds A060938 def shape)
-capset in (ZMod 3)^n  unlocks A236397 + future
-                      Ellenberg-Gijswijt vs project
-                      SliceRank.lean (highest-leverage
-                      bridge)
-integer complexity    unlocks A005245, A005520
-covering systems      unlocks A039669, A089654 (+
-                      Sierpinski territory)
-Nat.Practical         unlocks A007691-coleman +
-                      Stewart's theorem
-tau (covering number) unlocks A391599 + intersecting-
-                      family neighborhood
-Boolean semiring rank unlocks A354741 (+ A286331 GF(2)
-                      rank distribution as S-sized bonus)
 
-MATHLIB GAPS CONFIRMED (audit 2026-07-23; all are
-novel-formalization opportunities, per project thesis)
-------------------------------------------------------
-sunflowers (any def), capsets, covering number tau,
-addition chains, integer complexity, circuit/mult.
-complexity, gnu / group counting, commuting graph,
-character tables as data, Burnside note: Burnside IS
-present (MulAction.sum_card_fixedBy_eq_card_orbits_
-mul_card_group), 5/8 commProb bound absent (project
-CommProbBound is ahead), point-level VariableChange
-AddEquiv absent (postdoc in flight), Mordell-Weil rank
-absent, congruent numbers absent, covering congruences
-absent, Nat.Practical absent, perfect-power predicate
-absent, EGF API absent, popcount absent (one-liner).
+  The following are high yield build-
+  once-unlock-counts
 
-FURTHER-MINING FRONTIER (not externalized; next sweep
-seeds)
-------------------------------------------------------
-- A363675/A363676 (lcm of char degrees of S_k/A_k):
-  drilled but no conjecture found; recheck comments.
-- GL(n,q) conjugacy-class family A006951, A006952,
-  A049314-16, A182603-12: unwalked.
-- A061256 vs A006908 McKay coincidence ("asks for an
-  explanation" — question, not conjecture).
-- A318895/A380147 isoclinism class counts: few terms,
-  no conjectures yet; data-extension candidates.
-- A086641 (char table permanents general), A393539
-  (random-to-random subalgebra: proof forthcoming in
-  lit., watch), A005520 record tables, A090245 term
-  extension (n=7 capset), A046057/A053403 realization
-  lists.
-- Dry across all sweeps (do not re-search): TPP,
-  Gelfand pairs, Wedderburn, border/slice rank,
-  Strassen, apolarity, catalecticant, omega, secp256k1,
-  division polynomials, covering designs, Delta-system,
-  commutativity degree, Schur multiplier (angle listed
-  but unsearched — actually FRONTIER, try next sweep),
-  representation zeta, stem/capable groups.
-- Waring-adjacent: A079611 (G(n) values conjectural),
-  A174420 deficit form — only A002804 externalized;
-  mine the neighborhood if Waring arc opens.
+  IsZumkeller           unlocks 4 files (A083207 x2,
+                        A007691-zumkeller, + Neder gap-12
+                        as anchor theorem)
+
+  AdditionChain + l(n)  unlocks 4 (A003313, A230528,
+                        A076142, A014701 comparisons)
+
+  gnu(n) via Fin n group structures + decidable iso
+                        unlocks 5 (A000001 x2, A046057,
+                        A090052, feeds A060938 def shape)
+
+  capset in (ZMod 3)^n  unlocks A236397 + future
+                        Ellenberg-Gijswijt vs project
+                        SliceRank.lean (highest-leverage
+                        bridge)
+
+  integer complexity    unlocks A005245, A005520
+
+  covering systems      unlocks A039669, A089654 (+
+                        Sierpinski territory)
+
+  Nat.Practical         unlocks A007691-coleman +
+                        Stewart's theorem
+
+  tau (covering number) unlocks A391599 + intersecting-
+                        family neighborhood
+
+  Boolean semiring rank unlocks A354741 (+ A286331 GF(2)
+                        rank distribution as S-sized bonus)
+
+
+MATHLIB GAPS
+
+  The following are believed to be gaps
+  in Mathlib for the lean toolchain in
+  this project.
+
+  These represent novel formalizations.
+
+  Updated 2026-07-23.
+
+  sunflowers (any def), capsets, covering number tau,
+  addition chains, integer complexity, circuit/mult.
+  complexity, gnu / group counting, commuting graph,
+  character tables as data, Burnside note: Burnside IS
+  present (MulAction.sum_card_fixedBy_eq_card_orbits_
+  mul_card_group), 5/8 commProb bound absent (project
+  CommProbBound is ahead), point-level VariableChange
+  AddEquiv absent (postdoc in flight), Mordell-Weil rank
+  absent, congruent numbers absent, covering congruences
+  absent, Nat.Practical absent, perfect-power predicate
+  absent, EGF API absent, popcount absent (one-liner).
+
+
+MORE MINING
+
+  The following were not mined, written, or
+  formalized but are good candidates for new
+  agents.
+
+  - A363675/A363676 (lcm of char degrees of S_k/A_k):
+    drilled but no conjecture found; recheck comments.
+  - GL(n,q) conjugacy-class family A006951, A006952,
+    A049314-16, A182603-12: unwalked.
+  - A061256 vs A006908 McKay coincidence ("asks for an
+    explanation" — question, not conjecture).
+  - A318895/A380147 isoclinism class counts: few terms,
+    no conjectures yet; data-extension candidates.
+  - A086641 (char table permanents general), A393539
+    (random-to-random subalgebra: proof forthcoming in
+    lit., watch), A005520 record tables, A090245 term
+    extension (n=7 capset), A046057/A053403 realization
+    lists.
+  - Dry across all sweeps (do not re-search): TPP,
+    Gelfand pairs, Wedderburn, border/slice rank,
+    Strassen, apolarity, catalecticant, omega, secp256k1,
+    division polynomials, covering designs, Delta-system,
+    commutativity degree, Schur multiplier (angle listed
+    but unsearched — actually FRONTIER, try next sweep),
+    representation zeta, stem/capable groups.
+  - Waring-adjacent: A079611 (G(n) values conjectural),
+    A174420 deficit form — only A002804 externalized;
+    mine the neighborhood if Waring arc opens.
+
+LOCAL
+
+  The following is a generated list of
+  keyword associatations with larger
+  formalization files and where a real
+  piece of Lean code exists in this project.
+
+  arXiv-0709-1223.md      TPP definition and API  Xlib/TPP.lean
+  arXiv-0709-1223.md      group algebra structure tensor  Proofs/BilinearComplexity/GroupTensor.lean
+  arXiv-0709-1223.md      CU Thm 4.1 capacity bound       Xlib/CUCapacity.lean
+  arXiv-0709-1223.md      character degree multiset       Xlib/CharDegrees.lean
+  arXiv-0709-1223.md      character degree products       Xlib/CharDegreesMul.lean
+  arXiv-0908-3671.md      pairwise intersection and size bound    Xlib/TPP.lean
+  arXiv-1009-5526.md      Nath-Das Thm 2.4.1 commProb lower       Xlib/CommProbBound.lean
+  arXiv-1009-5526.md      isoclinism structure    Xlib/IsoclinismInvariants.lean
+  arXiv-1009-5526.md      extraspecial 2-group lattice    Xlib/ExtraspecialLattice.lean
+  arXiv-1011-2083.md      IsClass2 nilpotent class 2      Xlib/MurthyClass2.lean
+  arXiv-1011-2083.md      isoclinism structure    Xlib/IsoclinismInvariants.lean
+  arXiv-1101-5598.md      Hedtke Thm 1 WLOG-basic reduction       Xlib/HedtkeBasic.lean
+  arXiv-1101-5598.md      pairwise intersection bound     Xlib/TPP.lean
+  arXiv-1104-5097.md      Thm 3.1 leftQuot TPP test       Xlib/HedtkeBasic.lean
+  arXiv-1104-5097.md      TPP definition and capacity     Xlib/TPP.lean
+  arXiv-1104-5097.md      Thm 3.5 normal subgroup bound   Xlib/HedtkeMurthyNormal.lean
+  arXiv-1107-5969.md      stppCapacity definition Xlib/TPP.lean
+  arXiv-1107-5969.md      generic upper-bound lemma       Xlib/TPPLift.lean
+  arXiv-1107-5973.md      leftQuot quotient set   Xlib/TPP.lean
+  arXiv-1112-6007.md      border rank polynomial closure  Proofs/Vp2/BorderRank.lean
+  arXiv-1112-6007.md      flattening rank lower bound     Proofs/BilinearComplexity/Flattening.lean
+  arXiv-1112-6007.md      directional flattenings Proofs/Vp2/Apolarity.lean
+  arXiv-1207-6528.md      STPP predicate  Xlib/STPPWreath.lean
+  arXiv-1207-6528.md      TPP definition  Xlib/TPP.lean
+  arXiv-1207-6528.md      pseudo-exponent and capacity    Xlib/CUCapacity.lean
+  arXiv-1305-0448.md      WLOG-basic and TPP test Xlib/HedtkeBasic.lean
+  arXiv-1305-0448.md      Thm 3.5 normal subgroup pruning Xlib/HedtkeMurthyNormal.lean
+  arXiv-1305-0448.md      additive size bound Cor 6       Xlib/TPP.lean
+  arXiv-1401-7714.md      omega definition and bounds     Proofs/BilinearComplexity/Omega.lean
+  arXiv-1406-5145.md      border rank polynomial closure  Proofs/Vp2/BorderRank.lean
+  arXiv-1406-5145.md      Conner rank-18 Waring decomposition     Proofs/CHILO/ConnerWaring.lean
+  arXiv-1406-5145.md      flattening lower bound  Proofs/BilinearComplexity/Flattening.lean
+  arXiv-1411-0848.md      strengthened commProb lower bound       Xlib/CommProbBound.lean
+  arXiv-1411-0848.md      higher commuting probabilities  Xlib/HigherCommProb.lean
+  arXiv-1605-06702.md     STPP wreath convergence Xlib/STPPWreath.lean
+  arXiv-1605-06702.md     BCGPU n(G) barrier Thm 3.2      Xlib/BCGPUBarrier.lean
+  arXiv-1605-06702.md     Fourier barrier analytic core   Xlib/FourierBarrier.lean
+  arXiv-1605-06702.md     character degree n(G)   Xlib/CharDegrees.lean
+  arXiv-1605-06702.md     wreath n(G) computation Xlib/WreathNg.lean
+  arXiv-1605-09223.md     slice rank definition and API   Proofs/BilinearComplexity/SliceRank.lean
+  arXiv-1612-01527.md     Strassen R<2,2,2> <= 7  Proofs/BilinearComplexity/Strassen.lean
+  arXiv-1612-01527.md     group tensor mulTensor  Proofs/BilinearComplexity/GroupTensor.lean
+  arXiv-1612-01527.md     Wedderburn tensor rank transport        Proofs/BilinearComplexity/GroupTensorWedderburn.lean
+  arXiv-1706-05074.md     omega definition via tensor rank        Proofs/BilinearComplexity/Omega.lean
+  arXiv-1706-05074.md     CyclicBlock trace(X^3) identity Proofs/CHILO/CyclicBlock.lean
+  arXiv-1706-05074.md     Conner Waring decomposition sM_3        Proofs/CHILO/ConnerWaring.lean
+  arXiv-1706-05074.md     border rank infrastructure      Proofs/Vp2/BorderRank.lean
+  arXiv-1706-05074.md     slice rank      Proofs/BilinearComplexity/SliceRank.lean
+  arXiv-1712-02302.md     slice rank definition   Proofs/BilinearComplexity/SliceRank.lean
+  arXiv-1712-02302.md     STPP and STPPCond       Xlib/STPPWreath.lean
+  arXiv-1712-02302.md     omega definition        Xlib/CUCapacity.lean
+  arXiv-1712-02302.md     BCGPU barriers  Xlib/BCGPUBarrier.lean
+  arXiv-1712-02302.md     STPPCond small p-groups Xlib/MurthySmallPGroups.lean
+  arXiv-1810-08671.md     omega definition        Xlib/CUCapacity.lean
+  arXiv-1810-08671.md     Winograd R<2,2,2> >= 7  Proofs/BilinearComplexity/Winograd.lean
+  arXiv-1812-06952.md     border rank polynomial closure  Proofs/Vp2/BorderRank.lean
+  arXiv-1812-06952.md     omega definition        Xlib/CUCapacity.lean
+  arXiv-1910-01944.md     (111) border-apolarity test     Proofs/Vp2/Apolarity.lean
+  arXiv-1910-01944.md     border rank via vanishing ideal Proofs/Vp2/BorderRank.lean
+  arXiv-1911-07981.md     border rank and flattening API  Proofs/Vp2/BorderRank.lean
+  arXiv-1911-07981.md     (111) test Candidate111 Proofs/Vp2/Apolarity.lean
+  arXiv-1911-07981.md     Passes111 VP2 soundness Proofs/Vp2/Vp2.lean
+  arXiv-1911-07981.md     flattening lower bound  Proofs/BilinearComplexity/Flattening.lean
+  arXiv-1911-07981.md     slice rank      Proofs/BilinearComplexity/SliceRank.lean
+  arXiv-2002-09472.md     slice rank building block       Proofs/BilinearComplexity/SliceRank.lean
+  arXiv-2002-09472.md     tensor rank definition  Proofs/BilinearComplexity/Basic.lean
+  arXiv-2010-05846.md     omega definition and bounds     Proofs/BilinearComplexity/Omega.lean
+  arXiv-2010-05846.md     Strassen R<2,2,2> <= 7  Proofs/BilinearComplexity/Strassen.lean
+  arXiv-2010-05846.md     Kronecker submultiplicativity   Proofs/BilinearComplexity/KroneckerMatMul.lean
+  arXiv-2112-08681.md     commProb general lower bound    Xlib/CommProbBound.lean
+  arXiv-2112-08681.md     higher commuting probabilities  Xlib/HigherCommProb.lean
+  arXiv-2204-03826.md     BCGPU Thm 3.2 3.6 barriers      Xlib/BCGPUBarrier.lean
+  arXiv-2204-03826.md     TPP capacity and rho0   Xlib/TPP.lean
+  arXiv-2204-03826.md     pseudo-exponent CU framework    Xlib/CUCapacity.lean
+  arXiv-2204-03826.md     Fourier barrier analytic core   Xlib/FourierBarrier.lean
+  arXiv-2204-03826.md     character degrees       Xlib/CharDegrees.lean
+  arXiv-2204-03826.md     Wedderburn decomposition        Xlib/Wedderburn.lean
+  arXiv-2210-10173.md     omega definition and bounds     Proofs/BilinearComplexity/Omega.lean
+  arXiv-2210-10173.md     Strassen R<2,2,2> <= 7  Proofs/BilinearComplexity/Strassen.lean
+  arXiv-2210-10173.md     Winograd R<2,2,2> >= 7  Proofs/BilinearComplexity/Winograd.lean
+  arXiv-2210-10173.md     border rank     Proofs/Vp2/BorderRank.lean
+  arXiv-2210-10173.md     group tensor embedding  Proofs/BilinearComplexity/GroupTensor.lean
+  arXiv-2210-10173.md     CU capacity framework   Xlib/CUCapacity.lean
+  arXiv-2307-07970.md     omega definition and bounds     Proofs/BilinearComplexity/Omega.lean
+  arXiv-2307-07970.md     Strassen R<2,2,2> <= 7  Proofs/BilinearComplexity/Strassen.lean
+  arXiv-2307-07970.md     CU capacity framework   Xlib/CUCapacity.lean
+  arXiv-2309-03878.md     TPP definition  Xlib/TPP.lean
+  arXiv-2309-03878.md     STPPCond small p-groups Xlib/MurthySmallPGroups.lean
+  arXiv-2311-06666.md     group algebra center basis      Xlib/GroupAlgebraCenter.lean
+  arXiv-2311-06666.md     IsClass2 nilpotent class 2      Xlib/MurthyClass2.lean
+  arXiv-2311-06666.md     small p-group TPP results       Xlib/MurthySmallPGroups.lean
+  arXiv-2311-06666.md     extraspecial 2-group lattice    Xlib/ExtraspecialLattice.lean
+  arXiv-2404-06427.md     omega definition        Proofs/BilinearComplexity/Omega.lean
+  arXiv-2404-06427.md     tensor rank RankLE      Proofs/BilinearComplexity/Basic.lean
+  arXiv-2404-06427.md     border rank     Proofs/Vp2/BorderRank.lean
+  arXiv-2404-06427.md     slice rank      Proofs/BilinearComplexity/SliceRank.lean
+  arXiv-2404-16349.md     omega definition and bounds     Proofs/BilinearComplexity/Omega.lean
+  arXiv-2404-16349.md     Strassen R<2,2,2> <= 7  Proofs/BilinearComplexity/Strassen.lean
+  arXiv-2404-16349.md     Kronecker asymptotic bound      Proofs/BilinearComplexity/KroneckerMatMul.lean
+  arXiv-2404-16349.md     flattening lower bound  Proofs/BilinearComplexity/Flattening.lean
+  arXiv-2410-14905.md     border rank infrastructure      Proofs/Vp2/BorderRank.lean
+  arXiv-2410-14905.md     BCGPU barriers  Xlib/BCGPUBarrier.lean
+  arXiv-2410-14905.md     separating vectors      Proofs/BilinearComplexity/Conspiracy.lean
+  arXiv-2410-23034.md     commProb ConjClasses usage      Xlib/CommProbBound.lean
+  arXiv-2410-23034.md     conjugacy class count   Xlib/CharDegrees.lean
+  arXiv-2411-15789.md     omega via omegaSet      Proofs/BilinearComplexity/Omega.lean
+  arXiv-2411-15789.md     border rank Zariski closure     Proofs/Vp2/BorderRank.lean
+  arXiv-2411-18534.md     normalizer barrier infrastructure       Xlib/BCGPUBarrier.lean
+  arXiv-2504-12263.md     Clifford theory wreath products Xlib/WreathNg.lean
+  arXiv-2504-12263.md     Clifford theory STPP    Xlib/STPPWreath.lean
+  arXiv-2509-17780.md     charDegrees multiset    Xlib/CharDegrees.lean
+  arXiv-2509-17780.md     extraspecial 2-group data       Xlib/ExtraspecialLattice.lean
+  arXiv-2509-17780.md     charDegrees extensions  Xlib/CharDegreesComm.lean
+  arXiv-2509-17780.md     charDegrees index bound Xlib/CharDegreesIndexBound.lean
+  arXiv-2512-16730.md     Thm 4.1 prime-index TPP bound   Xlib/MurthyPrimeIndex.lean
+  arXiv-2512-16730.md     TPP rho0 definition     Xlib/TPP.lean
+  arXiv-2512-16730.md     dihedral Conj 5.1 p=2 case      Proofs/DihedralTPP/Basic.lean
+  arXiv-2602-11309.md     border rank definitions Proofs/Vp2/BorderRank.lean
+  arXiv-2602-11309.md     cactus gap documentation        Proofs/Vp2/Apolarity.lean
+  arXiv-2602-11309.md     cactus barrier references       Proofs/Vp2/Vp2.lean
+  arXiv-2602-13171.md     complexification rank bound     Proofs/BilinearComplexity/Complexify.lean
+  arXiv-2602-13171.md     omega definition        Proofs/BilinearComplexity/Omega.lean
+  arXiv-2602-15796.md     Thm 3.1 rho0 < sqrt index       Xlib/MurthyClass2.lean
+  arXiv-2602-15796.md     TPP rho0 SubgroupTPP    Xlib/TPP.lean
+  arXiv-2602-15796.md     Prop 2.14 small p-group base    Xlib/MurthySmallPGroups.lean
+  arXiv-2602-15796.md     prime-index stppCapacity        Xlib/MurthyPrimeIndex.lean
+  arXiv-2605-02071.md     higherCommProb P_r definition   Xlib/HigherCommProb.lean
+  arXiv-2605-02071.md     isoclinism structure    Xlib/IsoclinismInvariants.lean
+  arXiv-math-0307321.md   CU Thm 4.1 capacity bound       Xlib/CUCapacity.lean
+  arXiv-math-0307321.md   wreath TPP and convergence      Xlib/STPPWreath.lean
+  arXiv-math-0307321.md   TPP definition  Xlib/TPP.lean
+  arXiv-math-0511460.md   SimultaneousTPP definition      Xlib/STPPWreath.lean
+  arXiv-math-0606605.md   IsClass2 p-group infrastructure Xlib/MurthyClass2.lean
+  arXiv-math-0606605.md   small p-group TPP context       Xlib/MurthySmallPGroups.lean
+  arXiv-math-0606605.md   prime-index p-group context     Xlib/MurthyPrimeIndex.lean
+  Bari-kashthesis.md      border rank BorderRankLE        Proofs/Vp2/BorderRank.lean
+  Bari-kashthesis.md      (111) apolarity test    Proofs/Vp2/Apolarity.lean
+  Bari-kashthesis.md      flattening lower bound  Proofs/BilinearComplexity/Flattening.lean
+  Bari-kashthesis.md      group algebra mulTensor Proofs/BilinearComplexity/GroupTensor.lean
+  Bari-kashthesis.md      slice rank      Proofs/BilinearComplexity/SliceRank.lean
+  gcc-2012-0006.md        TPP definition and capacity     Xlib/TPP.lean
+  gcc-2012-0006.md        Thm 3.1 computational TPP test  Xlib/HedtkeBasic.lean
+  gcc-2012-0006.md        Thm 3.5 normal subgroup bound   Xlib/HedtkeMurthyNormal.lean
+  gcc-2012-0006.md        CU omega framework      Xlib/CUCapacity.lean
+  gcc-2012-0006.md        dihedral Conj 7.5/7.6   Proofs/DihedralTPP/Basic.lean
+  gcc-2012-0006.md        group tensor embedding  Proofs/BilinearComplexity/GroupTensor.lean
+  gcc-2012-0006.md        Wedderburn charDegree transport Proofs/BilinearComplexity/GroupTensorWedderburn.lean
+  gcc-2012-0006.md        omega definition and bounds     Proofs/BilinearComplexity/Omega.lean
+
+
