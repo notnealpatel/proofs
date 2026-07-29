@@ -113,17 +113,18 @@ noncomputable def piMonoidAlgEquiv (R : Type*) [CommSemiring R]
     (M : Type*) [DecidableEq M] [Monoid M] :
     MonoidAlgebra (Π j, A j) M ≃ₐ[R] Π j, MonoidAlgebra (A j) M :=
   AlgEquiv.ofBijective (piMonoidAlgFwd R ι A M) ⟨
-    fun f g h => Finsupp.ext fun m => funext fun j => by
+    fun f g h => by
+      ext m j
       have hj : piMonoidAlgFwd R ι A M f j = piMonoidAlgFwd R ι A M g j := congrFun h j
-      have := Finsupp.ext_iff.mp hj m
+      have hmj := Finsupp.ext_iff.mp (congrArg MonoidAlgebra.coeff hj) m
       simp only [piMonoidAlgFwd, Pi.algHom, MonoidAlgebra.mapAlgHom,
-        AlgHom.coe_mk, Pi.evalAlgHom] at this
-      exact this,
+        AlgHom.coe_mk, Pi.evalAlgHom] at hmj
+      exact hmj,
     fun fs => by
-      refine ⟨Finsupp.onFinset
-        (Finset.univ.biUnion (fun j => (fs j).support))
-        (fun m j => fs j m)
-        (fun m hm => ?_), ?_⟩
+      refine ⟨⟨Finsupp.onFinset
+        (Finset.univ.biUnion (fun j => (fs j).coeff.support))
+        (fun m j => (fs j).coeff m)
+        (fun m hm => ?_)⟩, ?_⟩
       · simp only [Finset.mem_biUnion, Finset.mem_univ, true_and]
         by_contra hall
         simp only [not_exists, Finsupp.mem_support_iff, not_not] at hall
@@ -183,18 +184,18 @@ noncomputable def matrixMonoidAlgFwd (R A : Type*) [CommSemiring R] [Semiring A]
 private theorem matrixMonoidAlgFwd_apply (R A : Type*) [CommSemiring R] [Semiring A]
     [Algebra R A] (m : Type*) [Fintype m] [DecidableEq m] (G : Type*) [Monoid G]
     (x : MonoidAlgebra (Matrix m m A) G) (i j : m) (g : G) :
-    matrixMonoidAlgFwd R A m G x i j g = x g i j := by
+    (matrixMonoidAlgFwd R A m G x i j).coeff g = x.coeff g i j := by
   classical
   induction x using MonoidAlgebra.induction_linear with
   | zero => rw [map_zero]; rfl
   | add f h hf hh => simp [hf, hh]
   | single g' X =>
-    simp only [matrixMonoidAlgFwd, MonoidAlgebra.coe_liftNCAlgHom,
+    simp only [matrixMonoidAlgFwd, MonoidAlgebra.coeff_single, Finsupp.single_apply,
+      MonoidAlgebra.coe_liftNCAlgHom,
       MonoidAlgebra.liftNC_single, AddMonoidHom.coe_coe, RingHom.toMonoidHom_eq_coe,
       MonoidHom.coe_comp, MonoidHom.coe_coe, Function.comp_apply, MonoidAlgebra.of_apply,
       Matrix.scalar_apply, AlgHom.mapMatrix_apply, Matrix.mul_diagonal, Matrix.map_apply,
-      MonoidAlgebra.singleOneAlgHom_apply, MonoidAlgebra.single_mul_single, one_mul, mul_one,
-      MonoidAlgebra.single_apply]
+      MonoidAlgebra.singleOneAlgHom_apply, MonoidAlgebra.single_mul_single, one_mul, mul_one]
     split_ifs <;> simp
 
 /-- **Matrix-valued monoid algebras are matrices over monoid algebras**:
@@ -210,14 +211,14 @@ noncomputable def matrixMonoidAlgEquiv (R A : Type*) [CommSemiring R] [Semiring 
   AlgEquiv.ofBijective (matrixMonoidAlgFwd R A m G) ⟨
     fun x y h => by
       ext g i j
-      have h' : matrixMonoidAlgFwd R A m G x i j g =
-          matrixMonoidAlgFwd R A m G y i j g := by rw [h]
+      have h' : (matrixMonoidAlgFwd R A m G x i j).coeff g =
+          (matrixMonoidAlgFwd R A m G y i j).coeff g := by rw [h]
       rwa [matrixMonoidAlgFwd_apply, matrixMonoidAlgFwd_apply] at h',
     fun M => by
       classical
-      refine ⟨Finsupp.onFinset
-        (Finset.univ.biUnion fun i => Finset.univ.biUnion fun j => (M i j).support)
-        (fun g => Matrix.of fun i j => M i j g) (fun g hg => ?_), ?_⟩
+      refine ⟨⟨Finsupp.onFinset
+        (Finset.univ.biUnion fun i => Finset.univ.biUnion fun j => (M i j).coeff.support)
+        (fun g => Matrix.of fun i j => (M i j).coeff g) (fun g hg => ?_)⟩, ?_⟩
       · simp only [Finset.mem_biUnion, Finset.mem_univ, true_and]
         by_contra hall
         simp only [not_exists, Finsupp.mem_support_iff, not_not] at hall

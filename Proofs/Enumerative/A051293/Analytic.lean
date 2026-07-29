@@ -569,8 +569,10 @@ private lemma binomial_fubini_le (i : ℕ) :
 /-- Summability of the shifted polylog `∑_{k≥0} (k+1)^i / 2^k`. -/
 private lemma shifted_polylog_summable (i : ℕ) :
     Summable (fun k : ℕ => (↑(k + 1) : ℝ) ^ i / (2 : ℝ) ^ k) := by
-  convert (((summable_nat_add_iff 1).mpr (polylog_summable i)).const_smul (2 : ℝ)) using 1
-  ext k; rw [smul_eq_mul, pow_succ]; field_simp
+  refine Summable.congr
+    (((summable_nat_add_iff 1).mpr (polylog_summable i)).const_smul (2 : ℝ)) (fun k => ?_)
+  simp only [smul_eq_mul, pow_succ]
+  field_simp
 
 /-- `∑_{k≥0} (k+1)^i / 2^k ≤ 4·fubini(i)`. Equality for `i ≥ 1`. -/
 private lemma shifted_polylog_le (i : ℕ) :

@@ -960,7 +960,6 @@ theorem cut_prob_le (hw : IsProbW w) (hsp : IsSpreadW R w)
       ≤ (5/2) * c := by
     have heq := sum_obs_fun (w := w) hq0
       (fun y => if partZ w q y ≤ (5/2) * c then 1 else 0)
-    simp only at heq
     rw [heq]
     calc ∑ y : Finset (Fin n), biasedW q y * partZ w q y *
           (if partZ w q y ≤ (5/2) * c then 1 else 0)
@@ -1388,6 +1387,23 @@ theorem nextW_pos {w : Finset (Fin n) → ℚ} {q : ℚ} (hw : IsProbW w)
     rw [if_pos rfl, mul_one]
     positivity
 
+/-- Splitting a sum over `Traj n (m+1)` into its three coordinates.
+
+Proved in term mode rather than by `rw [Fintype.sum_prod_type]`: `Traj n (m+1)`
+only unfolds to `(Finset (Fin n) × Finset (Fin n)) × Traj n m` at `default`
+transparency, and `rewrite` type-checks its motive at `implicit` transparency,
+where the reassociated index type is no longer accepted. Term-mode elaboration
+runs at `default` transparency, so the definitional unfolding is available. -/
+theorem sum_traj_succ {m : ℕ} (G : Traj n (m + 1) → ℚ) :
+    ∑ t : Traj n (m + 1), G t
+    = ∑ v : Finset (Fin n), ∑ b : Finset (Fin n), ∑ rest : Traj n m,
+        G ((v, b), rest) :=
+  (Fintype.sum_prod_type
+      (f := fun t : (Finset (Fin n) × Finset (Fin n)) × Traj n m => G t)).trans
+    (Fintype.sum_prod_type
+      (f := fun p : Finset (Fin n) × Finset (Fin n) =>
+        ∑ rest : Traj n m, G ((p.1, p.2), rest)))
+
 /-- (J1) The continuation kernel is a probability from any support point. -/
 theorem sum_trajW (hq0 : 0 < q) :
     ∀ (m : ℕ) (w : Finset (Fin n) → ℚ), IsProbW w →
@@ -1400,9 +1416,7 @@ theorem sum_trajW (hq0 : 0 < q) :
     simp
   | succ m ih =>
     intro w hw a ha
-    show ∑ t : (Finset (Fin n) × Finset (Fin n)) × Traj n m,
-      trajW q (m + 1) w a t = 1
-    rw [Fintype.sum_prod_type, Fintype.sum_prod_type]
+    rw [sum_traj_succ]
     have hbody : ∀ v b : Finset (Fin n), ∀ rest : Traj n m,
         trajW q (m + 1) w a ((v, b), rest)
         = biasedW q v * postW w q (a ∪ v) b *
@@ -1429,16 +1443,6 @@ theorem sum_trajW (hq0 : 0 < q) :
       rw [sum_postW (partZ_pos hw.1 hq0 ha Finset.subset_union_left),
         mul_one]
     rw [Finset.sum_congr rfl fun v _ => hpostsum v, sum_biasedW]
-
-/-- Splitting a sum over `Traj n (m+1)` into its three coordinates. -/
-theorem sum_traj_succ {m : ℕ} (G : Traj n (m + 1) → ℚ) :
-    ∑ t : Traj n (m + 1), G t
-    = ∑ v : Finset (Fin n), ∑ b : Finset (Fin n), ∑ rest : Traj n m,
-        G ((v, b), rest) := by
-  show ∑ t : (Finset (Fin n) × Finset (Fin n)) × Traj n m, G t
-    = ∑ v : Finset (Fin n), ∑ b : Finset (Fin n), ∑ rest : Traj n m,
-        G ((v, b), rest)
-  rw [Fintype.sum_prod_type, Fintype.sum_prod_type]
 
 /-- Regrouping an expectation against `nextW` back into the planted pair
     sum (the change of variables `(a, b) ↦ b \ v`). -/

@@ -78,25 +78,26 @@ private lemma sum_single_mul {ι κ : Type*} (A : Finset ι) (B : Finset κ)
 omit [Group G] [Fintype G] in
 /-- Evaluating an indicator-type sum at a point counts the fiber. -/
 private lemma sum_single_apply {ι : Type*} (A : Finset ι) (f : ι → G) (h : G) :
-    (∑ a ∈ A, MonoidAlgebra.single (f a) (1 : ℂ)) h
+    (∑ a ∈ A, MonoidAlgebra.single (f a) (1 : ℂ)).coeff h
       = ((A.filter (fun a => f a = h)).card : ℂ) := by
   classical
-  calc (∑ a ∈ A, MonoidAlgebra.single (f a) (1 : ℂ)) h
-      = ∑ a ∈ A, (MonoidAlgebra.single (f a) (1 : ℂ) : MonoidAlgebra ℂ G) h :=
-        Finset.sum_apply' h
+  calc (∑ a ∈ A, MonoidAlgebra.single (f a) (1 : ℂ)).coeff h
+      = ∑ a ∈ A, (MonoidAlgebra.single (f a) (1 : ℂ)).coeff h := by
+        rw [MonoidAlgebra.coeff_sum]; exact Finsupp.finsetSum_apply _ _ _
     _ = ∑ a ∈ A, if f a = h then (1 : ℂ) else 0 :=
-        Finset.sum_congr rfl fun a _ => Finsupp.single_apply
+        Finset.sum_congr rfl fun a _ => by simp [Finsupp.single_apply]
     _ = ((A.filter (fun a => f a = h)).card : ℂ) := Finset.sum_boole _ _
 
 omit [Group G] in
 /-- Total mass of an indicator-type sum. -/
 private lemma sum_single_mass {ι : Type*} (A : Finset ι) (f : ι → G) :
-    (∑ g : G, (∑ a ∈ A, MonoidAlgebra.single (f a) (1 : ℂ)) g) = (A.card : ℂ) := by
+    (∑ g : G, (∑ a ∈ A, MonoidAlgebra.single (f a) (1 : ℂ)).coeff g) = (A.card : ℂ) := by
   classical
-  calc ∑ g : G, (∑ a ∈ A, MonoidAlgebra.single (f a) (1 : ℂ)) g
-      = ∑ g : G, ∑ a ∈ A, (MonoidAlgebra.single (f a) (1 : ℂ) : MonoidAlgebra ℂ G) g :=
-        Finset.sum_congr rfl fun g _ => Finset.sum_apply' g
-    _ = ∑ a ∈ A, ∑ g : G, (MonoidAlgebra.single (f a) (1 : ℂ) : MonoidAlgebra ℂ G) g :=
+  calc ∑ g : G, (∑ a ∈ A, MonoidAlgebra.single (f a) (1 : ℂ)).coeff g
+      = ∑ g : G, ∑ a ∈ A, (MonoidAlgebra.single (f a) (1 : ℂ)).coeff g :=
+        Finset.sum_congr rfl fun g _ => by
+          rw [MonoidAlgebra.coeff_sum]; exact Finsupp.finsetSum_apply _ _ _
+    _ = ∑ a ∈ A, ∑ g : G, (MonoidAlgebra.single (f a) (1 : ℂ)).coeff g :=
         Finset.sum_comm
     _ = ∑ _a ∈ A, (1 : ℂ) :=
         Finset.sum_congr rfl fun a _ => by simp [Finsupp.single_apply]
@@ -121,7 +122,7 @@ omit [Fintype G] in
 /-- **The six-fold TPP count**: the coefficient of the Gowers element at the
 identity is exactly `|S| |T| |U|`. -/
 theorem gowersElt_apply_one {S T U : Finset G} (h : TripleProductProperty S T U) :
-    gowersElt S T U 1 = ((S.card * T.card * U.card : ℕ) : ℂ) := by
+    (gowersElt S T U).coeff 1 = ((S.card * T.card * U.card : ℕ) : ℂ) := by
   classical
   rw [gowersElt_eq_sum, sum_single_apply]
   norm_cast
@@ -162,11 +163,12 @@ theorem gowersElt_apply_one {S T U : Finset G} (h : TripleProductProperty S T U)
 
 /-- **Total mass of the Gowers element** is `(|S| |T| |U|)²` (no TPP needed). -/
 theorem mass_gowersElt (S T U : Finset G) :
-    (∑ g : G, gowersElt S T U g) = (((S.card * T.card * U.card : ℕ) : ℂ)) ^ 2 := by
+    (∑ g : G, (gowersElt S T U).coeff g) = (((S.card * T.card * U.card : ℕ) : ℂ)) ^ 2 := by
   classical
-  calc (∑ g : G, gowersElt S T U g)
+  calc (∑ g : G, (gowersElt S T U).coeff g)
       = ((((S ×ˢ T) ×ˢ (T ×ˢ U)) ×ˢ (U ×ˢ S)).card : ℂ) := by
-        rw [Finset.sum_congr rfl fun g _ => by rw [gowersElt_eq_sum]]
+        rw [Finset.sum_congr rfl fun g _ => by
+          show (gowersElt S T U).coeff g = _; rw [gowersElt_eq_sum]]
         exact sum_single_mass _ _
     _ = _ := by
         simp only [Finset.card_product]
@@ -178,7 +180,7 @@ omit [Fintype G] in
 is `|S| |T|` (needs `U` nonempty to run the TPP). -/
 theorem coeff_star_a {S T U : Finset G} (h : TripleProductProperty S T U)
     (hU : U.Nonempty) :
-    ((ind T * indInv S) * (ind S * indInv T)) 1 = ((S.card * T.card : ℕ) : ℂ) := by
+    ((ind T * indInv S) * (ind S * indInv T)).coeff 1 = ((S.card * T.card : ℕ) : ℂ) := by
   classical
   obtain ⟨u₀, hu₀⟩ := hU
   have hexp : (ind T * indInv S) * (ind S * indInv T)
@@ -222,7 +224,7 @@ omit [Fintype G] in
 /-- **Parseval count for `b = 1_T 1_{U⁻¹}`** (needs `S` nonempty). -/
 theorem coeff_star_b {S T U : Finset G} (h : TripleProductProperty S T U)
     (hS : S.Nonempty) :
-    ((ind U * indInv T) * (ind T * indInv U)) 1 = ((T.card * U.card : ℕ) : ℂ) := by
+    ((ind U * indInv T) * (ind T * indInv U)).coeff 1 = ((T.card * U.card : ℕ) : ℂ) := by
   classical
   obtain ⟨s₀, hs₀⟩ := hS
   have hexp : (ind U * indInv T) * (ind T * indInv U)
@@ -266,7 +268,7 @@ omit [Fintype G] in
 /-- **Parseval count for `c = 1_U 1_{S⁻¹}`** (needs `T` nonempty). -/
 theorem coeff_star_c {S T U : Finset G} (h : TripleProductProperty S T U)
     (hT : T.Nonempty) :
-    ((ind S * indInv U) * (ind U * indInv S)) 1 = ((U.card * S.card : ℕ) : ℂ) := by
+    ((ind S * indInv U) * (ind U * indInv S)).coeff 1 = ((U.card * S.card : ℕ) : ℂ) := by
   classical
   obtain ⟨t₀, ht₀⟩ := hT
   have hexp : (ind S * indInv U) * (ind U * indInv S)
@@ -340,16 +342,16 @@ private lemma sum_prod_diag {m : ℕ} (A : Matrix (Fin m) (Fin m) ℂ) :
 each basis vector `g` contributes the diagonal coefficient `x(1)`. -/
 theorem trace_mulLeft_monoidAlgebra (x : MonoidAlgebra ℂ G) :
     LinearMap.trace ℂ (MonoidAlgebra ℂ G) (LinearMap.mulLeft ℂ x)
-      = (Fintype.card G : ℂ) * x 1 := by
+      = (Fintype.card G : ℂ) * x.coeff 1 := by
   classical
   rw [LinearMap.trace_eq_matrix_trace ℂ (MonoidAlgebra.basis G ℂ), Matrix.trace]
   have hdiag : ∀ g : G, (LinearMap.toMatrix (MonoidAlgebra.basis G ℂ)
-      (MonoidAlgebra.basis G ℂ) (LinearMap.mulLeft ℂ x)).diag g = x 1 := by
+      (MonoidAlgebra.basis G ℂ) (LinearMap.mulLeft ℂ x)).diag g = x.coeff 1 := by
     intro g
     rw [Matrix.diag_apply, LinearMap.toMatrix_apply]
     simp only [MonoidAlgebra.basis_apply, LinearMap.mulLeft_apply]
-    show (x * MonoidAlgebra.single g 1 : MonoidAlgebra ℂ G) g = x 1
-    rw [MonoidAlgebra.mul_single_apply]
+    show (x * MonoidAlgebra.single g 1 : MonoidAlgebra ℂ G).coeff g = x.coeff 1
+    rw [MonoidAlgebra.coeff_mul_single_apply]
     simp
   rw [Finset.sum_congr rfl fun g _ => hdiag g]
   simp
@@ -384,7 +386,7 @@ under transport along `e`. -/
 theorem inversion {k : ℕ} {d : Fin k → ℕ}
     (e : MonoidAlgebra ℂ G ≃ₐ[ℂ] ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ)
     (x : MonoidAlgebra ℂ G) :
-    (Fintype.card G : ℂ) * x 1 = ∑ i, (d i : ℂ) * ((e x) i).trace := by
+    (Fintype.card G : ℂ) * x.coeff 1 = ∑ i, (d i : ℂ) * ((e x) i).trace := by
   rw [← trace_mulLeft_monoidAlgebra, ← trace_mulLeft_piMat]
   have hconj : LinearMap.mulLeft ℂ (e x)
       = e.toLinearEquiv.conj (LinearMap.mulLeft ℂ x) := by
@@ -664,7 +666,7 @@ open scoped Matrix.Norms.Frobenius in
 is `|X| |Y|` (a TPP count), then the Fourier blocks of `x = 1_X 1_{Y⁻¹}` satisfy
 `Σᵢ dᵢ ‖(e x)ᵢ‖² = |G| |X| |Y|`. -/
 theorem parseval_norm_sum (he : IsUnitary e) (X Y : Finset G)
-    (hcount : ((ind Y * indInv X) * (ind X * indInv Y)) 1
+    (hcount : ((ind Y * indInv X) * (ind X * indInv Y)).coeff 1
       = ((X.card * Y.card : ℕ) : ℂ)) :
     ∑ i, (d i : ℝ) * ‖(e (ind X * indInv Y)) i‖ ^ 2
       = (Fintype.card G : ℝ) * X.card * Y.card := by
@@ -731,18 +733,18 @@ It is located by chasing the central idempotent `p = |G|⁻¹ Σ_g g`. -/
 theorem exists_trivial_block {k : ℕ} {d : Fin k → ℕ} [∀ i, NeZero (d i)]
     (e : MonoidAlgebra ℂ G ≃ₐ[ℂ] ∀ i, Matrix (Fin (d i)) (Fin (d i)) ℂ) :
     ∃ i₀ : Fin k, d i₀ = 1 ∧
-      ∀ x : MonoidAlgebra ℂ G, (e x) i₀ = (∑ g : G, x g) • 1 := by
+      ∀ x : MonoidAlgebra ℂ G, (e x) i₀ = (∑ g : G, x.coeff g) • 1 := by
   classical
   have hcard0 : (Fintype.card G : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr Fintype.card_ne_zero
   set P : MonoidAlgebra ℂ G := ∑ g : G, MonoidAlgebra.single g 1 with hPdef
   -- pointwise values and total mass of `P`
-  have hPapply : ∀ g : G, P g = 1 := by
+  have hPapply : ∀ g : G, P.coeff g = 1 := by
     intro g
     rw [hPdef, sum_single_apply Finset.univ (fun h => h) g]
     rw [show Finset.univ.filter (fun h : G => h = g) = {g} from by
       ext h; simp]
     simp
-  have hPmass : (∑ g : G, P g) = (Fintype.card G : ℂ) := by
+  have hPmass : (∑ g : G, P.coeff g) = (Fintype.card G : ℂ) := by
     rw [Finset.sum_congr rfl fun g _ => hPapply g]
     simp
   -- one-sided absorption on group elements
@@ -757,31 +759,37 @@ theorem exists_trivial_block {k : ℕ} {d : Fin k → ℕ} [∀ i, NeZero (d i)]
     exact Fintype.sum_bijective (· * h) (Group.mulRight_bijective h) _ _
       fun g => by rw [MonoidAlgebra.single_mul_single, one_mul]
   -- `x * P = mass(x) • P` and symmetrically
-  have hxP : ∀ x : MonoidAlgebra ℂ G, x * P = (∑ g : G, x g) • P := by
+  have hxP : ∀ x : MonoidAlgebra ℂ G, x * P = (∑ g : G, x.coeff g) • P := by
     intro x
-    have hxdec : x = ∑ g : G, MonoidAlgebra.single g (x g) :=
-      (Finsupp.univ_sum_single x).symm
+    have hxdec : x = ∑ g : G, MonoidAlgebra.single g (x.coeff g) := by
+      apply MonoidAlgebra.coeff_inj.mp
+      rw [MonoidAlgebra.coeff_sum]
+      conv_rhs => simp only [MonoidAlgebra.coeff_single]
+      exact (Finsupp.univ_sum_single x.coeff).symm
     conv_lhs => rw [hxdec]
     rw [Finset.sum_mul]
     have hterm : ∀ g : G,
-        (MonoidAlgebra.single g (x g) : MonoidAlgebra ℂ G) * P = x g • P := by
+        (MonoidAlgebra.single g (x.coeff g) : MonoidAlgebra ℂ G) * P = x.coeff g • P := by
       intro g
-      have h1 : (MonoidAlgebra.single g (x g) : MonoidAlgebra ℂ G)
-          = x g • MonoidAlgebra.single g 1 := by
+      have h1 : (MonoidAlgebra.single g (x.coeff g) : MonoidAlgebra ℂ G)
+          = x.coeff g • MonoidAlgebra.single g 1 := by
         rw [← MonoidAlgebra.of_apply, MonoidAlgebra.smul_of]
       rw [h1, smul_mul_assoc, hsingle_mul]
     rw [Finset.sum_congr rfl fun g _ => hterm g, ← Finset.sum_smul]
-  have hPx : ∀ x : MonoidAlgebra ℂ G, P * x = (∑ g : G, x g) • P := by
+  have hPx : ∀ x : MonoidAlgebra ℂ G, P * x = (∑ g : G, x.coeff g) • P := by
     intro x
-    have hxdec : x = ∑ g : G, MonoidAlgebra.single g (x g) :=
-      (Finsupp.univ_sum_single x).symm
+    have hxdec : x = ∑ g : G, MonoidAlgebra.single g (x.coeff g) := by
+      apply MonoidAlgebra.coeff_inj.mp
+      rw [MonoidAlgebra.coeff_sum]
+      conv_rhs => simp only [MonoidAlgebra.coeff_single]
+      exact (Finsupp.univ_sum_single x.coeff).symm
     conv_lhs => rw [hxdec]
     rw [Finset.mul_sum]
     have hterm : ∀ g : G,
-        P * (MonoidAlgebra.single g (x g) : MonoidAlgebra ℂ G) = x g • P := by
+        P * (MonoidAlgebra.single g (x.coeff g) : MonoidAlgebra ℂ G) = x.coeff g • P := by
       intro g
-      have h1 : (MonoidAlgebra.single g (x g) : MonoidAlgebra ℂ G)
-          = x g • MonoidAlgebra.single g 1 := by
+      have h1 : (MonoidAlgebra.single g (x.coeff g) : MonoidAlgebra ℂ G)
+          = x.coeff g • MonoidAlgebra.single g 1 := by
         rw [← MonoidAlgebra.of_apply, MonoidAlgebra.smul_of]
       rw [h1, mul_smul_comm, hmul_single]
     rw [Finset.sum_congr rfl fun g _ => hterm g, ← Finset.sum_smul]
@@ -789,7 +797,7 @@ theorem exists_trivial_block {k : ℕ} {d : Fin k → ℕ} [∀ i, NeZero (d i)]
   have hPP : P * P = (Fintype.card G : ℂ) • P := by rw [hxP P, hPmass]
   have hPne : P ≠ 0 := by
     intro h0
-    have h1 : P 1 = 0 := by rw [h0]; rfl
+    have h1 : P.coeff 1 = 0 := by rw [h0]; simp
     rw [hPapply 1] at h1
     exact one_ne_zero h1
   -- transport to the matrix side
@@ -846,18 +854,18 @@ theorem exists_trivial_block {k : ℕ} {d : Fin k → ℕ} [∀ i, NeZero (d i)]
     · exact h1
   have hqi₀ : q i₀ = (Fintype.card G : ℂ) • 1 := by rw [hc i₀, hci₀]
   -- the universal mass property, after cancelling the factor `|G|`
-  have huniv : ∀ x : MonoidAlgebra ℂ G, (e x) i₀ = (∑ g : G, x g) • 1 := by
+  have huniv : ∀ x : MonoidAlgebra ℂ G, (e x) i₀ = (∑ g : G, x.coeff g) • 1 := by
     intro x
     have hchain : (Fintype.card G : ℂ) • ((e x) i₀)
-        = (Fintype.card G : ℂ) • ((∑ g : G, x g) • 1) := by
+        = (Fintype.card G : ℂ) • ((∑ g : G, x.coeff g) • 1) := by
       calc (Fintype.card G : ℂ) • ((e x) i₀)
           = (e x) i₀ * ((Fintype.card G : ℂ) • 1) := by
             rw [mul_smul_comm, mul_one]
         _ = (e x) i₀ * q i₀ := by rw [hqi₀]
         _ = (e (x * P)) i₀ := by rw [map_mul, Pi.mul_apply]
-        _ = (e ((∑ g : G, x g) • P)) i₀ := by rw [hxP]
-        _ = (∑ g : G, x g) • q i₀ := by rw [map_smul, hqdef, Pi.smul_apply]
-        _ = (Fintype.card G : ℂ) • ((∑ g : G, x g) • 1) := by
+        _ = (e ((∑ g : G, x.coeff g) • P)) i₀ := by rw [hxP]
+        _ = (∑ g : G, x.coeff g) • q i₀ := by rw [map_smul, hqdef, Pi.smul_apply]
+        _ = (Fintype.card G : ℂ) • ((∑ g : G, x.coeff g) • 1) := by
             rw [hqi₀, smul_comm]
     exact smul_right_injective _ hcard0 hchain
   -- the block is one-dimensional
@@ -913,7 +921,7 @@ theorem exists_one_lt_dim_of_nonabelian {k : ℕ} {d : Fin k → ℕ}
           rw [MonoidAlgebra.single_mul_single, one_mul]]
     apply e.injective
     rw [map_mul, map_mul, hcomm]
-  exact Finsupp.single_left_injective one_ne_zero hsingle
+  exact (MonoidAlgebra.single_left_inj one_ne_zero).mp hsingle
 
 /-! ### The master bound -/
 

@@ -170,7 +170,7 @@ theorem totalDegree_polysFrom_le (C : Circuit n k)
     (hp : ∀ i, (p i).totalDegree ≤ d) (t : Fin n) :
     (polysFrom C p t).totalDegree ≤ d * 2 ^ shearCount C := by
   induction C generalizing p d with
-  | nil => simpa using hp t
+  | nil => simpa [polysFrom] using hp t
   | cons g C ih =>
       cases g with
       | affine M c =>
@@ -194,7 +194,7 @@ register values. Hence computing any coordinate function of algebraic degree
 `D` requires at least `log₂ D` multiply-add gates. -/
 theorem totalDegree_polys_le (C : Circuit n k) (t : Fin n) :
     (polys C t).totalDegree ≤ 2 ^ shearCount C := by
-  simpa using totalDegree_polysFrom_le C X (fun i => totalDegree_X_le i) t
+  simpa [polys] using totalDegree_polysFrom_le C X (fun i => totalDegree_X_le i) t
 
 end Circuit
 

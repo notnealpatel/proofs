@@ -328,7 +328,13 @@ lemma congrCurve_Δ (n : ℚ) : (congrCurve n).Δ = 64 * n ^ 6 := by
     congrCurve_a₁, congrCurve_a₂, congrCurve_a₃, congrCurve_a₄, congrCurve_a₆]
   ring
 
-instance congrCurve_isElliptic {n : ℚ} (hn : n ≠ 0) : (congrCurve n).IsElliptic where
+/-- The congruent-number curve is elliptic for `n ≠ 0`.
+
+Stated as a `lemma`, not an `instance`: the hypothesis `hn : n ≠ 0` is neither
+instance-implicit nor recoverable from the return type, so typeclass synthesis
+could never have applied it. Lean 4.33 rejects such declarations as instances
+outright; use `haveI := congrCurve_isElliptic hn` at the use site. -/
+lemma congrCurve_isElliptic {n : ℚ} (hn : n ≠ 0) : (congrCurve n).IsElliptic where
   isUnit := Ne.isUnit (by
     rw [congrCurve_Δ]
     exact mul_ne_zero (by norm_num) (pow_ne_zero 6 hn))

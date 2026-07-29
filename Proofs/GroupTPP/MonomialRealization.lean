@@ -104,7 +104,7 @@ variable {G : Type*} [Group G] [DecidableEq G]
 /-! ### Semantic definitions -/
 
 /-- The coefficient of `1_G` in a group algebra element `x ∈ F[G]`. -/
-noncomputable def coeffOne (x : MonoidAlgebra F G) : F := x 1
+noncomputable def coeffOne (x : MonoidAlgebra F G) : F := x.coeff 1
 
 /-- The group trilinear form: the coefficient of `1_G` in the product `x * y * z`
 in the group algebra `F[G]`. -/
@@ -166,7 +166,7 @@ lemma phi_sum_single_collapse
     · intro j _ hj
       have h0 : Matrix.single i₀ j₀ (1 : F) i j = 0 := by
         apply Matrix.single_apply_of_ne; intro ⟨_, h2⟩; exact hj h2.symm
-      rw [h0, zero_mul]; exact Finsupp.single_zero _
+      rw [h0, zero_mul]; exact MonoidAlgebra.single_zero _
     · exact fun h => absurd (Finset.mem_univ _) h
   simp_rw [step_j]
   have step_i :
@@ -176,7 +176,7 @@ lemma phi_sum_single_collapse
     · intro i _ hi
       have h0 : Matrix.single i₀ j₀ (1 : F) i j₀ = 0 := by
         apply Matrix.single_apply_of_ne; intro ⟨h1, _⟩; exact hi h1.symm
-      rw [h0, zero_mul]; exact Finsupp.single_zero _
+      rw [h0, zero_mul]; exact MonoidAlgebra.single_zero _
     · exact fun h => absurd (Finset.mem_univ _) h
   rw [step_i, Matrix.single_apply_same, one_mul]
 
@@ -229,7 +229,7 @@ lemma Phi_single_single_single
     r₁ * r₂ * r₃ * if g₁ * g₂ * g₃ = 1 then 1 else 0 := by
   unfold Phi coeffOne
   rw [MonoidAlgebra.single_mul_single, MonoidAlgebra.single_mul_single,
-      Finsupp.single_apply, mul_assoc]
+      MonoidAlgebra.coeff_single, Finsupp.single_apply, mul_assoc]
   split_ifs <;> ring
 
 /-- The **monomial realization identity**: the coefficient-level equation that a

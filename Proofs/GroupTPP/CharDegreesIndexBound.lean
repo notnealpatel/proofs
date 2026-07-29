@@ -206,7 +206,7 @@ theorem finrank_simple_le_index (A : Subgroup G) [IsMulCommutative A]
     obtain ⟨z, hz⟩ := Submodule.mem_span_singleton.mp hx
     rw [← hz, smul_eq_mul]
     refine MonoidAlgebra.induction_on
-      (p := fun w => w * v ∈ Submodule.span ℂ (T : Set (MonoidAlgebra ℂ G))) z
+      (motive := fun w => w * v ∈ Submodule.span ℂ (T : Set (MonoidAlgebra ℂ G))) z
       (fun g => ?_) (fun p q hp hq => ?_) (fun r p hp => ?_)
     · simpa [MonoidAlgebra.of_apply] using hgen g
     · show (p + q) * v ∈ Submodule.span ℂ (T : Set (MonoidAlgebra ℂ G))

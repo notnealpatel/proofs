@@ -177,7 +177,7 @@ private def evalOne (G : Type*) [Group G] : MonoidAlgebra ℂ G →ₗ[ℂ] ℂ 
   (Finsupp.lapply (1 : G)).comp (MonoidAlgebra.coeffLinearEquiv ℂ).toLinearMap
 
 private theorem evalOne_apply {G : Type*} [Group G] (f : MonoidAlgebra ℂ G) :
-    evalOne G f = f 1 :=
+    evalOne G f = f.coeff 1 :=
   rfl
 
 /-! ## 6. The Wedderburn transport -/
@@ -207,7 +207,7 @@ private def wA
 omit [Fintype G] in
 private theorem wLam_e_apply
     (e : MonoidAlgebra ℂ G ≃ₐ[ℂ] Π i, Matrix (Fin (d i)) (Fin (d i)) ℂ)
-    (W : MonoidAlgebra ℂ G) : wLam e (e W) = W 1 := by
+    (W : MonoidAlgebra ℂ G) : wLam e (e W) = W.coeff 1 := by
   simp [wLam, evalOne_apply]
 
 /-- The tensor entry is the transported functional of the triple product. -/

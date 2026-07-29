@@ -91,11 +91,21 @@ variable [DecidableEq k]
 /-- Cyclic rotation permutes the entries of a tensor, so it preserves
 the nonzero-entry count. -/
 theorem nnz_cyc (T : Tensor k a b c) : nnz (cyc T) = nnz T := by
+  show (Finset.univ.filter fun p : Fin b × Fin c × Fin a =>
+      cyc T p.1 p.2.1 p.2.2 ≠ 0).card =
+    (Finset.univ.filter fun p : Fin a × Fin b × Fin c =>
+      T p.1 p.2.1 p.2.2 ≠ 0).card
   apply Finset.card_equiv
     ⟨fun p => (p.2.2, p.1, p.2.1), fun q => (q.2.1, q.2.2, q.1),
       fun _ => rfl, fun _ => rfl⟩
   intro p
-  simp [cyc]
+  constructor
+  · intro h
+    rw [Finset.mem_filter] at h ⊢
+    exact ⟨Finset.mem_univ _, by simp only [Equiv.coe_fn_mk]; exact h.2⟩
+  · intro h
+    rw [Finset.mem_filter] at h ⊢
+    exact ⟨Finset.mem_univ _, by simp only [cyc]; exact h.2⟩
 
 end Cyc
 
