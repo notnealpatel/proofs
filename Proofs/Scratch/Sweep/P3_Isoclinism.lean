@@ -1,23 +1,23 @@
-import Xlib.IsoclinismInvariants
-import Xlib.CharDegrees
-import Xlib.CharDegreesMul
-import Xlib.STPPWreath
+import GroupTPP.IsoclinismInvariants
+import GroupTPP.CharDegrees
+import GroupTPP.CharDegreesMul
+import GroupTPP.STPPWreath
 
 /-!
 # P3 conjecture sweep: isoclinism invariants × character-degree data
 
 Calibration sweep (pair P3, theory track). NEW conjecture statements connecting
-`Xlib.IsoclinismInvariants` (Hall isoclinism, `k(G)`, `n_c(G)`) with
-`Xlib.CharDegrees` (`charDegrees`, `Dᵣ`, `n(G)`) and the wreath/STPP lane.
+`GroupTPP.IsoclinismInvariants` (Hall isoclinism, `k(G)`, `n_c(G)`) with
+`GroupTPP.CharDegrees` (`charDegrees`, `Dᵣ`, `n(G)`) and the wreath/STPP lane.
 
 ## Sorry census (2026-07-19, this sweep)
 
 * `Xlib/IsoclinismInvariants.lean` — **0 code sorries** (all grep hits are
   doc-comment mentions). PROVED foundation.
-* `Xlib/CharDegrees.lean` — **0 code sorries**; its imports `Xlib.TPP`,
-  `Xlib.Wedderburn`, `Xlib.GroupAlgebraCenter` — **0 code sorries**. PROVED
+* `Xlib/CharDegrees.lean` — **0 code sorries**; its imports `GroupTPP.TPP`,
+  `GroupTPP.Wedderburn`, `GroupTPP.GroupAlgebraCenter` — **0 code sorries**. PROVED
   foundation. (The `WreathNg` docstring's claim of a "single foundational
-  `sorry` of `Xlib.CharDegrees`" is STALE: the indexed Wedderburn layer is now
+  `sorry` of `GroupTPP.CharDegrees`" is STALE: the indexed Wedderburn layer is now
   sorry-free.)
 * `Xlib/CharDegreesMul.lean` — 0 code sorries.
 * `Xlib/STPPWreath.lean` — exactly 2 code sorries: `stpp_capacity_le` (l.389)
@@ -44,7 +44,7 @@ GAP/Sage runs recorded in the sweep scratchpad (`p3_checks.sage`, each phase
 * `n(G × C_k) = n(G)` for `G ∈ {S₃, SL(2,3)}`, `k ∈ {2,3}`.
 -/
 
-open Xlib.CharDegrees Xlib.CharDegreesMul Xlib.TPP Xlib.STPPWreath
+open GroupTPP.CharDegrees GroupTPP.CharDegreesMul GroupTPP.TPP GroupTPP.STPPWreath
 open IsoclinismInvariants
 
 namespace Scratch.Sweep.P3
@@ -206,7 +206,7 @@ the family is not α-flat even though it is `k/|Z|`-flat. Nontrivial witness:
 `S₃ × C₂` only via the padding argument... verified consistent with
 `tppCapacity_eq_card` on abelian instances).
 (b) [theory]
-(c) FOUNDATION: proved (`Xlib.TPP` is sorry-free).
+(c) FOUNDATION: proved (`GroupTPP.TPP` is sorry-free).
 Computationally checkable for tiny `G` only (`tppCapacity` is a sup over all
 triple powersets; keep runs < 60 s — full check skipped for time). -/
 theorem p3_c10 {G : Type u} [Group G] [Fintype G] [DecidableEq G]

@@ -1,0 +1,14 @@
+Dispatch a consumer that reads what is presently
+contained in all of ./Proofs/**/*.lean and mines
+for anything related or unrelated in OEIS that
+it comes across in either a random or principled
+manner.
+
+It should check ./Formalize to ensure that the
+conjecture it wants to surface isn't already in
+the corpus.
+
+For each new thing it finds, write a similarly
+styled markdown file to the `A*.md` that exist
+with the similar metadata about the formalization
+and proof difficultly guess.

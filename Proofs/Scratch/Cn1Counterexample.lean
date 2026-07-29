@@ -12,7 +12,7 @@
   AI disclosure: produced with AI assistance (see Proofs/README).
 -/
 import Mathlib.Data.ZMod.Basic
-import Proofs.BilinearComplexity.Conspiracy
+import BilinearComplexity.Conspiracy
 
 namespace Cn1Counterexample
 

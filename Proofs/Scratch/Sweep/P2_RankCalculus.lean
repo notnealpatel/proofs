@@ -29,7 +29,7 @@
   AI disclosure: produced with AI assistance (see Proofs/README).
 -/
 import Mathlib.Data.ZMod.Basic
-import Proofs.BilinearComplexity.RankCalculus
+import BilinearComplexity.RankCalculus
 
 namespace BilinearComplexity
 namespace P2Sweep

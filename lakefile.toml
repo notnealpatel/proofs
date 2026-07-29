@@ -1,15 +1,40 @@
-name = "Proofs"
+name = "proofs"
 version = "0.1.0"
-defaultTargets = ["Proofs"]
+defaultTargets = ["BilinearComplexity", "GroupTPP", "Erdos",
+                  "AlgComplexity", "ShearEC", "CHILO",
+                  "Enumerative"]
 
 [[lean_lib]]
-name = "Proofs"
+name = "BilinearComplexity"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "GroupTPP"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "Erdos"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "AlgComplexity"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "ShearEC"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "CHILO"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "Enumerative"
+srcDir = "Proofs"
 
 [[lean_lib]]
 name = "Scratch"
-
-[[lean_lib]]
-name = "Xlib"
+srcDir = "Proofs"
 
 [[require]]
 name  = "mathlib"

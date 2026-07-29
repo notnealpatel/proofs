@@ -10,8 +10,8 @@
   cardinality bound).
 -/
 
-import Proofs.Erdos20.ShiftedSunflower
-import Proofs.Erdos20.Counterexample
+import Erdos.Erdos20.ShiftedSunflower
+import Erdos.Erdos20.Counterexample
 
 open Finset Erdos20Counterexample
 

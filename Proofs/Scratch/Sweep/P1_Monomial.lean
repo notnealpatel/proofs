@@ -1,9 +1,9 @@
-import Xlib.MonomialRealization
+import GroupTPP.MonomialRealization
 
 /-!
 # P1 conjecture sweep: monomial realizations beyond no-cancellation
 
-Conjecture candidates extending `Xlib.MonomialRealization`. Every statement is
+Conjecture candidates extending `GroupTPP.MonomialRealization`. Every statement is
 `sorry`-stubbed; a later stage elaborates and attacks them. None restates an
 existing lemma in `Xlib/`: the module proves semantic ⟹ coefficient,
 no-cancellation, diagonal identities, and Kronecker closure — the statements
@@ -17,9 +17,9 @@ spot-check performed (small-group TPP-to-realization roundtrip) is noted at
 `p1_c8`.
 -/
 
-namespace Xlib.MonomialRealization
+namespace GroupTPP.MonomialRealization
 
-open Xlib.TPP Finset
+open GroupTPP.TPP Finset
 
 variable {F : Type*} [Field F]
 variable {G : Type*} [Group G] [DecidableEq G]
@@ -160,4 +160,4 @@ theorem p1_c10 (hn : 0 < n) (hm : 0 < m) (hp : 0 < p)
       (∀ j k, β' j k = β j k * (v j)⁻¹ * w k) ∧
       (∀ k i, γ' k i = γ k i * (w k)⁻¹ * (u i)⁻¹) := sorry
 
-end Xlib.MonomialRealization
+end GroupTPP.MonomialRealization

@@ -32,8 +32,8 @@
   allowed); the ground examples here carry native_decide trust axioms
   by design (same trust model as Counterexample.lean).
 -/
-import Proofs.Erdos20.SpreadDefect
-import Proofs.Erdos20.Counterexample
+import Erdos.Erdos20.SpreadDefect
+import Erdos.Erdos20.Counterexample
 
 open Finset
 

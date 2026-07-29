@@ -1,8 +1,8 @@
-import Xlib.TPPLift
+import GroupTPP.TPPLift
 
 /-! Smoke tests for the TPPLift census-decide path. Not part of the API. -/
 
-open Xlib.TPP
+open GroupTPP.TPP
 
 -- C₂ ground facts are decide-checkable.
 example : (sgn * sgn = 1) ∧ sgn ≠ 1 := by decide

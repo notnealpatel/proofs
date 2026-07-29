@@ -20,7 +20,7 @@
   theorem — each must report exactly
   [propext, Classical.choice, Quot.sound] (std-3).
 -/
-import Proofs.Erdos20.SpreadDefect
+import Erdos.Erdos20.SpreadDefect
 
 open Finset
 
