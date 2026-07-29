@@ -1,0 +1,43 @@
+You are going to orchestrate a vacuity audit session.
+This means running one vacuity-cop agent per top-level
+directory in
+
+% la Proofs                                                                                                                X f5exp
+total 72
+drwxr-xr-x 10 exedev exedev 4096 Jul 29 17:09 .
+drwxr-xr-x 13 exedev exedev 4096 Jul 29 19:40 ..
+drwxr-xr-x  3 exedev exedev 4096 Jul 29 17:04 AlgComplexity
+-rw-r--r--  1 exedev exedev  133 Jul 29 17:07 AlgComplexity.lean
+drwxr-xr-x  2 exedev exedev 4096 Jul 29 19:18 BilinearComplexity
+-rw-r--r--  1 exedev exedev  754 Jul 29 17:07 BilinearComplexity.lean
+drwxr-xr-x  2 exedev exedev 4096 Jul 29 17:04 CHILO
+-rw-r--r--  1 exedev exedev   51 Jul 29 17:07 CHILO.lean
+drwxr-xr-x  3 exedev exedev 4096 Jul 29 17:04 Enumerative
+-rw-r--r--  1 exedev exedev  127 Jul 29 17:07 Enumerative.lean
+drwxr-xr-x  8 exedev exedev 4096 Jul 29 17:04 Erdos
+-rw-r--r--  1 exedev exedev  449 Jul 29 17:07 Erdos.lean
+drwxr-xr-x  3 exedev exedev 4096 Jul 29 19:21 GroupTPP
+-rw-r--r--  1 exedev exedev  864 Jul 29 17:07 GroupTPP.lean
+drwxr-xr-x  3 exedev exedev 4096 Jul 29 19:15 Scratch
+-rw-r--r--  1 exedev exedev  101 Jul 17 21:16 Scratch.lean
+drwxr-xr-x  2 exedev exedev 4096 Jul 29 19:15 ShearEC
+-rw-r--r--  1 exedev exedev  289 Jul 29 17:07 ShearEC.lean
+
+
+
+(Scratch is omitted).
+You should run a lake build and inventory the current
+sorrys (which are intended) so that ALL vacuity cop
+agents are aware of the current state as verified by
+the USER (me).
+
+You should instruct each vacuity agent to keep their
+full externalization in their own owned .tasks/f5exp/docs
+that they write and return a 1-5 terse summary to you.
+
+After all of these agents are done, we'll review.
+
+These agents should spend **a lot of time** combing
+through everything and picking it a part; they are
+building the bedrock of this proofs repo and any fail
+in this stage poisons all of my downstream work.
