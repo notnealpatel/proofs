@@ -325,7 +325,6 @@ theorem sum_Ioc_inv_le {u v : ℕ} (hu : 1 ≤ u) (huv : u ≤ v) :
       rw [h2] at h1
       linarith
     push_cast
-    push_cast at ih
     linarith
 
 /-- Telescoped lower bound: for `u ≤ v`,
@@ -346,7 +345,6 @@ theorem le_sum_Ioc_inv {u v : ℕ} (huv : u ≤ v) :
       rw [h2] at h1
       linarith
     push_cast
-    push_cast at ih
     have hnorm : (v : ℝ) + 1 + 1 = (v : ℝ) + 2 := by ring
     rw [hnorm]
     linarith

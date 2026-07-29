@@ -206,7 +206,7 @@ packing target `|G|^{3/2}`.
 
 **Proof.** Substitute `n(G)^{1/2} ≥ |G|^{δ/2}` into
 `bcgpu_thm_3_2`, so `|G|^{3/2}/n(G)^{1/2} ≤ |G|^{3/2}/|G|^{δ/2} = |G|^{(3-δ)/2}`. -/
-theorem bcgpu_cor_3_3 {S T U : Finset G} {δ : ℝ} (hδ : 0 < δ)
+theorem bcgpu_cor_3_3 {S T U : Finset G} {δ : ℝ} (_hδ : 0 < δ)
     (hG : ∃ a b : G, a * b ≠ b * a)
     (hn : (Fintype.card G : ℝ) ^ δ ≤ nG G) (h : TripleProductProperty S T U) :
     (S.card * T.card * U.card : ℝ)
@@ -650,7 +650,6 @@ private theorem abelianBarrier_center {H₁ H₂ H₃ : Subgroup G}
       Subgroup.mem_inf] at hu hu'
     have heqG : (s' : G)⁻¹ * (s : G) * (t' : G)⁻¹ * (t : G) * (u' : G)⁻¹ * (u : G) = 1 := by
       have := congrArg (Z.subtype) heq
-      push_cast at this
       simpa using this
     have hmems : (s : G) ∈ (H₁ : Set G).toFinset := by rw [Set.mem_toFinset]; exact hs.1
     have hmems' : (s' : G) ∈ (H₁ : Set G).toFinset := by rw [Set.mem_toFinset]; exact hs'.1
