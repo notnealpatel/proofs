@@ -23,16 +23,25 @@
   smoke test ZMod 31 (ω = 5, a = 27), which also witnesses that the
   hypotheses on (R, ω, a) are nontrivially satisfiable.
 
-  ERRATUM (documented in `.tasks/research/infodumps/errata-1711-05796.md`
-  and Wd1): the paper prints the scalar summand constant as
+  ERRATUM (verification record: `.tasks/f5exp/docs/vacuity-chilo.md`,
+  section "Erratum verification (header lines 26-35)" — an in-repo,
+  independent re-derivation of the correction, hand + Sage. Earlier
+  drafts of this header cited `.tasks/research/infodumps/errata-1711-05796.md`,
+  which does not exist in this repo; use the pointer above):
+  the paper prints the scalar summand constant as
   a = −2^{−1/3}; the decomposition reproduces tr A³ only with a³ = −2,
   i.e. a = −2^{1/3} (with the paper's printed value the identity fails
   already at A = I: 9.75 ≠ 3). This file certifies the corrected
   constant: hypothesis `ha : a³ = −2`, and the ℂ-instantiation uses
   a = −2^{1/3} explicitly. Exact transcription of the mᵢ was verified
   against the paper's TeX source by exact arithmetic over
-  ℤ[ω]/(ω²+ω+1) before formalization (Cn1 campaign; the numerical
-  oracle of `cmd/probe-waring` agrees to 7.9e−16).
+  ℤ[ω]/(ω²+ω+1) before formalization (Cn1 campaign). The numerical
+  cross-check agrees to 7.9e−16; it was re-run during the 2026-07-29
+  vacuity audit (Sage, 200-bit: `|ω² + ω + 1| = 0`,
+  `|(−2^{1/3})³ + 2| ≈ 2.5e−60`, identity holds mod (ω²+ω+1, a³+2) and
+  fails mod (ω²+ω+1, a³+1/2)) — see `.tasks/f5exp/docs/vacuity-chilo.md`.
+  (An earlier draft of this header cited a Go probe `cmd/probe-waring`;
+  no such directory exists in this repo.)
 
   Proof structure: the 18 forms organize into six cube-root-of-unity
   triples sharing integer linear data (u, v, w):

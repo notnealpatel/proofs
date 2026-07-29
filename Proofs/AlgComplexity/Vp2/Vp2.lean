@@ -82,8 +82,11 @@
       (`candidate111_of_sq_le`); the soundness core
       `vanishingIdeal_test111Locus_le` (perturbation of an arbitrary
       rank decomposition along a polynomial line; `[Infinite k]`).
-      NOT imported by root AlgComplexity.lean pending user sign-off on the
-      import-list convention.
+      Imported by the root: `Proofs/AlgComplexity.lean:1` is
+      `import AlgComplexity.Vp2.Apolarity`, so this module is inside the
+      default build target. (Supersedes an earlier note here claiming it was
+      "NOT imported by root AlgComplexity.lean pending user sign-off on the
+      import-list convention" — that claim contradicted the import graph.)
     · `Passes111` REAL (SORRY[Test111] discharged): the polynomial
       closure of `test111Locus` — the same closure wrap as
       `BorderRankLE`. DEVIATION (recorded): gains `[Field k]` (the

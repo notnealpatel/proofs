@@ -24,12 +24,52 @@ def fubini : ℕ → ℕ
 termination_by n => n
 decreasing_by exact k.isLt
 
-@[simp] lemma fubini_zero : fubini 0 = 1 := by native_decide
-lemma fubini_one : fubini 1 = 1 := by native_decide
-lemma fubini_two : fubini 2 = 3 := by native_decide
-lemma fubini_three : fubini 3 = 13 := by native_decide
-lemma fubini_four : fubini 4 = 75 := by native_decide
-lemma fubini_five : fubini 5 = 541 := by native_decide
+/-- The Fubini recurrence restated over `Finset.range`:
+`fubini (i + 1) = ∑_{m < i+1} C(i+1, m) · fubini m`.
+
+`fubini` is compiled through well-founded recursion, so it does not reduce by
+`rfl` and kernel `decide` gets stuck on the `Decidable` instance match. This
+equation lemma is the kernel-clean entry point: every ground value below is
+derived from it, so no `native_decide` (hence no compiler axiom) enters the
+axiom closure of anything downstream. -/
+theorem fubini_succ_eq_sum_range (i : ℕ) :
+    fubini (i + 1) = ∑ m ∈ Finset.range (i + 1), (i + 1).choose m * fubini m := by
+  conv_lhs => unfold fubini
+  exact Fin.sum_univ_eq_sum_range (fun k => (i + 1).choose k * fubini k) (i + 1)
+
+/-- `fubini 0 = 1`: the empty set has exactly one ordered set partition. -/
+@[simp] lemma fubini_zero : fubini 0 = 1 := by simp only [fubini]
+
+/-- `fubini 1 = 1` (A000670). -/
+lemma fubini_one : fubini 1 = 1 := by
+  rw [show (1 : ℕ) = 0 + 1 from rfl, fubini_succ_eq_sum_range]
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, fubini_zero]; decide
+
+/-- `fubini 2 = 3` (A000670). -/
+lemma fubini_two : fubini 2 = 3 := by
+  rw [show (2 : ℕ) = 1 + 1 from rfl, fubini_succ_eq_sum_range]
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, fubini_zero, fubini_one]; decide
+
+/-- `fubini 3 = 13` (A000670). -/
+lemma fubini_three : fubini 3 = 13 := by
+  rw [show (3 : ℕ) = 2 + 1 from rfl, fubini_succ_eq_sum_range]
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, fubini_zero, fubini_one,
+    fubini_two]
+  decide
+
+/-- `fubini 4 = 75` (A000670). -/
+lemma fubini_four : fubini 4 = 75 := by
+  rw [show (4 : ℕ) = 3 + 1 from rfl, fubini_succ_eq_sum_range]
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, fubini_zero, fubini_one,
+    fubini_two, fubini_three]
+  decide
+
+/-- `fubini 5 = 541` (A000670). -/
+lemma fubini_five : fubini 5 = 541 := by
+  rw [show (5 : ℕ) = 4 + 1 from rfl, fubini_succ_eq_sum_range]
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, fubini_zero, fubini_one,
+    fubini_two, fubini_three, fubini_four]
+  decide
 
 end Fubini
 
@@ -76,7 +116,7 @@ private lemma binomial_diff (j m : ℕ) :
   rw [Finset.sum_range_succ]
   simp [Nat.choose_self, mul_comm]
 
-private lemma hasSum_finset_sum (s : Finset ι) [DecidableEq ι]
+private lemma hasSum_finset_sum {ι : Type*} (s : Finset ι) [DecidableEq ι]
     (f : ι → ℕ → ℝ) (a : ι → ℝ) (hf : ∀ i ∈ s, HasSum (f i) (a i)) :
     HasSum (fun j => ∑ i ∈ s, f i j) (∑ i ∈ s, a i) := by
   induction s using Finset.induction with

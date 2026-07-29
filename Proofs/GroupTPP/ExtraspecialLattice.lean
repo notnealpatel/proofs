@@ -81,6 +81,12 @@ Everything *derived* from these fields is a complete proof with no `sorry`:
 * `upperSubgroupEquiv`, `subgroupCount_eq_fixedDim` — the reduction;
 * `subgroupCount_eq_of_same_rank` — the main theorem.
 
+The packaging is *not* an unwitnessed hypothesis bundle: the section
+`A concrete model: D₄ = 2^{1+2}_+, the rank-1 witness` at the end of this file
+constructs `extraspecialD4 : ExtraspecialData (DihedralGroup 4)` (order `8`,
+`n = 1`), jointly satisfying every field, so all five conditional results above
+are statements about a nonempty class.
+
 ## References
 
 * M. Aschbacher, *Finite Group Theory*, 2nd ed., Cambridge Univ. Press, §23.
@@ -110,7 +116,13 @@ namespace ExtraspecialLattice
 
 The two extraspecial groups `2^{1+2n}_±` of a given rank differ only in the Arf invariant
 of the *quadratic* refinement `q(xZ) = x²` of `B`; the data recorded here is exactly the
-type-independent part, which is why it suffices to prove the upper-lattice invariance. -/
+type-independent part, which is why it suffices to prove the upper-lattice invariance.
+
+Scope note (audit D1, `.tasks/f5exp/docs/vacuity-ad1-recheck.md`): the fields do not
+*force* the bindings named above — `Z` need not be the full center, `B` need not be the
+commutator form, and abelian instances exist at `n = 0`. Every theorem below is a theorem
+about this data-class; genuinely extraspecial content enters only through concrete
+witnesses such as `extraspecialD4`. -/
 structure ExtraspecialData (G : Type*) [Group G] where
   /-- The rank: `G` has order `2^{1+2n}`. -/
   n : ℕ
@@ -296,5 +308,283 @@ theorem subgroupCount_eq_of_same_rank {G₁ G₂ : Type*} [Group G₁] [Group G�
   rw [subgroupCount_eq_fixedDim E₁ hk, subgroupCount_eq_fixedDim E₂ (hn ▸ hk)]
   apply card_fixedDimSubspaces_eq_of_finrank_eq
   rw [E₁.hdimV, E₂.hdimV, hn]
+
+/-! ## A concrete model: `D₄ = 2^{1+2}_+`, the rank-`1` witness
+
+Everything above is conditional on a term of `ExtraspecialData G`. This section
+discharges the satisfiability obligation (STYLE.md: "exhibit satisfiability
+before committing a theorem: instantiate every hypothesis jointly at one
+concrete model") by constructing `extraspecialD4 : ExtraspecialData (DihedralGroup 4)`,
+the `+`-type extraspecial group of order `8 = 2^{1+2·1}`, i.e. rank `n = 1`.
+
+The four substantive fields are discharged as follows.
+
+* `hZcard` — `Z(D₄) = {1, r²}` has order `2`; kernel `decide`.
+* `isotropicImage` — this is *fact 1* at `n = 1`: a subgroup `H` with
+  `H ⊓ Z = 1` cannot contain `r² = (r¹)²`, so `H` has index neither `1`
+  (that is `H = ⊤`) nor `2` (index-`2` subgroups contain all squares,
+  `Subgroup.mul_self_mem_of_index_two`); with `|H| · [D₄ : H] = 8` this forces
+  `|H| ≤ 2`, and a subspace of the required order (`1` or `2`) that is
+  isotropic exists because every subspace of dimension `≤ 1` is isotropic for
+  an alternating form.
+* `corr` — the correspondence theorem `QuotientGroup.comapMk'OrderIso`,
+  composed with `Subgroup.toAddSubgroup` and `AddSubgroup.toZModSubmodule`
+  (over `ZMod 2` every additive subgroup is a submodule).
+* `corr_card` — the first isomorphism theorem for `H → D₄/Z` plus Lagrange:
+  the kernel is `Z` (as `Z ≤ H`), of order `2`.
+
+**On the choice of `B`.** The structure's intended `B` is the commutator form
+`B(xZ, yZ) = ⁅x,y⁆ ∈ Z ≅ 𝔽₂`; the field only constrains `B` through
+`hBnondeg` and `isotropicImage`. Here `B` is taken to be the coordinate
+symplectic form of a basis of the plane `V = D₄/Z`. This is no loss: on a
+`2`-dimensional `𝔽₂`-space the alternating bilinear forms are a
+`1`-dimensional space and the only nonzero scalar is `1`, so the nondegenerate
+alternating form is unique — the form built here *is* the commutator form read
+in these coordinates. Both properties actually used downstream are proved:
+`D4B_self` (alternating) and `D4B_nondeg`. -/
+
+section D4
+
+open DihedralGroup QuotientGroup
+
+/-- `D₄`, the dihedral group of order `8`: the `+`-type extraspecial 2-group
+`2^{1+2}_+` of rank `n = 1`. -/
+abbrev D4 : Type := DihedralGroup 4
+
+/-- The centre `Z(D₄) = {1, r²}`, of order `2`; it is also `D₄'` and `Φ(D₄)`. -/
+abbrev D4Z : Subgroup D4 := Subgroup.center D4
+
+/-- `|D₄| = 8`. -/
+lemma card_D4 : Nat.card D4 = 8 := by rw [Nat.card_eq_fintype_card, DihedralGroup.card]
+
+/-- `|Z(D₄)| = 2` — the `hZcard` field of `ExtraspecialData`, kernel-decided. -/
+lemma card_D4Z : Nat.card D4Z = 2 := by rw [Nat.card_eq_fintype_card]; decide
+
+/-- `D₄/Z(D₄)` is commutative (`D₄` has nilpotency class `2`), so the quotient
+is an elementary abelian `2`-group; kernel-decided on the `64` pairs. -/
+instance instD4QuotCommGroup : CommGroup (D4 ⧸ D4Z) :=
+  { (inferInstance : Group (D4 ⧸ D4Z)) with
+    mul_comm := by
+      intro a b
+      induction a using QuotientGroup.induction_on with
+      | H a =>
+        induction b using QuotientGroup.induction_on with
+        | H b =>
+          rw [← QuotientGroup.mk_mul, ← QuotientGroup.mk_mul, QuotientGroup.eq]
+          have h : ∀ x y : D4, (x * y)⁻¹ * (y * x) ∈ D4Z := by decide
+          exact h a b }
+
+/-- The plane `V = D₄/Z(D₄)`, written additively. -/
+abbrev D4V : Type := Additive (D4 ⧸ D4Z)
+
+/-- Every element of `V = D₄/Z` has order dividing `2`: squares of `D₄` lie in
+the centre. This is what makes `V` an `𝔽₂`-vector space. -/
+lemma two_nsmul_D4V (x : D4V) : (2 : ℕ) • x = 0 := by
+  apply Additive.toMul.injective
+  show (Additive.toMul x) ^ (2 : ℕ) = 1
+  induction (Additive.toMul x) using QuotientGroup.induction_on with
+  | H a =>
+    rw [← QuotientGroup.mk_pow, QuotientGroup.eq_one_iff]
+    have h : ∀ y : D4, y ^ 2 ∈ D4Z := by decide
+    exact h a
+
+/-- The `𝔽₂`-module structure on `V = D₄/Z`. -/
+noncomputable instance instD4VModule : Module (ZMod 2) D4V :=
+  AddCommGroup.zmodModule two_nsmul_D4V
+
+instance instD4VFinite : _root_.Finite D4V := by
+  show _root_.Finite (Additive (D4 ⧸ D4Z))
+  infer_instance
+
+noncomputable instance instD4VFiniteDimensional : FiniteDimensional (ZMod 2) D4V :=
+  Module.Finite.of_finite
+
+/-- `|V| = |D₄| / |Z(D₄)| = 4`. -/
+lemma card_D4V : Nat.card D4V = 4 := by
+  have hlag := D4Z.card_eq_card_quotient_mul_card_subgroup
+  rw [card_D4, card_D4Z] at hlag
+  have hV : Nat.card D4V = Nat.card (D4 ⧸ D4Z) := Nat.card_congr (Additive.ofMul.symm)
+  omega
+
+/-- `dim_{𝔽₂} V = 2 = 2n` at `n = 1` — the `hdimV` field. -/
+lemma finrank_D4V : finrank (ZMod 2) D4V = 2 * 1 := by
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have hp := FiniteField.pow_finrank_eq_natCard 2 D4V
+  rw [card_D4V] at hp
+  have h : (2 : ℕ) ^ finrank (ZMod 2) D4V = 2 ^ 2 := by rw [hp]; norm_num
+  have := Nat.pow_right_injective (le_refl 2) h
+  omega
+
+/-- A basis of the plane `V = D₄/Z`. -/
+noncomputable def D4basis : Basis (Fin 2) (ZMod 2) D4V :=
+  Module.finBasisOfFinrankEq (ZMod 2) D4V (by rw [finrank_D4V])
+
+/-- The symplectic form on `V`, in the coordinates of `D4basis`:
+`B(x, y) = x₀y₁ + x₁y₀`. On a `2`-dimensional `𝔽₂`-space this is the unique
+nondegenerate alternating form, hence the commutator form of `D₄` read in
+these coordinates. -/
+noncomputable def D4B : LinearMap.BilinForm (ZMod 2) D4V :=
+  (LinearMap.mul (ZMod 2) (ZMod 2)).compl₁₂ (D4basis.coord 0) (D4basis.coord 1)
+    + (LinearMap.mul (ZMod 2) (ZMod 2)).compl₁₂ (D4basis.coord 1) (D4basis.coord 0)
+
+/-- Coordinate formula for `D4B`. -/
+lemma D4B_apply (x y : D4V) :
+    D4B x y = D4basis.coord 0 x * D4basis.coord 1 y
+      + D4basis.coord 1 x * D4basis.coord 0 y := rfl
+
+/-- `D4B` is alternating: `B(x, x) = 0`. Hence every subspace of dimension
+`≤ 1` is totally isotropic. -/
+lemma D4B_self (x : D4V) : D4B x x = 0 := by
+  rw [D4B_apply]
+  have h : ∀ a b : ZMod 2, a * b + b * a = 0 := by decide
+  exact h _ _
+
+/-- `D4B` is symmetric (in characteristic `2`, alternating implies symmetric). -/
+lemma D4B_symm (x y : D4V) : D4B x y = D4B y x := by
+  rw [D4B_apply, D4B_apply]; ring
+
+/-- Left-separation for `D4B`: probing at the two basis vectors reads off both
+coordinates. -/
+lemma D4B_separatingLeft : ∀ x : D4V, (∀ y, D4B x y = 0) → x = 0 := by
+  intro x hx
+  have h0 := hx (D4basis 1)
+  have h1 := hx (D4basis 0)
+  rw [D4B_apply] at h0 h1
+  simp only [Basis.coord_apply, Basis.repr_self, Finsupp.single_apply] at h0 h1
+  norm_num at h0 h1
+  refine D4basis.ext_elem fun i => ?_
+  rw [map_zero]
+  fin_cases i
+  · simpa using h0
+  · simpa using h1
+
+/-- `D4B` is nondegenerate — the `hBnondeg` field. -/
+lemma D4B_nondeg : D4B.Nondegenerate :=
+  ⟨D4B_separatingLeft,
+    fun y hy => D4B_separatingLeft y fun x => (D4B_symm y x).trans (hy x)⟩
+
+/-- **Fact 1 at `D₄`.** A subgroup meeting the centre trivially has order at
+most `2 = 2^n`. Proof: such an `H` misses `r² = (r¹)²`, so it is neither the
+whole group (index `1`) nor of index `2` (index-`2` subgroups contain every
+square); with `|H| · [D₄ : H] = 8` this forces `|H| ≤ 2`. -/
+lemma card_le_two_of_disjoint_D4Z {H : Subgroup D4} (hH : Disjoint H D4Z) :
+    Nat.card H ≤ 2 := by
+  have hr2 : (r 2 : D4) ∈ D4Z := by decide
+  have hr2ne : (r 2 : D4) ≠ 1 := by decide
+  have hnot : (r 2 : D4) ∉ H := fun hm => hr2ne (Subgroup.disjoint_def.mp hH hm hr2)
+  have hidx1 : H.index ≠ 1 := fun h =>
+    hnot (Subgroup.index_eq_one.mp h ▸ Subgroup.mem_top (r 2))
+  have hidx2 : H.index ≠ 2 := by
+    intro h
+    have hsq : (r 1 : D4) * r 1 ∈ H := Subgroup.mul_self_mem_of_index_two h (r 1)
+    have hval : (r 1 : D4) * r 1 = r 2 := by decide
+    exact hnot (hval ▸ hsq)
+  have hcard := H.card_mul_index
+  rw [card_D4] at hcard
+  by_contra hc
+  have hgt : 3 ≤ Nat.card ↥H := by omega
+  have hi : H.index ≤ 2 := by
+    by_contra hi'
+    have hi3 : 3 ≤ H.index := by omega
+    have h9 : 3 * 3 ≤ Nat.card ↥H * H.index := Nat.mul_le_mul hgt hi3
+    omega
+  rcases (show H.index = 0 ∨ H.index = 1 ∨ H.index = 2 by omega) with h | h | h
+  · rw [h] at hcard; omega
+  · exact hidx1 h
+  · exact hidx2 h
+
+/-- The `isotropicImage` field at `D₄`: a subgroup disjoint from the centre has
+order `1` or `2` (`card_le_two_of_disjoint_D4Z`), matched by `⊥` resp. a line,
+both totally isotropic because `D4B` is alternating. -/
+lemma exists_isotropic_of_disjoint_D4Z {H : Subgroup D4} (hH : Disjoint H D4Z) :
+    ∃ W : Submodule (ZMod 2) D4V, W ≤ D4B.orthogonal W ∧ Nat.card H = Nat.card W := by
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have hle := card_le_two_of_disjoint_D4Z hH
+  have hpos : 0 < Nat.card ↥H := Nat.card_pos
+  rcases (show Nat.card ↥H = 1 ∨ Nat.card ↥H = 2 by omega) with h1 | h2
+  · exact ⟨⊥, bot_le, by rw [h1]; exact Nat.card_unique.symm⟩
+  · refine ⟨Submodule.span (ZMod 2) {D4basis 0}, ?_, ?_⟩
+    · intro m hm
+      rw [LinearMap.BilinForm.mem_orthogonal_iff]
+      intro w hw
+      obtain ⟨c, rfl⟩ := Submodule.mem_span_singleton.mp hw
+      obtain ⟨d, rfl⟩ := Submodule.mem_span_singleton.mp hm
+      simp only [map_smul, LinearMap.smul_apply, D4B_self, smul_zero]
+    · have hne : D4basis 0 ≠ 0 := D4basis.ne_zero 0
+      have hfr : finrank (ZMod 2) (Submodule.span (ZMod 2) {D4basis 0}) = 1 :=
+        finrank_span_singleton hne
+      have hc := FiniteField.pow_finrank_eq_natCard 2
+        (Submodule.span (ZMod 2) {D4basis 0})
+      rw [hfr] at hc
+      rw [h2, ← hc]
+      norm_num
+
+/-- The `corr` field at `D₄`: the correspondence theorem
+(`QuotientGroup.comapMk'OrderIso`) followed by the two type-level
+identifications `Subgroup (D₄/Z) ≃o AddSubgroup V ≃o Submodule 𝔽₂ V`. -/
+noncomputable def D4corr : { H : Subgroup D4 // D4Z ≤ H } ≃ Submodule (ZMod 2) D4V :=
+  (QuotientGroup.comapMk'OrderIso D4Z).symm.toEquiv.trans
+    ((Subgroup.toAddSubgroup : Subgroup (D4 ⧸ D4Z) ≃o AddSubgroup D4V).toEquiv.trans
+      (AddSubgroup.toZModSubmodule 2).toEquiv)
+
+/-- Order bookkeeping for the correspondence: for `Z ≤ H` the projection
+`H → D₄/Z` has image `H/Z` and kernel `Z` of order `2`, so `|H| = 2·|H/Z|`. -/
+lemma card_eq_two_mul_card_map_mk' {H : Subgroup D4} (hH : D4Z ≤ H) :
+    Nat.card ↥H = 2 * Nat.card ↥(Subgroup.map (QuotientGroup.mk' D4Z) H) := by
+  let f : H →* D4 ⧸ D4Z := (QuotientGroup.mk' D4Z).comp H.subtype
+  have hker : f.ker = D4Z.subgroupOf H := by
+    show ((QuotientGroup.mk' D4Z).comp H.subtype).ker = _
+    rw [← MonoidHom.comap_ker, QuotientGroup.ker_mk']
+    rfl
+  have hrange : f.range = Subgroup.map (QuotientGroup.mk' D4Z) H := by
+    show ((QuotientGroup.mk' D4Z).comp H.subtype).range = _
+    rw [MonoidHom.range_comp, Subgroup.range_subtype]
+  have hlag := (f.ker).card_eq_card_quotient_mul_card_subgroup
+  have hq : Nat.card (↥H ⧸ f.ker) = Nat.card ↥(f.range) :=
+    Nat.card_congr (QuotientGroup.quotientKerEquivRange f).toEquiv
+  have hk : Nat.card ↥(f.ker) = 2 := by
+    rw [hker, Nat.card_congr (Subgroup.subgroupOfEquivOfLe hH).toEquiv]
+    exact card_D4Z
+  rw [hlag, hq, hk, hrange, Nat.mul_comm]
+
+/-- The `corr_card` field at `D₄`. -/
+lemma D4corr_card (H : { H : Subgroup D4 // D4Z ≤ H }) :
+    Nat.card (H : Subgroup D4) = 2 * Nat.card (D4corr H) :=
+  card_eq_two_mul_card_map_mk' H.2
+
+/-- **The rank-`1` witness.** `D₄ = DihedralGroup 4`, of order `8 = 2^{1+2·1}`,
+carries `ExtraspecialData` with `n = 1`, `Z = Z(D₄)` of order `2`, and
+`V = D₄/Z` the `𝔽₂`-plane. Every consequence proved above —
+`card_le_of_disjoint_center`, `center_le_of_card_ge`, `upperSubgroupEquiv`,
+`subgroupCount_eq_fixedDim`, `subgroupCount_eq_of_same_rank` — is therefore a
+statement about a nonempty hypothesis class, not a conditional with no known
+model. -/
+noncomputable def extraspecialD4 : ExtraspecialData D4 where
+  n := 1
+  Z := D4Z
+  hZcard := card_D4Z
+  V := D4V
+  instAddCommGroup := inferInstance
+  instModule := inferInstance
+  instFinite := inferInstance
+  hdimV := finrank_D4V
+  B := D4B
+  hBnondeg := D4B_nondeg
+  isotropicImage := fun _ hH => exists_isotropic_of_disjoint_D4Z hH
+  corr := D4corr
+  corr_card := D4corr_card
+
+/-- The witness has rank `1`, as intended (not the degenerate `n = 0`). -/
+lemma extraspecialD4_n : extraspecialD4.n = 1 := rfl
+
+/-- Instantiation of the main theorem at the witness: for `k ≥ 2` the count of
+order-`2^k` subgroups of `D₄` is the number of `(k-1)`-dimensional subspaces of
+the `𝔽₂`-plane — `3` lines at `k = 2` (the three subgroups of order `4`) and
+`1` at `k = 3`. -/
+lemma subgroupCount_D4_eq_fixedDim {k : ℕ} (hk : 2 ≤ k) :
+    subgroupCount D4 k = Nat.card (fixedDimSubspaces (ZMod 2) D4V (k - 1)) :=
+  subgroupCount_eq_fixedDim extraspecialD4 hk
+
+end D4
 
 end ExtraspecialLattice

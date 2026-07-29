@@ -85,8 +85,9 @@
     loop form by instantiation. Instantiating either hypothesis at
     r = C·s·log k is the ALWZ/Rao/BCW/Stoeckl bound (C ≤ 64,
     arXiv:2009.09327; mstoeckl.com sunflower notes); the lemma itself
-    stays unformalized, blocked on Shannon-entropy infrastructure
-    absent from Mathlib (CONSUMER_STOECKL_SPREAD.md §7).
+    is now proved entropy-free in this library (SpreadLemma.lean; see
+    FRONTIER below), superseding the entropy-blocked framing of
+    CONSUMER_STOECKL_SPREAD.md §7.
 
   · G3 (§4) — the spread-defect bridge is REFUTED. Hypothesis H
     (task B1: τ(S(F))/τ(F) is bounded by a function of the spread
@@ -168,10 +169,19 @@
 
   FRONTIER
 
-  · The spread lemma itself (the only unformalized piece of the
-    (C·s·log k)^k bound) needs discrete Shannon entropy
-    (H(X), H(X|Y), chain rule, subadditivity), absent from Mathlib —
-    out of scope this campaign.
+  · The spread lemma itself is NO LONGER a frontier item: it is proved
+    in this library, entropy-free, as
+    `Erdos20.SpreadLemma.spread_lemma_core` / `spread_lemma` /
+    `sunflower_of_large_family` (`Erdos/Erdos20/SpreadLemma.lean`,
+    imported by the `Erdos` root). The earlier claim recorded here —
+    that it is "the only unformalized piece of the (C·s·log k)^k bound"
+    and "needs discrete Shannon entropy (H(X), H(X|Y), chain rule,
+    subadditivity), absent from Mathlib" — is superseded: the proof
+    routes through the biased-weight/second-moment argument instead of
+    entropy. The `spread_lemma` hypotheses of
+    `hasSunflower_of_forall_linkAt_isRSpread` and friends below are
+    dischargeable from it; they stay explicit so the reduction remains
+    independent of the proof route.
   · The discarded complement is unanalyzed in the literature (P8);
     any bound on it would strengthen the loop beyond the primary
     texts.

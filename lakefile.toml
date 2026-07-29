@@ -4,6 +4,11 @@ defaultTargets = ["BilinearComplexity", "GroupTPP", "Erdos",
                   "AlgComplexity", "ShearEC", "CHILO",
                   "Enumerative", "NumberComplexity", "GroupCount"]
 
+# STYLE.md: a typo under autoImplicit becomes a phantom implicit variable and the
+# theorem quantifies over the wrong thing. Disabled repo-wide (Ad1 item 4).
+[leanOptions]
+autoImplicit = false
+
 [[lean_lib]]
 name = "BilinearComplexity"
 srcDir = "Proofs"

@@ -7,8 +7,8 @@
 
   · the ALWZ/Rao/BCW spread regime [arXiv:1908.08483, 1909.04774,
     2009.09327]: R-spread families (no element-set is popular) contain
-    sunflowers via the probabilistic spread lemma — NOT formalized here
-    (that is the hard (C·s·log k)^k frontier);
+    sunflowers via the probabilistic spread lemma — proved in this
+    library, entropy-free (SpreadLemma.lean; STATUS UPDATE below);
   · the compression regime (ShiftedSunflower.lean): fully compressed
     families contain sunflowers unconditionally once
     |F| > s^(2s-2)·2^k (v2 headline, no log factor).
@@ -34,12 +34,18 @@
     a Z maximizing |F_Z|·r^|Z| has an r-spread link {S \ Z : Z ⊆ S∈F}
     at size cost r^|Z| (`exists_isRSpread_linkAt`, uniform interface
     `exists_isRSpread_linkAt_uniform`); sunflowers in the link lift
-    back (`HasSunflower.of_linkAt`), so the probabilistic spread lemma
-    is the ONLY unformalized piece of the (C·s·log k)^k bound —
+    back (`HasSunflower.of_linkAt`);
     `hasSunflower_of_forall_isRSpread` proves the reduction with the
-    spread lemma as an explicit hypothesis (no axiom, no sorry; per
-    the Stoeckl brief §7.2 the lemma itself is blocked on
-    Shannon-entropy infrastructure absent from Mathlib);
+    spread lemma as an explicit named hypothesis (no axiom, no sorry).
+    STATUS UPDATE (supersedes the earlier "only unformalized piece …
+    blocked on Shannon-entropy infrastructure absent from Mathlib"
+    framing of the Stoeckl brief §7.2): the probabilistic spread lemma
+    is now **proved in this library, entropy-free**, as
+    `Erdos20.SpreadLemma.spread_lemma_core` / `spread_lemma` /
+    `sunflower_of_large_family` (`Erdos/Erdos20/SpreadLemma.lean`,
+    imported by the `Erdos` root). Every `spread_lemma` hypothesis
+    below is dischargeable from it; the conditional phrasing is kept
+    only to keep the reduction independent of the proof route;
   · spreadness caps: r^k ≤ |F| (`IsRSpread.pow_card_le`, certifying that
     the |F| ≥ r^k hypothesis in ALWZ Theorem 1.1 is automatic) and
     k·r ≤ n (`IsRSpread.mul_le_ground`, the spread regime needs a large
@@ -48,7 +54,7 @@
     the spread/compressed decomposition question (brief §4): if F is
     covered by a designated spread part and a fully compressed part and
     beats the sum of the two thresholds, then either the spread part is
-    large (only the unformalized spread lemma can continue there) or F
+    large (continue there with `SpreadLemma.sunflower_of_large_family`) or F
     already contains an s-sunflower inherited from the compressed part
     (sunflowers in subfamilies need no pullback, unlike shift endpoints,
     cf. Counterexample.lean).
@@ -248,7 +254,8 @@ end SpreadVsShifted
 -- ════════════════════════════════════════════════════════════════════
 -- §3 DECOMPOSITION SKELETON (brief §4)
 --    The counting interface of the open decomposition question. The
---    spread half is the unformalized frontier; the compressed half is
+--    spread half continues with `SpreadLemma.sunflower_of_large_family`
+--    (now proved; header STATUS UPDATE); the compressed half is
 --    closed by ShiftedSunflower.lean, and its sunflower needs no
 --    pullback because subfamily sunflowers are family sunflowers.
 -- ════════════════════════════════════════════════════════════════════
@@ -294,12 +301,12 @@ end Decomposition
 --    form: a Z maximizing q(Z) = |F_Z|·r^|Z| has an r-spread link
 --    {S \ Z : Z ⊆ S ∈ F}, at size cost r^|Z| — no restriction loop.
 --    Sunflowers in the link lift back to F (kernel grows by Z), so
---    the probabilistic spread lemma is the ONLY unformalized piece of
---    the (C·s·log k)^k bound; `hasSunflower_of_forall_isRSpread`
---    packages that reduction with the spread lemma as an explicit
---    hypothesis (consumer brief: CONSUMER_STOECKL_SPREAD.md §5.1,
---    §7.3 — the entropy proof of the spread lemma itself is blocked
---    on Shannon-entropy infrastructure absent from Mathlib).
+--    the probabilistic spread lemma — formerly the only unformalized
+--    piece of the (C·s·log k)^k bound — is now proved entropy-free
+--    (SpreadLemma.lean; header STATUS UPDATE);
+--    `hasSunflower_of_forall_isRSpread` packages that reduction with
+--    the spread lemma as an explicit hypothesis (consumer brief:
+--    CONSUMER_STOECKL_SPREAD.md §5.1, §7.3).
 -- ════════════════════════════════════════════════════════════════════
 
 section Regularization
@@ -492,8 +499,8 @@ theorem exists_isRSpread_linkAt (r : ℚ) (hr : 0 < r)
 /-- Regularization, `k`-uniform form above the ALWZ threshold
     `|F| > r^k`: the witness `Z` has `|Z| < k`, the link is `r`-spread,
     `(k - |Z|)`-uniform, and itself beats its own threshold
-    `r^(k-|Z|)`. This is the exact interface the (unformalized,
-    entropy-blocked) spread lemma consumes. -/
+    `r^(k-|Z|)`. This is the exact interface the spread lemma
+    (`SpreadLemma.spread_lemma`, proved entropy-free) consumes. -/
 theorem exists_isRSpread_linkAt_uniform {r : ℚ} {k : ℕ} (hr : 1 ≤ r)
     {F : Finset (Finset (Fin n))} (hunif : ∀ S ∈ F, S.card = k)
     (hcard : r ^ k < (F.card : ℚ)) :

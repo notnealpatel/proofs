@@ -187,21 +187,21 @@ structure Box (n : ℕ) where
   W : Finset (Idx n)
 
 /-- The support of a box: `U ×ˢ V ×ˢ W`. -/
-def Box.support (τ : Box n) : Finset (Triple n) :=
+def Box.support {n : ℕ} (τ : Box n) : Finset (Triple n) :=
   τ.U ×ˢ (τ.V ×ˢ τ.W)
 
 /-- The size of a box is `|U| * |V| * |W|`. -/
-theorem Box.card_support (τ : Box n) :
+theorem Box.card_support {n : ℕ} (τ : Box n) :
     τ.support.card = τ.U.card * τ.V.card * τ.W.card := by
   simp [Box.support, card_product]
   ring
 
 /-- The **intersection mass** of a box with `T n`. -/
-def Box.mass (τ : Box n) : ℕ :=
+def Box.mass {n : ℕ} (τ : Box n) : ℕ :=
   (τ.support ∩ matmulSupport n).card
 
 /-- The **out-mass** of a box: `|τ| - m`. -/
-def Box.outMass (τ : Box n) : ℕ :=
+def Box.outMass {n : ℕ} (τ : Box n) : ℕ :=
   τ.support.card - τ.mass
 
 /-- An F₂-**decomposition** of `T n` is a list of boxes whose iterated
@@ -212,11 +212,11 @@ def IsDecomp (n : ℕ) (L : List (Box n)) : Prop :=
 /-! ### L0: Bridge (decomposition ↔ parity condition) -/
 
 /-- Count how many boxes in a list contain a given triple. -/
-def coverCount (t : Triple n) (L : List (Box n)) : ℕ :=
+def coverCount {n : ℕ} (t : Triple n) (L : List (Box n)) : ℕ :=
   (L.filter (fun τ => t ∈ τ.support)).length
 
 /-- If `x ∉ acc` and `x` is in none of the sets, then `x ∉ foldl Δ acc Ss`. -/
-private lemma not_mem_foldl_symmDiff_of_not_mem [DecidableEq α] {x : α}
+private lemma not_mem_foldl_symmDiff_of_not_mem {α : Type*} [DecidableEq α] {x : α}
     {acc : Finset α} (ha : x ∉ acc)
     {Ss : List (Finset α)} (hSs : ∀ S ∈ Ss, x ∉ S) :
     x ∉ Ss.foldl (· ∆ ·) acc := by
@@ -233,7 +233,7 @@ private lemma not_mem_foldl_symmDiff_of_not_mem [DecidableEq α] {x : α}
     exact ih ha' (fun S' hS' => hSs S' (List.Mem.tail _ hS'))
 
 /-- If `x ∈ foldl (· ∆ ·) ∅ Ss` then `x` is in some member of `Ss`. -/
-private lemma exists_mem_of_mem_foldl_symmDiff [DecidableEq α] {x : α}
+private lemma exists_mem_of_mem_foldl_symmDiff {α : Type*} [DecidableEq α] {x : α}
     {Ss : List (Finset α)} (h : x ∈ Ss.foldl (· ∆ ·) ∅) :
     ∃ S ∈ Ss, x ∈ S := by
   by_contra hall
@@ -241,7 +241,7 @@ private lemma exists_mem_of_mem_foldl_symmDiff [DecidableEq α] {x : α}
   exact not_mem_foldl_symmDiff_of_not_mem (by simp) hall h
 
 /-- Generalized: x ∈ foldl Δ acc Ss ↔ count parity differs from acc membership. -/
-private lemma mem_foldl_symmDiff_iff_mod [DecidableEq α] (x : α) (acc : Finset α)
+private lemma mem_foldl_symmDiff_iff_mod {α : Type*} [DecidableEq α] (x : α) (acc : Finset α)
     (Ss : List (Finset α)) :
     x ∈ Ss.foldl (· ∆ ·) acc ↔
       (Ss.countP (x ∈ ·) + if x ∈ acc then 1 else 0) % 2 = 1 := by
@@ -259,7 +259,7 @@ private lemma mem_foldl_symmDiff_iff_mod [DecidableEq α] (x : α) (acc : Finset
     all_goals (simp_all; try omega)
 
 /-- Membership in iterated symmetric difference ↔ odd count. -/
-private lemma mem_foldl_symmDiff' [DecidableEq α] (x : α) (Ss : List (Finset α)) :
+private lemma mem_foldl_symmDiff' {α : Type*} [DecidableEq α] (x : α) (Ss : List (Finset α)) :
     x ∈ Ss.foldl (· ∆ ·) ∅ ↔ Odd (Ss.countP (x ∈ ·)) := by
   rw [mem_foldl_symmDiff_iff_mod]
   simp only [show (x ∈ (∅ : Finset α)) = False from by simp, ite_false, Nat.add_zero]
@@ -307,7 +307,7 @@ theorem isDecomp_iff_parity {n : ℕ} {L : List (Box n)} :
 /-! ### L2: Shadow bound -/
 
 /-- Auxiliary: rewrite a triple as nested pairs. -/
-private lemma triple_eta (t : Triple n) : t = (t.1, t.2.1, t.2.2) := by
+private lemma triple_eta {n : ℕ} (t : Triple n) : t = (t.1, t.2.1, t.2.2) := by
   obtain ⟨a, b, c⟩ := t; rfl
 
 /-- Auxiliary: the projection `(a, b, c) ↦ (a, b)` is injective on `T n`. -/
@@ -425,7 +425,7 @@ private lemma mem_some_support_of_isDecomp {n : ℕ} {L : List (Box n)}
   exact ⟨τ, hτ_mem, hτ_eq ▸ hS⟩
 
 /-- Covering lemma: if `T ⊆ ⋃ Ss` then `|T| ≤ Σᵢ |Sᵢ ∩ T|`. -/
-private lemma card_le_sum_card_inter [DecidableEq α] :
+private lemma card_le_sum_card_inter {α : Type*} [DecidableEq α] :
     ∀ (T : Finset α) (Ss : List (Finset α)),
     T ⊆ Ss.foldr (· ∪ ·) ∅ →
     T.card ≤ (Ss.map (fun S => (S ∩ T).card)).sum := by
@@ -500,17 +500,17 @@ theorem cover_outmass_even {n : ℕ} {L : List (Box n)} (hd : IsDecomp n L) :
 /-! ### L4: Slack-0 move bound -/
 
 /-- The symmetric difference has card = |T \ S| + |S \ T|. -/
-private lemma card_symmDiff [DecidableEq α] (s t : Finset α) :
+private lemma card_symmDiff {α : Type*} [DecidableEq α] (s t : Finset α) :
     (s ∆ t).card = (s \ t).card + (t \ s).card := by
   rw [symmDiff_def, Finset.sup_eq_union,
       (card_union_eq_card_add_card).mpr disjoint_sdiff_sdiff]
 
 /-- Mass is at most box size: `m ≤ |τ|`. -/
-lemma mass_le_card_support (τ : Box n) : τ.mass ≤ τ.support.card :=
+lemma mass_le_card_support {n : ℕ} (τ : Box n) : τ.mass ≤ τ.support.card :=
   card_le_card inter_subset_left
 
 /-- Mass is at most `|T n|`: `m ≤ n³`. -/
-lemma mass_le_matmulSupport_card (τ : Box n) :
+lemma mass_le_matmulSupport_card {n : ℕ} (τ : Box n) :
     τ.mass ≤ (matmulSupport n).card :=
   card_le_card inter_subset_right
 
