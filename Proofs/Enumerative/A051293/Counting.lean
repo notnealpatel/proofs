@@ -309,7 +309,7 @@ private lemma intMean_mem_maxK {n : ℕ} {S : Finset ℕ} (hS : S ∈ intMeanSub
   refine ⟨fun x hx => Finset.mem_range.mpr (Nat.lt_succ_of_le (Finset.le_max' S x hx)),
     Finset.max'_mem S hS_ne, hS_div⟩
 
-private lemma maxK_pairwise_disjoint :
+private lemma maxK_pairwise_disjoint {n : ℕ} :
     Set.PairwiseDisjoint (↑(Finset.range n) : Set ℕ) (fun k => maxKIntMeanSubsets (k + 1)) := by
   intro i _ j _ hij
   rw [Function.onFun, Finset.disjoint_left]

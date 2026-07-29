@@ -31,11 +31,15 @@ abbrev strassenDecomp222 : Decomp (ZMod 2) 4 4 4 :=
   List.ofFn fun (s : Fin 7) =>
     (strassenU (ZMod 2) s, strassenV (ZMod 2) s, strassenW (ZMod 2) s)
 
+set_option maxHeartbeats 1600000 in
 /-- The Strassen triads sum to `matMulTensor (ZMod 2) 2 2 2`.
-Certified by `native_decide` (64-entry × 7-summand identity over F_2). -/
+Certified by **kernel** `decide` (64-entry × 7-summand identity over F_2), so the
+axiom closure stays inside `{propext, Classical.choice, Quot.sound}` — no
+compiler trust. The raised heartbeat budget is for the elaborator's `Decidable`
+evaluation; the kernel replays the same reduction. -/
 theorem strassen_isDecomp_F2 :
     isDecompB (matMulTensor (ZMod 2) 2 2 2) strassenDecomp222 = true := by
-  native_decide
+  decide
 
 /-- The exact minimum peak over all 5040 orderings of the 7 Strassen
 triads is 10. This is the certified `minpeak` of the fixed Strassen

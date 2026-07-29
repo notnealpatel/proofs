@@ -32,9 +32,18 @@ Two supplements make the tool usable end to end:
   `2 ^ shearCount Ci ≥ |K|`, i.e. `shearCount Ci ≥ log₂ |K|` shears
   (`lt_shearCount_or_card_le_two_pow_of_run` packages the dichotomy).
 * **Separation witness** (`not_isSumOfProducts_one_quad`,
-  `two_le_shearCount_of_quad`): `X₀X₁ + X₂X₃` is not a single product of two
-  linear forms over any field, so any circuit placing it in a register needs
-  `≥ 2` shears — the first concrete client of the tool.
+  `two_le_shearCount_of_quad`): the rank-4 split form
+  `X_{e0}X_{e1} + X_{e2}X_{e3}`, for any four distinct coordinates given by
+  an injective `emb : Fin 4 → Fin n`, is not a single product of two linear forms over any
+  field, so any circuit placing it in a register needs `≥ 2` shears — the first
+  concrete client of the tool. The target is stated along an arbitrary
+  coordinate embedding so that the register count `n` is decoupled from the
+  four active variables; `two_le_shearCount_of_quad_tight` exhibits the
+  hypothesis satisfied at `n = 5` (`quadWitness`, one workspace register) with
+  the bound attained. At `n = 4` — the shape in which this client was first
+  stated — the hypothesis class is believed empty (no workspace register; see
+  `.tasks/f5exp/docs/vacuity-shearec.md`), which is why the statement is
+  index-generic rather than fixed at four registers.
 
 Scope note for the elliptic-curve regime that motivates the shear model
 (`ShearEC.ShearAddition`): the post-slope EC addition step
@@ -578,113 +587,213 @@ lemma _root_.MvPolynomial.IsHomogeneous.eq_sum_C_mul_X
     intro hEq
     exact hm (by rw [← hEq, Finsupp.degree_single])
 
-/-- The scalar core of the witness: the bilinear form of `x₀x₁ + x₂x₃`
-cannot factor through two linear functionals, over any field. Probing at the
-standard basis vectors and their pairwise sums yields ten scalar equations
-whose case analysis is contradictory. -/
-lemma no_rank_one_factorization {K : Type*} [Field K] (a b : Fin 4 → K)
-    (heval : ∀ x : Fin 4 → K,
-      x 0 * x 1 + x 2 * x 3 = (∑ i, a i * x i) * (∑ i, b i * x i)) : False := by
-  have d0 : a 0 * b 0 = 0 := by
-    have h := (heval (Pi.single 0 1 : Fin 4 → K)).symm
-    simpa only [Fin.sum_univ_four, Pi.add_apply, Pi.single_apply, Fin.reduceEq,
-      reduceIte, mul_one, mul_zero, one_mul, zero_mul, add_zero, zero_add] using h
-  have d1 : a 1 * b 1 = 0 := by
-    have h := (heval (Pi.single 1 1 : Fin 4 → K)).symm
-    simpa only [Fin.sum_univ_four, Pi.add_apply, Pi.single_apply, Fin.reduceEq,
-      reduceIte, mul_one, mul_zero, one_mul, zero_mul, add_zero, zero_add] using h
-  have d2 : a 2 * b 2 = 0 := by
-    have h := (heval (Pi.single 2 1 : Fin 4 → K)).symm
-    simpa only [Fin.sum_univ_four, Pi.add_apply, Pi.single_apply, Fin.reduceEq,
-      reduceIte, mul_one, mul_zero, one_mul, zero_mul, add_zero, zero_add] using h
-  have d3 : a 3 * b 3 = 0 := by
-    have h := (heval (Pi.single 3 1 : Fin 4 → K)).symm
-    simpa only [Fin.sum_univ_four, Pi.add_apply, Pi.single_apply, Fin.reduceEq,
-      reduceIte, mul_one, mul_zero, one_mul, zero_mul, add_zero, zero_add] using h
-  have p01 : (a 0 + a 1) * (b 0 + b 1) = 1 := by
-    have h := (heval (Pi.single 0 1 + Pi.single 1 1 : Fin 4 → K)).symm
-    simpa only [Fin.sum_univ_four, Pi.add_apply, Pi.single_apply, Fin.reduceEq,
-      reduceIte, mul_one, mul_zero, one_mul, zero_mul, add_zero, zero_add] using h
-  have p23 : (a 2 + a 3) * (b 2 + b 3) = 1 := by
-    have h := (heval (Pi.single 2 1 + Pi.single 3 1 : Fin 4 → K)).symm
-    simpa only [Fin.sum_univ_four, Pi.add_apply, Pi.single_apply, Fin.reduceEq,
-      reduceIte, mul_one, mul_zero, one_mul, zero_mul, add_zero, zero_add] using h
-  have p02 : (a 0 + a 2) * (b 0 + b 2) = 0 := by
-    have h := (heval (Pi.single 0 1 + Pi.single 2 1 : Fin 4 → K)).symm
-    simpa only [Fin.sum_univ_four, Pi.add_apply, Pi.single_apply, Fin.reduceEq,
-      reduceIte, mul_one, mul_zero, one_mul, zero_mul, add_zero, zero_add] using h
-  have p03 : (a 0 + a 3) * (b 0 + b 3) = 0 := by
-    have h := (heval (Pi.single 0 1 + Pi.single 3 1 : Fin 4 → K)).symm
-    simpa only [Fin.sum_univ_four, Pi.add_apply, Pi.single_apply, Fin.reduceEq,
-      reduceIte, mul_one, mul_zero, one_mul, zero_mul, add_zero, zero_add] using h
-  have p12 : (a 1 + a 2) * (b 1 + b 2) = 0 := by
-    have h := (heval (Pi.single 1 1 + Pi.single 2 1 : Fin 4 → K)).symm
-    simpa only [Fin.sum_univ_four, Pi.add_apply, Pi.single_apply, Fin.reduceEq,
-      reduceIte, mul_one, mul_zero, one_mul, zero_mul, add_zero, zero_add] using h
-  have p13 : (a 1 + a 3) * (b 1 + b 3) = 0 := by
-    have h := (heval (Pi.single 1 1 + Pi.single 3 1 : Fin 4 → K)).symm
-    simpa only [Fin.sum_univ_four, Pi.add_apply, Pi.single_apply, Fin.reduceEq,
-      reduceIte, mul_one, mul_zero, one_mul, zero_mul, add_zero, zero_add] using h
-  have h01 : a 0 * b 1 + a 1 * b 0 = 1 := by linear_combination p01 - d0 - d1
-  have h23 : a 2 * b 3 + a 3 * b 2 = 1 := by linear_combination p23 - d2 - d3
-  have h02 : a 0 * b 2 + a 2 * b 0 = 0 := by linear_combination p02 - d0 - d2
-  have h03 : a 0 * b 3 + a 3 * b 0 = 0 := by linear_combination p03 - d0 - d3
-  have h12 : a 1 * b 2 + a 2 * b 1 = 0 := by linear_combination p12 - d1 - d2
-  have h13 : a 1 * b 3 + a 3 * b 1 = 0 := by linear_combination p13 - d1 - d3
-  rcases eq_or_ne (a 0) 0 with ha0 | ha0
-  · have ha1b0 : a 1 * b 0 = 1 := by linear_combination h01 - b 1 * ha0
-    have ha1 : a 1 ≠ 0 := left_ne_zero_of_mul_eq_one ha1b0
-    have hb1 : b 1 = 0 := (mul_eq_zero.mp d1).resolve_left ha1
-    have hb2 : b 2 = 0 := by
-      have h : a 1 * b 2 = 0 := by linear_combination h12 - a 2 * hb1
+/-- Evaluating a linear functional `∑ᵢ aᵢ·xᵢ` at the standard basis vector
+`e_j = Pi.single j 1` returns the coefficient `a j`. -/
+private lemma sum_mul_pi_single {K : Type*} [Field K] {m : ℕ} (a : Fin m → K)
+    (j : Fin m) :
+    ∑ i, a i * (Pi.single j (1 : K) : Fin m → K) i = a j := by
+  rw [Finset.sum_eq_single_of_mem j (Finset.mem_univ j)
+    (fun i _ hij => by rw [Pi.single_eq_of_ne hij, mul_zero]),
+    Pi.single_eq_same, mul_one]
+
+/-- Evaluating a linear functional at `e_j + e_k` returns `a j + a k`. -/
+private lemma sum_mul_pi_single_add {K : Type*} [Field K] {m : ℕ} (a : Fin m → K)
+    (j k : Fin m) :
+    ∑ i, a i * ((Pi.single j (1 : K) + Pi.single k (1 : K) : Fin m → K)) i
+      = a j + a k := by
+  simp only [Pi.add_apply, mul_add]
+  rw [Finset.sum_add_distrib, sum_mul_pi_single, sum_mul_pi_single]
+
+/-- The scalar core of the witness: for any four **distinct** coordinates
+`emb 0, …, emb 3` of `Kⁿ`, the bilinear form `x_{emb 0}·x_{emb 1} +
+x_{emb 2}·x_{emb 3}` cannot factor through two linear functionals, over any
+field. Probing at the four standard basis vectors and their pairwise sums
+yields ten scalar equations whose case analysis is contradictory. -/
+lemma no_rank_one_factorization {K : Type*} [Field K] {n : ℕ}
+    (emb : Fin 4 → Fin n) (hemb : Function.Injective emb) (a b : Fin n → K)
+    (heval : ∀ x : Fin n → K,
+      x (emb 0) * x (emb 1) + x (emb 2) * x (emb 3)
+        = (∑ i, a i * x i) * (∑ i, b i * x i)) : False := by
+  have hne : ∀ r s : Fin 4, r ≠ s → emb r ≠ emb s := fun r s hrs h => hrs (hemb h)
+  have d0 : a (emb 0) * b (emb 0) = 0 := by
+    have h := (heval (Pi.single (emb 0) 1)).symm
+    rw [sum_mul_pi_single a (emb 0), sum_mul_pi_single b (emb 0)] at h
+    simpa [Pi.single_apply, hne] using h
+  have d1 : a (emb 1) * b (emb 1) = 0 := by
+    have h := (heval (Pi.single (emb 1) 1)).symm
+    rw [sum_mul_pi_single a (emb 1), sum_mul_pi_single b (emb 1)] at h
+    simpa [Pi.single_apply, hne] using h
+  have d2 : a (emb 2) * b (emb 2) = 0 := by
+    have h := (heval (Pi.single (emb 2) 1)).symm
+    rw [sum_mul_pi_single a (emb 2), sum_mul_pi_single b (emb 2)] at h
+    simpa [Pi.single_apply, hne] using h
+  have d3 : a (emb 3) * b (emb 3) = 0 := by
+    have h := (heval (Pi.single (emb 3) 1)).symm
+    rw [sum_mul_pi_single a (emb 3), sum_mul_pi_single b (emb 3)] at h
+    simpa [Pi.single_apply, hne] using h
+  have p01 : (a (emb 0) + a (emb 1)) * (b (emb 0) + b (emb 1)) = 1 := by
+    have h := (heval (Pi.single (emb 0) 1 + Pi.single (emb 1) 1)).symm
+    rw [sum_mul_pi_single_add a (emb 0) (emb 1),
+      sum_mul_pi_single_add b (emb 0) (emb 1)] at h
+    simpa [Pi.single_apply, hne] using h
+  have p23 : (a (emb 2) + a (emb 3)) * (b (emb 2) + b (emb 3)) = 1 := by
+    have h := (heval (Pi.single (emb 2) 1 + Pi.single (emb 3) 1)).symm
+    rw [sum_mul_pi_single_add a (emb 2) (emb 3),
+      sum_mul_pi_single_add b (emb 2) (emb 3)] at h
+    simpa [Pi.single_apply, hne] using h
+  have p02 : (a (emb 0) + a (emb 2)) * (b (emb 0) + b (emb 2)) = 0 := by
+    have h := (heval (Pi.single (emb 0) 1 + Pi.single (emb 2) 1)).symm
+    rw [sum_mul_pi_single_add a (emb 0) (emb 2),
+      sum_mul_pi_single_add b (emb 0) (emb 2)] at h
+    simpa [Pi.single_apply, hne] using h
+  have p03 : (a (emb 0) + a (emb 3)) * (b (emb 0) + b (emb 3)) = 0 := by
+    have h := (heval (Pi.single (emb 0) 1 + Pi.single (emb 3) 1)).symm
+    rw [sum_mul_pi_single_add a (emb 0) (emb 3),
+      sum_mul_pi_single_add b (emb 0) (emb 3)] at h
+    simpa [Pi.single_apply, hne] using h
+  have p12 : (a (emb 1) + a (emb 2)) * (b (emb 1) + b (emb 2)) = 0 := by
+    have h := (heval (Pi.single (emb 1) 1 + Pi.single (emb 2) 1)).symm
+    rw [sum_mul_pi_single_add a (emb 1) (emb 2),
+      sum_mul_pi_single_add b (emb 1) (emb 2)] at h
+    simpa [Pi.single_apply, hne] using h
+  have p13 : (a (emb 1) + a (emb 3)) * (b (emb 1) + b (emb 3)) = 0 := by
+    have h := (heval (Pi.single (emb 1) 1 + Pi.single (emb 3) 1)).symm
+    rw [sum_mul_pi_single_add a (emb 1) (emb 3),
+      sum_mul_pi_single_add b (emb 1) (emb 3)] at h
+    simpa [Pi.single_apply, hne] using h
+  have h01 : a (emb 0) * b (emb 1) + a (emb 1) * b (emb 0) = 1 := by
+    linear_combination p01 - d0 - d1
+  have h23 : a (emb 2) * b (emb 3) + a (emb 3) * b (emb 2) = 1 := by
+    linear_combination p23 - d2 - d3
+  have h02 : a (emb 0) * b (emb 2) + a (emb 2) * b (emb 0) = 0 := by
+    linear_combination p02 - d0 - d2
+  have h03 : a (emb 0) * b (emb 3) + a (emb 3) * b (emb 0) = 0 := by
+    linear_combination p03 - d0 - d3
+  have h12 : a (emb 1) * b (emb 2) + a (emb 2) * b (emb 1) = 0 := by
+    linear_combination p12 - d1 - d2
+  have h13 : a (emb 1) * b (emb 3) + a (emb 3) * b (emb 1) = 0 := by
+    linear_combination p13 - d1 - d3
+  rcases eq_or_ne (a (emb 0)) 0 with ha0 | ha0
+  · have ha1b0 : a (emb 1) * b (emb 0) = 1 := by
+      linear_combination h01 - b (emb 1) * ha0
+    have ha1 : a (emb 1) ≠ 0 := left_ne_zero_of_mul_eq_one ha1b0
+    have hb1 : b (emb 1) = 0 := (mul_eq_zero.mp d1).resolve_left ha1
+    have hb2 : b (emb 2) = 0 := by
+      have h : a (emb 1) * b (emb 2) = 0 := by
+        linear_combination h12 - a (emb 2) * hb1
       exact (mul_eq_zero.mp h).resolve_left ha1
-    have hb3 : b 3 = 0 := by
-      have h : a 1 * b 3 = 0 := by linear_combination h13 - a 3 * hb1
+    have hb3 : b (emb 3) = 0 := by
+      have h : a (emb 1) * b (emb 3) = 0 := by
+        linear_combination h13 - a (emb 3) * hb1
       exact (mul_eq_zero.mp h).resolve_left ha1
     rw [hb2, hb3] at h23
     simp at h23
-  · have hb0 : b 0 = 0 := (mul_eq_zero.mp d0).resolve_left ha0
-    have ha0b1 : a 0 * b 1 = 1 := by linear_combination h01 - a 1 * hb0
-    have hb1 : b 1 ≠ 0 := right_ne_zero_of_mul_eq_one ha0b1
-    have hb2 : b 2 = 0 := by
-      have h : a 0 * b 2 = 0 := by linear_combination h02 - a 2 * hb0
+  · have hb0 : b (emb 0) = 0 := (mul_eq_zero.mp d0).resolve_left ha0
+    have ha0b1 : a (emb 0) * b (emb 1) = 1 := by
+      linear_combination h01 - a (emb 1) * hb0
+    have hb1 : b (emb 1) ≠ 0 := right_ne_zero_of_mul_eq_one ha0b1
+    have hb2 : b (emb 2) = 0 := by
+      have h : a (emb 0) * b (emb 2) = 0 := by
+        linear_combination h02 - a (emb 2) * hb0
       exact (mul_eq_zero.mp h).resolve_left ha0
-    have hb3 : b 3 = 0 := by
-      have h : a 0 * b 3 = 0 := by linear_combination h03 - a 3 * hb0
+    have hb3 : b (emb 3) = 0 := by
+      have h : a (emb 0) * b (emb 3) = 0 := by
+        linear_combination h03 - a (emb 3) * hb0
       exact (mul_eq_zero.mp h).resolve_left ha0
     rw [hb2, hb3] at h23
     simp at h23
 
-/-- **The separation witness.** Over any field, `X₀X₁ + X₂X₃` is not a
-single product of two linear forms: the rank-`4` split quadratic form is not
-product-rank `1`. -/
-theorem not_isSumOfProducts_one_quad {K : Type*} [Field K] :
-    ¬ IsSumOfProducts 1 (X 0 * X 1 + X 2 * X 3 : MvPolynomial (Fin 4) K) := by
+/-- **The separation witness.** Over any field and for any four distinct
+coordinates, `X_{emb 0}X_{emb 1} + X_{emb 2}X_{emb 3}` is not a single product
+of two linear forms: the rank-`4` split quadratic form is not product-rank
+`1`. -/
+theorem not_isSumOfProducts_one_quad {K : Type*} [Field K] {n : ℕ}
+    (emb : Fin 4 → Fin n) (hemb : Function.Injective emb) :
+    ¬ IsSumOfProducts 1
+      (X (emb 0) * X (emb 1) + X (emb 2) * X (emb 3) : MvPolynomial (Fin n) K) := by
   rintro ⟨ℓ, ℓ', h1, h2, hQ⟩
   rw [Fin.sum_univ_one] at hQ
   rw [(h1 0).eq_sum_C_mul_X, (h2 0).eq_sum_C_mul_X] at hQ
-  refine no_rank_one_factorization
+  refine no_rank_one_factorization emb hemb
     (fun i => (ℓ 0).coeff (Finsupp.single i 1))
     (fun i => (ℓ' 0).coeff (Finsupp.single i 1)) fun x => ?_
   have h := congrArg (eval x) hQ
   simpa using h
 
 /-- **First client of the lower-bound tool**: any shear circuit placing
-`X₀X₁ + X₂X₃` in a register uses at least `2` shears — while the
-degree-doubling engine alone (`Circuit.totalDegree_polys_le`) would only
-give `≥ 1`. -/
-theorem two_le_shearCount_of_quad {K : Type*} [Field K]
-    (Ci : Circuit 4 K) (t : Fin 4)
-    (hCi : polys Ci t = X 0 * X 1 + X 2 * X 3) : 2 ≤ shearCount Ci := by
-  have hcomp : homogeneousComponent 2 (X 0 * X 1 + X 2 * X 3 : MvPolynomial (Fin 4) K)
-      = X 0 * X 1 + X 2 * X 3 := by
+`X_{emb 0}X_{emb 1} + X_{emb 2}X_{emb 3}` in a register uses at least `2`
+shears — while the degree-doubling engine alone
+(`Circuit.totalDegree_polys_le`) would only give `≥ 1`.
+
+The target is the rank-4 split quadratic form pulled back along an arbitrary
+embedding `emb : Fin 4 ↪ Fin n` of coordinates, so the register count `n` is
+decoupled from the four active variables. **Satisfiability of the hypothesis**
+(STYLE.md rung 1) is exhibited at `n = 5` by `quadWitness` below, which also
+*attains* the bound (`shearCount quadWitness = 2`). At `n = 4` — the shape in
+which this client was originally stated — no witness is known and a structural
+argument (rank-4 linear-free target, four registers = four variables, hence no
+zeroable workspace register) indicates the hypothesis class is empty; see
+`.tasks/f5exp/docs/vacuity-shearec.md`, `ShearQuadraticRank` section. Instantiate
+at `n ≥ 5`. -/
+theorem two_le_shearCount_of_quad {K : Type*} [Field K] {n : ℕ}
+    (emb : Fin 4 → Fin n) (hemb : Function.Injective emb)
+    (Ci : Circuit n K) (t : Fin n)
+    (hCi : polys Ci t = X (emb 0) * X (emb 1) + X (emb 2) * X (emb 3)) :
+    2 ≤ shearCount Ci := by
+  have hcomp : homogeneousComponent 2
+      (X (emb 0) * X (emb 1) + X (emb 2) * X (emb 3) : MvPolynomial (Fin n) K)
+      = X (emb 0) * X (emb 1) + X (emb 2) * X (emb 3) := by
     rw [homogeneousComponent_of_mem ((mem_homogeneousSubmodule _ _).mpr
       (((isHomogeneous_X _ _).mul (isHomogeneous_X _ _)).add
         ((isHomogeneous_X _ _).mul (isHomogeneous_X _ _))))]
     simp
   have h := lt_shearCount_of_not_sumOfProducts (s := 1)
-    (by rw [hcomp]; exact not_isSumOfProducts_one_quad) Ci t hCi
+    (by rw [hcomp]; exact not_isSumOfProducts_one_quad emb hemb) Ci t hCi
   omega
+
+/-! ### Satisfiability witness for `two_le_shearCount_of_quad` (n = 5)
+
+The client's hypothesis is not vacuous: with one workspace register beyond the
+four active variables it is met by an explicit 2-shear circuit over `GF(11)`,
+which therefore attains the lower bound. -/
+
+/-- The affine layer of `quadWitness`: identity on registers `0,1,2,3`, zeroing
+the workspace register `4`. -/
+def quadWitnessMatrix : Fin 5 → Fin 5 → ZMod 11 :=
+  fun t j => if t = 4 then 0 else if t = j then 1 else 0
+
+/-- A 2-shear circuit on 5 registers over `GF(11)` whose workspace register `4`
+holds exactly `X₀X₁ + X₂X₃`: clear the workspace, then accumulate the two
+products into it. -/
+def quadWitness : Circuit 5 (ZMod 11) :=
+  [Gate.affine quadWitnessMatrix 0, Gate.shear 0 1 4, Gate.shear 2 3 4]
+
+/-- `quadWitness` uses exactly two shears. -/
+lemma quadWitness_shearCount : shearCount quadWitness = 2 := rfl
+
+/-- The workspace register of `quadWitness` holds the rank-4 split quadratic
+form on the nose. -/
+lemma quadWitness_polys :
+    polys quadWitness 4 = X 0 * X 1 + X 2 * X 3 := by
+  show polysFrom quadWitness X 4 = _
+  simp only [quadWitness, polysFrom, List.foldl_cons, List.foldl_nil]
+  simp [Gate.polyApp, quadWitnessMatrix]
+
+/-- The four active coordinates of the witness, as an embedding `Fin 4 ↪ Fin 5`. -/
+def quadEmb : Fin 4 → Fin 5 := ![0, 1, 2, 3]
+
+lemma quadEmb_injective : Function.Injective quadEmb := by decide
+
+/-- **Rung-1 witness (satisfiability) and tightness.** The hypothesis of
+`two_le_shearCount_of_quad` is jointly satisfiable at `n = 5`, and the bound it
+delivers is attained there: `quadWitness` computes `X₀X₁ + X₂X₃` with exactly
+two shears. -/
+theorem two_le_shearCount_of_quad_tight :
+    2 ≤ shearCount quadWitness ∧ shearCount quadWitness = 2 := by
+  haveI : Fact (Nat.Prime 11) := ⟨by norm_num⟩
+  refine ⟨two_le_shearCount_of_quad quadEmb quadEmb_injective quadWitness 4 ?_,
+    quadWitness_shearCount⟩
+  simpa [quadEmb] using quadWitness_polys
 
 end Separation
 

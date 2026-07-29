@@ -49,9 +49,10 @@ abbrev schoolbookDecomp333 : Decomp (ZMod 2) 9 9 9 :=
 
 /-! ## 3. Certified properties -/
 
-/-- The schoolbook list has exactly 27 triads. -/
+/-- The schoolbook list has exactly 27 triads. Kernel `decide` (a `List.length`
+of a literal 27-element list), so this lemma adds no compiler trust. -/
 theorem schoolbookDecomp333_length :
-    schoolbookDecomp333.length = 27 := by native_decide
+    schoolbookDecomp333.length = 27 := by decide
 
 /-- The schoolbook decomposition is a valid decomposition of
 `matMulTensor (ZMod 2) 3 3 3`. -/
