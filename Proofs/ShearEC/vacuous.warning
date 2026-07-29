@@ -1,0 +1,18 @@
+VACUITY WARNING — Proofs/ShearEC/
+Audit: 2026-07-29 vacuity sweep (branch f5exp).
+Full report: .tasks/f5exp/docs/vacuity-shearec.md
+
+SUSPECT-VACUOUS (1):
+  ShearQuadraticRank.lean:676  two_le_shearCount_of_quad
+    Hypothesis `polys Ci t = X0*X1 + X2*X3` at `Circuit 4 K`
+    (4 registers, no workspace) is likely unsatisfiable for
+    any field/shear count. Not kernel-refuted; glue argument
+    + negative search. The n = 5 analogue IS Lean-witnessed.
+    Repair: restate over `Circuit n`, n >= 5.
+    Details: vacuity-shearec.md, ShearQuadraticRank section.
+
+Everything else in this directory: sound (9/10 files, 60+
+theorems; axiom sweeps clean, model classes witnessed
+nonempty, EC law cross-checked against Sage on GF(11) and
+secp256k1). Do not cite two_le_shearCount_of_quad until the
+restatement lands.
