@@ -3,7 +3,7 @@ claim:   lopes-gnu-submultiplicativity
 status:  open; COPRIME CASE PROVABLE NOW
 stmt:    M
 proof:   M (coprime case) / open (general)
-module:  Xlib group layer; Proofs/Xlib/WreathNg.lean
+module:  Proofs/GroupTPP/ layer; Proofs/GroupTPP/WreathNg.lean
          (direct-product lower-bound flavor)
 source:  OEIS A000001 comment, Jorge R. F. F. Lopes,
          2024-04-21

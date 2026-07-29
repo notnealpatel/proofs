@@ -4,7 +4,7 @@ status:  open (unconditional part); conditional part
          proved in literature under BSD
 stmt:    L
 proof:   hard-open (contains BSD)
-module:  distant: Proofs/Xlib/ShearAddition.lean
+module:  distant: Proofs/ShearEC/ShearAddition.lean
          (same curve family)
 source:  OEIS A273929 comments
 

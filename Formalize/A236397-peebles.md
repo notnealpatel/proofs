@@ -3,7 +3,7 @@ claim:   peebles-sunflower-capset
 status:  open
 stmt:    M
 proof:   hard; term-extension refutable
-module:  Proofs/Erdos20/, Proofs/BilinearComplexity/
+module:  Proofs/Erdos/Erdos20/, Proofs/BilinearComplexity/
          SliceRank.lean (bridge target)
 source:  OEIS A236397 comment ("Peebles conjectures",
          undated)

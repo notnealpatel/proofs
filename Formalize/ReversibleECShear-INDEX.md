@@ -10,8 +10,8 @@ context below.
 - **Primitive:** the reversible **multiply-add shear** `M(u,v,w) = (u,v,w+uv)` on
   `k³` (the `F_p`-algebraic analogue of a Toffoli gate; the single nonscalar
   multiplication in the arithmetic-circuit cost model). Affine bijections are free.
-- **Already committed & green:** `Proofs/Xlib/ShearAddition.lean`
-  (`namespace Xlib.ShearAddition`), providing:
+- **Already committed & green:** `Proofs/ShearEC/ShearAddition.lean`
+  (`namespace ShearEC.ShearAddition`), providing:
   - `shear : k³ ≃ k³`; `shear_apply`, `shear_eq_add_smul` (rank-1 quadratic bump).
   - `shear_comp_normal_form` — `A₂∘M∘A₁` (affine `Aᵢ`) = affine + a *single* product
     of two affine forms · fixed vector `ℓ` (**the s=1 case of T3**).

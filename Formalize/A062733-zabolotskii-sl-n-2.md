@@ -3,7 +3,7 @@ claim:   zabolotskii-closed-form
 status:  open
 stmt:    M
 proof:   L
-module:  Proofs/Xlib/CharDegrees.lean,
+module:  Proofs/GroupTPP/CharDegrees.lean,
          Wedderburn.lean (machinery)
 source:  OEIS A062733 comment, Andrei Zabolotskii,
          2025-05-27

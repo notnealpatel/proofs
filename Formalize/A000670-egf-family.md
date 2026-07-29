@@ -3,7 +3,7 @@ claim:   bala-egf-family-periodicity
 status:  open
 stmt:    L
 proof:   hard
-module:  Proofs/Fubini.lean (special case)
+module:  Proofs/Enumerative/Fubini.lean (special case)
 source:  OEIS A000670 comment, Peter Bala, 2022-07-08
 
 CLAIM

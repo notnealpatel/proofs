@@ -4,7 +4,7 @@ status:  open (full); large bounded case PROVED in
          project (Erdos175)
 stmt:    S
 proof:   hard (unbounded); bounded strata done
-module:  Proofs/Erdos175/NotSquarefree.lean
+module:  Proofs/Erdos/Erdos175/NotSquarefree.lean
          (sorry-free, 5 <= n <= 2^30 for C(2n,n))
 source:  OEIS A046098 (T. D. Noe search bound
          2007-04-06); Erdos problem 175 lineage

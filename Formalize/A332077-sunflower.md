@@ -3,7 +3,7 @@ claim:   sunflower-conjecture
 status:  open (major)
 stmt:    S
 proof:   hard-open
-module:  Proofs/Erdos20/ (Sunflower.lean,
+module:  Proofs/Erdos/Erdos20/ (Sunflower.lean,
          ShiftedSunflower.lean, Spread.lean)
 source:  OEIS A332077 formulas (Erdos-Rado sunflower
          conjecture, standard form)

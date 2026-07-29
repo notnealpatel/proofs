@@ -7,7 +7,7 @@ status:  iso core PROVED sorry-free
 stmt:    S (iso, done) / M (rank corollary)
 proof:   DONE (iso) / blocked (rank: no Mordell-Weil
          rank in Mathlib)
-module:  Proofs/Xlib/ShearAddition.lean (conventions)
+module:  Proofs/ShearEC/ShearAddition.lean (conventions)
 source:  OEIS A319510 formula, Jose Aranda,
          2024-07-02, marked "Empirical"
 

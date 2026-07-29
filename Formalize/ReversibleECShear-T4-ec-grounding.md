@@ -24,7 +24,7 @@ cements the foundation for T1–T3.
 | `Y=λ(a−X)−b` | `W.addY a x b λ` | `negY(addX)(negAddY) → λ(a−X)−b` |
 | `c=a−X` | `a − W.addX a x λ` | — |
 
-## Lemma chain (companion file `Xlib/ShearAdditionEC.lean`)
+## Lemma chain (companion file `Proofs/ShearEC/ShearAdditionEC.lean`)
 
 - `slope_eq`: `x≠a → W.slope a x b y = (y−b)/(x−a)` — `W.slope_of_X_ne (Ne.symm h)`
   (the `@[simp]` chord lemma gives `(b−y)/(a−x)`), sign-flip by `div; ring`.

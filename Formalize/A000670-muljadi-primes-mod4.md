@@ -3,7 +3,7 @@ claim:   muljadi-fubini-primes-mod4
 status:  open
 stmt:    S
 proof:   hard
-module:  Proofs/Fubini.lean
+module:  Proofs/Enumerative/Fubini.lean
 source:  OEIS A000670 comment, Paul Muljadi, 2011-01-28
          (cf. A290376, prime Fubini numbers)
 

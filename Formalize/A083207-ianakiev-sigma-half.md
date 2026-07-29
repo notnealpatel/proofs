@@ -17,7 +17,7 @@ CLAIM
 
 LEAN
   Needs one new def (absent from Mathlib AND project —
-  the project file Proofs/Zumkeller.lean is about a
+  the project file Proofs/Enumerative/Zumkeller.lean is about a
   different identity):
     IsZumkeller n := exists S ⊆ n.divisors,
       2 * (sum S) = sigma 1 n

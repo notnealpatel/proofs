@@ -36,7 +36,7 @@ VERIFIED
                                     reproduced; both claims
                                     hold to n=60; rotateSet/
                                     reflectSet involutions in
-                                    Proofs/Zumkeller.lean apply
+                                    Proofs/Enumerative/Zumkeller.lean apply
 
   A083207-ianakiev-tau-sigma S/M    attackable once IsZumkeller
                                     built; sigma-half stays hard
@@ -108,7 +108,7 @@ STATEMENTS
   A076142-quasilog-chain-gap      M/hard  (a(n)>=0 provable)
   A250109-blomberg-recurrence     L/?     needs circuit model
   A332077-sunflower               S/open  grep-clean defs exist
-                                          in Proofs/Erdos20/;
+                                          in Proofs/Erdos/Erdos20/;
                                           Erdos-Rado n!(m-1)^n
                                           bound is a strong
                                           adjacent MAYBE card
@@ -135,7 +135,7 @@ STATEMENTS
   A060748-sondow                  L/open  rank layer absent
   A273929-bsd-congruent           L/open  point-existence
                                           reformulation is M
-  A046098-squarefree-central-binom S/hard extend Erdos175/
+  A046098-squarefree-central-binom S/hard extend Erdos/Erdos175/
                                           NotSquarefree.lean:
                                           proved core exists
                                           (squarefree_
@@ -259,45 +259,45 @@ LOCAL
   formalization files and where a real
   piece of Lean code exists in this project.
 
-  arXiv-0709-1223.md      TPP definition and API  Xlib/TPP.lean
+  arXiv-0709-1223.md      TPP definition and API  Proofs/GroupTPP/TPP.lean
   arXiv-0709-1223.md      group algebra structure tensor  Proofs/BilinearComplexity/GroupTensor.lean
-  arXiv-0709-1223.md      CU Thm 4.1 capacity bound       Xlib/CUCapacity.lean
-  arXiv-0709-1223.md      character degree multiset       Xlib/CharDegrees.lean
-  arXiv-0709-1223.md      character degree products       Xlib/CharDegreesMul.lean
-  arXiv-0908-3671.md      pairwise intersection and size bound    Xlib/TPP.lean
-  arXiv-1009-5526.md      Nath-Das Thm 2.4.1 commProb lower       Xlib/CommProbBound.lean
-  arXiv-1009-5526.md      isoclinism structure    Xlib/IsoclinismInvariants.lean
-  arXiv-1009-5526.md      extraspecial 2-group lattice    Xlib/ExtraspecialLattice.lean
-  arXiv-1011-2083.md      IsClass2 nilpotent class 2      Xlib/MurthyClass2.lean
-  arXiv-1011-2083.md      isoclinism structure    Xlib/IsoclinismInvariants.lean
-  arXiv-1101-5598.md      Hedtke Thm 1 WLOG-basic reduction       Xlib/HedtkeBasic.lean
-  arXiv-1101-5598.md      pairwise intersection bound     Xlib/TPP.lean
-  arXiv-1104-5097.md      Thm 3.1 leftQuot TPP test       Xlib/HedtkeBasic.lean
-  arXiv-1104-5097.md      TPP definition and capacity     Xlib/TPP.lean
-  arXiv-1104-5097.md      Thm 3.5 normal subgroup bound   Xlib/HedtkeMurthyNormal.lean
-  arXiv-1107-5969.md      stppCapacity definition Xlib/TPP.lean
-  arXiv-1107-5969.md      generic upper-bound lemma       Xlib/TPPLift.lean
-  arXiv-1107-5973.md      leftQuot quotient set   Xlib/TPP.lean
-  arXiv-1112-6007.md      border rank polynomial closure  Proofs/Vp2/BorderRank.lean
+  arXiv-0709-1223.md      CU Thm 4.1 capacity bound       Proofs/GroupTPP/CUCapacity.lean
+  arXiv-0709-1223.md      character degree multiset       Proofs/GroupTPP/CharDegrees.lean
+  arXiv-0709-1223.md      character degree products       Proofs/GroupTPP/CharDegreesMul.lean
+  arXiv-0908-3671.md      pairwise intersection and size bound    Proofs/GroupTPP/TPP.lean
+  arXiv-1009-5526.md      Nath-Das Thm 2.4.1 commProb lower       Proofs/GroupTPP/CommProbBound.lean
+  arXiv-1009-5526.md      isoclinism structure    Proofs/GroupTPP/IsoclinismInvariants.lean
+  arXiv-1009-5526.md      extraspecial 2-group lattice    Proofs/GroupTPP/ExtraspecialLattice.lean
+  arXiv-1011-2083.md      IsClass2 nilpotent class 2      Proofs/GroupTPP/MurthyClass2.lean
+  arXiv-1011-2083.md      isoclinism structure    Proofs/GroupTPP/IsoclinismInvariants.lean
+  arXiv-1101-5598.md      Hedtke Thm 1 WLOG-basic reduction       Proofs/GroupTPP/HedtkeBasic.lean
+  arXiv-1101-5598.md      pairwise intersection bound     Proofs/GroupTPP/TPP.lean
+  arXiv-1104-5097.md      Thm 3.1 leftQuot TPP test       Proofs/GroupTPP/HedtkeBasic.lean
+  arXiv-1104-5097.md      TPP definition and capacity     Proofs/GroupTPP/TPP.lean
+  arXiv-1104-5097.md      Thm 3.5 normal subgroup bound   Proofs/GroupTPP/HedtkeMurthyNormal.lean
+  arXiv-1107-5969.md      stppCapacity definition Proofs/GroupTPP/TPP.lean
+  arXiv-1107-5969.md      generic upper-bound lemma       Proofs/GroupTPP/TPPLift.lean
+  arXiv-1107-5973.md      leftQuot quotient set   Proofs/GroupTPP/TPP.lean
+  arXiv-1112-6007.md      border rank polynomial closure  Proofs/AlgComplexity/Vp2/BorderRank.lean
   arXiv-1112-6007.md      flattening rank lower bound     Proofs/BilinearComplexity/Flattening.lean
-  arXiv-1112-6007.md      directional flattenings Proofs/Vp2/Apolarity.lean
-  arXiv-1207-6528.md      STPP predicate  Xlib/STPPWreath.lean
-  arXiv-1207-6528.md      TPP definition  Xlib/TPP.lean
-  arXiv-1207-6528.md      pseudo-exponent and capacity    Xlib/CUCapacity.lean
-  arXiv-1305-0448.md      WLOG-basic and TPP test Xlib/HedtkeBasic.lean
-  arXiv-1305-0448.md      Thm 3.5 normal subgroup pruning Xlib/HedtkeMurthyNormal.lean
-  arXiv-1305-0448.md      additive size bound Cor 6       Xlib/TPP.lean
+  arXiv-1112-6007.md      directional flattenings Proofs/AlgComplexity/Vp2/Apolarity.lean
+  arXiv-1207-6528.md      STPP predicate  Proofs/GroupTPP/STPPWreath.lean
+  arXiv-1207-6528.md      TPP definition  Proofs/GroupTPP/TPP.lean
+  arXiv-1207-6528.md      pseudo-exponent and capacity    Proofs/GroupTPP/CUCapacity.lean
+  arXiv-1305-0448.md      WLOG-basic and TPP test Proofs/GroupTPP/HedtkeBasic.lean
+  arXiv-1305-0448.md      Thm 3.5 normal subgroup pruning Proofs/GroupTPP/HedtkeMurthyNormal.lean
+  arXiv-1305-0448.md      additive size bound Cor 6       Proofs/GroupTPP/TPP.lean
   arXiv-1401-7714.md      omega definition and bounds     Proofs/BilinearComplexity/Omega.lean
-  arXiv-1406-5145.md      border rank polynomial closure  Proofs/Vp2/BorderRank.lean
+  arXiv-1406-5145.md      border rank polynomial closure  Proofs/AlgComplexity/Vp2/BorderRank.lean
   arXiv-1406-5145.md      Conner rank-18 Waring decomposition     Proofs/CHILO/ConnerWaring.lean
   arXiv-1406-5145.md      flattening lower bound  Proofs/BilinearComplexity/Flattening.lean
-  arXiv-1411-0848.md      strengthened commProb lower bound       Xlib/CommProbBound.lean
-  arXiv-1411-0848.md      higher commuting probabilities  Xlib/HigherCommProb.lean
-  arXiv-1605-06702.md     STPP wreath convergence Xlib/STPPWreath.lean
-  arXiv-1605-06702.md     BCGPU n(G) barrier Thm 3.2      Xlib/BCGPUBarrier.lean
-  arXiv-1605-06702.md     Fourier barrier analytic core   Xlib/FourierBarrier.lean
-  arXiv-1605-06702.md     character degree n(G)   Xlib/CharDegrees.lean
-  arXiv-1605-06702.md     wreath n(G) computation Xlib/WreathNg.lean
+  arXiv-1411-0848.md      strengthened commProb lower bound       Proofs/GroupTPP/CommProbBound.lean
+  arXiv-1411-0848.md      higher commuting probabilities  Proofs/GroupTPP/HigherCommProb.lean
+  arXiv-1605-06702.md     STPP wreath convergence Proofs/GroupTPP/STPPWreath.lean
+  arXiv-1605-06702.md     BCGPU n(G) barrier Thm 3.2      Proofs/GroupTPP/BCGPUBarrier.lean
+  arXiv-1605-06702.md     Fourier barrier analytic core   Proofs/GroupTPP/FourierBarrier.lean
+  arXiv-1605-06702.md     character degree n(G)   Proofs/GroupTPP/CharDegrees.lean
+  arXiv-1605-06702.md     wreath n(G) computation Proofs/GroupTPP/WreathNg.lean
   arXiv-1605-09223.md     slice rank definition and API   Proofs/BilinearComplexity/SliceRank.lean
   arXiv-1612-01527.md     Strassen R<2,2,2> <= 7  Proofs/BilinearComplexity/Strassen.lean
   arXiv-1612-01527.md     group tensor mulTensor  Proofs/BilinearComplexity/GroupTensor.lean
@@ -305,22 +305,22 @@ LOCAL
   arXiv-1706-05074.md     omega definition via tensor rank        Proofs/BilinearComplexity/Omega.lean
   arXiv-1706-05074.md     CyclicBlock trace(X^3) identity Proofs/CHILO/CyclicBlock.lean
   arXiv-1706-05074.md     Conner Waring decomposition sM_3        Proofs/CHILO/ConnerWaring.lean
-  arXiv-1706-05074.md     border rank infrastructure      Proofs/Vp2/BorderRank.lean
+  arXiv-1706-05074.md     border rank infrastructure      Proofs/AlgComplexity/Vp2/BorderRank.lean
   arXiv-1706-05074.md     slice rank      Proofs/BilinearComplexity/SliceRank.lean
   arXiv-1712-02302.md     slice rank definition   Proofs/BilinearComplexity/SliceRank.lean
-  arXiv-1712-02302.md     STPP and STPPCond       Xlib/STPPWreath.lean
-  arXiv-1712-02302.md     omega definition        Xlib/CUCapacity.lean
-  arXiv-1712-02302.md     BCGPU barriers  Xlib/BCGPUBarrier.lean
-  arXiv-1712-02302.md     STPPCond small p-groups Xlib/MurthySmallPGroups.lean
-  arXiv-1810-08671.md     omega definition        Xlib/CUCapacity.lean
+  arXiv-1712-02302.md     STPP and STPPCond       Proofs/GroupTPP/STPPWreath.lean
+  arXiv-1712-02302.md     omega definition        Proofs/GroupTPP/CUCapacity.lean
+  arXiv-1712-02302.md     BCGPU barriers  Proofs/GroupTPP/BCGPUBarrier.lean
+  arXiv-1712-02302.md     STPPCond small p-groups Proofs/GroupTPP/MurthySmallPGroups.lean
+  arXiv-1810-08671.md     omega definition        Proofs/GroupTPP/CUCapacity.lean
   arXiv-1810-08671.md     Winograd R<2,2,2> >= 7  Proofs/BilinearComplexity/Winograd.lean
-  arXiv-1812-06952.md     border rank polynomial closure  Proofs/Vp2/BorderRank.lean
-  arXiv-1812-06952.md     omega definition        Xlib/CUCapacity.lean
-  arXiv-1910-01944.md     (111) border-apolarity test     Proofs/Vp2/Apolarity.lean
-  arXiv-1910-01944.md     border rank via vanishing ideal Proofs/Vp2/BorderRank.lean
-  arXiv-1911-07981.md     border rank and flattening API  Proofs/Vp2/BorderRank.lean
-  arXiv-1911-07981.md     (111) test Candidate111 Proofs/Vp2/Apolarity.lean
-  arXiv-1911-07981.md     Passes111 VP2 soundness Proofs/Vp2/Vp2.lean
+  arXiv-1812-06952.md     border rank polynomial closure  Proofs/AlgComplexity/Vp2/BorderRank.lean
+  arXiv-1812-06952.md     omega definition        Proofs/GroupTPP/CUCapacity.lean
+  arXiv-1910-01944.md     (111) border-apolarity test     Proofs/AlgComplexity/Vp2/Apolarity.lean
+  arXiv-1910-01944.md     border rank via vanishing ideal Proofs/AlgComplexity/Vp2/BorderRank.lean
+  arXiv-1911-07981.md     border rank and flattening API  Proofs/AlgComplexity/Vp2/BorderRank.lean
+  arXiv-1911-07981.md     (111) test Candidate111 Proofs/AlgComplexity/Vp2/Apolarity.lean
+  arXiv-1911-07981.md     Passes111 VP2 soundness Proofs/AlgComplexity/Vp2/Vp2.lean
   arXiv-1911-07981.md     flattening lower bound  Proofs/BilinearComplexity/Flattening.lean
   arXiv-1911-07981.md     slice rank      Proofs/BilinearComplexity/SliceRank.lean
   arXiv-2002-09472.md     slice rank building block       Proofs/BilinearComplexity/SliceRank.lean
@@ -328,82 +328,82 @@ LOCAL
   arXiv-2010-05846.md     omega definition and bounds     Proofs/BilinearComplexity/Omega.lean
   arXiv-2010-05846.md     Strassen R<2,2,2> <= 7  Proofs/BilinearComplexity/Strassen.lean
   arXiv-2010-05846.md     Kronecker submultiplicativity   Proofs/BilinearComplexity/KroneckerMatMul.lean
-  arXiv-2112-08681.md     commProb general lower bound    Xlib/CommProbBound.lean
-  arXiv-2112-08681.md     higher commuting probabilities  Xlib/HigherCommProb.lean
-  arXiv-2204-03826.md     BCGPU Thm 3.2 3.6 barriers      Xlib/BCGPUBarrier.lean
-  arXiv-2204-03826.md     TPP capacity and rho0   Xlib/TPP.lean
-  arXiv-2204-03826.md     pseudo-exponent CU framework    Xlib/CUCapacity.lean
-  arXiv-2204-03826.md     Fourier barrier analytic core   Xlib/FourierBarrier.lean
-  arXiv-2204-03826.md     character degrees       Xlib/CharDegrees.lean
-  arXiv-2204-03826.md     Wedderburn decomposition        Xlib/Wedderburn.lean
+  arXiv-2112-08681.md     commProb general lower bound    Proofs/GroupTPP/CommProbBound.lean
+  arXiv-2112-08681.md     higher commuting probabilities  Proofs/GroupTPP/HigherCommProb.lean
+  arXiv-2204-03826.md     BCGPU Thm 3.2 3.6 barriers      Proofs/GroupTPP/BCGPUBarrier.lean
+  arXiv-2204-03826.md     TPP capacity and rho0   Proofs/GroupTPP/TPP.lean
+  arXiv-2204-03826.md     pseudo-exponent CU framework    Proofs/GroupTPP/CUCapacity.lean
+  arXiv-2204-03826.md     Fourier barrier analytic core   Proofs/GroupTPP/FourierBarrier.lean
+  arXiv-2204-03826.md     character degrees       Proofs/GroupTPP/CharDegrees.lean
+  arXiv-2204-03826.md     Wedderburn decomposition        Proofs/GroupTPP/Wedderburn.lean
   arXiv-2210-10173.md     omega definition and bounds     Proofs/BilinearComplexity/Omega.lean
   arXiv-2210-10173.md     Strassen R<2,2,2> <= 7  Proofs/BilinearComplexity/Strassen.lean
   arXiv-2210-10173.md     Winograd R<2,2,2> >= 7  Proofs/BilinearComplexity/Winograd.lean
-  arXiv-2210-10173.md     border rank     Proofs/Vp2/BorderRank.lean
+  arXiv-2210-10173.md     border rank     Proofs/AlgComplexity/Vp2/BorderRank.lean
   arXiv-2210-10173.md     group tensor embedding  Proofs/BilinearComplexity/GroupTensor.lean
-  arXiv-2210-10173.md     CU capacity framework   Xlib/CUCapacity.lean
+  arXiv-2210-10173.md     CU capacity framework   Proofs/GroupTPP/CUCapacity.lean
   arXiv-2307-07970.md     omega definition and bounds     Proofs/BilinearComplexity/Omega.lean
   arXiv-2307-07970.md     Strassen R<2,2,2> <= 7  Proofs/BilinearComplexity/Strassen.lean
-  arXiv-2307-07970.md     CU capacity framework   Xlib/CUCapacity.lean
-  arXiv-2309-03878.md     TPP definition  Xlib/TPP.lean
-  arXiv-2309-03878.md     STPPCond small p-groups Xlib/MurthySmallPGroups.lean
-  arXiv-2311-06666.md     group algebra center basis      Xlib/GroupAlgebraCenter.lean
-  arXiv-2311-06666.md     IsClass2 nilpotent class 2      Xlib/MurthyClass2.lean
-  arXiv-2311-06666.md     small p-group TPP results       Xlib/MurthySmallPGroups.lean
-  arXiv-2311-06666.md     extraspecial 2-group lattice    Xlib/ExtraspecialLattice.lean
+  arXiv-2307-07970.md     CU capacity framework   Proofs/GroupTPP/CUCapacity.lean
+  arXiv-2309-03878.md     TPP definition  Proofs/GroupTPP/TPP.lean
+  arXiv-2309-03878.md     STPPCond small p-groups Proofs/GroupTPP/MurthySmallPGroups.lean
+  arXiv-2311-06666.md     group algebra center basis      Proofs/GroupTPP/GroupAlgebraCenter.lean
+  arXiv-2311-06666.md     IsClass2 nilpotent class 2      Proofs/GroupTPP/MurthyClass2.lean
+  arXiv-2311-06666.md     small p-group TPP results       Proofs/GroupTPP/MurthySmallPGroups.lean
+  arXiv-2311-06666.md     extraspecial 2-group lattice    Proofs/GroupTPP/ExtraspecialLattice.lean
   arXiv-2404-06427.md     omega definition        Proofs/BilinearComplexity/Omega.lean
   arXiv-2404-06427.md     tensor rank RankLE      Proofs/BilinearComplexity/Basic.lean
-  arXiv-2404-06427.md     border rank     Proofs/Vp2/BorderRank.lean
+  arXiv-2404-06427.md     border rank     Proofs/AlgComplexity/Vp2/BorderRank.lean
   arXiv-2404-06427.md     slice rank      Proofs/BilinearComplexity/SliceRank.lean
   arXiv-2404-16349.md     omega definition and bounds     Proofs/BilinearComplexity/Omega.lean
   arXiv-2404-16349.md     Strassen R<2,2,2> <= 7  Proofs/BilinearComplexity/Strassen.lean
   arXiv-2404-16349.md     Kronecker asymptotic bound      Proofs/BilinearComplexity/KroneckerMatMul.lean
   arXiv-2404-16349.md     flattening lower bound  Proofs/BilinearComplexity/Flattening.lean
-  arXiv-2410-14905.md     border rank infrastructure      Proofs/Vp2/BorderRank.lean
-  arXiv-2410-14905.md     BCGPU barriers  Xlib/BCGPUBarrier.lean
+  arXiv-2410-14905.md     border rank infrastructure      Proofs/AlgComplexity/Vp2/BorderRank.lean
+  arXiv-2410-14905.md     BCGPU barriers  Proofs/GroupTPP/BCGPUBarrier.lean
   arXiv-2410-14905.md     separating vectors      Proofs/BilinearComplexity/Conspiracy.lean
-  arXiv-2410-23034.md     commProb ConjClasses usage      Xlib/CommProbBound.lean
-  arXiv-2410-23034.md     conjugacy class count   Xlib/CharDegrees.lean
+  arXiv-2410-23034.md     commProb ConjClasses usage      Proofs/GroupTPP/CommProbBound.lean
+  arXiv-2410-23034.md     conjugacy class count   Proofs/GroupTPP/CharDegrees.lean
   arXiv-2411-15789.md     omega via omegaSet      Proofs/BilinearComplexity/Omega.lean
-  arXiv-2411-15789.md     border rank Zariski closure     Proofs/Vp2/BorderRank.lean
-  arXiv-2411-18534.md     normalizer barrier infrastructure       Xlib/BCGPUBarrier.lean
-  arXiv-2504-12263.md     Clifford theory wreath products Xlib/WreathNg.lean
-  arXiv-2504-12263.md     Clifford theory STPP    Xlib/STPPWreath.lean
-  arXiv-2509-17780.md     charDegrees multiset    Xlib/CharDegrees.lean
-  arXiv-2509-17780.md     extraspecial 2-group data       Xlib/ExtraspecialLattice.lean
-  arXiv-2509-17780.md     charDegrees extensions  Xlib/CharDegreesComm.lean
-  arXiv-2509-17780.md     charDegrees index bound Xlib/CharDegreesIndexBound.lean
-  arXiv-2512-16730.md     Thm 4.1 prime-index TPP bound   Xlib/MurthyPrimeIndex.lean
-  arXiv-2512-16730.md     TPP rho0 definition     Xlib/TPP.lean
-  arXiv-2512-16730.md     dihedral Conj 5.1 p=2 case      Proofs/DihedralTPP/Basic.lean
-  arXiv-2602-11309.md     border rank definitions Proofs/Vp2/BorderRank.lean
-  arXiv-2602-11309.md     cactus gap documentation        Proofs/Vp2/Apolarity.lean
-  arXiv-2602-11309.md     cactus barrier references       Proofs/Vp2/Vp2.lean
+  arXiv-2411-15789.md     border rank Zariski closure     Proofs/AlgComplexity/Vp2/BorderRank.lean
+  arXiv-2411-18534.md     normalizer barrier infrastructure       Proofs/GroupTPP/BCGPUBarrier.lean
+  arXiv-2504-12263.md     Clifford theory wreath products Proofs/GroupTPP/WreathNg.lean
+  arXiv-2504-12263.md     Clifford theory STPP    Proofs/GroupTPP/STPPWreath.lean
+  arXiv-2509-17780.md     charDegrees multiset    Proofs/GroupTPP/CharDegrees.lean
+  arXiv-2509-17780.md     extraspecial 2-group data       Proofs/GroupTPP/ExtraspecialLattice.lean
+  arXiv-2509-17780.md     charDegrees extensions  Proofs/GroupTPP/CharDegreesComm.lean
+  arXiv-2509-17780.md     charDegrees index bound Proofs/GroupTPP/CharDegreesIndexBound.lean
+  arXiv-2512-16730.md     Thm 4.1 prime-index TPP bound   Proofs/GroupTPP/MurthyPrimeIndex.lean
+  arXiv-2512-16730.md     TPP rho0 definition     Proofs/GroupTPP/TPP.lean
+  arXiv-2512-16730.md     dihedral Conj 5.1 p=2 case      Proofs/GroupTPP/DihedralTPP/Basic.lean
+  arXiv-2602-11309.md     border rank definitions Proofs/AlgComplexity/Vp2/BorderRank.lean
+  arXiv-2602-11309.md     cactus gap documentation        Proofs/AlgComplexity/Vp2/Apolarity.lean
+  arXiv-2602-11309.md     cactus barrier references       Proofs/AlgComplexity/Vp2/Vp2.lean
   arXiv-2602-13171.md     complexification rank bound     Proofs/BilinearComplexity/Complexify.lean
   arXiv-2602-13171.md     omega definition        Proofs/BilinearComplexity/Omega.lean
-  arXiv-2602-15796.md     Thm 3.1 rho0 < sqrt index       Xlib/MurthyClass2.lean
-  arXiv-2602-15796.md     TPP rho0 SubgroupTPP    Xlib/TPP.lean
-  arXiv-2602-15796.md     Prop 2.14 small p-group base    Xlib/MurthySmallPGroups.lean
-  arXiv-2602-15796.md     prime-index stppCapacity        Xlib/MurthyPrimeIndex.lean
-  arXiv-2605-02071.md     higherCommProb P_r definition   Xlib/HigherCommProb.lean
-  arXiv-2605-02071.md     isoclinism structure    Xlib/IsoclinismInvariants.lean
-  arXiv-math-0307321.md   CU Thm 4.1 capacity bound       Xlib/CUCapacity.lean
-  arXiv-math-0307321.md   wreath TPP and convergence      Xlib/STPPWreath.lean
-  arXiv-math-0307321.md   TPP definition  Xlib/TPP.lean
-  arXiv-math-0511460.md   SimultaneousTPP definition      Xlib/STPPWreath.lean
-  arXiv-math-0606605.md   IsClass2 p-group infrastructure Xlib/MurthyClass2.lean
-  arXiv-math-0606605.md   small p-group TPP context       Xlib/MurthySmallPGroups.lean
-  arXiv-math-0606605.md   prime-index p-group context     Xlib/MurthyPrimeIndex.lean
-  Bari-kashthesis.md      border rank BorderRankLE        Proofs/Vp2/BorderRank.lean
-  Bari-kashthesis.md      (111) apolarity test    Proofs/Vp2/Apolarity.lean
+  arXiv-2602-15796.md     Thm 3.1 rho0 < sqrt index       Proofs/GroupTPP/MurthyClass2.lean
+  arXiv-2602-15796.md     TPP rho0 SubgroupTPP    Proofs/GroupTPP/TPP.lean
+  arXiv-2602-15796.md     Prop 2.14 small p-group base    Proofs/GroupTPP/MurthySmallPGroups.lean
+  arXiv-2602-15796.md     prime-index stppCapacity        Proofs/GroupTPP/MurthyPrimeIndex.lean
+  arXiv-2605-02071.md     higherCommProb P_r definition   Proofs/GroupTPP/HigherCommProb.lean
+  arXiv-2605-02071.md     isoclinism structure    Proofs/GroupTPP/IsoclinismInvariants.lean
+  arXiv-math-0307321.md   CU Thm 4.1 capacity bound       Proofs/GroupTPP/CUCapacity.lean
+  arXiv-math-0307321.md   wreath TPP and convergence      Proofs/GroupTPP/STPPWreath.lean
+  arXiv-math-0307321.md   TPP definition  Proofs/GroupTPP/TPP.lean
+  arXiv-math-0511460.md   SimultaneousTPP definition      Proofs/GroupTPP/STPPWreath.lean
+  arXiv-math-0606605.md   IsClass2 p-group infrastructure Proofs/GroupTPP/MurthyClass2.lean
+  arXiv-math-0606605.md   small p-group TPP context       Proofs/GroupTPP/MurthySmallPGroups.lean
+  arXiv-math-0606605.md   prime-index p-group context     Proofs/GroupTPP/MurthyPrimeIndex.lean
+  Bari-kashthesis.md      border rank BorderRankLE        Proofs/AlgComplexity/Vp2/BorderRank.lean
+  Bari-kashthesis.md      (111) apolarity test    Proofs/AlgComplexity/Vp2/Apolarity.lean
   Bari-kashthesis.md      flattening lower bound  Proofs/BilinearComplexity/Flattening.lean
   Bari-kashthesis.md      group algebra mulTensor Proofs/BilinearComplexity/GroupTensor.lean
   Bari-kashthesis.md      slice rank      Proofs/BilinearComplexity/SliceRank.lean
-  gcc-2012-0006.md        TPP definition and capacity     Xlib/TPP.lean
-  gcc-2012-0006.md        Thm 3.1 computational TPP test  Xlib/HedtkeBasic.lean
-  gcc-2012-0006.md        Thm 3.5 normal subgroup bound   Xlib/HedtkeMurthyNormal.lean
-  gcc-2012-0006.md        CU omega framework      Xlib/CUCapacity.lean
-  gcc-2012-0006.md        dihedral Conj 7.5/7.6   Proofs/DihedralTPP/Basic.lean
+  gcc-2012-0006.md        TPP definition and capacity     Proofs/GroupTPP/TPP.lean
+  gcc-2012-0006.md        Thm 3.1 computational TPP test  Proofs/GroupTPP/HedtkeBasic.lean
+  gcc-2012-0006.md        Thm 3.5 normal subgroup bound   Proofs/GroupTPP/HedtkeMurthyNormal.lean
+  gcc-2012-0006.md        CU omega framework      Proofs/GroupTPP/CUCapacity.lean
+  gcc-2012-0006.md        dihedral Conj 7.5/7.6   Proofs/GroupTPP/DihedralTPP/Basic.lean
   gcc-2012-0006.md        group tensor embedding  Proofs/BilinearComplexity/GroupTensor.lean
   gcc-2012-0006.md        Wedderburn charDegree transport Proofs/BilinearComplexity/GroupTensorWedderburn.lean
   gcc-2012-0006.md        omega definition and bounds     Proofs/BilinearComplexity/Omega.lean

@@ -3,7 +3,7 @@ claim:   parity-iff-square (and prime pattern)
 status:  open
 stmt:    S
 proof:   M (plausible involution)
-module:  Proofs/A051293/ (same object family)
+module:  Proofs/Enumerative/A051293/ (same object family)
 source:  OEIS A114976 comment, unattributed
 
 CLAIM

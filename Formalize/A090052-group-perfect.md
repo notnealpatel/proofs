@@ -3,7 +3,7 @@ claim:   group-perfect-uniqueness
 status:  open
 stmt:    M
 proof:   hard
-module:  Xlib group layer
+module:  Proofs/GroupTPP/ layer
 source:  OEIS A090052 comments (unattributed
          "seems fairly certain")
 

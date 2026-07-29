@@ -3,7 +3,7 @@ claim:   barker-commuting-clique-recurrences
 status:  open
 stmt:    S
 proof:   L
-module:  Proofs/Xlib/CommProbBound.lean,
+module:  Proofs/GroupTPP/CommProbBound.lean,
          HigherCommProb.lean (commuting structure)
 source:  OEIS A135908 and A135909 formulas, Colin
          Barker, 2013-07-26

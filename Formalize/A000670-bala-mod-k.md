@@ -3,14 +3,14 @@ claim:   bala-mod-k-periodicity
 status:  open
 stmt:    S
 proof:   M (fixed k) / hard (all k)
-module:  Proofs/Fubini.lean
+module:  Proofs/Enumerative/Fubini.lean
 source:  OEIS A000670 comment, Peter Bala, 2022-07-08
          (repeated verbatim at A354242, A002050)
 
 CLAIM
   a(n) = Fubini numbers = number of ordered set
   partitions of an n-set (project def A051293.fubini,
-  Proofs/Fubini.lean). For every integer k >= 1 the
+  Proofs/Enumerative/Fubini.lean). For every integer k >= 1 the
   sequence (a(n) mod k) is eventually periodic with
   period dividing phi(k).
 

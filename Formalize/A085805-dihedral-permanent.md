@@ -3,7 +3,7 @@ claim:   dihedral-permanent-16m4
 status:  open
 stmt:    M
 proof:   unknown (bounded structure)
-module:  Proofs/Xlib/CharDegrees.lean (dihedral
+module:  Proofs/GroupTPP/CharDegrees.lean (dihedral
          degrees), DihedralTPP
 source:  OEIS A085805 comment (unattributed
          "probably")

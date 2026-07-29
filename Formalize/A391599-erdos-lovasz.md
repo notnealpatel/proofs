@@ -3,7 +3,7 @@ claim:   erdos-lovasz-3n
 status:  open (asymptotics); lower bound formalizable
 stmt:    M
 proof:   L (known lower bound) / hard (conjecture)
-module:  Proofs/Erdos20/ neighborhood
+module:  Proofs/Erdos/Erdos20/ neighborhood
 source:  OEIS A391599: conjecture attributed
          Erdos-Lovasz 1975 in-entry; recent progress
          noted in-entry (3.05n + o(1), 2026)

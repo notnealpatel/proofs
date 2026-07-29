@@ -3,7 +3,7 @@ claim:   dennis-gnu-surjectivity
 status:  open
 stmt:    M
 proof:   hard
-module:  Xlib group layer
+module:  Proofs/GroupTPP/ layer
 source:  OEIS A046057 comment (R. Keith Dennis
          conjecture); companion A053403
 

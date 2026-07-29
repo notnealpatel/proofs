@@ -4,7 +4,7 @@ status:  open; provable with effort — resolves an
          open OEIS annotation
 stmt:    M
 proof:   M-L
-module:  Proofs/Xlib/HigherCommProb.lean,
+module:  Proofs/GroupTPP/HigherCommProb.lean,
          GroupAlgebraCenter.lean
 source:  OEIS A061256 comment ("it appears", Franklin
          T. Adams-Watters lineage; the commuting-

@@ -3,8 +3,8 @@ claim:   palindrome-rows
 status:  open (odd case: provable-now)
 stmt:    S
 proof:   S (n odd) / unknown (n = 2^j)
-module:  Proofs/A051293/Counting.lean (same triangle
-         family), Proofs/Zumkeller.lean (adjacent)
+module:  Proofs/Enumerative/A051293/Counting.lean (same triangle
+         family), Proofs/Enumerative/Zumkeller.lean (adjacent)
 source:  OEIS A267632 comment, unattributed
          ("observation-conjecture")
 

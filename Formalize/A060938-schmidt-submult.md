@@ -3,7 +3,7 @@ claim:   schmidt-max-irrep-degree-submult
 status:  open; PROVABLE NOW — top burndown target
 stmt:    M
 proof:   S-M
-module:  Proofs/Xlib/CharDegrees.lean,
+module:  Proofs/GroupTPP/CharDegrees.lean,
          CharDegreesMul.lean (charDegrees_prod)
 source:  OEIS A060938 comment, Eric M. Schmidt,
          2012-10-17

@@ -3,8 +3,8 @@ claim:   cdo-gnu-iteration
 status:  open
 stmt:    M
 proof:   hard
-module:  Xlib group layer (adjacent);
-         Proofs/Xlib/MurthySmallPGroups.lean
+module:  Proofs/GroupTPP/ layer (adjacent);
+         Proofs/GroupTPP/MurthySmallPGroups.lean
 source:  OEIS A000001 comment recorded by Muniru A
          Asiru, 2017-11-19; conjecture from Conway-
          Dietrich-O'Brien 2008
