@@ -219,7 +219,7 @@ private theorem mulTensor_eq_wLam [DecidableEq G]
       = e (MonoidAlgebra.single ((Fintype.equivFin G).symm x
           * (Fintype.equivFin G).symm y * (Fintype.equivFin G).symm z) 1) := by
     simp only [wA, ← map_mul, MonoidAlgebra.single_mul_single, one_mul]
-  rw [mulTensor_apply, hprod, wLam_e_apply, MonoidAlgebra.single_apply]
+  rw [mulTensor_apply, hprod, wLam_e_apply, MonoidAlgebra.coeff_single, Finsupp.single_apply]
 
 omit [Fintype G] in
 /-- The transported functional splits over the matrix blocks. -/

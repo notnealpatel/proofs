@@ -570,8 +570,8 @@ private theorem aeval_eq_zero_of_lt_sq {k : Type*} [Field k] [Infinite k] {n r :
   -- infinitely many roots kill q
   have hq0 : q = 0 :=
     Polynomial.eq_zero_of_infinite_isRoot q
-      (((Polynomial.finite_setOf_isRoot hNdet).infinite_compl).mono
-        (by simpa [Set.compl_setOf] using fun t ht => hqzero t ht))
+      (((Polynomial.finite_setOfPred_isRoot hNdet).infinite_compl).mono
+        (by simpa [Set.compl_ofPred] using fun t ht => hqzero t ht))
   -- evaluate the vanishing at t = 0
   have h0 : (fun x : EntryIndex n => (P x).eval 0) =
       entries (fun i j l => ∑ s, a s i * b s j * c s l) := by

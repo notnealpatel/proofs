@@ -649,6 +649,6 @@ theorem isotypicLengthMultiset_eq_of_algEquiv {F : Type*} [Field F] {A : Type*} 
       (Π i, Matrix (Fin (d i)) (Fin (d i)) F)) := Fintype.ofFinite _
   rw [isotypicLengthMultiset_eq_of_ringEquiv e.toRingEquiv, isotypicLengthMultiset_pi]
   exact Multiset.map_congr rfl fun i _ => by
-    rw [length_matrix_self, Fintype.card_fin, ENat.toNat_coe]
+    rw [length_matrix_self, Fintype.card_fin, ENat.toNat_natCast]
 
 end GroupTPP.Wedderburn

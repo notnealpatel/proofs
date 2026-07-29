@@ -46,7 +46,7 @@
 import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Data.Fintype.BigOperators
 import Mathlib.Data.Fintype.Card
-import Mathlib.Data.Nat.Lattice
+import Mathlib.Order.Lattice.Nat
 import Mathlib.LinearAlgebra.Matrix.Rank
 import BilinearComplexity.Basic
 import BilinearComplexity.RankCalculus

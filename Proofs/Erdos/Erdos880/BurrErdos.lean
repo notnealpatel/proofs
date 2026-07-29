@@ -330,7 +330,7 @@ theorem restrictedSumset_oddsWithZero :
 theorem two_notMem_restrictedSumset_oddsWithZero :
     2 ∉ oddsWithZero +ᵣ oddsWithZero := by
   rw [restrictedSumset_oddsWithZero]
-  simp only [Set.mem_setOf_eq]
+  simp only [Set.mem_ofPred_eq]
   omega
 
 /-- Sharpness, gap form: `1` and `3` are consecutive elements of
@@ -342,7 +342,7 @@ theorem restrictedSumset_oddsWithZero_gap_attained :
       2 ∉ oddsWithZero +ᵣ oddsWithZero ∧
         3 ∈ oddsWithZero +ᵣ oddsWithZero := by
   rw [restrictedSumset_oddsWithZero]
-  simp only [Set.mem_setOf_eq]
+  simp only [Set.mem_ofPred_eq]
   omega
 
 /-- The pipeline end-to-end on the example: `A₀` satisfies the

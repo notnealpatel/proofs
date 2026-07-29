@@ -563,7 +563,7 @@ lemma _root_.MvPolynomial.IsHomogeneous.eq_sum_C_mul_X
     L = ∑ i, C (L.coeff (Finsupp.single i 1)) * X i := by
   ext m
   rw [coeff_sum]
-  simp only [coeff_C_mul, coeff_X']
+  simp only [coeff_C_mul, coeff_X]
   by_cases hm : m.degree = 1
   · obtain ⟨i, rfl⟩ := exists_single_of_degree_eq_one hm
     rw [Finset.sum_eq_single i

@@ -98,8 +98,7 @@ noncomputable def piMonoidAlgFwd (R : Type*) [CommSemiring R]
     (A : ι → Type*) [∀ i, Semiring (A i)] [∀ i, Algebra R (A i)]
     (M : Type*) [Monoid M] :
     MonoidAlgebra (Π j, A j) M →ₐ[R] Π j, MonoidAlgebra (A j) M :=
-  Pi.algHom R (fun j => MonoidAlgebra (A j) M)
-    (fun j => MonoidAlgebra.mapAlgHom M (Pi.evalAlgHom R A j))
+  AlgHom.pi (fun j => MonoidAlgebra.mapAlgHom M (Pi.evalAlgHom R A j))
 
 /-- **Monoid algebra distributes over Pi.** For a finite index type `ι` and
 an `ι`-indexed family of `R`-algebras `A`, the monoid algebra of the product
@@ -117,7 +116,7 @@ noncomputable def piMonoidAlgEquiv (R : Type*) [CommSemiring R]
       ext m j
       have hj : piMonoidAlgFwd R ι A M f j = piMonoidAlgFwd R ι A M g j := congrFun h j
       have hmj := Finsupp.ext_iff.mp (congrArg MonoidAlgebra.coeff hj) m
-      simp only [piMonoidAlgFwd, Pi.algHom, MonoidAlgebra.mapAlgHom,
+      simp only [piMonoidAlgFwd, AlgHom.pi, MonoidAlgebra.mapAlgHom,
         AlgHom.coe_mk, Pi.evalAlgHom] at hmj
       exact hmj,
     fun fs => by
@@ -130,7 +129,7 @@ noncomputable def piMonoidAlgEquiv (R : Type*) [CommSemiring R]
         simp only [not_exists, Finsupp.mem_support_iff, not_not] at hall
         exact hm (funext hall)
       · ext j m
-        simp only [piMonoidAlgFwd, Pi.algHom, MonoidAlgebra.mapAlgHom,
+        simp only [piMonoidAlgFwd, AlgHom.pi, MonoidAlgebra.mapAlgHom,
           AlgHom.coe_mk, Pi.evalAlgHom]
         rfl⟩
 

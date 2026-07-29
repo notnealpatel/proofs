@@ -160,7 +160,7 @@ theorem isotypicLength_eq_finrank_simple
   -- Step 1: length A c = d j
   have hlength : (Module.length A c.1).toNat = d j := by
     have h1 := (length_mapIdeal e.toRingEquiv c.1).symm
-    rw [h1, hj, length_factorIdeal, length_matrix_self, Fintype.card_fin, ENat.toNat_coe]
+    rw [h1, hj, length_factorIdeal, length_matrix_self, Fintype.card_fin, ENat.toNat_natCast]
   -- Step 2: finrank F c = (d j)²
   have hfr_c : Module.finrank F c.1 = d j * d j := by
     rw [← finrank_mapIdeal e c.1, hj, finrank_factorIdeal_matrix]
@@ -182,7 +182,7 @@ theorem isotypicLength_eq_finrank_simple
       simp [Module.length_eq_one, Finset.sum_const, Finset.card_univ, Fintype.card_fin,
         nsmul_eq_mul, mul_one]
     have := congrArg ENat.toNat hlen_c
-    simp [ENat.toNat_coe] at this
+    simp at this
     linarith [hlength]
   -- Step 4: (d j)² = (d j) * finrank F S, so finrank F S = d j
   have hpos : 0 < d j := Nat.pos_of_ne_zero (NeZero.ne (d j))

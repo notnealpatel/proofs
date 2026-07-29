@@ -50,7 +50,7 @@
 -/
 import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Data.Fintype.BigOperators
-import Mathlib.Data.Nat.Lattice
+import Mathlib.Order.Lattice.Nat
 import Mathlib.Logic.Equiv.Fin.Basic
 
 namespace BilinearComplexity
