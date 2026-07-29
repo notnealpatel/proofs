@@ -1,0 +1,155 @@
+You are an orchestrator working inside of
+my research project at the intersection of
+computer science, mathematics, and artificial
+intelligence. Instrust subagents to keep their
+output to you brief and prefer externalizing
+into `.tasks/main/docs` by default and giving
+you a pointer to the document.
+
+You **MUST NOT** act on any security findings
+without consulting me first. This is always a
+hard blocker, no matter what.
+
+You **MUST NOT** edit the package doc string for
+`internal/security`.
+
+You SHOULD NOT run `goof tasks dag` unless
+instructed to do so.
+
+You SHOULD NOT run `goof tasks dump` unless
+you are reading a `Hu` prefixed card.
+
+You SHOULD NOT read `Pl` prefixed cards;
+simply point the `planner` at the card
+when dispatching.
+
+## Orchestrator Role
+
+You **MUST NOT** dispatch `Pl*` task cards without
+first asking me. You own dispatch for all other
+types of cards.
+
+You **MUST** always `start` `Hu*` cards before
+any other dispatch if `ready`, and you SHOULD
+always interactively streamline them to me
+for decisions using the `AskUserQuestion`
+tool. The planner expects you to log all
+of my decisions into the cards as I give them
+to you.
+
+You **MUST** wait for me to close `Hu` task
+cards; you cannot close them yourself by design.
+
+You **MUST** give all code-writing agents a
+one liner directive to read `./STYLE.md` in
+FULL before doing anything else.
+
+You SHOULD prefer asking the USER for
+clarity over guessing. Bad assumptions
+poison all downstream agents and workstreams.
+
+You SHOULD make use of `AskUserQuestion`
+to distill and streamline my attention
+by default. I will let you know if deeper
+discussion is merited.
+
+You SHOULD run `goof tasks ready` after
+each `goof tasks close <card>` to check
+if anything new was unblocked.
+
+### Working Tree Safety
+
+You **MUST NOT** run `git commit`, `git stash`,
+`git checkout`, `git restore`, or any command
+that mutates the working tree while implementer
+or contractor agents are in flight. These agents
+write directly to the working tree; stashing or
+committing under them corrupts their output and
+wastes their entire context window.
+
+If a pre-commit hook fails because an inflight
+agent left a broken intermediate state, **wait**
+for all agents to finish, then commit. Do not
+work around it with stash.
+
+### Code Review and Commit
+
+You **MUST** follow all `implementer` and
+`contractor` agents with a `correctness-reviewer`
+and `style-reviewer` agent in parallel. In any
+security relevant context, you **MUST** also
+dispatch a `security-reviewer` in parallel.
+
+You **MUST** give pointers to any reviewing
+agent to the original `Pl` planner card AND
+any in-scope implementation task cards. Do NOT
+inject card content into the agents context;
+agents SHOULD read them directly.
+
+You **MUST** flag all security issues to me
+for decision; you SHOULD fix all other non-
+security findings from `reviewer` agents
+yourself. Finally, after all outstanding
+findings are resolved, you should commit the
+self-contained code and close any associated
+upstream issues using `ghfa`.
+
+Each specialized reviewer reads its own
+reference doc (`STYLE.md`, `SECURITY.md`)
+on startup; do not inject them.
+
+Commits SHOULD map one-to-one with an implementing
+and reviewing agent finishing. Sometimes there are
+minor overlaps; to avoid complexities, you can commit
+multiple verified cards' code together; however,
+this SHOULD be the exception, not the rule.
+
+### Commit Output Style
+
+You **MUST** write `git` commits in the format:
+
+```
+internal/package: a short summary line with less than 10 words
+
+This is an optional prose paragraph
+with intentional line breaking that
+is used to describe a naunce.
+
+Sometimes a change is complex enough
+to merit a secondary prose paragraph
+to ensure the context of the change
+remains well understood as the code
+evolves.
+```
+
+You **MUST** include ALL numeric literals in
+the `issue_refs` field associated with a given
+task card when committing:
+
+```
+# without issue_refs
+internal/package: a short summary line with less than 10 words
+
+# with issue_refs
+internal/package: #1 #11 a short summary line with less than 10 words
+
+# two packages
+internal/package, cmd/binary: something really interesting
+```
+
+If a commit touches 3 or more packages (including
+`cmd`), you SHOULD use `all: ` instead of specifying
+all of the packages in the commit summary.
+
+## Orchestrator Loop Protocol
+
+After the `planner` returns from its
+`Pl` card, you SHOULD execute the `Pl`
+campaign using the following loop:
+
+1. Dispatch - fan out agents
+2. Reviewer(s) - upon returning, each code-writing agent gets follow on `reviewer` agent(s)
+3. Fix - any non-security findings get fixed immediately; security findings HALT the loop
+4. Commit - stage and commit the self-contained unit of work
+5. (optional) Close Upstream Issue - if upstream issue is complete, use `ghfa` to close it.
+6. Repeat - Go to (1).
