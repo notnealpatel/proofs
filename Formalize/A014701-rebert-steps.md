@@ -1,6 +1,8 @@
 seq:     A014701
 claim:   rebert-step-doubling
-status:  open; provable with effort
+status:  PROVED 2026-07-30 in full (NumberComplexity/
+         StepWalk.lean, commit fa83e94; novelty sweep
+         NO-REFERENCE-FOUND — first recorded proof)
 stmt:    S
 proof:   M
 module:  none (small self-contained defs)

@@ -1,6 +1,8 @@
 seq:     A230528
 claim:   slizkov-doubling-gap
-status:  open (question)
+status:  FORMALIZED 2026-07-30 (NumberComplexity/
+         SlizkovDoubling.lean, commit cb84c0f; question OPEN,
+         archived; deficit scan clean to k <= 50000)
 stmt:    M
 proof:   unknown; counterexample-searchable
 module:  none (needs AdditionChain layer, see

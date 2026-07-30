@@ -1,6 +1,8 @@
 seq:     A060938
 claim:   schmidt-max-irrep-degree-submult
-status:  open; PROVABLE NOW — top burndown target
+status:  PROVED 2026-07-30 (GroupTPP/MaxIrrepDegree.lean,
+         commit 3d513bd; first recorded proof, LIKELY-KNOWN
+         tier — Serre/Isaacs corollary, see file header)
 stmt:    M
 proof:   S-M
 module:  Proofs/GroupTPP/CharDegrees.lean,
