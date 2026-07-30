@@ -1,11 +1,21 @@
 seq:     A060748
 claim:   sondow-finiteness
-status:  open
+status:  SHELVED (USER decision 2026-07-30) — do not dispatch
 stmt:    L
 proof:   hard-open
 module:  none
 source:  OEIS A060748 comment, Jonathan Sondow,
          2013-10-27
+
+SHELVED — USER DECISION, 2026-07-30 (binding for future agents)
+  Formally shelved until Mathlib grows a real Mordell-Weil
+  layer (finite generation, heights, descent) — same blocker
+  and same ruling as A031507. Do NOT build a conditional
+  rank functional (per-statement finite-generation
+  hypotheses fail the STYLE.md satisfiability bar; see the
+  A031507 card for the full reasoning). The EC rank trio's
+  sole survivor is A273929's rank-free point-existence
+  reformulation.
 
 CLAIM
   A060748(n) = smallest m such that the curve
