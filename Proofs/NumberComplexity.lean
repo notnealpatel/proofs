@@ -1,3 +1,4 @@
+import NumberComplexity.AdditionChain
 import NumberComplexity.ComplexityPatterns
 import NumberComplexity.HamiltonBallinger
 import NumberComplexity.KnuthStolarsky
