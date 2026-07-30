@@ -1,13 +1,25 @@
 seq:     A064097
 claim:   cloitre-wilson-quasilog-bounds
-status:  open; LOWER BOUND PROVABLE NOW
+status:  lower bound PROVED; 2.5·log upper stated,
+         intended sorry (2026-07-29; commit 67b13d1)
 stmt:    S
 proof:   S (lower) / delicate-open (upper)
-module:  none (small self-contained def)
+module:  Proofs/NumberComplexity/Quasilog.lean (NumberComplexity.Quasilog)
 source:  OEIS A064097 formulas: Benoit Cloitre
          2002-10-30 (log n < a(n) < 2.5 log n, n > 1);
          Robert G. Wilson v 2013-08-10
          (floor(log2 n) <= a(n))
+
+FORMALIZED (2026-07-29)
+  quasilog by WF recursion on least-prime-factor splitting; OEIS
+  defining clauses recovered as theorems incl. complete additivity
+  quasilog_mul. Wilson's log_two_le_quasilog PROVED via the sharper
+  le_two_pow_quasilog (n ≤ 2^a(n)). Cloitre's 2.5·Real.log upper bound
+  stated (≤ form, strict-< deviation disclosed in docstring), intended
+  sorry — HOLD tier, naive induction provably fails at c = 2.5.
+  27 ground checks vs the live entry. Consumer trap documented:
+  norm_num [quasilog] loops; use quasilog_of_prime /
+  quasilog_of_not_prime.
 
 CLAIM
   a : ℕ → ℕ is the completely additive function with

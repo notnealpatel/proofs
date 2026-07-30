@@ -25,6 +25,46 @@ METHODOLOGY:
   The two are independent axes.
 
 
+FORMALIZED (campaign of 2026-07-29; each item one commit,
+  orchestrator-vacuity-reviewed, axioms within
+  {propext, Classical.choice, Quot.sound} unless noted;
+  novelty verdicts in PLAN.md §6)
+
+  PROVED OUTRIGHT (sorry-free):
+  A114976-parity-square      Enumerative/MeanDivisors.lean   6677024
+                             BOTH observations + a ≡ τ (mod 2);
+                             NO prior proof found — first-proof
+                             candidate, OEIS contribution material
+  A003278-stanley-digits     Enumerative/StanleyDigits.lean  1b6db2c
+                             greedy = digits + all 3 identities
+                             (OEIS conjecture labels were stale)
+
+  PARTIALLY PROVED (open part = intended sorry):
+  A267632-palindrome-rows    Enumerative/PalindromeRows.lean 5976abf
+                             odd case proved at k ≤ n; 2^j open
+  A064097-quasilog-bounds    NumberComplexity/Quasilog.lean  67b13d1
+                             log₂ lower proved; 2.5·log open
+  A000670-bala-mod-k         Enumerative/FubiniMod.lean      51d04f5
+                             k = 2, 4, 16 proved; general k open
+
+  SHARED DEF LAYERS LANDED (sorry-free; see SHARED NEW DEFS):
+  IsZumkeller + coprime closure   Enumerative/IsZumkeller.lean    39af612
+  AdditionChain + l(n)            NumberComplexity/AdditionChain.lean 2502e11
+  integer complexity (+ proved    NumberComplexity/IntComplexity.lean c1675e3
+    master recurrence equality)
+  covering systems + Erdős witness Erdos/Covering/Basic.lean      f2cd3df
+  covering number τ               Erdos/CoveringNumber.lean       70c8faf
+  capset numbers (ThreeAPFree)    BilinearComplexity/Capset.lean  867bd21
+  Boolean semiring rank           BilinearComplexity/BooleanRank.lean 6c92fb2
+                             (consumers MUST use BoolSemiring, not
+                             Bool — Mathlib Bool is xor/𝔽₂)
+  Fin n group structures Fintype  GroupCount/Structures.lean      14cfacd
+                             (one native_decide example, trust-noted)
+
+  NOT started (writer crashed; card self-contained):
+  A014701-rebert-steps       stub annotated at
+                             NumberComplexity/StepWalk.lean
+
 VERIFIED
 
   The following passed computational verification
@@ -32,14 +72,14 @@ VERIFIED
   proved in Lean; these are the vetted candidates
   awaiting USER approval for a proof campaign.
 
-  A114976-parity-square      S/M    gate PASSED: 43 OEIS terms
-                                    reproduced; both claims
-                                    hold to n=60; rotateSet/
-                                    reflectSet involutions in
-                                    Proofs/Enumerative/Zumkeller.lean apply
+  A114976-parity-square      S/M    → PROVED 2026-07-29, see
+                                    FORMALIZED (the ROUTE's
+                                    reflection involution was
+                                    wrong; mean-toggle works)
 
-  A083207-ianakiev-tau-sigma S/M    attackable once IsZumkeller
-                                    built; sigma-half stays hard
+  A083207-ianakiev-tau-sigma S/M    attackable NOW: IsZumkeller
+                                    landed (39af612); sigma-half
+                                    stays hard
 
 
 BURNDOWN QUEUE
@@ -48,16 +88,20 @@ BURNDOWN QUEUE
 
   1. A060938-schmidt-submult          stmt M proof S-M
      uses project charDegrees_prod; proves an unproved
-     OEIS comment outright. TOP TARGET.
-  2. A267632-palindrome-rows          stmt S proof S
-     (odd-n case only; complement involution)
-  3. A064097-quasilog-bounds          stmt S proof S
-     (lower bound only; upper bound is NOT easy)
+     OEIS comment outright. TOP TARGET. Now UNBLOCKED:
+     GroupCount/Structures.lean landed (14cfacd).
+  2. A267632-palindrome-rows          → odd case PROVED
+     2026-07-29 (see FORMALIZED); 2^j case open
+  3. A064097-quasilog-bounds          → lower bound PROVED
+     2026-07-29 (see FORMALIZED); upper open
   4. A000001-lopes-submult            stmt M proof M
-     (coprime case only; order-divides-i recovery)
-  5. A003278-stanley-digits           stmt S proof M
-     (greedy = base-3 no-2 chars, then 3 identities)
+     (coprime case only; order-divides-i recovery;
+     blocked on Gnu.lean, E1/E2 in PLAN.md)
+  5. A003278-stanley-digits           → PROVED in full
+     2026-07-29 (see FORMALIZED)
   6. A014701-rebert-steps             stmt S proof M
+     (writer crashed 2026-07-29; needs re-dispatch;
+     stub annotated in NumberComplexity/StepWalk.lean)
   7. A319510-aranda-iso               iso core DONE
      (sorry-free: Proofs/Scratch/CongrCurveIso.lean,
      module Scratch.CongrCurveIso; rank corollary
@@ -153,36 +197,57 @@ STATEMENTS
 SHARED NEW DEFS (build once; unlock counts)
 
   The following are high yield build-
-  once-unlock-counts
+  once-unlock-counts.
+  Status as of 2026-07-29: all but gnu and
+  Nat.Practical are BUILT, reviewed, committed
+  (see FORMALIZED for modules/commits); their
+  unlocked consumers are dispatchable now.
 
-  IsZumkeller           unlocks 4 files (A083207 x2,
-                        A007691-zumkeller, + Neder gap-12
-                        as anchor theorem)
+  IsZumkeller           BUILT (39af612). unlocks 4 files
+                        (A083207 x2, A007691-zumkeller,
+                        + Neder gap-12 as anchor theorem);
+                        closure engine needs only
+                        coprimality (positivity derivable)
 
-  AdditionChain + l(n)  unlocks 4 (A003313, A230528,
-                        A076142, A014701 comparisons)
+  AdditionChain + l(n)  BUILT (2502e11). unlocks 4
+                        (A003313, A230528, A076142,
+                        A014701 comparisons)
 
   gnu(n) via Fin n group structures + decidable iso
+                        HALF-BUILT: structures Fintype
+                        landed (14cfacd); the iso-class
+                        quotient (Gnu.lean) is stubbed and
+                        carries a USER trust fork
+                        (native_decide vs classification
+                        certificates) — see PLAN.md.
                         unlocks 5 (A000001 x2, A046057,
                         A090052, feeds A060938 def shape)
 
-  capset in (ZMod 3)^n  unlocks A236397 + future
+  capset in (ZMod 3)^n  BUILT (867bd21), via Mathlib
+                        ThreeAPFree + addRothNumber.
+                        unlocks A236397 + future
                         Ellenberg-Gijswijt vs project
                         SliceRank.lean (highest-leverage
                         bridge)
 
-  integer complexity    unlocks A005245, A005520
+  integer complexity    BUILT (c1675e3), with PROVED
+                        master recurrence equality.
+                        unlocks A005245, A005520
 
-  covering systems      unlocks A039669, A089654 (+
-                        Sierpinski territory)
+  covering systems      BUILT (f2cd3df). unlocks A039669,
+                        A089654 (+ Sierpinski territory)
 
-  Nat.Practical         unlocks A007691-coleman +
-                        Stewart's theorem
+  Nat.Practical         NOT BUILT. unlocks A007691-coleman
+                        + Stewart's theorem
 
-  tau (covering number) unlocks A391599 + intersecting-
+  tau (covering number) BUILT (70c8faf) as coveringNumber;
+                        consumers MUST carry ∅ ∉ F.
+                        unlocks A391599 + intersecting-
                         family neighborhood
 
-  Boolean semiring rank unlocks A354741 (+ A286331 GF(2)
+  Boolean semiring rank BUILT (6c92fb2); consumers MUST
+                        use BoolSemiring, not Bool.
+                        unlocks A354741 (+ A286331 GF(2)
                         rank distribution as S-sized bonus)
 
 
@@ -196,13 +261,21 @@ MATHLIB GAPS
 
   Updated 2026-07-23.
 
+  Gaps marked [PROJECT] are still absent from Mathlib
+  but now carried by this repo (2026-07-29 campaign);
+  they remain novel-formalization upstreaming candidates.
+
   sunflowers (any def)          absent
-  capsets                       absent
-  covering number tau           absent
-  addition chains               absent
-  integer complexity            absent
+  capsets                       [PROJECT] BilinearComplexity/Capset.lean
+                                (via Mathlib ThreeAPFree — the
+                                extremal numbers + char-3 bridge
+                                are the new layer)
+  covering number tau           [PROJECT] Erdos/CoveringNumber.lean
+  addition chains               [PROJECT] NumberComplexity/AdditionChain.lean
+  integer complexity            [PROJECT] NumberComplexity/IntComplexity.lean
   circuit/mult. complexity      absent
-  gnu / group counting          absent
+  gnu / group counting          half: [PROJECT] GroupCount/Structures.lean
+                                (labeled count; iso quotient pending)
   commuting graph               absent
   character tables as data      absent
   5/8 commProb bound            absent (project
@@ -211,11 +284,12 @@ MATHLIB GAPS
     AddEquiv                    absent (postdoc in flight)
   Mordell-Weil rank             absent
   congruent numbers             absent
-  covering congruences          absent
+  covering congruences          [PROJECT] Erdos/Covering/Basic.lean
   Nat.Practical                 absent
   perfect-power predicate       absent
   EGF API                       absent
-  popcount                      absent (one-liner)
+  popcount                      absent (one-liner;
+                                W4 crash left it unbuilt)
 
   NOT a gap: Burnside IS present in Mathlib
   (MulAction.sum_card_fixedBy_eq_card_orbits_

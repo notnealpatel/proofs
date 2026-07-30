@@ -47,7 +47,26 @@ post-review as its `.lean` file PLUS its aggregator import line.** Still
 uncommitted: this PLAN.md and the six §2 files. The full-build gate
 passed at commit time (8820 jobs; intended sorries only).
 
+**Second drain (2026-07-29, post-quota-halt):** the six §2 lanes were
+reviewed by the ORCHESTRATOR IN-PLACE (USER-directed vacuity-grade
+review: full read, statement audit, independent `#print axioms` sweep,
+fresh instantiations, live OEIS re-pulls, semantic probes) and committed
+one per lane with their aggregator import lines:
+
+| Commit | File | Review outcome |
+|---|---|---|
+| 6677024 | `Enumerative/MeanDivisors.lean` | SOUND, zero findings; first-proof candidate (§6) |
+| 2502e11 | `NumberComplexity/AdditionChain.lean` | SOUND; one docstring drift fixed (Hasler convention) |
+| c1675e3 | `NumberComplexity/IntComplexity.lean` | SOUND, zero findings; master equality proved both ways |
+| 6c92fb2 | `BilinearComplexity/BooleanRank.lean` | SOUND; 𝔽₂-vs-Boolean probe `J₃−I₃` promoted to permanent check |
+| 51d04f5 | `Enumerative/FubiniMod.lean` | SOUND; Poonen 1988 attribution added |
+| 1b6db2c | `Enumerative/StanleyDigits.lean` | SOUND; Odlyzko–Stanley 1978 + stale-label note added |
+
+The working tree is CLEAN: every written campaign lane is reviewed and
+committed. §2 below is retained for historical context only.
+
 ## 2. Written, awaiting review — do NOT commit until reviewed
+   (RESOLVED 2026-07-29 — all six committed, see table above)
 
 Writer reports were clean and axiom-audited in each case; the quota halt
 killed or preempted their review pairs. Notes in `.tasks/main/docs/`.
@@ -153,8 +172,12 @@ A007691-coleman + Stewart).
 
 1. Read `Prompts/User/ORCHESTRATING` and `STYLE.md` in FULL. Check
    `goof sys` for headroom. This file is the campaign state; trust §1–§4.
-2. Resume point: verify W9 StanleyDigits landed (writer report, module
-   builds); commit the scaffolding (§1); full-build gate.
+2. Resume point (updated 2026-07-29, second drain): scaffolding AND all
+   fourteen written lanes are committed; the tree is clean. Blocked-on-
+   review gates E3, E6, E9 are now OPEN alongside E1, E4, E5, E7, E8.
+   Next dispatch per §5.5: E1 MaxIrrepDegree, then E4. The Formalize/
+   INDEX and touched cards carry FORMALIZED sections mirroring this
+   state.
 3. Per-lane loop: dispatch prover writer (one file; STYLE-first
    one-liner; fences of §4) → on return, vacuity-cop + reviewer in
    parallel → orchestrator fixes non-security findings itself →
@@ -185,8 +208,18 @@ A007691-coleman + Stewart).
 ## 6. Novelty status of proved OEIS observations (literature checks)
 
 Flash literature sweeps were dispatched 2026-07-29 for the four lanes
-that proved OEIS-recorded observations. Verdicts land in this section;
-update file docstrings/OEIS attributions accordingly.
+that proved OEIS-recorded observations; all four verdicts are in and
+recorded below AND in the corresponding file headers and Formalize
+cards. FINAL SWEEP CLOSURE (2026-07-29): the remaining committed
+material was assessed and needs no further sweep — IsZumkeller closure
+(Rao–Peng, cited), covering systems (Erdős 1950), transversal number
+(standard), cap-set bridge (folklore char-3), group-structure counts
+(A034383, textbook), `l(2^k) = k` (Knuth), integer-complexity
+recurrence (in the OEIS entry itself; the master-equality proof is
+formalization value, not mathematical novelty). Net result of the
+campaign: ONE first-proof candidate (A114976, below); everything else
+is formalization of known or de-facto-known mathematics, now correctly
+attributed in-file.
 
 - **A267632 odd-case palindrome (W7, committed)** — LIKELY-KNOWN:
   one-line corollary of Ramanathan 1944 / Barnes 1959 (Hadjicostas's

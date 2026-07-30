@@ -1,12 +1,22 @@
 seq:     A267632
 claim:   palindrome-rows
-status:  open (odd case: provable-now)
+status:  odd case PROVED; n = 2^j stated, intended sorry
+         (2026-07-29; commit 5976abf)
 stmt:    S
 proof:   S (n odd) / unknown (n = 2^j)
-module:  Proofs/Enumerative/A051293/Counting.lean (same triangle
-         family), Proofs/Enumerative/Zumkeller.lean (adjacent)
+module:  Proofs/Enumerative/PalindromeRows.lean (Enumerative.PalindromeRows)
 source:  OEIS A267632 comment, unattributed
          ("observation-conjecture")
+
+FORMALIZED (2026-07-29)
+  T_symm_of_odd : Odd n → k ≤ n → T n k = T n (n - k) — proved via the
+  card's complement route, at the STRONGER range k ≤ n (endpoints
+  kernel-verified; the OEIS truncated-row claim is a restriction).
+  T_symm_of_two_pow (1 ≤ k < 2^j) — stated, intended sorry (open).
+  Rows 1–8 kernel-checked vs the live entry; sharpness controls at
+  rows 6, 10, 12. Literature sweep 2026-07-29: LIKELY-KNOWN
+  (one-line corollary of Ramanathan 1944 / Barnes 1959, never stated
+  explicitly; OEIS label stale); see PLAN.md §6.
 
 CLAIM
   T(n,k) = number of k-element subsets of {1,...,n}

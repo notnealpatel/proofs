@@ -1,13 +1,28 @@
 seq:     A003278
 claim:   stanley-digit-identities
-status:  open (identities); base-3 characterization
-         provable now
+status:  PROVED — characterization AND all identities
+         (2026-07-29, sorry-free; commit 1b6db2c)
 stmt:    S
 proof:   M
-module:  none (Nat.digits 3 + ThreeAPFree suffice)
+module:  Proofs/Enumerative/StanleyDigits.lean (Enumerative.StanleyDigits)
 source:  OEIS: L. Edson Jeffery 2015-11-26 (A003278,
          A055246, A191107 relations); Michel Marcus
          2016-08-24; Arie Bos 2022-08-07 (at A191107)
+
+FORMALIZED (2026-07-29)
+  stanleyGreedy_eq_stanleyDigits — genuine greedy (Nat.find/IsLeast
+  over ThreeAPFree) = binary-read-in-ternary closed form, via the
+  keepOnes/capDigits averaging witnesses. Identities, multiplicative:
+  three_mul_stanleyGreedy (3a = A191107 + 2), six_mul_stanleyGreedy
+  (6a = A055246 + 5), a055246_add_one, Bos a191107_eq_stanleyGreedy_two_mul,
+  Stephan recurrences. Rule sets pinned by range equality + StrictMono +
+  uniqueness + Nat.nth; A055246 formalized in Jeffery's rule form (not
+  the Cantor-interval definition). native_decide only in trust-noted
+  ground checks; named theorems at {propext, Classical.choice,
+  Quot.sound}. Literature sweep 2026-07-29: identities were
+  CONJECTURED-IN-OEIS-ONLY but follow from closed-form PARI programs in
+  the entries (stale labels); characterization is Odlyzko–Stanley 1978.
+  See PLAN.md §6.
 
 CLAIM
   A003278 = Stanley sequence: greedy increasing

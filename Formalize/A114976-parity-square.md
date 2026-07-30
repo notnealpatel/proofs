@@ -1,10 +1,23 @@
 seq:     A114976
 claim:   parity-iff-square (and prime pattern)
-status:  open
+status:  PROVED (2026-07-29, sorry-free; commit 6677024)
 stmt:    S
 proof:   M (plausible involution)
-module:  Proofs/Enumerative/A051293/ (same object family)
+module:  Proofs/Enumerative/MeanDivisors.lean (Enumerative.MeanDivisors)
 source:  OEIS A114976 comment, unattributed
+
+FORMALIZED (2026-07-29)
+  Both observations proved, plus the sharper congruence:
+    a_eq_two_iff_prime      : a n = 2 ↔ n.Prime
+    odd_a_iff_isSquare      : n ≠ 0 → (Odd (a n) ↔ IsSquare n)
+    a_modEq_card_divisors   : a n ≡ τ(n) [MOD 2]
+  Proof mechanism: the card's reflection involution x ↦ n+1-x is
+  provably WRONG (does not preserve the counted family); the working
+  involution is the mean-toggle (toggle membership of the element m in
+  a mean-m subset). Axioms exactly {propext, Classical.choice,
+  Quot.sound}; kernel decide only. Literature sweep 2026-07-29 found NO
+  prior proof of (ii) or the τ congruence — first-recorded-proof
+  status; see PLAN.md §6. OEIS contribution candidate.
 
 CLAIM
   a(n) = number of subsets of {1,...,n} whose
