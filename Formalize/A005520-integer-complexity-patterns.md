@@ -1,6 +1,10 @@
 seq:     A005520
 claim:   record-holder-patterns
-status:  open
+status:  FORMALIZED 2026-07-30 (NumberComplexity/
+         ComplexityPatterns.lean, commit 3559616; records
+         a(1)..a(23) certified; both open claims archived —
+         claim (i) satisfiability is non-local, needs
+         a(26) = 1439 beyond the committed table)
 stmt:    M
 proof:   unknown
 module:  none (shares defs with A005245 file)

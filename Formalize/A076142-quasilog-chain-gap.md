@@ -1,6 +1,9 @@
 seq:     A076142
 claim:   gap-sum-constant
-status:  open
+status:  nonnegativity PROVED 2026-07-30 (NumberComplexity/
+         QuasilogChainGap.lean, commit bf57463; Scholz-Brauer
+         ingredients, first recorded proof of the comparison);
+         the c-constant limit stays OPEN (intended sorry)
 stmt:    M
 proof:   hard
 module:  none (shares defs with A003313 and A064097

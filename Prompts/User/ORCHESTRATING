@@ -153,3 +153,55 @@ campaign using the following loop:
 4. Commit - stage and commit the self-contained unit of work
 5. (optional) Close Upstream Issue - if upstream issue is complete, use `ghfa` to close it.
 6. Repeat - Go to (1).
+
+## Lean Formalization Campaign Conventions
+## (folded in from PLAN.md at its retirement, 2026-07-30;
+##  the dispatch state of record is Formalize/INDEX)
+
+1. **Writers.** One prover/postdoc per lane, exactly ONE named
+   `.lean` file each; read `STYLE.md` in FULL first; never run
+   git; no Scratch files; `lakefile.toml` and root aggregators
+   (`Proofs/<Lib>.lean`) are orchestrator-owned. Lake targets
+   have NO `Proofs.` prefix (`srcDir = "Proofs"`): the module
+   for `Proofs/X/Y.lean` is `X.Y`.
+2. **Builds.** Always `flock .lake/agent.lock lake build <Module>`
+   (untruncated; retry on lock contention), wrapped in the
+   memory fence
+   `systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0`.
+   NEVER `ulimit -v` (breaks lean's olean mmap at startup). A
+   cgroup kill means the computation is infeasible: record the
+   wall, back off, never retry bigger. Probe kernel walls from
+   below. NOTE: `lake build` on a built module REPLAYS cached
+   diagnostics — force `lake env lean` for cold trust checks.
+3. **Ground truth.** OEIS via `oeis show <seq>` live, never
+   model memory. A failed satisfiability/ground check is
+   evidence of a WRONG STATEMENT: halt the lane and escalate —
+   never weaken, strengthen, or reshape silently (USER hard
+   stop). Cards can be stale or internally inconsistent
+   (A391599 precedent): corrections are audit-verified against
+   primary sources and recorded as binding card notes.
+4. **Review.** Every writer return gets vacuity-cop + reviewer
+   in PARALLEL (pointers, not content). Orchestrator applies
+   non-security fixes itself, rebuilds, then commits — one
+   commit per lane, at drain points only, never while a writer
+   is mid-file. Reviewer findings are hypotheses: verify before
+   applying (dead-`have`s that feed `omega` via context;
+   `lt_or_le` does not exist here — `lt_or_ge` is canonical).
+5. **Trust policy.** Axioms exactly
+   {propext, Classical.choice, Quot.sound}; zero native_decide
+   in new work (USER decision 2026-07-30, Gnu precedent):
+   kernel decide to the measured wall, classification-lemma-
+   backed values beyond, omission or disclosed intended-sorry
+   archives for the rest.
+6. **Novelty.** A lane that PROVES an OEIS conjecture/comment
+   gets a consumer literature sweep (KNOWN / LIKELY-KNOWN /
+   NO-REFERENCE-FOUND); verdict + attribution wording go into
+   the file header before commit. "First recorded proof" at
+   most — never "novel" without a sweep. Def layers need no
+   sweep (IntComplexity precedent).
+7. **Docs.** Writer notes `<Lib>-<Name>.md`, audits
+   `review-vacuity-<Name>.md` / `review-style-<Name>.md`,
+   sweeps `novelty-<Name>.md`, all under `.tasks/main/docs/`
+   (untracked). Halted lanes carry a leading `/- LANE HALTED
+   (date, reason) -/` block; the re-dispatched writer replaces
+   the whole file.

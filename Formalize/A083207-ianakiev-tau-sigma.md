@@ -1,6 +1,13 @@
 seq:     A083207
 claim:   ianakiev-tau-sigma
-status:  open
+status:  OPEN but REDUCED 2026-07-30 (Enumerative/
+         ZumkellerTauSigma.lean, commits 8eef184 + 55b6259):
+         machine-checked — the conjecture implies an open
+         odd-perfect constraint; BOTH ROUTEs below are
+         computationally REFUTED (d = 496 kills 6|k; 234 has
+         no Zumkeller unitary divisor); do NOT re-dispatch
+         without new mathematics; novelty sweep
+         NO-REFERENCE-FOUND on the reduction
 stmt:    S
 proof:   unknown (not obviously hard)
 module:  none yet (needs IsZumkeller; see INDEX)

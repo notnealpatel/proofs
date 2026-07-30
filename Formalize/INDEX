@@ -25,10 +25,71 @@ METHODOLOGY:
   The two are independent axes.
 
 
+FORMALIZED (campaign of 2026-07-30; each item one commit,
+  written by prover/postdoc lanes, reviewed by parallel
+  vacuity-cop + style reviewer, fixes applied by the
+  orchestrator, axioms within
+  {propext, Classical.choice, Quot.sound}; novelty verdicts
+  live in each file's header and the novelty-*.md sweeps
+  under .tasks/main/docs/; the manuscript skeleton is
+  Manuscripts/Drafts/first-proofs-and-opn-reduction.md)
+
+  PROVED OUTRIGHT (sorry-free):
+  A060938-schmidt-submult    GroupTPP/MaxIrrepDegree.lean    3d513bd
+                             Schmidt's comment proved; first
+                             recorded proof (LIKELY-KNOWN tier,
+                             Serre/Isaacs corollary)
+  A014701-rebert-steps       NumberComplexity/StepWalk.lean  fa83e94
+                             Rebert 2025 conjecture proved in
+                             full; NO-REFERENCE-FOUND — first-
+                             proof candidate
+  A354741-boolean-rank-generic BilinearComplexity/BooleanRankGeneric.lean 3ec26ec
+                             conjectured limit PROVED
+                             (fraction -> 1); NO-REFERENCE-
+                             FOUND — first-proof candidate;
+                             card correction a4536a9 (ROW rank)
+  gnu shared def             GroupCount/Gnu.lean             5604e90
+                             iso-class quotient, zero
+                             native_decide trust policy
+                             (USER decision), E2 unblocked
+
+  PARTIALLY PROVED / REDUCED (open part = intended sorry):
+  A076142-quasilog-chain-gap NumberComplexity/QuasilogChainGap.lean bf57463
+                             l <= quasilog PROVED (first
+                             recorded proof, Scholz-Brauer
+                             ingredients); c-constant archived
+  A083207-ianakiev-tau-sigma Enumerative/ZumkellerTauSigma.lean 8eef184
+                             conjecture OPEN but REDUCED:
+                             machine-checked implication to an
+                             odd-perfect constraint (L);
+                             NO-REFERENCE-FOUND on constraint,
+                             connection, and hardness claim
+                             (55b6259); 2-adic iff engine +
+                             Neder criterion sorry-free
+  A005245-hamilton-ballinger NumberComplexity/HamiltonBallinger.lean f499c59
+                             A348262 {1,+,^} layer + proved
+                             master equality; finiteness
+                             comment archived
+  A005520-int-cplx-patterns  NumberComplexity/ComplexityPatterns.lean 3559616
+                             records a(1)..a(23) certified via
+                             kernel-validated packed table;
+                             two open claims archived (claim
+                             (i) satisfiability is non-local —
+                             needs a(26) = 1439 beyond table)
+  A230528-slizkov-doubling   NumberComplexity/SlizkovDoubling.lean cb84c0f
+                             sanity layer + doubling law
+                             k <= 7 proved; question archived;
+                             deficit scan clean to 50000
+  A391599-erdos-lovasz       Erdos/ErdosLovasz.lean          a8d9c50
+                             statement archive; 3n + O(1)
+                             speculation REFUTED vs Sivashankar
+                             (card corrected 9a2c3d5; Barat
+                             single-author fix)
+
 FORMALIZED (campaign of 2026-07-29; each item one commit,
   orchestrator-vacuity-reviewed, axioms within
   {propext, Classical.choice, Quot.sound} unless noted;
-  novelty verdicts in PLAN.md §6)
+  novelty verdicts in the file headers)
 
   PROVED OUTRIGHT (sorry-free):
   A114976-parity-square      Enumerative/MeanDivisors.lean   6677024
@@ -77,35 +138,64 @@ VERIFIED
                                     reflection involution was
                                     wrong; mean-toggle works)
 
-  A083207-ianakiev-tau-sigma S/M    attackable NOW: IsZumkeller
-                                    landed (39af612); sigma-half
-                                    stays hard
+  A083207-ianakiev-tau-sigma S/M    → REDUCED 2026-07-30, see
+                                    FORMALIZED: conjecture is
+                                    at least as hard as a new
+                                    odd-perfect constraint
+                                    (machine-checked); both
+                                    card ROUTEs computationally
+                                    refuted; do NOT re-dispatch
+                                    without new mathematics
 
 
 BURNDOWN QUEUE
 
-  The following are potentially provable now.
+  The following are dispatchable now. Rewritten 2026-07-30 at
+  PLAN.md retirement — this queue IS the campaign's dispatch
+  state of record. Per-lane protocol: prover/postdoc writer
+  (one file, STYLE.md first, flock + systemd-run memory fence,
+  oeis show ground truth, halt-never-weaken) → parallel
+  vacuity-cop + reviewer → orchestrator fixes → one commit per
+  lane. USER hard stops: failed satisfiability, statement
+  reshaping proposals, security findings.
 
-  1. A060938-schmidt-submult          stmt M proof S-M
-     uses project charDegrees_prod; proves an unproved
-     OEIS comment outright. TOP TARGET. Now UNBLOCKED:
-     GroupCount/Structures.lean landed (14cfacd).
-  2. A267632-palindrome-rows          → odd case PROVED
-     2026-07-29 (see FORMALIZED); 2^j case open
-  3. A064097-quasilog-bounds          → lower bound PROVED
-     2026-07-29 (see FORMALIZED); upper open
-  4. A000001-lopes-submult            stmt M proof M
-     (coprime case only; order-divides-i recovery;
-     blocked on Gnu.lean, E1/E2 in PLAN.md)
-  5. A003278-stanley-digits           → PROVED in full
-     2026-07-29 (see FORMALIZED)
-  6. A014701-rebert-steps             stmt S proof M
-     (writer crashed 2026-07-29; needs re-dispatch;
-     stub annotated in NumberComplexity/StepWalk.lean)
+  1. E2 lanes — UNBLOCKED by gnu (5604e90): A000001-lopes-
+     submult (coprime case; the hooks
+     mul_gnu_le_gnu_of_injective + prodMulEquiv_apply reduce
+     it to exactly coprime injectivity),
+     A000001-cdo-iteration, A046057-dennis-surjectivity,
+     A090052-group-perfect. Stubs in Proofs/GroupCount/.
+     Consumer note: upstream Structures.lean:248 carries one
+     anonymous disclosed native_decide example.
+  2. A236397-peebles (E5): capset + SliceRank bridge →
+     BilinearComplexity/CapsetSliceRank.lean stub.
+  3. A039669-erdos-minus-2k + A089654-erdos-rows (E7):
+     covering-system statement lanes; PIN the 2^128 bound
+     from the live entry.
+  4. A003313-knuth-stolarsky + ShearAdditionChains (T5
+     bridge): statement archives on the AdditionChain layer.
+  5. Nat.Practical def lane: USER-shelved 2026-07-30 pending
+     explicit dispatch (E4's halt removed the Ianakiev
+     rationale; remaining value = A007691-coleman + Stewart).
+  6. NEW from the 2026-07-30 audits: (a) prove AdditionChain's
+     permissive convention equal to A003313's ascending one
+     (agreement verified computationally to n = 24; see
+     review-vacuity-SlizkovDoubling.md); (b) promote the
+     ErdosLovasz downward ground-type transfer and the
+     counting proof of 6 ≤ g(3)
+     (review-vacuity-ErdosLovasz.md); (c) extend the
+     ComplexityPatterns table to M = 1440 to localize claim
+     (i)'s non-local satisfiability obligation.
   7. A319510-aranda-iso               iso core DONE
      (sorry-free: Proofs/Scratch/CongrCurveIso.lean,
      module Scratch.CongrCurveIso; rank corollary
-     still open — no rank layer in Mathlib)
+     still open — no rank layer in Mathlib; rank cards
+     SHELVED, see A031507)
+
+  HOLD (do not dispatch; reasons in file headers): A064097
+  2.5·log upper bound; A267632 n = 2^j; A000001 non-coprime
+  submultiplicativity; A250109 (USER circuit-model decision);
+  A085805 (Sage computation first).
 
 
 BACKLOG
@@ -124,10 +214,8 @@ BACKLOG
 
   A000670-bala-mod-k         S/M    fixed small k instances
 
-  A354741-boolean-rank-generic  M/M  gate PASSED: exact T(n,k)
-                                    match n<=4; fraction non-
-                                    monotone (min ~0.294 at
-                                    n=4) then 0.99 by n=20
+  A354741-boolean-rank-generic  → PROVED 2026-07-30, see
+                                    FORMALIZED (3ec26ec)
 
   A085805-dihedral-permanent M/?    compute first (Sage);
                                   table def valuable per se
@@ -146,10 +234,21 @@ STATEMENTS
   A007691-coleman-practical       S-M/hard needs Nat.Practical
   A323653-karttunen               M/hard  pin A351458/A349745
   A003313-knuth-stolarsky         M/hard  needs AdditionChain
-  A230528-slizkov-doubling        M/?     needs AdditionChain
-  A005245-hamilton-ballinger      M/hard  needs intComplexity
-  A005520-integer-complexity-patterns  M/?
-  A076142-quasilog-chain-gap      M/hard  (a(n)>=0 provable)
+                                          (BUILT — dispatchable,
+                                          queue item 4)
+  A230528-slizkov-doubling        → FORMALIZED 2026-07-30
+                                          (cb84c0f); question
+                                          archived, sanity layer
+                                          proved
+  A005245-hamilton-ballinger      → FORMALIZED 2026-07-30
+                                          (f499c59); finiteness
+                                          comment archived
+  A005520-integer-complexity-patterns  → FORMALIZED 2026-07-30
+                                          (3559616); records
+                                          certified to a(23)
+  A076142-quasilog-chain-gap      → PROVED (nonneg part)
+                                          2026-07-30 (bf57463);
+                                          c-constant archived
   A250109-blomberg-recurrence     L/?     needs circuit model
   A332077-sunflower               S/open  grep-clean defs exist
                                           in Proofs/Erdos/Erdos20/;
@@ -158,12 +257,10 @@ STATEMENTS
                                           adjacent MAYBE card
   A236397-peebles                 M/hard  capset def = bridge
                                           to SliceRank.lean
-  A391599-erdos-lovasz            M/L     tau def reusable;
-                                          Kahn 1994 PROVED O(n)
-                                          upper bound; open =
-                                          sharp 3n+O(1) const
-                                          (lb (61/20)n, arXiv
-                                          2606.24878)
+  A391599-erdos-lovasz            → FORMALIZED 2026-07-30
+                                          (a8d9c50); 3n+O(1)
+                                          REFUTED vs Sivashankar
+                                          (see corrected card)
   A094870-hegarty                 M/hard
   A000001-cdo-iteration           M/hard  gnu def unlocks 4
   A046057-dennis-surjectivity     M/hard  Holder gnu(pq) is
@@ -220,14 +317,13 @@ SHARED NEW DEFS (build once; unlock counts)
                         A014701 comparisons)
 
   gnu(n) via Fin n group structures + decidable iso
-                        HALF-BUILT: structures Fintype
-                        landed (14cfacd); the iso-class
-                        quotient (Gnu.lean) is stubbed and
-                        carries a USER trust fork
-                        (native_decide vs classification
-                        certificates) — see PLAN.md.
-                        unlocks 5 (A000001 x2, A046057,
-                        A090052, feeds A060938 def shape)
+                        BUILT (5604e90). Trust fork resolved
+                        by USER 2026-07-30: certificates, zero
+                        native_decide (policy documented in
+                        the module docstring). unlocks the
+                        four E2 lanes (A000001 x2, A046057,
+                        A090052); A060938 landed separately
+                        (3d513bd)
 
   capset in (ZMod 3)^n  BUILT (867bd21), via Mathlib
                         ThreeAPFree + addRothNumber.
@@ -243,7 +339,9 @@ SHARED NEW DEFS (build once; unlock counts)
   covering systems      BUILT (f2cd3df). unlocks A039669,
                         A089654 (+ Sierpinski territory)
 
-  Nat.Practical         NOT BUILT. unlocks A007691-coleman
+  Nat.Practical         NOT BUILT; USER-shelved 2026-07-30
+                        pending explicit dispatch (queue
+                        item 5). unlocks A007691-coleman
                         + Stewart's theorem
 
   tau (covering number) BUILT (70c8faf) as coveringNumber;

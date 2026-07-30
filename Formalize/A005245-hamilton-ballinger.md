@@ -1,6 +1,9 @@
 seq:     A005245
 claim:   hamilton-ballinger-finiteness
-status:  open
+status:  FORMALIZED 2026-07-30 (NumberComplexity/
+         HamiltonBallinger.lean, commit f499c59; A348262 layer
+         + master equality proved; finiteness comment OPEN,
+         archived verbatim)
 stmt:    M
 proof:   hard
 module:  none
