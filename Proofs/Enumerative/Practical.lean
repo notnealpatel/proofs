@@ -38,6 +38,18 @@ This file is the shared definition layer for the practical-number family:
   `sorry`.  The sorry-free realization layer certifies the conjecture at the first
   ten terms of A007691 (`1` through `523776`), via kernel `decide` where feasible and
   the Stewart step elsewhere.
+* `Nat.not_practical_of_odd_of_one_lt`, `Nat.Perfect.one_lt`, and the
+  `*_of_coleman` conditional theorems — the **Coleman OPN-hardness reduction**
+  (this project, 2026-07-30, apparently unrecorded): Coleman's conjecture forces
+  every multiperfect `> 1` to be even, hence implies that no odd perfect number
+  exists; the odd part of the conjecture is OPN-hard, and the attackable part is
+  the even one.
+* `Nat.Perfect.practical_of_even` — **weak Coleman** (KNOWN-CLASSICAL; Srinivasan
+  1948, Coleman's "easily shown"): every even perfect number is practical, via a
+  local `private` re-proof of Euler's direction of Euclid–Euler (absent from
+  Mathlib proper; Mathlib's `Archive` version is outside this project's dependency
+  set) and one Stewart step at `p = mersenne (k+1) = σ(2^k)`, inside the Stewart
+  threshold `σ(2^k) + 1`.
 
 ## Axiom audit
 
@@ -570,9 +582,13 @@ Status, per the live entry and this file:
   terms of A007691, `1, 6, 28, 120, 496, 672, 8128, 30240, 32760, 523776`
   (`Nat.coleman_instance_1` … `Nat.coleman_instance_523776`), which also witness
   joint satisfiability of the hypothesis;
-* Coleman's weak form (every *even* multiply-perfect number is practical) is not
-  formalized separately: for even perfect numbers it needs Euclid–Euler, which lives
-  in Mathlib's `Archive`, outside this project's dependency set.
+* the conjecture is **OPN-hard** on its odd part: with `Nat.Practical.two_dvd` it
+  implies no odd multiperfect `> 1`, in particular no odd perfect number — see the
+  reduction section below (`Nat.not_perfect_of_odd_of_coleman`);
+* of Coleman's weak form (every *even* multiply-perfect number is practical), the
+  perfect case is settled below (`Nat.Perfect.practical_of_even`, via a local
+  re-proof of Euler's direction of Euclid–Euler); the even multiperfect case of
+  abundancy `≠ 2` remains the attackable open fragment.
 
 ROUTE: Stewart's criterion makes the conjecture verifiable per instance (as the
 realization layer does); no proof of the full conjecture is known to anyone. -/
@@ -718,6 +734,276 @@ theorem coleman_instance_523776 :
     have h := h16896.mul_prime_pow (p := 31) (by norm_num) (by decide) hσ 1
     simpa using h
 
+/-!
+## The Coleman OPN-hardness reduction
+
+`Nat.Practical.two_dvd` makes practical numbers `> 1` even, so Coleman's conjecture
+forces every multiperfect `> 1` to be even — in particular it implies that no **odd
+perfect number** exists.  The odd part of Coleman's conjecture is therefore
+OPN-hard: the intended `sorry` above marks a statement at least as strong as
+odd-perfect nonexistence, not a formalization gap.  The attackable open fragment is
+the even part — Coleman's weak form, "every even multiply-perfect number is
+practical" (every known multiperfect `> 1` is even; Coleman's comment asserts only
+the verification count, not evenness).
+
+The step is immediate from folklore evenness of practicals, but since the
+conjecture has no literature outside the OEIS comment, the reduction is apparently
+unrecorded (novelty sweep 2026-07-30, `.tasks/main/docs/novelty-Practical.md`); it
+is the same genre as this project's `ZumkellerTauSigma` OPN reduction.
+
+The conditional theorems below take the Coleman hypothesis
+`H : ∀ m, m.IsMultiperfect → m.Practical` — the ∀-closure of the archived
+`Nat.coleman_multiperfect_practical` — as an explicit hypothesis; they are
+**conditional by design**.  `H` is the open conjecture, and for
+`Nat.not_perfect_of_odd_of_coleman` the non-`H` hypothesis class (`Odd n` with
+`n.Perfect`) is believed — but not known — to be empty, so the full hypothesis sets
+cannot be jointly instantiated today: the theorems measure the strength of the
+conjecture, not facts about exhibited numbers.  Everything unconditional is
+witnessed below: the non-`H` hypotheses of each step, and the discriminating scan
+that `1` is the only odd multiperfect under `200`.
+-/
+
+/-- **Unconditional fragment**: no odd `n > 1` is practical — the contrapositive of
+`Nat.Practical.two_dvd`.  The guard `1 < n` is sharp: `1` is odd and practical. -/
+theorem not_practical_of_odd_of_one_lt {n : ℕ} (hodd : Odd n) (h1 : 1 < n) :
+    ¬ n.Practical := by
+  intro h
+  have h2 := h.two_dvd h1
+  have hmod := Nat.odd_iff.mp hodd
+  omega
+
+-- Satisfiability of `not_practical_of_odd_of_one_lt` at `n = 3`, and a
+-- discriminating instance: `945`, the smallest odd abundant number, is not
+-- practical despite `σ(945) = 1920 > 2 · 945`.
+example : Odd 3 ∧ 1 < 3 := by decide
+example : ¬ (945 : ℕ).Practical :=
+  not_practical_of_odd_of_one_lt (by decide) (by norm_num)
+
+/-- A perfect number exceeds `1`: the proper-divisor sum of `1` is `0 ≠ 1`.
+(Absent from Mathlib proper — leandoc miss 2026-07-30; satisfiable at `6`, the
+example under `Nat.Perfect.isMultiperfect`.) -/
+theorem Perfect.one_lt {n : ℕ} (h : n.Perfect) : 1 < n := by
+  obtain ⟨hsum, hpos⟩ := h
+  by_contra hle
+  have hn1 : n = 1 := by omega
+  subst hn1
+  exact absurd hsum (by decide)
+
+/-- **Reduction, step 1.**  Under Coleman's conjecture (the explicit hypothesis
+`H`, the ∀-closure of `Nat.coleman_multiperfect_practical`), every
+multiply-perfect `n > 1` is even.  Conditional by design: `H` is open; the non-`H`
+hypotheses are jointly witnessed at `n = 6` below. -/
+theorem two_dvd_of_isMultiperfect_of_coleman
+    (H : ∀ m : ℕ, m.IsMultiperfect → m.Practical)
+    {n : ℕ} (hn : n.IsMultiperfect) (h1 : 1 < n) : 2 ∣ n :=
+  (H n hn).two_dvd h1
+
+-- Joint satisfiability of the non-`H` hypotheses of
+-- `two_dvd_of_isMultiperfect_of_coleman` at `n = 6`.
+example : (6 : ℕ).IsMultiperfect ∧ 1 < 6 := by decide
+
+/-- **Reduction, step 2.**  Under Coleman's conjecture, there is no odd
+multiply-perfect number `> 1`.  The non-`H` hypotheses are jointly witnessed at
+`n = 3`; at every checked instance the conclusion holds unconditionally (the scan
+below finds `1` as the only odd multiperfect under `200`), and whether any odd
+multiperfect `> 1` exists at all is open — for abundancy `2` it is the odd perfect
+number problem. -/
+theorem not_isMultiperfect_of_odd_of_coleman
+    (H : ∀ m : ℕ, m.IsMultiperfect → m.Practical)
+    {n : ℕ} (hodd : Odd n) (h1 : 1 < n) : ¬ n.IsMultiperfect := fun hn =>
+  not_practical_of_odd_of_one_lt hodd h1 (H n hn)
+
+-- Joint satisfiability of the non-`H` hypotheses of step 2 at `n = 3`.
+example : Odd 3 ∧ 1 < 3 := by decide
+
+-- Discriminating scan: `1` is the only odd multiperfect below `200` — the
+-- conclusion of step 2 at every kernel-checkable instance, unconditionally.
+set_option maxRecDepth 20000 in
+example : (List.range 200).filter
+    (fun n => decide (Nat.IsMultiperfect n) && (n % 2 == 1)) = [1] := by decide
+
+/-- **Reduction, step 3 — the OPN reduction.**  Under Coleman's conjecture, no odd
+perfect number exists: an odd perfect `N` has `σ(N) = 2N`, hence is multiply-perfect
+(`Nat.Perfect.isMultiperfect`) and exceeds `1` (`Nat.Perfect.one_lt`), so step 2
+applies.  Any proof of Coleman's conjecture therefore settles odd-perfect
+nonexistence — a famous open problem — which splits the conjecture into an OPN-hard
+odd part and the attackable even part.  The hypothesis class `Odd n ∧ n.Perfect` is
+believed (but not known) to be empty, which is precisely the point; the packaging
+`H → ¬ ∃ n, Odd n ∧ n.Perfect` is the `example` below. -/
+theorem not_perfect_of_odd_of_coleman
+    (H : ∀ m : ℕ, m.IsMultiperfect → m.Practical)
+    {n : ℕ} (hodd : Odd n) : ¬ n.Perfect := fun hperf =>
+  not_isMultiperfect_of_odd_of_coleman H hodd hperf.one_lt hperf.isMultiperfect
+
+-- Headline packaging: Coleman's conjecture implies no odd perfect number exists.
+example (H : ∀ m : ℕ, m.IsMultiperfect → m.Practical) :
+    ¬ ∃ n : ℕ, Odd n ∧ n.Perfect := fun ⟨_, hodd, hperf⟩ =>
+  not_perfect_of_odd_of_coleman H hodd hperf
+
+/-!
+## Weak Coleman: every even perfect number is practical
+
+The classical fragment (Coleman's comment calls it easy; Srinivasan 1948 already
+noted that perfect numbers are practical): every even perfect number is practical.
+The route is Euler's direction of the Euclid–Euler theorem — an even perfect `n`
+factors as `2^k · mersenne (k+1)` with the Mersenne factor prime — followed by one
+Stewart step at `p = mersenne (k+1) = σ(2^k)`, one below the Stewart threshold
+`σ(2^k) + 1 = 2^(k+1)`.
+
+Euclid–Euler is not in Mathlib proper (leandoc re-verified 2026-07-30); it lives in
+Mathlib's `Archive` (`Theorems100.Nat.eq_two_pow_mul_prime_mersenne_of_even_perfect`,
+Aaron Anderson), which is outside this project's dependency set.  Euler's direction
+is therefore re-proved locally below as `private` lemmas, by the standard
+σ-multiplicativity argument.  This is a completeness corollary — **no novelty
+claim**; the genuinely open fragment of Coleman's weak form (every even
+*multiperfect* is practical) is untouched.
+-/
+
+/-- `σ(2^k) = 2^(k+1) - 1 = mersenne (k+1)`: the divisors of `2^k` are the powers
+`2^0, …, 2^k`, and the geometric sum telescopes. -/
+private theorem sum_divisors_two_pow (k : ℕ) :
+    ∑ d ∈ ((2 : ℕ) ^ k).divisors, d = mersenne (k + 1) := by
+  have hsum : ∑ d ∈ ((2 : ℕ) ^ k).divisors, d = ∑ i ∈ Finset.range (k + 1), 2 ^ i :=
+    Nat.sum_divisors_prime_pow Nat.prime_two
+  have hgeom : (∑ i ∈ Finset.range (k + 1), ((1 : ℕ) + 1) ^ i) * 1 + 1
+      = ((1 : ℕ) + 1) ^ (k + 1) := geom_sum_mul_add 1 (k + 1)
+  have hM : mersenne (k + 1) + 1 = 2 ^ (k + 1) := succ_mersenne (k + 1)
+  norm_num at hgeom
+  omega
+
+/-- **Euler's direction of the Euclid–Euler theorem** (Euler; local re-proof, cf.
+the `Archive` attribution in the section header): an even perfect number is
+`2^k · mersenne (k+1)` with the Mersenne factor prime.  Writing `n = 2^k · m` with
+`m` odd and `M = mersenne (k+1)`, multiplicativity of `σ` turns perfection into
+`M · σ(m) = (M+1) · m`; coprimality of consecutive integers gives `M ∣ m`, say
+`m = M · j`, cancellation gives `σ(m) = m + j`, so `j` is the *entire*
+proper-divisor sum of `m` while also being a proper divisor — forcing `j = 1`,
+`m = M` prime. -/
+private theorem eq_two_pow_mul_mersenne_of_even_perfect {n : ℕ} (ev : Even n)
+    (perf : n.Perfect) :
+    ∃ k : ℕ, (mersenne (k + 1)).Prime ∧ n = 2 ^ k * mersenne (k + 1) := by
+  have hpos : 0 < n := perf.2
+  obtain ⟨k, m, hm_odd, rfl⟩ := Nat.exists_eq_two_pow_mul_odd hpos.ne'
+  have hm_mod : m % 2 = 1 := Nat.odd_iff.mp hm_odd
+  have hm_pos : 0 < m := by omega
+  have hm2 : ¬ 2 ∣ m := by omega
+  -- `k = 0` would make `n = m` odd, contradicting evenness
+  have hk : k ≠ 0 := by
+    rintro rfl
+    rw [pow_zero, one_mul] at ev
+    have h2 : m % 2 = 0 := Nat.even_iff.mp ev
+    omega
+  have h4 : 4 ≤ 2 ^ (k + 1) := by
+    calc (4 : ℕ) = 2 ^ 2 := by norm_num
+      _ ≤ 2 ^ (k + 1) := Nat.pow_le_pow_right (by norm_num) (by omega)
+  have hM_succ : mersenne (k + 1) + 1 = 2 ^ (k + 1) := succ_mersenne (k + 1)
+  have hcop : Nat.Coprime (2 ^ k) m :=
+    Nat.Coprime.pow_left k ((Nat.Prime.coprime_iff_not_dvd Nat.prime_two).mpr hm2)
+  -- checkpoint ★: `M · σ(m) = 2^(k+1) · m`, the multiplicative split of perfection
+  have hstar : mersenne (k + 1) * ∑ d ∈ m.divisors, d = 2 ^ (k + 1) * m := by
+    rw [← sum_divisors_two_pow k, ← Nat.Coprime.sum_divisors_mul hcop,
+      (Nat.perfect_iff_sum_divisors_eq_two_mul hpos).mp perf]
+    ring
+  -- `M ∣ m`: `M` divides `(M+1)·m` by ★ and is coprime to `M+1`
+  have hMdvd : mersenne (k + 1) ∣ m := by
+    have hdvd_mul : mersenne (k + 1) ∣ m * (mersenne (k + 1) + 1) :=
+      ⟨∑ d ∈ m.divisors, d, by rw [hM_succ, hstar]; ring⟩
+    exact (Nat.coprime_self_add_right.mpr (Nat.coprime_one_right _)).dvd_of_dvd_mul_right
+      hdvd_mul
+  obtain ⟨j, hj⟩ := hMdvd
+  refine ⟨k, ?_⟩
+  have hM_pos : 0 < mersenne (k + 1) := by omega
+  -- cancel `M` in ★: `σ(m) = 2^(k+1) · j`
+  have hs : ∑ d ∈ m.divisors, d = 2 ^ (k + 1) * j := by
+    refine Nat.eq_of_mul_eq_mul_left hM_pos ?_
+    calc mersenne (k + 1) * ∑ d ∈ m.divisors, d = 2 ^ (k + 1) * m := hstar
+      _ = mersenne (k + 1) * (2 ^ (k + 1) * j) := by rw [hj]; ring
+  -- the proper-divisor sum of `m` collapses to `j`
+  have hproper : ∑ d ∈ m.properDivisors, d = j := by
+    have hsplit : ∑ d ∈ m.divisors, d = (∑ d ∈ m.properDivisors, d) + m :=
+      Nat.sum_divisors_eq_sum_properDivisors_add_self
+    have hexp : 2 ^ (k + 1) * j = m + j := by
+      rw [hj, ← hM_succ]
+      ring
+    have hcomb : (∑ d ∈ m.properDivisors, d) + m = m + j := by
+      rw [← hsplit, hs, hexp]
+    omega
+  have hjdvd : (∑ d ∈ m.properDivisors, d) ∣ m := by
+    rw [hproper]
+    exact ⟨mersenne (k + 1), by rw [hj]; ring⟩
+  rcases Nat.sum_properDivisors_dvd hjdvd with h1 | h1
+  · -- `j = 1`: `m = M` is prime — the Mersenne factor
+    have hj1 : j = 1 := by omega
+    have hm_prime : m.Prime := Nat.sum_properDivisors_eq_one_iff_prime.mp h1
+    have hm_eq : m = mersenne (k + 1) := by rw [hj, hj1, mul_one]
+    exact ⟨hm_eq ▸ hm_prime, by rw [hm_eq]⟩
+  · -- `j = m` forces `M = 1`, impossible for `k ≥ 1`
+    exfalso
+    have hjm : j = m := by omega
+    have h' := hj
+    rw [hjm] at h'
+    have hM1 : mersenne (k + 1) = 1 :=
+      Nat.eq_of_mul_eq_mul_right hm_pos (by rw [one_mul, ← h'])
+    omega
+
+/-- **Euclid form is practical** (Srinivasan 1948; Stewart 1954): `2^k · mersenne
+(k+1)` with the Mersenne factor prime is practical — `Nat.practical_two_pow` plus
+one Stewart step at `p = mersenne (k+1) = σ(2^k)`, one below the Stewart threshold
+`σ(2^k) + 1`. -/
+theorem practical_two_pow_mul_mersenne_of_prime (k : ℕ)
+    (pr : (mersenne (k + 1)).Prime) :
+    ((2 : ℕ) ^ k * mersenne (k + 1)).Practical := by
+  have hM_succ : mersenne (k + 1) + 1 = 2 ^ (k + 1) := succ_mersenne (k + 1)
+  have h2 : (2 : ℕ) ∣ 2 ^ (k + 1) := dvd_pow_self 2 k.succ_ne_zero
+  have hM_odd : ¬ 2 ∣ mersenne (k + 1) := by omega
+  have hnd : ¬ mersenne (k + 1) ∣ 2 ^ k := by
+    intro hdvd
+    have hM2 : mersenne (k + 1) ∣ 2 := pr.dvd_of_dvd_pow hdvd
+    rw [Nat.prime_dvd_prime_iff_eq pr Nat.prime_two] at hM2
+    omega
+  have hle : mersenne (k + 1) ≤ 1 + ∑ d ∈ ((2 : ℕ) ^ k).divisors, d := by
+    rw [sum_divisors_two_pow]
+    omega
+  have h := (practical_two_pow k).mul_prime_pow pr hnd hle 1
+  simpa using h
+
+-- Satisfiability of `practical_two_pow_mul_mersenne_of_prime`: `mersenne 2 = 3`
+-- is prime, and the resulting `2 · 3 = 6` is the first even perfect number.
+example : (mersenne 2).Prime := by norm_num [mersenne]
+
+/-- **Weak Coleman** (KNOWN-CLASSICAL; Srinivasan 1948 noted perfect numbers are
+practical, Coleman's OEIS comment calls it easy): every even perfect number is
+practical.  Euler's direction of Euclid–Euler puts `n` in Euclid form, and the
+Stewart step closes.  Completeness corollary for the Coleman layer — together with
+the reduction above it splits Coleman's conjecture cleanly: the perfect case is
+settled here for even `n` and OPN-hard for odd `n`; the multiperfect case of the
+even part stays open. -/
+theorem Perfect.practical_of_even {n : ℕ} (hperf : n.Perfect) (heven : Even n) :
+    n.Practical := by
+  obtain ⟨k, pr, rfl⟩ := eq_two_pow_mul_mersenne_of_even_perfect heven hperf
+  exact practical_two_pow_mul_mersenne_of_prime k pr
+
+-- Joint satisfiability of `Perfect.practical_of_even` at `6`, and agreement with
+-- the direct decision procedure at the perfect numbers `6`, `28`, `496`.
+example : Nat.Perfect 6 ∧ Even 6 := ⟨⟨by decide, by norm_num⟩, by decide⟩
+
+example : (6 : ℕ).Practical :=
+  Nat.Perfect.practical_of_even ⟨by decide, by norm_num⟩ (by decide)
+
+example : (28 : ℕ).Practical :=
+  Nat.Perfect.practical_of_even ⟨by decide, by norm_num⟩ (by decide)
+
+set_option maxRecDepth 40000 in
+example : (496 : ℕ).Practical :=
+  Nat.Perfect.practical_of_even ⟨by decide, by norm_num⟩ (by decide)
+
+-- Reach check: the 5th even perfect number `33550336 = 2¹² · mersenne 13`, far
+-- beyond kernel `decide` on divisor sets, lands via the Euclid-form route.
+example : (33550336 : ℕ).Practical := by
+  have h := Nat.practical_two_pow_mul_mersenne_of_prime 12 (by norm_num [mersenne])
+  norm_num [mersenne] at h
+  exact h
+
 end Nat
 
 /-! ## Axiom audit
@@ -761,3 +1047,12 @@ emitted).  There is no `native_decide` in this file. -/
 #print axioms Nat.coleman_instance_30240
 #print axioms Nat.coleman_instance_32760
 #print axioms Nat.coleman_instance_523776
+#print axioms Nat.not_practical_of_odd_of_one_lt
+#print axioms Nat.Perfect.one_lt
+#print axioms Nat.two_dvd_of_isMultiperfect_of_coleman
+#print axioms Nat.not_isMultiperfect_of_odd_of_coleman
+#print axioms Nat.not_perfect_of_odd_of_coleman
+#print axioms Nat.sum_divisors_two_pow
+#print axioms Nat.eq_two_pow_mul_mersenne_of_even_perfect
+#print axioms Nat.practical_two_pow_mul_mersenne_of_prime
+#print axioms Nat.Perfect.practical_of_even
