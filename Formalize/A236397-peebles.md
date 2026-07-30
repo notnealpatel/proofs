@@ -1,10 +1,26 @@
 seq:     A236397
 claim:   peebles-sunflower-capset
-status:  open
+status:  FORMALIZED 2026-07-30 (commit 01060f0): poster
+         Theorem 4 (A236397(n) <= A090245(n)) PROVED
+         sorry-free; weight functional + sliceRank bridge
+         chain sorry-free; Peebles conjecture + CLP
+         slice-rank bound ARCHIVED (2 intended sorries).
+         Convention pinned from the Peebles 2013 HMC poster
+         (References/Peebles2013/ — the OEIS entry never
+         defines it). Novelty: Thm 4 is LIKELY-KNOWN /
+         first-recorded-COMPLETE-proof candidate (poster
+         bare statement, thesis PDF dead, NOT subsumed by
+         ASU/Naslund-Sawin asymptotic capacity result) —
+         .tasks/main/docs/novelty-CapsetSliceRank.md.
+         Formalization claims are route-scoped only:
+         Dahmen-Holzl-Lewis ITP 2019 has EG in Lean 3.
+         Conjecture itself still open; term-extension
+         refutable.
 stmt:    M
 proof:   hard; term-extension refutable
-module:  Proofs/Erdos/Erdos20/, Proofs/BilinearComplexity/
-         SliceRank.lean (bridge target)
+module:  Proofs/BilinearComplexity/CapsetSliceRank.lean
+         (BilinearComplexity.CapsetSliceRank), bridging
+         Capset.lean, SliceRank.lean, Erdos/Erdos20/
 source:  OEIS A236397 comment ("Peebles conjectures",
          undated)
 
