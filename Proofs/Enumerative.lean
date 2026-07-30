@@ -9,6 +9,7 @@ import Enumerative.NederGap
 import Enumerative.PalindromeRows
 import Enumerative.Practical
 import Enumerative.StanleyDigits
+import Enumerative.StewartCriterion
 import Enumerative.Zumkeller
 import Enumerative.ZumkellerSigmaHalf
 import Enumerative.ZumkellerTauSigma
