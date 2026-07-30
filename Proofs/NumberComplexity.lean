@@ -1,6 +1,7 @@
 import NumberComplexity.AdditionChain
 import NumberComplexity.ComplexityPatterns
 import NumberComplexity.HamiltonBallinger
+import NumberComplexity.IntComplexity
 import NumberComplexity.KnuthStolarsky
 import NumberComplexity.Quasilog
 import NumberComplexity.QuasilogChainGap
