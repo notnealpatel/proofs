@@ -54,8 +54,11 @@ of exactly two routes:
 2. **a genuine classification proof**, using Mathlib's group theory.
 
 Anything reachable by neither route is *omitted*, never asserted from a compiled
-evaluation.  The axiom sweep at the end of the file is the check: no declaration depends
-on `Lean.ofReduceBool`.
+evaluation.  The axiom sweep at the end of the file is the check: every declaration
+stays within the allowlist `{propext, Classical.choice, Quot.sound}`.  (The allowlist
+subset is the sound detector: on this toolchain `native_decide` mints a per-declaration
+`<decl>._native.native_decide.ax_*` axiom and never emits `Lean.ofReduceBool`, so
+grepping for the latter detects nothing.)
 
 ### Measured kernel-evaluation wall
 
@@ -845,8 +848,10 @@ end GroundTruth
 /-! ## Axiom audit
 
 Every declaration above is `sorry`-free; the sweep below confirms each rests only on
-`{propext, Classical.choice, Quot.sound}`.  In particular no `Lean.ofReduceBool`
-appears anywhere in this module: there is no `native_decide` in this file. -/
+`{propext, Classical.choice, Quot.sound}`.  The subset is the sound `native_decide`
+detector: a use would appear as a per-declaration `*._native.native_decide.ax_*` axiom
+on this toolchain (`Lean.ofReduceBool` is never emitted, so grepping for it detects
+nothing).  There is no `native_decide` in this file. -/
 
 #print axioms GroupStructure.Iso
 #print axioms GroupStructure.instDecidableIso
