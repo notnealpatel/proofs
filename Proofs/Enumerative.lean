@@ -7,6 +7,7 @@ import Enumerative.MeanDivisors
 import Enumerative.MultiperfectZumkeller
 import Enumerative.NederGap
 import Enumerative.PalindromeRows
+import Enumerative.StanleyDigits
 import Enumerative.Zumkeller
 import Enumerative.ZumkellerSigmaHalf
 import Enumerative.ZumkellerTauSigma
