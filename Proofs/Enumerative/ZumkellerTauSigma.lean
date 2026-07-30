@@ -60,7 +60,11 @@ and `k` could not be Zumkeller.  So any proof of the conjecture proves
 
 > no odd perfect number `N` has `(τ(N)/2)·N` a perfect square,
 
-a constraint no known odd-perfect structure theory decides
+a constraint outside the reach of published odd-perfect structure theory — Euler
+form, Steuerwald exponent constraints, Touchard-type congruences, prime-counting
+bounds; literature sweep 2026-07-30, NO-REFERENCE-FOUND on the constraint, the
+connection, and the hardness claim, full source list in
+`.tasks/main/docs/novelty-ZumkellerTauSigma.md`
 (`not_isSquare_half_sigma_zero_mul_of_perfect` is the kernel-checked reduction).  In
 particular *no amount of practical-number machinery closes the conjecture*: even
 granted "practical ∧ even `σ` ⟹ Zumkeller" and every finite certificate, the
