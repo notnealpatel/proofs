@@ -51,7 +51,19 @@ FORMALIZED (campaign of 2026-07-30; each item one commit,
   gnu shared def             GroupCount/Gnu.lean             5604e90
                              iso-class quotient, zero
                              native_decide trust policy
-                             (USER decision), E2 unblocked
+                             (USER decision), E2 unblocked;
+                             trust-note detector wording
+                             corrected 1c43678 (allowlist
+                             subset is the sound check)
+  A000001-lopes-submult      GroupCount/Submult.lean         559c2f0
+                             COPRIME case proved sorry-free
+                             (gnu i * gnu j <= gnu (i*j));
+                             LIKELY-KNOWN folklore (Ren
+                             arXiv:2405.04794 says "clear",
+                             no proof located anywhere) —
+                             first-recorded-proof ceiling;
+                             new bounds 2<=gnu 9 (exact),
+                             4<=gnu 36; general case HOLD
 
   PARTIALLY PROVED / REDUCED (open part = intended sorry):
   A076142-quasilog-chain-gap NumberComplexity/QuasilogChainGap.lean bf57463
@@ -85,6 +97,24 @@ FORMALIZED (campaign of 2026-07-30; each item one commit,
                              speculation REFUTED vs Sivashankar
                              (card corrected 9a2c3d5; Barat
                              single-author fix)
+  A000001-cdo-iteration      GroupCount/CdoIteration.lean    46feb48
+                             conjecture archived (1 sorry);
+                             sorry-free strata at 1, primes,
+                             4, and EVERY p^2 via the landed
+                             classification gnu(p^2) = 2
+                             (genuine, parametric in p)
+  A046057-dennis-surjectivity GroupCount/DennisSurjectivity.lean 24c754e
+                             conjecture archived (1 sorry);
+                             n = 1, 2 realized; A046057(1)=1,
+                             A046057(2)=4 pinned exactly;
+                             card corrected twice (module
+                             field, A053403 inversion)
+  A090052-group-perfect      GroupCount/GroupPerfect.lean    0c5e638
+                             both conjectures archived (2
+                             sorries: uniqueness + abundant
+                             density 0, disclosed as strict
+                             consequence of the comment);
+                             every prime proved deficient
 
 FORMALIZED (campaign of 2026-07-29; each item one commit,
   orchestrator-vacuity-reviewed, axioms within
@@ -159,14 +189,10 @@ BURNDOWN QUEUE
   lane. USER hard stops: failed satisfiability, statement
   reshaping proposals, security findings.
 
-  1. E2 lanes — UNBLOCKED by gnu (5604e90): A000001-lopes-
-     submult (coprime case; the hooks
-     mul_gnu_le_gnu_of_injective + prodMulEquiv_apply reduce
-     it to exactly coprime injectivity),
-     A000001-cdo-iteration, A046057-dennis-surjectivity,
-     A090052-group-perfect. Stubs in Proofs/GroupCount/.
-     Consumer note: upstream Structures.lean:248 carries one
-     anonymous disclosed native_decide example.
+  1. E2 lanes — DONE 2026-07-30, all four landed one commit
+     per lane (see FORMALIZED): Submult 559c2f0, CdoIteration
+     46feb48, DennisSurjectivity 24c754e, GroupPerfect
+     0c5e638, plus trust-wording correction 1c43678.
   2. A236397-peebles (E5): capset + SliceRank bridge →
      BilinearComplexity/CapsetSliceRank.lean stub.
   3. A039669-erdos-minus-2k + A089654-erdos-rows (E7):
@@ -262,10 +288,15 @@ STATEMENTS
                                           REFUTED vs Sivashankar
                                           (see corrected card)
   A094870-hegarty                 M/hard
-  A000001-cdo-iteration           M/hard  gnu def unlocks 4
-  A046057-dennis-surjectivity     M/hard  Holder gnu(pq) is
-                                          adjacent target
-  A090052-group-perfect           M/hard
+  A000001-cdo-iteration           → FORMALIZED 2026-07-30
+                                          (46feb48); archived,
+                                          gnu(p^2) = 2 proved
+  A046057-dennis-surjectivity     → FORMALIZED 2026-07-30
+                                          (24c754e); archived;
+                                          Holder gnu(pq) still
+                                          an adjacent target
+  A090052-group-perfect           → FORMALIZED 2026-07-30
+                                          (0c5e638); archived
   A062733-zabolotskii-sl-n-2      M/L     GL(3,2) char table
                                           is bounded target
   A000041-sun-perfect-power       S/hard
@@ -320,10 +351,13 @@ SHARED NEW DEFS (build once; unlock counts)
                         BUILT (5604e90). Trust fork resolved
                         by USER 2026-07-30: certificates, zero
                         native_decide (policy documented in
-                        the module docstring). unlocks the
-                        four E2 lanes (A000001 x2, A046057,
-                        A090052); A060938 landed separately
-                        (3d513bd)
+                        the module docstring). All four E2
+                        consumers LANDED 2026-07-30 (A000001
+                        x2, A046057, A090052 — see
+                        FORMALIZED); A060938 landed separately
+                        (3d513bd). Certified values now reach
+                        gnu(p^2) = 2 (CdoIteration) and exact
+                        2 <= gnu 9 (Submult)
 
   capset in (ZMod 3)^n  BUILT (867bd21), via Mathlib
                         ThreeAPFree + addRothNumber.
