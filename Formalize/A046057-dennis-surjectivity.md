@@ -3,7 +3,10 @@ claim:   dennis-gnu-surjectivity
 status:  open
 stmt:    M
 proof:   hard
-module:  Proofs/GroupTPP/ layer
+module:  Proofs/GroupCount/DennisSurjectivity.lean
+         (CARD CORRECTION 2026-07-30: original said
+         Proofs/GroupTPP/ — the gnu layer landed in
+         GroupCount, not GroupTPP)
 source:  OEIS A046057 comment (R. Keith Dennis
          conjecture); companion A053403
 
@@ -31,3 +34,10 @@ ROUTE
 
 EVIDENCE
   508 realized values known below 55487 per A053403.
+  (CARD CORRECTION 2026-07-30, audit-verified against
+  the live entry: this line INVERTS A053403 — that
+  sequence lists the values NOT yet accounted for as
+  gnu(m); it has 508 known terms, the largest 55487,
+  and is conjecturally finite. Writer + vacuity audit
+  concur; see .tasks/main/docs/
+  review-vacuity-DennisSurjectivity.md.)
