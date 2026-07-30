@@ -1,4 +1,5 @@
 import BilinearComplexity.Basic
+import BilinearComplexity.BooleanRank
 import BilinearComplexity.BooleanRankGeneric
 import BilinearComplexity.Capset
 import BilinearComplexity.CapsetSliceRank
