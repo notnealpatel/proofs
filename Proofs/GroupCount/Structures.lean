@@ -243,8 +243,9 @@ example : Fintype.card (GroupStructure 2) = 2 := by decide
 -- A034383 continues 3, 16, 30, …  Kernel reduction is infeasible at `n = 3`
 -- (the raw search space has `3^9 · 3 · 3^3 ≈ 1.6 · 10^6` table triples), so
 -- this one check uses `native_decide`: it enlarges the trusted base with the
--- compiler (`Lean.ofReduceBool`).  It is a sanity example only; no named
--- theorem depends on it.
+-- compiler (on this toolchain, via a per-declaration `*._native.native_decide.ax_*`
+-- axiom rather than `Lean.ofReduceBool`).  It is a sanity example only: anonymous
+-- examples persist no constant, so no named theorem can depend on it.
 example : Fintype.card (GroupStructure 3) = 3 := by native_decide
 
 end GroundTruth
