@@ -2,7 +2,7 @@ name = "proofs"
 version = "0.1.0"
 defaultTargets = ["BilinearComplexity", "GroupTPP", "Erdos",
                   "AlgComplexity", "ShearEC", "CHILO",
-                  "Enumerative"]
+                  "Enumerative", "NumberComplexity", "GroupCount"]
 
 [[lean_lib]]
 name = "BilinearComplexity"
@@ -30,6 +30,14 @@ srcDir = "Proofs"
 
 [[lean_lib]]
 name = "Enumerative"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "NumberComplexity"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "GroupCount"
 srcDir = "Proofs"
 
 [[lean_lib]]

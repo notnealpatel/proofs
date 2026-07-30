@@ -1,4 +1,10 @@
 import Enumerative.A051293.Analytic
 import Enumerative.A051293.Counting
 import Enumerative.Fubini
+import Enumerative.IsZumkeller
+import Enumerative.MultiperfectZumkeller
+import Enumerative.NederGap
+import Enumerative.PalindromeRows
 import Enumerative.Zumkeller
+import Enumerative.ZumkellerSigmaHalf
+import Enumerative.ZumkellerTauSigma

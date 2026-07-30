@@ -1,4 +1,7 @@
 import BilinearComplexity.Basic
+import BilinearComplexity.BooleanRankGeneric
+import BilinearComplexity.Capset
+import BilinearComplexity.CapsetSliceRank
 import BilinearComplexity.Complexify
 import BilinearComplexity.Conspiracy
 import BilinearComplexity.Flattening

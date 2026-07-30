@@ -5,6 +5,7 @@ import GroupTPP.CharDegrees
 import GroupTPP.CharDegreesComm
 import GroupTPP.CharDegreesIndexBound
 import GroupTPP.CharDegreesMul
+import GroupTPP.MaxIrrepDegree
 import GroupTPP.CommProbBound
 import GroupTPP.HigherCommProb
 import GroupTPP.FDRepBridge

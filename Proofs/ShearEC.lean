@@ -1,6 +1,7 @@
 import ShearEC.ShearCircuit
 import ShearEC.ShearAddition
 import ShearEC.ShearAdditionEC
+import ShearEC.ShearAdditionChains
 import ShearEC.ShearInversionLB
 import ShearEC.ShearQuadraticRank
 import ShearEC.Secp256k1Prime

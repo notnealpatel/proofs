@@ -1,3 +1,8 @@
+import Erdos.Covering.Basic
+import Erdos.Covering.ErdosMinus2k
+import Erdos.Covering.ErdosRows
+import Erdos.CoveringNumber
+import Erdos.ErdosLovasz
 import Erdos.Erdos20.Counterexample
 import Erdos.Erdos20.ShadowLadder
 import Erdos.Erdos20.ShiftedSunflower
