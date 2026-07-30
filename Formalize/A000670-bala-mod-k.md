@@ -1,7 +1,8 @@
 seq:     A000670
 claim:   bala-mod-k-periodicity
-status:  k = 2, 4, 16 PROVED; general k stated, intended
-         sorry (2026-07-29; commit 51d04f5)
+status:  PROVED IN FULL — general k discharged 2026-07-30
+         (commit c37e31e); k = 2, 4, 16 instances 2026-07-29
+         (commit 51d04f5); file sorry-free
 stmt:    S
 proof:   M (fixed k) / hard (all k)
 module:  Proofs/Enumerative/FubiniMod.lean (Enumerative.FubiniMod),
@@ -33,15 +34,24 @@ LEAN
     exists N P, P dvd Nat.totient k ∧ P > 0 ∧
       forall n >= N, fubini (n+P) ≡ fubini n [MOD k]
 
-ROUTE
-  Fixed small k (2, 4, 16, ...): finite verification
-  of a closed recurrence mod k, or direct induction on
-  the project recurrence; pigeonhole gives *some*
-  eventual period, the phi(k) divisibility is the
-  content. All k: no route with current machinery;
-  literature-adjacent approach is p-adic analysis of
-  the EGF 1/(2 - e^x). Project asset possibly usable:
-  fubini_polylog (HasSum j^m / 2^j = 2 * fubini m).
+ROUTE (as landed, 2026-07-30, commit c37e31e)
+  Elementary, following Poonen (Fibonacci Quarterly
+  26(1) 1988, 70-76; References/poonen/paper.txt), NOT
+  Barsky's p-adic route: the truncation
+  c k n = sum_{j<k} 2^(k-1-j) j^n of the polylog series
+  satisfies the same binomial recurrence as fubini, so
+  (2^k - 1) * fubini n ≡ c k n (mod k); periodicity of
+  the finitely many j^n via Euler's theorem (p ∤ j) and
+  nilpotence (p ∣ j) gives period phi(p^h) at prime
+  powers; CRT + phi multiplicativity glues to P = phi(k).
+  Vacuity audit PASS (postdoc-relayed, 2026-07-30):
+  statement byte-identical, content sharp at k = 21
+  (minimal period 6; every proper divisor of 12 fails).
+  Novelty: LIKELY-KNOWN / first recorded proof of the
+  general statement — see .tasks/main/docs/
+  novelty-FubiniMod.md; entry labels still say
+  "Conjecture" (A000670, A354242, A002050): OEIS
+  contribution note candidate.
 
 EVIDENCE
   OEIS: mod 16 the sequence is eventually
