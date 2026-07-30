@@ -26,6 +26,13 @@ ROUTE (coprime case — provable now, high confidence)
   element and product-group machinery; the argument
   is elementary and self-contained. Novel: this
   coprime case appears unproved anywhere in-entry.
+  (CARD CORRECTION 2026-07-30, literature sweep: the
+  coprime case is LIKELY-KNOWN folklore — Ren
+  arXiv:2405.04794 §1 states it as "clear" without
+  proof; no standalone theorem statement located in
+  CDO 2008, BNV 2007, Pyber 1993, or Eick. "First
+  recorded proof of a folklore fact" is the ceiling
+  claim. See .tasks/main/docs/novelty-Submult.md.)
 ROUTE (general case)
   Open: G x H ≅ G' x H' with non-coprime orders does
   not force G ≅ G' (cancellation fails in general);
