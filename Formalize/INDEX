@@ -86,6 +86,46 @@ FORMALIZED (campaign of 2026-07-30; each item one commit,
                              in any proof assistant; odd
                              part of Coleman is OPN-hard
                              (see card); vacuity SOUND
+  coleman-opn-hardness       Enumerative/Practical.lean      d84bcbc
+                             MACHINE-CHECKED: Coleman ⟹ no
+                             odd perfect (conditional, H
+                             explicit, ZTS genre) — the
+                             apparently-unrecorded reduction
+                             (NRF-connection tier, below
+                             A083207); weak Coleman (even
+                             perfect ⟹ practical) proved
+                             sorry-free via local Euler-
+                             direction re-proof (Archive
+                             not a dependency); vacuity
+                             SOUND, all 9 decls allowlist
+  stewart-structure-iff      Enumerative/StewartCriterion.lean 55a8a97
+                             Stewart 1954 FULL IFF, both
+                             directions sorry-free, 20
+                             decls; index-free stewartPrefix
+                             form (Switkay merged-quantifier
+                             A005153 comment) + literal
+                             two-clause form; Sage 0
+                             disagreements to 30000; lane
+                             self-audited (no findings);
+                             flagship formalization theorem
+                             of the practical-number arc
+  A236397-peebles (E5)       BilinearComplexity/CapsetSliceRank.lean 01060f0
+                             Peebles poster Thm 4 PROVED
+                             sorry-free (A236397(n) <=
+                             A090245(n)) — LIKELY-KNOWN,
+                             first-recorded-COMPLETE-proof
+                             candidate (poster states it
+                             bare, thesis PDF dead, not
+                             subsumed by ASU/Naslund-Sawin);
+                             weight functional def; sliceRank
+                             bridge chain sorry-free; Peebles
+                             conjecture + CLP bound ARCHIVED
+                             (2 intended sorries; EG bound
+                             kernel-checked reduction,
+                             sorryAx-dependent); no
+                             theorem-tier formalization claim
+                             (Dahmen-Holzl-Lewis ITP 2019 has
+                             EG in Lean 3; route-scope only)
 
   PARTIALLY PROVED / REDUCED (open part = intended sorry):
   A076142-quasilog-chain-gap NumberComplexity/QuasilogChainGap.lean bf57463
@@ -215,21 +255,24 @@ BURNDOWN QUEUE
      per lane (see FORMALIZED): Submult 559c2f0, CdoIteration
      46feb48, DennisSurjectivity 24c754e, GroupPerfect
      0c5e638, plus trust-wording correction 1c43678.
-  2. A236397-peebles (E5): capset + SliceRank bridge →
-     BilinearComplexity/CapsetSliceRank.lean stub.
+  2. A236397-peebles (E5) — DONE 2026-07-30 (01060f0, see
+     FORMALIZED). Follow-on candidates: (a) the CLP
+     slice-rank bound itself (the archived sorry — polynomial
+     method, DHL ITP 2019 is the Lean 3 model); (b) slice-rank
+     pullback-monotonicity lemma for SliceRank.lean (would
+     generalize the archived statement to full tensors).
   3. A039669-erdos-minus-2k + A089654-erdos-rows (E7):
      covering-system statement lanes; PIN the 2^128 bound
      from the live entry.
   4. A003313-knuth-stolarsky + ShearAdditionChains (T5
      bridge): statement archives on the AdditionChain layer.
-  5. Nat.Practical def lane — DONE 2026-07-30 (USER dispatched
-     mid-session; landed 6b4d720, see FORMALIZED). Follow-on
-     candidates (not yet dispatched): (a) Coleman OPN-hardness
-     conditional micro-theorem (sorry-free, ~5 lines from
-     Practical.two_dvd — see card); (b) Stewart full iff
-     (necessity + factorisation-indexed statement); (c) weak
-     Coleman (even perfect ⟹ practical) — blocked only on
-     Euclid-Euler living in Mathlib's Archive.
+  5. Nat.Practical def lane — DONE 2026-07-30 (6b4d720), and
+     ALL THREE follow-ons landed same day: (a) Coleman
+     OPN-hardness reduction + (c) weak Coleman (d84bcbc,
+     Euler direction re-proved locally); (b) Stewart full iff
+     (55a8a97). The practical-number arc is complete except
+     the archived Coleman sorry itself (odd part OPN-hard;
+     attackable fragment = even multiperfects).
   6. NEW from the 2026-07-30 audits: (a) prove AdditionChain's
      permissive convention equal to A003313's ascending one
      (agreement verified computationally to n = 24; see
@@ -312,8 +355,10 @@ STATEMENTS
                                           Erdos-Rado n!(m-1)^n
                                           bound is a strong
                                           adjacent MAYBE card
-  A236397-peebles                 M/hard  capset def = bridge
-                                          to SliceRank.lean
+  A236397-peebles                 → FORMALIZED 2026-07-30
+                                          (01060f0); poster Thm 4
+                                          proved, conjecture +
+                                          CLP archived
   A391599-erdos-lovasz            → FORMALIZED 2026-07-30
                                           (a8d9c50); 3n+O(1)
                                           REFUTED vs Sivashankar
@@ -436,7 +481,9 @@ MATHLIB GAPS
   but now carried by this repo (2026-07-29 campaign);
   they remain novel-formalization upstreaming candidates.
 
-  sunflowers (any def)          absent
+  sunflowers (any def)          [PROJECT] Erdos/Erdos20/Sunflower.lean
+                                + Peebles weight functional
+                                BilinearComplexity/CapsetSliceRank.lean
   capsets                       [PROJECT] BilinearComplexity/Capset.lean
                                 (via Mathlib ThreeAPFree — the
                                 extremal numbers + char-3 bridge

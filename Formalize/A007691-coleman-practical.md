@@ -33,13 +33,20 @@ LEAN (landed 2026-07-30, commit 6b4d720)
   SOUND (2026-07-30). Novelty: first practical-number
   formalization in ANY proof assistant; all proved
   math classical — .tasks/main/docs/novelty-Practical.md.
-  HARDNESS (unrecorded observation, 2026-07-30):
-  Coleman + two_dvd ⟹ no odd multiperfect > 1, in
-  particular no odd perfect number — the odd part of
-  the conjecture is OPN-hard; the attackable fragment
-  is "every even multiperfect is practical". A
-  sorry-free conditional micro-theorem for this is a
-  proposed follow-on.
+  HARDNESS (unrecorded observation, 2026-07-30) —
+  LANDED d84bcbc: the conditional reduction is now
+  machine-checked (two_dvd_of_isMultiperfect_of_coleman,
+  not_isMultiperfect_of_odd_of_coleman,
+  not_perfect_of_odd_of_coleman; H explicit, ZTS-genre
+  disclosure; vacuity SOUND). Weak Coleman also landed
+  sorry-free (Perfect.practical_of_even, with Euler's
+  direction re-proved locally — Archive not a dep).
+  Stewart's full iff landed 55a8a97
+  (Enumerative/StewartCriterion.lean, both directions).
+  Remaining open: the archived sorry itself — odd part
+  OPN-hard, attackable fragment "every even multiperfect
+  is practical". OEIS note candidate: an A007691 comment
+  recording the OPN implication.
 
 ROUTE
   Stewart's criterion (p_{i+1} <= sigma(prod so far)+1
