@@ -2,6 +2,7 @@ import Enumerative.A051293.Analytic
 import Enumerative.A051293.Counting
 import Enumerative.Fubini
 import Enumerative.IsZumkeller
+import Enumerative.MeanDivisors
 import Enumerative.MultiperfectZumkeller
 import Enumerative.NederGap
 import Enumerative.PalindromeRows
