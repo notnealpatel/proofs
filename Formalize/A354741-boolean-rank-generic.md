@@ -1,6 +1,8 @@
 seq:     A354741
 claim:   boolean-full-rank-generic
-status:  open
+status:  PROVED 2026-07-30 (Proofs/BilinearComplexity/
+         BooleanRankGeneric.lean, commit 3ec26ec; novelty
+         sweep NO-REFERENCE-FOUND — first recorded proof)
 stmt:    M
 proof:   M (plausible)
 module:  Proofs/BilinearComplexity/ (Boolean rank is
@@ -9,6 +11,15 @@ module:  Proofs/BilinearComplexity/ (Boolean rank is
 source:  OEIS A354741 comment (unattributed
          "it appears from some empirical
          computations")
+
+CORRECTION (2026-07-30, vacuity audit F4 — binding)
+  The CLAIM below says "FULL Boolean rank n" unqualified.
+  The rank notion MUST be Boolean ROW rank (the entry's
+  T(n,k) semantics): under the Schein/rectangle-cover
+  reading the conjecture is empirically FALSE (A355333
+  diagonal fractions decrease: .500, .375, .3047, .2457,
+  .1914). The formalization proves the row-rank statement
+  and keeps the two notions provably distinct.
 
 CLAIM
   T(n,k) = number of n x n Boolean matrices with
