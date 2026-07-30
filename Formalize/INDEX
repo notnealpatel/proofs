@@ -64,6 +64,28 @@ FORMALIZED (campaign of 2026-07-30; each item one commit,
                              first-recorded-proof ceiling;
                              new bounds 2<=gnu 9 (exact),
                              4<=gnu 36; general case HOLD
+  A000670-bala-mod-k         Enumerative/FubiniMod.lean      c37e31e
+                             Bala's totient-period conjecture
+                             PROVED IN FULL (general k; file
+                             now sorry-free) via elementary
+                             Poonen-style truncation route;
+                             LIKELY-KNOWN / first recorded
+                             proof — "Conjecture" labels
+                             still live at A000670, A354242,
+                             A002050 (OEIS note candidate);
+                             vacuity PASS (postdoc-relayed)
+  A007691-coleman-practical  Enumerative/Practical.lean      6b4d720
+                             Nat.Practical layer BUILT
+                             sorry-free (Stewart step,
+                             unordered; Srinivasan bound;
+                             strong-σ iff); Coleman
+                             conjecture ARCHIVED (single
+                             intended sorry) + first ten
+                             A007691 terms certified; FIRST
+                             practical-number formalization
+                             in any proof assistant; odd
+                             part of Coleman is OPN-hard
+                             (see card); vacuity SOUND
 
   PARTIALLY PROVED / REDUCED (open part = intended sorry):
   A076142-quasilog-chain-gap NumberComplexity/QuasilogChainGap.lean bf57463
@@ -200,9 +222,14 @@ BURNDOWN QUEUE
      from the live entry.
   4. A003313-knuth-stolarsky + ShearAdditionChains (T5
      bridge): statement archives on the AdditionChain layer.
-  5. Nat.Practical def lane: USER-shelved 2026-07-30 pending
-     explicit dispatch (E4's halt removed the Ianakiev
-     rationale; remaining value = A007691-coleman + Stewart).
+  5. Nat.Practical def lane — DONE 2026-07-30 (USER dispatched
+     mid-session; landed 6b4d720, see FORMALIZED). Follow-on
+     candidates (not yet dispatched): (a) Coleman OPN-hardness
+     conditional micro-theorem (sorry-free, ~5 lines from
+     Practical.two_dvd — see card); (b) Stewart full iff
+     (necessity + factorisation-indexed statement); (c) weak
+     Coleman (even perfect ⟹ practical) — blocked only on
+     Euclid-Euler living in Mathlib's Archive.
   6. NEW from the 2026-07-30 audits: (a) prove AdditionChain's
      permissive convention equal to A003313's ascending one
      (agreement verified computationally to n = 24; see
@@ -238,7 +265,8 @@ BACKLOG
   A092482-A093682-no3ap-closed-forms  M/M-L  per-row finite-
                                     state; rows 0-2 in lit.
 
-  A000670-bala-mod-k         S/M    fixed small k instances
+  A000670-bala-mod-k         → PROVED IN FULL 2026-07-30
+                                    (c37e31e), see FORMALIZED
 
   A354741-boolean-rank-generic  → PROVED 2026-07-30, see
                                     FORMALIZED (3ec26ec)
@@ -257,7 +285,10 @@ STATEMENTS
   A000670-muljadi-primes-mod4     S/hard
   A083207-ianakiev-sigma-half     S/hard  needs IsZumkeller
   A007691-multiperfect-zumkeller  S/hard  needs IsZumkeller
-  A007691-coleman-practical       S-M/hard needs Nat.Practical
+  A007691-coleman-practical       → ARCHIVED 2026-07-30
+                                          (6b4d720); def layer
+                                          built, odd part
+                                          OPN-hard (see card)
   A323653-karttunen               M/hard  pin A351458/A349745
   A003313-knuth-stolarsky         M/hard  needs AdditionChain
                                           (BUILT — dispatchable,
@@ -373,10 +404,12 @@ SHARED NEW DEFS (build once; unlock counts)
   covering systems      BUILT (f2cd3df). unlocks A039669,
                         A089654 (+ Sierpinski territory)
 
-  Nat.Practical         NOT BUILT; USER-shelved 2026-07-30
-                        pending explicit dispatch (queue
-                        item 5). unlocks A007691-coleman
-                        + Stewart's theorem
+  Nat.Practical         BUILT (6b4d720), USER-dispatched
+                        2026-07-30. Coleman archived in the
+                        same module (single intended sorry);
+                        Stewart step + strong-σ iff landed;
+                        full Stewart iff and weak Coleman are
+                        queue-item-5 follow-ons
 
   tau (covering number) BUILT (70c8faf) as coveringNumber;
                         consumers MUST carry ∅ ∉ F.
@@ -423,7 +456,10 @@ MATHLIB GAPS
   Mordell-Weil rank             absent
   congruent numbers             absent
   covering congruences          [PROJECT] Erdos/Covering/Basic.lean
-  Nat.Practical                 absent
+  Nat.Practical                 [PROJECT] Enumerative/Practical.lean
+                                (first formalization in any
+                                proof assistant per sweep;
+                                upstreaming candidate)
   perfect-power predicate       absent
   EGF API                       absent
   popcount                      absent (one-liner;
