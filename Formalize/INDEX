@@ -175,10 +175,16 @@ STATEMENTS
   A005432-pyber                   M/hard
   A002106-inverse-galois          L/open
   A161682-primes-not-x3-y2        S/hard
-  A031507-mordell-rank-records    L/open  rank layer absent
-  A060748-sondow                  L/open  rank layer absent
-  A273929-bsd-congruent           L/open  point-existence
-                                          reformulation is M
+  A031507-mordell-rank-records    SHELVED (USER 2026-07-30;
+                                          no MW layer in Mathlib,
+                                          no conditional-rank
+                                          workaround — see card)
+  A060748-sondow                  SHELVED (USER 2026-07-30;
+                                          same ruling — see card)
+  A273929-bsd-congruent           L/open  ONLY the rank-free
+                                          point-existence
+                                          reformulation (M) is
+                                          authorized — see card
   A046098-squarefree-central-binom S/hard extend Erdos/Erdos175/
                                           NotSquarefree.lean:
                                           proved core exists
