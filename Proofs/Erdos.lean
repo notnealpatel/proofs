@@ -1,6 +1,7 @@
 import Erdos.Covering.Basic
 import Erdos.Covering.ErdosMinus2k
 import Erdos.Covering.ErdosRows
+import Erdos.Covering.NotTwoPowerPlusPrime
 import Erdos.CoveringNumber
 import Erdos.ErdosLovasz
 import Erdos.Erdos20.Counterexample
