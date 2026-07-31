@@ -76,6 +76,22 @@
         family separates the two notions — see the § 6 discriminator), so
         the defs are bridged, not shared.
 
+        RETRACTION (2026-07-31). § 6 is NOT an anchor to Erdős problem #857
+        (the weak sunflower problem), and must not be cited as one. #857 and
+        upstream formal-conjectures both spell the sunflower as
+        `∃ K, F.Pairwise (fun A B => A ∩ B = K)` — distinct pairs, existential
+        kernel, and NO petal condition — whereas `IsSunflowerWith` of
+        Erdos/Erdos20/Sunflower.lean additionally demands `S \ K ≠ ∅`. So
+        `HasSunflower _ 3` is STRICTLY STRONGER than the #857 notion and
+        `¬ HasSunflower _ 3` strictly weaker than #857-sunflower-freeness:
+        `{{0}, {0,1}, {0,2}}` is a #857 3-sunflower carrying no
+        `HasSunflower … 3`, machine-checked as
+        `Erdos857.erdos857_petal_mismatch` in Erdos/Erdos857/NaslundSawin.lean.
+        The extra clause is harmless for #20 itself (a uniform family cannot
+        have an empty petal), so nothing in this file or in Erdos20 is wrong —
+        only the #857 reading of § 6 would be. The correct #857 anchor, and
+        the Naslund–Sawin bound on m(n,3), live in that file.
+
   Intended sorries (2, both disclosed in their docstrings):
     `peebles_conjecture`, `croot_lev_pach_sliceRank_lineTensor`.
   `ellenberg_gijswijt` adds no sorry of its own but is `sorryAx`-dependent
