@@ -1,7 +1,11 @@
 import Erdos.Covering.Basic
+import Erdos.Covering.Erdos1950Instance
 import Erdos.Covering.ErdosMinus2k
 import Erdos.Covering.ErdosRows
+import Erdos.Covering.FixedDivisor
 import Erdos.Covering.NotTwoPowerPlusPrime
+import Erdos.Covering.Riesel
+import Erdos.Covering.Sierpinski
 import Erdos.CoveringNumber
 import Erdos.ErdosLovasz
 import Erdos.Erdos20.Counterexample
