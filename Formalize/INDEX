@@ -126,6 +126,41 @@ FORMALIZED (campaign of 2026-07-30; each item one commit,
                              theorem-tier formalization claim
                              (Dahmen-Holzl-Lewis ITP 2019 has
                              EG in Lean 3; route-scope only)
+  erdos-1950-2k-plus-p (E7)  Erdos/Covering/NotTwoPowerPlusPrime.lean
+                             ERDOS 1950 PROVED IN FULL, sorry-
+                             free, 20 decls: infinitely many odd
+                             m are not of the form 2^k + p.
+                             Covering system {0(2),0(3),1(4),
+                             3(8),7(12),23(24)} x primes
+                             {3,7,5,17,13,241}, CRT witness
+                             M = 7629217 mod P = 11184810.
+                             erdos_1950 carries NO k-restriction
+                             (oddness kills k = 0 free). Side
+                             condition dropped via dyadic-block
+                             placement (orchestrator route), not
+                             a counting argument. Corollary
+                             not_prime_sub_two = an explicit
+                             infinite AP of A039669 NON-terms —
+                             the only proved structural
+                             constraint on erdosproblems #1142
+                             in any assistant. FIRST MACHINE-
+                             CHECKED PROOF in any proof
+                             assistant (novelty-ErdosCovering.md).
+                             Do NOT claim covering-system
+                             priority: DeepMind formal-
+                             conjectures has the definition,
+                             plby/lean-proofs has sorry-free
+                             covering proofs (Erdos275/280/281).
+                             Do NOT claim order-theoretic
+                             content: §2 is provably OUTSIDE the
+                             dependency cone (hpow elaborates to
+                             raw of_decide_eq_true). Vacuity
+                             SOUND (lane-dispatched cop, whose
+                             own Sage sweep erred {1,6,31} vs
+                             correct {1,6}); axioms independently
+                             re-swept by orchestrator from a
+                             cold external file, allowlist-subset
+                             check, 3 distinct names total
 
   PARTIALLY PROVED / REDUCED (open part = intended sorry):
   A076142-quasilog-chain-gap NumberComplexity/QuasilogChainGap.lean bf57463
@@ -262,8 +297,9 @@ BURNDOWN QUEUE
      pullback-monotonicity lemma for SliceRank.lean (would
      generalize the archived statement to full tensors).
   3. A039669-erdos-minus-2k + A089654-erdos-rows (E7):
-     covering-system statement lanes; PIN the 2^128 bound
-     from the live entry.
+     covering-system statement lanes. Citable bound is 2^120
+     (Alekseyev, live OEIS entry) — the 2^128 formerly pinned
+     here was UNSOURCED DRIFT, see the card note.
   4. A003313-knuth-stolarsky + ShearAdditionChains (T5
      bridge): statement archives on the AdditionChain layer.
   5. Nat.Practical def lane — DONE 2026-07-30 (6b4d720), and
@@ -396,9 +432,9 @@ STATEMENTS
                                           centralBinom_iff,
                                           5<=n<=2^30 sorry-free)
   A039669-erdos-minus-2k          S/hard  covering systems;
-                                          no term below 2^128
-                                          (supersedes brief's
-                                          2^120); erdosproblems
+                                          no term below 2^120
+                                          (Alekseyev 2011, live
+                                          OEIS); erdosproblems
                                           #1142 open
   A089654-erdos-rows              S/hard  absent from Mathlib
   A002804-euler-ideal-waring      S/open
