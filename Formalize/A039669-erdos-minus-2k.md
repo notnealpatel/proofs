@@ -42,6 +42,25 @@ ROUTE
   1181895 mod 2363790 above 2^28+29. Next usable prime is
   37 (2 is NOT a primitive root mod 7, 17, 23, 31).
 
+  ATTRIBUTION — THE REDUCTION IS NOT OURS. It is Chris
+  Nash, 15 September 2000, on primepuzzles.net prob_003,
+  in the same words and with the same threshold:
+  "Suppose n is a solution, Let p be an odd prime...
+  2^1, 2^2, 2^3....2^(p-1) all leave a different
+  remainder after division by p. Then all solutions - if
+  any exist - larger than 2^(p-1)+p must be a multiples
+  of p." Nash's version is STRICTLY STRONGER than ours:
+  he reaches multiples of 3*5*11*13*19*29*37*53*59*61*67
+  = 558873012475635, where we stop at 29. (Our q-set is
+  nonetheless the right one for a 10^9 window — q = 37
+  needs m > 2^36, already past the ceiling.) Any writeup
+  MUST cite Nash and must present the reduction as
+  formalized background, never as a contribution. The
+  same page credits Uchiyama & Yorinaga for 2^77.
+
+  Audited 2026-07-31 after the orchestrator raised the
+  reduction as possibly novel; it is not.
+
   PRIOR ART — not first to formalize this statement.
   google-deepmind/formal-conjectures has Erdos1142Prop in
   FormalConjectures/ErdosProblems/1142.lean, with the
