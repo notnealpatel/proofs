@@ -212,6 +212,41 @@ FORMALIZED (campaign of 2026-07-30; each item one commit,
                              density 0, disclosed as strict
                              consequence of the comment);
                              every prime proved deficient
+  A039669 + A089654 (E7)     Erdos/Covering/ErdosMinus2k.lean +
+                             Erdos/Covering/ErdosRows.lean   7520b62
+                             conjecture archived (1 sorry,
+                             erdos_1142; 5 decls sorryAx-
+                             dependent through it, all
+                             disclosed). NOT first to formalize
+                             the A039669 statement — DeepMind
+                             formal-conjectures 1142.lean has
+                             Erdos1142Prop (conjecture + 2^44
+                             window both sorry'd); predicate
+                             here matches its guarded shape.
+                             NEW: completeness window sorry-free
+                             to N = 10^9, a kernel-checked
+                             instance of what is asserted-but-
+                             unproved upstream. Brute force dies
+                             at ~10^4 (60 kB/candidate kernel
+                             cost); reached instead by a PROVED
+                             covering-congruence reduction —
+                             2 a primitive root mod q makes 2^k
+                             hit every nonzero residue, forcing
+                             q | m above 2^(q-1)+q; at
+                             q=3,5,11,13,19,29 pins m to
+                             1181895 mod 2363790. Sweeps decide
+                             NoSmallFactor (weaker than prime ⇒
+                             swept statements stronger).
+                             A089654 FIRST FORMALIZATION in any
+                             assistant; forall_prime_erdosRow_iff
+                             makes "A089654 = A039669's odd
+                             part" machine-checked. Vacuity trap
+                             is m = 0, 1, 2 (THREE, not two —
+                             brief said {1,2}); bridge needs
+                             0 < n for the row-0 shadow. Axioms
+                             independently re-swept by
+                             orchestrator, all 99 decls, cold
+                             external file, allowlist-subset
 
 FORMALIZED (campaign of 2026-07-29; each item one commit,
   orchestrator-vacuity-reviewed, axioms within
@@ -296,10 +331,17 @@ BURNDOWN QUEUE
      method, DHL ITP 2019 is the Lean 3 model); (b) slice-rank
      pullback-monotonicity lemma for SliceRank.lean (would
      generalize the archived statement to full tensors).
-  3. A039669-erdos-minus-2k + A089654-erdos-rows (E7):
-     covering-system statement lanes. Citable bound is 2^120
-     (Alekseyev, live OEIS entry) — the 2^128 formerly pinned
-     here was UNSOURCED DRIFT, see the card note.
+  3. A039669-erdos-minus-2k + A089654-erdos-rows (E7) — DONE
+     2026-07-31, both lanes landed (see FORMALIZED): archives +
+     10^9 window + A089654 bridge (7520b62), and the covering
+     layer's first payoff, ERDOS 1950 PROVED IN FULL (add6611).
+     Citable bound is 2^120 (Alekseyev, live OEIS) — the 2^128
+     formerly pinned here was UNSOURCED DRIFT, corrected d20b042.
+     Follow-on candidates: (a) push the window past 2^44 to
+     discharge DeepMind's sorry'd mientka_weitzenkamp — needs
+     q = 37 and ~230000 candidates, ~60x current sweep, memory-
+     bound on this box; (b) Sierpinski/Riesel numbers, now
+     reachable from the same covering layer.
   4. A003313-knuth-stolarsky + ShearAdditionChains (T5
      bridge): statement archives on the AdditionChain layer.
   5. Nat.Practical def lane — DONE 2026-07-30 (6b4d720), and
@@ -431,12 +473,12 @@ STATEMENTS
                                           (squarefree_
                                           centralBinom_iff,
                                           5<=n<=2^30 sorry-free)
-  A039669-erdos-minus-2k          S/hard  covering systems;
-                                          no term below 2^120
-                                          (Alekseyev 2011, live
-                                          OEIS); erdosproblems
-                                          #1142 open
-  A089654-erdos-rows              S/hard  absent from Mathlib
+  A039669-erdos-minus-2k          LANDED 2026-07-31 (7520b62),
+                                          see FORMALIZED; only the
+                                          conjecture itself remains
+                                          (erdosproblems #1142 open)
+  A089654-erdos-rows              LANDED 2026-07-31 (7520b62),
+                                          bridged to A039669's odd part
   A002804-euler-ideal-waring      S/open
 
 
@@ -482,8 +524,16 @@ SHARED NEW DEFS (build once; unlock counts)
                         master recurrence equality.
                         unlocks A005245, A005520
 
-  covering systems      BUILT (f2cd3df). unlocks A039669,
-                        A089654 (+ Sierpinski territory)
+  covering systems      BUILT (f2cd3df). BOTH consumers LANDED
+                        2026-07-31: A039669 + A089654 (7520b62)
+                        and, beyond the original brief, Erdos
+                        1950 proved in full (add6611) — the
+                        layer's first proof-level payoff.
+                        Sierpinski/Riesel territory still open
+                        and now cheap. NOTE: not a priority
+                        claim — DeepMind formal-conjectures has
+                        a CoveringSystem def, plby/lean-proofs
+                        has sorry-free covering proofs
 
   Nat.Practical         BUILT (6b4d720), USER-dispatched
                         2026-07-30. Coleman archived in the

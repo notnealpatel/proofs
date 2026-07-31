@@ -1,9 +1,9 @@
 seq:     A039669
 claim:   erdos-completeness
-status:  open
+status:  ARCHIVED 2026-07-31 (7520b62); conjecture still open
 stmt:    S
-proof:   hard (covering-congruence machinery absent)
-module:  none
+proof:   hard (conjecture); window to 10^9 PROVED
+module:  Erdos/Covering/ErdosMinus2k.lean
 source:  OEIS A039669 (Erdos conjecture; search bound
          M. Alekseyev 2011-12-08)
 
@@ -29,6 +29,30 @@ ROUTE
   itself a novel formalization territory shared with
   Sierpinski/Riesel-number statements.
 
+  LANDED 2026-07-31 (7520b62). Covering layer built at
+  f2cd3df; this lane consumed it. Conjecture archived as
+  the single intended sorry (erdos_1142). Window proved
+  sorry-free to N = 10^9 — NOT by brute force (kernel
+  costs ~60 kB/candidate; naive sweep dies near 10^4 and
+  a 225k-step run took 13.9 GB) but by a proved
+  covering-congruence reduction: 2 a primitive root mod q
+  makes 2^k run over every nonzero residue for
+  k = 1..q-1, so all m - 2^k prime forces q | m once
+  m > 2^(q-1) + q. At q = 3,5,11,13,19,29 this pins m to
+  1181895 mod 2363790 above 2^28+29. Next usable prime is
+  37 (2 is NOT a primitive root mod 7, 17, 23, 31).
+
+  PRIOR ART — not first to formalize this statement.
+  google-deepmind/formal-conjectures has Erdos1142Prop in
+  FormalConjectures/ErdosProblems/1142.lean, with the
+  conjecture AND the 2^44 Mientka-Weitzenkamp window both
+  sorry'd and the seven certificates proved. Our
+  predicate matches its guarded shape (2 < m ∧ ...). The
+  contribution is the sorry-free window, not the
+  statement. Pushing past 2^44 would discharge their
+  sorry'd variant: needs q = 37, ~230000 candidates,
+  ~60x the current sweep — memory-bound on this box.
+
 EVIDENCE
   No further term below 2^120 (Alekseyev, OEIS comment
   2011-12-08) — this is the citable bound. Published: no
@@ -46,10 +70,18 @@ EVIDENCE
   not peer reviewed, not independently reproduced. Do NOT
   cite 2^128. INDEX corrected.
 
-  Full solution set of the RAW predicate for m <= 200000
-  (Sage, 2026-07-30): {1, 2, 4, 7, 15, 21, 45, 75, 105}.
-  m = 1 and m = 2 satisfy it VACUOUSLY (no k >= 1 has
-  2^k < m), which is why the OEIS list starts at 4 (cf.
+  Full solution set of the RAW predicate for m <= 200000:
+  {0, 1, 2, 4, 7, 15, 21, 45, 75, 105}. THREE vacuous
+  solutions — m = 0, 1, 2 each have no k >= 1 with
+  2^k < m — which is why the OEIS list starts at 4 (cf.
   R. Israel comment 2015-12-23). Any Lean statement of the
-  conjecture lacking a 3 <= m guard is FALSE, not merely
-  weak.
+  conjecture lacking a guard is FALSE, not merely weak.
+  The landed predicate folds in `2 < m`, matching
+  DeepMind's Erdos1142Prop.
+
+  CORRECTION: the orchestrator's 2026-07-30 sweep reported
+  {1, 2, 4, ...} and briefed the lane with two vacuous
+  solutions. It enumerated from m = 1 and so missed
+  m = 0; the writer caught it and disclosed three. Kept
+  here because the off-by-one is exactly the kind of
+  boundary a statement audit exists to catch.
