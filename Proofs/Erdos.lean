@@ -4,6 +4,7 @@ import Erdos.Covering.ErdosMinus2k
 import Erdos.Covering.ErdosRows
 import Erdos.Covering.FixedDivisor
 import Erdos.Covering.NotTwoPowerPlusPrime
+import Erdos.Covering.RankOfApparition
 import Erdos.Covering.Riesel
 import Erdos.Covering.Sierpinski
 import Erdos.CoveringNumber
