@@ -39,6 +39,29 @@
   odd n = 1 (4 = 2·2, kernel-checked below) but fails at n = 3
   (A236397(4) = 20 ≠ 18 = 2·A090245(3)) and n = 5 (96 ≠ 90).
 
+  CLP/EG PINNING (papers fetched; verified 2026-08-05). From
+  References/GroupTPP/arXiv-1605-09223 (Ellenberg–Gijswijt, "On large
+  subsets of F_q^n with no three-term arithmetic progression"), verbatim:
+  Proposition \label{pr:clp}: "Suppose P ∈ S_n^d satisfies
+  P(\alpha a+\beta b) = 0 for every pair a,b of distinct elements of A.
+  Then the number of a ∈ A for which P(-\gamma a) \neq 0 is at most
+  2 m_{d/2}."; Theorem \label{th:main}: "Then |A| \leq 3m_{(q-1)n/3}.";
+  Corollary: "Let A be a subset of (\Z/3\Z)^n containing no three-term
+  arithmetic progression.  Then |A| = o(2.756^n)."  Proof-structure model
+  (per lane brief): lean-forward/cap_set_problem, the Dahmen–Hölzl–Lewis
+  ITP 2019 formalization (paper in
+  References/BilinearComplexity/arXiv-1907-01449; Lean 3.4.2), chain
+  `theorem_12_1` ("A.card ≤ 3*(m (1/3*((q-1)*n)))") → `theorem_13_14` →
+  `cap_set_problem`. DHL follow the EG asymmetric vanishing-space
+  argument; § 5 here instead follows Tao's symmetric slice-rank
+  formulation ("A symmetric formulation of the
+  Croot–Lev–Pach–Ellenberg–Gijswijt capset bound", terrytao.wordpress.com,
+  May 2016), the form the § 4 schema and Tao's diagonal lemma consume:
+  over F_3 the line indicator factors as ∏_t (1 − (x_t+y_t+z_t)²), a
+  polynomial of total degree ≤ 2n in whose monomials x^a y^b z^c some
+  mode has degree ≤ 2n/3; grouping by that mode gives ≤ 3·m_{2n/3}
+  slices.
+
   CONTENTS.
 
     § 1 Peebles weight functional: `ExactlyTwoOnes`, `SunflowerFree`,
@@ -56,15 +79,20 @@
         rank is the number of points), and the method schema
         `capsetNumber_le_of_forall_sliceRank_lineTensor_le` (any uniform
         slice-rank bound on cap tuples bounds the cap-set numbers).
-    § 5 ARCHIVED (intended `sorry`): `croot_lev_pach_sliceRank_lineTensor`
-        — over F_3 the slice rank of any line tensor is at most
-        3·#{monomials of degree ≤ 2n/3} (Croot–Lev–Pach polynomial method,
-        as symmetrized by Tao; the engine of Ellenberg–Gijswijt,
-        References/arXiv-1605-09223). `ellenberg_gijswijt`
-        (capsetNumber n ≤ 3·clpMonomialCount n, i.e. the o(2.756^n) bound's
-        exact finite form) is DERIVED from it through the § 4 schema, so the
-        reduction "polynomial method ⇒ cap-set bound" is machine-checked;
-        only the CLP slice-rank bound itself is archived.
+    § 5 Croot–Lev–Pach / Ellenberg–Gijswijt, sorry-free (since
+        2026-08-05; previously the archived second sorry): `clpCoeff` (the
+        coefficient table of 1 − (x+y+z)² over F_3, kernel-decided
+        expansion `clpCoeff_expand` and degree bound
+        `clpCoeff_ne_zero_deg`), `lineTensor_apply_expand` (the line
+        tensor of ANY tuple as a sum of monomials),
+        `sliceRankLE_of_expansion` (Tao's partition step: a
+        low-degree-per-mode monomial expansion is a slice decomposition),
+        `sliceRankLE_lineTensor_clp` (the CLP bound, unconditioned — no
+        injectivity or 3AP-freeness needed),
+        `croot_lev_pach_sliceRank_lineTensor` (the pinned conditional
+        form the § 4 schema consumes), and `ellenberg_gijswijt`
+        (capsetNumber n ≤ 3·clpMonomialCount n, the o(2.756^n) bound's
+        exact finite form), now machine-checked end to end.
     § 6 Bridge to the project's Erdős–Rado sunflower layer
         (Erdos/Erdos20/Sunflower.lean, first cross-library import —
         justified here as the name-grounding bridge; that file is
@@ -92,11 +120,10 @@
         only the #857 reading of § 6 would be. The correct #857 anchor, and
         the Naslund–Sawin bound on m(n,3), live in that file.
 
-  Intended sorries (2, both disclosed in their docstrings):
-    `peebles_conjecture`, `croot_lev_pach_sliceRank_lineTensor`.
-  `ellenberg_gijswijt` adds no sorry of its own but is `sorryAx`-dependent
-  through the latter.
-  Everything else: no sorry, axioms ⊆ {propext, Classical.choice, Quot.sound}.
+  Intended sorries (1, disclosed in its docstring): `peebles_conjecture`.
+  Everything else — `croot_lev_pach_sliceRank_lineTensor` and
+  `ellenberg_gijswijt` included since 2026-08-05 — no sorry, axioms ⊆
+  {propext, Classical.choice, Quot.sound} (see the closing audit block).
 
   AI disclosure: produced with AI assistance (see Proofs/README).
 -/
@@ -490,8 +517,9 @@ example : Function.Injective (![![0], ![1]] : Fin 2 → Fin 1 → ZMod 3) ∧
 
 /-- **The slice rank of a cap tuple's line tensor is the number of points.**
 Combines the diagonal collapse with Tao's diagonal lemma (`sliceRank_diag`).
-This is the sorry-free half of the Croot–Lev–Pach / Ellenberg–Gijswijt
-method: cap sets realize their size as a slice rank. -/
+This is the lower-bound half of the Croot–Lev–Pach / Ellenberg–Gijswijt
+method: cap sets realize their size as a slice rank. (The upper-bound
+half is § 5's `croot_lev_pach_sliceRank_lineTensor`.) -/
 theorem sliceRank_lineTensor {k : Type*} [Field k] [DecidableEq k]
     {n m : ℕ} {v : Fin m → Fin n → ZMod 3}
     (hv : Function.Injective v) (hfree : ThreeAPFree (Set.range v)) :
@@ -528,7 +556,7 @@ theorem exists_sliceRank_lineTensor_eq_capsetNumber
 /-- **Method schema: slice-rank bounds bound cap sets.** Any uniform upper
 bound on the slice rank of line tensors of cap tuples is an upper bound on
 the cap-set numbers. This is the machine-checked reduction through which
-`ellenberg_gijswijt` follows from the archived Croot–Lev–Pach bound. -/
+`ellenberg_gijswijt` follows from the § 5 Croot–Lev–Pach bound. -/
 theorem capsetNumber_le_of_forall_sliceRank_lineTensor_le
     {k : Type*} [Field k] [DecidableEq k] {n B : ℕ}
     (h : ∀ (m : ℕ) (v : Fin m → Fin n → ZMod 3), Function.Injective v →
@@ -552,7 +580,7 @@ example (n : ℕ) : capsetNumber n ≤ 3 ^ n := by
 
 end LineTensor
 
-/-! ## 5. Croot–Lev–Pach / Ellenberg–Gijswijt (ARCHIVED, intended sorry) -/
+/-! ## 5. Croot–Lev–Pach / Ellenberg–Gijswijt (sorry-free) -/
 
 section CLP
 
@@ -569,32 +597,345 @@ thresholds 0, 0, 1, 2, 2). -/
 example : clpMonomialCount 0 = 1 ∧ clpMonomialCount 1 = 1 ∧ clpMonomialCount 2 = 3 ∧
     clpMonomialCount 3 = 10 ∧ clpMonomialCount 4 = 15 := by decide
 
-/-- **Croot–Lev–Pach slice-rank bound** (References/arXiv-1605-09223,
-Proposition 2 — "essentially Lemma 1 of Croot–Lev–Pach" — feeding Theorem 4
-at `q = 3`, in Tao's symmetric slice-rank formulation): over `F_3`, the line
-tensor of an injective 3AP-free tuple of points of `F_3^n` has slice rank at
-most `3·clpMonomialCount n` — exactly the instance the § 4 method schema
+/-- The coefficient table of the CLP kill polynomial over `F_3`: in
+`ZMod 3` the line indicator `δ₀(x+y+z)` equals `1 − (x+y+z)²` (`0 ↦ 1`,
+`1 ↦ 0`, `2 ↦ 0`), which expands to
+`1 − x² − y² − z² − 2xy − 2xz − 2yz`, i.e. (mod 3) coefficient `1` on the
+constant monomial, `2` on `x², y², z²`, `1` on `xy, xz, yz`, `0`
+elsewhere. `clpCoeff p q r` is the coefficient of `x^p y^q z^r`. Every
+nonzero entry has `p + q + r ≤ 2` (`clpCoeff_ne_zero_deg`) — the degree
+bound that powers the slice count. -/
+def clpCoeff (p q r : Fin 3) : ZMod 3 :=
+  if (p : ℕ) + (q : ℕ) + (r : ℕ) = 0 then 1
+  else if (p : ℕ) + (q : ℕ) + (r : ℕ) = 2 then
+    (if p = 1 ∨ q = 1 ∨ r = 1 then 1 else 2)
+  else 0
+
+/-! Ground checks for `clpCoeff`: the constant, square, cross, and
+vanishing entries of `1 − (x+y+z)²` over `F_3`. -/
+
+example : clpCoeff 0 0 0 = 1 := rfl
+example : clpCoeff 2 0 0 = 2 := rfl
+example : clpCoeff 0 2 0 = 2 := rfl
+example : clpCoeff 1 1 0 = 1 := rfl
+example : clpCoeff 1 0 1 = 1 := rfl
+example : clpCoeff 1 0 0 = 0 := rfl
+example : clpCoeff 2 2 2 = 0 := rfl
+
+/-- **The char-3 indicator identity, expanded.** In `ZMod 3`,
+`δ₀(x+y+z) = 1 − (x+y+z)² = ∑_{(p,q,r)} clpCoeff p q r · x^p y^q z^r`
+(sum over `(Fin 3)³`, exponents read through `Fin.val`). Kernel-decided
+over all 27 inputs. This is the engine of the Croot–Lev–Pach polynomial
+method at `q = 3`. -/
+theorem clpCoeff_expand :
+    ∀ x y z : ZMod 3,
+      (if x + y + z = 0 then (1 : ZMod 3) else 0)
+        = ∑ w : Fin 3 × Fin 3 × Fin 3,
+            clpCoeff w.1 w.2.1 w.2.2 * x ^ (w.1 : ℕ) * y ^ (w.2.1 : ℕ)
+              * z ^ (w.2.2 : ℕ) := by
+  decide
+
+/-- Nonzero CLP coefficients have total degree at most 2 (27 cases,
+kernel-decided): `1 − (x+y+z)²` is a polynomial of degree 2. -/
+theorem clpCoeff_ne_zero_deg :
+    ∀ p q r : Fin 3, clpCoeff p q r ≠ 0 → (p : ℕ) + (q : ℕ) + (r : ℕ) ≤ 2 := by
+  decide
+
+/-- **Monomial expansion of the line tensor.** Entrywise, the line tensor
+of ANY tuple `v` (injectivity and 3AP-freeness not needed) is the
+polynomial `∏ t, (1 − (v i t + v j t + v l t)²)` written out in the
+monomial basis: a sum over exponent triples `(a, b, c)` of
+`(∏ t, clpCoeff (a t) (b t) (c t)) · x^a(i) · x^b(j) · x^c(l)` with
+`x^a(i) = ∏ t, v i t ^ (a t)`. The indicator factorizes coordinatewise,
+each factor expands by `clpCoeff_expand`, and `Finset.prod_univ_sum`
+distributes the product over the sums. -/
+theorem lineTensor_apply_expand {n m : ℕ} (v : Fin m → Fin n → ZMod 3)
+    (i j l : Fin m) :
+    lineTensor (ZMod 3) v i j l
+      = ∑ a : Fin n → Fin 3, ∑ b : Fin n → Fin 3, ∑ c : Fin n → Fin 3,
+          (∏ t, clpCoeff (a t) (b t) (c t)) * (∏ t, v i t ^ (a t : ℕ))
+            * (∏ t, v j t ^ (b t : ℕ)) * (∏ t, v l t ^ (c t : ℕ)) := by
+  have h1 : lineTensor (ZMod 3) v i j l
+      = ∏ t, (if v i t + v j t + v l t = 0 then (1 : ZMod 3) else 0) := by
+    simp only [lineTensor]
+    by_cases hz : v i + v j + v l = 0
+    · rw [if_pos hz]
+      refine (Finset.prod_eq_one fun t _ => ?_).symm
+      have ht : v i t + v j t + v l t = 0 := by
+        have hc := congrFun hz t
+        simpa using hc
+      rw [if_pos ht]
+    · rw [if_neg hz]
+      have hex : ∃ t, ¬ (v i t + v j t + v l t = 0) := by
+        by_contra hall
+        push Not at hall
+        refine hz (funext fun t => ?_)
+        simpa using hall t
+      obtain ⟨t, ht⟩ := hex
+      exact (Finset.prod_eq_zero (Finset.mem_univ t) (if_neg ht)).symm
+  calc lineTensor (ZMod 3) v i j l
+      = ∏ t, (if v i t + v j t + v l t = 0 then (1 : ZMod 3) else 0) := h1
+    _ = ∏ t, ∑ w : Fin 3 × Fin 3 × Fin 3,
+          clpCoeff w.1 w.2.1 w.2.2 * v i t ^ (w.1 : ℕ) * v j t ^ (w.2.1 : ℕ)
+            * v l t ^ (w.2.2 : ℕ) :=
+        Finset.prod_congr rfl fun t _ => clpCoeff_expand (v i t) (v j t) (v l t)
+    _ = ∑ x ∈ Fintype.piFinset
+          (fun _ : Fin n => (Finset.univ : Finset (Fin 3 × Fin 3 × Fin 3))),
+          ∏ t, clpCoeff (x t).1 (x t).2.1 (x t).2.2 * v i t ^ ((x t).1 : ℕ)
+            * v j t ^ ((x t).2.1 : ℕ) * v l t ^ ((x t).2.2 : ℕ) :=
+        Finset.prod_univ_sum _ _
+    _ = ∑ x : Fin n → Fin 3 × Fin 3 × Fin 3,
+          ∏ t, clpCoeff (x t).1 (x t).2.1 (x t).2.2 * v i t ^ ((x t).1 : ℕ)
+            * v j t ^ ((x t).2.1 : ℕ) * v l t ^ ((x t).2.2 : ℕ) := by
+        rw [Fintype.piFinset_univ]
+    _ = ∑ p : (Fin n → Fin 3) × (Fin n → Fin 3) × (Fin n → Fin 3),
+          (∏ t, clpCoeff (p.1 t) (p.2.1 t) (p.2.2 t))
+            * (∏ t, v i t ^ (p.1 t : ℕ)) * (∏ t, v j t ^ (p.2.1 t : ℕ))
+            * (∏ t, v l t ^ (p.2.2 t : ℕ)) := by
+        refine (Fintype.sum_equiv
+          ⟨fun p => fun t => (p.1 t, p.2.1 t, p.2.2 t),
+           fun x => (fun t => (x t).1, fun t => (x t).2.1, fun t => (x t).2.2),
+           fun p => rfl, fun x => rfl⟩
+          _ _ fun p => ?_).symm
+        simp only [Equiv.coe_fn_mk, Finset.prod_mul_distrib]
+    _ = ∑ a : Fin n → Fin 3, ∑ b : Fin n → Fin 3, ∑ c : Fin n → Fin 3,
+          (∏ t, clpCoeff (a t) (b t) (c t)) * (∏ t, v i t ^ (a t : ℕ))
+            * (∏ t, v j t ^ (b t : ℕ)) * (∏ t, v l t ^ (c t : ℕ)) := by
+        rw [Fintype.sum_prod_type]
+        refine Finset.sum_congr rfl fun a _ => ?_
+        rw [Fintype.sum_prod_type]
+
+/-- **Tao's partition step, abstractly.** If a cubical tensor `T` expands
+as `T i j l = ∑ a, ∑ b, ∑ c, C a b c · X a i · Y b j · Z c l` over a
+finite monomial index `ι`, and every nonzero coefficient satisfies
+`P₁ a ∨ P₂ b ∨ P₃ c` ("some mode is low-degree"), then grouping each
+monomial by its first low mode — mode 1 on `P₁ a`, mode 2 on
+`P₂ b ∧ ¬ P₁ a`, mode 3 on the rest — exhibits `T` as a sum of
+`|P₁| + |P₂| + |P₃|` slices. This is the symmetrized Croot–Lev–Pach
+mechanism (Tao 2016), the analogue of "at least one of `m`, `m′` has
+degree at most `d/2`" in Proposition 2 of
+References/GroupTPP/arXiv-1605-09223. Hypotheses jointly instantiated by
+`sliceRankLE_lineTensor_clp` below. -/
+theorem sliceRankLE_of_expansion {k : Type*} [CommSemiring k] {m : ℕ}
+    {ι : Type*} [Fintype ι]
+    {T : Tensor k m m m} {C : ι → ι → ι → k} {X Y Z : ι → Fin m → k}
+    {P₁ P₂ P₃ : ι → Prop} [DecidablePred P₁] [DecidablePred P₂] [DecidablePred P₃]
+    (hT : ∀ i j l, T i j l = ∑ a, ∑ b, ∑ c, C a b c * X a i * Y b j * Z c l)
+    (hC : ∀ a b c, C a b c ≠ 0 → P₁ a ∨ P₂ b ∨ P₃ c) :
+    SliceRankLE T ((Finset.univ.filter P₁).card + (Finset.univ.filter P₂).card
+      + (Finset.univ.filter P₃).card) := by
+  set D₁ : Finset ι := Finset.univ.filter P₁ with hD₁
+  set D₂ : Finset ι := Finset.univ.filter P₂ with hD₂
+  set D₃ : Finset ι := Finset.univ.filter P₃ with hD₃
+  refine sliceRankLE_of_parts le_rfl
+    (fun s i => X (D₁.equivFin.symm s : ι) i)
+    (fun s j l => ∑ b, ∑ c, C (D₁.equivFin.symm s : ι) b c * Y b j * Z c l)
+    (fun s j => Y (D₂.equivFin.symm s : ι) j)
+    (fun s i l => ∑ a, ∑ c,
+      if P₁ a then 0 else C a (D₂.equivFin.symm s : ι) c * X a i * Z c l)
+    (fun s l => Z (D₃.equivFin.symm s : ι) l)
+    (fun s i j => ∑ a, ∑ b,
+      if P₁ a ∨ P₂ b then 0 else C a b (D₃.equivFin.symm s : ι) * X a i * Y b j)
+    ?_
+  intro i j l
+  rw [hT i j l]
+  -- mode-1 sum as a triple sum with indicator `P₁ a`
+  have hm1 : (∑ s : Fin D₁.card, X (D₁.equivFin.symm s : ι) i *
+        ∑ b, ∑ c, C (D₁.equivFin.symm s : ι) b c * Y b j * Z c l)
+      = ∑ a, ∑ b, ∑ c,
+          (if P₁ a then C a b c * X a i * Y b j * Z c l else 0) := by
+    rw [Equiv.sum_comp (D₁.equivFin.symm)
+      (fun x : ↥D₁ => X (x : ι) i * ∑ b, ∑ c, C (x : ι) b c * Y b j * Z c l)]
+    rw [Finset.sum_coe_sort D₁
+      (fun a => X a i * ∑ b, ∑ c, C a b c * Y b j * Z c l)]
+    rw [hD₁, Finset.sum_filter]
+    refine Finset.sum_congr rfl fun a _ => ?_
+    by_cases h₁ : P₁ a
+    · simp only [if_pos h₁]
+      rw [Finset.mul_sum]
+      refine Finset.sum_congr rfl fun b _ => ?_
+      rw [Finset.mul_sum]
+      refine Finset.sum_congr rfl fun c _ => ?_
+      ring
+    · simp only [if_neg h₁, Finset.sum_const_zero]
+  -- mode-2 sum as a triple sum with indicator `P₂ b ∧ ¬ P₁ a`
+  have hm2 : (∑ s : Fin D₂.card, Y (D₂.equivFin.symm s : ι) j *
+        ∑ a, ∑ c,
+          if P₁ a then 0 else C a (D₂.equivFin.symm s : ι) c * X a i * Z c l)
+      = ∑ a, ∑ b, ∑ c,
+          (if P₂ b ∧ ¬ P₁ a then C a b c * X a i * Y b j * Z c l else 0) := by
+    rw [Equiv.sum_comp (D₂.equivFin.symm)
+      (fun x : ↥D₂ => Y (x : ι) j * ∑ a, ∑ c,
+        if P₁ a then 0 else C a (x : ι) c * X a i * Z c l)]
+    rw [Finset.sum_coe_sort D₂
+      (fun b => Y b j * ∑ a, ∑ c,
+        if P₁ a then 0 else C a b c * X a i * Z c l)]
+    rw [hD₂, Finset.sum_filter]
+    have hpt : ∀ b : ι,
+        (if P₂ b then Y b j * ∑ a, ∑ c,
+          (if P₁ a then 0 else C a b c * X a i * Z c l) else 0)
+        = ∑ a, ∑ c,
+            (if P₂ b ∧ ¬ P₁ a then C a b c * X a i * Y b j * Z c l else 0) := by
+      intro b
+      by_cases h₂ : P₂ b
+      · simp only [if_pos h₂]
+        rw [Finset.mul_sum]
+        refine Finset.sum_congr rfl fun a _ => ?_
+        rw [Finset.mul_sum]
+        refine Finset.sum_congr rfl fun c _ => ?_
+        by_cases h₁ : P₁ a
+        · rw [if_pos h₁, mul_zero,
+            if_neg (fun hcon : P₂ b ∧ ¬ P₁ a => hcon.2 h₁)]
+        · rw [if_neg h₁, if_pos ⟨h₂, h₁⟩]
+          ring
+      · simp [h₂]
+    exact (Finset.sum_congr rfl fun b _ => hpt b).trans Finset.sum_comm
+  -- mode-3 sum as a triple sum with indicator `P₃ c ∧ ¬ P₁ a ∧ ¬ P₂ b`
+  have hm3 : (∑ s : Fin D₃.card, Z (D₃.equivFin.symm s : ι) l *
+        ∑ a, ∑ b,
+          if P₁ a ∨ P₂ b then 0
+          else C a b (D₃.equivFin.symm s : ι) * X a i * Y b j)
+      = ∑ a, ∑ b, ∑ c,
+          (if P₃ c ∧ ¬ P₁ a ∧ ¬ P₂ b then C a b c * X a i * Y b j * Z c l
+           else 0) := by
+    rw [Equiv.sum_comp (D₃.equivFin.symm)
+      (fun x : ↥D₃ => Z (x : ι) l * ∑ a, ∑ b,
+        if P₁ a ∨ P₂ b then 0 else C a b (x : ι) * X a i * Y b j)]
+    rw [Finset.sum_coe_sort D₃
+      (fun c => Z c l * ∑ a, ∑ b,
+        if P₁ a ∨ P₂ b then 0 else C a b c * X a i * Y b j)]
+    rw [hD₃, Finset.sum_filter]
+    have hpt : ∀ c : ι,
+        (if P₃ c then Z c l * ∑ a, ∑ b,
+          (if P₁ a ∨ P₂ b then 0 else C a b c * X a i * Y b j) else 0)
+        = ∑ a, ∑ b,
+            (if P₃ c ∧ ¬ P₁ a ∧ ¬ P₂ b then C a b c * X a i * Y b j * Z c l
+             else 0) := by
+      intro c
+      by_cases h₃ : P₃ c
+      · simp only [if_pos h₃]
+        rw [Finset.mul_sum]
+        refine Finset.sum_congr rfl fun a _ => ?_
+        rw [Finset.mul_sum]
+        refine Finset.sum_congr rfl fun b _ => ?_
+        by_cases h₁ : P₁ a
+        · rw [if_pos (Or.inl h₁), mul_zero,
+            if_neg (fun hcon : P₃ c ∧ ¬ P₁ a ∧ ¬ P₂ b => hcon.2.1 h₁)]
+        · by_cases h₂ : P₂ b
+          · rw [if_pos (Or.inr h₂), mul_zero,
+              if_neg (fun hcon : P₃ c ∧ ¬ P₁ a ∧ ¬ P₂ b => hcon.2.2 h₂)]
+          · rw [if_neg (fun hor : P₁ a ∨ P₂ b => hor.elim h₁ h₂),
+              if_pos ⟨h₃, h₁, h₂⟩]
+            ring
+      · simp [h₃]
+    exact (Finset.sum_congr rfl fun c _ => hpt c).trans
+      (Finset.sum_comm.trans (Finset.sum_congr rfl fun a _ => Finset.sum_comm))
+  rw [hm1, hm2, hm3]
+  calc ∑ a, ∑ b, ∑ c, C a b c * X a i * Y b j * Z c l
+      = ∑ a, ∑ b, ∑ c,
+          ((if P₁ a then C a b c * X a i * Y b j * Z c l else 0)
+            + (if P₂ b ∧ ¬ P₁ a then C a b c * X a i * Y b j * Z c l else 0)
+            + (if P₃ c ∧ ¬ P₁ a ∧ ¬ P₂ b then C a b c * X a i * Y b j * Z c l
+               else 0)) := by
+        refine Finset.sum_congr rfl fun a _ => Finset.sum_congr rfl fun b _ =>
+          Finset.sum_congr rfl fun c _ => ?_
+        by_cases h₁ : P₁ a
+        · simp [h₁]
+        · by_cases h₂ : P₂ b
+          · simp [h₁, h₂]
+          · by_cases h₃ : P₃ c
+            · simp [h₁, h₂, h₃]
+            · have hzero : C a b c = 0 := by
+                by_contra hne
+                rcases hC a b c hne with h | h | h
+                · exact h₁ h
+                · exact h₂ h
+                · exact h₃ h
+              simp [h₁, h₂, h₃, hzero]
+    _ = (∑ a, ∑ b, ∑ c,
+          (if P₁ a then C a b c * X a i * Y b j * Z c l else 0))
+        + (∑ a, ∑ b, ∑ c,
+          (if P₂ b ∧ ¬ P₁ a then C a b c * X a i * Y b j * Z c l else 0))
+        + (∑ a, ∑ b, ∑ c,
+          (if P₃ c ∧ ¬ P₁ a ∧ ¬ P₂ b then C a b c * X a i * Y b j * Z c l
+           else 0)) := by
+        simp only [Finset.sum_add_distrib]
+
+/-- **The Croot–Lev–Pach slice-rank bound, unconditioned.** Over `F_3`,
+the line tensor of ANY tuple of points of `F_3^n` — no injectivity, no
+3AP-freeness — is a sum of at most `3·clpMonomialCount n` slices: in the
+monomial expansion `lineTensor_apply_expand` every exponent triple with
+nonzero coefficient has per-coordinate degree at most 2
+(`clpCoeff_ne_zero_deg`), hence total degree at most `2n`, hence some
+mode of degree at most `2n/3` (spelled `3·Σ ≤ 2n`), and
+`sliceRankLE_of_expansion` groups the monomials accordingly. This is the
+unconditioned "full-tensor form" this file's § 5 previously archived. -/
+theorem sliceRankLE_lineTensor_clp (n m : ℕ) (v : Fin m → Fin n → ZMod 3) :
+    SliceRankLE (lineTensor (ZMod 3) v) (3 * clpMonomialCount n) := by
+  have hdeg : ∀ a b c : Fin n → Fin 3,
+      (∏ t, clpCoeff (a t) (b t) (c t)) ≠ 0 →
+        (3 * ∑ i, (a i : ℕ) ≤ 2 * n) ∨ (3 * ∑ i, (b i : ℕ) ≤ 2 * n)
+          ∨ (3 * ∑ i, (c i : ℕ) ≤ 2 * n) := by
+    intro a b c hprod
+    have hpt : ∀ t, (a t : ℕ) + (b t : ℕ) + (c t : ℕ) ≤ 2 := by
+      intro t
+      refine clpCoeff_ne_zero_deg (a t) (b t) (c t) fun h0 => ?_
+      exact hprod (Finset.prod_eq_zero (Finset.mem_univ t) h0)
+    have hsum : ∑ t, ((a t : ℕ) + (b t : ℕ) + (c t : ℕ)) ≤ 2 * n := by
+      calc ∑ t, ((a t : ℕ) + (b t : ℕ) + (c t : ℕ))
+          ≤ ∑ _t : Fin n, 2 := Finset.sum_le_sum fun t _ => hpt t
+        _ = 2 * n := by simp [mul_comm]
+    have hsplit : ∑ t, ((a t : ℕ) + (b t : ℕ) + (c t : ℕ))
+        = (∑ t, (a t : ℕ)) + (∑ t, (b t : ℕ)) + (∑ t, (c t : ℕ)) := by
+      rw [Finset.sum_add_distrib, Finset.sum_add_distrib]
+    by_contra hcon
+    push Not at hcon
+    omega
+  -- `C`, `X`, `Y`, `Z` are deliberately left to unification: pinning them
+  -- with named arguments forces the unifier to compare the summands under
+  -- mismatched instance paths and it times out evaluating finsets.
+  have h := sliceRankLE_of_expansion
+    (T := lineTensor (ZMod 3) v)
+    (P₁ := fun a : Fin n → Fin 3 => 3 * ∑ i, (a i : ℕ) ≤ 2 * n)
+    (P₂ := fun a : Fin n → Fin 3 => 3 * ∑ i, (a i : ℕ) ≤ 2 * n)
+    (P₃ := fun a : Fin n → Fin 3 => 3 * ∑ i, (a i : ℕ) ≤ 2 * n)
+    (lineTensor_apply_expand v) hdeg
+  refine h.mono ?_
+  have hN : (Finset.univ.filter
+      fun a : Fin n → Fin 3 => 3 * ∑ i, (a i : ℕ) ≤ 2 * n).card
+      = clpMonomialCount n := rfl
+  omega
+
+set_option linter.unusedVariables false in
+/-- **Croot–Lev–Pach slice-rank bound**
+(References/GroupTPP/arXiv-1605-09223, Proposition 2 — "essentially Lemma
+1 of Croot–Lev–Pach" — feeding Theorem 4 at `q = 3`, in Tao's symmetric
+slice-rank formulation): over `F_3`, the line tensor of an injective
+3AP-free tuple of points of `F_3^n` has slice rank at most
+`3·clpMonomialCount n` — exactly the instance the § 4 method schema
 consumes.
 
-PROVEN IN THE LITERATURE (Croot–Lev–Pach 2016, Ellenberg–Gijswijt 2016; the
-cap-set bound it implies was formalized in Lean 3 by Dahmen–Hölzl–Lewis,
-ITP 2019 — neither that development nor the slice-rank symmetrization is
-ported here). INTENDED SORRY — archived statement, disclosed in the module
-header; the polynomial-method proof (monomial space dimension counting) is
-out of scope for this lane. The hypotheses narrow the archived hole to what
-`ellenberg_gijswijt` needs; the unconditioned full-tensor form would
-additionally require a slice-rank pullback-monotonicity lemma that
-`SliceRank.lean` does not currently carry. -/
+Sorry-free since 2026-08-05 (previously this file's archived second
+sorry). The hypotheses `hv`, `hfree` are retained for interface stability
+with the § 4 schema but are NOT needed: the bound holds for every tuple
+(`sliceRankLE_lineTensor_clp`), so no slice-rank pullback-monotonicity is
+required here either — `SliceRank.lean` now carries that lemma anyway as
+`SliceRankLE.comp` / `sliceRank_comp_le`. Joint satisfiability of the
+hypotheses: the § 4 example at `(0, 1) ⊆ F_3^1`. Model formalization
+(proof structure only; different route — they use the EG vanishing-space
+argument): Dahmen–Hölzl–Lewis, ITP 2019, `theorem_12_1` of
+lean-forward/cap_set_problem (References/BilinearComplexity/
+arXiv-1907-01449). -/
 theorem croot_lev_pach_sliceRank_lineTensor (n m : ℕ) (v : Fin m → Fin n → ZMod 3)
     (hv : Function.Injective v) (hfree : ThreeAPFree (Set.range v)) :
-    sliceRank (lineTensor (ZMod 3) v) ≤ 3 * clpMonomialCount n := by
-  sorry
+    sliceRank (lineTensor (ZMod 3) v) ≤ 3 * clpMonomialCount n :=
+  sliceRank_le_of_sliceRankLE (sliceRankLE_lineTensor_clp n m v)
 
-/-- **Ellenberg–Gijswijt cap-set bound** (References/arXiv-1605-09223,
-Theorem 4 at `q = 3`, `α = β = γ = 1`): A090245(n) ≤ 3·m_{2n/3}, the exact
-finite form of the `o(2.756^n)` bound. Kernel-checked reduction,
-`sorryAx`-dependent through the archived Croot–Lev–Pach bound (its only
-sorry dependency): the § 4 method schema applied to it. -/
+/-- **Ellenberg–Gijswijt cap-set bound** (References/GroupTPP/
+arXiv-1605-09223, Theorem 4 at `q = 3`, `α = β = γ = 1`):
+A090245(n) ≤ 3·m_{2n/3}, the exact finite form of the `o(2.756^n)` bound
+— the § 4 method schema applied to the Croot–Lev–Pach bound. Sorry-free
+end to end since 2026-08-05 (see the closing axiom audit). -/
 theorem ellenberg_gijswijt (n : ℕ) : capsetNumber n ≤ 3 * clpMonomialCount n :=
   capsetNumber_le_of_forall_sliceRank_lineTensor_le fun m v hv hfree =>
     croot_lev_pach_sliceRank_lineTensor n m v hv hfree
@@ -736,5 +1077,16 @@ example :
   decide
 
 end ErdosRadoBridge
+
+/-! Axiom audit for the main declarations. `peebles_conjecture` is this
+file's single intended sorry (archived open conjecture, § 3) and reports
+`sorryAx`; everything else stays within the base axioms. -/
+
+#print axioms sunflowerFreeWeight_le_capsetNumber
+#print axioms peebles_conjecture
+#print axioms sliceRank_lineTensor
+#print axioms sliceRankLE_lineTensor_clp
+#print axioms croot_lev_pach_sliceRank_lineTensor
+#print axioms ellenberg_gijswijt
 
 end BilinearComplexity
