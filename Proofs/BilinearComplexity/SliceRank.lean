@@ -37,6 +37,11 @@
                             at most the number of nonzero diagonal
                             entries. (The matching lower bound — Tao's
                             diagonal lemma over a field — is card Sr2.)
+    · `SliceRankLE.comp` / `sliceRank_comp_le` — pullback-monotonicity
+                            (the sub-tensor lemma): precomposing the
+                            three modes with arbitrary index maps never
+                            increases slice rank. Mirrors `RankLE.comp`
+                            of MatMulMono; no injectivity is needed.
 
   Everything is over `CommSemiring k`; the diagonal-support lemmas take
   `[DecidableEq k]` so the support finset is genuinely decidable.
@@ -50,6 +55,8 @@ import Mathlib.Order.Lattice.Nat
 import Mathlib.LinearAlgebra.Matrix.Rank
 import BilinearComplexity.Basic
 import BilinearComplexity.RankCalculus
+
+set_option autoImplicit false
 
 namespace BilinearComplexity
 
@@ -293,9 +300,44 @@ theorem sliceRankLE_cyc_iff {T : Tensor k a b c} {r : ℕ} :
   le_antisymm (sliceRank_le_of_sliceRankLE (sliceRankLE_sliceRank T).cyc)
     (sliceRank_le_of_sliceRankLE ((sliceRankLE_sliceRank (cyc T)).cyc.cyc))
 
+/-! ## 7. Pullback along index maps (the sub-tensor lemma) -/
+
+/-- Slice decompositions pull back along arbitrary index maps: composing
+every slice family with the maps turns a slice-rank-≤ r decomposition of
+`T` into one of the sub-tensor `fun i j l => T (f i) (g j) (e l)` with
+the same parts, so `SliceRankLE` is preserved. No injectivity is required
+— this mirrors `RankLE.comp` (MatMulMono's generic sub-tensor lemma) at
+the slice-rank level. (Existing `SliceRankLE.mono` is monotonicity in the
+budget `r`; this is monotonicity in the tensor.) -/
+theorem SliceRankLE.comp {a' b' c' : ℕ} {T : Tensor k a' b' c'} {r : ℕ}
+    (h : SliceRankLE T r) (f : Fin a → Fin a') (g : Fin b → Fin b')
+    (e : Fin c → Fin c') :
+    SliceRankLE (fun i j l => T (f i) (g j) (e l)) r := by
+  obtain ⟨r₁, r₂, r₃, hr, f₁, M, g₂, N, e₃, P, hT⟩ := h
+  exact ⟨r₁, r₂, r₃, hr, fun s i => f₁ s (f i), fun s j l => M s (g j) (e l),
+    fun s j => g₂ s (g j), fun s i l => N s (f i) (e l),
+    fun s l => e₃ s (e l), fun s i j => P s (f i) (g j),
+    fun i j l => hT (f i) (g j) (e l)⟩
+
+/-- **Pullback-monotonicity of slice rank.** Slice rank never increases
+when a tensor is pulled back along arbitrary index maps on each mode. -/
+theorem sliceRank_comp_le {a' b' c' : ℕ} (T : Tensor k a' b' c')
+    (f : Fin a → Fin a') (g : Fin b → Fin b') (e : Fin c → Fin c') :
+    sliceRank (fun i j l => T (f i) (g j) (e l)) ≤ sliceRank T :=
+  sliceRank_le_of_sliceRankLE ((sliceRankLE_sliceRank T).comp f g e)
+
+/-- Ground/satisfiability check at a non-injective pullback: pulling the
+`2×2×2` all-ones diagonal back along the constant maps `Fin 3 → Fin 2`
+gives the all-ones `3×3×3` tensor within slice-rank budget 2 — a bound
+the mode totalities of the pulled-back tensor alone (3) cannot see. -/
+example : SliceRankLE
+    (fun (_ _ _ : Fin 3) => diag (fun _ : Fin 2 => (1 : ℤ)) 0 0 0) 2 :=
+  (sliceRankLE_left (diag fun _ : Fin 2 => (1 : ℤ))).comp
+    (fun _ => 0) (fun _ => 0) (fun _ => 0)
+
 end SliceRank
 
-/-! ## 7. Tao's diagonal lemma: the slice-rank lower bound
+/-! ## 8. Tao's diagonal lemma: the slice-rank lower bound
 
 The matching lower bound to `sliceRank_diag_le`: over a field, the slice rank of
 the diagonal tensor `⟨w⟩` is *exactly* the number of nonzero diagonal entries
@@ -520,5 +562,12 @@ theorem sliceRank_diag [DecidableEq k] {n : ℕ} (w : Fin n → k) :
     (card_le_of_sliceRankLE_diag w (sliceRankLE_sliceRank (diag w)))
 
 end TaoDiagonal
+
+/-! Axiom audit for the main declarations. -/
+
+#print axioms sliceRank_le_rank
+#print axioms sliceRank_cyc
+#print axioms sliceRank_comp_le
+#print axioms sliceRank_diag
 
 end BilinearComplexity
