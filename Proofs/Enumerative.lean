@@ -12,6 +12,7 @@ import Enumerative.No3APGreedy
 import Enumerative.PalindromeRows
 import Enumerative.PartitionPerfectPower
 import Enumerative.Practical
+import Enumerative.PrimesNotCubeMinusSquare
 import Enumerative.StanleyDigits
 import Enumerative.StewartCriterion
 import Enumerative.Zumkeller
