@@ -1,9 +1,14 @@
 /-
   Erdős Problem #21 / OEIS A391599 — the Erdős–Lovász cover number g(r).
 
-  STATUS: STATEMENT ARCHIVE (USER directive). The literature theorems below
-  carry INTENDED, DISCLOSED sorries; everything else in this file is proved.
-  See "SORRY LEDGER" at the end of this header for the exact list.
+  STATUS: STATEMENT ARCHIVE (USER directive) for the large-n and n ≥ 4
+  literature, PROVED for n ≤ 3. The §6 theorems carry INTENDED, DISCLOSED
+  sorries; everything else in this file is proved. See "SORRY LEDGER" at the
+  end of this header for the exact list.
+
+  The first three OEIS A391599 terms are now sorry-free: g(1) = 1, g(2) = 3,
+  and — as of 2026-08-05 — g(3) = 6, whose lower half `6 ≤ g(3)` used to be
+  archived and is now the §4 counting argument.
 
   THE QUANTITY. Following Erdős–Lovász [EL75] (and Sivashankar [Si26], who
   writes g(r); Kahn [Ka94] writes n(r); erdosproblems.com/21 writes f(r);
@@ -31,16 +36,24 @@
   M(r) ≥ g(r) and the two can differ [Si26, §1]. The card's phrase "maximal
   intersecting family" is therefore avoided in all names here.
 
-  GROUND TRUTH (pinned live, 2026-07-30).
-  * OEIS A391599 (live pull via the `oeis` CLI): DATA 1, 3, 6, 9, 13 with
-    offset 1 per the entry; keywords nonn,hard,more.
+  GROUND TRUTH (pinned live; OEIS/erdosproblems 2026-07-30, re-pulled and the
+  arXiv sources re-fetched 2026-08-05).
+  * OEIS A391599 (live pull via the `oeis` CLI): DATA 1, 3, 6, 9, 13;
+    keywords nonn,hard,more. The `oeis show` JSON has no offset field, so the
+    offset was confirmed separately against https://oeis.org/A391599/internal,
+    whose `%O` line reads verbatim "%O 1,2" — offset 1.
     So g(1)=1, g(2)=3, g(3)=6, g(4)=9, g(5)=13.
   * erdosproblems.com problem 21 (live pull via the `erdos` CLI): the
     linearity question is recorded as answered; $500 prize noted on the
-    site. Small values g(3)=6, g(4)=9 [Tr14]; g(5)=13 and
-    13 ≤ g(6) ≤ 18 [Ba21].
-  * References/arXiv-2606-24878/erdos_lovasz.tex (fetched here), abstract and
-    Theorem 1, read directly — see [Si26] below.
+    site. Verbatim: "The values $f(3)=6$ and $f(4)=9$ were established by
+    Tripathi \cite{Tr14}. Bar\'{a}t and Wanless \cite{BaWa21} proved that
+    $f(5)=13$, and that $13\leq f(6)\leq 18$."  The f(3)=6 half of that
+    sentence is an over-attribution; see [FOT96]/[Tr14] below.
+  * References/Erdos/arXiv-2606-24878/erdos_lovasz.tex (re-fetched 2026-08-05
+    after the earlier copy went missing), abstract and Theorem 1, read
+    directly — see [Si26] below.
+  * References/Erdos/arXiv-1409-4610/paper.tex (fetched 2026-08-05), read
+    directly — see [Tr14] below.
 
   LITERATURE, verbatim where it matters.
   [EL75] P. Erdős, L. Lovász, "Problems and results on 3-chromatic
@@ -52,14 +65,39 @@
   [Ka94] J. Kahn, "On a problem of Erdős and Lovász. II. n(r) = O(r)",
     J. Amer. Math. Soc. 7 (1994), 125–143: g(r) = O(r). This settled Erdős'
     $500 question; the constant is not explicit.
+  [FOT96] P. Frankl, K. Ota, N. Tokushige, "Covers in uniform intersecting
+    families and a counterexample to a conjecture of Lovász", J. Combin.
+    Theory Ser. A 74 (1996), 33–42: THE ORIGINAL SOURCE OF g(3) = 6. Not
+    fetched here (paywalled, 1996); the attribution is taken from [Tr14]'s
+    own text, quoted next, and is corroborated by [Si26].
   [Tr14] A. Tripathi, "A result on intersecting families with maximum
-    transversal size", arXiv:1409.4610 (2014): g(3) = 6, g(4) = 9.
+    transversal size", arXiv:1409.4610 (2014): g(4) = 9, plus a second proof
+    of g(3) = 6. Verbatim from References/Erdos/arXiv-1409-4610/paper.tex:
+      "It is easy to see that $q(2) = 3$. In \cite{Frankl}, it was proved
+       (among other things) that $q(3) = 6$."
+    and, introducing the corollary in his §2,
+      "As another application, we give a different proof of the following
+       result from \cite{Frankl}," / "\begin{corollary} $q(3) = 6$."
+    where \cite{Frankl} is [FOT96] above. [Si26] concurs, verbatim:
+      "For small values, Tripathi proved $g(4)=9$ and gave a short proof
+       that $g(3)=6$~\cite{Tripathi}".
+    So erdosproblems.com/21 over-credits g(3) = 6 to [Tr14] (OEIS does not
+    attribute it specifically); the priority is [FOT96]. The `tripathi_` name prefix is kept on
+    the g(3) declarations for stability, with the correction in each
+    docstring. (Neither proof is the one formalized here — see §4.)
   [Ba21] J. Barát, "Intersecting and 2-intersecting hypergraphs with
     maximal covering number: the Erdős–Lovász theme revisited",
-    J. Combin. Des. 29 (2021), no. 3, 193–209: g(5) = 13,
-    13 ≤ g(6) ≤ 18.  (Single-author; a prior draft of this file
-    misattributed it to Barát–Wanless following erdosproblems.com —
-    corrected per the vacuity audit against the paper's own tex.)
+    J. Combin. Des. 29 (2021), 193–209: g(5) = 13, 13 ≤ g(6) ≤ 18.
+    AUTHORSHIP DISPUTED, UNRESOLVED HERE: the arXiv source
+    (arXiv:2011.04444, fetched to References/Erdos/arXiv-2011-04444) has the
+    single \author{J\'anos Bar\'at}, with no Wanless anywhere in the file
+    and no journal metadata; but OEIS A391599's %H line and
+    erdosproblems.com/21 both cite it as "J. Barát and I. M. Wanless" with
+    the same title but different page ranges (OEIS: 193–209; erdosproblems:
+    260–286). The likely reading is
+    that the published version gained a coauthor the 2020 preprint lacks.
+    Nothing in this file depends on the resolution — [Ba21] appears only in
+    the two archived §6 statements, which are sorried.
   [Si26] V. Sivashankar, "An Improved Lower Bound for the Erdős–Lovász Cover
     Number Problem", arXiv:2606.24878 (2026), Theorem 1, verbatim:
       (i)  For every positive integer r, g(r) ≥ 3r − 4.
@@ -124,6 +162,13 @@
     isErdosLovaszFamily_witnessThree, erdosLovaszNum_three_le
                                         — g(3) ≤ 6 via the explicit 6-edge
                                           `witnessThree` on 6 vertices
+    sum_card_filter_notMem_eq_sum_card_sdiff — the §4 double count
+    IsErdosLovaszFamily.three_le_card_filter_notMem
+                                        — ≥ 3 members avoid each vertex (n ≥ 3)
+    IsErdosLovaszFamily.six_le_card     — 6 ≤ |F| for every EL family of
+                                          triples, over every ground type
+    tripathi_six_le_erdosLovaszNum_three — 6 ≤ g(3)
+    tripathi_erdosLovaszNum_three       — g(3) = 6   [FOT96]; see §4
     sivashankarConst_bounds             — 61/20 < (41−√19)/12 < 3.054
     isBigO_of_forall_le_linear          — explicit constant → IsBigO
     lower_bound_61_20_of_asymptotic     — Thm 1(ii) → the 61/20 rounding
@@ -137,7 +182,6 @@
     kahn_erdosLovaszNum_le_linear       [Ka94]      ∃C, g(n) ≤ Cn
     sivashankar_three_mul_sub_four      [Si26](i)   3n − 4 ≤ g(n)
     sivashankar_asymptotic_lower_bound  [Si26](ii)  ((41−√19)/12 − ε)n ≤ g(n) ev.
-    tripathi_six_le_erdosLovaszNum_three [Tr14]     6 ≤ g(3)  (≤ is proved)
     tripathi_erdosLovaszNum_four        [Tr14]      g(4) = 9
     barat_erdosLovaszNum_five    [Ba21]    g(5) = 13
     barat_erdosLovaszNum_six_le  [Ba21]    g(6) ≤ 18
@@ -145,18 +189,26 @@
   TIER 3 — DERIVED FROM TIER 2 (each is a Tier 1 implication applied to a
   Tier 2 statement, so it reports `sorryAx` too — by design, not by
   oversight):
-    tripathi_erdosLovaszNum_three       g(3) = 6      (= proved ≤ 6, archived ≥ 6)
     kahn_erdosLovaszNum_isBigO          [Ka94] in IsBigO form
     sivashankar_lower_bound_61_20       the 61/20 rounding
 
-  Axiom audit (2026-07-30, `#print axioms` on every named declaration): all
-  37 Tier 1 declarations report exactly {propext, Classical.choice,
-  Quot.sound}; the 8 Tier 2 and 3 Tier 3 declarations report those plus
-  `sorryAx`; nothing reports anything else. The build emits exactly 8
-  `declaration uses sorry` warnings, one per Tier 2 statement. No
-  `native_decide`, no custom axioms; all ground checks are kernel `decide`.
-  Signatures of the §1–§3 theorems (stated inside `variable` sections) were
-  confirmed with `#check @…` per STYLE.md.
+  SORRY LEDGER (2026-08-05): exactly the seven Tier 2 statements, one
+  `declaration uses sorry` warning each. `6 ≤ g(3)` LEFT THE LEDGER on
+  2026-08-05 — it is now proved outright in §4, which also promotes
+  `tripathi_erdosLovaszNum_three : g(3) = 6` out of Tier 3 into Tier 1. The
+  remaining sorries are the four asymptotic/large-n bounds ([EL75], [Ka94],
+  [Si26](i), [Si26](ii)) and the three finite values beyond n = 3 ([Tr14]'s
+  g(4) = 9, [Ba21]'s g(5) = 13 and g(6) ≤ 18), for which no witness family is
+  transcribed here.
+
+  Axiom audit (2026-08-05, §9 of this file runs `#print axioms` on every one
+  of the 51 named declarations, in source order): the 42 Tier 1 declarations
+  report exactly {propext, Classical.choice, Quot.sound}; the 7 Tier 2 and
+  2 Tier 3 declarations report those plus `sorryAx`; nothing reports anything
+  else. The build emits exactly 7 `declaration uses sorry` warnings, one per
+  Tier 2 statement. No `native_decide`, no custom axioms; all ground checks
+  are kernel `decide`. Signatures of the §1–§4 theorems (stated inside
+  `variable` sections) were confirmed with `#check @…` per STYLE.md.
 -/
 import Erdos.CoveringNumber
 
@@ -433,7 +485,143 @@ theorem isErdosLovaszFamily_powersetCard (m : ℕ) :
 end Transfer
 
 -- ════════════════════════════════════════════════════════════════════
--- §4 THE COVER NUMBER g(n) AND ITS PROVED VALUES
+-- §4 THE COUNTING LOWER BOUND: SIX EDGES WHEN n = 3
+-- ════════════════════════════════════════════════════════════════════
+
+section LowerBound
+
+variable {α : Type*} [DecidableEq α] {n : ℕ} {F : Finset (Finset α)}
+
+/-- DOUBLE COUNTING (a hypothesis-free `Finset` identity): summing over the
+vertices `x` of `A` the number of members of `G` that avoid `x` gives the same
+total as summing over the members `B` of `G` the number of vertices of `A`
+outside `B`. Both sides count the pairs `(x, B) ∈ A × G` with `x ∉ B`, so the
+proof is `Finset.sum_comm` after unfolding both cards into indicator sums. -/
+theorem sum_card_filter_notMem_eq_sum_card_sdiff
+    (A : Finset α) (G : Finset (Finset α)) :
+    ∑ x ∈ A, (G.filter (fun B => x ∉ B)).card = ∑ B ∈ G, (A \ B).card := by
+  simp only [Finset.card_filter, Finset.sdiff_eq_filter]
+  exact Finset.sum_comm
+
+/-- THE LOCAL LEMMA behind `IsErdosLovaszFamily.six_le_card`: for `n ≥ 3` and
+*every* vertex `x` of the ground type — not merely every vertex used by the
+family — at least three members of an Erdős–Lovász family avoid `x`.
+
+The three witnesses come from three applications of clause (3), each to a set
+of at most two vertices (hence of card `< n`, which is exactly what `3 ≤ n`
+buys):
+* `S = {x}` gives `B₁` with `x ∉ B₁`;
+* `S = {x, y}` for some `y ∈ B₁` (nonempty since `|B₁| = n ≥ 3`) gives `B₂`
+  with `x, y ∉ B₂`, so `B₂ ≠ B₁`;
+* `S = {x, z}` for some `z ∈ B₁ ∩ B₂` (nonempty by the intersecting clause)
+  gives `B₃` with `x, z ∉ B₃`, so `B₃ ∉ {B₁, B₂}`.
+
+Transversal reading: `{x}` together with any cover of `{B ∈ F | x ∉ B}` covers
+all of `F`, so that subfamily has covering number `≥ n - 1 ≥ 2`, and an
+intersecting family with covering number `≥ 2` needs at least three members
+(two intersecting members share a vertex, which alone would cover them). -/
+theorem IsErdosLovaszFamily.three_le_card_filter_notMem
+    (h : IsErdosLovaszFamily n F) (hn : 3 ≤ n) (x : α) :
+    3 ≤ (F.filter (fun B => x ∉ B)).card := by
+  obtain ⟨hsize, hint, hcov⟩ := h
+  -- Every one- or two-element `S` is admissible in clause (3) because `3 ≤ n`.
+  have hfst : ∀ u v : α, u ∈ ({u, v} : Finset α) := fun u v => Finset.mem_insert_self u {v}
+  have hsnd : ∀ u v : α, v ∈ ({u, v} : Finset α) := fun u v =>
+    Finset.mem_insert_of_mem (Finset.mem_singleton_self v)
+  have hpair : ∀ u v : α, ({u, v} : Finset α).card < n := by
+    intro u v
+    have hle := Finset.card_insert_le u ({v} : Finset α)
+    rw [Finset.card_singleton] at hle
+    omega
+  -- B₁ avoids x.
+  obtain ⟨B₁, hB₁, hd₁⟩ := hcov {x} (by rw [Finset.card_singleton]; omega)
+  have hxB₁ : x ∉ B₁ := Finset.disjoint_singleton_right.mp hd₁
+  have hB₁card : B₁.card = n := hsize B₁ hB₁
+  obtain ⟨y, hy⟩ : B₁.Nonempty := Finset.card_pos.mp (by omega)
+  -- B₂ avoids x and a vertex y of B₁, so B₂ ≠ B₁.
+  obtain ⟨B₂, hB₂, hd₂⟩ := hcov {x, y} (hpair x y)
+  have hxB₂ : x ∉ B₂ := fun hc => Finset.disjoint_left.mp hd₂ hc (hfst x y)
+  have hyB₂ : y ∉ B₂ := fun hc => Finset.disjoint_left.mp hd₂ hc (hsnd x y)
+  -- B₃ avoids x and a common vertex z of B₁, B₂, so B₃ ∉ {B₁, B₂}.
+  obtain ⟨z, hzB₁, hzB₂⟩ := Finset.not_disjoint_iff.mp (hint B₁ hB₁ B₂ hB₂)
+  obtain ⟨B₃, hB₃, hd₃⟩ := hcov {x, z} (hpair x z)
+  have hxB₃ : x ∉ B₃ := fun hc => Finset.disjoint_left.mp hd₃ hc (hfst x z)
+  have hzB₃ : z ∉ B₃ := fun hc => Finset.disjoint_left.mp hd₃ hc (hsnd x z)
+  have h12 : B₁ ≠ B₂ := fun hc => hyB₂ (hc ▸ hy)
+  have h13 : B₁ ≠ B₃ := fun hc => hzB₃ (hc ▸ hzB₁)
+  have h23 : B₂ ≠ B₃ := fun hc => hzB₃ (hc ▸ hzB₂)
+  -- Three distinct members inside the subfamily avoiding x.
+  have hsub : ({B₁, B₂, B₃} : Finset (Finset α)) ⊆ F.filter (fun B => x ∉ B) := by
+    intro B hB
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hB
+    rcases hB with rfl | rfl | rfl
+    · exact Finset.mem_filter.mpr ⟨hB₁, hxB₁⟩
+    · exact Finset.mem_filter.mpr ⟨hB₂, hxB₂⟩
+    · exact Finset.mem_filter.mpr ⟨hB₃, hxB₃⟩
+  have hne23 : B₂ ∉ ({B₃} : Finset (Finset α)) := Finset.notMem_singleton.mpr h23
+  have hne123 : B₁ ∉ ({B₂, B₃} : Finset (Finset α)) := by
+    simp only [Finset.mem_insert, Finset.mem_singleton]
+    exact fun hmem => hmem.elim h12 h13
+  have hcard3 : ({B₁, B₂, B₃} : Finset (Finset α)).card = 3 := by
+    rw [Finset.card_insert_of_notMem hne123, Finset.card_insert_of_notMem hne23,
+      Finset.card_singleton]
+  calc 3 = ({B₁, B₂, B₃} : Finset (Finset α)).card := hcard3.symm
+    _ ≤ (F.filter (fun B => x ∉ B)).card := Finset.card_le_card hsub
+
+omit [DecidableEq α] in
+/-- **THE LOWER BOUND `6 ≤ |F|`** for every Erdős–Lovász family of triples,
+over every ground type. This is the whole content of `6 ≤ g(3)`; no ground-set
+normalization and no finite search is involved, so it holds verbatim for the
+`Fin N` families indexing `erdosLovaszCards 3`.
+
+Fix a member `A` (`IsErdosLovaszFamily.nonempty`), so `|A| = 3`. Then
+
+* each of the three vertices `x ∈ A` is avoided by at least three members
+  (`three_le_card_filter_notMem`), so
+  `∑ x ∈ A, |{B ∈ F | x ∉ B}| ≥ 3 · 3 = 9`;
+* that sum equals `∑ B ∈ F, |A \ B|`
+  (`sum_card_filter_notMem_eq_sum_card_sdiff`);
+* every `B ∈ F` meets `A` by the intersecting clause, so
+  `|A \ B| ≤ |A| - 1 = 2`, while the term at `B = A` is `|A \ A| = 0`;
+  hence `∑ B ∈ F, |A \ B| ≤ 2 · |F.erase A| = 2 (|F| - 1)`.
+
+Chaining, `9 ≤ 2(|F| - 1)`, i.e. `|F| - 1 ≥ 5` over `ℕ`, i.e. `6 ≤ |F|`.
+
+SHARP: `witnessThree` has `|F| = 6` and meets both estimates almost exactly —
+each vertex of its member `{0,1,2}` is avoided by exactly three members and
+`∑ B, |A \ B| = 9 ≤ 10`. The same counting for general `n` reads
+`3n ≤ (n-1)(|F|-1)`, which is sharp only at `n = 3` and gives nothing
+asymptotically; the growing lower bounds are [EL75] and [Si26]. -/
+theorem IsErdosLovaszFamily.six_le_card (h : IsErdosLovaszFamily 3 F) : 6 ≤ F.card := by
+  classical
+  obtain ⟨A, hA⟩ := h.nonempty (by norm_num)
+  have hAcard : A.card = 3 := h.1 A hA
+  have hlow : 9 ≤ ∑ x ∈ A, (F.filter (fun B => x ∉ B)).card := by
+    calc 9 = ∑ _x ∈ A, 3 := by rw [Finset.sum_const, smul_eq_mul, hAcard]
+      _ ≤ ∑ x ∈ A, (F.filter (fun B => x ∉ B)).card :=
+          Finset.sum_le_sum fun x _ => h.three_le_card_filter_notMem le_rfl x
+  have hsdiff : ∀ B ∈ F, (A \ B).card ≤ 2 := by
+    intro B hB
+    have hsplit := Finset.card_sdiff_add_card_inter A B
+    have hpos : 0 < (A ∩ B).card :=
+      Finset.card_pos.mpr (Finset.not_disjoint_iff_nonempty_inter.mp (h.2.1 A hA B hB))
+    omega
+  have hdiag : (A \ A).card = 0 := by rw [Finset.sdiff_self, Finset.card_empty]
+  have hup : ∑ B ∈ F, (A \ B).card ≤ 2 * (F.erase A).card := by
+    rw [← Finset.sum_erase F (a := A) (f := fun B => (A \ B).card) hdiag]
+    calc ∑ B ∈ F.erase A, (A \ B).card ≤ ∑ _B ∈ F.erase A, 2 :=
+          Finset.sum_le_sum fun B hB => hsdiff B (Finset.mem_of_mem_erase hB)
+      _ = 2 * (F.erase A).card := by rw [Finset.sum_const, smul_eq_mul, mul_comm]
+  have hkey : 9 ≤ 2 * (F.erase A).card := by
+    rw [sum_card_filter_notMem_eq_sum_card_sdiff] at hlow
+    omega
+  have herase : (F.erase A).card = F.card - 1 := Finset.card_erase_of_mem hA
+  omega
+
+end LowerBound
+
+-- ════════════════════════════════════════════════════════════════════
+-- §5 THE COVER NUMBER g(n) AND ITS PROVED VALUES
 -- ════════════════════════════════════════════════════════════════════
 
 /-- The set of family sizes realized by Erdős–Lovász families of `n`-sets,
@@ -519,10 +707,13 @@ theorem erdosLovaszNum_two : erdosLovaszNum 2 = 3 := by
   omega
 
 /-- A 6-edge Erdős–Lovász family of triples on 6 vertices, found by exhaustive
-search (6 vertices is the least possible; there is no 6-edge witness on ≤ 5
-vertices, and no 4- or 5-edge witness on ≤ 11 vertices, which is exhaustive
-for ≤ 5 edges by the span bound `3 + 2·4`). It witnesses `g(3) ≤ 6`, the
-upper half of [Tr14]'s `g(3) = 6`. -/
+search (6 vertices is the least possible: there is no 6-edge witness on ≤ 5
+vertices). It witnesses `g(3) ≤ 6`, the upper half of `g(3) = 6`.
+
+The search also reported no 4- or 5-edge witness on ≤ 11 vertices, exhaustive
+for ≤ 5 edges by the span bound `3 + 2·4`. That search is now SUPERSEDED and
+no longer load-bearing: `IsErdosLovaszFamily.six_le_card` proves the same
+non-existence for every ground type, by counting rather than by enumeration. -/
 def witnessThree : Finset (Finset (Fin 6)) :=
   {{0, 1, 2}, {0, 1, 3}, {0, 4, 5}, {1, 4, 5}, {2, 3, 4}, {2, 3, 5}}
 
@@ -539,8 +730,33 @@ theorem isErdosLovaszFamily_witnessThree : IsErdosLovaszFamily 3 witnessThree :=
 theorem erdosLovaszNum_three_le : erdosLovaszNum 3 ≤ 6 :=
   Nat.sInf_le ⟨6, witnessThree, isErdosLovaszFamily_witnessThree, by decide⟩
 
+/-- **`6 ≤ g(3)`** — PROVED HERE, not archived. The minimum is attained by an
+actual family (`erdosLovaszNum_mem` at `n = 3`), and every Erdős–Lovász family
+of triples over every ground type has at least six members
+(`IsErdosLovaszFamily.six_le_card`). No ground-set normalization and no finite
+search enter: the counting argument of §4 is uniform in the ground type, so
+the unbounded `∃ N` of `erdosLovaszCards` is handled directly.
+
+ATTRIBUTION. The `tripathi_` prefix is kept for name stability, but priority
+for `g(3) = 6` is [FOT96], not [Tr14] — Tripathi's own text says the result
+was proved in [FOT96] and that his §2 gives "a different proof" of it (both
+quoted verbatim in the file header); [Tr14]'s own new value is `g(4) = 9`.
+The proof formalized here is a third one: a double count, which unlike
+[Tr14]'s route needs neither his minimal-length/degree dichotomy lemma nor
+the notion of minimal length, and therefore disposes of every `|F| ≤ 5` in
+one step rather than of `|F| = 5` alone. -/
+theorem tripathi_six_le_erdosLovaszNum_three : 6 ≤ erdosLovaszNum 3 := by
+  obtain ⟨N, F, hF, hcard⟩ := erdosLovaszNum_mem (n := 3) (by norm_num)
+  exact hcard ▸ hF.six_le_card
+
+/-- **`g(3) = 6`** (OEIS A391599, a(3) = 6; [FOT96], reproved in [Tr14]).
+SORRY-FREE: the upper bound is `witnessThree`, the lower bound is the §4
+counting argument. -/
+theorem tripathi_erdosLovaszNum_three : erdosLovaszNum 3 = 6 :=
+  le_antisymm erdosLovaszNum_three_le tripathi_six_le_erdosLovaszNum_three
+
 -- ════════════════════════════════════════════════════════════════════
--- §5 LITERATURE STATEMENTS (INTENDED SORRIES)
+-- §6 LITERATURE STATEMENTS (INTENDED SORRIES)
 -- ════════════════════════════════════════════════════════════════════
 
 /-- **[EL75] lower bound** (literature, INTENDED SORRY): `8n/3 − 3 ≤ g(n)`
@@ -581,17 +797,6 @@ theorem sivashankar_asymptotic_lower_bound (ε : ℝ) (hε : 0 < ε) :
   -- small-codegree hypergraph edge-colouring theorem.
   sorry
 
-/-- **[Tr14]** (literature, INTENDED SORRY): `6 ≤ g(3)`. The matching upper
-bound `g(3) ≤ 6` is PROVED above (`erdosLovaszNum_three_le`), so this
-inequality is the entire sorried content of `g(3) = 6`. -/
-theorem tripathi_six_le_erdosLovaszNum_three : 6 ≤ erdosLovaszNum 3 := by
-  -- INTENDED SORRY: statement-archive lane. [Tr14]'s case analysis.
-  sorry
-
-/-- **[Tr14]**: `g(3) = 6` (OEIS A391599, a(3) = 6). -/
-theorem tripathi_erdosLovaszNum_three : erdosLovaszNum 3 = 6 :=
-  le_antisymm erdosLovaszNum_three_le tripathi_six_le_erdosLovaszNum_three
-
 /-- **[Tr14]** (literature, INTENDED SORRY): `g(4) = 9` (OEIS A391599,
 a(4) = 9). [Ba21] showed the extremal example is unique and "notably
 asymmetric" (erdosproblems.com/21, comment of 03 Dec 2025). A 9-edge witness
@@ -624,7 +829,7 @@ theorem barat_erdosLovaszNum_six_le : erdosLovaszNum 6 ≤ 18 := by
   sorry
 
 -- ════════════════════════════════════════════════════════════════════
--- §6 CONSEQUENCES OF THE LITERATURE STATEMENTS (SORRY-FREE)
+-- §7 CONSEQUENCES OF THE LITERATURE STATEMENTS (SORRY-FREE)
 -- ════════════════════════════════════════════════════════════════════
 
 /-- Numeric pin for [Si26]'s constant: `61/20 < (41 − √19)/12 < 3.054`. In
@@ -758,7 +963,7 @@ theorem not_threeMulAddBigO_of_asymptotic_lower_bound
   nlinarith [hbound, hcabs, hcn]
 
 -- ════════════════════════════════════════════════════════════════════
--- §7 GROUND CHECKS AND SATISFIABILITY
+-- §8 GROUND CHECKS AND SATISFIABILITY
 -- ════════════════════════════════════════════════════════════════════
 
 section GroundChecks
@@ -810,7 +1015,7 @@ example : coveringNumber witnessThree = 3 :=
 
 /-! ### Satisfiability of hypothesis bundles
 
-Every theorem of §1–§4 with hypotheses is instantiated jointly at a concrete
+Every theorem of §1–§5 with hypotheses is instantiated jointly at a concrete
 model (`witnessThree`, `n = 3`), together with its conclusion. -/
 
 -- `IsErdosLovaszFamily.*`: the bundle (h, 0 < n) and (h, 2 ≤ n) at n = 3.
@@ -847,6 +1052,60 @@ example :
   rw [Finset.card_map]
   decide
 
+/-! ### §4, the counting lower bound, evaluated at the extremal family
+
+Both estimates behind `IsErdosLovaszFamily.six_le_card` are (nearly) attained
+by `witnessThree`, so neither is slack enough to be uninformative. -/
+
+-- `three_le_card_filter_notMem`: EXACTLY three members of `witnessThree` avoid
+-- each of the six vertices, so the bound `3 ≤ …` is attained, not slack.
+example : ∀ x : Fin 6, (witnessThree.filter (fun B => x ∉ B)).card = 3 := by decide
+-- The lemma itself, instantiated (its hypothesis `3 ≤ n` holds at `n = 3`).
+example : 3 ≤ (witnessThree.filter (fun B => (0 : Fin 6) ∉ B)).card :=
+  isErdosLovaszFamily_witnessThree.three_le_card_filter_notMem le_rfl 0
+-- The `x` of `three_le_card_filter_notMem` ranges over the whole ground type,
+-- not just the vertices used by `F`: here `6 : Fin 7` lies outside the image
+-- of `Fin.castSucc`, i.e. outside the support of the transported witness.
+example :
+    3 ≤ ((witnessThree.map
+        (Finset.mapEmbedding ⟨Fin.castSucc, Fin.castSucc_injective 6⟩).toEmbedding).filter
+      (fun B => (6 : Fin 7) ∉ B)).card :=
+  (isErdosLovaszFamily_witnessThree.map _).three_le_card_filter_notMem le_rfl 6
+
+-- The double count at `A = {0,1,2} ∈ witnessThree`: `3 · 3 = 9` on the left,
+-- `0 + 1 + 2 + 2 + 2 + 2 = 9` on the right — the identity
+-- `sum_card_filter_notMem_eq_sum_card_sdiff` at a concrete instance.
+example :
+    ∑ x ∈ ({0, 1, 2} : Finset (Fin 6)),
+      (witnessThree.filter (fun B => x ∉ B)).card = 9 := by decide
+example : ∑ B ∈ witnessThree, (({0, 1, 2} : Finset (Fin 6)) \ B).card = 9 := by decide
+example :
+    ∑ x ∈ ({0, 1, 2} : Finset (Fin 6)),
+        (witnessThree.filter (fun B => x ∉ B)).card
+      = ∑ B ∈ witnessThree, (({0, 1, 2} : Finset (Fin 6)) \ B).card :=
+  sum_card_filter_notMem_eq_sum_card_sdiff _ _
+-- The ceiling the count is compared against, `2 · (|F| − 1) = 10`: the gap
+-- `9 ≤ 10` is exactly why 6 edges are possible and 5 are not (`2 · 4 = 8 < 9`).
+example : 2 * (witnessThree.erase {0, 1, 2}).card = 10 := by decide
+
+-- The conclusion at the extremal family: `6 ≤ 6`, so the bound is sharp.
+example : 6 ≤ witnessThree.card := isErdosLovaszFamily_witnessThree.six_le_card
+
+-- THE LOWER BOUND IN NEGATIVE FORM, which is what `6 ≤ g(3)` really asserts:
+-- no family of at most five triples is an Erdős–Lovász family, over ANY
+-- ground type. `decide` cannot reach this — the ground type is unbounded —
+-- and no normalization to a fixed `Fin N` is used to get there.
+example : ∀ k < 6, k ∉ erdosLovaszCards 3 := by
+  rintro k hk ⟨N, F, hF, rfl⟩
+  have h6 : 6 ≤ F.card := hF.six_le_card
+  omega
+-- ...and 6 itself IS realized, so the bound is exactly the truth.
+example : (6 : ℕ) ∈ erdosLovaszCards 3 ∧ ∀ k < 6, k ∉ erdosLovaszCards 3 := by
+  refine ⟨⟨6, witnessThree, isErdosLovaszFamily_witnessThree, by decide⟩, ?_⟩
+  rintro k hk ⟨N, F, hF, rfl⟩
+  have h6 : 6 ≤ F.card := hF.six_le_card
+  omega
+
 -- `erdosLovaszCards` is inhabited at n = 1, 2, 3 by the three witnesses, so
 -- the `sInf` defining `erdosLovaszNum` is never taken over an empty set there.
 example : (1 : ℕ) ∈ erdosLovaszCards 1 := ⟨1, {{0}}, by decide, by decide⟩
@@ -855,13 +1114,13 @@ example : (3 : ℕ) ∈ erdosLovaszCards 2 :=
 example : (6 : ℕ) ∈ erdosLovaszCards 3 :=
   ⟨6, witnessThree, isErdosLovaszFamily_witnessThree, by decide⟩
 
--- The `∀ᶠ … in atTop` statements of §5–§6 quantify over a proper filter, so
+-- The `∀ᶠ … in atTop` statements of §6–§7 quantify over a proper filter, so
 -- they are not vacuously true.
 example : (Filter.atTop : Filter ℕ).NeBot := inferInstance
 
 /-! ### The archived literature statements, checked at the proved values
 
-Each sorried bound of §5 is evaluated at every `n` whose value this file
+Each sorried bound of §6 is evaluated at every `n` whose value this file
 proves, so the archived statements are consistent with the proved ones. -/
 
 -- [EL75] `8n/3 − 3 ≤ g(n)`: at n = 1, −1/3 ≤ 1; at n = 2, 7/3 ≤ 3.
@@ -892,8 +1151,91 @@ example : (erdosLovaszNum 1 : ℝ) ≤ 3 * 1 ∧ (erdosLovaszNum 2 : ℝ) ≤ 3 
     linarith
 
 -- The OEIS A391599 data row, as far as this file proves it: a(1) = 1,
--- a(2) = 3, a(3) ≤ 6 (with a(3) = 6 archived as [Tr14]).
-example : erdosLovaszNum 1 = 1 ∧ erdosLovaszNum 2 = 3 ∧ erdosLovaszNum 3 ≤ 6 :=
-  ⟨erdosLovaszNum_one, erdosLovaszNum_two, erdosLovaszNum_three_le⟩
+-- a(2) = 3, a(3) = 6 — the first three terms of `1, 3, 6, 9, 13`, all three
+-- now sorry-free. (a(4) = 9 and a(5) = 13 remain archived.)
+example : erdosLovaszNum 1 = 1 ∧ erdosLovaszNum 2 = 3 ∧ erdosLovaszNum 3 = 6 :=
+  ⟨erdosLovaszNum_one, erdosLovaszNum_two, tripathi_erdosLovaszNum_three⟩
 
 end GroundChecks
+
+-- ════════════════════════════════════════════════════════════════════
+-- §9 AXIOM AUDIT
+-- ════════════════════════════════════════════════════════════════════
+
+/-! Every named declaration of this file, in source order. The 42 Tier 1
+declarations must report exactly `[propext, Classical.choice, Quot.sound]`;
+the 7 Tier 2 statements and the 2 Tier 3 consequences must additionally
+report `sorryAx`, and nothing must report anything else. No `native_decide`,
+no `@[implemented_by]`/`@[extern]`/`@[csimp]`, no declared `axiom`. -/
+
+section AxiomAudit
+
+-- §1 the family predicate.
+#print axioms IsErdosLovaszFamily
+#print axioms instDecidableIsErdosLovaszFamily
+#print axioms isErdosLovaszFamily_iff
+#print axioms IsErdosLovaszFamily.empty_notMem
+#print axioms not_isErdosLovaszFamily_of_empty_mem
+#print axioms IsErdosLovaszFamily.nonempty
+
+-- §2 the τ bridge.
+#print axioms coveringNumber_le_card_family
+#print axioms IsErdosLovaszFamily.le_coveringNumber
+#print axioms IsErdosLovaszFamily.coveringNumber_le
+#print axioms IsErdosLovaszFamily.coveringNumber_eq
+#print axioms isErdosLovaszFamily_of_coveringNumber_eq
+#print axioms coveringNumber_add_one_le_card
+#print axioms IsErdosLovaszFamily.le_card
+#print axioms IsErdosLovaszFamily.succ_le_card
+
+-- §3 transfer and the existence witness.
+#print axioms IsErdosLovaszFamily.map
+#print axioms isErdosLovaszFamily_powersetCard
+
+-- §4 the counting lower bound.
+#print axioms sum_card_filter_notMem_eq_sum_card_sdiff
+#print axioms IsErdosLovaszFamily.three_le_card_filter_notMem
+#print axioms IsErdosLovaszFamily.six_le_card
+
+-- §5 g(n) and its proved values.
+#print axioms erdosLovaszCards
+#print axioms erdosLovaszNum
+#print axioms erdosLovaszCards_nonempty
+#print axioms erdosLovaszNum_mem
+#print axioms erdosLovaszNum_zero
+#print axioms le_erdosLovaszNum
+#print axioms zero_lt_erdosLovaszNum
+#print axioms succ_le_erdosLovaszNum
+#print axioms erdosLovaszNum_le_choose
+#print axioms erdosLovaszNum_one
+#print axioms erdosLovaszNum_two
+#print axioms witnessThree
+#print axioms isErdosLovaszFamily_witnessThree
+#print axioms erdosLovaszNum_three_le
+#print axioms tripathi_six_le_erdosLovaszNum_three
+#print axioms tripathi_erdosLovaszNum_three
+
+-- §6 TIER 2 — the archived literature statements; these must and do report
+-- `sorryAx`.
+#print axioms erdos_lovasz_lower_bound
+#print axioms kahn_erdosLovaszNum_le_linear
+#print axioms sivashankar_three_mul_sub_four
+#print axioms sivashankar_asymptotic_lower_bound
+#print axioms tripathi_erdosLovaszNum_four
+#print axioms barat_erdosLovaszNum_five
+#print axioms barat_erdosLovaszNum_six_le
+
+-- §7 consequences. The two TIER 3 entries (`sivashankar_lower_bound_61_20`,
+-- `kahn_erdosLovaszNum_isBigO`) inherit `sorryAx` from §6 by design; the
+-- hypothesis-form derivations beside them do not.
+#print axioms sivashankarConst_bounds
+#print axioms lower_bound_61_20_of_asymptotic
+#print axioms sivashankar_lower_bound_61_20
+#print axioms isBigO_of_forall_le_linear
+#print axioms kahn_erdosLovaszNum_isBigO
+#print axioms one_le_of_forall_le_linear
+#print axioms thirteen_le_erdosLovaszNum_six_of_erdos_lovasz
+#print axioms ThreeMulAddBigO
+#print axioms not_threeMulAddBigO_of_asymptotic_lower_bound
+
+end AxiomAudit
