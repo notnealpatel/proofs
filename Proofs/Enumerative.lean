@@ -8,6 +8,7 @@ import Enumerative.IsZumkeller
 import Enumerative.MeanDivisors
 import Enumerative.MultiperfectZumkeller
 import Enumerative.NederGap
+import Enumerative.No3APGreedy
 import Enumerative.PalindromeRows
 import Enumerative.Practical
 import Enumerative.StanleyDigits
