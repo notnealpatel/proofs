@@ -17,6 +17,7 @@ import Erdos.Erdos20.SpreadDefect
 import Erdos.Erdos20.SpreadLemma
 import Erdos.Erdos20.Sunflower
 import Erdos.Erdos20.ErdosRado
+import Erdos.Erdos20.SunflowerConjecture
 import Erdos.Erdos175.NotSquarefree
 import Erdos.Erdos175.SquarefreeCentralBinom
 import Erdos.Erdos440.LcmCount
