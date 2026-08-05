@@ -16,6 +16,7 @@ import Erdos.Erdos20.Spread
 import Erdos.Erdos20.SpreadDefect
 import Erdos.Erdos20.SpreadLemma
 import Erdos.Erdos20.Sunflower
+import Erdos.Erdos20.ErdosRado
 import Erdos.Erdos175.NotSquarefree
 import Erdos.Erdos440.LcmCount
 import Erdos.Erdos542.SchinzelSzekeres
