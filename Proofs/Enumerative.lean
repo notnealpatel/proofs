@@ -4,6 +4,7 @@ import Enumerative.A051293.Counting
 import Enumerative.Fubini
 import Enumerative.FubiniMod
 import Enumerative.FubiniPrimes
+import Enumerative.HegartyPermutation
 import Enumerative.IdealWaring
 import Enumerative.IsZumkeller
 import Enumerative.MeanDivisors
