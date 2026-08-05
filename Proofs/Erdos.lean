@@ -22,6 +22,7 @@ import Erdos.Erdos1063.SelfridgeDefect
 import Erdos.Erdos175.KummerDigits
 import Erdos.Erdos175.NotSquarefree
 import Erdos.Erdos175.SquarefreeCentralBinom
+import Erdos.Erdos535.GcdSunflower
 import Erdos.Erdos440.LcmCount
 import Erdos.Erdos542.SchinzelSzekeres
 import Erdos.Erdos715.RegularSubgraph
