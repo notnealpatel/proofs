@@ -1,5 +1,6 @@
 import NumberComplexity.AdditionChain
 import NumberComplexity.ComplexityPatterns
+import NumberComplexity.DoublingConjecture
 import NumberComplexity.HamiltonBallinger
 import NumberComplexity.IntComplexity
 import NumberComplexity.KnuthStolarsky
