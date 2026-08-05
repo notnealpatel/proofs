@@ -155,6 +155,39 @@ commit record why.
                card's "characterization" framing).
 
 
+## WAVE 3 — dispatched 2026-08-05
+
+  P9  postdoc  Melfi 1996: even = practical + practical.  [DONE]
+               2e5b1ab. `even_eq_practical_add_practical` (sorry-free).
+               Proof uses two-modulus covering (2^k, 2·3^j), NOT
+               Melfi's twin-practical sequence — L risk avoided.
+               Discharges `melfi` sorry in three sketch files.
+  P10 postdoc  Kummer carry layer (#376).                 [DONE]
+               626822b. `carry` def + bridge to Mathlib's
+               `padicValNat_choose'`. Kummer proper already in
+               Mathlib; file builds the missing carry function.
+               Unlocks #376 + #406 (not five problems as briefed).
+  P11 postdoc  Erdős #1063 Selfridge defect.              [DONE]
+               8efac26. `erdos_selfridge_defect_pos` (sorry-free).
+               Proved under k ≤ n (stronger than source's 2k ≤ n).
+               CORRECTION: brief gloss described #377, not #1063.
+               Certifies n₂=4, n₃=6, n₄=9, n₅=12 (A389360).
+  P12 postdoc  Erdős #535 gcd-sunflower bound.            [DONE]
+               0238c07. `card_le_of_isAlmostPrime` (sorry-free).
+               Ω-layer bound (r-1)^k·k! via prime-power encoding
+               of Erdős–Rado. Sharp at k=1. N-form proved but
+               weaker than trivial (brief's premise was false).
+  P13 postdoc  Covering arc C1: base-b generalisation.    [DONE]
+               37e5f2e. `IsFixedDivisorSystemBase` + base-b
+               Sierpiński/Riesel with three concrete witnesses.
+               51 new declarations, zero existing broken.
+               n ≥ 1 convention forced (n=0 gives primes).
+  P14 postdoc  ‖2^n‖ = 2n archive (Guy F26).             [DONE]
+               d657720. One intended sorry. Cube bound certifies
+               a ≤ 9 analytically (decide window unreachable).
+               Bonus: ‖3^b‖ = 3b proved for all b ≥ 1.
+
+
 ## COVERING ARC — adopted lanes (previous PLAN, renumbered)
 
 ### STATE
@@ -175,7 +208,7 @@ Sorry-free except the archived A039669 conjecture. Axioms within
 
 ### Lanes
 
-  C1  (was A') Base-b parameterisation                 [S]  DO FIRST
+  C1  (was A') Base-b parameterisation                 [S]  DONE (P13, 37e5f2e)
       postdoc. `2` → `b` throughout FixedDivisor; order bridge becomes
       `(b:Z)^d = 1 [ZMOD p]`; per-class step unchanged. Decidability
       survives — `b^d % p = 1 % p` stays a ground check. Reaches base-b
