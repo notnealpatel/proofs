@@ -8,6 +8,7 @@ import Enumerative.HegartyPermutation
 import Enumerative.IdealWaring
 import Enumerative.IsZumkeller
 import Enumerative.MeanDivisors
+import Enumerative.MultiperfectCongruence
 import Enumerative.MultiperfectZumkeller
 import Enumerative.NederGap
 import Enumerative.No3APGreedy
@@ -16,6 +17,7 @@ import Enumerative.PartitionPerfectPower
 import Enumerative.Practical
 import Enumerative.PrimesNotCubeMinusSquare
 import Enumerative.StanleyDigits
+import Enumerative.CongruentBSD
 import Enumerative.StewartCriterion
 import Enumerative.Zumkeller
 import Enumerative.ZumkellerSigmaHalf
