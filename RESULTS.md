@@ -5,6 +5,16 @@
 These items may constitute first-formalizations or new formal artifacts.
 Each needs a literature sweep before any claim is published.
 
+0. **Noe's odd Zumkeller ↔ no OPN (archive batch, c1097d9)** — proved
+   that the forward direction of Noe's conjecture (odd Zumkeller ⊆
+   A174865) is equivalent to the nonexistence of odd perfect numbers.
+   An odd perfect number is Zumkeller but not abundant, so it escapes
+   A174865. This equivalence may be known but no citation was found;
+   the repaired conjecture (non-deficient replaces abundant) avoids
+   the obstruction entirely. **Needs a literature check** — the
+   observation that OPN is Zumkeller-but-not-abundant is elementary
+   but may not be recorded.
+
 1. **Melfi's theorem (P9, 2e5b1ab)** — sorry-free proof that every even
    n > 0 is practical + practical. No prior Lean/Isabelle/Coq/Mizar
    formalization found in any sweep. The proof route (two-modulus covering
