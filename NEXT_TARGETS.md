@@ -241,3 +241,30 @@ X2 should additionally record waves 2–3 landings.
    (no database will ever index it).
 6. Re-pull every entry immediately before carding.
 7. Once per campaign, name-check each arc's flagship conjecture.
+
+## New targets from wave 3 (2026-08-06)
+
+Wave 3's 16 commits opened lines of inquiry absent from
+the 104-candidate queue. Ranked by value per effort.
+
+| Target | Source | Effort | Reuses | Notes |
+|--------|--------|--------|--------|-------|
+| Defect exact identity: `v_p(n−e) = v_p(C(n,k)) + v_p(k) + v_p(C(k−1,e))` at defect-1 points | 5af455e docstring | S | `Erdos1063/DefectCarryBound` | P1-grade. `≤` half landed; rest is ultrametric case split, ~30–50 lines. Do NOT card the prime-k strengthening (structural dead end). |
+| Erdős #376 digit equivalence (A030979) | 626822b + 4bb6675 | S | `Erdos175.prime_not_dvd_centralBinom_iff_digits` | C(2n,n) coprime to 105 ↔ base-3/5/7 digit conditions. Discharges 4/6 sorrys in `E376.lean`. |
+| `of_modEq_base` transport corollaries | 37e5f2e | S | `IsFixedDivisorSystemBase` | Base-14 Sierpiński → all b ≡ 14 (mod 15), ~15 lines. Dispatch alongside C7. |
+| A102483 Sloane 1973 archive | 4bb6675 | S | `PowerOfTwoDigits` §8 | Near-free card; a(7) > 10^21 bound archives honestly. |
+| Odd non-deficient ∧ 3 ∤ n → n ≥ 5391411025 | 183c590 | M | `OddCovering` density obstruction | 3 ∣ lcm OR lcm ≥ 5.39·10⁹ for any odd covering. CAUTION: "9∣n ∨ 15∣n" proposal was FALSE at 5391411025. |
+| Erdős #18 fragments unblocked | Practical.lean | S–M | `Practical.mul_prime_pow` | `practical_factorial` + `representable_of_practical` now dischargeable in `E18.lean`. |
+
+Status changes to existing cards:
+- Switkay: drops to S (Melfi sorry now an import).
+- A222603: L → M (three sorrys newly provable; connectivity open).
+- A209312: `hasler_parity` near-free via `Practical.two_dvd`.
+- A373686: unchanged (Melfi is context only).
+
+Covering ranking (confirmed): C7+C3 first, C4 second.
+C2 may be partially subsumed by `IsFixedDivisorSystemBase`
+— verify-or-descope before dispatch.
+
+Cleanup: `E1063.lean` fully and `E535.lean` mostly
+superseded by landed files — `goof rm` candidates.
