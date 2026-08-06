@@ -1,41 +1,30 @@
-# Next Proving Targets — Coalesced Action Plan 2026-08-05
+# Next Proving Targets — Coalesced Action Plan
 
-Wave 2 is committed: P5 (Erdős–Rado, `decda50`), P6
-(A061256 Britnell, `75c4192`), P7 (A092482 closed form,
-`f105bf4`), and ten of the eleven P8 archive files
-(A003313, A000670-muljadi, A000041-sun, A161682, A002804,
-A046098, A332077, A094870, A005432, A273929). A323653 is
-NOT in the git log — it stays queued below. The covering
-arc C1–C7 was never dispatched. None of the committed
-targets are re-suggested here.
+Updated 2026-08-06 after wave 3 + follow-on lanes.
 
-This file coalesces four sources into one prioritized
-queue: `Formalize/CONJECTURE_CANDIDATES.md` (25 OEIS
-sketches in `Proofs/Scratch/Candidates/`),
-`Formalize/ERDOS_CANDIDATES.md` (56 sketches in
-`Proofs/Scratch/ErdosCandidates/`, issue #5), the mining
-meta-sweep (`MINING_GAPS.md`, issue #6), and the pending
-remainder of `PLAN.md`. The MINING_GAPS candidates were
-flagged single-pass; they received a fresh paired
-advocate/skeptic audit this session with live
-`goof erdos fetch` / `goof oeis show` / web runs. Verdicts
-below cite that audit; the two sweep docs' own paired
-audits are trusted as-is.
+## Landed in wave 3 (remove from dispatch consideration)
 
-One dedup: Erdős #242 and A192787 are the same problem
-(Erdős–Straus); merged into one card. Melfi's theorem
-appears as a sorry inside three sketches
-(`A005153Switkay`, `A222603PracticalTree`,
-`A373686SomuTran`) but is one lane.
+P1 proof: Melfi practical+practical (2e5b1ab), #376 Kummer
+carry (626822b), #1063 Selfridge defect (8efac26), #535
+gcd-sunflower (0238c07), C1 base-b covering (37e5f2e).
+Archive: ‖2^n‖=2n (d657720), Brocard (7a1d51f), Noe
+Zumkeller (c1097d9), #1140 (da07f72), Sun derangements
+(6de4495), #406 base-3 (4bb6675), #7 odd covering
+(183c590), A244743 defect (b43f80d).
+Follow-on: three-smooth (398c7d6), n_k k=6–10 (7f3a26b),
+carry bound (5af455e).
 
-## Summary statistics
+Sequencing updates: Melfi landed → Switkay/A222603/A373686
+unblocked. Kummer landed → #406 landed, #699/#1093–95
+unblocked. C1 landed → C2/C3 unblocked. #535 encoding is
+a one-problem tool (elaborator-confirmed).
 
-- Total unique candidates: 104
-  (25 OEIS + 56 Erdős + 11 meta-sweep + 13 PLAN − 1 dedup)
-- Formalize (sorry'd): 44
-- Proof attempt: 50
-- Unknown/unsorted: 5 (+4 process investigations)
-- Dropped after audit: 5 (see cross-cutting notes)
+## Summary statistics (post wave 3)
+
+- Original candidates: 104
+- Landed waves 1–3: ~40
+- Remaining open: ~64
+- Dropped after audit: 5 (unchanged)
 
 Split cards (archive + provable fragment) are listed once,
 in their primary section, with the fragment in Notes.
@@ -51,17 +40,17 @@ sorrys, and commit with the intended sorry(s) only.
 
 | Target | Source | Effort | Reuses | Notes |
 |--------|--------|--------|--------|-------|
-| `‖2^n‖ = 2n` (UPINT F26) | gaps #6 | S | `complexity`, `complexityRec` | One-line statement; the central open question of the NumberComplexity arc. `decide` window is n ≤ ~10–12 only (`complexityRec 11` already needs maxRecDepth 8192); literature range is n ≤ 39, NOT 41 — Iraids et al. computed to 10^12 and 2^40 > 10^12. |
-| A146968 Brocard | OEIS T1 | S | Mathlib `Nat.factorial`, `IsSquare` | Open since 1876; sketch has 4 sorrys, window check cheap. |
-| A174865 Noe Zumkeller iff | OEIS T1 | S | `IsZumkeller`, `ZumkellerSigmaHalf` | Strongest adjacency in the OEIS batch; easy direction (`noe_easy_direction'`) is provable now, hard direction is the sorry. |
+| ~~`‖2^n‖ = 2n`~~ | ~~gaps #6~~ | ~~S~~ | | LANDED d657720 + three-smooth 398c7d6 |
+| ~~A146968 Brocard~~ | ~~OEIS T1~~ | ~~S~~ | | LANDED 7a1d51f |
+| ~~A174865 Noe Zumkeller~~ | ~~OEIS T1~~ | ~~S~~ | | LANDED c1097d9 — forward ↔ no OPN |
 | A005153 Switkay | OEIS T1 | S | `Nat.Practical`, `StewartCriterion` | Sequence AFTER the Melfi lane (P1): the card's `melfi` sorry becomes an import. Parity reduction provable. |
-| A000166 Sun derangements | OEIS T1 | S | Mathlib `numDerangements`; shares `IsPerfectPower` with landed A000041 card | Coprimality warm-up provable; main conjecture Diophantine-hard. |
-| A244743 complexity defect | OEIS T1 | S | `complexity` | Well-definedness IS the conjecture; `neg_one_le_defect` provable from `complexity_add_le`. |
+| ~~A000166 Sun derangements~~ | ~~OEIS T1~~ | ~~S~~ | | LANDED 6de4495 — coprimality proved ∀n |
+| ~~A244743 complexity defect~~ | ~~OEIS T1~~ | ~~S~~ | | LANDED b43f80d — brief def was wrong |
 | Erdős #242 / A192787 Erdős–Straus (merged) | both sweeps | S | none new; cleared-denominator `Nat` form | Archive-primary. Fragments: `erdosStraus_of_prime` + Mordell residue classes (effort M) are P2-grade work the card should carry. |
-| Erdős #1140 n−2x² | Erdős B | S | `ErdosMinus2k` shape | Eight `decide` certificates + `native_decide` window; class-number finiteness archived. |
+| ~~Erdős #1140 n−2x²~~ | ~~Erdős B~~ | ~~S~~ | | LANDED da07f72 |
 | Erdős #405 (p−1)!+a^(p−1)=p^k | Erdős B | S | none | Pin the odd-p solution set from Yu–Liu before stating (DB examples use p=2). |
-| Erdős #7 odd covering | Erdős UB | S | `Erdos/Covering/Basic` | High audit value given the 2026 rejected-proof churn; decidable restatement vs upstream `StrictCoveringSystem ℤ` must be flagged explicitly. |
-| Erdős #406 2^n base 3 | Erdős UB | S | `Nat.digits` | Three witnesses + verified windows; shares digit language with the #376 Kummer layer (P2). |
+| ~~Erdős #7 odd covering~~ | ~~Erdős UB~~ | ~~S~~ | | LANDED 183c590 — 945 lcm bound proved |
+| ~~Erdős #406 2^n base 3~~ | ~~Erdős UB~~ | ~~S~~ | | LANDED 4bb6675 — no sorry, Kummer load-bearing |
 | Erdős #677 lcm blocks | Erdős UB | S | `Erdos440/LcmCount` | Two coincidence witnesses by `decide`. |
 
 ### Tier F2 — Medium effort
@@ -116,8 +105,8 @@ calls, corrected by audit where noted.
 
 | Target | Source | Agent | Attack surface | Reuses |
 |--------|--------|-------|----------------|--------|
-| Melfi 1996: even = practical + practical | gaps #6 | postdoc, M (L risk) | 6-page constructive proof: Stewart-criterion iteration + interval covering via a bounded-ratio practical sequence. Audit: ~60% of prerequisites landed; the twin-practical ratio argument is the L risk. Discharges sorrys in three sketch files. | `StewartCriterion` (697 lines), `Practical.lean` |
-| C1 base-b FixedDivisor | PLAN | postdoc, S | Mechanical `2` → `b` port; order bridge `(b:ℤ)^d = 1 [ZMOD p]`; decidability survives. Highest value per line in the covering arc. | `FixedDivisor.lean` |
+| ~~Melfi 1996~~ | ~~gaps #6~~ | | | LANDED 2e5b1ab — L risk avoided |
+| ~~C1 base-b~~ | ~~PLAN~~ | | | LANDED 37e5f2e — 51 new decls |
 | C2 abstract sequence layer | PLAN | postdoc, S | ~15 lines, piggyback on C1; statement reuse only. | `FixedDivisor`, `RankOfApparition` |
 | C3 Brier numbers | PLAN | postdoc, S | Two independent `IsFixedDivisorSystem` instances; both certificates re-verified 2026-08-05; loads far inside the measured ceiling. First Lean + record-k framing; cite Cowles–Gamboa (ACL2). | `FixedDivisor`, `Sierpinski`, `Riesel` |
 | C4 Mirsky–Newman | PLAN | postdoc, M | Root-of-unity argument on committed `IsCoveringSystem`; novelty sweep clean; MUST resolve the 274.lean "Jostamon" pointer before claiming first-formalization. | `Covering/Basic` |
@@ -126,7 +115,7 @@ calls, corrected by audit where noted.
 | Erdős #384 Ecklund | Erdős A | postdoc, S | Corrected statement already in sketch (n ≥ 2k, p ≤ n/2, (7,3) exception); elementary via Bertrand. | Kummer machinery in `Erdos175` |
 | Erdős #673 divisor ratios | Erdős C | postdoc, S | Tao's trivial route: τ(n)/4 ≤ G(n) ≤ τ(n) pointwise; density half stays archived. | `Nat.divisors` |
 | Erdős #1062 no a∣b, a∣c | Erdős UA | postdoc, S | Interval [m+1, 3m+2] gives f(n) ≥ ⌈2n/3⌉; small exact values decidable. | Finset divisibility |
-| Erdős #1063 near-uniform divisibility | Erdős UA | postdoc, S–M | Erdős–Selfridge defect lemma is self-contained; n_2..n_5 `decide`-scale; lcm upper bound sits on `Erdos440`. | `Erdos440/LcmCount` |
+| ~~Erdős #1063~~ | ~~Erdős UA~~ | | | LANDED 8efac26 + 7f3a26b + 5af455e |
 | Erdős #1160 m = 2, 3 cases | Erdős UB | postdoc, S/M | Skim verdict: `erdos_1160_m2` provable NOW from landed gnu lemmas; m = 3 provable-with-work. Headline stays archived (gnu(64) = 267 is out of certified range). | `GroupCount/Gnu` |
 
 ### Tier P2 — Medium confidence
@@ -143,10 +132,10 @@ calls, corrected by audit where noted.
 | Erdős #916 Thomassen | Erdős A | postdoc, M | ~5-page direct argument; primitives exist; Walk-API friction is the risk. | `SimpleGraph` experience from Erdos715 |
 | Erdős #58 Gyárfás headline | Erdős A | postdoc, M | Prove χ ≤ 2k+2, sorry the equality case (L). | Mathlib `chromaticNumber` |
 | Erdős #77 Ramsey layer | Erdős C | postdoc, M | R(k) def (~50 lines) + classical bounds (probabilistic lower, pigeonhole upper) + R(3) = 6; unlocks #781 and #112. | new def, high downstream reuse |
-| Erdős #376 Kummer layer | Erdős UA | postdoc, M | Kummer's theorem (coprimality ↔ digit conditions) as finite carry-counting over `Nat.digits`; the deliverable is the layer, not the $1000 headline. Unlocks #175 remainder, #699, #1093–#1095, #406. | `Nat.digits`, `centralBinom` |
+| ~~Erdős #376 Kummer~~ | ~~Erdős UA~~ | | | LANDED 626822b — unlocks #406 (done), #699 |
 | Erdős #699 binomial gcd | Erdős UA | postdoc, M | Finiteness-per-(i,j) + balanced n = 2j case via the product identity; window provable. | BINOM arithmetic; Sylvester–Schur (P3) strengthens it later |
 | Erdős #856 lcm sunflowers | Erdős UA | postdoc, M | Er70 upper bound is a short prime-counting inequality; natural second client of Naslund–Sawin. | `Erdos857/NaslundSawin`, Mathlib Chebyshev |
-| Erdős #535 gcd sunflowers | Erdős UA | postdoc, M | Prime-power encoding turns equal-pairwise-gcd r-sets into r-sunflowers; pushing landed Erdős–Rado through gives a new formal bound (audit-promoted). | `Erdos20/ErdosRado` |
+| ~~Erdős #535 gcd-sunflower~~ | ~~Erdős UA~~ | | | LANDED 0238c07 — one-problem tool |
 | Erdős #273 moduli p−1 | Erdős UA | postdoc, S–M | Verify Selfridge's p ≥ 3 certificate on the existing layer; gate the p > 877 obstruction on a scaled probe. | `Covering/Basic` |
 | Erdős #727 Balakran k=1 | Erdős UC | postdoc, M | (n+1)² ∣ C(2n,n) infinitely often via Catalan numbers (in Mathlib); k ≥ 2 stays open/archived. | Mathlib Catalan + factorial valuations |
 | Erdős #901 m(3) = 7 | Erdős UC | postdoc, M | Fano-plane finite theorem + m(2) = 3 + union-bound lower; entry point to finite probabilistic arguments. | proper-2-coloring defs shared with #836 |
@@ -216,15 +205,15 @@ def + basic API would upgrade several archive cards at
 once. Worth scoping as its own micro-lane before the next
 wave.
 
-Sequencing that matters: (1) Melfi before the Switkay,
-A222603, and A373686 cards — it is a sorry inside all
-three. (2) The #376 Kummer layer before #699/#1093/#1094/
-#1095/#406 fragments. (3) A309370 before A390813 (shared
-`IsSidon`; promote it out of `Scratch`). (4) C1 before C2;
-C6 probe before C6 and before #276. (5) The hypergraph def
-layer (#834 first, smallest) before #836/#901/#1020/#1178.
-(6) Sylvester–Schur (#683) is the one target where a
-prover lane changes the reachable set for a whole family.
+Sequencing that matters (updated post wave 3):
+(1) Melfi LANDED → Switkay/A222603/A373686 NOW unblocked.
+(2) Kummer LANDED → #699/#1093/#1094/#1095 unblocked; #406
+    also landed. (3) A309370 before A390813 (shared
+`IsSidon`). (4) C1 LANDED → C2 unblocked; C7 is ~15 lines;
+C3 (Brier) is ~100–150 lines. C6 probe before C6 and
+before #276. (5) Hypergraph def layer (#834 first) before
+#836/#901/#1020/#1178. (6) Sylvester–Schur (#683) is the
+one target where a prover lane changes the reachable set.
 
 Statement-fidelity gates carried over from the sketches:
 #405 odd-p solution set, #781 first-failing-k probe, #81
@@ -237,5 +226,18 @@ per PROTOCOL.
 
 Chores X1 (axiom-audit adoption) and X2 (INDEX refresh)
 from `PLAN.md` remain open and are not proving targets;
-X2 should additionally record wave 2's ten P8 landings and
-the A323653 remainder.
+X2 should additionally record waves 2–3 landings.
+
+## Process recommendations (from MINING_GAPS.md, now deleted)
+
+1. Re-triage the excluded 63 `formalized=yes` stubs — highest
+   expected yield per hour (only 8 of 63 checked; all stubs).
+2. Add one-hop xref BFS from all carded seeds (33% hit rate).
+3. Move OEIS mining off the search endpoint onto bulk dumps
+   (`stripped.gz` + full-entry fetches); add "proved by" mining.
+4. Mine `GreensOpenProblems/` (53 files) and `Kourovka/` in
+   formal-conjectures; align defs with `FormalConjecturesForMathlib`.
+5. Open a literature-sourced lane for algebraic-complexity
+   (no database will ever index it).
+6. Re-pull every entry immediately before carding.
+7. Once per campaign, name-check each arc's flagship conjecture.
