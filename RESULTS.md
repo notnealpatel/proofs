@@ -1,3 +1,107 @@
+# Campaign Results — triage summary
+
+## Potential novel results — USER triage required
+
+These items may constitute first-formalizations or new formal artifacts.
+Each needs a literature sweep before any claim is published.
+
+1. **Melfi's theorem (P9, 2e5b1ab)** — sorry-free proof that every even
+   n > 0 is practical + practical. No prior Lean/Isabelle/Coq/Mizar
+   formalization found in any sweep. The proof route (two-modulus covering
+   by 2^k and 2·3^j) is simpler than Melfi's original twin-practical
+   argument — may be folklore, but no citation found. Do NOT claim the
+   route as new without a dedicated search.
+
+2. **gcd-sunflower bound (P12, 0238c07)** — the Ω-layer bound
+   (r−1)^k · k! on equal-pairwise-gcd-free sets of k-almost primes,
+   sharp at k = 1. The encoding (prime-power divisors as sunflower
+   petals) is classical, but the combination with a machine-checked
+   Erdős–Rado bound is new as a formal artifact. Bloom's comment on
+   #535 acknowledges the connection exists; no prior formalization found.
+
+3. **base-b covering criterion (P13, 37e5f2e)** — `IsFixedDivisorSystemBase`
+   generalises the fixed-divisor criterion to arbitrary bases with three
+   concrete witnesses (base-14 Sierpiński, base-6 Riesel, base-b≡34 mod 35
+   Riesel). ACL2 has base-2 Sierpiński/Riesel (Cowles–Gamboa 2011); no
+   prior base-b generalisation found in any ITP. The `of_modEq_base`
+   transport (one certificate → infinitely many bases) has no analogue
+   in the ACL2 work.
+
+4. **Selfridge defect under k ≤ n (P11, 8efac26)** — the Monier 1985 proof
+   never needs 2k ≤ n. This strengthening is bookkeeping, NOT a novel
+   mathematical result — do not overclaim.
+
+5. **‖3^b‖ = 3b for all b (P14, d657720)** — sorry-free proof via the cube
+   bound. This is Iraids et al. Theorem `cbounds2`; likely first
+   formalization but the mathematics is textbook.
+
+---
+
+# Wave 3 Results — 2026-08-05
+
+## P9: Melfi 1996 — even = practical + practical (2e5b1ab)
+**POTENTIAL NOVEL.** Sorry-free. 571 lines. Proof uses two-modulus
+covering (2^k, 2·3^j), NOT Melfi's twin-practical sequence — the
+L risk from the brief was avoided entirely. Discharges `melfi` sorry
+in three sketch files. Source: 1995 survey (1996 paper paywalled).
+StewartCriterion.lean not imported (direct from practical_iff).
+
+## P10: Kummer carry layer (626822b)
+Infra. Sorry-free. Defines `carry` recursion, bridges to Mathlib's
+`padicValNat_choose'`. Kummer proper was already in Mathlib — file
+builds the missing carry function. Brief overstated downstream: unlocks
+#376 + #406 only (not five problems). `Odd p` dropped from
+`prime_not_dvd_centralBinom_iff_digits` (sound at p = 2).
+
+## P11: Erdős #1063 Selfridge defect (8efac26)
+Sorry-free. Proved under k ≤ n (weaker hypothesis than source's 2k ≤ n;
+source form also provided). CORRECTION: brief gloss described #377 not
+#1063. Certifies n₂ = 4, n₃ = 6, n₄ = 9, n₅ = 12 (A389360) + Monier's
+n_k ≤ k! bound. Strengthening is bookkeeping — not novel.
+
+## P12: Erdős #535 gcd-sunflower bound (0238c07)
+**POTENTIAL NOVEL.** Sorry-free. Ω-layer bound (r−1)^k · k! via
+prime-power encoding of Erdős–Rado. Sharp at k = 1 (extremal families
+= r−1 distinct primes). N-form `fgcd_le_erdos_rado` proved but
+explicitly weaker than trivial for all N ≥ 2 — brief's premise was
+false. Nontrivial N-form needs Rankin/smooth-rough (not in Mathlib).
+The encoding is a one-problem tool — no other Erdős problems reduce
+through it (elaborator swept #536, #539, #164, #857, #892, #858).
+
+## P13: covering arc C1 base-b generalisation (37e5f2e)
+**POTENTIAL NOVEL.** Sorry-free. 51 new declarations, zero existing
+broken. `IsFixedDivisorSystemBase` + `IsSierpinskiNumberBase` +
+`IsRieselNumberBase` with three concrete witnesses. `of_modEq_base`
+transports one certificate across base congruence classes. Key finding:
+n ≥ 1 convention is forced (4·14⁰+1 = 5 is prime). Source-fidelity:
+A146563 comment false at n = 0; Wikipedia Riesel sign typo; base-b
+certs are covers but NOT covering systems (repeated moduli).
+
+## P14: ‖2^n‖ = 2n archive — Guy F26 (d657720)
+One intended sorry (the open hypothesis). Cube bound analytically
+certifies a ≤ 9 (brief's decide window was unreachable). BONUS:
+‖3^b‖ = 3b proved for all b ≥ 1 (sorry-free). Four citation numbering
+errors in the arXiv papers fixed by vacuity-cop (Hyp 1.4→1,
+Thm 1.2→1, Thm 1.1→1.7, Iraids→Altman + Thm 1.2→1.6).
+
+## Brief corrections logged
+
+| Lane | Correction |
+|------|-----------|
+| P10 | Kummer already in Mathlib; downstream is 2 problems not 5 |
+| P11 | Brief gloss was #377 not #1063 |
+| P12 | N-form weaker than trivial (brief said "still nontrivial") |
+| P13 | Order bridge stays ℕ not ℤ; n ≥ 1 forced |
+| P14 | Decide window unreachable; 4 citation numbers wrong in arXiv papers |
+
+## In-flight (prover lanes, wave 3 follow-on)
+
+- Three-smooth: ‖2^a · 3^b‖ = 2a + 3b — prover running
+- n_k table: extend A389360 to k = 6–10 — prover running
+- Defect carry bound: P10 × P11 crossover — prover running
+
+---
+
 # Wave 2 Results — 2026-08-05
 
 ## P5: Erdős–Rado sunflower lemma (decda50)
