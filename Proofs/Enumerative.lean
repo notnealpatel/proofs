@@ -1,4 +1,5 @@
 import Enumerative.A051293.Analytic
+import Enumerative.Brocard
 import Enumerative.A051293.Cloitre
 import Enumerative.A051293.Counting
 import Enumerative.Fubini
