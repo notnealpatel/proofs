@@ -123,6 +123,14 @@ open.
 * `cube_bound_insufficient_at_ten` — and it stops there: at `a = 10` the
   Selfridge/Coppersmith bound is consistent with `‖2^10‖ = 19`, so it cannot
   certify the hypothesis.  The bound is short by `(2 − 3 log₃ 2) a ≈ 0.107 a`.
+* `complexity_two_pow_mul_three_pow` — the three-smooth extension of the
+  window: `‖2^a · 3^b‖ = 2a + 3b` for `a ≤ 9` and **arbitrary** `b` (not both
+  zero).  Cubing `2^a · 3^b` gives `8^a · 27^b` against `3^(2a+3b) =
+  9^a · 27^b`, and the `27^b` factors cancel *exactly* — powers of three ride
+  along for free, as in `complexity_three_pow`, so the window on `a` is
+  unchanged.  This is the `a ≤ 9` analogue of Altman–Zelinsky Thm 1.7
+  (`a ≤ 21`) and Altman Thm 1.6 (`a ≤ 48`) quoted above, whose statements
+  have exactly this shape.
 * `Expr.two_mul_eval_le_two_pow_cost`, `log_two_add_one_le_complexity`,
   `log_two_bound_lt_two_mul` — the weaker `log₂` layer (`⌊log₂ n⌋ + 1 ≤ ‖n‖`,
   the shape carried elsewhere in this campaign) and its **strict separation**
@@ -535,6 +543,150 @@ example : complexity 32 = 10 := by rw [complexity_eq_complexityRec]; decide
 set_option maxRecDepth 16384 in
 example : complexity 64 = 12 := by rw [complexity_eq_complexityRec]; decide
 
+/-! ### The three-smooth extension: `‖2^a · 3^b‖ = 2a + 3b` for `a ≤ 9`
+
+The window argument extends verbatim to three-smooth numbers `2^a · 3^b`:
+cubing gives `8^a · 27^b`, the target is `3^(2a+3b) = 9^a · 27^b`, and the
+`27^b` factors cancel **exactly** — `b` plays no role at all, so the certified
+window is `a ≤ 9` with `b` unconstrained.  This matches the shape of the
+literature statements (Altman, arXiv:1606.03635, Thm 1.6: "For `k ≤ 48` and
+arbitrary `ℓ`, so long as `k` and `ℓ` are not both zero,
+`‖2^k 3^ℓ‖ = 2k + 3ℓ`"; Altman–Zelinsky, arXiv:1207.4841, Thm 1.7, the same
+for `a ≤ 21`): a cap on the exponent of `2`, no cap on the exponent of `3`.
+The cap cannot be removed by this method — `cube_bound_insufficient_at_ten`
+is the obstruction, and increasing `b` does not help, since `b` cancels.
+
+NOTE (planning correction): the wave-3 sketch speculated that the cube bound
+certifies the lower bound for **all** `a` because `8^a ≤ 9^a`.  That reverses
+an inequality: the cube bound gives `8^a · 27^b ≤ 3^‖n‖`, and refuting
+`‖n‖ < 2a + 3b` needs `3 · 8^a ≤ 9^a` to be FALSE, which holds exactly for
+`a ≤ 9` (`3 ≤ (9/8)^a` first holds at `a = ⌈log 3 / log (9/8)⌉ = 10`).  The
+window here is therefore `a ≤ 9`, the same as `two_mul_le_complexity_two_pow`
+— consistent with the literature, where even `a ≤ 21` needs the Altman–
+Zelinsky classification of low-defect representations, not just the cube
+bound. -/
+
+/-- **Upper bound**: `‖2^a · 3^b‖ ≤ 2a + 3b` whenever `a` and `b` are not
+both zero, by gluing the optimal witnesses of the two prime-power factors
+(`Expr.twoPowSucc`, `Expr.threePowSucc`) with `complexity_mul_le`; the pure
+prime-power cases fall back on `complexity_two_pow_le` and
+`complexity_three_pow`.  The guard `1 ≤ a + b` is necessary: at `a = b = 0`
+the claim would read `‖1‖ ≤ 0`, false since `‖1‖ = 1`. -/
+theorem complexity_two_pow_mul_three_pow_le {a b : ℕ} (hab : 1 ≤ a + b) :
+    complexity (2 ^ a * 3 ^ b) ≤ 2 * a + 3 * b := by
+  rcases Nat.eq_zero_or_pos a with rfl | ha
+  · -- a = 0 : the pure power of three, where the bound is exact
+    have hb : 1 ≤ b := by omega
+    rw [pow_zero, one_mul, mul_zero, zero_add]
+    exact (complexity_three_pow hb).le
+  · rcases Nat.eq_zero_or_pos b with rfl | hb
+    · -- b = 0 : the pure power of two
+      rw [pow_zero, mul_one, mul_zero, add_zero]
+      exact complexity_two_pow_le ha
+    · -- both positive : submultiplicativity glues the two optimal witnesses
+      calc complexity (2 ^ a * 3 ^ b)
+          ≤ complexity (2 ^ a) + complexity (3 ^ b) :=
+            complexity_mul_le Nat.one_le_two_pow (Nat.one_le_pow _ _ (by omega))
+        _ ≤ 2 * a + 3 * b := by
+            rw [complexity_three_pow hb]
+            exact Nat.add_le_add_right (complexity_two_pow_le ha) _
+
+/-- **Lower bound on the certified window**: `2a + 3b ≤ ‖2^a · 3^b‖` for
+`a ≤ 9` and **arbitrary** `b`, from the Selfridge/Coppersmith cube bound.
+Cubing `2^a · 3^b` gives `8^a · 27^b`, the target `3^(2a+3b)` is
+`9^a · 27^b`, and after cancelling `27^b` the contradiction is the same
+numeral refutation of `3 · 8^a ≤ 9^a` as in `two_mul_le_complexity_two_pow`
+— `b` cancels, which is why it needs no guard and no cap (at `a = b = 0` the
+statement is the trivially true `0 ≤ ‖1‖`, so no vacuity either). -/
+theorem two_mul_add_three_mul_le_complexity_two_pow_mul_three_pow {a b : ℕ}
+    (h9 : a ≤ 9) : 2 * a + 3 * b ≤ complexity (2 ^ a * 3 ^ b) := by
+  by_contra hcon
+  have hlt : complexity (2 ^ a * 3 ^ b) < 2 * a + 3 * b := Nat.not_le.mp hcon
+  have hn : 1 ≤ 2 ^ a * 3 ^ b := Nat.one_le_iff_ne_zero.mpr (by positivity)
+  have hcube : (2 ^ a * 3 ^ b) ^ 3 ≤ 3 ^ complexity (2 ^ a * 3 ^ b) :=
+    pow_three_le_three_pow_complexity hn
+  have hstep : (3:ℕ) ^ (complexity (2 ^ a * 3 ^ b) + 1) ≤ 3 ^ (2 * a + 3 * b) :=
+    Nat.pow_le_pow_right (by omega) (by omega)
+  rw [pow_succ] at hstep
+  have hkey : (2 ^ a * 3 ^ b) ^ 3 * 3 ≤ 3 ^ (2 * a + 3 * b) :=
+    le_trans (Nat.mul_le_mul_right 3 hcube) hstep
+  rw [mul_pow, ← pow_mul, ← pow_mul, pow_add, Nat.mul_comm b 3,
+    mul_right_comm] at hkey
+  -- hkey : 2 ^ (a * 3) * 3 * 3 ^ (3 * b) ≤ 3 ^ (2 * a) * 3 ^ (3 * b)
+  have hcancel : 2 ^ (a * 3) * 3 ≤ 3 ^ (2 * a) :=
+    Nat.le_of_mul_le_mul_right hkey (pow_pos (by omega) _)
+  interval_cases a <;> norm_num at hcancel
+
+/-- **THE THREE-SMOOTH WINDOW THEOREM**: `‖2^a · 3^b‖ = 2a + 3b` for `a ≤ 9`
+and arbitrary `b`, not both zero — the `a ≤ 9` analogue of Altman–Zelinsky
+(arXiv:1207.4841, Thm 1.7: `a ≤ 21`) and Altman (arXiv:1606.03635, Thm 1.6:
+`a ≤ 48`).  Subsumes both `complexity_two_pow_of_le_nine` (at `b = 0`) and
+`complexity_three_pow` (at `a = 0`, where the cap `a ≤ 9` is idle).
+
+The guard `1 ≤ a + b` is load-bearing for falsity: `a = b = 0` would read
+`‖1‖ = 0`, false.  The cap `a ≤ 9` is load-bearing for the METHOD, not the
+claim: the equality is known up to `a ≤ 48` (computation) and proved up to
+`a ≤ 21` (low-defect classification), but the cube bound expires at `a = 10`
+(`cube_bound_insufficient_at_ten`), and unbounded `a` at `b = 1` would come
+within one step of Hypothesis 1 itself. -/
+theorem complexity_two_pow_mul_three_pow {a b : ℕ} (h9 : a ≤ 9)
+    (hab : 1 ≤ a + b) : complexity (2 ^ a * 3 ^ b) = 2 * a + 3 * b :=
+  le_antisymm (complexity_two_pow_mul_three_pow_le hab)
+    (two_mul_add_three_mul_le_complexity_two_pow_mul_three_pow h9)
+
+/-! Ground truth for the three-smooth window against A005245 (terms pinned in
+the header): each value is derived twice — once from the window theorem at
+concrete `(a, b)`, once from the computable recurrence by kernel `decide` —
+and the two derivations must agree with each other and with the OEIS list:
+a(6) = 5, a(12) = 7, a(18) = 8, a(24) = 9, a(36) = 10, a(48) = 11. -/
+
+example : complexity 6 = 5 := by
+  have h := complexity_two_pow_mul_three_pow (a := 1) (b := 1) (by omega) (by omega)
+  norm_num at h
+  exact h
+
+example : complexity 12 = 7 := by
+  have h := complexity_two_pow_mul_three_pow (a := 2) (b := 1) (by omega) (by omega)
+  norm_num at h
+  exact h
+
+example : complexity 18 = 8 := by
+  have h := complexity_two_pow_mul_three_pow (a := 1) (b := 2) (by omega) (by omega)
+  norm_num at h
+  exact h
+
+example : complexity 24 = 9 := by
+  have h := complexity_two_pow_mul_three_pow (a := 3) (b := 1) (by omega) (by omega)
+  norm_num at h
+  exact h
+
+example : complexity 36 = 10 := by
+  have h := complexity_two_pow_mul_three_pow (a := 2) (b := 2) (by omega) (by omega)
+  norm_num at h
+  exact h
+
+example : complexity 48 = 11 := by
+  have h := complexity_two_pow_mul_three_pow (a := 4) (b := 1) (by omega) (by omega)
+  norm_num at h
+  exact h
+
+example : complexity 6 = 5 := by rw [complexity_eq_complexityRec]; decide
+
+set_option maxRecDepth 8192 in
+example : complexity 12 = 7 := by rw [complexity_eq_complexityRec]; decide
+
+set_option maxRecDepth 8192 in
+example : complexity 18 = 8 := by rw [complexity_eq_complexityRec]; decide
+
+set_option maxRecDepth 8192 in
+example : complexity 24 = 9 := by rw [complexity_eq_complexityRec]; decide
+
+set_option maxRecDepth 16384 in
+example : complexity 36 = 10 := by rw [complexity_eq_complexityRec]; decide
+
+set_option maxRecDepth 16384 in
+example : complexity 48 = 11 := by rw [complexity_eq_complexityRec]; decide
+
 /-! ## 5. The hypothesis
 
 One intended, disclosed `sorry`.  Everything above is sorry-free. -/
@@ -621,6 +773,27 @@ layer gives `10`, the Selfridge/Coppersmith layer gives the exact value `18`.
 example : Nat.log 2 (2 ^ 9) + 1 < 2 * 9 ∧ 2 * 9 ≤ complexity (2 ^ 9) :=
   ⟨log_two_bound_lt_two_mul (by omega), two_mul_le_complexity_two_pow (by omega) (by omega)⟩
 
+-- the three-smooth window with all guards jointly satisfied, at the corner
+-- `a = 9` of the window and a large `b` the cap does not touch
+example : complexity (2 ^ 9 * 3 ^ 5) = 2 * 9 + 3 * 5 :=
+  complexity_two_pow_mul_three_pow (by omega) (by omega)
+example : complexity (2 ^ 4 * 3 ^ 1) ≤ 2 * 4 + 3 * 1 :=
+  complexity_two_pow_mul_three_pow_le (by omega)
+example : 2 * 9 + 3 * 100 ≤ complexity (2 ^ 9 * 3 ^ 100) :=
+  two_mul_add_three_mul_le_complexity_two_pow_mul_three_pow (by omega)
+
+-- the two subsumptions: `b = 0` recovers §4's window, `a = 0` recovers `‖3^b‖ = 3b`
+example : complexity (2 ^ 9 * 3 ^ 0) = 2 * 9 + 3 * 0 :=
+  complexity_two_pow_mul_three_pow (by omega) (by omega)
+example : complexity (2 ^ 0 * 3 ^ 4) = 2 * 0 + 3 * 4 :=
+  complexity_two_pow_mul_three_pow (by omega) (by omega)
+
+/-- The guard `1 ≤ a + b` of the three-smooth window is load-bearing: at
+`a = b = 0` the claim would read `‖1‖ = 0`, and `‖1‖ = 1`. -/
+example : complexity (2 ^ 0 * 3 ^ 0) = 1 ∧ complexity (2 ^ 0 * 3 ^ 0) ≠ 2 * 0 + 3 * 0 := by
+  have h : complexity (2 ^ 0 * 3 ^ 0) = 1 := by norm_num [complexity_one]
+  exact ⟨h, by rw [h]; omega⟩
+
 /-! ## 7. Axiom audit (sorry-free declarations only) -/
 
 #print axioms Expr.twoPowSucc
@@ -644,6 +817,9 @@ example : Nat.log 2 (2 ^ 9) + 1 < 2 * 9 ∧ 2 * 9 ≤ complexity (2 ^ 9) :=
 #print axioms two_mul_le_complexity_two_pow
 #print axioms complexity_two_pow_of_le_nine
 #print axioms cube_bound_insufficient_at_ten
+#print axioms complexity_two_pow_mul_three_pow_le
+#print axioms two_mul_add_three_mul_le_complexity_two_pow_mul_three_pow
+#print axioms complexity_two_pow_mul_three_pow
 #print axioms complexity_two_pow_eq_iff_two_mul_le
 
 end NumberComplexity
