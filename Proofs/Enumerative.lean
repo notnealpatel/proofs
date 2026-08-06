@@ -10,6 +10,7 @@ import Enumerative.IdealWaring
 import Enumerative.IsZumkeller
 import Enumerative.MeanDivisors
 import Enumerative.MelfiPracticalSum
+import Enumerative.NoeZumkellerOdd
 import Enumerative.MultiperfectCongruence
 import Enumerative.MultiperfectZumkeller
 import Enumerative.NederGap
