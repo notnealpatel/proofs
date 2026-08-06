@@ -66,6 +66,17 @@
     `n₄ = 9`, `n₅ = 12`, the four values quoted in the source body, certified
     by `decide` against the definition of `nk` as a `sInf`.
 
+  * `nk_six`, …, `nk_ten` — `n₆ = 75`, `n₇ = 30`, `n₈ = 70`, `n₉ = 56`,
+    `n₁₀ = 2403`, the continuation of the table, matching OEIS A389360
+    terms a(6)–a(10) quoted verbatim above.  These five values are NOT
+    quoted in the erdosproblems.com body (which stops at `n₅`); each was
+    recomputed independently from the definition (Python sweep, 2026-08-05)
+    before proving, and each is certified by kernel `decide` — membership
+    plus a single bounded-forall minimality sweep (`nk_eq_of_ball`).  The
+    `k = 10` sweep covers all `20 ≤ n < 2403` and needs only a raised
+    `maxRecDepth` (the `Nat.choose` and `Nat.decidableBallLT` recursions
+    are ≈ 2403 deep); no `native_decide` anywhere.
+
   * `nk_le_factorial` — Monier's bound `n_k ≤ k!` for `3 ≤ k`, via the exact
     identity `C(k!, k) = ∏_{j=1}^{k-1} (k! - j)` (`choose_factorial_self_eq`).
     This also certifies that the `sInf` defining `nk` is over a NONEMPTY set
@@ -329,6 +340,13 @@ theorem nk_eq_of (k m : ℕ) (hmem : 2 * k ≤ m ∧ divisorDefect m k = 1)
   by_contra hlt
   exact hmin b hb1 (by omega) hb2
 
+/-- Bounded-forall variant of `nk_eq_of`: the minimality hypothesis is shaped
+with `n < m` first so that `Nat.decidableBallLT` applies and one `decide` can
+discharge the whole sweep, which matters for the larger certificates below. -/
+theorem nk_eq_of_ball (k m : ℕ) (hmem : 2 * k ≤ m ∧ divisorDefect m k = 1)
+    (hmin : ∀ n, n < m → 2 * k ≤ n → divisorDefect n k ≠ 1) : nk k = m :=
+  nk_eq_of k m hmem (fun n h1 h2 => hmin n h2 h1)
+
 /-- `n₂ = 4` (source body: "We have $n_2=4$").  `C(4,2) = 6`, `4 ∤ 6`,
 `3 ∣ 6`; and `4 = 2·2` is the least admissible `n`. -/
 theorem nk_two : nk 2 = 4 := by
@@ -358,6 +376,41 @@ theorem nk_five : nk 5 = 12 := by
   refine nk_eq_of 5 12 (by decide) ?_
   intro n h1 h2
   interval_cases n <;> decide
+
+/-- `n₆ = 75` (OEIS A389360, a(6) = 75; first value beyond the source body's
+table).  `C(75,6) = 201359550`; the unique exceptional index is `i = 3`
+(`72 ∤ C(75,6)`), and no `12 ≤ n < 75` has defect `1`. -/
+theorem nk_six : nk 6 = 75 :=
+  nk_eq_of_ball 6 75 (by decide) (by decide)
+
+/-- `n₇ = 30` (OEIS A389360, a(7) = 30).  `C(30,7) = 2035800`; the unique
+exceptional index is `i = 2` (`28 ∤ C(30,7)`), and no `14 ≤ n < 30` has
+defect `1`.  Note `n₇ < n₆`: the sequence is not monotone in `k`. -/
+theorem nk_seven : nk 7 = 30 :=
+  nk_eq_of_ball 7 30 (by decide) (by decide)
+
+/-- `n₈ = 70` (OEIS A389360, a(8) = 70).  `C(70,8) = 9440350920`; the unique
+exceptional index is `i = 6` (`64 ∤ C(70,8)`), and no `16 ≤ n < 70` has
+defect `1`. -/
+theorem nk_eight : nk 8 = 70 :=
+  nk_eq_of_ball 8 70 (by decide) (by decide)
+
+/-- `n₉ = 56` (OEIS A389360, a(9) = 56).  `C(56,9) = 7575968400`; the unique
+exceptional index is `i = 2` (`54 ∤ C(56,9)`), and no `18 ≤ n < 56` has
+defect `1`. -/
+theorem nk_nine : nk 9 = 56 :=
+  nk_eq_of_ball 9 56 (by decide) (by decide)
+
+set_option maxRecDepth 40000 in
+/-- `n₁₀ = 2403` (OEIS A389360, a(10) = 2403).  `C(2403,10)` is the 28-digit
+number `1736325250692362528802510060`; the unique exceptional index is
+`i = 3` (`2400 ∤ C(2403,10)`).  The minimality sweep checks all
+`20 ≤ n < 2403` in one kernel `decide` (on that range the defect is in fact
+always ≥ 2; it is `3` at `n = 2402`, see the example below).  `maxRecDepth`
+is raised because the `Nat.choose` and `Nat.decidableBallLT` recursions are
+≈ 2403 deep; kernel reduction, not `native_decide`. -/
+theorem nk_ten : nk 10 = 2403 :=
+  nk_eq_of_ball 10 2403 (by decide) (by decide)
 
 /-! ## Monier's upper bound `n_k ≤ k!` -/
 
@@ -448,6 +501,16 @@ example : 2 * 4 ≤ 9 ∧ divisorDefect 9 4 = 1 ∧ divisorDefect 8 4 ≠ 1 := b
 `23 · 22 · 21 = 10626`. -/
 example : (Nat.factorial 4).choose 4 = 23 * 22 * 21 := by decide
 
+/-- The `nk_six` minimality sweep has content at its top end: `n = 74` just
+misses, with defect `2` (`C(74,6) = 185250786`). -/
+example : divisorDefect 74 6 = 2 := by decide
+
+set_option maxRecDepth 40000 in
+/-- The `nk_ten` minimality sweep has content at its top end: `n = 2402` just
+misses, with defect `3`.  So the sweep's conclusion `≠ 1` is not the vacuous
+half of a degenerate range. -/
+example : divisorDefect 2402 10 = 3 := by decide
+
 /-! ## Axiom audit -/
 
 #print axioms erdos_selfridge_defect_pos
@@ -458,6 +521,11 @@ example : (Nat.factorial 4).choose 4 = 23 * 22 * 21 := by decide
 #print axioms nk_three
 #print axioms nk_four
 #print axioms nk_five
+#print axioms nk_six
+#print axioms nk_seven
+#print axioms nk_eight
+#print axioms nk_nine
+#print axioms nk_ten
 #print axioms choose_factorial_self_eq
 #print axioms sub_dvd_choose_factorial_self
 #print axioms nk_le_factorial
