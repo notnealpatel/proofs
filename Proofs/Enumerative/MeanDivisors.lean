@@ -434,4 +434,29 @@ example : a 5 = 2 ∧ (5 : ℕ).Prime := ⟨by decide, by norm_num⟩
 -- Negative instance `n = 4`: `a 4 = 5 ≠ 2` and `4` is not prime.
 example : a 4 ≠ 2 ∧ ¬(4 : ℕ).Prime := ⟨by decide, by norm_num⟩
 
+/-! ## Axiom audit (every named declaration; all are sorry-free) -/
+
+#print axioms IsMeanDiv
+#print axioms isMeanDiv_iff_bounded
+#print axioms instDecidableIsMeanDiv
+#print axioms meanDivSubsets
+#print axioms a
+#print axioms mem_meanDivSubsets
+#print axioms meanSubsets
+#print axioms mem_meanSubsets
+#print axioms singleton_mem_meanSubsets
+#print axioms odd_card_meanSubsets
+#print axioms meanDivSubsets_eq_biUnion
+#print axioms a_eq_sum_divisors
+#print axioms a_modEq_card_divisors
+#print axioms odd_prod_iff
+#print axioms isSquare_iff_even_factorization
+#print axioms odd_card_divisors_iff_isSquare
+#print axioms odd_a_iff_isSquare
+#print axioms singleton_mem_meanDivSubsets
+#print axioms meanDivSubsets_prime
+#print axioms a_of_prime
+#print axioms three_le_a_of_composite
+#print axioms a_eq_two_iff_prime
+
 end A114976
