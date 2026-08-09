@@ -255,6 +255,7 @@ the 104-candidate queue. Ranked by value per effort.
 | A102483 Sloane 1973 archive | 4bb6675 | S | `PowerOfTwoDigits` §8 | Near-free card; a(7) > 10^21 bound archives honestly. |
 | Odd non-deficient ∧ 3 ∤ n → n ≥ 5391411025 | 183c590 | M | `OddCovering` density obstruction | 3 ∣ lcm OR lcm ≥ 5.39·10⁹ for any odd covering. CAUTION: "9∣n ∨ 15∣n" proposal was FALSE at 5391411025. |
 | Erdős #18 fragments unblocked | Practical.lean | S–M | `Practical.mul_prime_pow` | `practical_factorial` + `representable_of_practical` now dischargeable in `E18.lean`. |
+| ALWZ improved sunflower bound (C·(r·log k)^k) | 2026-08-07 review sweep | L | `Erdos20/ErdosRado`, `Erdos20/Sunflower` | Alweiss–Lovett–Wu–Zhang (Ann. Math. 2021). Unformalized in ANY prover (AFP is classical-only; formal-conjectures issue #2284 requests even the statement). Uncontested first; P5 infra gives the definitions and the classical baseline. Spread/refined-encoding argument is the hard part. |
 
 Status changes to existing cards:
 - Switkay: drops to S (Melfi sorry now an import).

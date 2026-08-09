@@ -87,9 +87,13 @@ What *is* unconditionally provable is the same direction with `≤` in place of 
 "non-deficient" repairs the statement, and
 `noeOddZumkellerRepaired_iff_forall_isA171641_not_odd` identifies the repaired
 conjecture with a sentence about an existing OEIS sequence: **A171641 contains no
-odd term**.  That reformulation loses nothing — the two versions of the conjecture
-differ only on odd perfect numbers — and it is the version a formalization can
-actually make progress on.
+odd term**.  That reformulation loses nothing, and that is a theorem here, not
+prose: `NoeOddZumkeller.repaired` derives the repaired conjecture from the original
+**unconditionally**, `isA174865_iff_isOddNonDeficientEvenSigma_of_not_perfect`
+shows the two membership conditions agree at every non-perfect `n`, and
+`noeOddZumkeller_iff_repaired_of_not_exists_odd_perfect` concludes that, granted
+the nonexistence of odd perfect numbers, the two conjectures are equivalent.  The
+repaired version is the one a formalization can actually make progress on.
 
 The remaining content of Noe's conjecture, the converse `A174865 ⊆ A083207`, is
 recorded as `NoeOddZumkellerConverse` and is **open**: it is not proved here, not
@@ -345,6 +349,73 @@ theorem noeOddZumkellerRepaired_iff_converse :
     exact ⟨fun hn => ⟨hn.1, h n hn⟩,
       fun hn => isOddNonDeficientEvenSigma_of_odd_isZumkeller hn.1 hn.2⟩
 
+/-! ## The bridge: original and repaired differ only at odd perfect numbers
+
+The module head claims the repair loses nothing.  That claim is a theorem, in three
+steps.  Pointwise, away from perfect numbers, A174865 membership and the repaired
+condition coincide (`isA174865_iff_isOddNonDeficientEvenSigma_of_not_perfect`).
+Globally, the original conjecture implies the repaired one **unconditionally**
+(`NoeOddZumkeller.repaired`), because the original already implies there is no odd
+perfect number.  And granted the nonexistence of odd perfect numbers — the exact
+price identified by `noeOddZumkellerForward_iff_not_exists_odd_perfect` — the two
+conjectures are equivalent
+(`noeOddZumkeller_iff_repaired_of_not_exists_odd_perfect`). -/
+
+/-- The unconditional half of the pointwise bridge: A174865 membership implies the
+repaired condition, by weakening the strict abundance `2n < σ(n)` to `2n ≤ σ(n)`. -/
+theorem IsA174865.isOddNonDeficientEvenSigma {n : ℕ} (h : IsA174865 n) :
+    IsOddNonDeficientEvenSigma n := by
+  obtain ⟨hodd, hlt, hdvd⟩ := (isA174865_iff n).mp h
+  exact ⟨hodd, hlt.le, hdvd⟩
+
+/-- **The pointwise bridge**: at every non-perfect `n`, A174865 membership and the
+repaired condition coincide.  Forward is `IsA174865.isOddNonDeficientEvenSigma`,
+which needs no hypothesis; backward upgrades `2n ≤ σ(n)` to `2n < σ(n)`, since
+equality would make `n` perfect (`Nat.perfect_iff_sum_divisors_eq_two_mul`, whose
+positivity side condition comes from `Odd n`).
+
+The hypothesis `¬ n.Perfect` is satisfiable — `not_perfect_945` instantiates the
+bridge at `945` — and it is load-bearing only at **odd** perfect numbers: at an
+even `n` both sides already fail their `Odd n` conjunct, so the biconditional holds
+there regardless.  Whether the hypothesis excludes any odd `n` at all is precisely
+the open odd perfect number problem. -/
+theorem isA174865_iff_isOddNonDeficientEvenSigma_of_not_perfect {n : ℕ}
+    (hnp : ¬ n.Perfect) : IsA174865 n ↔ IsOddNonDeficientEvenSigma n := by
+  refine ⟨IsA174865.isOddNonDeficientEvenSigma, ?_⟩
+  rintro ⟨hodd, hle, hdvd⟩
+  have hne : ∑ d ∈ n.divisors, d ≠ 2 * n := fun heq =>
+    hnp ((Nat.perfect_iff_sum_divisors_eq_two_mul hodd.pos).mpr heq)
+  exact (isA174865_iff n).mpr ⟨hodd, by omega, hdvd⟩
+
+/-- **Noe's conjecture implies its repaired form, unconditionally.**  No
+odd-perfect hypothesis is needed: `NoeOddZumkeller.not_exists_odd_perfect` extracts
+the nonexistence of odd perfect numbers from the conjecture itself, so no odd `n`
+is perfect and the pointwise bridge applies. -/
+theorem NoeOddZumkeller.repaired (h : NoeOddZumkeller) : NoeOddZumkellerRepaired := by
+  intro n
+  refine ⟨fun hn => ?_, fun hn => isOddNonDeficientEvenSigma_of_odd_isZumkeller hn.1 hn.2⟩
+  have hnp : ¬ n.Perfect := fun hperf => h.not_exists_odd_perfect ⟨n, hn.1, hperf⟩
+  exact (h n).mp ((isA174865_iff_isOddNonDeficientEvenSigma_of_not_perfect hnp).mpr hn)
+
+/-- **The headline bridge**: if there is no odd perfect number, Noe's conjecture
+and its repaired form are equivalent.  So the reformulation loses nothing beyond
+the odd perfect number problem itself: the forward implication
+(`NoeOddZumkeller.repaired`) is unconditional, and the hypothesis buys back exactly
+the strict-abundance direction, through
+`noeOddZumkellerForward_iff_not_exists_odd_perfect`.
+
+The hypothesis is the open, widely believed nonexistence of odd perfect numbers.
+It cannot be instantiated here — exhibiting it is the open problem — and the
+theorem's content is exactly the conditional; it is **not** assumed anywhere else
+in this file. -/
+theorem noeOddZumkeller_iff_repaired_of_not_exists_odd_perfect
+    (hopn : ¬ ∃ n : ℕ, Odd n ∧ n.Perfect) :
+    NoeOddZumkeller ↔ NoeOddZumkellerRepaired := by
+  refine ⟨NoeOddZumkeller.repaired, fun hr => ?_⟩
+  rw [noeOddZumkeller_iff_forward_and_converse]
+  refine ⟨noeOddZumkellerForward_iff_not_exists_odd_perfect.mpr hopn, fun n hn => ?_⟩
+  exact ((hr n).mp hn.isOddNonDeficientEvenSigma).2
+
 /-! ## A171641: the repaired conjecture is a sentence about an OEIS sequence -/
 
 /-- **OEIS A171641**: "Non-deficient numbers with even sigma which are not
@@ -417,6 +488,19 @@ theorem noeOddZumkeller_945 : IsA174865 945 ↔ Odd 945 ∧ IsZumkeller 945 :=
 theorem isOddNonDeficientEvenSigma_945 : IsOddNonDeficientEvenSigma 945 :=
   isOddNonDeficientEvenSigma_of_odd_isZumkeller (by decide) isZumkeller_945
 
+/-- `945` is not perfect: `σ(945) = 1920 ≠ 1890 = 2·945`.  This instantiates the
+hypothesis of the pointwise bridge at a concrete model; the `example` below applies
+the bridge there, so the bridge is not vacuous. -/
+theorem not_perfect_945 : ¬ (945 : ℕ).Perfect := by
+  intro h
+  have heq : ∑ d ∈ (945 : ℕ).divisors, d = 2 * 945 :=
+    (Nat.perfect_iff_sum_divisors_eq_two_mul (by norm_num)).mp h
+  rw [sum_divisors_945] at heq
+  norm_num at heq
+
+example : IsA174865 945 ↔ IsOddNonDeficientEvenSigma 945 :=
+  isA174865_iff_isOddNonDeficientEvenSigma_of_not_perfect not_perfect_945
+
 /-- `945` is not a counterexample to the repaired conjecture's reformulation: it is
 odd but not in A171641. -/
 theorem not_isA171641_945 : ¬ IsA171641 945 := fun h => h.2.2.2 isZumkeller_945
@@ -438,10 +522,15 @@ theorem not_isA171641_945 : ¬ IsA171641 945 := fun h => h.2.2.2 isZumkeller_945
 #print axioms NoeOddZumkeller.not_exists_odd_perfect
 #print axioms isOddNonDeficientEvenSigma_of_odd_isZumkeller
 #print axioms noeOddZumkellerRepaired_iff_converse
+#print axioms IsA174865.isOddNonDeficientEvenSigma
+#print axioms isA174865_iff_isOddNonDeficientEvenSigma_of_not_perfect
+#print axioms NoeOddZumkeller.repaired
+#print axioms noeOddZumkeller_iff_repaired_of_not_exists_odd_perfect
 #print axioms isA171641_738
 #print axioms noeOddZumkellerRepaired_iff_forall_isA171641_not_odd
 #print axioms isZumkeller_945
 #print axioms noeOddZumkeller_945
+#print axioms not_perfect_945
 #print axioms not_isA171641_945
 
 -- The conjecture statements themselves, printed so a reader can audit the

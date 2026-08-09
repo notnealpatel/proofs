@@ -9,18 +9,35 @@ Each needs a literature sweep before any claim is published.
    that the forward direction of Noe's conjecture (odd Zumkeller ⊆
    A174865) is equivalent to the nonexistence of odd perfect numbers.
    An odd perfect number is Zumkeller but not abundant, so it escapes
-   A174865. This equivalence may be known but no citation was found;
-   the repaired conjecture (non-deficient replaces abundant) avoids
-   the obstruction entirely. **Needs a literature check** — the
-   observation that OPN is Zumkeller-but-not-abundant is elementary
-   but may not be recorded.
+   A174865. **Literature sweep completed 2026-08-07, observation NOT
+   FOUND recorded anywhere.** Sources: Rao–Peng 0912.0052 (Fact 2 is
+   non-strict σ(n) ≥ 2n, credited to the unpublished Clark et al.
+   2008 talk — talk itself unlocatable, absent even from Leach's CV),
+   Somu et al. 2310.14149, Mahanta et al. 2008.11096 (has all three
+   ingredients on one page, never draws the conclusion), Jokar
+   2207.09053 (odd *near*-perfect only), OEIS A083207/A174865,
+   ISU Mathematical Abundance Conference 2008 (no surviving program),
+   Rosetta Code talk page (informal near-miss, 2021). Verdict: keep —
+   first formal artifact; the observation is an elementary but
+   apparently unrecorded corollary of recorded facts. Bridge theorem
+   (¬OPN → original ↔ repaired) queued to replace the file's prose
+   claim.
 
 1. **Melfi's theorem (P9, 2e5b1ab)** — sorry-free proof that every even
-   n > 0 is practical + practical. No prior Lean/Isabelle/Coq/Mizar
-   formalization found in any sweep. The proof route (two-modulus covering
-   by 2^k and 2·3^j) is simpler than Melfi's original twin-practical
-   argument — may be folklore, but no citation found. Do NOT claim the
-   route as new without a dedicated search.
+   n > 0 is practical + practical. **Dedicated sweep completed
+   2026-08-07 (27 auditable queries): no prior formalization of
+   practical numbers or Melfi's theorem in Mathlib, Isabelle AFP,
+   Coq/Rocq, Mizar, GitHub, or Lean Zulip — first-ITP-formalization
+   claim confirmed.** The proof route (two-modulus covering by 2^k and
+   2·3^j, gcd 2, both summands kept practical via the σ(m)+1
+   multiplier lemma) is likewise unrecorded: no source reproves
+   Melfi's theorem this way. Claimed as an apparently new composition,
+   with the explicit caveat that its core trick — multiplier lemma
+   over a single 2^k modulus family — is standard current practice in
+   Somu–Li–Kukla (INTEGERS 2023, square + practical) and Somu–Tran
+   (JIS 2024, practical + triangular); the new step is the two-family
+   covering of all even numbers, replacing Melfi's twin-practical
+   interval argument entirely.
 
 2. **gcd-sunflower bound (P12, 0238c07)** — the Ω-layer bound
    (r−1)^k · k! on equal-pairwise-gcd-free sets of k-almost primes,
@@ -28,22 +45,60 @@ Each needs a literature sweep before any claim is published.
    petals) is classical, but the combination with a machine-checked
    Erdős–Rado bound is new as a formal artifact. Bloom's comment on
    #535 acknowledges the connection exists; no prior formalization found.
+   **Sweep 2026-08-07 confirms P5's first-in-Lean claim**: zero
+   sunflower content in Mathlib ("sunflower" absent from every file),
+   LeanCamCombi explicitly checked and absent, formal-conjectures has
+   a statement-request issue only, no Lean repos or Zulip threads.
+   AFP entry confirmed: Thiemann, Feb 2021, classical bound only.
+   Nobody in any prover has the ALWZ improved bound (→ NEXT_TARGETS).
 
 3. **base-b covering criterion (P13, 37e5f2e)** — `IsFixedDivisorSystemBase`
    generalises the fixed-divisor criterion to arbitrary bases with three
    concrete witnesses (base-14 Sierpiński, base-6 Riesel, base-b≡34 mod 35
-   Riesel). ACL2 has base-2 Sierpiński/Riesel (Cowles–Gamboa 2011); no
-   prior base-b generalisation found in any ITP. The `of_modEq_base`
-   transport (one certificate → infinitely many bases) has no analogue
-   in the ACL2 work.
+   Riesel). **Confirmed novel by dedicated sweep 2026-08-07.**
+   Cowles–Gamboa (ACL2 2011, arXiv:1110.4671) verified base-2 only by
+   reading the paper — its lone transport observation moves across k
+   (k + 2iP with the same cover), never across bases. No
+   Sierpiński/Riesel/covering-congruence formalization exists in
+   Mathlib, AFP, Coq/Rocq, Mizar, or Metamath. The `of_modEq_base`
+   transport is stated as a theorem nowhere in the checked math
+   literature either — folklore-implicit in practitioner tables
+   (Dozenal Wiki, MersenneForum); nearest neighbor is
+   Filaseta–Groth–Luckner 2023 (arXiv:2305.09219), a stronger
+   simultaneous-multi-base result via different cyclotomic machinery.
+   Definitions verified against live A123159 (name matches verbatim,
+   a(14)=4 is the witness proved) and Wikipedia's Riesel-base-b form.
+   Residual: Brunner et al. RIMS kokyuroku 1639 unobtainable in sweep.
 
 4. **Selfridge defect under k ≤ n (P11, 8efac26)** — the Monier 1985 proof
    never needs 2k ≤ n. This strengthening is bookkeeping, NOT a novel
    mathematical result — do not overclaim.
 
 5. **‖3^b‖ = 3b for all b (P14, d657720)** — sorry-free proof via the cube
-   bound. This is Iraids et al. Theorem `cbounds2`; likely first
-   formalization but the mathematics is textbook.
+   bound. This is Iraids et al. Theorem `cbounds2`; the mathematics is
+   textbook. **Sweep 2026-08-07: no formalization of integer
+   complexity (A005245 / Mahler–Popken) or any theorem about it found
+   in Mathlib, AFP, Coq/Rocq, Mizar, Metamath, or HOL Light; the
+   Latvia group / Altman / Zelinsky literature is computation only.
+   "Likely first" upgraded to first-formalization claim.** Attribution
+   audit: `cbounds2` is correctly Iraids et al. (arXiv:1203.6462);
+   the earlier vacuity-cop Iraids→Altman fix concerned the separate
+   window theorems and does not affect this item.
+
+6. **A092482 closed form (P7, f105bf4)** — promoted from Wave 2 after
+   adversarial verification 2026-08-07. Settles a genuinely open OEIS
+   conjecture: the live record still says "conjectured and checked up
+   to n=512" and companion A093682 still says none of the family's
+   formulas are proved; no prior proof in Fried's OEIS-conjecture
+   papers (2410.07237, 2607.24832) or elsewhere. Verified: statement
+   matches the unambiguous Mathematica rendering against all 57 terms;
+   both documented OEIS typos computationally confirmed; greedy
+   definition independent of the closed form (no circularity), seed
+   derived not assumed; sorry-free on standard axioms. First proof of
+   the closed form; mechanism is the standard A003278 base-2/base-3
+   greedy argument applied blockwise — no claim of deep novelty.
+
+>>> "For n > 2, a(n+2) = 1 + 2^floor(log_2(n)) + Sum_{k=1..n} (3^A007814(n) + 1)/2 = 1 + A053644(n) + A005836(n)"
 
 ---
 
