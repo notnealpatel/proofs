@@ -20,7 +20,7 @@ initial terms 1, 2, 3."  Pinned verbatim from `goof oeis show A092482` (2026-08-
 *Formula* (OEIS `formulas`, verbatim):
 
 > For n > 2, a(n+2) = 1 + 2^floor(log_2(n)) + Sum_{k=1..n} (3^A007814(n) + 1)/2 =
-> 1 + A053644(n) + A005836(n) (conjectured and checked up to n=512).
+1 + A053644(n) + A005836(n) (conjectured and checked up to n=512).
 
 *Mathematica* (OEIS `programs`, verbatim, the unambiguous rendering of the formula):
 
@@ -59,19 +59,23 @@ Write `V` for the set of terms.  With `C L = 2^L + 3^L + 1` and `T L = A005836 �
   `V = {1, 2} ∪ ⋃_{L ≥ 0} (C L + T L)`,
 
 i.e. `V` is a disjoint union of *blocks*, the `L`-th being a translate of the first `2^L`
-terms of the Stanley sequence A003278.  The key numerical coincidence is
+terms of the Stanley sequence A003278.  The key identity is
 
   `2 · max (block L) = C (L+1)`   (`two_mul_le_blockStart_succ` is its inequality form),
 
-so the greedy jump out of block `L` lands exactly on the first integer that *cannot* be
+a squeeze, not a coincidence: a reflection `2y - x` off terms `x < y ≤ max` reaches at
+most `2 · max - 1`, so `2 · max` is always a legal extension and the greedy jump cannot
+pass it; `q_covering` blocks everything strictly between, so it cannot stop short.  The
+jump out of block `L` therefore lands exactly on the first integer that *cannot* be
 blocked.  Three ingredients:
 
 * `noThreeAPExceptSeed_Vset` — `V` carries no 3-term AP other than `(1,2,3)`.  An AP
   forces all three terms into one block, where 3-AP-freeness is the A003278 statement.
 * `exists_blocking` — every integer `> 2` outside `V` completes an AP with two smaller
-  members of `V`.  Inside a block this is the classical `keepOnes`/`capDigits` witness
-  pair; across the gap `[max block L, C (L+1))` it is `q_covering`, an induction whose
-  four cases exactly tile the gap.
+  members of `V`.  Inside the span `[C L, C L + 3 ^ L)` (any offset with a ternary digit
+  `2`, including those above the top term) this is the classical `keepOnes`/`capDigits`
+  witness pair; across the addressless gap `[C L + 3 ^ L, C (L+1))` it is `q_covering`,
+  an induction whose four cases exactly tile the gap.
 * the greedy scaffolding, `Nat.find` over `IsGoodStep`, as in `StanleyDigits.lean`.
 
 The seed is *derived*, not assumed: the greedy recursion here starts from `{1}` and the
@@ -412,8 +416,10 @@ theorem exists_ap_witness (L u : ℕ) (hu : u < 3 ^ L) :
 /-- **The gap-covering induction.**  For every `μ < 3 ^ L + 2 ^ L` there is `t` in block
 `L` and `p` in the prefix below block `L` with `μ + p = 2 t + 2 ^ L + 1`.  Translating by
 `2 · blockStart L` this says exactly that every integer in `[blockStart L + 3 ^ L,
-blockStart (L+1))` — the whole run of non-terms between the top of block `L` and the start
-of block `L+1` — completes an arithmetic progression with two earlier terms. -/
+blockStart (L+1))` — the run above the *span* of block `L`, where no block-`L` offset
+exists — completes an arithmetic progression with two earlier terms.  Non-terms inside
+the span (offset has a ternary digit `2`) are not covered here; `exists_blocking`
+dispatches them via the `keepOnes`/`capDigits` witnesses instead. -/
 theorem q_covering : ∀ L μ : ℕ, μ < 3 ^ L + 2 ^ L →
     ∃ t ∈ Tset L, ∃ p ∈ Pre L, μ + p = 2 * t + 2 ^ L + 1 := by
   intro L
@@ -1089,6 +1095,34 @@ theorem greedySeq_ne_stanleyGreedy : greedySeq ≠ stanleyGreedy := by
   simp only [stanleyDigits] at h2
   norm_num [binToTernary, Nat.ofDigits_cons, Nat.ofDigits_nil] at h2
 
+/-- **The seed-exemption defect is exactly `2 ^ L`**: the `L`-th block of A092482 starts
+`2 ^ L` above the Stanley term at the same position, i.e.
+`greedySeq (2 ^ L + 1) = stanleyGreedy (2 ^ L) + 2 ^ L` (0-indexed; block `L` starts at
+index `2 ^ L + 1`).  The one exempted term `3` shifts the first block start by `1`, and the
+greedy doubling dynamics (`blockStart (L+1) = 2 · max (block L)`) double that defect once
+per block, forever — the source of the unbounded `2 ^ ⌊log₂ n⌋` correction in the closed
+form. -/
+theorem greedySeq_defect (L : ℕ) :
+    greedySeq (2 ^ L + 1) = stanleyGreedy (2 ^ L) + 2 ^ L := by
+  have hpos : 1 ≤ 2 ^ L := Nat.one_le_two_pow
+  have hidx : 2 ^ L + 1 = (2 ^ L - 1) + 2 := by omega
+  have hsucc : 2 ^ L - 1 + 1 = 2 ^ L := by omega
+  have hstanley : stanleyGreedy (2 ^ L) = 3 ^ L + 1 := by
+    rw [stanleyGreedy_eq]
+    exact congrArg (· + 1) (binToTernary_pow_two L)
+  rw [hidx, greedySeq_add_two, hsucc, Nat.log_pow (by norm_num),
+    binToTernary_pow_two, hstanley]
+  ring
+
+/-- Ground check of `greedySeq_defect` at `L = 2`: block `2` starts at `a(6) = 14`
+(0-indexed `greedySeq 5`), the Stanley term is `A003278(5) = 10`, and `14 = 10 + 4`. -/
+example : greedySeq 5 = 14 ∧ stanleyGreedy 4 = 10 := by
+  refine ⟨?_, ?_⟩
+  · rw [greedySeq_apply]
+    norm_num [closedForm, binToTernary, Nat.ofDigits_cons, Nat.ofDigits_nil]
+  · rw [stanleyGreedy_eq]
+    norm_num [Nat.ofDigits_cons, Nat.ofDigits_nil]
+
 end A092482
 
 /-! ## Axiom audit -/
@@ -1106,4 +1140,5 @@ end A092482
 #print axioms A092482.noThreeAPExceptSeed_range_greedySeq
 #print axioms A092482.exists_greedySeq_eq_iff
 #print axioms A092482.greedySeq_ne_stanleyGreedy
+#print axioms A092482.greedySeq_defect
 #print axioms A092482.not_threeAPFree_seed
