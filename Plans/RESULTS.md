@@ -1,4 +1,9 @@
-# Campaign Results — triage summary
+# Campaign Results — landed-work ledger and triage summary
+
+Coalesced 2026-08-09: this file is the ledger of landed waves (1–3 and
+follow-ons) plus the novel-result triage. Wave 1's records moved here
+from `PLAN.md`; the wave-3 archive-batch and follow-on landings moved
+here from `NEXT_TARGETS.md` (deleted; queue now in `PLAN.md`).
 
 ## Potential novel results — USER triage required
 
@@ -20,8 +25,10 @@ Each needs a literature sweep before any claim is published.
    Rosetta Code talk page (informal near-miss, 2021). Verdict: keep —
    first formal artifact; the observation is an elementary but
    apparently unrecorded corollary of recorded facts. Bridge theorem
-   (¬OPN → original ↔ repaired) queued to replace the file's prose
-   claim.
+   LANDED 49f30bd (2026-08-09): pointwise bridge at non-perfect n,
+   unconditional `NoeOddZumkeller.repaired`, and original ↔ repaired
+   granted no odd perfect number; instantiated at 945
+   (`not_perfect_945`) — replaces the file's prose claim.
 
 1. **Melfi's theorem (P9, 2e5b1ab)** — sorry-free proof that every even
    n > 0 is practical + practical. **Dedicated sweep completed
@@ -50,7 +57,8 @@ Each needs a literature sweep before any claim is published.
    LeanCamCombi explicitly checked and absent, formal-conjectures has
    a statement-request issue only, no Lean repos or Zulip threads.
    AFP entry confirmed: Thiemann, Feb 2021, classical bound only.
-   Nobody in any prover has the ALWZ improved bound (→ NEXT_TARGETS).
+   Nobody in any prover has the ALWZ improved bound (→ PLAN.md,
+   new targets from wave 3).
 
 3. **base-b covering criterion (P13, 37e5f2e)** — `IsFixedDivisorSystemBase`
    generalises the fixed-divisor criterion to arbitrary bases with three
@@ -102,6 +110,18 @@ Each needs a literature sweep before any claim is published.
 
 ---
 
+# Post-wave-3 landings — 2026-08-07/09
+
+- **Erdős #406 sieve bound + method barrier (4455bf3).**
+  PowerOfTwoDigitsCount: exact survivor count 2^j for the depth-(j+1)
+  congruence sieve and the counting bound N(x) ≤ 2·x^(log₃ 2) — the
+  λ = 1 case of Lagarias [La09] Theorem 1.4 (Narkiewicz's sharper
+  1.62 constant pinned, not formalised). PowerOfTwoDigitsBarrier:
+  the method-barrier package.
+- **Noe original↔repaired bridge (49f30bd).** See triage item 0.
+
+---
+
 # Wave 3 Results — 2026-08-05
 
 ## P9: Melfi 1996 — even = practical + practical (2e5b1ab)
@@ -149,6 +169,22 @@ certifies a ≤ 9 (brief's decide window was unreachable). BONUS:
 errors in the arXiv papers fixed by vacuity-cop (Hyp 1.4→1,
 Thm 1.2→1, Thm 1.1→1.7, Iraids→Altman + Thm 1.2→1.6).
 
+## Wave 3 archive batch (one file/commit each)
+
+- A146968 Brocard — 7a1d51f
+- A174865 Noe Zumkeller — c1097d9 (forward ↔ no OPN; triage item 0)
+- Erdős #1140 n−2x² — da07f72
+- A000166 Sun derangements — 6de4495 (coprimality proved ∀n)
+- A244743 complexity defect — b43f80d (brief def was wrong)
+- Erdős #406 2^n base 3 — 4bb6675 (no sorry, Kummer load-bearing)
+- Erdős #7 odd covering — 183c590 (945 lcm bound proved)
+
+## Wave 3 follow-on (prover lanes) — all landed
+
+- Three-smooth: ‖2^a · 3^b‖ = 2a + 3b — 398c7d6
+- n_k table: A389360 extended to k = 6–10 — 7f3a26b
+- Defect carry bound (P10 × P11 crossover) — 5af455e
+
 ## Brief corrections logged
 
 | Lane | Correction |
@@ -158,12 +194,6 @@ Thm 1.2→1, Thm 1.1→1.7, Iraids→Altman + Thm 1.2→1.6).
 | P12 | N-form weaker than trivial (brief said "still nontrivial") |
 | P13 | Order bridge stays ℕ not ℤ; n ≥ 1 forced |
 | P14 | Decide window unreachable; 4 citation numbers wrong in arXiv papers |
-
-## In-flight (prover lanes, wave 3 follow-on)
-
-- Three-smooth: ‖2^a · 3^b‖ = 2a + 3b — prover running
-- n_k table: extend A389360 to k = 6–10 — prover running
-- Defect carry bound: P10 × P11 crossover — prover running
 
 ---
 
@@ -255,8 +285,36 @@ Classical misses: ‖2^n‖ = 2n, Melfi 1996, Higman PORC.
 NEXT_TARGETS.md — 104 candidates coalesced: 44 formalize, 50 proof attempt,
 5 unknown. Melfi 1996 is the P1 flagship. Sylvester–Schur unlocks a family.
 Natural density is the largest Mathlib gap blocking ~5 statements.
+(2026-08-09: NEXT_TARGETS.md itself has since been folded into PLAN.md.)
 
 ## Housekeeping: notes.txt removed
 Stale scratch notes; every item was resolved or superseded by landed work.
 Moved to ~/.goof/trash/ (recoverable). Incidental: stale Proofs/.lake
 directory shadows leandoc discovery.
+
+---
+
+# Wave 1 Results — dispatched 2026-08-05
+
+## P1 (prover): SliceRank pullback-monotonicity + CLP bound
+16e7e2b (Task A), edc443d (Task B). `sliceRank_comp_le` (arbitrary
+maps, not just injective) in SliceRank.lean § 7. CLP sorry discharged
+via Tao's symmetric route in CapsetSliceRank.lean § 5;
+`ellenberg_gijswijt` now clean. `peebles_conjecture` untouched
+(intended sorry).
+
+## P2 (postdoc): Neder gap ≤ 12
+9859682. `nth_isZumkeller_succ_le_add_twelve` +
+`exists_isZumkeller_mem_Ico` (settles Noe 2010). Reused in-tree 3·2^k
+and coprime-closure proofs. CORRECTION: the brief's Noe framing was
+wrong — Noe's conjecture is WEAKER than Neder's, not stronger.
+
+## P3 (postdoc): AdditionChain permissive ≡ ascending
+24bb900. `l_eq_lAsc`. Brief's sort+dedup sketch was wrong (chains can
+overshoot n); fixed via filter-first `ascNormalize`. Ground checks
+n ≤ 8, n = 15.
+
+## P4 (postdoc): ErdosLovasz g(3) = 6
+3a4110c. `tripathi_six_le_erdosLovaszNum_three` discharged via
+double-counting (not Fin 15 search). `tripathi_erdosLovaszNum_three`
+now sorry-free. Attribution corrected: priority is FOT96, not Tr14.
