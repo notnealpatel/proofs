@@ -1,24 +1,13 @@
 .tasks
 data
-notes.txt
-.claude
-
-# arXiv dumps, pdftotext, etc.
-References/
-
-# wip
-cmd/erdos218/
-cmd/erdos236/
-cmd/erdos364/
-cmd/erdos727/
-cmd/erdos779/
-
-Manuscripts
-Drafts
 
 .lake
 .build
-
-CLAUDE.md
-
 __pycache__
+
+# TODO: Re-home to supermarket server.
+References/
+
+# TODO: Uncomment.
+CLAUDE.md
+.claude

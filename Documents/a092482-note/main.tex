@@ -1,0 +1,742 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{url}
+
+\setlength{\textwidth}{6.5in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\topmargin}{-0.25in}
+\setlength{\textheight}{8.6in}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\V}{\mathcal{V}}
+\newcommand{\Sd}{\mathcal{S}}
+\newcommand{\lo}[1]{\underline{#1}}
+\newcommand{\hi}[1]{\overline{#1}}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bf The greedy sequence avoiding 3-term arithmetic
+progressions beyond its seed:\\[2mm] a proof of the conjectured
+closed form of OEIS A092482}\\[8mm]
+{\large Neal Patel}\\[1mm]
+\texttt{neal@patel.codes}
+\end{center}
+
+\vskip 0.2in
+
+\begin{abstract}
+Sequence A092482 of the On-Line Encyclopedia of Integer Sequences
+is the increasing sequence obtained greedily from $a(1)=1$,
+$a(2)=2$, $a(3)=3$ by always appending the least integer that
+creates no $3$-term arithmetic progression other than the initial
+triple $(1,2,3)$.  The entry conjectures a closed form, recorded
+there as ``conjectured and checked up to $n=512$.''  We prove it:
+for $n\geq 1$,
+$a(n+2)=1+2^{\lfloor\log_2 n\rfloor}+s(n)$, where $s(n)$ is the
+value of the binary expansion of $n$ read in base $3$ (sequence
+A005836).  The term set decomposes into blocks, each a translate
+of an initial segment of the Stanley sequence A003278, and the
+proof is the classical base-$2$/base-$3$ greedy argument applied
+blockwise; the single new ingredient is a numerical coincidence
+that makes each greedy jump land exactly at the start of the next
+block.  Despite its seed, the sequence is not a Stanley sequence
+in the sense of Odlyzko--Stanley, and it lies outside the
+classification framework of Rolnick and Moy--Rolnick.  The proof
+has been formalized and machine-checked in Lean~4 over Mathlib.
+\end{abstract}
+
+\section{Introduction}\label{sec:intro}
+
+Entry A092482 of the On-Line Encyclopedia of Integer Sequences
+(OEIS) \cite{OEIS} is titled ``Sequence contains no 3-term
+arithmetic progression, other than its initial terms 1, 2, 3,''
+and is defined in its comments by the greedy rule:
+
+\begin{quote}
+$a(1)=1$, $a(2)=2$, $a(3)=3$; $a(n)$ is least $k$ such that no
+three terms of $a(1), a(2), \ldots, a(n-1), k$ form an arithmetic
+progression, except for the first triple $(1,2,3)$.
+\end{quote}
+
+\noindent Its terms begin
+\[
+1,\ 2,\ 3,\ 6,\ 7,\ 14,\ 15,\ 17,\ 18,\ 36,\ 37,\ 39,\ 40,\ 45,\
+46,\ 48,\ 49,\ 98,\ 99,\ \ldots
+\]
+Had the triple $(1,2,3)$ been forbidden rather than exempted, the
+greedy rule starting from $1$ would produce the classical Stanley
+sequence A003278 $=1,2,4,5,10,11,13,14,\ldots$ of Odlyzko and
+Stanley \cite{OS1978}; the exemption changes the sequence from
+the third term on, and, as we will see, changes its structure in
+an essential way.
+
+The formula field of the entry states, verbatim:
+
+\begin{quote}
+\texttt{For n > 2, a(n+2) = 1 + 2\textasciicircum
+floor(log\_2(n)) + Sum\_\{k=1..n\} (3\textasciicircum
+A007814(n) + 1)/2 = 1 + A053644(n) + A005836(n) (conjectured and
+checked up to n=512).}
+\end{quote}
+
+\noindent The entry gives no proof and, as of this writing, still
+labels the formula conjectural.  The unambiguous rendering of the
+formula is the Mathematica program contributed to the entry by
+Jean-Fran\c{c}ois Alcover on January 15, 2019, which compares the
+first $512$ terms against
+\[
+b(n) \;=\; 1 + 2^{\,\ell-1} + \mathrm{FromDigits}(\mathrm{bits}(n-2),3),
+\qquad n \geq 4,
+\]
+where $\mathrm{bits}(m)$ is the binary digit list of $m$ and
+$\ell$ its length.  (The printed formula itself contains two
+small typographical slips, confirmed computationally and
+documented in Appendix~\ref{app:errata}; neither affects the
+statement proved here.)
+
+To state the result cleanly, for $n\geq 0$ write
+$n=\sum_i b_i 2^i$ with $b_i\in\{0,1\}$ and define
+\[
+s(n) \;=\; \sum_i b_i 3^i,
+\]
+the binary expansion of $n$ read in base $3$.  Thus
+$s(0),s(1),s(2),\ldots = 0,1,3,4,9,10,12,13,27,\ldots$ is the
+sequence A005836 of numbers whose base-$3$ representation contains
+no digit $2$, indexed from $0$.  Our main result is the conjectured
+formula:
+
+\begin{theorem}\label{thm:main}
+For every $n\geq 1$,
+\[
+a(n+2) \;=\; 1 + 2^{\lfloor\log_2 n\rfloor} + s(n).
+\]
+\end{theorem}
+
+\noindent The OEIS states the formula for $n>2$; it in fact holds
+from $n=1$ on, and for $n=1,2$ it reproduces $a(3)=3$ and
+$a(4)=6$.  Since $2^{\lfloor\log_2 n\rfloor}$ is A053644 and
+$s(n)$ is A005836 (both read as $0$-indexed lists; see
+Appendix~\ref{app:errata}), this is precisely the conjectured
+closed form.  The summation form of the formula, with A007814
+$=\nu_2$, the $2$-adic valuation, is Proposition~\ref{prop:sum}
+below.
+
+The engine of the proof is a block decomposition of the term set
+(Theorem~\ref{thm:blocks}): apart from the two seed terms $1,2$,
+the terms come in consecutive blocks, the $L$-th block being the
+translate by $2^L+3^L+1$ of the first $2^L$ terms of A005836 ---
+that is, of an initial segment of the (shifted) Stanley sequence
+A003278.  Within a block, admissibility and minimality are the
+classical base-$3$ digit arguments for A003278 going back to
+\cite{OS1978}; what needs proof beyond that is the behavior at
+block boundaries, which rests on the identity
+\[
+2\cdot\max(\text{block } L) \;=\; 2^{L+1}+3^{L+1}+1
+\;=\; \min(\text{block } L+1):
+\]
+every integer strictly between two consecutive blocks is blocked
+by an earlier arithmetic progression, and the first integer that
+\emph{cannot} be blocked --- because doubling any earlier term
+falls short of reaching past it --- is exactly the start of the
+next block.  We are not aware of any prior proof of the closed
+form; the OEIS entry, and the companion array A093682 which
+collects conjectured closed forms for this family of greedy
+sequences, both still describe the formulas as unproved.  We make
+no claim of methodological novelty: the mechanism is the standard
+base-$2$/base-$3$ greedy argument, applied blockwise.  In genre,
+this note follows recent papers of Fried
+\cite{Fried2024,Fried2026} proving conjectures stated in OEIS
+entries.
+
+Although its terms are built from translates of A003278, the
+sequence A092482 itself is \emph{not} a Stanley sequence, because
+a Stanley sequence requires a progression-free seed and
+$\{1,2,3\}$ is a $3$-term progression; Section~\ref{sec:stanley}
+makes this precise and explains why the classification machinery
+for Stanley sequences does not apply.
+
+The entire proof has been formalized in Lean~4 over the Mathlib
+library and is machine-checked end to end;
+Section~\ref{sec:lean} describes the formalization and what it
+guarantees, including that the greedy sequence is defined in the
+proof assistant directly from the OEIS rule, with no reference to
+the closed form.
+
+\section{The block decomposition}\label{sec:blocks}
+
+Throughout, $\N=\{0,1,2,\ldots\}$.  Let
+$\Sd=\{s(n):n\in\N\}=\{0,1,3,4,9,10,12,13,27,\ldots\}$ be the set
+of naturals whose base-$3$ digits lie in $\{0,1\}$ (A005836).
+The map $s$ satisfies $s(2n)=3s(n)$ and $s(2n+1)=3s(n)+1$, and is
+strictly increasing.  We collect the digit facts we use; all are
+elementary and classical.
+
+\begin{lemma}\label{lem:digits}
+Let $L\geq 0$.
+\begin{enumerate}
+\item[(i)] $s(2^L)=3^L$, and $s(2^L+r)=3^L+s(r)$ for $0\leq r<2^L$.
+\item[(ii)] If $r<2^L$ then $2\,s(r)<3^L$.  Consequently
+$\Sd\cap[0,3^L)=\{s(r):0\leq r<2^L\}$, a set with $2^L$ elements
+and maximum $s(2^L-1)=(3^L-1)/2$.
+\item[(iii)] (No progressions in $\Sd$.)  If $x,y,z\in\Sd$ and
+$x+z=2y$, then $x=y=z$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(i) is immediate from the definition of $s$: prefixing the binary
+digit $1$ prefixes the ternary digit $1$.  For (ii), the base-$3$
+digits of $s(r)$ are supported on positions $<L$ and lie in
+$\{0,1\}$, so $2\,s(r)$ has digits in $\{0,2\}$ on positions
+$<L$, whence $2\,s(r)\leq 3^L-1$; the description of
+$\Sd\cap[0,3^L)$ follows from (i) and strict monotonicity.  For
+(iii): the base-$3$ addition $x+z$ is carry-free because each
+digit sum is at most $2$, and each digit of $2y$ lies in
+$\{0,2\}$.  Comparing digits, at every position the digits of $x$
+and $z$ have an even sum, and since they lie in $\{0,1\}$ they
+are equal.  Hence $x=z$, and then $y=x$.
+\end{proof}
+
+Part (iii) is the reason A003278 is the greedy progression-free
+sequence: A003278$(n)=s(n-1)+1$, i.e., A003278 is the translate
+$\Sd+1$ in increasing order \cite{OS1978}.
+
+We also need the two digit witnesses that drive the classical
+minimality argument.  For $u\in\N$ with base-$3$ digits $d_i$,
+let
+\[
+\lo{u} = \text{the number with digits } (d_i \mapsto 0,1,0
+\text{ for } d_i=0,1,2), \qquad
+\hi{u} = \text{the number with digits } \min(d_i,1),
+\]
+i.e., $\lo{u}$ keeps the $1$-digits of $u$ and zeroes its
+$2$-digits, while $\hi{u}$ caps every digit at $1$.
+
+\begin{lemma}\label{lem:witness}
+For every $u\in\N$: $\lo{u},\hi{u}\in\Sd$;
+$\lo{u}\leq\hi{u}\leq u$; and
+\[
+u+\lo{u} \;=\; 2\,\hi{u}.
+\]
+If moreover $u\notin\Sd$, then $\hi{u}<u$ (and so also
+$\lo{u}<u$).
+\end{lemma}
+
+\begin{proof}
+The digit maps take values in $\{0,1\}$, so both witnesses lie in
+$\Sd$, and both are digitwise dominated by $u$, hence $\leq u$.
+The identity holds digit by digit with no carries:
+$0+0=2\cdot 0$, $1+1=2\cdot 1$, $2+0=2\cdot 1$.  If $u\notin\Sd$
+then some digit equals $2$ and is strictly lowered by capping, so
+$\hi{u}<u$.
+\end{proof}
+
+\begin{corollary}[reflection]\label{cor:reflect}
+For every $L\geq 0$ and every $u<3^L$ there exist
+$t,t'\in\Sd\cap[0,3^L)$ with $u+t'=2t$.
+\end{corollary}
+
+\begin{proof}
+If $u\in\Sd$ take $t=t'=u$; otherwise take $t=\hi{u}$,
+$t'=\lo{u}$, both $\leq u<3^L$, and apply
+Lemma~\ref{lem:witness}.
+\end{proof}
+
+Now the decomposition.  For $L\geq 0$ set
+\[
+C_L \;=\; 2^L+3^L+1, \qquad
+T_L \;=\; \Sd\cap[0,3^L), \qquad
+B_L \;=\; C_L+T_L \;=\; \{\,C_L+t : t\in T_L\,\},
+\]
+and define
+\[
+\V \;=\; \{1,2\}\;\cup\;\bigcup_{L\geq 0} B_L .
+\]
+The block $B_L$ has $2^L$ elements, starts at $C_L$
+($C_0,C_1,C_2,\ldots=3,6,14,36,98,276,\ldots$), and by
+Lemma~\ref{lem:digits}(ii) its maximum is
+$C_L+(3^L-1)/2$.  Write
+\[
+P_L \;=\; \{1,2\}\cup B_0\cup\cdots\cup B_{L-1}
+\]
+for the seed together with the blocks of index $<L$.  The key
+numerical coincidence is part (i) of:
+
+\begin{lemma}\label{lem:double}
+For every $L\geq 0$:
+\begin{enumerate}
+\item[(i)] $2\cdot\max B_L = C_{L+1}$;
+\item[(ii)] the blocks are pairwise disjoint and ordered, with
+$\max B_M<C_{M+1}$ for all $M$; consequently
+$\V\cap[0,C_L)=P_L$;
+\item[(iii)] if $L\geq 1$, every $p\in P_L$ satisfies
+$2p\leq C_L$, with equality only for $p=\max B_{L-1}$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(i) is a computation:
+\[
+2\Bigl(C_L+\tfrac{3^L-1}{2}\Bigr)
+= 2^{L+1}+2\cdot 3^L+2+3^L-1
+= 2^{L+1}+3^{L+1}+1
+= C_{L+1}.
+\]
+(ii) By (i), $\max B_M<2\max B_M=C_{M+1}$, and $C$ is strictly
+increasing, so each block lies strictly below the start of the
+next; the elements $1,2$ lie below $C_0=3$.  Hence
+$\V\cap[0,C_L)=P_L$.  (iii) If $p\in B_M$ with $M\leq L-1$, then
+$2p\leq 2\max B_M=C_{M+1}\leq C_L$, with equality forcing
+$M=L-1$ and $p=\max B_{L-1}$; if $p\in\{1,2\}$, then
+$2p\leq 4<6=C_1\leq C_L$.
+\end{proof}
+
+Our structural theorem, proved over the next three sections, is:
+
+\begin{theorem}\label{thm:blocks}
+The set of terms of A092482 is $\V$.
+\end{theorem}
+
+Theorem~\ref{thm:main} follows by counting: granting
+Theorem~\ref{thm:blocks}, the terms in increasing order are $1$,
+$2$, then the blocks in order, so for $L\geq 0$ and
+$0\leq r<2^L$ the $(2^L+2+r)$-th term is $C_L+s(r)$.  Given
+$n\geq 1$, write $n=2^L+r$ with $L=\lfloor\log_2 n\rfloor$ and
+$0\leq r<2^L$; then by Lemma~\ref{lem:digits}(i)
+\[
+a(n+2) \;=\; C_L+s(r) \;=\; 1+2^L+\bigl(3^L+s(r)\bigr)
+\;=\; 1+2^{\lfloor\log_2 n\rfloor}+s(n).
+\]
+
+\section{Admissibility: no progressions beyond the seed}
+\label{sec:admissible}
+
+\begin{theorem}\label{thm:admissible}
+If $x<y<z$ are elements of $\V$ with $x+z=2y$, then
+$(x,y,z)=(1,2,3)$.
+\end{theorem}
+
+\begin{proof}
+Since $z\geq 3$, we have $z\in B_L$ for a (unique) $L$.
+
+If $L=0$: $B_0=\{3\}$, so $z=3$ and $x<y<3$ force
+$x,y\in P_0=\{1,2\}$, i.e., $y=2$, $x=1$, and indeed
+$1+3=2\cdot 2$.
+
+Now let $L\geq 1$; we show the progression is impossible.  Write
+$z=C_L+t_z$ with $t_z\in T_L$.
+
+\emph{First, $y\in B_L$.}  Suppose not.  Since $y<z<C_{L+1}$ and
+$\V\cap[0,C_{L+1})=P_{L+1}=P_L\cup B_L$
+(Lemma~\ref{lem:double}(ii)), we get $y\in P_L$, so
+$2y\leq C_L$ by Lemma~\ref{lem:double}(iii); but then
+$x+z=2y\leq C_L\leq z$ gives $x\leq 0$, a contradiction.  So
+$y=C_L+t_y$ with $t_y\in T_L$.
+
+\emph{Second, $x\in B_L$.}  Suppose not; as before $x\in P_L$
+and $2x\leq C_L$.  From $x=2y-z=C_L+2t_y-t_z$ we get
+$2x=2C_L+4t_y-2t_z$, so $2x\leq C_L$ forces
+$C_L+4t_y\leq 2t_z$.  But $2t_z<3^L$ by
+Lemma~\ref{lem:digits}(ii), while $C_L>3^L$ --- a contradiction.
+So $x=C_L+t_x$ with $t_x\in T_L$.
+
+Subtracting the translations, $t_x+t_z=2t_y$ with
+$t_x,t_y,t_z\in\Sd$, so $t_x=t_z$ by
+Lemma~\ref{lem:digits}(iii), contradicting $x<z$.
+\end{proof}
+
+\begin{remark}\label{rem:landing}
+The equality case of Lemma~\ref{lem:double} explains why the
+greedy sequence jumps from $\max B_L$ to exactly $C_{L+1}$.  To
+\emph{block} an integer $m$ is to exhibit terms $x<y<m$ with
+$x+m=2y$; any such $y$ satisfies $2y=x+m>m$.  Since every term
+$y<C_{L+1}$ has $2y\leq C_{L+1}$
+(Lemma~\ref{lem:double}(iii) at index $L+1$), the earlier terms
+cannot block $C_{L+1}$ itself: even the extreme choice
+$y=\max B_L$ would need $x=2y-C_{L+1}=0\notin\V$.  The next
+section shows that, in contrast, everything strictly between
+$\max B_L$ and $C_{L+1}$ \emph{is} blocked: $C_{L+1}$ is the
+first integer past block $L$ that cannot be blocked, and the
+greedy jump lands exactly there.
+\end{remark}
+
+\section{Minimality: every excluded integer is blocked}
+\label{sec:minimal}
+
+\begin{theorem}\label{thm:blocked}
+Every integer $m>2$ with $m\notin\V$ admits $x,y\in\V$ with
+$x<y<m$ and $x+m=2y$.
+\end{theorem}
+
+Within the span of a block this is the classical digit-witness
+argument; across the gap between consecutive blocks it is the
+following covering lemma, whose four cases tile the gap exactly.
+
+\begin{lemma}[gap covering]\label{lem:gap}
+For all $L\geq 0$ and all $\mu$ with $0\leq\mu<3^L+2^L$ there
+exist $t\in T_L$ and $p\in P_L$ such that
+\[
+\mu+p \;=\; 2t+2^L+1 .
+\]
+\end{lemma}
+
+\begin{proof}
+Induction on $L$.
+
+\emph{Base $L=0$.}  Here $\mu\in\{0,1\}$, $T_0=\{0\}$, and
+$P_0=\{1,2\}$.  For $\mu=0$ take $t=0$, $p=2$; for $\mu=1$ take
+$t=0$, $p=1$.  (These are the progressions $2,3,4$ and $1,3,5$
+blocking the two integers $4,5$ between $B_0$ and $B_1$.)
+
+\emph{Step $L\to L+1$.}  Let
+$\mu<3^{L+1}+2^{L+1}=3\cdot 3^L+2\cdot 2^L$.  We use four cases,
+whose ranges have lengths $2^L$, $3^L$, $3^L$, and $3^L+2^L$, and
+therefore tile $[0,\,3\cdot 3^L+2\cdot 2^L)$ exactly.
+
+\emph{Case A: $\mu<2^L$.}  Set $u=\mu+3^L-2^L$, so
+$0\leq u<3^L$.  By Corollary~\ref{cor:reflect} there are
+$t,t'\in T_L$ with $u+t'=2t$.  Take this $t\in T_L\subseteq
+T_{L+1}$ and $p=C_L+t'\in B_L\subseteq P_{L+1}$.  Then
+\[
+\mu+p \;=\; (u+2^L-3^L)+(2^L+3^L+1+t')
+\;=\; (u+t')+2^{L+1}+1 \;=\; 2t+2^{L+1}+1 .
+\]
+
+\emph{Case B: $2^L\leq\mu<2^L+3^L$.}  Set $\mu'=\mu-2^L<3^L$.
+The induction hypothesis gives $t\in T_L$, $p\in P_L$ with
+$\mu'+p=2t+2^L+1$; adding $2^L$ to both sides gives
+$\mu+p=2t+2^{L+1}+1$, with $t\in T_{L+1}$ and $p\in P_{L+1}$.
+
+\emph{Case C: $2^L+3^L\leq\mu<2^L+2\cdot 3^L$.}  Set
+$u=\mu-2^L-3^L<3^L$ and pick $t,t'\in T_L$ with $u+t'=2t$
+(Corollary~\ref{cor:reflect}).  Take
+$\tau=3^L+t\in T_{L+1}$ (a leading ternary digit $1$;
+Lemma~\ref{lem:digits}(i)) and $p=C_L+t'\in B_L$.  Then
+\[
+\mu+p \;=\; (u+t')+2\cdot 3^L+2^{L+1}+1
+\;=\; 2(3^L+t)+2^{L+1}+1 \;=\; 2\tau+2^{L+1}+1 .
+\]
+
+\emph{Case D: $2^L+2\cdot 3^L\leq\mu$.}  Set
+$\mu'=\mu-2\cdot 3^L-2^L<3^L+2^L$.  The induction hypothesis
+gives $t\in T_L$, $p\in P_L$ with $\mu'+p=2t+2^L+1$; take
+$\tau=3^L+t\in T_{L+1}$ and the same $p$:
+\[
+\mu+p \;=\; (2t+2^L+1)+2\cdot 3^L+2^L \;=\; 2\tau+2^{L+1}+1 .
+\qedhere
+\]
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:blocked}]
+Since $C_0=3\leq m$ and $C_L\to\infty$, there is a unique $L$
+with $C_L\leq m<C_{L+1}$.  The interval $[C_L,C_{L+1})$ splits
+into the \emph{span} $[C_L,\,C_L+3^L)$ of block $L$ and the
+\emph{gap} $[C_L+3^L,\,C_{L+1})$, of length
+$C_{L+1}-C_L-3^L=2^L+3^L$.
+
+\emph{$m$ in the span.}  Write $m=C_L+u$ with $0\leq u<3^L$.
+Since $m\notin\V$, $u\notin\Sd$.  Take
+$x=C_L+\lo{u}$ and $y=C_L+\hi{u}$.  By Lemma~\ref{lem:witness},
+$\lo{u},\hi{u}\in T_L$, so $x,y\in B_L\subseteq\V$; moreover
+$\hi{u}<u$, so $y<m$ and $x\leq y<m$; and
+$x+m=2C_L+u+\lo{u}=2C_L+2\hi{u}=2y$.  Finally $x\neq y$, since
+$x=y$ would give $m=2y-x=y<m$.
+
+\emph{$m$ in the gap.}  Write $m=C_L+3^L+\mu$ with
+$0\leq\mu<2^L+3^L$, and take $t\in T_L$, $p\in P_L$ as in
+Lemma~\ref{lem:gap}.  Set $x=p$ and $y=C_L+t\in B_L$.  Then
+$x<C_L\leq y$, and $y\leq\max B_L<C_L+3^L\leq m$, and
+\[
+x+m \;=\; p+C_L+3^L+\mu \;=\; C_L+3^L+(2t+2^L+1)
+\;=\; 2C_L+2t \;=\; 2y,
+\]
+using $C_L=2^L+3^L+1$.  (Note that in the gap the hypothesis
+$m\notin\V$ was not needed: no term lies there, and this argument
+re-derives that fact, since by Theorem~\ref{thm:admissible} a
+blocked integer $>3$ cannot be a term.)
+\end{proof}
+
+\section{The greedy characterization}\label{sec:greedy}
+
+We now assemble Theorems~\ref{thm:admissible}
+and~\ref{thm:blocked} into the greedy recursion.  We take as the
+formal definition of the sequence: $g(1)=1$, and for $n\geq 1$,
+$g(n+1)$ is the least $k$ exceeding $g(1),\ldots,g(n)$ such that
+$\{g(1),\ldots,g(n),k\}$ contains no $3$-term arithmetic
+progression other than $(1,2,3)$.
+The minimum exists: $k=2\max_i g(i)+1$ is always admissible,
+since any new progression $x<y<k$ would need $2y=x+k>k$, while
+every earlier term $y$ has $2y\leq 2\max_i g(i)<k$.  Note that
+we do \emph{not} stipulate $g(2)=2$ and $g(3)=3$; the OEIS
+definition does, but as the proof below shows (and as
+Remark~\ref{rem:seed} isolates), the recursion started from the
+single term $1$ derives the stipulated seed on its own.
+
+\begin{theorem}\label{thm:greedy}
+For every $n\geq 1$, $g(n)$ is the $n$-th smallest element of
+$\V$.  In particular the term set of $g$ is $\V$
+(Theorem~\ref{thm:blocks}), and Theorem~\ref{thm:main} follows.
+\end{theorem}
+
+\begin{proof}
+Let $v_1<v_2<v_3<\cdots$ enumerate $\V$, so
+$v_1,v_2,v_3,v_4,\ldots=1,2,3,6,\ldots$.  We prove
+$g(n)=v_n$ by induction on $n$; the base $g(1)=1=v_1$ holds by
+definition.
+
+Assume $\{g(1),\ldots,g(n)\}=\{v_1,\ldots,v_n\}$.  The candidate
+$k=v_{n+1}$ is admissible: it exceeds $v_n$, and
+$\{v_1,\ldots,v_{n+1}\}\subseteq\V$, so by
+Theorem~\ref{thm:admissible} the only progression it can contain
+is the exempted $(1,2,3)$.
+
+Conversely, let $v_n<k<v_{n+1}$; we show $k$ is inadmissible.
+Since $v_1,v_2,v_3=1,2,3$ are consecutive integers, a $k$
+strictly between $v_n$ and $v_{n+1}$ can exist only when
+$v_n\geq 3$, so $k>3$.  Also $k\notin\V$, since the enumeration
+has no elements between $v_n$ and $v_{n+1}$.  By
+Theorem~\ref{thm:blocked} there are $x<y<k$ in $\V$ with
+$x+k=2y$.  Since $x,y<k<v_{n+1}$, both lie in
+$\{v_1,\ldots,v_n\}=\{g(1),\ldots,g(n)\}$.  Thus
+$\{g(1),\ldots,g(n),k\}$ contains the progression $(x,y,k)$,
+which is not $(1,2,3)$ because $k>3$.  Hence $k$ is
+inadmissible, and $g(n+1)=v_{n+1}$.
+\end{proof}
+
+\begin{remark}[the seed is derived, not assumed]\label{rem:seed}
+Unwinding the first steps: from $\{1\}$ the least admissible
+extension is $2$ (no three terms exist), and from $\{1,2\}$ it is
+$3$, because the unique progression in $\{1,2,3\}$ is the
+exempted triple.  So the recursion reproduces
+$a(1)=1$, $a(2)=2$, $a(3)=3$, and our formalization agrees with
+the OEIS definition, which stipulates these values.  The
+exemption is load-bearing: with $(1,2,3)$ forbidden instead of
+exempted, the greedy sequence from $1$ is A003278
+$=1,2,4,5,10,\ldots$, which differs already at the third term.
+\end{remark}
+
+\section{The summation form}\label{sec:sum}
+
+The OEIS formula also expresses $s(n)$ as a sum over the $2$-adic
+valuation $\nu_2$ (A007814); we record this with a proof, stated
+division-free.  (The printed OEIS summand has a typographical
+slip; see Appendix~\ref{app:errata}.)
+
+\begin{proposition}\label{prop:sum}
+For every $n\geq 0$,
+\[
+2\,s(n) \;=\; \sum_{k=1}^{n}\bigl(3^{\nu_2(k)}+1\bigr).
+\]
+Equivalently, $s(n)-s(n-1)=(3^{\nu_2(n)}+1)/2$ for $n\geq 1$.
+\end{proposition}
+
+\begin{proof}
+It suffices to prove the increment form
+$2\,s(n+1)=2\,s(n)+3^{\nu_2(n+1)}+1$ for $n\geq 0$ and sum; we
+induct on $n$ (strongly).  If $n=2m$ is even, then
+$s(n+1)=s(2m+1)=3s(m)+1=s(2m)+1=s(n)+1$ and $\nu_2(n+1)=0$, so
+both sides increase by $3^0+1=2$.  If $n=2m+1$ is odd, then
+$n+1=2(m+1)$, so $\nu_2(n+1)=\nu_2(m+1)+1$, and
+\[
+2\,s(n+1)-2\,s(n) \;=\; 6\,s(m+1)-6\,s(m)-2
+\;=\; 3\bigl(3^{\nu_2(m+1)}+1\bigr)-2
+\;=\; 3^{\nu_2(n+1)}+1,
+\]
+using the induction hypothesis at $m<n$.
+\end{proof}
+
+Combining with Theorem~\ref{thm:main}: for $n\geq 1$,
+\[
+a(n+2) \;=\; 1+2^{\lfloor\log_2 n\rfloor}
++\sum_{k=1}^{n}\frac{3^{\nu_2(k)}+1}{2},
+\]
+which is the OEIS formula with the summand read at index $k$.
+
+\section{Not a Stanley sequence}\label{sec:stanley}
+
+Given a finite $3$-AP-free set $A$, the \emph{Stanley sequence}
+$S(A)$ of Odlyzko--Stanley \cite{OS1978} and
+Erd\H{o}s--Lev--Rauzy--S\'andor--S\'ark\"ozy \cite{ELRSS1999} is
+obtained by greedily appending to $A$ the least integer exceeding
+$\max A$ that keeps the set $3$-AP-free.  The definition requires the
+seed to be progression-free.  A092482 is \emph{not} of this form:
+its seed $\{1,2,3\}$ is itself a $3$-term progression, and the
+defining rule exempts, rather than avoids, that progression.  The
+resemblance to Stanley sequences is nonetheless real --- by
+Theorem~\ref{thm:blocks} the term set is a union of translated
+initial segments of A003278$-1$ --- but it is blockwise, with the
+translation constant $C_L=2^L+3^L+1$ changing at every power of
+two.
+
+This places A092482 outside the classification framework for
+Stanley sequences.  Moy--Rolnick \cite{MoyRolnick2016} and
+Rolnick \cite{Rolnick2017} organize Stanley sequences around the
+\emph{regular} (Type-1) case, in which each successive
+self-similar block of the sequence deviates from an exact
+base-$3$ rescaling of the preceding ones by a \emph{constant},
+the sequence's character.  For A092482 the deviation is not
+constant: by Theorem~\ref{thm:blocks} the $L$-th block is
+translated by $C_L=3^L+(2^L+1)$, so the correction to the pure
+base-$3$ skeleton is $2^L+1$, which doubles (asymptotically) at
+every power of two and is unbounded.  Equivalently, in the closed
+form of Theorem~\ref{thm:main} the correction term
+$2^{\lfloor\log_2 n\rfloor}$ is unbounded, where a regular
+Stanley sequence would exhibit a constant character.  So the
+classification machinery does not apply, and A092482 does not
+appear among its examples.
+
+A nearby OEIS structure also fails to contain it.  The array
+A093682 collects greedy nonarithmetic-$3$-progression sequences
+with conjectured closed forms; its comments state, verbatim:
+
+\begin{quote}
+\texttt{The nonarithmetic-3-progression sequences starting with
+a(1)=1, a(2)=1+3\textasciicircum m or 1+2*3\textasciicircum m, m
+>= 0, seem to have especially simple 'closed' forms. None of
+these formulas have been proved, however.}
+\end{quote}
+
+\noindent Its rows are seeded $1,\,1+3^m$ or $1,\,1+2\cdot 3^m$
+(rows $0$--$6$ are A003278, A004793, A033157, and
+A093678--A093681), and the conjectured closed forms there carry a
+\emph{$P$-periodic} correction term ($T(m,n)=\sum_{k=1}^{n-1}
+(3^{A007814(k)}+1)/2+f(n)$ with $f$ a $P$-periodic function).
+A092482 is not a row of A093682: its seed does not have the
+required shape, and its correction $2^{\lfloor\log_2 n\rfloor}$
+is unbounded rather than periodic.  (A093682 cross-references
+A092482; the theorem proved here settles a conjecture in that
+circle which lies outside the A093682 family.  The conjectured
+formulas for the rows of A093682 itself remain open.)
+
+\section{Machine verification}\label{sec:lean}
+
+The proof in this note has been formalized in Lean~4
+\cite{Lean4} over the Mathlib library \cite{mathlib}.  The
+formalization is available at \url{TODO}.  Its headline statement,
+\texttt{greedySeq\_eq\_closedForm}, asserts that the greedy
+sequence equals the closed form as functions on $\N$; the
+development compiles with no \texttt{sorry} and no errors, and
+Lean's axiom audit reports exactly the three standard axioms
+\texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}.
+
+Three design points bear on what the verification guarantees.
+First, there is no circularity: the greedy sequence is defined in
+Lean directly from the OEIS rule --- the next term is obtained by
+\texttt{Nat.find}, the least $k$ exceeding all previous terms
+whose insertion creates no progression other than $(1,2,3)$ ---
+with no reference to the closed form; the closed form is defined
+separately, and the theorem connects the two.  Second, the seed
+is derived, not assumed: the formal recursion starts from the
+singleton $\{1\}$ and proves that its second and third values are
+$2$ and $3$ (Remark~\ref{rem:seed}), so the formal definition
+matches the OEIS definition, which stipulates those values.
+Third, the first $57$ terms of the formal greedy sequence are
+proved equal, by a kernel-checked computation, to the $57$ terms
+printed in the OEIS entry's data field; no use is made of
+\texttt{native\_decide} (i.e., no compiled-code oracle), so the
+entire development, including the ground computation, is checked
+by the Lean kernel.  The blockwise structure of
+Sections~\ref{sec:blocks}--\ref{sec:greedy} mirrors the formal
+proof, which reuses a formalization of the classical A003278
+digit argument.
+
+\appendix
+
+\section{Errata for the OEIS entry}\label{app:errata}
+
+The formula field of A092482 quoted in
+Section~\ref{sec:intro} contains two typographical slips.  Both
+are confirmed by direct computation against the entry's own data
+field, and both are repaired by the readings proved in this note.
+
+\begin{enumerate}
+\item \emph{The summand index.}  The sum is printed as
+\texttt{Sum\_\{k=1..n\} (3\textasciicircum A007814(n) + 1)/2}:
+the summand must depend on the summation index $k$, not on $n$.  Read
+literally, the sum equals $n\,(3^{\nu_2(n)}+1)/2$, which at $n=3$
+gives $3\cdot(3^0+1)/2=3$ and hence $a(5)=1+2+3=6$, whereas the
+data field has $a(5)=7$.  With summand
+$(3^{\nu_2(k)}+1)/2$ the sum equals $s(n)$
+(Proposition~\ref{prop:sum}), as required.
+\item \emph{Indexing of the cross-references.}  In
+$a(n+2)=1+A053644(n)+A005836(n)$, both cross-references must be
+read as $0$-indexed lookups into the printed term lists, i.e.,
+$A053644(n)=2^{\lfloor\log_2 n\rfloor}$ (from the list
+$0,1,2,2,4,4,4,4,8,\ldots$) and $A005836(n)=s(n)$ (from the list
+$0,1,3,4,9,10,12,13,27,\ldots$).  Reading A005836 as $1$-indexed
+(its declared OEIS offset) gives $A005836(3)=3$ and hence
+$a(5)=1+2+3=6\neq 7$; reading A053644 as $1$-indexed gives
+$A053644(4)=2$ and hence $a(6)=1+2+9=12\neq 14$.
+\end{enumerate}
+
+\noindent Neither slip affects the intended formula, which the
+entry's Mathematica program (Alcover, 2019) renders unambiguously
+and which Theorem~\ref{thm:main} proves.
+
+\begin{thebibliography}{99}
+
+\bibitem{OEIS}
+OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer
+Sequences}, 2026.  Available at \url{https://oeis.org}.  Entries
+A092482, A003278, A005836, A007814, A053644, A093682.
+
+\bibitem{OS1978}
+A.~M. Odlyzko and R.~P. Stanley, \emph{Some curious sequences
+constructed with the greedy algorithm}, Bell Laboratories
+internal memorandum, 1978.
+
+\bibitem{ELRSS1999}
+P.~Erd\H{o}s, V.~Lev, G.~Rauzy, C.~S\'andor, and A.~S\'ark\"ozy,
+Greedy algorithm, arithmetic progressions, subset sums and
+divisibility, \emph{Discrete Math.} \textbf{200} (1999),
+119--135.
+
+\bibitem{MoyRolnick2016}
+R.~A. Moy and D.~Rolnick, Novel structures in Stanley sequences,
+\emph{Discrete Math.} \textbf{339} (2016), 689--698.
+
+\bibitem{Rolnick2017}
+D.~Rolnick, On the classification of Stanley sequences,
+\emph{European J. Combin.} \textbf{59} (2017), 51--70.
+
+\bibitem{Fried2024}
+S.~Fried, Proofs of some conjectures from the OEIS, preprint,
+2024.  Available at \url{https://arxiv.org/abs/2410.07237}.
+
+\bibitem{Fried2026}
+S.~Fried, Further proofs of conjectures from the OEIS, preprint,
+2026.  Available at \url{https://arxiv.org/abs/2607.24832}.
+
+\bibitem{Lean4}
+L.~de~Moura and S.~Ullrich, The Lean 4 theorem prover and
+programming language, in \emph{Automated Deduction --- CADE 28},
+Lecture Notes in Comput.\ Sci., Vol.~12699, Springer, 2021,
+pp.~625--635.
+
+\bibitem{mathlib}
+The mathlib Community, The Lean mathematical library, in
+\emph{Proceedings of the 9th ACM SIGPLAN International Conference
+on Certified Programs and Proofs (CPP 2020)}, ACM, 2020,
+pp.~367--381.
+
+\end{thebibliography}
+
+\end{document}
