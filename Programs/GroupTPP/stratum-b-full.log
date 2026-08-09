@@ -1,0 +1,141 @@
+=== Falsifiability Harness ===
+--- REJECT anchors (action and tier both asserted) ---
+  [8,3]: T1a REJECT -- OK
+  [8,4]: T1a REJECT -- OK
+  [16,3]: T1a REJECT -- OK
+  [16,4]: T1a REJECT -- OK
+  [16,6]: T1a REJECT -- OK
+  [16,11]: T1a REJECT -- OK
+  [16,12]: T1a REJECT -- OK
+  [16,13]: T1a REJECT -- OK
+  [27,3]: T1a REJECT -- OK
+  [27,4]: T1a REJECT -- OK
+--- REJECT-or-CAP anchors (known rho_0=1, cascade limited) ---
+  [24,10]: T3b CAP(1.3333333333333333) (conservative bound) -- OK
+  [24,11]: T3b CAP(1.3333333333333333) (conservative bound) -- OK
+--- MUST-NOT-REJECT anchors (known rho_0 > 1) ---
+  [32,49]: T1c CAP(2) -- OK
+  [64,226]: T2b SURVIVE -- OK
+  [128,1135]: T2b SURVIVE -- OK
+  [128,2194]: T2b SURVIVE -- OK
+--- Dihedral family anchors ---
+  [12,4]: T3b CAP(1.3333333333333333) -- OK
+  [10,1]: T3b REJECT -- OK
+--- [32,49] ceiling consistency ---
+  [32,49]: subgroup_packing = 4.0 = sqrt(16) -- OK
+  [32,49]: class2_strict = subgroup_packing = 4.0 -- OK
+
+HARNESS PASSED: 20/20 assertions.
+
+Stratum B (order 512): sample size 10000, processing positions 201..10000
+  Seed: 20260711, population: 10494213
+
+  pos 300/10000 (100 new, 53.1 groups/s, 1.9s elapsed)
+  pos 400/10000 (200 new, 55.9 groups/s, 3.6s elapsed)
+  pos 500/10000 (300 new, 55.8 groups/s, 5.4s elapsed)
+  pos 600/10000 (400 new, 56.9 groups/s, 7.0s elapsed)
+  pos 700/10000 (500 new, 57.5 groups/s, 8.7s elapsed)
+  pos 800/10000 (600 new, 57.4 groups/s, 10.4s elapsed)
+  pos 900/10000 (700 new, 57.8 groups/s, 12.1s elapsed)
+  pos 1000/10000 (800 new, 58.0 groups/s, 13.8s elapsed)
+  pos 1100/10000 (900 new, 57.8 groups/s, 15.6s elapsed)
+  pos 1200/10000 (1000 new, 58.0 groups/s, 17.2s elapsed)
+  pos 1300/10000 (1100 new, 57.9 groups/s, 19.0s elapsed)
+  pos 1400/10000 (1200 new, 58.0 groups/s, 20.7s elapsed)
+  pos 1500/10000 (1300 new, 57.8 groups/s, 22.5s elapsed)
+  pos 1600/10000 (1400 new, 57.6 groups/s, 24.3s elapsed)
+  pos 1700/10000 (1500 new, 57.7 groups/s, 26.0s elapsed)
+  pos 1800/10000 (1600 new, 57.7 groups/s, 27.7s elapsed)
+  pos 1900/10000 (1700 new, 57.7 groups/s, 29.5s elapsed)
+  pos 2000/10000 (1800 new, 57.8 groups/s, 31.2s elapsed)
+  pos 2100/10000 (1900 new, 57.9 groups/s, 32.8s elapsed)
+  pos 2200/10000 (2000 new, 58.0 groups/s, 34.5s elapsed)
+  pos 2300/10000 (2100 new, 57.9 groups/s, 36.3s elapsed)
+  pos 2400/10000 (2200 new, 57.7 groups/s, 38.1s elapsed)
+  pos 2500/10000 (2300 new, 57.7 groups/s, 39.9s elapsed)
+  pos 2600/10000 (2400 new, 57.6 groups/s, 41.7s elapsed)
+  pos 2700/10000 (2500 new, 57.5 groups/s, 43.5s elapsed)
+  pos 2800/10000 (2600 new, 57.5 groups/s, 45.2s elapsed)
+  pos 2900/10000 (2700 new, 57.5 groups/s, 47.0s elapsed)
+  pos 3000/10000 (2800 new, 57.3 groups/s, 48.8s elapsed)
+  pos 3100/10000 (2900 new, 57.2 groups/s, 50.7s elapsed)
+  pos 3200/10000 (3000 new, 57.1 groups/s, 52.5s elapsed)
+  pos 3300/10000 (3100 new, 56.8 groups/s, 54.5s elapsed)
+  pos 3400/10000 (3200 new, 56.9 groups/s, 56.3s elapsed)
+  pos 3500/10000 (3300 new, 57.0 groups/s, 57.9s elapsed)
+  pos 3600/10000 (3400 new, 57.0 groups/s, 59.7s elapsed)
+  pos 3700/10000 (3500 new, 57.0 groups/s, 61.4s elapsed)
+  pos 3800/10000 (3600 new, 57.0 groups/s, 63.1s elapsed)
+  pos 3900/10000 (3700 new, 57.0 groups/s, 64.9s elapsed)
+  pos 4000/10000 (3800 new, 57.0 groups/s, 66.6s elapsed)
+  pos 4100/10000 (3900 new, 57.1 groups/s, 68.3s elapsed)
+  pos 4200/10000 (4000 new, 57.2 groups/s, 70.0s elapsed)
+  pos 4300/10000 (4100 new, 57.1 groups/s, 71.8s elapsed)
+  pos 4400/10000 (4200 new, 57.2 groups/s, 73.5s elapsed)
+  pos 4500/10000 (4300 new, 57.2 groups/s, 75.2s elapsed)
+  pos 4600/10000 (4400 new, 57.2 groups/s, 77.0s elapsed)
+  pos 4700/10000 (4500 new, 57.1 groups/s, 78.8s elapsed)
+  pos 4800/10000 (4600 new, 57.1 groups/s, 80.6s elapsed)
+  pos 4900/10000 (4700 new, 57.1 groups/s, 82.3s elapsed)
+  pos 5000/10000 (4800 new, 57.1 groups/s, 84.1s elapsed)
+  pos 5100/10000 (4900 new, 57.1 groups/s, 85.8s elapsed)
+  pos 5200/10000 (5000 new, 57.0 groups/s, 87.7s elapsed)
+  pos 5300/10000 (5100 new, 56.9 groups/s, 89.6s elapsed)
+  pos 5400/10000 (5200 new, 56.9 groups/s, 91.3s elapsed)
+  pos 5500/10000 (5300 new, 56.9 groups/s, 93.1s elapsed)
+  pos 5600/10000 (5400 new, 56.9 groups/s, 94.9s elapsed)
+  pos 5700/10000 (5500 new, 56.9 groups/s, 96.7s elapsed)
+  pos 5800/10000 (5600 new, 56.9 groups/s, 98.5s elapsed)
+  pos 5900/10000 (5700 new, 56.9 groups/s, 100.2s elapsed)
+  pos 6000/10000 (5800 new, 56.8 groups/s, 102.0s elapsed)
+  pos 6100/10000 (5900 new, 56.9 groups/s, 103.7s elapsed)
+  pos 6200/10000 (6000 new, 56.9 groups/s, 105.5s elapsed)
+  pos 6300/10000 (6100 new, 56.9 groups/s, 107.2s elapsed)
+  pos 6400/10000 (6200 new, 56.9 groups/s, 109.0s elapsed)
+  pos 6500/10000 (6300 new, 56.9 groups/s, 110.8s elapsed)
+  pos 6600/10000 (6400 new, 56.8 groups/s, 112.6s elapsed)
+  pos 6700/10000 (6500 new, 56.8 groups/s, 114.4s elapsed)
+  pos 6800/10000 (6600 new, 56.7 groups/s, 116.3s elapsed)
+  pos 6900/10000 (6700 new, 56.8 groups/s, 118.1s elapsed)
+  pos 7000/10000 (6800 new, 56.7 groups/s, 120.0s elapsed)
+  pos 7100/10000 (6900 new, 56.7 groups/s, 121.8s elapsed)
+  pos 7200/10000 (7000 new, 56.6 groups/s, 123.6s elapsed)
+  pos 7300/10000 (7100 new, 56.7 groups/s, 125.3s elapsed)
+  pos 7400/10000 (7200 new, 56.7 groups/s, 127.0s elapsed)
+  pos 7500/10000 (7300 new, 56.7 groups/s, 128.7s elapsed)
+  pos 7600/10000 (7400 new, 56.7 groups/s, 130.4s elapsed)
+  pos 7700/10000 (7500 new, 56.7 groups/s, 132.2s elapsed)
+  pos 7800/10000 (7600 new, 56.7 groups/s, 134.0s elapsed)
+  pos 7900/10000 (7700 new, 56.7 groups/s, 135.9s elapsed)
+  pos 8000/10000 (7800 new, 56.7 groups/s, 137.7s elapsed)
+  pos 8100/10000 (7900 new, 56.6 groups/s, 139.5s elapsed)
+  pos 8200/10000 (8000 new, 56.6 groups/s, 141.3s elapsed)
+  pos 8300/10000 (8100 new, 56.6 groups/s, 143.2s elapsed)
+  pos 8400/10000 (8200 new, 56.5 groups/s, 145.1s elapsed)
+  pos 8500/10000 (8300 new, 56.5 groups/s, 146.8s elapsed)
+  pos 8600/10000 (8400 new, 56.5 groups/s, 148.6s elapsed)
+  pos 8700/10000 (8500 new, 56.5 groups/s, 150.6s elapsed)
+  pos 8800/10000 (8600 new, 56.4 groups/s, 152.6s elapsed)
+  pos 8900/10000 (8700 new, 56.3 groups/s, 154.5s elapsed)
+  pos 9000/10000 (8800 new, 56.3 groups/s, 156.4s elapsed)
+  pos 9100/10000 (8900 new, 56.2 groups/s, 158.3s elapsed)
+  pos 9200/10000 (9000 new, 56.2 groups/s, 160.2s elapsed)
+  pos 9300/10000 (9100 new, 56.1 groups/s, 162.1s elapsed)
+  pos 9400/10000 (9200 new, 56.1 groups/s, 163.9s elapsed)
+  pos 9500/10000 (9300 new, 56.1 groups/s, 165.8s elapsed)
+  pos 9600/10000 (9400 new, 56.0 groups/s, 167.8s elapsed)
+  pos 9700/10000 (9500 new, 56.0 groups/s, 169.6s elapsed)
+  pos 9800/10000 (9600 new, 56.0 groups/s, 171.5s elapsed)
+  pos 9900/10000 (9700 new, 55.9 groups/s, 173.5s elapsed)
+  pos 10000/10000 (9800 new, 55.9 groups/s, 175.4s elapsed)
+
+Stratum B pass done: 10000 records (9800 new in 175.5s).
+
+  Tier distribution (n=10000):
+    T1b: 2 (0.0%)
+    T1c: 1 (0.0%)
+    T2b: 9995 (100.0%)
+    T3a: 2 (0.0%)
+  Actions: REJECT=4 CAP=1 SURVIVE=9995 ERROR=0
+  T1b+T3a dominance among REJECTs: 4/4 = 100.0%
+Summary: /home/exedev/p/proofs/.tasks/f5exp/docs/sieve-summary.md

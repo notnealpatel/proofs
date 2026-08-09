@@ -1,0 +1,580 @@
+/tmp/sage_ogpt4cov/rho02i6meo02.sage.py:417: SyntaxWarning: invalid escape sequence '\{'
+  So: TPP fails iff there exist s in S\{1}, t in T, u in U with s^{-1} = tu.
+======================================================================
+rho0.sage — Exact subgroup TPP ratio engine
+Targets: 73 total, 0 already done, 73 to run
+Per-target timeout: 3600s
+Results file: /home/exedev/p/proofs/Scratch/GroupSieve/rho0-results.jsonl
+======================================================================
+
+[1/73] [24,10] C3xD8
+  Order: 24
+  DONE: rho_0 = 1 (1.000000), triple type (24, 1, 1), 0.2s [MATCH]
+
+[2/73] [24,11] C3xQ8
+  Order: 24
+  DONE: rho_0 = 1 (1.000000), triple type (24, 1, 1), 0.0s [MATCH]
+
+[3/73] [32,49] ExSp(2,5)+
+  Order: 32
+  DONE: rho_0 = 2 (2.000000), triple type (4, 4, 4), 0.7s [MATCH]
+
+[4/73] [32,50] ExSp(2,5)-
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.4s [MATCH]
+
+[5/73] [64,226] D8:D8
+  Order: 64
+  DONE: rho_0 = 2 (2.000000), triple type (8, 4, 4), 45.6s [MATCH]
+
+[6/73] control [8,3] D8
+  Order: 8
+  DONE: rho_0 = 1 (1.000000), triple type (8, 1, 1), 0.0s [MATCH]
+
+[7/73] control [8,4] Q8
+  Order: 8
+  DONE: rho_0 = 1 (1.000000), triple type (8, 1, 1), 0.0s [MATCH]
+
+[8/73] control [12,4] D12
+  Order: 12
+  DONE: rho_0 = 4/3 (1.333333), triple type (4, 2, 2), 0.0s [MATCH]
+
+[9/73] control [16,3] C4^2:C2 a
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[10/73] control [16,4] C4^2:C2 b
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[11/73] control [16,6] C8:C2
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[12/73] control [16,11] C2xD8
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[13/73] control [16,12] C2xQ8
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[14/73] control [16,13] (C4xC2):C2
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[15/73] control [27,3] (C3xC3):C3
+  Order: 27
+  DONE: rho_0 = 1 (1.000000), triple type (27, 1, 1), 0.0s [MATCH]
+
+[16/73] control [27,4] C9:C3
+  Order: 27
+  DONE: rho_0 = 1 (1.000000), triple type (27, 1, 1), 0.0s [MATCH]
+
+[17/73] control [32,49] ExSp(2,5)+
+  Order: 32
+  DONE: rho_0 = 2 (2.000000), triple type (4, 4, 4), 0.7s [MATCH]
+
+[18/73] control [32,50] ExSp(2,5)-
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.5s [MATCH]
+
+[19/73] C2 x [8,3] D8 (order 16)
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[20/73] C2 x [8,4] Q8 (order 16)
+  Order: 16
+  DONE: rho_0 = 1 (1.000000), triple type (16, 1, 1), 0.0s [MATCH]
+
+[21/73] C2 x [12,4] D12 (order 24)
+  Order: 24
+  DONE: rho_0 = 4/3 (1.333333), triple type (8, 2, 2), 0.1s [MATCH]
+
+[22/73] C2 x [16,3] C4^2:C2 a (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 5.4s [MATCH]
+
+[23/73] C2 x [16,6] C8:C2 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.1s [MATCH]
+
+[24/73] C2 x [16,11] C2xD8 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 19.5s [MATCH]
+
+[25/73] C2 x [16,12] C2xQ8 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.5s [MATCH]
+
+[26/73] C2 x [16,13] (C4xC2):C2 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.8s [MATCH]
+
+[27/73] C2 x [27,3] (C3xC3):C3 (order 54)
+  Order: 54
+  DONE: rho_0 = 1 (1.000000), triple type (54, 1, 1), 0.7s [MATCH]
+
+[28/73] C2 x [27,4] C9:C3 (order 54)
+  Order: 54
+  DONE: rho_0 = 1 (1.000000), triple type (54, 1, 1), 0.0s [MATCH]
+
+[29/73] C2 x [32,49] ExSp(2,5)+ (order 64)
+  Order: 64
+  [02:59:09] testing candidate 0/87429159, best=1, tpp_checks=0
+  [03:00:09] testing candidate 72417364/87429159, best=1, tpp_checks=0
+  DONE: rho_0 = 2 (2.000000), triple type (8, 4, 4), 151.1s [MATCH]
+
+[30/73] C2 x [32,50] ExSp(2,5)- (order 64)
+  Order: 64
+  [03:01:22] testing candidate 57059129/61575579, best=1, tpp_checks=0
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 67.0s [MATCH]
+
+[31/73] C3 x [8,3] D8 (order 24)
+  Order: 24
+  DONE: rho_0 = 1 (1.000000), triple type (24, 1, 1), 0.0s [MATCH]
+
+[32/73] C3 x [8,4] Q8 (order 24)
+  Order: 24
+  DONE: rho_0 = 1 (1.000000), triple type (24, 1, 1), 0.0s [MATCH]
+
+[33/73] C3 x [12,4] D12 (order 36)
+  Order: 36
+  DONE: rho_0 = 4/3 (1.333333), triple type (12, 2, 2), 0.1s [MATCH]
+
+[34/73] C3 x [16,3] C4^2:C2 a (order 48)
+  Order: 48
+  DONE: rho_0 = 1 (1.000000), triple type (48, 1, 1), 0.3s [MATCH]
+
+[35/73] C3 x [16,6] C8:C2 (order 48)
+  Order: 48
+  DONE: rho_0 = 1 (1.000000), triple type (48, 1, 1), 0.1s [MATCH]
+
+[36/73] C3 x [16,11] C2xD8 (order 48)
+  Order: 48
+  DONE: rho_0 = 1 (1.000000), triple type (48, 1, 1), 0.8s [MATCH]
+
+[37/73] C3 x [16,12] C2xQ8 (order 48)
+  Order: 48
+  DONE: rho_0 = 1 (1.000000), triple type (48, 1, 1), 0.1s [MATCH]
+
+[38/73] C3 x [16,13] (C4xC2):C2 (order 48)
+  Order: 48
+  DONE: rho_0 = 1 (1.000000), triple type (48, 1, 1), 0.2s [MATCH]
+
+[39/73] C3 x [27,3] (C3xC3):C3 (order 81)
+  Order: 81
+  DONE: rho_0 = 1 (1.000000), triple type (81, 1, 1), 0.2s [MATCH]
+
+[40/73] C3 x [27,4] C9:C3 (order 81)
+  Order: 81
+  DONE: rho_0 = 1 (1.000000), triple type (81, 1, 1), 0.1s [MATCH]
+
+[41/73] C3 x [32,49] ExSp(2,5)+ (order 96)
+  Order: 96
+  DONE: rho_0 = 2 (2.000000), triple type (12, 4, 4), 6.3s [MATCH]
+
+[42/73] C3 x [32,50] ExSp(2,5)- (order 96)
+  Order: 96
+  DONE: rho_0 = 1 (1.000000), triple type (96, 1, 1), 4.1s [MATCH]
+
+[43/73] C4 x [8,3] D8 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.6s [MATCH]
+
+[44/73] C4 x [8,4] Q8 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.2s [MATCH]
+
+[45/73] C4 x [12,4] D12 (order 48)
+  Order: 48
+  DONE: rho_0 = 4/3 (1.333333), triple type (16, 2, 2), 0.2s [MATCH]
+
+[46/73] C4 x [16,3] C4^2:C2 a (order 64)
+  Order: 64
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 47.9s [MATCH]
+
+[47/73] C4 x [16,6] C8:C2 (order 64)
+  Order: 64
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 0.8s [MATCH]
+
+[48/73] C4 x [16,11] C2xD8 (order 64)
+  Order: 64
+  [03:03:31] testing candidate 8207797/8809605, best=1, tpp_checks=618613
+  [03:04:31] testing candidate 8499292/8809605, best=1, tpp_checks=1320815
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 125.8s [MATCH]
+
+[49/73] C4 x [16,12] C2xQ8 (order 64)
+  Order: 64
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 4.5s [MATCH]
+
+[50/73] C4 x [16,13] (C4xC2):C2 (order 64)
+  Order: 64
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 10.9s [MATCH]
+
+[51/73] C4 x [27,3] (C3xC3):C3 (order 108)
+  Order: 108
+  DONE: rho_0 = 1 (1.000000), triple type (108, 1, 1), 1.9s [MATCH]
+
+[52/73] C4 x [27,4] C9:C3 (order 108)
+  Order: 108
+  DONE: rho_0 = 1 (1.000000), triple type (108, 1, 1), 0.1s [MATCH]
+
+[53/73] C4 x [32,49] ExSp(2,5)+ (order 128)
+  Order: 128
+======================================================================
+rho0.sage — Exact subgroup TPP ratio engine
+Targets: 73 total, 52 already done, 21 to run
+Per-target timeout: 3600s
+Results file: /home/exedev/p/proofs/Scratch/GroupSieve/rho0-results.jsonl
+======================================================================
+
+[53/73] C4 x [32,49] ExSp(2,5)+ (order 128)
+  Order: 128
+  [03:20:46] testing candidate 7418618/32862132, best=1, tpp_checks=562104
+  [03:21:46] testing candidate 7532161/32862132, best=1, tpp_checks=1304220
+  [03:22:46] testing candidate 7725950/32862132, best=1, tpp_checks=1949278
+  [03:23:46] testing candidate 7842686/32862132, best=1, tpp_checks=2663301
+  [03:24:46] testing candidate 7994750/32862132, best=1, tpp_checks=3345790
+  [03:25:46] testing candidate 8108973/32862132, best=1, tpp_checks=4018450
+  [03:26:46] testing candidate 8249444/32862132, best=1, tpp_checks=4723550
+  [03:27:46] testing candidate 8407217/32862132, best=1, tpp_checks=5358333
+  [03:28:46] testing candidate 8515294/32862132, best=1, tpp_checks=6053222
+  [03:29:46] testing candidate 8719603/32862132, best=1, tpp_checks=6714484
+  [03:30:46] testing candidate 8826061/32862132, best=1, tpp_checks=7369793
+  [03:31:46] testing candidate 8974233/32862132, best=1, tpp_checks=8086432
+  [03:32:46] testing candidate 9132953/32862132, best=1, tpp_checks=8751678
+  [03:33:46] testing candidate 9241470/32862132, best=1, tpp_checks=9449232
+  [03:34:46] testing candidate 9403568/32862132, best=1, tpp_checks=10116095
+  [03:35:46] testing candidate 9548580/32862132, best=1, tpp_checks=10833916
+  [03:36:46] testing candidate 9701105/32862132, best=1, tpp_checks=11500898
+  [03:37:46] testing candidate 10338125/32862132, best=1, tpp_checks=12198591
+  [03:38:46] testing candidate 11529936/32862132, best=1, tpp_checks=12912811
+  [03:39:46] testing candidate 11730548/32862132, best=1, tpp_checks=13619450
+  [03:40:46] testing candidate 11852041/32862132, best=1, tpp_checks=14329148
+  DONE: rho_0 = 2 (2.000000), triple type (16, 4, 4), 1263.5s [MATCH]
+
+[54/73] C4 x [32,50] ExSp(2,5)- (order 128)
+  Order: 128
+  [03:41:49] testing candidate 5599670/16989220, best=1, tpp_checks=582740
+  [03:42:49] testing candidate 9918011/16989220, best=1, tpp_checks=1201185
+  [03:43:49] testing candidate 12283054/16989220, best=1, tpp_checks=1923355
+  [03:44:49] testing candidate 15205625/16989220, best=1, tpp_checks=2592752
+  DONE: rho_0 = 1 (1.000000), triple type (128, 1, 1), 278.4s [MATCH]
+
+[55/73] C2xC2 x [8,3] D8 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 19.2s [MATCH]
+
+[56/73] C2xC2 x [8,4] Q8 (order 32)
+  Order: 32
+  DONE: rho_0 = 1 (1.000000), triple type (32, 1, 1), 0.1s [MATCH]
+
+[57/73] C2xC2 x [12,4] D12 (order 48)
+  Order: 48
+  DONE: rho_0 = 4/3 (1.333333), triple type (16, 2, 2), 0.3s [MATCH]
+
+[58/73] C2xC2 x [16,3] C4^2:C2 a (order 64)
+  Order: 64
+  [03:46:47] testing candidate 225858/4499457, best=1, tpp_checks=665533
+  [03:47:47] testing candidate 411820/4499457, best=1, tpp_checks=1319353
+  [03:48:47] testing candidate 615824/4499457, best=1, tpp_checks=1994525
+  [03:49:47] testing candidate 743663/4499457, best=1, tpp_checks=2640627
+  [03:50:47] testing candidate 880258/4499457, best=1, tpp_checks=3259138
+  [03:51:47] testing candidate 1024779/4499457, best=1, tpp_checks=3917038
+  [03:52:47] testing candidate 1265260/4499457, best=1, tpp_checks=4544321
+  [03:53:47] testing candidate 1383711/4499457, best=1, tpp_checks=5205859
+  [03:54:47] testing candidate 1685210/4499457, best=1, tpp_checks=5849513
+  [03:55:47] testing candidate 1953434/4499457, best=1, tpp_checks=6469520
+  [03:56:47] testing candidate 2274957/4499457, best=1, tpp_checks=7072170
+  [03:57:47] testing candidate 2427377/4499457, best=1, tpp_checks=7672168
+  [03:58:47] testing candidate 2526359/4499457, best=1, tpp_checks=8288078
+  [03:59:47] testing candidate 2629325/4499457, best=1, tpp_checks=8928196
+  [04:00:47] testing candidate 2741758/4499457, best=1, tpp_checks=9540502
+  [04:01:47] testing candidate 2839671/4499457, best=1, tpp_checks=10147742
+  [04:02:47] testing candidate 2941169/4499457, best=1, tpp_checks=10774838
+  [04:03:47] testing candidate 3179871/4499457, best=1, tpp_checks=11381551
+  [04:04:47] testing candidate 3451322/4499457, best=1, tpp_checks=12022383
+  [04:05:47] testing candidate 3781267/4499457, best=1, tpp_checks=12674707
+  [04:06:47] testing candidate 3938495/4499457, best=1, tpp_checks=13314162
+  [04:07:47] testing candidate 4044452/4499457, best=1, tpp_checks=13953192
+  [04:08:47] testing candidate 4146734/4499457, best=1, tpp_checks=14598818
+  [04:09:47] testing candidate 4263080/4499457, best=1, tpp_checks=15238256
+  [04:10:47] testing candidate 4368404/4499457, best=1, tpp_checks=15878816
+  [04:11:47] testing candidate 4469987/4499457, best=1, tpp_checks=16522691
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 1577.6s [MATCH]
+
+[59/73] C2xC2 x [16,6] C8:C2 (order 64)
+  Order: 64
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 2.6s [MATCH]
+
+[60/73] C2xC2 x [16,11] C2xD8 (order 64)
+  Order: 64
+  [04:13:07] testing candidate 141496/24123825, best=1, tpp_checks=588693
+  [04:14:07] testing candidate 224825/24123825, best=1, tpp_checks=1179817
+  [04:15:07] testing candidate 481837/24123825, best=1, tpp_checks=1751000
+  [04:16:07] testing candidate 553822/24123825, best=1, tpp_checks=2327810
+  [04:17:07] testing candidate 722606/24123825, best=1, tpp_checks=2893417
+  [04:18:07] testing candidate 833421/24123825, best=1, tpp_checks=3464736
+  [04:19:07] testing candidate 912374/24123825, best=1, tpp_checks=4052239
+  [04:20:07] testing candidate 1280708/24123825, best=1, tpp_checks=4627247
+  [04:21:07] testing candidate 1363454/24123825, best=1, tpp_checks=5211469
+  [04:22:07] testing candidate 1445250/24123825, best=1, tpp_checks=5785559
+  [04:23:07] testing candidate 1517531/24123825, best=1, tpp_checks=6365395
+  [04:24:07] testing candidate 1628845/24123825, best=1, tpp_checks=6942188
+  [04:25:07] testing candidate 1712348/24123825, best=1, tpp_checks=7535267
+  [04:26:07] testing candidate 1853257/24123825, best=1, tpp_checks=8116072
+  [04:27:07] testing candidate 1925928/24123825, best=1, tpp_checks=8700532
+  [04:28:07] testing candidate 2212167/24123825, best=1, tpp_checks=9271477
+  [04:29:07] testing candidate 2323184/24123825, best=1, tpp_checks=9845227
+  [04:30:07] testing candidate 2393806/24123825, best=1, tpp_checks=10406890
+  [04:31:07] testing candidate 2592512/24123825, best=1, tpp_checks=10980062
+  [04:32:07] testing candidate 2704338/24123825, best=1, tpp_checks=11562550
+  [04:33:07] testing candidate 2776328/24123825, best=1, tpp_checks=12139445
+  [04:34:07] testing candidate 2886764/24123825, best=1, tpp_checks=12706327
+  [04:35:07] testing candidate 2968967/24123825, best=1, tpp_checks=13284327
+  [04:36:07] testing candidate 3076217/24123825, best=1, tpp_checks=13861800
+  [04:37:07] testing candidate 3151153/24123825, best=1, tpp_checks=14426030
+  [04:38:07] testing candidate 3233387/24123825, best=1, tpp_checks=15004557
+  [04:39:07] testing candidate 3346091/24123825, best=1, tpp_checks=15596956
+  [04:40:07] testing candidate 3418628/24123825, best=1, tpp_checks=16180141
+  [04:41:07] testing candidate 3559840/24123825, best=1, tpp_checks=16764091
+  [04:42:07] testing candidate 4049276/24123825, best=1, tpp_checks=17318733
+  [04:43:07] testing candidate 4237245/24123825, best=1, tpp_checks=17884306
+  [04:44:07] testing candidate 4639991/24123825, best=1, tpp_checks=18450083
+  [04:45:07] testing candidate 5657114/24123825, best=1, tpp_checks=19019634
+  [04:46:07] testing candidate 6107861/24123825, best=1, tpp_checks=19581161
+  [04:47:07] testing candidate 6772560/24123825, best=1, tpp_checks=20133695
+  [04:48:07] testing candidate 7030779/24123825, best=1, tpp_checks=20718376
+  [04:49:07] testing candidate 7131883/24123825, best=1, tpp_checks=21294115
+  [04:50:07] testing candidate 7302341/24123825, best=1, tpp_checks=21878150
+  [04:51:07] testing candidate 7412678/24123825, best=1, tpp_checks=22444352
+  [04:52:07] testing candidate 7513837/24123825, best=1, tpp_checks=23020023
+  [04:53:07] testing candidate 7829841/24123825, best=1, tpp_checks=23596867
+  [04:54:07] testing candidate 9694473/24123825, best=1, tpp_checks=24136515
+  [04:55:07] testing candidate 10762868/24123825, best=1, tpp_checks=24709398
+  [04:56:07] testing candidate 11066695/24123825, best=1, tpp_checks=25266590
+  [04:57:07] testing candidate 11196380/24123825, best=1, tpp_checks=25831313
+  [04:58:07] testing candidate 11315234/24123825, best=1, tpp_checks=26396954
+  [04:59:07] testing candidate 11444164/24123825, best=1, tpp_checks=26985222
+  [05:00:07] testing candidate 11577029/24123825, best=1, tpp_checks=27565908
+  [05:01:07] testing candidate 11705118/24123825, best=1, tpp_checks=28133470
+  [05:02:07] testing candidate 11820658/24123825, best=1, tpp_checks=28694198
+  [05:03:07] testing candidate 11952765/24123825, best=1, tpp_checks=29266418
+  [05:04:07] testing candidate 12080552/24123825, best=1, tpp_checks=29834252
+  [05:05:07] testing candidate 12196670/24123825, best=1, tpp_checks=30397989
+  [05:06:07] testing candidate 12330413/24123825, best=1, tpp_checks=30986682
+  [05:07:07] testing candidate 12460577/24123825, best=1, tpp_checks=31560347
+  [05:08:07] testing candidate 12575603/24123825, best=1, tpp_checks=32130578
+  [05:09:07] testing candidate 12709676/24123825, best=1, tpp_checks=32709547
+  [05:10:07] testing candidate 12838605/24123825, best=1, tpp_checks=33271142
+  [05:11:07] testing candidate 12952562/24123825, best=1, tpp_checks=33841645
+  TIMEOUT (partial): rho_0 = 1 (1.000000), triple type (64, 1, 1), 3600.0s [MATCH]
+
+[61/73] C2xC2 x [16,12] C2xQ8 (order 64)
+  Order: 64
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 3.4s [MATCH]
+
+[62/73] C2xC2 x [16,13] (C4xC2):C2 (order 64)
+  Order: 64
+  [05:13:11] testing candidate 2346820/2525541, best=1, tpp_checks=689503
+  DONE: rho_0 = 1 (1.000000), triple type (64, 1, 1), 68.4s [MATCH]
+
+[63/73] C2xC2 x [27,3] (C3xC3):C3 (order 108)
+  Order: 108
+  DONE: rho_0 = 1 (1.000000), triple type (108, 1, 1), 12.6s [MATCH]
+
+[64/73] C2xC2 x [27,4] C9:C3 (order 108)
+  Order: 108
+  DONE: rho_0 = 1 (1.000000), triple type (108, 1, 1), 0.3s [MATCH]
+
+[65/73] C2xC2 x [32,49] ExSp(2,5)+ (order 128)
+  Order: 128
+  [05:14:32] testing candidate 33475064/1447920621, best=1, tpp_checks=0
+  [05:15:32] testing candidate 68796553/1447920621, best=1, tpp_checks=0
+  [05:16:32] testing candidate 104134815/1447920621, best=1, tpp_checks=0
+  [05:17:32] testing candidate 139503413/1447920621, best=1, tpp_checks=0
+  [05:18:32] testing candidate 174317803/1447920621, best=1, tpp_checks=0
+  [05:19:32] testing candidate 209550909/1447920621, best=1, tpp_checks=0
+  [05:20:32] testing candidate 244753308/1447920621, best=1, tpp_checks=0
+  [05:21:32] testing candidate 279959633/1447920621, best=1, tpp_checks=0
+  [05:22:32] testing candidate 314990446/1447920621, best=1, tpp_checks=0
+  [05:23:32] testing candidate 350144200/1447920621, best=1, tpp_checks=0
+  [05:24:32] testing candidate 372671886/1447920621, best=1, tpp_checks=184114
+  [05:25:32] testing candidate 372743388/1447920621, best=1, tpp_checks=690588
+  [05:26:32] testing candidate 372802354/1447920621, best=1, tpp_checks=1189291
+  [05:27:32] testing candidate 372825426/1447920621, best=1, tpp_checks=1678565
+  [05:28:32] testing candidate 372845464/1447920621, best=1, tpp_checks=2141143
+  [05:29:32] testing candidate 372868831/1447920621, best=1, tpp_checks=2612992
+  [05:30:32] testing candidate 372888701/1447920621, best=1, tpp_checks=3065240
+  [05:31:32] testing candidate 373359908/1447920621, best=1, tpp_checks=3528750
+  [05:32:32] testing candidate 373415527/1447920621, best=1, tpp_checks=4003720
+  [05:33:32] testing candidate 373489554/1447920621, best=1, tpp_checks=4493256
+  [05:34:32] testing candidate 373510152/1447920621, best=1, tpp_checks=4965128
+  [05:35:32] testing candidate 373531727/1447920621, best=1, tpp_checks=5423676
+  [05:36:32] testing candidate 373550248/1447920621, best=1, tpp_checks=5857105
+  [05:37:32] testing candidate 373573542/1447920621, best=1, tpp_checks=6321435
+  [05:38:32] testing candidate 373593211/1447920621, best=1, tpp_checks=6762606
+  [05:39:32] testing candidate 374762711/1447920621, best=1, tpp_checks=7243002
+  [05:40:32] testing candidate 374863146/1447920621, best=1, tpp_checks=7728785
+  [05:41:32] testing candidate 374885598/1447920621, best=1, tpp_checks=8215772
+  [05:42:32] testing candidate 374908694/1447920621, best=1, tpp_checks=8710728
+  [05:43:32] testing candidate 374928055/1447920621, best=1, tpp_checks=9187150
+  [05:44:32] testing candidate 374954556/1447920621, best=1, tpp_checks=9700929
+  [05:45:32] testing candidate 375423241/1447920621, best=1, tpp_checks=10182126
+  [05:46:32] testing candidate 375457371/1447920621, best=1, tpp_checks=10691184
+  [05:47:32] testing candidate 375557908/1447920621, best=1, tpp_checks=11192211
+  [05:48:32] testing candidate 375578655/1447920621, best=1, tpp_checks=11670539
+  [05:49:32] testing candidate 375600256/1447920621, best=1, tpp_checks=12130766
+  [05:50:32] testing candidate 375618392/1447920621, best=1, tpp_checks=12564191
+  [05:51:32] testing candidate 375641842/1447920621, best=1, tpp_checks=13035186
+  [05:52:32] testing candidate 375661807/1447920621, best=1, tpp_checks=13497969
+  [05:53:32] testing candidate 376831821/1447920621, best=1, tpp_checks=13975269
+  [05:54:32] testing candidate 376933215/1447920621, best=1, tpp_checks=14479161
+  [05:55:32] testing candidate 376956553/1447920621, best=1, tpp_checks=14989740
+  [05:56:32] testing candidate 376979780/1447920621, best=1, tpp_checks=15487732
+  [05:57:32] testing candidate 377001396/1447920621, best=1, tpp_checks=15990814
+  [05:58:32] testing candidate 377027063/1447920621, best=1, tpp_checks=16504206
+  [05:59:32] testing candidate 377497472/1447920621, best=1, tpp_checks=17013420
+  [06:00:32] testing candidate 377545668/1447920621, best=1, tpp_checks=17536551
+  [06:01:32] testing candidate 377632073/1447920621, best=1, tpp_checks=18036868
+  [06:02:32] testing candidate 377652800/1447920621, best=1, tpp_checks=18513064
+  [06:03:32] testing candidate 377675123/1447920621, best=1, tpp_checks=18992399
+  [06:04:32] testing candidate 377696125/1447920621, best=1, tpp_checks=19469055
+  [06:05:32] testing candidate 377720164/1447920621, best=1, tpp_checks=19963881
+  [06:06:32] testing candidate 379569922/1447920621, best=1, tpp_checks=20418609
+  [06:07:32] testing candidate 379617145/1447920621, best=1, tpp_checks=20916303
+  [06:08:32] testing candidate 379703822/1447920621, best=1, tpp_checks=21435924
+  [06:09:32] testing candidate 379726019/1447920621, best=1, tpp_checks=21943172
+  [06:10:32] testing candidate 379749544/1447920621, best=1, tpp_checks=22463952
+  [06:11:32] testing candidate 379775222/1447920621, best=1, tpp_checks=22978084
+  [06:12:32] testing candidate 379796858/1447920621, best=1, tpp_checks=23484105
+  TIMEOUT (partial): rho_0 = 1 (1.000000), triple type (128, 1, 1), 3600.0s [MISMATCH expected=2]
+
+[66/73] C2xC2 x [32,50] ExSp(2,5)- (order 128)
+  Order: 128
+  [06:14:32] testing candidate 33873018/541153397, best=1, tpp_checks=0
+  [06:15:32] testing candidate 69121555/541153397, best=1, tpp_checks=0
+  [06:16:32] testing candidate 104409821/541153397, best=1, tpp_checks=0
+  [06:17:32] testing candidate 139693602/541153397, best=1, tpp_checks=0
+  [06:18:32] testing candidate 175360576/541153397, best=1, tpp_checks=0
+  [06:19:32] testing candidate 210782712/541153397, best=1, tpp_checks=0
+  [06:20:32] testing candidate 245531279/541153397, best=1, tpp_checks=6800
+  [06:21:32] testing candidate 279562322/541153397, best=1, tpp_checks=34000
+  [06:22:32] testing candidate 310397370/541153397, best=1, tpp_checks=136000
+  [06:23:32] testing candidate 345808285/541153397, best=1, tpp_checks=136000
+  [06:24:32] testing candidate 376438217/541153397, best=1, tpp_checks=238000
+  [06:25:32] testing candidate 396599588/541153397, best=1, tpp_checks=544000
+  [06:26:32] testing candidate 430361844/541153397, best=1, tpp_checks=564400
+  [06:27:32] testing candidate 446946290/541153397, best=1, tpp_checks=952000
+  [06:28:32] testing candidate 481706240/541153397, best=1, tpp_checks=952000
+  [06:29:32] testing candidate 505989576/541153397, best=1, tpp_checks=1190408
+  [06:30:32] testing candidate 533105071/541153397, best=1, tpp_checks=1360000
+  DONE: rho_0 = 1 (1.000000), triple type (128, 1, 1), 1034.2s [MATCH]
+
+[67/73] D8xD8 (order 64)
+  Order: 64
+  [06:31:46] testing candidate 62975/673596, best=1, tpp_checks=667760
+  [06:32:46] testing candidate 104809/673596, best=1, tpp_checks=1335912
+  [06:33:46] testing candidate 136271/673596, best=1, tpp_checks=2011567
+  DONE: rho_0 = 2 (2.000000), triple type (8, 4, 4), 214.8s [MATCH]
+
+[68/73] C2x[32,49] (order 64)
+  Order: 64
+  DONE: rho_0 = 2 (2.000000), triple type (8, 4, 4), 3.7s [MATCH]
+
+[69/73] C3x[32,49] (order 96)
+  Order: 96
+  DONE: rho_0 = 2 (2.000000), triple type (12, 4, 4), 1.5s [MATCH]
+
+[70/73] C2 wr C3 (order 24)
+  Order: 24
+  DONE: rho_0 = 3/2 (1.500000), triple type (6, 3, 2), 0.1s
+
+[71/73] C2 wr C4 (order 64)
+  Order: 64
+  DONE: rho_0 = 2 (2.000000), triple type (8, 4, 4), 3.4s
+
+[72/73] C2 wr C5 (order 160)
+  Order: 160
+  [06:35:30] testing candidate 1015/163201, best=1, tpp_checks=813015
+  [06:36:30] testing candidate 1559/163201, best=1, tpp_checks=1248759
+  [06:37:30] testing candidate 2073/163201, best=1, tpp_checks=1660473
+  [06:38:30] testing candidate 2521/163201, best=1, tpp_checks=2019321
+  [06:39:30] testing candidate 3573/163201, best=1, tpp_checks=2482473
+  [06:40:30] testing candidate 6879/163201, best=1, tpp_checks=3312279
+  [06:41:30] testing candidate 10246/163201, best=1, tpp_checks=4157396
+  [06:42:30] testing candidate 13591/163201, best=1, tpp_checks=4996991
+  [06:43:30] testing candidate 16910/163201, best=1, tpp_checks=5830060
+  [06:44:30] testing candidate 20296/163201, best=1, tpp_checks=6679946
+  [06:45:30] testing candidate 23646/163201, best=1, tpp_checks=7520796
+  [06:46:30] testing candidate 27004/163201, best=1, tpp_checks=8363654
+  [06:47:30] testing candidate 30356/163201, best=1, tpp_checks=9205006
+  DONE: rho_0 = 5/2 (2.500000), triple type (16, 5, 5), 824.6s
+
+[73/73] C2 wr C6 (order 384)
+  Order: 384
+  [06:49:14] testing candidate 234/123718186, best=1, tpp_checks=362538
+  [06:50:14] testing candidate 503/123718186, best=1, tpp_checks=748823
+  [06:51:14] testing candidate 752/123718186, best=1, tpp_checks=1133648
+  [06:52:15] testing candidate 1026/123718186, best=1, tpp_checks=1528578
+  [06:53:15] testing candidate 1306/123718186, best=1, tpp_checks=1899610
+  [06:54:15] testing candidate 1544/123718186, best=1, tpp_checks=2271944
+  [06:55:15] testing candidate 1813/123718186, best=1, tpp_checks=2645333
+  [06:56:15] testing candidate 2078/123718186, best=1, tpp_checks=3028926
+  [06:57:15] testing candidate 2358/123718186, best=1, tpp_checks=3434998
+  [06:58:15] testing candidate 2661/123718186, best=1, tpp_checks=3846757
+  [06:59:16] testing candidate 3027/123718186, best=1, tpp_checks=4231019
+  [07:00:16] testing candidate 3405/123718186, best=1, tpp_checks=4650845
+  [07:01:16] testing candidate 3638/123718186, best=1, tpp_checks=5007622
+  [07:02:16] testing candidate 3876/123718186, best=1, tpp_checks=5375732
+  [07:03:16] testing candidate 4137/123718186, best=1, tpp_checks=5780921
+  [07:04:16] testing candidate 4377/123718186, best=1, tpp_checks=6149993
+  [07:05:16] testing candidate 4605/123718186, best=1, tpp_checks=6502733
+  [07:06:16] testing candidate 4850/123718186, best=1, tpp_checks=6878722
+  [07:07:16] testing candidate 5104/123718186, best=1, tpp_checks=7244256
+  [07:08:17] testing candidate 5356/123718186, best=1, tpp_checks=7605180
+  [07:09:17] testing candidate 5799/123718186, best=1, tpp_checks=7839031
+  [07:10:17] testing candidate 6267/123718186, best=1, tpp_checks=8084883
+  [07:11:17] testing candidate 6420/123718186, best=1, tpp_checks=8404524
+  [07:12:17] testing candidate 6582/123718186, best=1, tpp_checks=8735438
+  [07:13:17] testing candidate 6767/123718186, best=1, tpp_checks=9071355
+  [07:14:17] testing candidate 6932/123718186, best=1, tpp_checks=9390228
+  [07:15:18] testing candidate 7090/123718186, best=1, tpp_checks=9727922
+  [07:16:18] testing candidate 7242/123718186, best=1, tpp_checks=10046026
+  [07:17:19] testing candidate 7400/123718186, best=1, tpp_checks=10369896
+  [07:18:19] testing candidate 7561/123718186, best=1, tpp_checks=10697737
+  [07:19:19] testing candidate 7749/123718186, best=1, tpp_checks=11015213
+  [07:20:20] testing candidate 7912/123718186, best=1, tpp_checks=11369424
+  [07:21:20] testing candidate 8065/123718186, best=1, tpp_checks=11668329
+  [07:22:20] testing candidate 8289/123718186, best=1, tpp_checks=11900105
+  [07:23:20] testing candidate 8550/123718186, best=1, tpp_checks=12146050
+  [07:24:20] testing candidate 8790/123718186, best=1, tpp_checks=12387814
+  [07:25:20] testing candidate 8964/123718186, best=1, tpp_checks=12596884
+  [07:26:21] testing candidate 9075/123718186, best=1, tpp_checks=12832387
+  [07:27:22] testing candidate 9194/123718186, best=1, tpp_checks=13070970
+  [07:28:22] testing candidate 9315/123718186, best=1, tpp_checks=13313523
+  [07:29:23] testing candidate 9453/123718186, best=1, tpp_checks=13559537
+  [07:30:23] testing candidate 9579/123718186, best=1, tpp_checks=13794659
+  [07:31:24] testing candidate 9699/123718186, best=1, tpp_checks=14055899
+  [07:32:24] testing candidate 9802/123718186, best=1, tpp_checks=14272962
+  [07:33:25] testing candidate 10004/123718186, best=1, tpp_checks=14514700
+  [07:34:25] testing candidate 10240/123718186, best=1, tpp_checks=14754424
+  [07:35:25] testing candidate 10520/123718186, best=1, tpp_checks=15012408
+  [07:36:25] testing candidate 10872/123718186, best=1, tpp_checks=15258260
+  [07:37:25] testing candidate 11363/123718186, best=1, tpp_checks=15551379
+  [07:38:25] testing candidate 11830/123718186, best=1, tpp_checks=15958298
+  [07:39:26] testing candidate 11958/123718186, best=1, tpp_checks=16318870
+  [07:40:26] testing candidate 12120/123718186, best=1, tpp_checks=16704052
+  [07:41:26] testing candidate 12307/123718186, best=1, tpp_checks=17090025
+  [07:42:26] testing candidate 12515/123718186, best=1, tpp_checks=17471411
+  [07:43:26] testing candidate 12768/123718186, best=1, tpp_checks=17861672
+  [07:44:27] testing candidate 12885/123718186, best=1, tpp_checks=18206877
+  [07:45:27] testing candidate 13088/123718186, best=1, tpp_checks=18596960
+  [07:46:27] testing candidate 13240/123718186, best=1, tpp_checks=18992372
+  [07:47:27] testing candidate 13584/123718186, best=1, tpp_checks=19354372
+  TIMEOUT (partial): rho_0 = 1 (1.000000), triple type (384, 1, 1), 3600.0s
+
+======================================================================
+All targets processed. Results: /home/exedev/p/proofs/Scratch/GroupSieve/rho0-results.jsonl
+======================================================================

@@ -1,0 +1,2 @@
+{"id": [8, 3], "order": 8, "nil_class": 2, "center_order": 2, "gz_index": 4, "derived_order": 2, "derived_cyclic": true, "p_group": 2, "tier": "T1a", "action": "REJECT", "flags": [], "ceilings": {}}
+{"id": [8, 4], "order": 8, "nil_class": 2, "center_order": 2, "gz_index": 4, "derived_order": 2, "derived_cyclic": true, "p_group": 2, "tier": "T1a", "action": "REJECT", "flags": [], "ceilings": {}}

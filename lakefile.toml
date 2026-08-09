@@ -1,0 +1,54 @@
+name = "proofs"
+version = "0.1.0"
+defaultTargets = ["BilinearComplexity", "GroupTPP", "Erdos",
+                  "AlgComplexity", "ShearEC", "CHILO",
+                  "Enumerative", "NumberComplexity", "GroupCount"]
+
+# STYLE.md: a typo under autoImplicit becomes a phantom implicit variable and the
+# theorem quantifies over the wrong thing. Disabled repo-wide (Ad1 item 4).
+[leanOptions]
+autoImplicit = false
+
+[[lean_lib]]
+name = "BilinearComplexity"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "GroupTPP"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "Erdos"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "AlgComplexity"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "ShearEC"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "CHILO"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "Enumerative"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "NumberComplexity"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "GroupCount"
+srcDir = "Proofs"
+
+[[lean_lib]]
+name = "Scratch"
+srcDir = "Proofs"
+
+[[require]]
+name  = "mathlib"
+scope = "leanprover-community"

@@ -1,6 +1,6 @@
+.tasks
 data
 notes.txt
-.tasks
 .claude
 
 # arXiv dumps, pdftotext, etc.
@@ -12,3 +12,13 @@ cmd/erdos236/
 cmd/erdos364/
 cmd/erdos727/
 cmd/erdos779/
+
+Manuscripts
+Drafts
+
+.lake
+.build
+
+CLAUDE.md
+
+__pycache__

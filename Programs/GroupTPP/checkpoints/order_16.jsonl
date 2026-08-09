@@ -1,0 +1,9 @@
+{"id": [16, 3], "order": 16, "nil_class": 2, "center_order": 4, "gz_index": 4, "derived_order": 2, "derived_cyclic": true, "p_group": 2, "tier": "T1a", "action": "REJECT", "flags": [], "ceilings": {}}
+{"id": [16, 4], "order": 16, "nil_class": 2, "center_order": 4, "gz_index": 4, "derived_order": 2, "derived_cyclic": true, "p_group": 2, "tier": "T1a", "action": "REJECT", "flags": [], "ceilings": {}}
+{"id": [16, 6], "order": 16, "nil_class": 2, "center_order": 4, "gz_index": 4, "derived_order": 2, "derived_cyclic": true, "p_group": 2, "tier": "T1a", "action": "REJECT", "flags": [], "ceilings": {}}
+{"id": [16, 7], "order": 16, "nil_class": 3, "center_order": 2, "gz_index": 8, "derived_order": 4, "derived_cyclic": true, "p_group": 2, "tier": "T1a", "action": "REJECT", "flags": [], "ceilings": {}}
+{"id": [16, 8], "order": 16, "nil_class": 3, "center_order": 2, "gz_index": 8, "derived_order": 4, "derived_cyclic": true, "p_group": 2, "tier": "T1a", "action": "REJECT", "flags": [], "ceilings": {}}
+{"id": [16, 9], "order": 16, "nil_class": 3, "center_order": 2, "gz_index": 8, "derived_order": 4, "derived_cyclic": true, "p_group": 2, "tier": "T1a", "action": "REJECT", "flags": [], "ceilings": {}}
+{"id": [16, 11], "order": 16, "nil_class": 2, "center_order": 4, "gz_index": 4, "derived_order": 2, "derived_cyclic": true, "p_group": 2, "tier": "T1a", "action": "REJECT", "flags": [], "ceilings": {}}
+{"id": [16, 12], "order": 16, "nil_class": 2, "center_order": 4, "gz_index": 4, "derived_order": 2, "derived_cyclic": true, "p_group": 2, "tier": "T1a", "action": "REJECT", "flags": [], "ceilings": {}}
+{"id": [16, 13], "order": 16, "nil_class": 2, "center_order": 4, "gz_index": 4, "derived_order": 2, "derived_cyclic": true, "p_group": 2, "tier": "T1a", "action": "REJECT", "flags": [], "ceilings": {}}

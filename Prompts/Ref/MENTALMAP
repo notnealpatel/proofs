@@ -1,0 +1,214 @@
+Problem: multiply two 36x36 matrices        (N = 36)
+
+LEVEL 0   choose recipe <2,2,2>, rank 7, q = 15
+─────────────────────────────────────────────────
+  36x36 seen as a 2x2 matrix of 18x18 blocks:
+
+        ┌─────────┬─────────┐
+        │ A11     │ A12     │     each Aij is an
+        │  18x18  │  18x18  │     18x18 block
+        ├─────────┼─────────┤     (N/2 = 18)
+        │ A21     │ A22     │
+        │  18x18  │  18x18  │
+        └─────────┴─────────┘
+
+  recipe says: form 7 products M1..M7 of 18x18
+  blocks (e.g. M1 = (A11+A22)(B11+B22)), using
+  15 block-additions of size 18x18.
+
+     M1   M2   M3   M4   M5   M6   M7
+      │    │    │    │    │    │    │      each is one
+      ▼    ▼    ▼    ▼    ▼    ▼    ▼      18x18 matmul
+
+LEVEL 1   choose recipe <3,3,3>, rank 23, q = 98
+─────────────────────────────────────────────────
+  each 18x18 product seen as 3x3 of 6x6 blocks:
+
+        ┌──────┬──────┬──────┐
+        │ 6x6  │ 6x6  │ 6x6  │
+        ├──────┼──────┼──────┤    (18/3 = 6)
+        │ 6x6  │ 6x6  │ 6x6  │
+        ├──────┼──────┼──────┤
+        │ 6x6  │ 6x6  │ 6x6  │
+        └──────┴──────┴──────┘
+
+  recipe says: 23 products of 6x6 blocks,
+  98 block-additions of size 6x6.
+
+  running count: 7 x 23 = 16
+
+LEVEL 2   cutoff: schoolbook
+─────────────────────────────────────────────────
+  each 6x6 matmul done direc
+
+TOTAL
+─────────────────────────────────────────────────
+  scalar mults: 7 x 23 x 216
+  schoolbook:   36^3               = 46,656
+  additions:    15 adds on 1
+              + 7 x 98 adds on 6x6 tiles (level 1)
+              = 15x324 + 686
+
+Reading the notation off the
+
+- N×N — the actual matrices
+as you descend: 36 → 18 → 6.
+- ⟨n,n,n⟩ — the recipe chose
+the current tile into n×n blocks and which r block-
+products to form. Level 0 ch
+⟨3,3,3⟩; the schedule was a free choice.
+- r multiplies down the tree
+exponent's origin. q is paid on tiles at each level
+— that's the constant's orig
+q) cuts the addition lines; a lower-rank recipe cuts
+the branching factor.
+
+---
+
+MENTAL MAP: omega = 2
+2026-07-18
+
+Two attack lanes. One diagnostic framework.
+Everything else is dead or feeds these.
+
+
+                              omega = 2
+                                 ^
+                 +---------------+---------------+
+                 |                               |
+           algebraic-structural            tensor-geometric
+           (embed matmul into              (analyze tensors
+            algebraic structures)           directly)
+                 |                               |
+          +------+------+                  non-CW tensors,
+          |      |      |                  non-universal methods
+        SDPP  wreath  coherent                   |
+              (a<g)   configs              current best: w<2.372
+                                           no conjecture it hits 2
+                                     +---------------------------+
+                                     | CVZ: diagnostic framework |
+                                     | lower bounds & barriers   |
+                                     | NOT an attack lane        |
+                                     +---------------------------+
+
+
+NON-ABELIAN WREATH: H wr S_n, H non-abelian                  ACTIVE
+
+  alpha = pseudo-exponent from STPP triples in H
+  gamma = character-degree growth of H wr S_n
+  abelian H: alpha = gamma (trivial bound). dead.
+  non-abelian H: alpha < gamma possible. open.
+
+  best candidate base: A_n (alternating groups)
+  only finite simple family surviving BCGPU
+  n(A_n) = n-1, |A_n| = n!/2, subpolynomial growth
+
+    | group   | |G|  | alpha | w=3/a | gamma | a<g? |
+    |---------|------|-------|-------|-------|------|
+    | A6      |  360 | 1.169 | 2.567 | 2.207 |  Y   |
+    | A7      | 2520 | 1.183 | 2.535 | 1.844 |  Y   |
+    | C2 x A5 |  120 | 1.123 | 2.672 | 1.848 |  Y   |
+    | C2 x A6 |  720 | 1.151 | 2.607 | 1.958 |  Y   |
+
+  A7 KILL at p=2: STPP triples exceed character bound beta0
+
+  ? alpha(A_n) monotone increasing for n >= 5?
+  ? alpha(A_n) -> 2 as n -> inf?
+  ? alpha(A_n wr S_m) -> 2 after wreath amplification?
+  ? <USER> does this not give us a better way to do optimization
+    in an AlphaTensor-like manner?
+
+
+SDPP (CKSU Conj 4.7)                                         IDLE
+
+  two-families in unbounded-exp abelian groups
+  zero infrastructure. Pratt 2023 conditional barrier:
+
+    CKSU 4.7 true -----> omega = 2
+         |
+         | requires (Pratt)
+         v
+    skew corner-free sets >= n^{4/3-eps}
+         ^
+         | GAP
+    best known: n log n / sqrt(log log n)
+         ^
+         | Pratt Conj 1.1: sets are O(n^{1+eps})
+         |                       |
+         +-- Thm 1.2: kills      +-- Thm 1.1: kills
+             CKSU 4.7                 STPP/Z_q^l
+
+
+COHERENT CONFIGURATIONS (CU13)                                UNEXPLORED
+
+  s-rank exponent = 2 => omega = 2
+  no barrier touches this. outside BCCGNS+U's scope (not explicitly excluded).
+  no known candidate configurations.
+
+
+TENSOR-GEOMETRIC (Strassen-Bini)
+
+  orbits, border rank, laser method.
+  Alman barrier: CW_q + universal method >= 2.168.
+  non-CW or non-universal: open, no conjecture it reaches 2.
+
+
+CVZ DIAGNOSTIC
+
+  quantum functionals = support functionals (SDW 2026)
+  lower bounds on asymptotic rank (wrong direction for omega=2)
+  if R~(CW_2) = 3 then omega = 2, but proving <= 3 needs a construction
+
+
+DEAD ROUTES
+
+  bounded-exp abelian STPP     BCCGNS+U 2017   1605.06702
+  bounded-exp nilpotent STPP   BCCGU 2018      1712.02302
+  Lie type groups (DIRECT use) BCGPU 2022      2204.03826
+  Young subgroups of S_n       BCCGU 2018      1712.02302
+  CW_q universal method        Alman 2018      1812.08731
+
+  ! BCGPU kills Lie type DIRECTLY, not as wreath base
+  ! A_n survives BCGPU -- only finite simple family that does
+
+
+CU03 THEOREM 4.1 (the TPP-to-rank bridge)
+
+  TPP definition: Q(S) = {s1*s2^-1 : s1,s2 in S}  (quotient/difference set)
+  TPP(S,T,U) iff q1*q2*q3 = 1 with qi in Q(Si) implies q1=q2=q3=1
+
+  ! for SUBGROUPS: Q(H) = H, so condition is on H directly
+  ! for SUBSETS:   Q(S) = S-S (difference set), NOT S itself
+
+  TPP(S,T,U) in G  =>  <|S|,|T|,|U|>_F  <=  F[G]   (restriction)
+
+  encoding: A_st -> coeff of s^{-1}t in F[G], not coeff of s
+  R(<|S|,|T|,|U|>)  <=  R(F[G]-mult)  =  sum_i R(<d_i, d_i, d_i>)
+
+  ABELIAN GROUPS: alpha(G) = 3 always (CU03 Lemma)
+    => |S|*|T|*|U| <= |G| for any TPP triple
+    => R <= |G| but |G| >= |S|*|T|*|U| = n^3 (naive cost)
+    => abelian TPP CANNOT beat naive matmul
+    => DEAD for concrete algorithms
+
+  NON-ABELIAN: alpha < 3 possible, but Wedderburn overhead
+    R(F[G]-mult) = sum R(<d_i,d_i,d_i>) > |G|
+    circular when max(d_i) >= n
+    nontrivial only when all d_i < n
+
+  CU03 is an OMEGA tool, not a concrete algorithm tool.
+  it bounds omega via families + wreath amplification (alpha, gamma)
+  it does NOT efficiently produce R bounds for fixed matrix sizes
+
+
+REFERENCES (in References/)
+
+  CU03    math/0307321    groups -> matmul
+  CKSU05  math/0511460    TPP/STPP/SDPP/USP conjectures
+  CU13    1207.6528       coherent configs, s-rank
+  CVZ17   1709.07851      quantum functionals (JAMS 2023)
+  CVZ18   1812.06952      irreversibility barriers
+  CVZ20   2012.14412      weighted slice rank
+  SDW26   2601.21553      support = quantum functionals
+  Pratt   2309.03878      SDPP -> skew corner-free sets
+  BCGPU   2204.03826      Lie type barrier

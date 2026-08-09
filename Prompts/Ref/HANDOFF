@@ -1,0 +1,27 @@
+All four sweeps are in. Consolidated verdict — everything here is concrete track (fixed small tensors over F₂); none of it bears on ω = 2.
+
+Notation: minpeak(D) = min over orderings of the max residual nnz during sequential rank-1 peeling of decomposition D; LB_level = max over levels m of the min residual weight among m-subsets; w_min(k) = min weight of a k-term partial sum; H_t = subsets with residual weight ≥ t.
+
+claim                    corpus        open literature       conf.
+-----------------------  ------------  --------------------  ------
+minpeak functional +     novel (high)  no prior art found    med-hi
+  Strassen minpeak=10                  (nearest: BDPZ 0707.
+                                       2347 — diff. object)
+schoolbook peak=26 +     novel-in-     trivial given the     high
+  convention offset      framing only  definition; anchor
+Q1/C2 level-cut =        novel (high)  related-under-diff-   med
+  minpeak                              name: Rival-Zaguia
+                                       1985, NOT subsuming
+Q2 non-unique minimal    novel (med)   abstractly known      med
+  blockers                             (hypergraph transv.)
+C3 first-step (m=1) law  novel (high)  no prior art found    med
+C4 affine-then-plateau   novel (med)   analogy: Wei 1991     low-med
+  w_min profile                        GHW; not matching
+Cn3 ladder formula +     novel (high)  no prior art found    high
+  density transfer
+
+Three verdict-shaping points:
+
+1. The novelty is in the functional, not the numbers. All four agents converged on this: peak-residual-nnz-minimized-over-orderings is not a named quantity anywhere found. The values (10, 26) are computations downstream of the new definition. The nearest literature — Boyer–Dumas–Pernet–Zhou scheduling, classical pebbling (Sethi 1975, Hopcroft–Paul–Valiant 1977) — counts implementation temporaries on a computation DAG, a genuinely different object even for the same algorithm.
+2. Two import channels surfaced. Rival–Zaguia (Order, 1985: antichain cutsets of Boolean lattices = level sets) gives the combinatorial skeleton behind why level cuts block, but not the weighted equality C2 claims — the gap being that H_t isn't an antichain and f is non-monotone. Wei's generalized Hamming weights (1991) is a structural analogue for the w_min profile with existing duality/monotonicity machinery. Both are candidate tooling for attacking C2–C4, not threats to novelty.
+3. Residual risk sits on C2/C3. Both are "no prior art found" at only medium confidence — a weighted min-max theorem on Boolean lattices could live in extremal combinatorics the quick pass didn't reach, and the literature agent didn't read BDPZ full-text. These were quick sweeps by design; if any of this heads toward a manuscript, the C2/C3 neighborhood and the "one-shpergraph" framing deserve adeep sweep.

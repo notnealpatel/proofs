@@ -1,0 +1,23 @@
+Campaign Pl3 return — Erdos burndown, wave 1 complete, round 2 handed off
+
+Candidate ledger: /home/exedev/p/proofs/.tasks/f5exp/docs/candidate-ledger.md (raw triage of all 401 swept problems in sweep-{special,solved-1,solved-2,solved-3}.md, same dir).
+
+Per-candidate outcomes:
+- 880 (k=2) — DONE. Sorry-free, build green: Proofs/Proofs/Erdos880/{RestrictedSumset,BurrErdos}.lean; erdos880_k2, proved-faithful gap rendering, exact sharpness. Card Ep880 closed.
+- 175 — DONE (honest partial). Sorry-free, build green: Proofs/Proofs/Erdos175/NotSquarefree.lean; non-power-of-2 case unbounded + powers of 2 to 2^30 ⟹ theorem for all 5 ≤ n ≤ 2^30, plus full squarefree classification; one audited native_decide; analytic tail documented out of scope. Card Ep175 closed.
+- 715 — IN FLIGHT. Prover dispatched under quota exemption (card Ep715 active, full skeleton + library-survey step in card); evaluation delegated to sub-planner Pl6.
+- 384 — DEFER (Mathlib Chebyshev bound too weak vs Rosser-Schoenfeld; 10-15pd).
+- 1213 — DEFER (Hegyvári 1986 paper inaccessible; naive pigeonhole provably fails).
+- 1216 — KILL (disproof is universal over ~2^91 tournaments; no feasible certificate).
+- Plus ~15 killed in synthesis (over-optimistic native_decide claims, "extend verified range" busywork) and a deferred round-2 vein — all reasoned in the ledger.
+
+Judgment calls recorded (in Pl3 card + ledger): killed "formalize a verified range" genre as low-significance; audited consumer native_decide claims by search-space size and logical form; routed 175 as an explicitly-bounded partial rather than overclaiming; deferred rather than routed anything whose proof source is inaccessible; capped provers at 2; one procedural correction (a provenance bullet logged before its agent returned — struck, later confirmed accurate). Friction filed: planner-close DAG semantics; flash agents dying mid-report (4 occurrences, recovery via bounded jq).
+
+Handoff: round-2 card Pl6 is wired (Ep715-->Pl6), self-contained (priorities: 702, 440, 1027, then 542/402/771; Ep715 evaluation instruction; all lessons). It becomes ready when Ep715 closes.
+
+Dispatched agent transcripts (all under /tmp/claude-1000/-home-exedev-p-proofs/ee400bbf-18a2-4b33-8dd4-ce365b8b1305/tasks/): a5a3f57751a750c04.output (Sw1), af01117d8808146fd.output (Sw2), a09cf86d2f05e1d60.output (Sw3), ac409547d500aacc4.output (Sw4), a73f56e58c318bd07.output (flash 715a), a5a3a1279eb5af38e.output (flash 880), a3512c9ad0aa301ef.output (flash 1213a), a9be4c12cc873e81f.output (flash 384), aa4767e0c1f3fb6ca.output (flash 1216), aa64df5b9afa7782c.output (flash 175), ab6a9d81ddf7f095c.output (flash 715b), a73e23761262afc20.output (flash 1213b), a66af7e8da70ad0fb.output (prover Ep880), a0f5b63d0cc8d4680.output (prover Ep175), a309f6978b44ca122.output (prover Ep715, running).
+
+---
+
+quota in window was running out;
+stashing this here for now.

@@ -1,0 +1,61 @@
+Setup.
+
+Chain: c_0 = 1,  c_i = c_j ± c_k  (j,k < i), WLOG c_i > 0.
+D-step:  c_i = 2c_j.   S-step: anything else.
+s      = number of S-steps in the chain.
+w(n)   = NAF weight = min #nonzero digits over all
+         signed-binary reps of n   (Reitwiesner 1960).
+cone(c)= sub-DAG of steps below c;  sigma(c) = #S-steps in it.
+odd(n) = n / 2^v2(n).
+P1     = { 2^a ± 1 : a >= 1 }.
+Wk     = { n : w(n) <= k }.
+Facts:  w(e) = 7 exactly (Sage);  w(x±y) <= w(x)+w(y);
+        doubling preserves w.
+
+Structure lemmas (by induction on the last S-step; operands are 2-power multiples of earlier elements):
+
+L0: sigma(c)=0  =>  c = 2^t.
+L1: sigma(c)=1  =>  odd(c) in P1.                 (w <= 2)
+L2: sigma(c)=2  =>  odd(c) in W3  or  P1*P1,
+    and  w(c)=4  forces  odd(c) in P1*P1.
+    [last step: operand pair is (sigma<=1, power) -> W3;
+     or both multiples of the SAME sigma=1 element u
+     -> u*(2^p ± 2^q) in P1*P1.]
+L3: sigma(c)=3  =>  odd(c) in
+      W4  ∪  P1*W3  ∪  P1*P1*P1,
+    and w(c)>=6 forces P1*W3 (w<=6) or P1*P1*P1 (w<=8).
+
+Final-step case split for s = 4. The 4th S-step is e = 2^α X ± 2^β Y with sigma(cone(X) ∪ cone(Y)) = 3, and w(X) + w(Y) >= w(e) = 7
+is necessary. Enumerating (X, Y) against L0–L3, eveof four buckets (or dies by w(X)+w(Y) <= 6):
+
+(D)  Y shares a sigma>=1 element with X as common f
+     =>  some f in P1 divides e.
+(S1) Y a power, X in P1*P1*P1 (w<=8):
+     |e ∓ 2^j| = 2^k * f1*f2*f3,  f_i in P1.
+(S2) Y a power, X in P1*W3 (w<=6):
+     |e ∓ 2^j| = 2^k * f * W,  f in P1, w(W) <= 3.
+(S3) Y a multiple of X's inner sigma=2 element:
+     e = A*B,  w(A) <= 3,  w(B) <= 3,  A,B > 1.
+
+Repair found while writing this out: the case X = u(2^b±1), Y = u(2^b'±1) — two product steps over one shared u — is a valid 4-S
+shape I had not listed explicitly; it factors as e s it. Similarly every "both operands share u/V/X"case collapses to (D) or (S3). The s = 3 shapes are strict sub-cases of these buckets, so the same computation excludes s = 3.
+
+Computations (all Sage-verified, scratchpad scripts):
+
+(D):  e mod (2^a ± 1) != 0  for all a <= 257.   EMPTY
+(S1): j <= 260, both signs, all x <= 258.       EMP
+(S2): same ranges, cofactor NAF weight <= 3.    EMPTY
+(S3): a weight-3 divisor pair has min factor
+      < 2^130; all odd A = 2^p ± 2^q ± 1 with
+      p <= 130 scanned: divisors {19, 1919},
+      cofactor weights {85, 87}.                EMPTY
+Tail j > 260:
+  S2: w(|e ∓ 2^j|) >= 7 > 6 = expansion cap.    CLOSED
+  S1: cap is 8 and w(e + 2^j) = 8 exactly, so a
+      hit needs a carry-free 8-term product
+      expansion matching a minimal-weight rep;
+      exponent clusters {0..10},{31..33},
+      {255..257},{j} admit no {x,y,z} whose
+      pairwise sums also land in clusters.      ARGUED ONLY
+
+So: s >= 3 is unconditional counting (w(e) = 7 > 2^2); s ∉ {3,4} holds modulo two soft spots — completeness of L2–L4 (prose-gradthe mid-writeup repair shows the failure mode) and  argued but not machine-closed. Both arewitnessable: the tail by a bounded solver on the cluster constraints, the taxonomy by formal enumeration, if you ever want this load-bearing.

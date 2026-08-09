@@ -1,0 +1,136 @@
+CONTEXT
+  living epistemic state + directional priorities
+
+GRADES
+  THEOREM > WITNESS > EXACT > EPHEMERAL > CONJECTURE > SPECULATION
+
+TRACKS
+  [C] concrete (fixed tensors, constants)
+  [T] theory (omega = 2, exponent).
+
+  Never conflate; never cross-justify. They interact, but
+  they are not the same thing.
+
+=================================================================
+[C] MIN-PEAK ARC — active frontier
+=================================================================
+
+OBJECT. T = <3,3,3>/F_2, nnz(T) = 27.
+  peak(ordering) = max_j nnz(T - tau_1 - ... - tau_j);
+  minpeak(D) = min over orderings; minpeak*(D) = min over
+  sandwich orbit GL(3,F_2)^3; P(r) = min over rank-r D.
+  Novel (novelty sweeps 2026-07-21: absent). Committed tools
+  DFS over orderings of FIXED terms; arbitrary rank-1 peeling
+  is unimplemented. minpeak = Z (mod-p opt); gaugesweep = F_2.
+
+WALL (CONJECTURE): P(23) = 28 = n^3+1.
+  For: 17,376 HKS schemes, floor exactly 28 (17@28; 27/26
+  infeasible per scheme); 521k sampled gauge copies never
+  below 28. Grade EPHEMERAL (Sage DFS uncommitted). Silent
+  outside the known population; only P1 speaks there.
+
+LEDGER
+  P(24), P(25) <= 27; schoolbook peels at 26.  EPHEMERAL.
+  Laderman orbit EXACT (1.19M copies): minpeak* 33, published
+    gauge 34; nnz orbit min 153 = published; stabilizer order
+    4 = Burichenko V.
+  <2,2,2>: minpeak* = 10 = n^3+n EXACT; = P(7) modulo de
+    Groote uniqueness in char 2 (UNVERIFIED).
+  Nothing published is beaten: peak has no literature anchor,
+    and published Laderman is nnz-optimal in its orbit.
+
+FRAMES (directional priorities)
+  F1 STAIRCASE. Map P(r), r = 23..27; conjecture its law.
+  F2 COMPRESSION. Prove every rank-r D admits a block-ordering
+     (blocks of rank <= b) with peak <= nnz(T) + O(1).
+     b=1 false: conspiring pairs a@b@c + a@b@c', c+c' sparse.
+     b=2 absorbs those; bounding b is the open exchange lemma.
+     A provable cap makes capped exhaustive search a complete
+     rank decider: empty at depth 22 => R_F2 = 23. SPECULATION.
+  F3 EXCESS. e = P(R) - nnz: 2 at <2,2,2> (exact), 1 at
+     <3,3,3> (conj) — decreasing, mechanism unknown (border
+     rank fails at n=2). Fill table on rectangular tensors
+     with known ranks (verify each rank claim first).
+  F3 calibrates caps; F2 makes them complete; F1 is the
+  resulting theory.
+
+DISPATCH (advisor proposes, USER dispatches)
+  P1 Arbitrary-peel orbit-reduced search. UNBUILT.
+     (cap 27, depth 23) exhaustive-mod-orbits: empty = wall
+     theorem; nonempty = wall dead. Every-branch here only.
+     (cap 28-30, depth 22) rank-22 lottery: full peel =
+     witness; exhaustive likely intractable; pruned empty =
+     silence. Root widths 756 / 3,726 / 46,359 at caps
+     27/28/30 (EPHEMERAL). Declare mode up front; slack-0
+     |tau| <= 8 is a PROOF TARGET (Pl24), not assumable;
+     quotient only by exact/verified stabilizer subgroups.
+  P2 Full sandwich sweeps, 302 schemes at peak <= 29. Any
+     27-copy kills the wall; all >= 28 closes the low tier.
+     Cost [5 box-h, 8 box-d] (35m38s wall vs ~30s in-log:
+     re-measure one orbit). Prereqs: generalize gaugesweep
+     (hardcoded Laderman :132); fix dead-set poisoning after
+     budget abort (:292 — unsound if reused).
+  P3 <4,4,4>/F_2 Hensel survey. KM 2212.01175 S5 (corpus,
+     main.tex:779): >100k rank-47 schemes fail Z_2 -> Z_4 at
+     the first step (= linear system over F_2); ditto >30k
+     <5,5,5>-95s. Mine rank/kernel invariants across
+     AlphaTensor + KM flips; vanishing obstruction =
+     liftable 47 = news. All-obstructed does not give
+     R_Z4 >= 48 unless R_F2 = 47.
+  G1 Wang DP toward >= 21. GATED on cert diagnosis (step-
+     limit vs technique-bound); one consumer agent first.
+     >= 22 plus any rank-22 witness closes R_F2.
+
+ASSETS. cmd/minpeak, cmd/gaugesweep (audit 2026-07-22 clean
+  except dead-set flag); burnside_n3.sage (133M -> 211
+  orbits); decomp_stabilizer.sage + cache (exact vs lower-
+  bound labels). DATA hks_dataset/ + sweeps EPHEMERAL;
+  refetch algebra.uni-linz.ac.at/research/matrix-
+  multiplication/ (http only).
+
+=================================================================
+[C] BACKGROUND
+=================================================================
+FLOOR <3,3,3>: F_2 {20..23} (Wang 2603.07280); Z >= 20;
+  Q {19..23} (Blaeser 2003; Q -> F_2 blocked by
+  denominators). Border rank [17,20]. Yang 2402.01011 kills
+  only symmetric classes <= 21 over F_2.
+<4,4,4>: F_2 47 / Z[1/8] 48 (Yuan 2602.13171) / Z 49.
+JM 1986: no member reduces mod 2. Corpus "Smirnov" files =
+  Chokaev-Shumkin r=25 misnomers; real Smirnov-23 in HKS
+  seeds. CBH-23 (arXiv-1108-2830): F_2-valid, minpeak 34
+  best sampled gauge. Lacelle 2606-13408 Thm 1: composition
+  = non-overlap; closed.
+
+FORMAL: stab_residual (RankCalculus.lean) licenses per-step
+  orbit reduction. MonomialRealization.lean sorry-free
+  ([T] only). PeelingSupport.lean (Pl24, L0-L5): not built.
+
+ARCHIVE (dead/parked; do not re-derive): liftability x peak
+  dead both directions; footprint-ratio conjecture dead
+  (orbit-minima discipline survives); ladder 33/30/29
+  witness-killed; sparsity arc parked (Laderman q=98
+  dominates CS-25s; padding witness kills "25 => dense";
+  stabilizer cache pending Smirnov-2 + Laderman S4 vs BILR
+  1801.00843); rank-24 interference-search spec superseded
+  by P1.
+
+=================================================================
+[T] OMEGA = 2 — GroupSieve (queue 2026-07-12; may be stale)
+=================================================================
+USER-run from Scratch/GroupSieve/; all resumable.
+  Q1 gelfand.sage orders 2..100 (~5 min)      [Im7/Pl4]
+  Q2 groupsieve --stratum-b pilot, then full  [Im2]
+  Q3 rho0.sage 73 targets, overnight; any rho_0 > 1 =
+     surface immediately                      [Im5/Qr1]
+  Q4 lemma_sweep.sage 2604 targets; VIOLATION kills Pf3;
+     gates T3C_CONJECTURE prune               [Pf3/Im6]
+Done: stratum A 510/510 (91,774 records); census 88,185
+  (11.63% abelian factor); tier4 50/50, snr degeneracy
+  (Im3-ranking.md). Shard pattern: --shard I/N, resume-union.
+
+DECISIONS
+  D1 minpeak* group: sandwich-only vs full de Groote.
+  D2 Recommit wall evidence via Go tooling before cluster
+     spend leans on it?
+  D3 Is the [T] queue still current?

@@ -27,7 +27,7 @@
   facts come from the std-3 `productFamily` lemmas, so the certificate
   itself is std-3 ([propext, Classical.choice, Quot.sound]).
 -/
-import Proofs.Erdos20.SpreadLemma
+import Erdos.Erdos20.SpreadLemma
 
 open Finset SpreadLemma
 

@@ -1,0 +1,12 @@
+[
+  {
+    "id": "pl15_PSL_2_13",
+    "description": "PSL_2_13 (order 1092, PSL(2,13))",
+    "category": "pl15_probe",
+    "expected_rho0": null,
+    "constructor": [
+      "PermGroup",
+      "PSL_2_13"
+    ]
+  }
+]
