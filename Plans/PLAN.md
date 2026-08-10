@@ -2,8 +2,11 @@
 
 This file is the forward dispatch plan for ALL active arcs. Coalesced
 2026-08-09: it absorbed the full prioritized target queue from
-`NEXT_TARGETS.md` (deleted); per-lane landed-work records (waves 1–3)
-moved to `RESULTS.md`. `Formalize/INDEX` stays the ledger of card
+`NEXT_TARGETS.md` (deleted). Per-lane landed-work records (waves 1–3)
+live in the git commit history; the campaign results ledger was
+retired 2026-08-10 (its sweep records were absorbed into the blog
+drafts and the PRIOR ART section below — do not cite it, trust git
+and the tree). `Formalize/INDEX` stays the ledger of card
 metadata but is NOT the dispatch state of record — it is stale (chore
 X2); trust git and the tree over both documents.
 
@@ -60,13 +63,17 @@ commit record why.
       (Sierpinski/Riesel follow-on is DONE). Two spec files INDEX
       cites do not exist anywhere (review-vacuity-SlizkovDoubling.md,
       review-vacuity-ErdosLovasz.md) — note the citations as dead.
-      X2 should additionally record the wave 2–3 landings (RESULTS.md).
+      X2 should additionally record the wave 2–3 landings
+      (commits of 2026-08-05..09; enumerate via git log).
 
 
 ## DISPATCH STATE — as of 2026-08-09
 
-Waves 1–3 (dispatched 2026-08-05) are fully landed; per-lane results,
-commits, and brief corrections are in `RESULTS.md`. Wave 5 was briefed
+Waves 1–3 (dispatched 2026-08-05) are fully landed; per-lane results
+and commits are in git history, and the brief corrections are
+preserved in the claim-discipline draft's ledger
+(`~/p/patel.codes/data/words/claim_discipline_essay.draft.md`).
+Wave 5 was briefed
 2026-08-06 (`Prompts/User/20260806_WAVE5.md`: C7, C3, C4, P15 Switkay,
 P16 defect identity, P17 #376 digits, P18 A222603, and an archive batch
 #1213/#384/#673/#1062/#1160/#18) but NONE of its targets have landed —
@@ -79,7 +86,7 @@ queue since 2026-08-06: Erdős #406 sieve bound + method barrier
 # TARGET QUEUE
 
 Updated 2026-08-06 after wave 3 + follow-on lanes; landed rows removed
-(see `RESULTS.md`).
+(recover from git history).
 
 ## Summary statistics (post wave 3)
 
@@ -334,7 +341,7 @@ superseded by landed files — `goof rm` candidates.
   Erdos1950Instance.lean    9d873d7  Erdos 1950 from the criterion
   RankOfApparition.lean     3c7d4ef  alpha(p) and Fibonacci-like zero
                                      sets — the alpha-layer lane C6 needs
-  base-b generalisation     37e5f2e  C1 DONE (wave-3 P13, see RESULTS):
+  base-b generalisation     37e5f2e  C1 DONE (wave-3 P13):
                                      IsFixedDivisorSystemBase + base-b
                                      Sierpinski/Riesel, three witnesses,
                                      of_modEq_base transport
@@ -533,8 +540,36 @@ Each absence names the enumeration it was checked against.
                       thread before any novelty claim, not just the
                       formal-conjectures tree.
 
-  LIMIT on all three: GitHub code search does not index every repo and
-  was unauthenticated for the alpha sweep; the Rocq opam index (584
+  Sunflower lemma     Sweep 2026-08-07 (absorbed 2026-08-10 from the
+                      retired results ledger): "sunflower" absent
+                      from every Mathlib file; LeanCamCombi
+                      explicitly checked, absent; formal-conjectures
+                      has only a statement-request issue (#2284); no
+                      Lean repos or Zulip threads; AFP entry
+                      confirmed — Thiemann, Feb 2021, CLASSICAL
+                      Erdős–Rado bound only. Nobody in any prover
+                      has the ALWZ improved bound (the L-effort
+                      target in NEW TARGETS above). Bloom's comment
+                      on #535 acknowledges the gcd-sunflower
+                      connection exists; no prior formalization of
+                      it found. Confirms P5's first-in-Lean claim.
+  Integer complexity  Sweep 2026-08-07 (absorbed 2026-08-10 from the
+                      retired results ledger): no formalization of
+                      integer complexity (A005245 / Mahler–Popken)
+                      or ANY theorem about it in Mathlib, AFP,
+                      Coq/Rocq, Mizar, Metamath, or HOL Light; the
+                      Latvia group / Altman / Zelinsky literature is
+                      computation only — first-formalization claim
+                      for ‖3^b‖ = 3b (d657720). Attribution audit:
+                      the cube-bound route is Iraids et al.
+                      `cbounds2` (arXiv:1203.6462); the earlier
+                      Iraids→Altman fix concerned the separate
+                      window theorems only. Supports the Mathlib PR
+                      (`Documents/mathlib-integer-complexity/
+                      PROPOSAL.md`) and a future ‖2^n‖ = 2n post.
+
+  LIMIT on all of these: GitHub code search does not index every repo
+  and was unauthenticated for the alpha sweep; the Rocq opam index (584
   packages) and the Mizar MML (~1300 articles) were not enumerated
   exhaustively. "None found in the corpora named" is the claim; "does
   not exist" is not.
@@ -599,6 +634,32 @@ Each absence names the enumeration it was checked against.
     judgments). VERIFIED.md remains the retrieval-tagged evidence
     record for A114976 / A014701 / A354741 / A083207-queue — consult
     via git history, do not re-litigate closed sweeps.
+  * The campaign results ledger and the OEIS-paper pointer sheet
+    (`Documents/first-proofs-and-opn-reduction.md`) deleted
+    2026-08-10; the sheet is recoverable at `git show
+    7d7a0d8:Documents/first-proofs-and-opn-reduction.md`. Their
+    live content was absorbed into the drafts (sweeps: noe → opn
+    draft; melfi → melfi draft; base-b covering → errata draft;
+    nine-claims ledger + wave corrections → claim-discipline
+    draft), into PRIOR ART above (sunflower, integer complexity),
+    and into the bullets here.
+  * A092482 verification record (2026-08-07 adversarial pass;
+    preserved here for the published-post update and the
+    `Documents/a092482-note/` paper): statement matches the
+    unambiguous Mathematica rendering against all 57 terms; both
+    documented OEIS typos computationally confirmed; the greedy
+    definition is independent of the closed form (no circularity),
+    seed derived not assumed; sorry-free on standard axioms. First
+    proof of the closed form; mechanism is the standard A003278
+    base-2/base-3 greedy argument applied blockwise — no
+    deep-novelty claim. Live entry still said "conjectured and
+    checked up to n=512" at last fetch.
+  * Paper running order, compressed from the retired sheet's §8.1
+    (consult the pin for the argument): lead A354741, then A000670
+    (as "38 years older than it looks" + the open general
+    G(exp(x)−1) delimitation), then A114976 / A014701; demote the
+    A083207⟹OPN material to a remark; keep the covering arc out
+    entirely (its paper waits on covering-certificates.md landing).
   * Deliberately out of blog scope (carried over from the index):
     the covering-systems arc, the matrix-multiplication/ω program,
     and in-tree material with no manuscript coverage
@@ -608,7 +669,9 @@ Each absence names the enumeration it was checked against.
 ## USER DECISIONS PENDING
 
   1. Does the covering arc seed a SEPARATE ITP/CPP paper, or join
-     `Manuscripts/Drafts/first-proofs-and-opn-reduction.md` as a fourth
+     the OEIS-first-proofs paper (pointer sheet retired 2026-08-10,
+     `git show 7d7a0d8:Documents/first-proofs-and-opn-reduction.md`;
+     running order compressed under BLOG ARC above) as a fourth
      result? My read: separate — it is a formalization-infrastructure
      paper, not an OEIS-first-proof paper.
   2. Scope Hough–Nielsen yes/no.

@@ -1,15 +1,17 @@
 # A decidable fixed-divisor criterion for covered exponential families
 
-**STATUS: POINTER SHEET, split out of `first-proofs-and-opn-reduction.md`
-2026-07-31.** That sheet's §4 recommended this material become a separate
-ITP/CPP submission and then kept it inline; this file is that split, executed.
-The OEIS sheet now carries a stub pointing here.
+**STATUS: POINTER SHEET, split out of the OEIS-paper sheet 2026-07-31**
+(that sheet was retired 2026-08-10 — `git show
+7d7a0d8:Documents/first-proofs-and-opn-reduction.md`). Its §4 recommended
+this material become a separate ITP/CPP submission and then kept it inline;
+this file is that split, executed.
 
 **Read the timing recommendation before starting the paper.** The honest
 headline today is *"a clean tool for a closed problem class"* — true, useful,
 and not interesting. Everything in reach is classical, and §7 shows the
 apparatus has a hard ceiling well below anything at the research frontier.
-The recommendation in `first-proofs-and-opn-reduction.md` §8.1 is to write
+The standing recommendation (BLOG ARC in `Plans/PLAN.md`, compressed from
+the retired sheet's §8.1) is to write
 this paper **after** the work scoped in `covering-certificates.md` lands, with
 the criterion demoted to that paper's infrastructure chapter. Writing it now
 produces a competent tool paper; writing it later produces a tool paper with
@@ -326,9 +328,11 @@ Venue: ITP / CPP / JAR formalization track. Comparison points are
 Cowles–Gamboa 2011 (ACL2) and Dahmen–Hölzl–Lewis ITP 2019, **not** the
 OEIS-conjecture framing of the sibling sheet.
 
-- `first-proofs-and-opn-reduction.md` — the OEIS results (A354741, A000670,
-  A114976, A014701). Disjoint from this paper; its §4 is now a stub pointing
-  here.
+- the OEIS results (A354741, A000670, A114976, A014701) — now carried by
+  the per-result blog drafts (`~/p/patel.codes/data/words/`) and the paper
+  running order under BLOG ARC in `Plans/PLAN.md`; the retired sheet is at
+  `git show 7d7a0d8:Documents/first-proofs-and-opn-reduction.md`. Disjoint
+  from this paper.
 - `covering-certificates.md` — the sequel, and the reason to delay this
   submission. Its §7 explains the dependency in the other direction.
 

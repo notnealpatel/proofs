@@ -6,9 +6,11 @@ review that has the properties the rest of that corpus lacks: it is hard, it
 is unclaimed, it needs a technique nobody has built, and it produces an
 artifact people already care about.
 
-**Provenance discipline.** Seven prior-art claims in the sibling sheet
-`first-proofs-and-opn-reduction.md` were believed and turned out false, every
-one caught by retrieving an artifact rather than by reasoning. Accordingly
+**Provenance discipline.** Seven prior-art claims in this arc's retired
+sibling sheet (`git show 7d7a0d8:Documents/first-proofs-and-opn-reduction.md`,
+deleted 2026-08-10; the claims ledger now lives in the claim-discipline
+draft under `~/p/patel.codes/data/words/`) were believed and turned out
+false, every one caught by retrieving an artifact rather than by reasoning. Accordingly
 every claim below is tagged:
 
 - **[M]** measured or retrieved by the orchestrator directly in this session;
@@ -241,7 +243,8 @@ are the right ones and are reused verbatim; **only the decision procedure is
 replaced**. `FixedDivisor.lean` and the Sierpiński/Riesel/Erdős-1950
 applications are orthogonal to this sheet — they consume coverage, they do
 not produce it — and would become the infrastructure chapter of a paper this
-sheet headlines. See `first-proofs-and-opn-reduction.md` §8.1.
+sheet headlines. See the paper running order under BLOG ARC in
+`Plans/PLAN.md` (compressed from the retired sheet's §8.1).
 
 ## 8. First dispatch, if this is scoped
 

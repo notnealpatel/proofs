@@ -1,7 +1,8 @@
 # Mathlib PR proposal — integer (Mahler–Popken) complexity (OEIS A005245)
 
 A review document, not a PR. Nothing has been branched, pushed, or announced.
-Source: RESULTS.md triage item 5 (commit d657720); ported from
+Source: commit d657720 (sweep record now under PRIOR ART in
+`Plans/PLAN.md`); ported from
 `Proofs/NumberComplexity/IntComplexity.lean` and
 `Proofs/NumberComplexity/DoublingConjecture.lean`.
 

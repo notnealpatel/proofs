@@ -10,7 +10,7 @@ TODO
       the P5 sunflower Mathlib PR (+ ALWZ bound sequel).
 ```
 
-Provenance: RESULTS.md triage item 0 (commit c1097d9; bridge theorems in
+Provenance: commit c1097d9 (bridge theorems in
 `Proofs/Enumerative/NoeZumkellerOdd.lean`, working tree, verified sorry-free
 2026-08-07). The 2026-08-07 literature sweep found the observation recorded
 nowhere (Rao–Peng 0912.0052, Somu et al. 2310.14149, Mahanta et al. 2008.11096,
