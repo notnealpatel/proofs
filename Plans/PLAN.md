@@ -589,6 +589,22 @@ Each absence names the enumeration it was checked against.
     (circuit model). Shelved by ruling: A031507, A060748 (no MW layer).
 
 
+## BLOG ARC — state after index retirement (2026-08-09)
+
+  * `Plans/BLOG_INDEX.md` and `Plans/VERIFIED.md` deleted 2026-08-09;
+    both recoverable at `git show 7e2a9e2:Plans/<file>`. Their content
+    now lives in the per-result drafts under
+    `~/p/patel.codes/data/words/*.draft.md` (each carries review-agent
+    notes: established floors, wording constraints, open editor
+    judgments). VERIFIED.md remains the retrieval-tagged evidence
+    record for A114976 / A014701 / A354741 / A083207-queue — consult
+    via git history, do not re-litigate closed sweeps.
+  * Deliberately out of blog scope (carried over from the index):
+    the covering-systems arc, the matrix-multiplication/ω program,
+    and in-tree material with no manuscript coverage
+    (`Proofs/ShearEC/*`, `Proofs/CHILO/*`, `Proofs/Erdos/Erdos*`
+    outside `Covering/`).
+
 ## USER DECISIONS PENDING
 
   1. Does the covering arc seed a SEPARATE ITP/CPP paper, or join

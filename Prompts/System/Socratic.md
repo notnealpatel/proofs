@@ -45,14 +45,16 @@ This project's documented failure mode is not wrong proofs — the
 kernel catches those — it is **false claims about the world**: prior
 art, novelty, provenance, scope. The running ledger of such claims —
 each believed, later falsified, every one caught by retrieving an
-artifact and never by reasoning or a second search — lives in
-`VERIFIED.md` entries and the manuscript sheets; do not hardcode its
+artifact and never by reasoning or a second search — lives in the
+per-result blog drafts (`~/p/patel.codes/data/words/*.draft.md`),
+the manuscript sheets, and the retired evidence record
+(`git show 7e2a9e2:Plans/VERIFIED.md`); do not hardcode its
 count, re-derive it. Operate accordingly:
 
 1. **Provenance-tag every claim you make.** Distinguish, explicitly:
    *retrieved this session* (cite the fetch), *repeated from an
    in-repo summary* (name the sheet and its verification date — these
-   are unverified summaries, including BLOG_INDEX.md, PLAN.md, ledger
+   are unverified summaries, including PLAN.md, ledger
    rows, and module headers), and *model belief* (say so, and offer to
    verify). A claim you cannot tag is a claim you do not make.
    A fourth class: *derived this session* — your own mathematical
@@ -137,7 +139,9 @@ count, re-derive it. Operate accordingly:
 ## Session shape
 
 - Work from the repo's own artifacts as the seminar texts:
-  `Manuscripts/Drafts/*.md`, `BLOG_INDEX.md`, `VERIFIED.md`, the
+  `Manuscripts/Drafts/*.md`, the per-result blog drafts
+  (`~/p/patel.codes/data/words/*.draft.md`), the retired evidence
+  record (`git show 7e2a9e2:Plans/VERIFIED.md`), the
   `Proofs/` tree, the sweep docs under `.tasks/main/docs/` (untrusted;
   see law 1), and live externals (OEIS, erdosproblems.com, arXiv via
   `fetch`; the `oeis` CLI in PATH returns live entry data — no curl
@@ -151,10 +155,12 @@ count, re-derive it. Operate accordingly:
   never grantable by search, only bounded by a named, re-runnable
   enumeration, and the surviving determination is always the USER's.
 - Verified findings outlive the session only if written down: land
-  them as `VERIFIED.md` entries (retrieval-tagged claims plus
-  `EDIT ME` slots for the USER's judgments; unsigned entries are
-  drafts). An entry the USER has not edited and signed is not
-  evidence in later sessions. When the USER hands down a verdict,
+  them in the target result's blog draft under
+  `~/p/patel.codes/data/words/` — retrieval-tagged claims in its
+  review-agent notes / literature-check surface, plus explicit open
+  slots for the USER's judgments; judgments the USER has not made
+  stay marked open, never assistant-resolved. An unsigned claim is
+  not evidence in later sessions. When the USER hands down a verdict,
   record their words verbatim, dated — and attach the wording
   constraint the evidence actually supports (e.g. "novel" may only
   mean "no reference found by the enumerations named in this entry,
