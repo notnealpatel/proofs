@@ -1,70 +1,12 @@
-# PLAN — campaign dispatch plan and target queue
+# Erdos attack program
 
-This file is the forward dispatch plan for ALL active arcs. Coalesced
-2026-08-09: it absorbed the full prioritized target queue from
-`NEXT_TARGETS.md` (deleted). Per-lane landed-work records (waves 1–3)
-live in the git commit history; the campaign results ledger was
-retired 2026-08-10 (its sweep records were absorbed into the blog
-drafts and the PRIOR ART section below — do not cite it, trust git
-and the tree). `Formalize/INDEX` stays the ledger of card
-metadata but is NOT the dispatch state of record — it is stale (chore
-X2); trust git and the tree over both documents.
+The prioritized queue of Erdos-problem proving targets, organized by
+formalization tiers (F1-F3) and proof-attempt tiers (P1-P3), with
+dispatch state, axed/gated items, and the burndown scoring from the
+four-batch sweep of erdosproblems.com. Publication standing lives in
+standing.md, not here; the covering lanes are in covering-arc.md.
 
-Correction history is in `git log -p` on this file and its ancestors
-(`PLAN.md`, `NEXT_TARGETS.md` at repo root, then `Plans/`). Several
-claims here have been wrong before; when one moves, move it and let the
-commit record why.
-
-
-## PROTOCOL — deltas of 2026-08-05
-
-  Lanes    `prover` = Fable 5 xhigh: scarce-by-cost; holds only the item
-           with the largest gap between "stated" and any known formal
-           route. `postdoc` = Opus 5 Max: throughput; literature-
-           following routes, grindy lanes, statement archives.
-  Review   Orchestrator-dispatched ONLY, after a writer lane halts:
-           parallel vacuity-cop + reviewer, orchestrator applies fixes,
-           one commit per lane, writers never commit. Lanes MUST NOT
-           self-audit (prover/postdoc agent files carry the MUST NOT); a
-           lane-relayed PASS is an unverified claim — re-audit it.
-  Cop      vacuity-cop rung 5 (new): source-fidelity — hunt LLM
-           mis-translation, hallucinated conjectures, and prose-to-
-           formal divergence against PRIMARY sources (`oeis show`,
-           fetched papers), never against the `Formalize/` card, which
-           is itself an LLM relay.
-  Writers  STYLE.md first; `flock .lake/agent.lock lake build`;
-           systemd-run memory fence; `oeis show` ground truth before any
-           Lean statement; halt-never-weaken.
-
-
-## CHORES — cross-cutting, start before or alongside wave dispatch
-
-  X1  Adopt `leanprover-community/axiom-audit` (allowlist-subset check,
-      runs over `.olean`, catches transitive deps, community-maintained)
-      and retire the five stale hand-rolled sweeps under
-      `Proofs/Scratch/` (Ad1AxiomSweep, Aw1AxiomAudit, Le1AxiomAudit,
-      Secp256k1AxiomAudit, ShearReviewAudit) with `goof rm` — only
-      after parity is demonstrated by planting both a native_decide
-      proof and a `sorry` and watching the new tool fire. Measured facts
-      behind this are under AXIOM HYGIENE below.
-  X2  Refresh `Formalize/INDEX`: record the landed-but-unrecorded files
-      — FixedDivisor/Sierpinski/Riesel/Erdos1950Instance (9d873d7,
-      5157ca8), RankOfApparition (3c7d4ef), ZumkellerSigmaHalf +
-      MultiperfectZumkeller + nine A083207 instances (3e593ab), the
-      NederGap stub state, and the ShearEC arc — CORRECTED 2026-08-05:
-      T1–T4 are fully covered and sorry-free (T1 =
-      TotalDegreeAeval + ShearCircuit, T2 = ShearInversionLB +
-      Secp256k1Prime, T3 = ShearQuadraticRank + ShearAddition, T4 =
-      ShearAdditionEC + ShortCurveScaling + VariableChangePointEquiv),
-      but `ShearAdditionChains.lean` (T5) is a THREE-LINE EMPTY STUB —
-      the min-shears-for-x^n = l(n) bridge does not exist; it joins the
-      A003313 lane as the natural sibling. Strike the STATEMENTS
-      rows that landed; mark queue items 2–5 follow-ons accurately
-      (Sierpinski/Riesel follow-on is DONE). Two spec files INDEX
-      cites do not exist anywhere (review-vacuity-SlizkovDoubling.md,
-      review-vacuity-ErdosLovasz.md) — note the citations as dead.
-      X2 should additionally record the wave 2–3 landings
-      (commits of 2026-08-05..09; enumerate via git log).
+Sources: `git show 4901d3b:Plans/PLAN.md` sections DISPATCH STATE, TARGET QUEUE, AXED, GATED/DEFERRED; `git show 4901d3b:Plans/STATE1.md` sections erdos burndown ledgers, sweep-rubric; `git show 4901d3b:Plans/STATE3.md` sections disagreements with PLAN.md, retro Erdos kill list; reorganized 2026-08-10.
 
 
 ## DISPATCH STATE — as of 2026-08-09
@@ -81,6 +23,9 @@ every wave-5 item remains open in the queue below. Landed outside the
 queue since 2026-08-06: Erdős #406 sieve bound + method barrier
 (4455bf3, La09 Thm 1.4 λ=1 case) and the Noe original↔repaired bridge
 (49f30bd).
+
+Landed rows from the queue were removed on 2026-08-06; recover from
+git history.
 
 
 # TARGET QUEUE
@@ -161,7 +106,7 @@ sorrys, and commit with the intended sorry(s) only.
 `prover` is scarce (largest stated-to-route gap only);
 everything else is `postdoc`. Efforts are the sketchers'
 calls, corrected by audit where noted. The covering lanes
-C2–C7 in this tier are detailed under COVERING ARC below.
+C2–C7 in this tier are detailed in covering-arc.md.
 
 ### Tier P1 — Highest confidence (elementary proof, existing infra)
 
@@ -230,7 +175,7 @@ C2–C7 in this tier are detailed under COVERING ARC below.
 | Target | Source | Blocker | Next step |
 |--------|--------|---------|-----------|
 | A080210 DCS multiplicity | OEIS T2 | Entry defines neither "multiplicity" nor cites a proof; reconstructed reading unverified | Read the Zamojski survey; reclassify or drop. |
-| Erdős #1064 φ(n) > φ(n−φ(n)) | gaps #6 | Solved (Luca–Pomerance 2002), but Mathlib has NO natural density — "almost all" is unstatable faithfully (Schnirelmann.lean line 40 TODO, verified live) | Decide on a `naturalDensity` infra lane (see cross-cutting); the 15·2^k counterexample family alone is trivial. |
+| Erdős #1064 φ(n) > φ(n−φ(n)) | gaps #6 | Solved (Luca–Pomerance 2002), but Mathlib has NO natural density — "almost all" is unstatable faithfully (Schnirelmann.lean line 40 TODO, verified live) | Decide on a `naturalDensity` infra lane (see cross-cutting notes). |
 | Higman PORC | gaps #6 | Open but community-expected false (du Sautoy–Vaughan-Lee 2012 at p^10); high def cost (PORC functions + gnu quantifiers), zero sanity layer | Record as a documentation note in `GroupCount`; no Lean card unless the USER wants a likely-false archive. |
 | A000670-egf-family | gated | Needs an EGF layer Mathlib lacks — an infrastructure arc, not a lane | Scope the EGF design separately; do not dispatch. |
 | Hough–Nielsen (2 or 3 divides some modulus) | gated | XL; an ITP paper on its own | USER decision 2, unchanged. |
@@ -253,6 +198,13 @@ sieve theory not in Mathlib), A005820/A027687/A046060
 harder than OPN, plus a recorded contrary conjecture),
 A075099 (unattributed guess on a contested definition;
 the def is a DAG-computation model, not ~30 lines).
+
+Additionally do not re-mine (from f5exp retro, absent from
+the above list): [A] Erdős #1216 (the disproof quantifies
+over ~2^91 tournaments — no feasible certificate), #742,
+#835, #617 (native_decide search spaces infeasible on
+audit), #1027 (martingale proof), #402 (already formalized
+elsewhere).
 
 Natural density is the largest single Mathlib gap this
 queue hits: it blocks faithful statements for Erdős #1064,
@@ -279,10 +231,10 @@ form, A141386 literature check, and every 2025–26
 AI-assisted site comment cited in `ERDOS_CANDIDATES.md` —
 re-fetch before building on any of them. `oeis show` /
 `erdos fetch` ground truth before any Lean statement,
-per PROTOCOL.
+per PROTOCOL.md.
 
 Chores X1 (axiom-audit adoption) and X2 (INDEX refresh)
-above remain open and are not proving targets.
+are tracked in debt.md, not here.
 
 ## Process recommendations (from MINING_GAPS.md, now deleted)
 
@@ -327,254 +279,6 @@ Cleanup: `E1063.lean` fully and `E535.lean` mostly
 superseded by landed files — `goof rm` candidates.
 
 
-# COVERING ARC — adopted lanes
-
-## STATE
-
-  Basic.lean                f2cd3df  Covers, IsCoveringSystem (distinct
-                                     moduli > 1), covers_iff_forall_range
-  NotTwoPowerPlusPrime      add6611  Erdos 1950 in full
-  ErdosMinus2k / ErdosRows  7520b62  A039669 archive + 10^9 window;
-                                     A089654 bridge (1 intended sorry)
-  FixedDivisor.lean         9d873d7  THE GENERAL CRITERION
-  Sierpinski / Riesel       9d873d7  78557, 509203, both infinitudes
-  Erdos1950Instance.lean    9d873d7  Erdos 1950 from the criterion
-  RankOfApparition.lean     3c7d4ef  alpha(p) and Fibonacci-like zero
-                                     sets — the alpha-layer lane C6 needs
-  base-b generalisation     37e5f2e  C1 DONE (wave-3 P13):
-                                     IsFixedDivisorSystemBase + base-b
-                                     Sierpinski/Riesel, three witnesses,
-                                     of_modEq_base transport
-
-Sorry-free except the archived A039669 conjecture. Axioms within
-{propext, Classical.choice, Quot.sound}. No native_decide.
-
-## Lanes
-
-  C2  (was A) Abstract sequence-level layer            [S]
-      postdoc. ~15 lines: the shared statement both families instantiate
-      (Fibonacci-like half landed at 3c7d4ef). Buys STATEMENT reuse only
-      — the `decide` pipeline stays in per-family bridges. The shared
-      hypothesis is NOT decidable as stated; families satisfy it by
-      different mechanisms (ord_p(2) vs alpha(p)). May be partially
-      subsumed by `IsFixedDivisorSystemBase` — verify-or-descope
-      before dispatch.
-
-  C3  (was B) Brier numbers                            [S]  SWEEP DONE
-      postdoc. Simultaneously Sierpinski and Riesel;
-      k = 3316923598096294713661 (Clavier), all four fields checked both
-      sides, zero uncovered residues, all divisors prime:
-        Sierpinski (p | k*2^a + 1), L = 48, 7 triples, max 108 bits
-          {(1,2,3),(2,4,5),(4,12,13),(0,8,17),(36,48,97),
-           (20,24,241),(12,48,673)}
-        Riesel (p | k*2^a - 1), L = 180, 13 triples, max 109 bits
-          {(0,2,3),(0,3,7),(9,10,11),(11,18,19),(1,5,31),(23,36,37),
-           (7,20,41),(10,60,61),(8,9,73),(5,36,109),(13,15,151),
-           (25,30,331),(37,60,1321)}
-      Shape: TWO INDEPENDENT `IsFixedDivisorSystem` instances — the
-      sides share only the prime 3 and the modulus 2. Loads 336 and 2340
-      vs Selfridge's 252, far inside the measured ceiling. BOTH
-      CERTIFICATES INDEPENDENTLY RE-VERIFIED 2026-08-05 (coverage,
-      divisibility + ord, primality — all PASS; python3/sympy, sage
-      absent in the probe environment). Warn: the record k is also the
-      smallest — no cheaper fallback witness; do not source covering
-      sets from primepuzzles.net without re-verifying (Wesolowski's
-      entry fails Riesel coverage). NOVELTY SWEEP DONE 2026-08-05:
-      ACL2 HAS mechanically verified Brier numbers — Cowles–Gamboa,
-      "Verifying Sierpinski and Riesel Numbers in ACL2" (2011,
-      arXiv:1110.4671), Appendix A: five k values with both covers
-      checked by verify-sierpinski/verify-riesel macros (smallest
-      143665583045350793098657; the word "Brier" never appears but
-      the concept is explicit). No Lean/Isabelle/Coq/Mizar/HOL/Agda
-      hit. Value framing: first LEAN formalization + the RECORD
-      (smallest known) Brier k — Clavier's k is ~10^21, far below
-      ACL2's five. Cite Cowles–Gamboa; claim no more.
-      Adjacent: formal-conjectures issue #644 tracks Sierpinski/
-      Riesel as absent upstream — our landed Sierpinski.lean/
-      Riesel.lean already exceed it; possible upstreaming hook.
-
-  C4  (was D) Mirsky–Newman theorem                    [M]
-      postdoc. No disjoint distinct covering system exists (conjectured
-      Erdos 1950; proved Mirsky–Newman, indep. Davenport–Rado; special
-      case of Herzog–Schonheim). Root-of-unity argument, stated directly
-      on the committed `IsCoveringSystem`. Strongest classical target in
-      reach. GATE RESOLVED 2026-08-05: upstream `ErdosProblems/274.lean`
-      was READ — it states Erdős #274 / Herzog–Schönheim over GROUP
-      cosets (all three theorems sorry'd; the abelian variant is tagged
-      "solved" pointing to an external proof by Jostamon, body still
-      sorry). It does NOT state integer Mirsky–Newman — the
-      integer-AP statement on our `IsCoveringSystem` is not taken
-      upstream. NOVELTY SWEEP DONE 2026-08-05: NO Mirsky–Newman /
-      Davenport–Rado proof found in any assistant (GitHub, mathlib4,
-      Zulip, erdosproblems threads, AFP-adjacent, arXiv — all
-      searched). First-formalization candidate. UNRESOLVED THREAD:
-      274.lean's abelian-variant tag reportedly points to an external
-      proof by "Jostamon", but the sweep found no such artifact — the
-      lane MUST resolve that pointer from the file itself before any
-      novelty claim. Paper trail: abelian case is Sun 2004; the
-      integer theorem is Mirsky–Newman via the root-of-unity /
-      Davenport–Rado argument.
-
-  C5  (was E) Erdős-problem targets                    [S each]
-      Measured against the formal-conjectures tree (recursive, API),
-      509 files; covering-systems tag = 22 entries.
-      PRESENT upstream, do NOT duplicate:
-        7, 203, 204, 273, 274, 275, 276, 277, 279, 280, 281, 1113
-        (7 and 274 present, 278/1188/1189 absent — re-verified
-        against the live tree 2026-08-05)
-      Unclaimed AND open (statuses re-pulled from erdosproblems
-      2026-08-05):
-        #278   fixed-modulus-set covered density. NOT a mere archive —
-               the MINIMUM question is SETTLED (minimum at all a_i
-               equal; Rogers via Halberstam–Roth *Sequences* (1983)
-               5.3 per JonahKlein comment 2026-03-03, three years
-               before Simpson [Si86]; Tao writeup 2026-01-19,
-               terrytao.wordpress.com "Rogers' theorem on sieving").
-               The MAXIMUM question stays open. Provable target:
-               postdoc formalizes the Rogers/Simpson minimum
-               (inclusion-exclusion over lcms).
-        #1188  count of minimal distinct covering systems F(x). Open.
-               CAVEAT (Woett/Bloom thread, Apr 2026): the site's
-               statement is Bloom's reinterpretation — Erdős's [Er80]
-               original asks about moduli distinct ACROSS systems,
-               where Hough bounds F(x) uniformly. Archive the site's
-               form and say which one it is. Woett's elementary
-               F(x) >= floor(log_12 x) is a provable fragment.
-        #1189  irreducible covering sets. Open; final sub-question
-               settled by Sun 2007 (divisors of 2^(p-1)·p form an
-               irreducible covering set — an explicit certificate our
-               layer can check); Simpson [Si85]: n_k <= 2^(k-1).
-               Archive + the Sun instance as the settled fragment.
-      #7 upstream is `erdos_7` over `StrictCoveringSystem Z` (sorry'd,
-      Ideal moduli, not decidable) — a decidable restatement is a
-      defensible separate contribution, but say so explicitly.
-
-  C6  (was H) Wilf primefree sequence A083216          [M]  PROBE FIRST
-      Fibonacci-like, every term composite, consecutive coprime.
-      a(0) = 20615674205555510, a(1) = 3794765361567513. Alpha-layer
-      LANDED (3c7d4ef) and API CONFIRMED READY 2026-08-05: the
-      per-class step is `IsFibonacciLike.forall_mod_eq_dvd`
-      (needs only 0 < m, alpha(m) ∣ d, one base divisibility — the
-      exact analogue of FixedDivisor's order bridge); non-degeneracy
-      discharges from `not_dvd_zero_and_one_of_isCoprime`, which is
-      A083216's coprime initial pair. `IsFibonacciLike` is pinned to
-      s(n+2) = s(n+1) + s(n) — fine here, but do not promise general
-      two-term recurrences. alpha(p), not the Pisano period, plays
-      ord_p(2)'s role. `decide` load L*|T| = 8640*18 = 155520, ~600x Selfridge —
-      AT the measured practical limit, not inside it: GATE dispatch on a
-      scaled decide probe first. Terms are unevaluable (a(8640) ~
-      10^1805) — the bridge MUST live entirely in `ZMod p`; a naive port
-      of the existing certificate shape will not terminate. Warn: the
-      18-triple certificate (L = 8640, coverage verified, gcd(a0,a1)=1)
-      was reconstructed computationally from A083216, NOT read off a
-      paper — Vsemirnov's 17 published quadruples are for a DIFFERENT
-      sequence. Re-derive independently before committing.
-      Src: Graham, Math. Mag. 37 (1964) 322–324; Wilf, Math. Mag. 63
-      (1990) 284; Vsemirnov, JIS 7 (2004) 04.3.7.
-
-  C7  NEW micro-lane: drop `1 ≤ k` from erdos_1950
-      MECHANICS PINNED 2026-08-05. The `1 ≤ k` sits INSIDE the negated
-      existential of `erdos_1950_not_two_pow_add_prime` (`¬ ∃ k p,
-      1 ≤ k ∧ ...`), so removing it STRENGTHENS the theorem. The k = 0
-      case is already paid for: the covering class 0 (mod 2) with
-      p = 3 gives 3 ∣ m − 2^0 (docstring on
-      `exists_mem_erdosPrimes1950_dvd` says so explicitly), and the
-      general-criterion rederivation
-      `not_prime_sub_two_pow_of_general` ALREADY dropped the
-      hypothesis. Only the bespoke `not_prime_sub_two_pow` + the final
-      packaging still carry it. Genuinely small; do it regardless of
-      USER decision 3 — it makes the flagship match A006285's k ≥ 0
-      convention.
-
-
-## AXIOM HYGIENE — measured facts (keep until X1 lands)
-
-The five hand-listed sweeps under `Proofs/Scratch` state their criterion
-as "no `Lean.ofReduceBool`". That name is never emitted on this
-toolchain, so those five detect nothing. Measured on v4.33.0-rc1: a
-native_decide proof yields `<decl>._native.native_decide.ax_1_1`.
-
-This is documented upstream behaviour, not a discovery — RFC #12216 /
-PR #12217, shipped in Lean v4.29.0 (2026-03-27), moved native
-computation to one axiom per computation; `ofReduceBool` was deprecated
-2026-02-01. Only an allowlist-SUBSET test works. `RankOfApparition`
-section 10 does it that way and `throwError`s, verified to fire by
-planting both a native_decide proof and a `sorry`. It cannot close two
-limits from inside: `example`s contribute no constant and escape any
-such sweep, and the sweep is positional. Mathlib solves the same problem
-with a syntactic linter plus periodic lean4checker, and explicitly notes
-name-checking is "not airtight".
-
-
-## PRIOR ART, as enumerated
-
-Recorded here because the canonical grading document
-(`.tasks/main/docs/novelty-ErdosCovering.md`) is outside version control.
-Each absence names the enumeration it was checked against.
-
-  alpha(p) / Pisano   Absent from Mathlib rev 3edb3c0 (`grep -ric
-                      apparition|pisano` over Mathlib/ = zero files).
-                      Absent from AFP (63 NT entries enumerated) and
-                      from Coq/Rocq sources checked. agda-unimath DOES
-                      have `elementary-number-theory.pisano-periods` —
-                      closest prior art anywhere; it defines the period
-                      but not the entry point, and does not prove the
-                      zero-set theorem. The mathematics is routine
-                      (Vajda 1989 p. 73); first-formalization at most,
-                      never new mathematics.
-  Naslund-Sawin       No prior formalization found. formal-conjectures
-                      `ErdosProblems/857.lean` exists but is a stub —
-                      `answer(sorry)`, body `sorry`, 0 lines proved.
-                      Mathlib has zero sunflower/slice-rank content. AFP
-                      `Sunflowers` is Erdos-Rado, i.e. #20, a different
-                      problem. Lean 3 `lean-forward/cap_set_problem` is
-                      Ellenberg-Gijswijt, method-adjacent but not this.
-                      `SproutSeeds/sunflower-lean` is structural, not
-                      the tensor bound.
-  Covering in Lean    NOT clear ground. erdosproblems.com links
-                      per-problem Lean artifacts in personal repos: #16
-                      is "disproved (Lean)" via D. Chin 2026-02-25,
-                      building two covered APs from the SAME
-                      {3,5,7,13,17,241}/period-24 system as
-                      NotTwoPowerPlusPrime. Sweep each entry's comment
-                      thread before any novelty claim, not just the
-                      formal-conjectures tree.
-
-  Sunflower lemma     Sweep 2026-08-07 (absorbed 2026-08-10 from the
-                      retired results ledger): "sunflower" absent
-                      from every Mathlib file; LeanCamCombi
-                      explicitly checked, absent; formal-conjectures
-                      has only a statement-request issue (#2284); no
-                      Lean repos or Zulip threads; AFP entry
-                      confirmed — Thiemann, Feb 2021, CLASSICAL
-                      Erdős–Rado bound only. Nobody in any prover
-                      has the ALWZ improved bound (the L-effort
-                      target in NEW TARGETS above). Bloom's comment
-                      on #535 acknowledges the gcd-sunflower
-                      connection exists; no prior formalization of
-                      it found. Confirms P5's first-in-Lean claim.
-  Integer complexity  Sweep 2026-08-07 (absorbed 2026-08-10 from the
-                      retired results ledger): no formalization of
-                      integer complexity (A005245 / Mahler–Popken)
-                      or ANY theorem about it in Mathlib, AFP,
-                      Coq/Rocq, Mizar, Metamath, or HOL Light; the
-                      Latvia group / Altman / Zelinsky literature is
-                      computation only — first-formalization claim
-                      for ‖3^b‖ = 3b (d657720). Attribution audit:
-                      the cube-bound route is Iraids et al.
-                      `cbounds2` (arXiv:1203.6462); the earlier
-                      Iraids→Altman fix concerned the separate
-                      window theorems only. Supports the Mathlib PR
-                      (`Documents/mathlib-integer-complexity/
-                      PROPOSAL.md`) and a future ‖2^n‖ = 2n post.
-
-  LIMIT on all of these: GitHub code search does not index every repo
-  and was unauthenticated for the alpha sweep; the Rocq opam index (584
-  packages) and the Mizar MML (~1300 articles) were not enumerated
-  exhaustively. "None found in the corpora named" is the claim; "does
-  not exist" is not.
-
-
 ## AXED
 
   * Old lane C (more Sierpinski/Riesel instantiations, A076336/A101036):
@@ -603,83 +307,124 @@ Each absence names the enumeration it was checked against.
   satisfied: P5 landed and `SubgroupCountSn` exists.)
 
 
-## NON-GOALS — state these explicitly in any writeup
+## Erdos burndown scoring
 
-  * Izotov (1995): certain fourth powers are Sierpinski WITHOUT a
-    covering set, via the aurifeuillean factorization
-      t^4*2^(4m+2) + 1 = (t^2*2^(2m+1) + t*2^(m+1) + 1)
-                       * (t^2*2^(2m+1) - t*2^(m+1) + 1).
-    Our framework provably cannot reach these. "Covering systems
-    characterize Sierpinski numbers" is FALSE and easy to imply by
-    accident. Whether Sierpinski numbers with no finite covering set
-    exist is itself Erdos #1113 (open) — cite it as the anchor.
-  * The Sierpinski problem (is 78557 least?) is a search question no
-    covering argument touches. PrimeGrid is down to k = 21181, 22699,
-    24737, 55459, 67607.
-  * Pushing the A039669 window past 2^44 to discharge DeepMind's
-    sorry'd `mientka_weitzenkamp` needs q = 37 and ~60x the current
-    sweep; memory-bound on this box. Not a lane until that changes.
-  * Attack on HOLD archives stays on hold: A064097 2.5·log upper,
-    A267632 2^j case, A000001 non-coprime submultiplicativity, A250109
-    (circuit model). Shelved by ruling: A031507, A060748 (no MW layer).
+Erdos burndown score (0-5), for a Lean-formalizable win:
+5 — settled by an explicit small finite witness a
+`decide`/`native_decide` check could verify, or a short
+self-contained elementary proof. 4 — elementary known
+proof, one to a few pages, standard Mathlib facts.
+3 — resolution known and readable but needs moderate
+infrastructure; a special case is still respectable.
+2 — serious machinery; only a toy fragment formalizable.
+1 — statement hard to even state in Lean, or 30+ page
+hard analysis. 0 — not a sensible formal target (incl.
+ZFC-independent). Ground rules: quote erdosproblems.com,
+never assert resolution history from memory;
+`formalized=yes` means only that the statement exists in
+google-deepmind/formal-conjectures; honest verdicts beat
+volume. Problem 20 is already formalized in this repo.
+
+Epistemic status of all scores: [A] — agent-reported,
+re-fetch before citing. The campaign has a history of
+believed-then-falsified prior-art claims (nine falsified,
+all caught by retrieval, never by reasoning).
+
+### Score 5
+
+152 (already formalized by DeepMind — no contribution
+remains); 1058 (Luca 2001, Math. Comp., 4pp); special 742
+(Furedi 1992, large n, 18pp J. Graph Theory).
+
+### Score 4
+
+Batch 1: 175 (Granville-Ramare 1996; Velammal 1995;
+Kummer + Bertrand, Mathlib-ready), 245 (Mann 1960; needs
+character theory), 384 (Ecklund 1969, 4pp; Bertrand in
+Mathlib; top pick), 402 (Balasubramanian-Soundararajan
+1996; Szegedy 1986, 5pp; Hall's theorem in Mathlib; top
+pick), 440 (Tao comment proof, ~5 lines; ledger upgraded
+it 3→4; top pick).
+
+Batch 2: 542 (Schinzel-Szekeres 1959, ~8pp; witness
+{2,3,5}; top pick), 603 (Erdos-Rado; external
+formalization KitaKen1/erdos603-lean), 631 (Thomassen
+1994, 2pp induction; needs planar infra; top pick), 632
+(Dvorak-Hu-Sereni 2019; top pick if graph small), 702
+(Frankl 1977; shifting; top pick), 715 (Tashkinov 1982;
+Alon-Friedland-Kalai 1984, 1pp; GF(2) linear algebra; top
+pick), 771 (Alon-Freiman 1988, ~10pp; top pick), 781
+(Alon-Spencer 1989 "Ascending waves"; top pick).
+
+Batch 3: 842 (Fleischner-Stiebitz 1992, elementary), 880
+(Hegyvari-Hennecart-Plagne 2007; k=2 trivial, k≥3
+counterexample), 916 (Thomassen 1974, 6pp), 922 (Folkman
+1970, elementary induction), 1025 (Spencer 1972), 1027
+(proof is a KoishiChan comment-section post — verify
+before use), 1050 (Borwein 1991, 7pp, Pade approximants;
+top pick), 1140 (Epure-Gica 2010; finite list
+{2,5,7,13,31,61,181,199}), 1213 (Hegyvari 1986;
+pigeonhole; top pick), 1216 (Reid-Parker 1970;
+native_decide feasible; top pick).
+
+Special (unsolved, computational targets): 307, 364, 366
+(consecutive powerful-number searches, OEIS A060355;
+feasible in minutes to 10^12), 398 (Brocard-Ramanujan,
+A146968, verified to 10^9), 617 (Erdos-Gyarfas r=3
+formalizable; top pick), 647 (GBP25 prize; only n=24
+known; sieve to 10^9 feasible; top pick), 835 (Ma-Tang;
+k=3 decidable).
+
+### Score 3 (number lists only; prior art on the problem pages)
+
+Batch 1 — 35, 58, 73, 210, 216, 266, 362, 381, 438.
+Batch 2 — 471, 494, 504, 518, 534, 570, 577, 608, 630,
+673, 703, 720, 735, 745, 758, 763, 767, 780, 795, 800,
+806, 816. Batch 3 — 884, 895, 899, 903, 915, 924, 948,
+984, 994, 998, 1006, 1009, 1010, 1012, 1018, 1078, 1079,
+1105, 1114, 1147, 1187, 1202. Special — 19, 23, 106, 242,
+287, 475, 488, 547, 551, 556, 699, 779, 993.
+
+### Corrected score distribution
+
+Score 0: 9, 1: 133, 2: 160, 3: 67, 4: 29, 5: 3.
+Recounted from the four sweep docs' ## header lines;
+consistent with the 9-entry ZFC-independent list.
+
+### ZFC-independent (score 0, not formal targets)
+
+474, 736, 739, 1119, 1127, 1154, 1169, 1174, 1176.
+
+### External formalizations (do not re-do)
+
+152 (DeepMind), 441 (AxiomProver/AxiomMath 2026), 603
+(KitaKen1/erdos603-lean), 884 (github.com/honicky/
+erdos884), 986 (Bradac 2026), 1187 part-2 counterexample
+(KentaKitamura), 948 (Price — claimed, unverified).
+
+### Suspect entries needing human adjudication
+
+63 (attribution hedged), 69 (conditional on prime k-tuples
+only), 405 and 559 and 690 and 777 and 895
+(resolution/status unclear from page), 480
+(misformalization noted in formal-conjectures statement),
+518 (attribution unclear), 960 and 987 and 1091
+(resolution credited to "APSSV26b", an unpublished
+internal OpenAI-model preprint — uncitable; affects whether
+those targets count as solved), 1027 (comment-section
+proof), 1077 (problem misstated), 1114 (proof in
+Hungarian, Mat. Lapok), 1123 (rests on Erdos-Ulam "lost
+proof"), 548 (Ajtai-Komlos-Simonovits-Szemeredi proof
+unpublished, 200+ pp), 699 (statement subtle, sweep flags
+re-read).
 
 
-## BLOG ARC — state after index retirement (2026-08-09)
+## #1213 route disagreement
 
-  * `Plans/BLOG_INDEX.md` and `Plans/VERIFIED.md` deleted 2026-08-09;
-    both recoverable at `git show 7e2a9e2:Plans/<file>`. Their content
-    now lives in the per-result drafts under
-    `~/p/patel.codes/data/words/*.draft.md` (each carries review-agent
-    notes: established floors, wording constraints, open editor
-    judgments). VERIFIED.md remains the retrieval-tagged evidence
-    record for A114976 / A014701 / A354741 / A083207-queue — consult
-    via git history, do not re-litigate closed sweeps.
-  * The campaign results ledger and the OEIS-paper pointer sheet
-    (`Documents/first-proofs-and-opn-reduction.md`) deleted
-    2026-08-10; the sheet is recoverable at `git show
-    7d7a0d8:Documents/first-proofs-and-opn-reduction.md`. Their
-    live content was absorbed into the drafts (sweeps: noe → opn
-    draft; melfi → melfi draft; base-b covering → errata draft;
-    nine-claims ledger + wave corrections → claim-discipline
-    draft), into PRIOR ART above (sunflower, integer complexity),
-    and into the bullets here.
-  * A092482 verification record (2026-08-07 adversarial pass;
-    preserved here for the published-post update and the
-    `Documents/a092482-note/` paper): statement matches the
-    unambiguous Mathematica rendering against all 57 terms; both
-    documented OEIS typos computationally confirmed; the greedy
-    definition is independent of the closed form (no circularity),
-    seed derived not assumed; sorry-free on standard axioms. First
-    proof of the closed form; mechanism is the standard A003278
-    base-2/base-3 greedy argument applied blockwise — no
-    deep-novelty claim. Live entry still said "conjectured and
-    checked up to n=512" at last fetch.
-  * Paper running order, compressed from the retired sheet's §8.1
-    (consult the pin for the argument): lead A354741, then A000670
-    (as "38 years older than it looks" + the open general
-    G(exp(x)−1) delimitation), then A114976 / A014701; demote the
-    A083207⟹OPN material to a remark; keep the covering arc out
-    entirely (its paper waits on covering-certificates.md landing).
-  * Deliberately out of blog scope (carried over from the index):
-    the covering-systems arc, the matrix-multiplication/ω program,
-    and in-tree material with no manuscript coverage
-    (`Proofs/ShearEC/*`, `Proofs/CHILO/*`, `Proofs/Erdos/Erdos*`
-    outside `Covering/`).
-
-## USER DECISIONS PENDING
-
-  1. Does the covering arc seed a SEPARATE ITP/CPP paper, or join
-     the OEIS-first-proofs paper (pointer sheet retired 2026-08-10,
-     `git show 7d7a0d8:Documents/first-proofs-and-opn-reduction.md`;
-     running order compressed under BLOG ARC above) as a fourth
-     result? My read: separate — it is a formalization-infrastructure
-     paper, not an OEIS-first-proof paper.
-  2. Scope Hough–Nielsen yes/no.
-  3. A006285 note yes/no (recommendation: no; C7 covers the substance).
-  4. Whether to upstream `Basic` + `FixedDivisor` to Mathlib. Mathlib
-     has ZERO covering-system content; impact is real and durable,
-     review latency is long, and the API would need reshaping first.
-  5. Whether `Manuscripts/` and `.tasks/` stay outside version control.
-     Six drafts, 17 novelty sweeps and the triage sheet are untracked,
-     including the file this plan cites as canonical for novelty
-     grading.
+The P1 queue row above recommends the
+pigeonhole-on-interval-sums route as "Best
+payoff-per-effort in the Erdős sweep". The f5exp retro
+(2026-07-11) records the sweep's pigeonhole claim as
+REFUTED and the source paper inaccessible, deferring the
+problem. [A both ways] One of these is wrong; re-derive
+before dispatching #1213.

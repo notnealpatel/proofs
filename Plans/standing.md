@@ -1,11 +1,19 @@
-# STATE7 — publication triage
+# Standing — epistemic standing of finished results
 
-Distilled 2026-08-10 from `.tasks/main/docs/
-triage-publishability.md` (opened 2026-07-31) and the
-fourteen per-arc result sheets beside it (shard 7 of the
-doc-retirement campaign). This file supersedes those docs.
+What is claimed, at what confidence, what blocks publication.
+Every "first formalization" is [A] unless marked otherwise and
+must be re-fetched before it appears in a submission.
 
-Claim discipline, carried unchanged from the source sheet:
+Sources: `git show 4901d3b:Plans/STATE7.md` wholesale; `git
+show 4901d3b:Plans/STATE1.md` sections "per-result novelty
+sheets", "Epistemic status" paragraph, "verdict vocabularies"
+(shared with conjecture-hunts.md); `git show
+4901d3b:Plans/PLAN.md` sections "BLOG ARC — state after index
+retirement", "PRIOR ART, as enumerated" (placed in
+grounding.md, cross-referenced here); reorganized 2026-08-10.
+
+
+## claim discipline
 
 - [M] measured or retrieved directly (by the original
   orchestrator, or — where dated 2026-08-10 — by this
@@ -15,11 +23,22 @@ Claim discipline, carried unchanged from the source sheet:
   citing;
 - [O] open, nobody has checked.
 
+Blanket [A] note from STATE1: none of the 30 source
+novelty/prior-art docs carries per-claim [M]/[A]/[O] tags.
+The P1-P3 glossary declares all its verdicts "RECORD-GRADE
+(agent sweeps, sources read by agents, not re-verified by
+the principal)". Treat every verdict and citation herein as
+[A] — agent-reported, to be re-fetched before it appears in
+any submission.
+
 Nine prior-art claims in this repo were believed and
 turned out false (see the falsified-claims section).
 **Every "first formalization" below is [A] unless marked
 otherwise and must be re-fetched before it appears in a
 submission.** Never upgrade [A] to fact.
+
+
+## scale and calibration snapshot
 
 Scale at triage time [M, 2026-07-31]: 135 non-`Scratch`
 Lean files, 119 fully sorry-free, 2629 declarations,
@@ -36,6 +55,7 @@ were never novelty-graded, and that is where the surveys
 found the original mathematics (two literature refutations,
 two internal-task refutations, and one machine-checked exact
 value). The tiering reflects that asymmetry.
+
 
 ## tier 1 — publishable, needs writing not research
 
@@ -132,6 +152,7 @@ in Lean 4". `CapsetSliceRank`'s two sorries
 (`peebles_conjecture`, CLP bound) are disclosed archives
 outside the cone of everything else [M, 2026-07-31].
 
+
 ## tier 2 — each blocked on one named thing
 
 (1) **TPP / Cohn–Umans corpus.** 25 first formalizations
@@ -212,6 +233,7 @@ recorded on OEIS 2026-06-18 [M, 2026-07-31]. The delta
 is a routine extra expansion order; honest framing is a
 short note, not a paper.
 
+
 ## blog-post tier
 
 Several read better than tier-2 material; they are not
@@ -246,6 +268,7 @@ sorries); `NederGap.lean`, `KnuthStolarsky.lean`,
 `PeelingSupport.lean`, which carries the one repo sorry
 NOT documented as an intended archive
 (`cover_outmass_even`) [A] — close it or disclose it.
+
 
 ## the nine falsified prior-art claims
 
@@ -284,7 +307,159 @@ or a second search.
 The instructive shape: every failure was a search or an
 inference standing in for a retrieval.
 
-## per-arc result sheets
+
+## per-result novelty verdicts
+
+One entry per retired sheet. "First recorded proof" claims
+are all [A]-grade and were the exact claim class with a
+falsification history — re-fetch before citing.
+
+BooleanRankGeneric (`BooleanRankGeneric.lean`) —
+NO-REFERENCE-FOUND; first recorded proof of the A354741
+empirical comment (a.a.s. full Boolean row rank). Nearest:
+Pourmoradnasseri-Theis arXiv:1611.08400 (Schein rank, a
+different notion). Sheet's own framing: do not present as
+novel; ingredients standard. Unchecked: Kim 1982 book,
+Devadze 1968.
+
+CapsetSliceRank (`CapsetSliceRank.lean`) — LIKELY-KNOWN,
+first-recorded-complete-proof candidate for A236397(n) ≤
+A090245(n) (Peebles 2013 poster Thm 4, stated there with
+no proof). Peebles' HMC thesis likely has a proof but the
+PDF 404s — unresolved retrieval, adjudicate before any
+first-proof claim. Not subsumed by Naslund-Sawin
+arXiv:1606.09575.
+
+ComplexityPatterns (`ComplexityPatterns.lean`) — mixed:
+C3 (a(n)=n iff n≤5 for A005520) NO-REFERENCE-FOUND; C1/C2
+LIKELY-KNOWN (implicit in Iraids et al. arXiv:1203.6462);
+C4/C5/C6 KNOWN-CLASSICAL (Guy UPINT F26; OEIS data). No
+proof-assistant formalization of integer complexity found
+in Lean, Coq, or Isabelle.
+
+ErdosCovering (`Proofs/Erdos/Covering/*`) — the
+sheet's surviving claims: STANDS — first machine-checked
+proof of Erdos 1950 (odd non-2^k+p); first formalization
+of the general covering-system fixed-divisor criterion;
+first formalization of A089654. STANDS-NARROW — sorry-free
+A039669 completeness to 10^9 (DeepMind's window is
+sorry'd); Riesel 509203 first in Lean (ACL2 had it,
+Cowles-Gamboa arXiv:1110.4671); 78557 without
+native_decide. DEAD (retracted): first A039669 statement
+(DeepMind `1142.lean`); first covering-system definition
+(DeepMind `CoveringSystem.lean`); first proof-level
+covering-system use (plby `Erdos275.lean`, sorry-free);
+Nash's primitive-root sieve novelty (Nash 2000,
+primepuzzles.net, states the identical reduction). The
+sheet's §4 documents six falsified search claims; the
+post-mortem lives with the triage-publishability shard.
+
+FubiniMod (`FubiniMod.lean`) — KNOWN-CLASSICAL for k=2,4,16
+(Poonen, Fibonacci Q. 26(1) 1988 gives exact periods mod
+every s; Barsky). General Bala totient-period conjecture:
+LIKELY-KNOWN, first recorded proof as a stated theorem;
+sorry discharged same day (commit c37e31e). OEIS
+"Conjecture" labels at A000670/A354242/A002050 still live.
+
+GroupCountE2 — gnu(p²)=2 math KNOWN-CLASSICAL (Netto
+1882); formalization of the classification-to-count step
+claimed NEW. Group-deficient primes: trivial;
+"group-perfect/deficient/abundant" vocabulary exists only
+in OEIS A090052's name. A046057(1)=1, A046057(2)=4:
+LIKELY-KNOWN as data (Conway-Dietrich-O'Brien 2008), no
+located source proves minimality; formal proof claimed
+first.
+
+HamiltonBallinger (`HamiltonBallinger.lean`) — H1 (master
+equality for the {1,+,^} norm, A348262) and H2 (power
+subadditivity): NO-REFERENCE-FOUND — the norm is simply
+unstudied; sheet flags this as unrecorded-because-
+unstudied, of modest significance. H3 incomparability
+witnesses LIKELY-KNOWN from OEIS values. H4 finiteness
+sorry correctly attributed to the Hamilton-Ballinger 2022
+A005245 comment (open).
+
+MaxIrrepDegree (`Proofs/GroupTPP/MaxIrrepDegree.lean`) —
+LIKELY-KNOWN; a(m)a(n) ≤ a(mn) for A060938 is a one-line
+corollary of Irr(G×H) (Serre Thm 10, Isaacs Thm 4.21).
+Earliest explicit statement: Eric M. Schmidt's 2012 OEIS
+comment, no proof. Claimed first recorded proof.
+Unchecked: Isaacs/Serre exercises, Berkovich-Zhmud, Gluck.
+
+PalindromeRows (`PalindromeRows.lean`) — LIKELY-KNOWN,
+first recorded proof of the odd case of A267632 row
+palindromicity. Hadjicostas 2019 comments collapse it to
+A047996, whose symmetry is folklore (Barnes 1959,
+Ramanathan 1944 prove the counting formula, never
+palindromicity). The 2^j case remains the file's open
+sorry.
+
+Practical (`Practical.lean`) — proved content
+KNOWN-CLASSICAL (Srinivasan 1948, Stewart 1954, Sierpinski
+1955). "First practical-number formalization in any proof
+assistant" RETRACTED 2026-07-31: formal-conjectures has
+`Nat.IsPractical` (2026-03-15) and a proved
+`factorial_isPractical`. Surviving [A] first-claims:
+Stewart criterion both directions, sigma-characterization,
+weak Coleman, Coleman-conjecture archive (A007691 comment,
+Jaycob Coleman 2013), and the apparently-unrecorded
+OPN-hardness reduction (Coleman conjecture implies no odd
+perfect number). Definitional delta vs upstream: their
+`IsPractical 0` holds; agreement proved for 0 < n.
+
+QuasilogChainGap (`Proofs/NumberComplexity/
+QuasilogChainGap.lean`) — LIKELY-KNOWN; l(n) ≤ quasilog(n)
+(A076142 nonnegative) is Scholz 1937 / Brauer 1939
+subadditivity plus a trivial step; no source states the
+comparison to A064097. Claimed first recorded proof of the
+combined statement. Unchecked: Knuth TAOCP §4.6.3
+exercises, Subbarao 1989, Thurber 1973.
+
+Quasilog (`Quasilog.lean`) — LIKELY-KNOWN, first recorded
+proof of R. G. Wilson v's 2013 "Conjecture" label on
+A064097 (floor(log₂ n) ≤ a(n)); ten-line induction,
+folklore-grade. The 2.5·log upper bound (Cloitre) remains
+the open sorry.
+
+SlizkovDoubling (`SlizkovDoubling.lean`) — no novelty
+claim; everything KNOWN-CLASSICAL (Knuth TAOCP §4.6.3;
+A003313 b-file; Thurber 1976). A230528 question remains
+open; first k with l(2k)=l(k) is k=191.
+
+StanleyDigits (`StanleyDigits.lean`) — greedy 3-AP-free =
+base-3 digits KNOWN-CLASSICAL (Erdos-Turan 1936,
+Odlyzko-Stanley 1978). Four cross-sequence identities
+(A003278/A191107/A055246): LIKELY-KNOWN, stale OEIS
+"Conjecture" labels, trivially implied by PARI closed
+forms — de-facto-known, formally unproved.
+
+StepWalk (`Proofs/NumberComplexity/StepWalk.lean`) —
+NO-REFERENCE-FOUND; proof of Rebert's 2025 A014701
+conjecture (keep-or-double walk characterization). Sheet
+asserts the proof is not a one-line corollary — nontrivial
+walk induction with a scalar potential invariant. Nearest
+non-hit: Gruber-Holzer MFCS 2021 Lem 8. Strongest novelty
+candidate of the seventeen sheets.
+
+Submult — LIKELY-KNOWN; gnu(m)gnu(n) ≤ gnu(mn) for coprime
+m,n is stated as "clear" without proof in Ren
+arXiv:2405.04794 (2024, line 182). Folklore with no
+standalone statement, attribution, or formal proof
+located. The general (non-coprime) Lopes inequality is an
+open conjecture (A000001 comment 2024-04-21). Unchecked:
+Blackburn-Neumann-Venkataraman full text (paywalled).
+
+ZumkellerTauSigma (`Proofs/Enumerative/
+ZumkellerTauSigma.lean`) — NO-REFERENCE-FOUND, both for
+the blocking lemma (L) (no odd perfect N with
+(tau(N)/2)·N square) and for the A083207-to-OPN
+connection; `not_isSquare_half_sigma_zero_mul_of_perfect`.
+Sweep confirms the in-file hardness claim: known OPN
+structure theory does not reach the cross-term. Second
+strongest novelty candidate.
+
+
+## per-arc result summaries
 
 The fourteen sheets are writer self-reports; everything
 below is [A] unless tagged [M]. All cited files exist in
@@ -457,20 +632,55 @@ via a 6-edge witness verified twice computationally.
 Grade: archive with three literature corrections worth
 keeping.
 
-## file dispositions
 
-- .tasks/main/docs/triage-publishability.md — extracted: full tier sort, blockers, falsified-claims record, and outstanding actions preserved above.
-- .tasks/main/docs/BilinearComplexity-BooleanRankGeneric.md — extracted: result, semantics guardrails, and framing warning preserved; tactic-level notes recoverable from the Lean file.
-- .tasks/main/docs/Enumerative-ZumkellerTauSigma.md — extracted: HALT verdict, blocking lemma (L), and sieve counts preserved; the obstruction is also documented in the Lean file's docstrings.
-- .tasks/main/docs/Erdos-ErdosLovasz.md — extracted: refutation headline, constant and attribution corrections, witness provenance preserved.
-- .tasks/main/docs/GroupCount-CdoIteration.md — extracted: archive status and gnu(p²) = 2 stretch preserved; instance-search gotchas dropped as low value.
-- .tasks/main/docs/GroupCount-DennisSurjectivity.md — extracted: archive status and moa values preserved.
-- .tasks/main/docs/GroupCount-Gnu.md — extracted: kernel-wall measurements, trust policy, and reduced-Latin-square follow-up preserved.
-- .tasks/main/docs/GroupCount-GroupPerfect.md — extracted: archive status and scope decisions preserved.
-- .tasks/main/docs/GroupCount-Submult.md — extracted: theorem, Mathlib-gap upstream candidate, and HOLD status preserved.
-- .tasks/main/docs/GroupTPP-MaxIrrepDegree.md — extracted: theorem, ground checks, and Multiset upstream candidates preserved.
-- .tasks/main/docs/NumberComplexity-ComplexityPatterns.md — extracted: certificates, open archives, and the packed-Nat-table kernel pattern preserved.
-- .tasks/main/docs/NumberComplexity-HamiltonBallinger.md — extracted: layer summary and archived finiteness claim preserved.
-- .tasks/main/docs/NumberComplexity-QuasilogChainGap.md — extracted: tier-1 proof route, certified gaps, and reusable lemma pointers preserved.
-- .tasks/main/docs/NumberComplexity-SlizkovDoubling.md — extracted: archive status and independent search outcome (max deficit 0 to 8192/50000) preserved.
-- .tasks/main/docs/NumberComplexity-StepWalk.md — extracted: full-proof status and statement-design rationale preserved.
+## outstanding claim-hygiene actions
+
+- A007691 card + Formalize/INDEX retracted claim: the
+  stale "first practical-number formalization" claim
+  still stands in `Formalize/A007691-coleman-practical.md`
+  and in `Formalize/INDEX:84-86` despite the 2026-07-31
+  retraction. Correct both before any citation.
+
+
+## blog arc — state after index retirement (2026-08-09)
+
+* `Plans/BLOG_INDEX.md` and `Plans/VERIFIED.md` deleted 2026-08-09;
+  both recoverable at `git show 7e2a9e2:Plans/<file>`. Their content
+  now lives in the per-result drafts under
+  `~/p/patel.codes/data/words/*.draft.md` (each carries review-agent
+  notes: established floors, wording constraints, open editor
+  judgments). VERIFIED.md remains the retrieval-tagged evidence
+  record for A114976 / A014701 / A354741 / A083207-queue — consult
+  via git history, do not re-litigate closed sweeps.
+* The campaign results ledger and the OEIS-paper pointer sheet
+  (`Documents/first-proofs-and-opn-reduction.md`) deleted
+  2026-08-10; the sheet is recoverable at `git show
+  7d7a0d8:Documents/first-proofs-and-opn-reduction.md`. Their
+  live content was absorbed into the drafts (sweeps: noe → opn
+  draft; melfi → melfi draft; base-b covering → errata draft;
+  nine-claims ledger + wave corrections → claim-discipline
+  draft), into PRIOR ART (now in grounding.md), and into the bullets here.
+* A092482 verification record (2026-08-07 adversarial pass;
+  preserved here for the published-post update and the
+  `Documents/a092482-note/` paper): statement matches the
+  unambiguous Mathematica rendering against all 57 terms; both
+  documented OEIS typos computationally confirmed; the greedy
+  definition is independent of the closed form (no circularity),
+  seed derived not assumed; sorry-free on standard axioms. First
+  proof of the closed form; mechanism is the standard A003278
+  base-2/base-3 greedy argument applied blockwise — no
+  deep-novelty claim. Live entry still said "conjectured and
+  checked up to n=512" at last fetch.
+* Paper running order, compressed from the retired sheet's §8.1
+  (consult the pin for the argument): lead A354741, then A000670
+  (as "38 years older than it looks" + the open general
+  G(exp(x)−1) delimitation), then A114976 / A014701; demote the
+  A083207⟹OPN material to a remark; keep the covering arc out
+  entirely (its paper waits on covering-certificates.md landing).
+* Deliberately out of blog scope (carried over from the index):
+  the covering-systems arc, the matrix-multiplication/ω program,
+  and in-tree material with no manuscript coverage
+  (`Proofs/ShearEC/*`, `Proofs/CHILO/*`, `Proofs/Erdos/Erdos*`
+  outside `Covering/`).
+
+Prior-art enumeration → grounding.md.

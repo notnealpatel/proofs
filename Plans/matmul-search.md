@@ -1,16 +1,39 @@
-# STATE4 — conjecture inventory
+# matmul-search — the omega/matmul computational search program
 
-Distilled 2026-08-10 from 16 conjecture/probe docs under
-`.tasks/f5exp/docs/` (July 2026 campaigns); this file
-supersedes them. Tags: [M] = verified against the committed
-tree during distillation; [A] = asserted by the source doc,
-not re-verified; [O] = inference made here. Nothing below was
-re-computed; kill-witnesses are transcribed losslessly because
-losing one means redoing the computation.
+Computational discovery of faster matrix multiplication via
+group/structure-guided search.  GroupTPP campaign: enumerate,
+sieve, census, and predict beta_0/rho_0 across finite groups
+and their products; search proposes, Lean certifies.
+
+Sources: `git show 4901d3b:Plans/STATE4.md` sections context
+through loose ends, `git show 4901d3b:Plans/STATE8.md` sections
+sieve-summary through code-relocations and Pf3/Bw1/Bf1/Bf2/Qr1
+rescues, `git show 4901d3b:Plans/STATE1.md` sections P2 rank
+calculus and census-derived conjectures (C10/C11 only),
+`git show 4901d3b:Plans/STATE2.md` section native_decide surface
+(certificate facts only), `git show 4901d3b:Plans/STATE6.md`
+section fetch-gaps (Kauers-Moosbauer-Wood); reorganized
+2026-08-10.
+
+## demotion caveat
+
+ALL Sage-derived numerics in this file — the decomposition
+census (C1-C16), sieve tier counts, beta_0 predictions
+(S_7=24192, A_8=127008, PSL(2,13)=3822), the A_6=972
+calibration anchor, Gelfand pair data, kill witnesses, and
+boundary/conspiracy witnesses — are unreviewed and hold
+[A]-computational status.  They are leads, not results.  Per
+Plans/PROTOCOL.md, decisions require Lean certificates or two
+independent implementations.
+
+Named priority: recompute beta_0(A_6)=972 first (calibration
+anchor for the entire census); regenerate the Gelfand jsonl
+from scratch rather than reconciling the 367-vs-307 discrepancy
+forensically.
 
 ## context
 
-Everything in this shard belongs to the GroupTPP campaign
+Everything in this file belongs to the GroupTPP campaign
 (Cohn-Umans group-theoretic matrix multiplication).
 beta_0(G) = max |S||T||U| over subgroup triples satisfying the
 triple product property; rho_0(G) = beta_0(G)/|G|. Notation
@@ -46,6 +69,21 @@ members; *blocked/eligible* as in the manuscript, sec. 1;
 margin(G,p) = Sigma_max^lift(G,p) - beta_0(G); d_p(H) =
 dimension of Hom(H, C_p); "violation" = margin > 0, "tie" =
 margin 0, "slack" = empty blocked census.
+
+## certificate interface status
+
+Kernel `decide` proven at `strassen_isDecomp_F2` (2x2x2) and
+`schoolbookDecomp333`; `PeelingCert222` minpeak=10 /
+`PeelingCert333` peak=26 machine-checked; untested at 4x4x4
+scale.  `native_decide` residue: `strassen_minpeak_F2`
+(PeelingCert222.lean:49, 5040 permutations) and
+`schoolbookDecomp333_isDecomp`/`_peak` (PeelingCert333.lean:62,67,
+729 cells x 27 triads); kernel reduction judged infeasible,
+values cross-checked externally [A].
+
+SOTA gap: Kauers-Moosbauer-Wood arXiv:2602.11041 cited but
+never fetched (Plans/grounding.md fetch-gap list) [M missing].
+Current records must be grounded there before setting targets.
 
 ## formalized
 
@@ -360,51 +398,323 @@ refilter unresolved.)
   Lie-type Tier 2b tightening, recursive Nikolov-Pyber
   decomposition. Unknown whether Qr1 ever ran [O].
 
-## oeis formalization triage
+## group sieve final state
 
-The triage doc scored 46 briefs. Verdict counts: 1
-already-proved core (A319510), 1 trivial-go (A060938), 13
-maybe, 31 out-of-reach/ill-posed. All cited Lean paths exist
-in the tree but most are stale pre-reorg names (`Proofs/Xlib/`
-is now `Proofs/GroupTPP/`, root-level files moved under
-`Proofs/Enumerative/`, `Proofs/Erdos175/` under
-`Proofs/Erdos/`) [M].
+Campaign conclusion of `groupsieve.sage` (2026-07-12),
+cited by its header and `census.sage`; the aggregate was
+recorded nowhere committed [M].
 
-Actionable targets absent from `Plans/PLAN.md` — the real
-at-risk state:
+Stratum A: 100% coverage, 91774 nonabelian of 92803
+groups through order 511. Per-tier: T0 abelian 1029;
+T1a 27; T1b 947; T1c 91 (CAP); T2b 84681 (SURVIVE);
+T3a 796; T3b 5232; 0 errors. Actions: REJECT 3589,
+CAP 3504, SURVIVE 84681. Top survivors are all order
+504/500 with ceiling ~16.87, n(G)=2, e.g. [504,55].
+Known cascade gap: [24,10] (C3xD8) and [24,11] (C3xQ8)
+have known rho_0 = 1 but the cascade only certifies
+CAP(4/3). T2a is absent by design — provably shadowed by
+T1b (Isaacs Cor 2.30).
 
-- A060938 (max irrep degree supermultiplicative,
-  a(m)a(n) <= a(mn)): rated TRIVIAL on top of
-  `Proofs/GroupTPP/CharDegreesMul.lean` [M]. One-step target,
-  no plan entry anywhere.
-- A061256 (Euler transform of sigma = commuting-pairs
-  conjugacy classes of S_n): rated MAYBE, "highest
-  payoff-to-risk in the group cluster", infra at
-  `Proofs/GroupTPP/HigherCommProb.lean` [M]. No plan entry.
-- A319510 (rank a(n) = a(4n) via E_n ~ E_{4n} curve iso):
-  core already proved in `Proofs/Scratch/CongrCurveIso.lean`
-  [M]; literal rank statement blocked on Mordell-Weil rank
-  missing from Mathlib. Needs promotion out of Scratch;
-  untracked.
-- A085805 (perm of D_k character table nonzero iff
-  k = 4 mod 16): MAYBE but its verification run was aborted;
-  gated on a compute re-run before any proof attempt.
-- Secondary notes preserved from the triage: A046098 core is
-  proved (`Proofs/Erdos/Erdos175/NotSquarefree.lean` [M]) —
-  extend, do not restart; A236397 flags a capset definition
-  as highest-leverage shared def work; A332077's adjacent
-  Erdos-Rado classical bound is a separate MAYBE card;
-  A230528's honest next step is a witness-search program;
-  A391599's definition + small-n exact values are actionable
-  even though the sharp constant is out of reach.
+Spec-grounding corrections found while writing the sieve
+(recorded only in sieve-spec.md): Murthy Prop 1.19 is
+actually Prop 2.14; T1b needs the class-2 hypothesis of
+Thm 6.1; cyclic G' must CAP not drop (extraspecial
+counterexample); BCGPU renumbering Thm 3.3->3.2,
+Cor 1.6->3.3, Cor 3.6->3.8, Thm 3.4->3.6; n(G) is the
+smallest irrep dim > 1, not second-smallest distinct
+dimension.
 
-Parked out-of-reach A-numbers (open problems or missing
-foundations; low loss if forgotten): A000001, A000041,
-A000670 (two briefs), A002106, A002804, A003313, A005245,
-A005432, A005520, A007691 (two), A031507, A039669, A046057,
-A060748, A062733, A076142, A083207 (one of two), A089654,
-A090052, A094870, A161682, A230528, A236397, A250109, A273929,
-A323653, A332077, A391599.
+## mc(inv8) campaign verdicts
+
+MCLOWER (cited by
+`Proofs/Scratch/mclower_inv8_slices.lean:30`, S1.2).
+Final verdict: `13 <= MC(inv_8) <= 32` stands. S1.2
+content: witnessed phi_k ranks over the AES modulus are
+`rank phi_k = 8` for all k in 1..7, `rank phi_0 = 0`;
+correction budget at level k is <= 7-k; at no level does
+the required rank of psi_k exceed 8 = dim of its domain.
+The correction ladder is dimensionally graceful
+everywhere, so W1 — linear slice counting — provably
+cannot force MC >= 14 at any level or across the ladder.
+W2 (solver) sized at ~2^80-2^100 after the (star-star)
+reduction, beyond reach. Primary deliverable: the
+(star-star) reformulation — a 13-AND circuit exists iff
+inversion's 8-dim component space can be presented as 8
+AND gates over a shared 5-AND base algebra. Posterior on
+MC >= 14: ~0 via slices, ~0.3-0.4 via a new argument.
+
+MCUPPER (2026-07-23; verdict recorded nowhere committed
+[M]): priced negative, the 32-AND record for inv_8 is NOT
+beaten. Route 1, cheap don't-care partial multipliers:
+provably dead (vanishing space empty through degree 3
+single / degree 2 joint). Route 2, bilinear cross-output
+sharing: closed — the 256x32 matrix of
+`{x_i * Delta'_j(x)}` on all realizable inputs has full
+rank 32; joint GF(2^2) rank exactly 6 = 2*mu_2; bilinear
+don't-care freedom is 0 for all n in {2,4,6,8} (the n=4
+saving is non-bilinear). Route 3, general-MC degree >= 3
+side-mixing: open, tied to Mirwald-Schnorr optimality for
+m >= 3 outputs. Route 4, m8 < 9: open frontier
+(mu_2(GF(2^4)) = 9 holds only in the bilinear model;
+general-MC SAT gave k=3 UNSAT, k=4 timeout). Composite
+residual for beating 32: ~0.08-0.10. Side facts: the BP
+5-AND inverter's 60 valid input maps form one
+GammaL(1,16) orbit; the self-equivalence group of inv_8
+is GammaL(1,2^8), order 2040, nonabelian
+`C3:(C5:(C17:C8))` — an earlier "Z/255 x Z/8" claim was
+wrong.
+
+SAT frontier survey for MC-optimality certification:
+
+| who | year | n | m | k | method | runtime |
+|---|---|---|---|---|---|---|
+| Zajac-Jokay | 2014 | 4 | 4 | 5 | exhaustive (*) | modest |
+| CTP | 2018 | 6 | 1 | 6 | enum+equiv | 38422 core-h |
+| Soeken | 2020 | 5 | 1 | 4 | SAT (Z3) | 530 s |
+| Soeken | 2020 | 6 | 1 | 6 | SAT (Z3) | 5882 s |
+| Stoffelen | 2016 | 4 | 4 | 5 | SAT | seconds |
+| Stoffelen | 2016 | 5 | 5 | ~7 | SAT | minutes |
+| Zhang-Huang | 2023 | 4 | 4 | 5 | SAT (improved) | 2-100x faster |
+
+(*) Constructive enumeration of 302 affine equivalence
+classes, not SAT/UNSAT.
+
+## route c gauge structure
+
+Referent for `Programs/RouteC/routec_gauge_invariants.sage`
+and `routec_gauge_symmetries.sage` headers. Verdict: as a
+performance route, likely no (1-3% throughput); but the
+gauge objective is structurally sensitive (posterior
+dead-by-flatness 0.35 -> 0.10, structurally sensitive
+0.20 -> 0.50).
+
+- Normal form (the "telescoping" section):
+  `Lambda(a,a') = mult_{a'} . MC . Aff . mult_a` over
+  32x32 / GF(2).
+- W1: all 2040 self-equivalence pairs check, zero
+  failures; the group is GammaL(1,2^8) (see mcupper note
+  above for the structure correction).
+- W2: Paar-1 over 145 seeded gauges spans 159-230
+  (identity 226); the invariants sage header quotes
+  145-228.
+- P1: exact stabilizer of Aff under the two-sided mult
+  action is trivial (exhaustive, 65025 pairs); proof-grade
+  via committed `Proofs/Scratch/RouteCGaugeStab.lean` [M].
+- P4 sub-BP contrast: identity 216, low tail 134-149,
+  equal-weight contrast gap 45 -> 36 XOR after
+  cancellation; equal-weight band retains spread 46 —
+  flatness rejected.
+- P5 mu_5 norm-harmonic: cosets mod 5 carry F-statistics
+  15.7 (input) / 7.3 (output) in both weight and savings;
+  invariant `chi(a) = a^51 = N(a)^3` in mu_5. Flagged as
+  first sighting of closed-form subgroup-aligned structure
+  in an SLP-cost landscape (novelty unswept).
+
+## peeling bottleneck notes (Bf1, Bf2, Bw1)
+
+Bf1 duality (referent of committed
+`Programs/BilinearComplexity/b1_levelcut_222.sage`):
+`minpeak(D) = max over blocking families B of
+min_{S in B} f(S)` on the Boolean lattice — elementary
+two-direction proof; the antichain-restricted variant is
+false (explicit 2^[3] counterexamples in the source doc).
+
+Bf2 verdicts on Strassen <2,2,2>/F_2: Q1 TRUE —
+`LB_level = minpeak = 10` at levels m = 1,2,3; Q2 false
+only as a greedy scan-order artifact (level cuts exist at
+every threshold). Peak distribution over all 5040
+orderings: {10: 720, 12: 4032, 14: 288}; per-level minima
+10,10,10,8,6,4,0. Killed: "every peak-10 ordering peels
+M1 last". Open pre-registered conjectures C2 (level-bound
+tightness), C3 (first-step tightness), C4
+(distance-profile shape) — active hypotheses for the
+Pl25 minpeak campaign, recorded nowhere else.
+
+Bw1 boundary witnesses (compression needs rank-1
+structure; negative examples for the frame-F2 exchange
+lemma): W4 in F_2^4: `x1=(1,1,1,0), x2=(1,1,0,1),
+x3=(1,0,1,1)` — all proper subset sums weight >= 2, total
+weight 1. W6 in F_2^6: `x1=(1,1,1,1,1,0),
+x2=(1,1,1,0,0,1), x3=x1+x2` — all proper sums weight
+>= 3, total weight 0. Generalize via complement-of-basis
+(odd k) and linear-code reductions (any k).
+
+## quantum-ec feasibility (qABCD, qC, Qr1)
+
+qABCD/qC verdicts (secp256k1 reversible arithmetic; not
+recorded in `Proofs/ShearEC/` [M]):
+
+- Load-bearing correction: Kaliski binary-GCD inversion
+  has ZERO full multiplications — GCD dominates Fermat,
+  so there is no multiplication target for a group
+  substrate in the inversion loop (grounding: Roetteler
+  arXiv:1706.06752; Taguchi IACR 2024/228).
+- Fermat route best known: NAF add-sub chain 262
+  (256 sq + 6 add/sub); Dettman 269 add-only; lower bound
+  >= 257, Schonhage ~260 add-only.
+- TPP for 4x4 polynomial mult with {0,+-1} reps: NO for
+  |G| <= 9, on three independent grounds — Hedtke bound
+  needs |G| >= 13; embedding exists iff G has an element
+  of order >= 7 (structure theorem, only in these docs);
+  and the C2^3 Walsh-Hadamard loophole fails
+  (exponent-2 obstruction: phi_3 takes <= 2 values).
+  Embedding counts: C7: 6, C8: 4, C9: 6.
+- {0,+-1} realizability: S3 std YES (integral
+  non-monomial), D4 YES (monomial), Q8 NO (quaternionic,
+  FS = -1). Sub-mult costs via R<2,2,2> = 7: S3 = 9,
+  D4 = 11, Q8 = 11, S3xC2 = 18.
+- Toom-k inverse interpolation entry growth (exact):
+  k=4 -> 15, k=5 -> 196, k=6 -> 4100, k=7 -> 126456.
+
+Qr1 lamplighter sieve parameters (lookup table only in
+this doc): C2 wr C3 = [24,13], n(G)=3, T3b CAP(1.5);
+C2 wr C4 = [64,32], n(G)=2, T2b SURVIVE ceiling 5.66;
+C2 wr C5 = [160,235], n(G)=5, T3b CAP(2.5);
+C2 wr C6 = [384,5790], n(G)=2, T2b SURVIVE ceiling
+13.86. Character degree multisets: C2wrC4 [1,2,4],
+C2wrC6 [1,2,3,6]. Even-n lamplighters survive the sieve
+(n(G)=2, maximally non-quasirandom).
+
+## candidate-ledger kill/defer rationales
+
+From the Erdos problem sweep (401 problems); landed
+problems are in `Proofs/Erdos/` and
+`Formalize/ERDOS_CANDIDATES.md`.
+
+- #1216 killed (2^91 tournament enumeration infeasible).
+- #742 killed (enumeration scale).
+- #835/#617 killed (SAT scale).
+- #1213 deferred (proof paper inaccessible).
+- #384 deferred (Chebyshev-type gap; Mathlib has
+  `Nat.exists_prime_lt_and_le_two_mul`,
+  `Nat.factorization_choose`,
+  `Chebyshev.theta_le_log4_mul_x` but not the needed
+  strengthening).
+- #402 was already formalized despite a
+  `formalized=no` sweep tag.
+
+## F_2 rank-calculus survivor cluster
+
+From calibration sweep P2 (STATE1); the surviving
+conjectures only — their novelty grading stays in
+Plans/standing.md.
+
+- c8: SURVIVOR (both sweeps). 200-sample evidence that
+  Strassen mod 2's unique orbit-size-1 triad and Smirnov-1's
+  C_3-fixed triad are both the identity triad; full 211-orbit
+  sweep not run.
+- c9: SURVIVOR (both sweeps). Exhaustive over all 21 orbits
+  of <2,2,2>/F_2.
+- c10b: SURVIVOR (both sweeps). 2 data points, checkable vs
+  known cyclic rank-23s.
+- c5+c6+c10 rigidity package: every abstract monomial
+  realization is, up to gauge, a Cohn-Umans TPP
+  realization. Both sweeps judged derivable-but-never-stated.
+- c8/c9 stabilizer-peel: feeds the orbit-reduced interference
+  search as feasibility pruning.
+- c6/c7 are the search itself (OPEN-BET).
+
+## 2^a*3 decomposability crossover
+
+From the census-derived conjectures (STATE1 and STATE4 C10/C11);
+surviving-conjecture entries only — novelty grading stays in
+Plans/standing.md.
+
+C10/C11 (2^a*3 crossover at a=7 and C_3-peel growth) graded
+APPARENTLY NOVEL. No literature studies decomposability rates
+within the family 2^a*p. Nearest: Erdos-Palfy, Discrete
+Math. 200 (1999); Eick-Moede 2018; OEIS A094448/A090751 hold
+raw counts, no rate analysis.
+
+## census-derived conjectures — additional entries (2026-07-12)
+
+C-numbers refer to the retired `orch-Cj-census-final.md`
+(gnu/decomposability census of small-group orders).
+
+C4/C5, order-256 desert/burst id-ranges — KILLED,
+catalogue artifact. SmallGroups id order at 256 is
+construction order (rank of G/Φ(G), then p-class,
+Newman-O'Brien descendant traversal). O'Brien, "The groups
+of order 256," J. Algebra 143 (1991). Surviving content:
+decomposability rates by rank and p-class are unexamined.
+
+C1/C14, p-group desert — FOLKLORE-DERIVABLE. "Almost all
+p-groups are directly indecomposable" is a one-line
+Higman-Sims corollary that no paper states. Caveat: at
+n ≤ 9 the asymptotic regime has not set in; do not cite
+Higman-Sims as proving our range. Methodological precedent:
+Helleloid-Martin math/0602039.
+
+Pf3, rho_0(A×G) = rho_0(G) — ADJACENT; upper bound novel.
+The ≥ direction is Murthy arXiv:0709.1223 Lem 4.8 plus
+rho_0 = 1 for abelian. The ≤ direction is stated nowhere
+across eight checked sources (0709.1223, 2602.15796,
+2512.16730, 1107.5969, 1107.5973, math/0511460,
+math/0307321, 2204.03826).
+
+Pl4 rigidity lemma (no single-fiber commutative CC of rank
+exactly n² realizes ⟨n,n,n⟩) — ADJACENT. Stated nowhere
+but implicit in CU13 arXiv:1207.6528 (Conj 5.7 targets
+n^(2+o(1)); Example 4.6 is the multi-fiber realization);
+a 3-line counting argument from CU13's definitions. Cite
+as "implicit in CU13, made explicit."
+
+Pl4 rank ceiling r ≤ (N + [N_G(H):H])/2 — ADJACENT.
+Both ingredients textbook folklore; the inequality is
+stated nowhere found in ~15 sweeps (Cameron Math. Z. 124
+bounds by deeper methods). Honest weight:
+folklore-made-explicit, not a new theorem; the new content
+is the cross-context link to BCGPU arXiv:2204.03826
+Thm 3.6's normalizer parameter. Cite the link, not the
+lemma. Follow-ons queued and never run: OEIS
+cross-check/extension of A094448/A090751; rate-by-rank
+reframing of C4/C5.
+
+Pl4 verdicts: the Gelfand-screen conjecture C2 was
+PROMOTED TO THEOREM — N ≥ 4r/3 via a normalizer-quality
+/ double-coset counting argument; C1 (N ≥ r + cap2)
+remains a conjecture, verified 367/367. `partners_min = r`
+recovery means constraint NC2' never binds. [A]
+
+## dropped-conjecture record (Pl18 fan audit)
+
+The kernel ledger (K1–K16) silently dropped crisp,
+falsifiable conjectures; this is the only record: [A]
+
+- K1's formula omits the `max(beta_0, Σ_max)` envelope —
+  wrong on slack groups as stated.
+- Isomorphic-pair necessity (Cj3-C3, 240/240) and
+  monotone trichotomy (Cj3-C4, 7/7): dropped.
+- Cj6-C4 (odd primes sterile in padded groups), strictly
+  stronger than K6: dropped. Cj7-C7 strong form
+  (p = 3 blocked ⇒ tie): lost from K6.
+- Blocked-saturation trichotomy (Cj7-C4, 12/12): dropped.
+- K10 drops Cj2-C7's directional PGL(2,9) prediction —
+  which Im15 then CONFIRMED.
+- Im13 count: four confirmed instances, not three.
+
+The scan contract (8 free-rider checks on every census
+output) binds Im16/Im17 outputs. [A]
+
+## code relocations
+
+- `kernel-graph.mmd` — move to `Programs/GroupTPP/`.
+  Mermaid map of the TPP kernel DAG; several nodes stale
+  (K5c/K7/K14-surface killed by Im15) — refresh on move.
+- `route-d-aes-diffusion-witness.py` — move to
+  `Programs/Unsorted/` (no RouteD dir; unrelated to
+  RouteC). Witness script for per-round batch-constant
+  SubBytes inputs in AES-CTR.
+- `pf3-probes/`: `lemmaM2.sage` and `lemmaD.sage` are
+  verbatim-refactored into committed
+  `Programs/GroupTPP/lemma_sweep.sage` [M] — drop. The
+  other six probes are not subsumed and are the
+  regeneration path for the A_6 witnesses above — move to
+  `Programs/GroupTPP/pf3-probes/`. Note: the directory
+  also contains `beta0-exact.sage` (off-manifest); move
+  it with the rest.
+
+OEIS conjecture-discovery targets: see Plans/conjecture-hunts.md.
 
 ## loose ends for adjudication
 
@@ -424,47 +734,3 @@ A323653, A332077, A391599.
   beta_0(PSL(2,13)) (tests Cj4-C6 and Cj5-C9 at once),
   the PSL(2,27) p=3 census (tests odd-prime sterility), and
   order-768 decomposition rates (tests C10 and C11).
-
-## file dispositions
-
-- `.tasks/f5exp/docs/beta0-literature-grounding.md` —
-  extracted: notation lineage kept here; values and kills are
-  durable in `Documents/abelian-factor-refutation.md`; its
-  C_2xA_7 >= 21168 line is a stale pre-law snapshot.
-- `.tasks/f5exp/docs/beta0-oeis-check.md` — extracted:
-  negative OEIS result and ruled-out near-matches kept here.
-- `.tasks/f5exp/docs/Cj1-gelfand-conjectures.md` — extracted:
-  both conjectures and equality witnesses kept; data
-  committed [M].
-- `.tasks/f5exp/docs/formalize-oeis-triage.md` — extracted:
-  verdicts, untracked targets, and stale-path map kept here.
-- `.tasks/f5exp/docs/Hu2-Cj2-conjectures.md` — extracted:
-  C1-C8 inventoried here (C1/C2/C8 settled by lift law).
-- `.tasks/f5exp/docs/Hu2-Cj3-conjectures.md` — extracted:
-  C1-C7 plus rejected R1-R3 with witnesses kept here.
-- `.tasks/f5exp/docs/Hu2-Cj4-conjectures.md` — extracted:
-  C1-C8 kept, incl. the uncommitted PSL(2,27) target [A].
-- `.tasks/f5exp/docs/Hu2-Cj5-conjectures.md` — extracted:
-  C1-C10 kept with all numeric predictions.
-- `.tasks/f5exp/docs/Hu2-Cj6-conjectures.md` — extracted:
-  C1-C8 kept (C1/C3/C8 settled, C5 killed).
-- `.tasks/f5exp/docs/Hu2-Cj7-conjectures.md` — extracted:
-  C1-C8 kept, incl. the C4-biconditional and Syl_2 kills.
-- `.tasks/f5exp/docs/orch-Cj-census-early.md` — drop:
-  superseded by the final census; early C8/C9 subsumed by C16
-  and full-data tables.
-- `.tasks/f5exp/docs/orch-Cj-census-final.md` — extracted:
-  C1-C7 verdicts and C10-C16 with kill conditions kept; full
-  tables recomputable from committed census jsonl [M].
-- `.tasks/f5exp/docs/pf3-probes/beta0-exact.sage` — move to
-  `Programs/GroupTPP/forge/`: independent exhaustive Sage
-  route to beta_0(A_6) = 972; cheap calibration asset
-  complementing the Go engine.
-- `.tasks/f5exp/docs/probe-coherent-configs.md` — extracted:
-  verdict and abelian-inversion insight kept here.
-- `.tasks/f5exp/docs/probe-quasirandomness.md` — drop: its
-  surviving claims and corrections are captured via the
-  verdict entry here.
-- `.tasks/f5exp/docs/probe-quasirandomness-verdict.md` —
-  extracted: lamplighter kill, Nikolov-Pyber scale caveat,
-  extraspecial correction, and fold-in decisions kept here.

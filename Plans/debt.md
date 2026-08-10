@@ -1,32 +1,100 @@
-# STATE2 — audit debt
+# debt — burndown ledger
 
-Distilled 2026-08-10 from the 33 audit-debt working docs
-under `.tasks/f5exp/docs/` and `.tasks/main/docs/`
-(shard 2 of the doc-retirement campaign). This file
-supersedes those docs. Every item below was cross-checked
-against the tree at commit `7b0e828` before recording.
-Tags: [M] = verified in the current tree by this
-distillation, [A] = agent/auditor assertion carried from
-the source docs, [O] = observation.
+Everything mechanical that must be repaired or completed.
+This file shrinks to empty. Items are open unless marked
+done. File-dispositions sections of STATE1–8 are NOT
+carried forward — they were single-use for the .tasks
+deletion and live at `git show 4901d3b:Plans/STATE<N>.md`.
 
-## ad1 burndown: verified, with residue
+Sources: `git show 4901d3b:Plans/STATE2.md` in full; `git
+show 4901d3b:Plans/STATE0.md` pre-deletion checklist items
+2–7; `git show 4901d3b:Plans/PLAN.md` sections "CHORES" and
+"AXIOM HYGIENE"; `git show 4901d3b:Plans/STATE8.md`
+dangling-pointer ledger; reorganized 2026-08-10.
 
-Card `Ad1` (status done) claimed to retire every
-2026-07-29 f5exp vacuity finding. Per-item verification
-against the tree confirms all six items landed as commit
-`2cb92cc` [M]: the Fubini `native_decide` chain is gone,
-`strassen_isDecomp_F2` / `schoolbookDecomp333_length` are
-kernel `decide`, `two_le_shearCount_of_quad` is restated
-embedding-generic with the n = 5 witness at
-`Proofs/ShearEC/ShearQuadraticRank.lean:791`,
-`lakefile.toml` sets `autoImplicit = false`,
-`extraspecialD4` exists at
-`Proofs/GroupTPP/ExtraspecialLattice.lean:314`, and the
-stale-text fixes are in place. A follow-up vacuity
-recheck independently re-derived the item-3 and item-5
-repairs and returned SOUND [A]. The card is trustworthy;
-what survives is the declared residue below.
 
+## chores (from PLAN.md)
+
+  X1  Adopt `leanprover-community/axiom-audit` (allowlist-subset check,
+      runs over `.olean`, catches transitive deps, community-maintained)
+      and retire the five stale hand-rolled sweeps under
+      `Proofs/Scratch/` (Ad1AxiomSweep, Aw1AxiomAudit, Le1AxiomAudit,
+      Secp256k1AxiomAudit, ShearReviewAudit) with `goof rm` — only
+      after parity is demonstrated by planting both a native_decide
+      proof and a `sorry` and watching the new tool fire. Measured facts
+      behind this are under AXIOM HYGIENE below.
+  X2  Refresh `Formalize/INDEX`: record the landed-but-unrecorded files
+      — FixedDivisor/Sierpinski/Riesel/Erdos1950Instance (9d873d7,
+      5157ca8), RankOfApparition (3c7d4ef), ZumkellerSigmaHalf +
+      MultiperfectZumkeller + nine A083207 instances (3e593ab), the
+      NederGap stub state, and the ShearEC arc — CORRECTED 2026-08-05:
+      T1–T4 are fully covered and sorry-free (T1 =
+      TotalDegreeAeval + ShearCircuit, T2 = ShearInversionLB +
+      Secp256k1Prime, T3 = ShearQuadraticRank + ShearAddition, T4 =
+      ShearAdditionEC + ShortCurveScaling + VariableChangePointEquiv),
+      but `ShearAdditionChains.lean` (T5) is a THREE-LINE EMPTY STUB —
+      the min-shears-for-x^n = l(n) bridge does not exist; it joins the
+      A003313 lane as the natural sibling. Strike the STATEMENTS
+      rows that landed; mark queue items 2–5 follow-ons accurately
+      (Sierpinski/Riesel follow-on is DONE). Two spec files INDEX
+      cites do not exist anywhere (review-vacuity-SlizkovDoubling.md,
+      review-vacuity-ErdosLovasz.md) — note the citations as dead.
+      X2 should additionally record the wave 2–3 landings
+      (commits of 2026-08-05..09; enumerate via git log).
+
+
+## axiom hygiene — measured facts (keep until X1 lands)
+
+The five hand-listed sweeps under `Proofs/Scratch` state their criterion
+as "no `Lean.ofReduceBool`". That name is never emitted on this
+toolchain, so those five detect nothing. Measured on v4.33.0-rc1: a
+native_decide proof yields `<decl>._native.native_decide.ax_1_1`.
+
+This is documented upstream behaviour, not a discovery — RFC #12216 /
+PR #12217, shipped in Lean v4.29.0 (2026-03-27), moved native
+computation to one axiom per computation; `ofReduceBool` was deprecated
+2026-02-01. Only an allowlist-SUBSET test works. `RankOfApparition`
+section 10 does it that way and `throwError`s, verified to fire by
+planting both a native_decide proof and a `sorry`. It cannot close two
+limits from inside: `example`s contribute no constant and escape any
+such sweep, and the sweep is positional. Mathlib solves the same problem
+with a syntactic linter plus periodic lean4checker, and explicitly notes
+name-checking is "not airtight".
+
+
+## pre-deletion residuals (from STATE0.md items 2–7)
+
+  2  Moves per dispositions: seven `pf3-probes/*.sage` →
+     `Programs/GroupTPP/` (`beta0-exact.sage` → its `forge/`;
+     lemmaD/lemmaM2 dropped, verbatim in committed `lemma_sweep.sage`);
+     `kernel-graph.mmd` → `Programs/GroupTPP/`;
+     `route-d-aes-diffusion-witness.py` → `Programs/Unsorted/`.
+  3  Code fixes: `Programs/GroupTPP/cmd/gelfandrank/main.go:71` writes
+     to a `.tasks` path (breaks at runtime after deletion);
+     `groupsieve.sage:853,857` and `cascade.sage:979,983` print
+     `.tasks` paths.
+  4  Repoint Lean headers citing `.tasks` docs to STATE files:
+     `ConnerWaring.lean:26,42`, `ExtraspecialLattice.lean:121`,
+     `ShearQuadraticRank.lean:45,736`, `STPPWreath.lean:1744`,
+     `SchinzelSzekeres.lean:67,76`; low-severity comment refs in
+     `verify_all_combos.sage:9` and historical `Prompts/` files are
+     listed in STATE8.
+  5  Standing errors surfaced by the audit, not yet fixed:
+     `Formalize/A007691-coleman-practical.md` and
+     `Formalize/INDEX:84-86` still carry the retracted
+     first-formalization claim; PLAN.md's Erdős #1213 pigeonhole
+     route is refuted (STATE3); Gelfand 367-vs-307 jsonl discrepancy
+     unresolved (STATE4); `Prompts/Ref/MENTALMAP` factcheck errors
+     unapplied (STATE8).
+  6  Known losses, accepted: the BooleanRankGeneric three-way
+     cross-check script (STATE2) and the Cj4-C7 PSL(2,27) Sage
+     skeleton (STATE4) existed only in uncommitted scratch.
+  7  Delete `.tasks/**` (done cards' outcomes are in git history).
+
+
+## ad1 burndown residual
+
+Card `Ad1` (status done) repairs verified in tree [M].
 The burndown's own residual list, current status [M]:
 
 - Q8 companion witness
@@ -52,11 +120,13 @@ The burndown's own residual list, current status [M]:
   `autoImplicit = false`; `#check @` sampling missed 14
   live phantoms in `PeelingSupport.lean` [A].
 
-## dangling in-tree pointers
+
+## dangling in-tree pointers (from STATE2)
 
 Three committed Lean files cite docs this retirement
-deletes [M]. My stance: repoint them at this file, since
-the substance now lives here.
+deletes [M]. Repoint them at `Plans/debt.md` (the STATE2
+rescues live in this file; STATE8 originals at
+`git show 4901d3b:Plans/STATE8.md`).
 
 - `Proofs/CHILO/ConnerWaring.lean:26,42` cite
   `vacuity-chilo.md` as the erratum verification record.
@@ -65,9 +135,9 @@ the substance now lives here.
 - `Proofs/ShearEC/ShearQuadraticRank.lean:45,736` cite
   `vacuity-shearec.md` for the n = 4 emptiness argument.
 
+
 ## conner–waring erratum record
 
-Content of the cited verification record, preserved [A]:
 arXiv:1711.05796 (Conner, Exp. Math. 30(3)) prints
 `a = -2^{-1/3}`. Forcing the trace identity at `A = I`:
 traces of `m_1..m_9` are 2 each, `m_10` is `3a`,
@@ -79,6 +149,7 @@ sign typo. Sage symbolic check: the identity fails mod
 No published erratum was found; the corrected constant
 is unique. The Go oracle `cmd/probe-waring` now exists
 in-tree [M], so the numerical side is re-runnable.
+
 
 ## shearec n = 4 scope note
 
@@ -96,6 +167,7 @@ witness is known, content is carried at `n = 5` by
 exhibit is carried by the statement, not the proof
 route; the current conjunction form survives a silent
 reproof by `decide` [A]. Not done [M].
+
 
 ## extraspecialdata drift (d1)
 
@@ -115,6 +187,7 @@ assert the textbook bindings ("The center
 Repair options: retitle field docstrings as intended
 readings, or add tying fields in a strengthened variant.
 The Q8 + commutator follow-ups would close most of this.
+
 
 ## sorry inventory
 
@@ -142,6 +215,7 @@ convention), self-documenting in-tree; they are not
 audit debt. Note `stpp_capacity_le` has zero term-level
 consumers [M] — the capacity chain routes around it.
 
+
 ## native_decide surface
 
 Deliberate, audited-acceptable residue [M]:
@@ -159,6 +233,7 @@ lane [M]. Logically inert (no named constant), but it
 falsifies any lane-level "zero native_decide in closure"
 claim; single root cause behind two review findings
 (Gnu STYLE-8, DennisSurjectivity TRUST-2).
+
 
 ## grouptpp findings still open
 
@@ -184,6 +259,7 @@ confirmations [M] where noted:
   (consumed at call sites, so decorative not harmful).
 - F9/F10: cosmetic `d > 1` in a def body; monolithic
   `import Mathlib`. Recorded, no action needed.
+
 
 ## docstring and style debt
 
@@ -222,6 +298,7 @@ Stale prose [M]: `BorderRank.lean:5,66` and
 `cmd/51293/perk.go` (actual: `cmd/A051293/perk.go`);
 `open scoped Classical` lingers at `Vp2.lean:219`.
 
+
 ## sage–lean faithfulness caveat
 
 Permanent scope caveat for BilinearComplexity, not
@@ -234,6 +311,7 @@ stabilizer, change-of-basis embedding, transpose
 involution, or Burnside counting exists in Lean [M].
 Treat the orbit counts as well-motivated computational
 claims, not verified theorems [A].
+
 
 ## main-branch review residuals
 
@@ -286,38 +364,66 @@ A355333 (`156 != 168` at n = 3) ran from a deleted
 scratch script; the discrimination facts are re-derivable
 from OEIS but the script is not preserved [A].
 
-## File dispositions
 
-- .tasks/f5exp/docs/Ad1-burndown.md — extracted: repairs verified in tree; residual-debt list preserved above.
-- .tasks/f5exp/docs/Pl20-repair-audit.md — extracted: two STPPWreath sorries and Pl21/Df1 forward state preserved; landed chain verified.
-- .tasks/f5exp/docs/sage-lean-faithfulness.md — extracted: orbit-count caveat preserved; contraction gap verified closed.
-- .tasks/f5exp/docs/vacuity-ad1-recheck.md — extracted: D1 drift and _tight hardening note preserved; in-tree pointer at ExtraspecialLattice.lean:121 needs repointing.
-- .tasks/f5exp/docs/vacuity-algcomplexity.md — extracted: 37 docstrings, stale module paths, Classical scope survive; core findings retired.
-- .tasks/f5exp/docs/vacuity-bilinearcomplexity.md — extracted: native_decide surface, 25 docstrings, bare simp, PeelingSupport sorry survive.
-- .tasks/f5exp/docs/vacuity-chilo.md — extracted: erratum record inlined above; ConnerWaring.lean:26,42 pointers need repointing.
-- .tasks/f5exp/docs/vacuity-enumerative.md — extracted: S2-S6 residuals survive; T1/S1 verified retired.
-- .tasks/f5exp/docs/vacuity-erdos.md — extracted: Sunflower docstring/namespace debt survives; Spread stale text verified fixed.
-- .tasks/f5exp/docs/vacuity-grouptpp.md — extracted: F2-F4, F6-F10 survive; F1/F5 verified retired.
-- .tasks/f5exp/docs/vacuity-shearec.md — extracted: n=4 scope argument inlined above; ShearQuadraticRank.lean:45,736 pointers need repointing.
-- .tasks/f5exp/docs/xlib-sorry-triage.md — extracted: two open STPPWreath sorries and Clifford estimate preserved; 10 of 12 triaged sorries verified discharged.
-- .tasks/main/docs/review-style-CdoIteration.md — drop: zero MUST debt; two documented SHOULDs, accepted at review.
-- .tasks/main/docs/review-style-DennisSurjectivity.md — drop: all items PASS, spot-checked clean.
-- .tasks/main/docs/review-style-GroupPerfect.md — drop: all items PASS, spot-checked clean.
-- .tasks/main/docs/review-style-MaxIrrepDegree.md — drop: advisories explicitly accepted; no violations.
-- .tasks/main/docs/review-style-StepWalk.md — drop: namespace advisory fixed since review; rest informational.
-- .tasks/main/docs/review-style-Submult.md — drop: Ren attribution landed; no violations.
-- .tasks/main/docs/review-style-ZumkellerTauSigma.md — drop: unnamed have fixed; axioms-block absence is sub-family convention.
-- .tasks/main/docs/review-vacuity-BooleanRankGeneric.md — extracted: audit-block overclaim and card CLAIM line survive; cross-check note above.
-- .tasks/main/docs/review-vacuity-CdoIteration.md — extracted: norm_num maintenance trap and blockquote fidelity survive.
-- .tasks/main/docs/review-vacuity-ComplexityPatterns.md — drop: all actionable findings verified repaired in-file.
-- .tasks/main/docs/review-vacuity-DennisSurjectivity.md — extracted: closure native_decide and card EVIDENCE inversion survive.
-- .tasks/main/docs/review-vacuity-ErdosLovasz.md — extracted: identity-theorem naming hazard survives; renames verified landed.
-- .tasks/main/docs/review-vacuity-Gnu.md — drop: all eight findings verified repaired; shared native_decide item recorded above.
-- .tasks/main/docs/review-vacuity-GroupPerfect.md — drop: verdict SOUND; all notes informational or repaired.
-- .tasks/main/docs/review-vacuity-HamiltonBallinger.md — drop: all three findings verified repaired.
-- .tasks/main/docs/review-vacuity-MaxIrrepDegree.md — drop: clean verdict, no findings.
-- .tasks/main/docs/review-vacuity-QuasilogChainGap.md — drop: both findings verified repaired.
-- .tasks/main/docs/review-vacuity-SlizkovDoubling.md — extracted: tautology-bridge hazard survives; DRIFT-2 verified closed by l_eq_lAsc.
-- .tasks/main/docs/review-vacuity-StepWalk.md — extracted: lt_or_ge and diagnostic-command advisories survive.
-- .tasks/main/docs/review-vacuity-Submult.md — extracted: missing [Finite H'] junk region survives.
-- .tasks/main/docs/review-vacuity-ZumkellerTauSigma.md — extracted: over-assumed oddness at :753 survives; S1-S3 are documented deviations.
+## stale paths inherited from the reorganization
+
+RESOLVED 2026-08-10: two stale source-inherited paths were corrected
+during the reorganization fix pass — `Proofs/Xlib/STPPWreath.lean` →
+`Proofs/GroupTPP/STPPWreath.lean` (conjecture-hunts.md) and
+`Proofs/Proofs/ErdosCovering/*` → `Proofs/Erdos/Covering/*`
+(standing.md); both targets verified on disk [M].
+
+## dangling pointers (from STATE8)
+
+Committed files that name deleted `.tasks` paths. Rescued
+referents were distributed into the idea files (largely
+`Plans/matmul-search.md` and `Plans/matmul-endgame.md`;
+originals at `git show 4901d3b:Plans/STATE8.md`); pointers
+should eventually be rewritten to those homes or made
+self-contained.
+
+- `Proofs/GroupTPP/TPPLift.lean:37`,
+  `Documents/abelian-factor-refutation.md:363,580` ->
+  `Pf13-lift-law.md` (rescued in STATE8).
+- `Documents/abelian-factor-refutation.md:581`,
+  `Programs/GroupTPP/lemma_sweep.sage:28`,
+  `cmd/sieve/lemmasweep/main.go:21`,
+  `Programs/GroupTPP/groupsieve.sage:122,342` ->
+  `Pf3-abelian-factor.md` (rescued in STATE8).
+- `Proofs/GroupTPP/STPPWreath.lean:1278` ->
+  `Lg1-counterexample.md` (rescued in STATE8).
+- `Proofs/Scratch/mclower_inv8_slices.lean:30` ->
+  `mclower-campaign.md` §S1.2 (rescued in STATE8).
+- `Proofs/Erdos/Erdos542/SchinzelSzekeres.lean:67,76` ->
+  `erdos542-weights.md`; harmless — all 13 LP-dual weights
+  are embedded and compiled in the Lean file [M]; the
+  greedy reconstruction algorithm and margin analysis are
+  re-derivable from the paper; pointer is provenance-only.
+- `Programs/GroupTPP/gelfand.sage`, `forge/gelfand.sage`
+  -> `Cc2-ccsieve-spec.md` rev2 (rescued in STATE8).
+- `Programs/GroupTPP/groupsieve.sage:76-77`,
+  `census.sage`, `stratum-b-full.log` ->
+  `sieve-{spec,summary}.md` (rescued in STATE8).
+- `Programs/RouteC/routec_gauge_{invariants,symmetries}.sage`
+  -> `route-c-gauge-dual-ciphers.md` (rescued in STATE8).
+- `Programs/BilinearComplexity/b1_levelcut_222.sage` ->
+  `Bf1-bottleneck.md` (rescued in STATE8).
+- `Prompts/User/erdosmining` -> `candidate-ledger.md`;
+  `Prompts/User/f5high-3rev.md` -> both analysis docs
+  (rescued in STATE8). Prompt files are historical records;
+  many also cite other-shard `.tasks` docs.
+- Code that emits or writes `.tasks` paths at runtime:
+  `Programs/GroupTPP/groupsieve.sage:853` and
+  `forge/cascade.sage:979` print `Im3-ranking.md` in
+  their summaries; `groupsieve.sage:857` and
+  `cascade.sage:983` print `orch-Cj-census-early.md`;
+  `Programs/GroupTPP/cmd/gelfandrank/main.go:71`
+  hardcodes `Im8-gelfand-ranking.md` as its OUTPUT path
+  and will break after deletion — needs an `-o` flag or
+  a committed output location. (`Im8` was a generated
+  artifact, not authored prose.)
+- `Programs/GroupTPP/forge/verify_all_combos.sage:9`
+  cites `Im12.md` (comment-level provenance, not runtime).
+- `Prompts/User/o46max-3.md:14,16` and
+  `Prompts/Ref/CONTEXT:130` cite `Im4-verification.md` /
+  `Im3-ranking.md` (low severity, historical prompts).
