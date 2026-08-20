@@ -33,3 +33,5 @@
   `fetch` auto-canonicalizes into `.tex` or `.txt` for agents.
 
 - You SHOULD use `sage -c "<sage code>"` for short queries or explorations.
+
+- You SHOULD implement directly onto `main` unless told otherwise.
