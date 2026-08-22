@@ -15,17 +15,19 @@ Jean-Marc Rebert conjectured (OEIS A014701, 2025-05-15):
 > before each step, after the first step, whether to keep the same step length
 > or double it. The initial step length is `1`.
 
-This file proves that conjecture.
+This file proves the characterization for positive destinations `1 ≤ n`. The
+boundary case `n = 0`, where `a(1) = 0` corresponds to the empty walk, is not
+represented by `Reach`.
 
-## Novelty status (literature sweep 2026-07-30, `.tasks/main/docs/novelty-StepWalk.md`)
+## Literature status (bounded sweep 2026-08-21)
 
-NO-REFERENCE-FOUND — first recorded proof of Rebert's conjecture.  The
-closed-form count `A014701 n = ⌊log₂ n⌋ + popcount n − 1` is classical (Knuth,
-TAOCP Vol. 2, §4.6.3), and the max-Hamming-weight decomposition identity is
-Gruber–Holzer (MFCS 2021, Lemma 8); but the keep-or-double walk
-characterization and its equivalence to the classical formula appear nowhere —
-the OEIS entry still labels the statement "Conjecture."  The equivalence proof
-is due to this file.
+The closed-form count `A014701 n = ⌊log₂ n⌋ + popcount n − 1` is classical
+(Knuth, TAOCP Vol. 2, §4.6.3), and the max-Hamming-weight decomposition identity
+is due to Gruber–Holzer (MFCS 2021, Lemma 8). A bounded search of the OEIS entry
+and its linked neighborhood, cited primary sources, targeted web results,
+limited SeqFan material, and `sequencelib` found no earlier proof of Rebert's
+keep-or-double characterization. This records the scope of that search, not an
+unrestricted priority claim.
 
 ## Main statements
 
@@ -34,7 +36,9 @@ is due to this file.
   `NumberComplexity.Reachable n k` says `n` is reached in `k` steps.
 * `NumberComplexity.rebert_conjecture` — for `1 ≤ n`, `k` is the least number of
   steps reaching `n` iff `k + 2 = (Nat.bits (n+1)).length + popCount (n+1)`.
-* `NumberComplexity.rebert_conjecture_iInf` — the same, phrased with a
+* `NumberComplexity.existsUnique_shortest_decisionWord` — for `1 ≤ n`, exactly
+  one data-level keep/double word reaches `n` with minimum total walk length.
+* `NumberComplexity.rebert_conjecture_iInf` — the same minimum-step count, phrased with a
   subtype-indexed infimum over the (provably nonempty) set of step counts.
 
 ## Implementation notes
@@ -280,7 +284,8 @@ theorem binCost_le_of_reachable {n k : ℕ} (h : Reachable n k) :
 /-! ## Upper bound: the binary expansion is a walk -/
 
 /-- The walk realising the binary expansion `p + 1 = 2 ^ (t+1) + R`: it uses
-`t + 1` doublings and `popCount R` extra keeps, and ends with step length `2 ^ t`. -/
+one initial step, `t` doubling transitions, and `popCount R` extra keeps, and
+ends with step length `2 ^ t`. -/
 theorem reach_of_binary (t : ℕ) : ∀ R p : ℕ, R < 2 ^ (t + 1) → p + 1 = 2 ^ (t + 1) + R →
     Reach (t + 1 + popCount R) p (2 ^ t) := by
   induction t with
@@ -380,6 +385,328 @@ theorem rebert_conjecture (n k : ℕ) (hn : 1 ≤ n) :
     rw [hkk]
     exact hleast
 
+/-! ## Uniqueness of the shortest decision word
+
+`Reach` is `Prop`-valued, so equality of two `Reach` proofs follows from proof
+irrelevance and does not express path uniqueness.  The data-level words below
+record each keep/double decision after the mandatory first step.  The evaluator
+is equivalent to `Reach`, and its list data makes genuine path uniqueness
+stateable.
+-/
+
+/-- A keep-or-double choice made after the mandatory first step. -/
+inductive WalkDecision where
+  | keep
+  | double
+  deriving DecidableEq, Repr
+
+/-- Final position encoded by a chronological word of decisions after the first step. -/
+def decisionPosition : List WalkDecision → ℕ
+  | [] => 1
+  | WalkDecision.keep :: w => decisionPosition w + 1
+  | WalkDecision.double :: w => 2 * decisionPosition w + 1
+
+/-- Final step length encoded by a chronological word of decisions after the first step. -/
+def decisionStep : List WalkDecision → ℕ
+  | [] => 1
+  | WalkDecision.keep :: w => decisionStep w
+  | WalkDecision.double :: w => 2 * decisionStep w
+
+example : decisionPosition [] = 1 := rfl
+example : decisionPosition [WalkDecision.keep, WalkDecision.double, WalkDecision.keep] = 6 := rfl
+example : decisionStep [WalkDecision.keep, WalkDecision.double, WalkDecision.keep] = 2 := rfl
+
+/-- Every decision word has a positive terminal position. -/
+@[simp] theorem decisionPosition_pos (w : List WalkDecision) : 1 ≤ decisionPosition w := by
+  induction w with
+  | nil => simp [decisionPosition]
+  | cons a w ih => cases a <;> simp [decisionPosition]
+
+/-- Every decision word has a positive terminal step length. -/
+@[simp] theorem decisionStep_pos (w : List WalkDecision) : 1 ≤ decisionStep w := by
+  induction w with
+  | nil => simp [decisionStep]
+  | cons a w ih => cases a <;> simp only [decisionStep] <;> omega
+
+/-- Appending a keep advances the position by the current terminal step length. -/
+@[simp] theorem decisionPosition_append_keep (w : List WalkDecision) :
+    decisionPosition (w ++ [WalkDecision.keep]) = decisionPosition w + decisionStep w := by
+  induction w with
+  | nil => simp [decisionPosition, decisionStep]
+  | cons a w ih =>
+    cases a <;> simp only [List.cons_append, decisionPosition, decisionStep, ih] <;> omega
+
+/-- Appending a keep preserves the terminal step length. -/
+@[simp] theorem decisionStep_append_keep (w : List WalkDecision) :
+    decisionStep (w ++ [WalkDecision.keep]) = decisionStep w := by
+  induction w with
+  | nil => simp [decisionStep]
+  | cons a w ih => cases a <;> simp [decisionStep, ih]
+
+/-- Appending a double advances the position by twice the terminal step length. -/
+@[simp] theorem decisionPosition_append_double (w : List WalkDecision) :
+    decisionPosition (w ++ [WalkDecision.double]) = decisionPosition w + 2 * decisionStep w := by
+  induction w with
+  | nil => simp [decisionPosition, decisionStep]
+  | cons a w ih =>
+    cases a <;> simp only [List.cons_append, decisionPosition, decisionStep, ih] <;> omega
+
+/-- Appending a double doubles the terminal step length. -/
+@[simp] theorem decisionStep_append_double (w : List WalkDecision) :
+    decisionStep (w ++ [WalkDecision.double]) = 2 * decisionStep w := by
+  induction w with
+  | nil => simp [decisionStep]
+  | cons a w ih => cases a <;> simp [decisionStep, ih]
+
+/-- Every data-level decision word gives a derivation of the original `Reach` relation. -/
+theorem reach_decisionWord (w : List WalkDecision) :
+    Reach (w.length + 1) (decisionPosition w) (decisionStep w) := by
+  induction w using List.reverseRecOn with
+  | nil => simpa [decisionPosition, decisionStep] using Reach.one
+  | append_singleton w a ih =>
+    cases a with
+    | keep => simpa [Nat.add_assoc] using ih.keep
+    | double => simpa [Nat.add_assoc] using ih.double
+
+/-- Every `Reach` witness is represented by a data-level keep-or-double word. -/
+theorem Reach.exists_decisionWord {k p s : ℕ} (h : Reach k p s) :
+    ∃ w : List WalkDecision,
+      w.length + 1 = k ∧ decisionPosition w = p ∧ decisionStep w = s := by
+  induction h with
+  | one => exact ⟨[], by simp, rfl, rfl⟩
+  | @keep k p s h ih =>
+    obtain ⟨w, hk, hp, hs⟩ := ih
+    refine ⟨w ++ [WalkDecision.keep], ?_, ?_, ?_⟩
+    · simp only [List.length_append, List.length_singleton]
+      omega
+    · simp only [decisionPosition_append_keep, hp, hs]
+    · simp only [decisionStep_append_keep, hs]
+  | @double k p s h ih =>
+    obtain ⟨w, hk, hp, hs⟩ := ih
+    refine ⟨w ++ [WalkDecision.double], ?_, ?_, ?_⟩
+    · simp only [List.length_append, List.length_singleton]
+      omega
+    · simp only [decisionPosition_append_double, hp, hs]
+    · simp only [decisionStep_append_double, hs]
+
+/-- A word is binary-normal when it has no two consecutive keep decisions. -/
+def DecisionNormal : List WalkDecision → Prop
+  | [] => True
+  | WalkDecision.keep :: WalkDecision.keep :: _ => False
+  | _ :: w => DecisionNormal w
+
+example : DecisionNormal [] := by simp [DecisionNormal]
+example : DecisionNormal [WalkDecision.keep, WalkDecision.double, WalkDecision.keep] := by
+  simp [DecisionNormal]
+example : ¬ DecisionNormal [WalkDecision.keep, WalkDecision.keep] := by simp [DecisionNormal]
+
+/-- The binary cost of a word's endpoint is at most the word's number of walk
+steps, with the same additive shift as `binCost_le_of_reachable`. -/
+theorem binCost_decisionPosition_le (w : List WalkDecision) :
+    binCost (decisionPosition w + 1) ≤ w.length + 3 := by
+  induction w with
+  | nil => decide
+  | cons a w ih =>
+    cases a with
+    | keep =>
+      have hadd : binCost (decisionPosition w + 1 + 1) ≤
+          binCost (decisionPosition w + 1) + 1 :=
+        binCost_add_pow_le (u := 0) (by simp)
+      simp only [decisionPosition, List.length_cons]
+      omega
+    | double =>
+      have hne : decisionPosition w + 1 ≠ 0 := by omega
+      have hcost : binCost (2 * (decisionPosition w + 1)) =
+          binCost (decisionPosition w + 1) + 1 := binCost_two_mul hne
+      simp only [decisionPosition, List.length_cons]
+      rw [show 2 * decisionPosition w + 1 + 1 = 2 * (decisionPosition w + 1) by ring, hcost]
+      omega
+
+private theorem binCost_cons_keep_lt {w : List WalkDecision}
+    (h : binCost (decisionPosition w + 1) < w.length + 3) :
+    binCost (decisionPosition (WalkDecision.keep :: w) + 1) <
+      (WalkDecision.keep :: w).length + 3 := by
+  have hadd : binCost (decisionPosition w + 1 + 1) ≤
+      binCost (decisionPosition w + 1) + 1 :=
+    binCost_add_pow_le (u := 0) (by simp)
+  simp only [decisionPosition, List.length_cons]
+  omega
+
+private theorem binCost_cons_double_lt {w : List WalkDecision}
+    (h : binCost (decisionPosition w + 1) < w.length + 3) :
+    binCost (decisionPosition (WalkDecision.double :: w) + 1) <
+      (WalkDecision.double :: w).length + 3 := by
+  have hne : decisionPosition w + 1 ≠ 0 := by omega
+  have hcost : binCost (2 * (decisionPosition w + 1)) =
+      binCost (decisionPosition w + 1) + 1 := binCost_two_mul hne
+  simp only [decisionPosition, List.length_cons]
+  rw [show 2 * decisionPosition w + 1 + 1 = 2 * (decisionPosition w + 1) by ring, hcost]
+  omega
+
+/-- Any non-normal word is strictly longer than the binary cost of its endpoint. -/
+theorem binCost_decisionPosition_lt_of_not_normal (w : List WalkDecision)
+    (h : ¬ DecisionNormal w) :
+    binCost (decisionPosition w + 1) < w.length + 3 := by
+  induction w with
+  | nil => simp [DecisionNormal] at h
+  | cons a w ih =>
+    cases a with
+    | double =>
+      apply binCost_cons_double_lt
+      exact ih (by simpa [DecisionNormal] using h)
+    | keep =>
+      cases w with
+      | nil => simp [DecisionNormal] at h
+      | cons b w =>
+        cases b with
+        | double =>
+          apply binCost_cons_keep_lt
+          exact ih (by simpa [DecisionNormal] using h)
+        | keep =>
+          have hbase : binCost (decisionPosition w + 1 + 2) ≤
+              binCost (decisionPosition w + 1) + 1 := by
+            have hpow : (2 : ℕ) ^ 1 ≤ decisionPosition w + 1 := by
+              have hpos := decisionPosition_pos w
+              norm_num
+              omega
+            simpa [pow_one, Nat.add_assoc] using
+              (binCost_add_pow_le (P := decisionPosition w + 1) (u := 1) hpow)
+          have htail := binCost_decisionPosition_le w
+          have heq : decisionPosition
+              (WalkDecision.keep :: WalkDecision.keep :: w) + 1 =
+              decisionPosition w + 1 + 2 := by
+            simp [decisionPosition]
+          rw [heq]
+          simp only [List.length_cons]
+          omega
+
+/-- Optimal decision words are in binary normal form: no scale is kept twice. -/
+theorem decisionNormal_of_optimal {n : ℕ} {w : List WalkDecision}
+    (hreaches : decisionPosition w = n)
+    (hoptimal : w.length + 3 = binCost (n + 1)) : DecisionNormal w := by
+  by_contra hnormal
+  have hstrict := binCost_decisionPosition_lt_of_not_normal w hnormal
+  rw [hreaches, ← hoptimal] at hstrict
+  omega
+
+/-- Binary-normal decision words are determined by their terminal position. -/
+theorem decisionPosition_injective_of_normal {w₁ w₂ : List WalkDecision}
+    (h₁ : DecisionNormal w₁) (h₂ : DecisionNormal w₂)
+    (hpos : decisionPosition w₁ = decisionPosition w₂) : w₁ = w₂ := by
+  cases w₁ with
+  | nil =>
+    cases w₂ with
+    | nil => rfl
+    | cons b w₂ =>
+      have hw₂pos := decisionPosition_pos w₂
+      cases b <;> simp only [decisionPosition] at hpos <;> omega
+  | cons a w₁ =>
+    cases a with
+    | double =>
+      cases w₂ with
+      | nil =>
+        have hw₁pos := decisionPosition_pos w₁
+        simp only [decisionPosition] at hpos
+        omega
+      | cons b w₂ =>
+        cases b with
+        | double =>
+          simp only [decisionPosition] at hpos
+          have htail : decisionPosition w₁ = decisionPosition w₂ := by omega
+          have hw : w₁ = w₂ := decisionPosition_injective_of_normal
+            (by simpa [DecisionNormal] using h₁)
+            (by simpa [DecisionNormal] using h₂) htail
+          rw [hw]
+        | keep =>
+          cases w₂ with
+          | nil =>
+            have hw₁pos := decisionPosition_pos w₁
+            simp only [decisionPosition] at hpos
+            omega
+          | cons b w₂ =>
+            cases b with
+            | keep => simp [DecisionNormal] at h₂
+            | double =>
+              have hw₁pos := decisionPosition_pos w₁
+              simp only [decisionPosition] at hpos
+              omega
+    | keep =>
+      cases w₁ with
+      | nil =>
+        cases w₂ with
+        | nil => simp [decisionPosition] at hpos
+        | cons b w₂ =>
+          cases b with
+          | double =>
+            have hw₂pos := decisionPosition_pos w₂
+            simp only [decisionPosition] at hpos
+            omega
+          | keep =>
+            cases w₂ with
+            | nil => rfl
+            | cons b w₂ =>
+              cases b with
+              | keep => simp [DecisionNormal] at h₂
+              | double =>
+                have hw₂pos := decisionPosition_pos w₂
+                simp only [decisionPosition] at hpos
+                omega
+      | cons b w₁ =>
+        cases b with
+        | keep => simp [DecisionNormal] at h₁
+        | double =>
+          cases w₂ with
+          | nil =>
+            have hw₁pos := decisionPosition_pos w₁
+            simp only [decisionPosition] at hpos
+            omega
+          | cons b w₂ =>
+            cases b with
+            | double =>
+              have hw₁pos := decisionPosition_pos w₁
+              have hw₂pos := decisionPosition_pos w₂
+              simp only [decisionPosition] at hpos
+              omega
+            | keep =>
+              cases w₂ with
+              | nil =>
+                have hw₁pos := decisionPosition_pos w₁
+                simp only [decisionPosition] at hpos
+                omega
+              | cons b w₂ =>
+                cases b with
+                | keep => simp [DecisionNormal] at h₂
+                | double =>
+                  simp only [decisionPosition] at hpos
+                  have htail : decisionPosition w₁ = decisionPosition w₂ := by omega
+                  have hw : w₁ = w₂ := decisionPosition_injective_of_normal
+                    (by simpa [DecisionNormal] using h₁)
+                    (by simpa [DecisionNormal] using h₂) htail
+                  rw [hw]
+termination_by w₁.length
+
+/-- For every positive target, exactly one keep-or-double decision word follows
+its mandatory first step and has shortest possible total walk length. -/
+theorem existsUnique_shortest_decisionWord (n : ℕ) (hn : 1 ≤ n) :
+    ∃! w : List WalkDecision,
+      decisionPosition w = n ∧
+        IsLeast {j : ℕ | Reachable n j} (w.length + 1) := by
+  obtain ⟨k, hk, hleast⟩ := exists_isLeast_reachable hn
+  obtain ⟨s, hs⟩ := hleast.1
+  obtain ⟨w, hwlen, hwpos, -⟩ := hs.exists_decisionWord
+  have hwoptimal : w.length + 3 = binCost (n + 1) := by omega
+  refine ⟨w, ⟨hwpos, ?_⟩, ?_⟩
+  · rwa [hwlen]
+  · intro v hv
+    have hvoptimal : v.length + 3 = binCost (n + 1) := by
+      have hvcount := (rebert_conjecture n (v.length + 1) hn).1 hv.2
+      rw [← binCost_def] at hvcount
+      omega
+    apply decisionPosition_injective_of_normal
+    · exact decisionNormal_of_optimal hv.1 hvoptimal
+    · exact decisionNormal_of_optimal hwpos hwoptimal
+    · exact hv.1.trans hwpos.symm
+
 /-- The set of admissible step counts for `1 ≤ n` is nonempty, so the infimum below
 is a genuine minimum rather than the junk value `sInf ∅ = 0`. -/
 theorem nonempty_reachable {n : ℕ} (hn : 1 ≤ n) : Nonempty {j : ℕ // Reachable n j} := by
@@ -469,6 +796,12 @@ example : IsLeast {j : ℕ | Reachable 31 j} 5 := (rebert_conjecture 31 5 (by no
 example : IsLeast {j : ℕ | Reachable 63 j} 6 := (rebert_conjecture 63 6 (by norm_num)).2 (by decide)
 example : IsLeast {j : ℕ | Reachable 85 j} 9 := (rebert_conjecture 85 9 (by norm_num)).2 (by decide)
 
+/-- The shortest decision word to `6` is genuinely unique as list data. -/
+example : ∃! w : List WalkDecision,
+    decisionPosition w = 6 ∧
+      IsLeast {j : ℕ | Reachable 6 j} (w.length + 1) :=
+  existsUnique_shortest_decisionWord 6 (by norm_num)
+
 /-- The conjectured value is *forced*: no other `k` is the minimum at `n = 6`. -/
 example : ¬ IsLeast {j : ℕ | Reachable 6 j} 5 := by
   intro h
@@ -477,9 +810,11 @@ example : ¬ IsLeast {j : ℕ | Reachable 6 j} 5 := by
   decide
 
 #check @rebert_conjecture
+#check @existsUnique_shortest_decisionWord
 #check @rebert_conjecture_iInf
 
 #print axioms rebert_conjecture
+#print axioms existsUnique_shortest_decisionWord
 #print axioms rebert_conjecture_iInf
 #print axioms nonempty_reachable
 
