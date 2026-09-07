@@ -1,0 +1,181 @@
+version: "v0.4"
+
+project:
+  name: "Almost every Boolean matrix has full Boolean row rank"
+  description: >-
+    A Lean 4 formalization that the fraction of uniformly counted square
+    matrices over the two-element Boolean semiring having full Boolean row
+    rank tends to one. Boolean row rank is the least number of existing rows
+    generating the same coordinatewise-OR span as all rows. The package also
+    selects the explicit bounds 1 - n^2(3/4)^n <= fraction <= 1 for n >= 2.
+  # Required human identities are unknown. Empty lists expose the metadata
+  # blocker rather than inventing an author or maintainer.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "OEIS A354741: Number of n X k matrices with Boolean rank k"
+    authors:
+      - "OEIS Foundation Inc. and contributors to entry A354741"
+    id: "https://oeis.org/A354741"
+    type: "database-entry"
+    location: >-
+      Entry A354741 and its comment conjecturing that the proportion on the
+      square diagonal tends to one
+    relationship: "formalizes-stated-conjecture"
+    license: "OEIS End-User License Agreement"
+    author_endorsement: "not-contacted"
+    note: >-
+      The exact attribution and global priority of the asymptotic statement
+      have not been established. This package does not claim novelty,
+      endorsement, or source-author review.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.CO"
+  msc2020:
+    - "05A16"
+    - "15B34"
+
+status:
+  scope: >-
+    The selected declarations are the asymptotic theorem, its union-bound
+    lower estimate for n >= 2, and the universal upper estimate. Challenge
+    and Solution independently define the Boolean semiring, square-matrix
+    count, coordinatewise-OR row span, least spanning-row rank, and resulting
+    fraction. Solution transparently bridges those literal declarations to
+    Proofs/BilinearComplexity/BooleanRankGeneric.lean. Rectangle-cover
+    factorization rank, rank over F2, computations of table entries, and
+    unrelated random-matrix models are outside scope.
+  sorry_count: 3
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.BooleanFullRank.one_sub_le_fullRowRankFraction"
+      file: "Palomar/BooleanFullRank/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/BooleanFullRank/comparator.json"
+      literature_dependencies: []
+      note: >-
+        For 2 <= n, proves 1 - n^2(3/4)^n <= fullRowRankFraction n.
+    - declaration: "Palomar.BooleanFullRank.fullRowRankFraction_le_one"
+      file: "Palomar/BooleanFullRank/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/BooleanFullRank/comparator.json"
+      literature_dependencies: []
+      note: "Proves fullRowRankFraction n <= 1 for every n."
+    - declaration: "Palomar.BooleanFullRank.fullRowRankFraction_tendsto_one"
+      file: "Palomar/BooleanFullRank/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/BooleanFullRank/comparator.json"
+      literature_dependencies: []
+      note: >-
+        Proves Tendsto fullRowRankFraction atTop (nhds 1). Fresh declaration
+        auditing found no sorryAx, native_decide, Lean.ofReduceBool, or custom
+        axiom dependency in the selected closure.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "model identifier not exposed by the Yah runtime"
+      framework: "Yah"
+      tool_setup: >-
+        Autonomous AI-assisted package construction, Lean elaboration,
+        definitional bridge checking, and declaration-level axiom auditing.
+        No prover subagents or agent reviewers were used for this package.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        Work was constrained to five allowlisted package files, independent
+        Challenge and Solution declarations, exact rank semantics, targeted
+        one-core checks, and honest recording of missing Comparator tooling.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. The repository's substantive source proof is
+    also disclosed as AI-assisted. No human formalization author, responsible
+    maintainer, or reviewer is attributed because authoritative identities
+    were unavailable.
+
+fidelity:
+  divergences: >-
+    The formalized statistic is precisely least spanning-row rank in the
+    Boolean semiring: a generating family must be a subset of the matrix's
+    existing rows and spans are finite coordinatewise-OR sums, including the
+    empty sum. It is not Schein/rectangle-cover factorization rank and not
+    linear rank over F2. The probability is the finite uniform counting
+    fraction over all 2^(n*n) square Boolean matrices. No divergence from this
+    interpretation is known. Attribution, literature priority, and novelty
+    remain unestablished and have not been independently human-reviewed.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER is the sole review gate and review remains pending. Lean elaboration,
+    exact signature checks, and axiom-closure output are mechanical evidence,
+    not human mathematical, attribution, source-fidelity, submission, or
+    acceptance review.
+
+alignment:
+  namespace: "Palomar.BooleanFullRank"
+  statements:
+    - source: >-
+        For n >= 2, at least 1 - n^2(3/4)^n of square Boolean matrices
+        have full Boolean row rank, and the fraction is at most one
+      lean: "Palomar.BooleanFullRank.one_sub_le_fullRowRankFraction"
+      module: "Palomar.BooleanFullRank.Solution"
+      status: "proved"
+      note: >-
+        Uses the package's literal count/minimization definitions; the upper
+        half is separately selected as fullRowRankFraction_le_one.
+    - source: "A finite counting fraction is at most one"
+      lean: "Palomar.BooleanFullRank.fullRowRankFraction_le_one"
+      module: "Palomar.BooleanFullRank.Solution"
+      status: "proved"
+      note: "Selected to provide the complete quantitative sandwich."
+    - source: >-
+        The square-diagonal full Boolean-row-rank fraction tends to one
+      lean: "Palomar.BooleanFullRank.fullRowRankFraction_tendsto_one"
+      module: "Palomar.BooleanFullRank.Solution"
+      status: "proved"
+      note: >-
+        Tendence is along natural n at Filter.atTop. The denominator is
+        explicitly 2^(n*n), hence never zero.
+
+metadata_blockers:
+  - >-
+    project.authors is required to contain human names, but no authoritative
+    human formalization-author identity was available.
+  - >-
+    project.responsible_maintainers is required to contain human names, but no
+    responsible human maintainer was identified or authorized.
+  - "USER mathematical, attribution, and source-fidelity review is pending."
+  - >-
+    Comparator could not be run because its required executables are absent
+    and the available Comparator source targets a newer Lean toolchain.
+
+acknowledgements: >-
+  The formalization uses Lean 4 and Mathlib. The asymptotic claim is attributed
+  only to the comment recorded in OEIS A354741; this is not an endorsement,
+  priority, publication, or acceptance claim.

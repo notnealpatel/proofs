@@ -1,0 +1,15 @@
+{
+  "challenge_module": "Palomar.BooleanFullRank.Challenge",
+  "solution_module": "Palomar.BooleanFullRank.Solution",
+  "theorem_names": [
+    "Palomar.BooleanFullRank.one_sub_le_fullRowRankFraction",
+    "Palomar.BooleanFullRank.fullRowRankFraction_le_one",
+    "Palomar.BooleanFullRank.fullRowRankFraction_tendsto_one"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}
