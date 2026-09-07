@@ -1,0 +1,177 @@
+version: "v0.4"
+
+project:
+  name: "Exact doubling for addition chains with at most two binary ones"
+  description: >-
+    A Lean 4 package for the bounded-family equality l(2*k) = l(k)+1 whenever
+    k is positive and has at most two binary ones. The independent challenge
+    defines actual addition chains, their lengths in additions, and the minimum
+    over chains reaching the target. It does not assume a supplied complexity
+    function or a global lower bound.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "OEIS A003313: shortest addition-chain length"
+    authors:
+      - "The OEIS Foundation Inc. and contributors"
+    id: "https://oeis.org/A003313"
+    type: "web"
+    location: "Sequence definition and the ascending-chain convention"
+    relationship: "documents"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      Context inherited from the dated transcriptions in
+      Proofs/NumberComplexity/AdditionChain.lean. This packaging phase did not
+      conduct a fresh source retrieval or external literature-priority survey.
+  - title: "OEIS A000120: binary weight"
+    authors:
+      - "The OEIS Foundation Inc. and contributors"
+    id: "https://oeis.org/A000120"
+    type: "web"
+    location: "Number of ones in the binary expansion"
+    relationship: "documents"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      Context inherited from Proofs/NumberComplexity/KnuthStolarsky.lean.
+      The formal definition is exactly Mathlib's n.bitIndices.length.
+  - title: "OEIS A230528: Slizkov's doubling-gap question"
+    authors:
+      - "The OEIS Foundation Inc. and contributors"
+    id: "https://oeis.org/A230528"
+    type: "web"
+    location: "Alexey Slizkov's January 20, 2024 comment, as transcribed in the source"
+    relationship: "documents"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      This is context for the weaker inequality l(k) <= l(2*k)+1, not an
+      attribution of the selected exact two-bit theorem to that comment.
+      The unrestricted question is not solved by this package.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.NT"
+  msc2020:
+    - "11Y55"
+
+status:
+  scope: >-
+    Only the exact doubling equality for positive integers of binary weight at
+    most two is selected. The independent model is present verbatim in both
+    files, with no cross-import. The one intentional package hole is the
+    selected Challenge theorem, not a definition. The axiom list below describes
+    the proved Solution closure, not the deliberately incomplete Challenge.
+    Neither unrestricted Slizkov nor Knuth-Stolarsky is selected or proved.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.TwoBitAdditionChains.l_two_mul_eq_add_one_of_binaryWeight_le_two"
+      file: "Palomar/TwoBitAdditionChains/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/TwoBitAdditionChains/comparator.json"
+      literature_dependencies:
+        - "OEIS A003313 and A000120 supply the documented meanings of l and binary weight"
+      note: >-
+        The proved bridge identifies the independent chain predicate with
+        NumberComplexity.IsAddChain and the sets of attainable lengths with
+        those defining NumberComplexity.l. It then applies
+        NumberComplexity.l_two_mul_eq_add_one_of_binaryWeight_le_two from
+        Proofs/NumberComplexity/SlizkovDoubling.lean, using the helper
+        Proofs/NumberComplexity/TwoBitAdditionChain.lean. These source files are
+        present at accepted repository revision
+        55ab7d253f32b9632581cf31cc4951c2b2119533. Fresh Solution axiom output has no
+        sorryAx despite the two separate archived open conjectures in imports.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "gpt-6-astra"
+      framework: "Yah"
+      tool_setup: >-
+        The latest substantive two-bit proof and this packaging phase used
+        gpt-6-astra with reasoning effort xhigh, as attributed by the task.
+        Packaging repeated the independent addition-chain model, proved the
+        source-equivalence bridge, and ran separate targeted Lean checks plus
+        signature, axiom, import-separation, model-identity, and metadata checks.
+        Prior foundational-infrastructure model and session details are unknown.
+      cost:
+        wall_time: "whole-session total not reconstructed; targeted checks recorded in verification.md"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        Packaging-only scope: exactly six new files in
+        Palomar/TwoBitAdditionChains, preserving the landed Proofs development
+        and all existing package files. No subagents or external reviewers were
+        used. USER review is pending and is the sole review gate.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material in the proof and package. No human author or
+    responsible maintainer identity was established, so both lists are empty.
+    This is not a mathematical novelty, external-priority, submission, or
+    acceptance claim.
+
+fidelity:
+  divergences: >-
+    Lists store chains in reverse chronological order. The constructor starts
+    at [1] and permits only sums of two earlier members; equal summands and
+    repeated values are allowed. chainSteps is the tail length, and l is the
+    infimum over actual chains with the requested head. Nonemptiness and
+    attainment are proved for every positive target. The source development
+    proves that this permissive minimum agrees with the strictly ascending
+    convention (NumberComplexity.l_eq_lAsc). At zero there are no chains and
+    the natural infimum is totalized to zero; the selected theorem retains
+    the guard 0 < k. binaryWeight is n.bitIndices.length in both models.
+    The solution proves equality of the independent and source minima rather
+    than identifying unrelated inductive types by their printed names.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER mathematical, attribution, and source-fidelity review is pending.
+    Mechanical Lean checks are not human review. No parent or agent review,
+    external endorsement, submission, or acceptance is claimed.
+
+alignment:
+  namespace: "Palomar.TwoBitAdditionChains"
+  statements:
+    - source: >-
+        NumberComplexity.l_two_mul_eq_add_one_of_binaryWeight_le_two:
+        for positive k with k.bitIndices.length <= 2, l(2*k) = l(k)+1
+      lean: "Palomar.TwoBitAdditionChains.l_two_mul_eq_add_one_of_binaryWeight_le_two"
+      module: "Palomar.TwoBitAdditionChains.Solution"
+      status: "proved"
+      note: >-
+        Proofs/NumberComplexity/TwoBitAdditionChain.lean constructs an optimal
+        chain of length b+1 for 2^a+2^b when a<b. The source doubling theorem
+        combines this with the one-bit case. The package adds only an independent
+        model and proved semantic bridge; it does not enlarge that theorem's scope.
+
+metadata_blockers:
+  - "Human formalization-author identities were not established; project.authors is empty."
+  - "No responsible human maintainer was identified; project.responsible_maintainers is empty."
+  - "USER review remains pending."
+  - >-
+    Comparator and Nanoda were NOT RUN. command -v found no comparator,
+    landrun, lean4export, nanoda, or nanoda_bin executable. No verifier setup,
+    toolchain change, or cache reconstruction was attempted.
+
+acknowledgements: >-
+  Uses Lean 4 and Mathlib, including Nat.bitIndices, and the repository's
+  addition-chain proof development. OEIS supplies the cited sequence and
+  open-question context. These acknowledgements do not imply endorsement.

@@ -1,5 +1,4 @@
-import Mathlib
-import NumberComplexity.AdditionChain
+import NumberComplexity.TwoBitAdditionChain
 
 /-!
 # Slizkov's doubling-gap question for shortest addition chains (OEIS A230528)
@@ -33,7 +32,11 @@ instance) and has three tiers:
   Kernel-certified `l` values at `n = 3, …, 14` give the exact doubling law
   `l (2 * k) = l k + 1` — deficit exactly `-1`, never `0` — for every
   `0 < k ≤ 7` (`l_two_mul_eq_add_one_of_le_seven`), hence Slizkov's bound with
-  room to spare on that range (`slizkov_of_le_seven`).
+  room to spare on that range (`slizkov_of_le_seven`).  For every positive
+  `k` with at most two binary ones, the exact doubling law also holds
+  (`l_two_mul_eq_add_one_of_binaryWeight_le_two`), hence Slizkov's bound
+  (`slizkov_of_binaryWeight_le_two`).  This infinite family includes arbitrary
+  sums of two distinct powers, not only powers or adjacent binary ones.
 
 * **Tier 2 (COMPUTED, outside the kernel — documented in its own section
   below).**  A bounded witness search: no `k` in the searched range has
@@ -108,6 +111,44 @@ theorem log_two_add_one_le_l_two_mul {k : ℕ} (hk : 0 < k) :
     _ = Nat.log 2 (2 * k) := by rw [mul_comm]
     _ ≤ l (2 * k) := log_two_le_l (2 * k) (by omega)
 
+/-! ## Exact doubling for binary weight at most two
+
+`TwoBitAdditionChain` constructs an optimal chain of length `b + 1` for
+`2 ^ a + 2 ^ b` whenever `a < b`.  Doubling shifts both positions by one.
+Neither result below uses the archived open conjectures.
+-/
+
+/-- Doubling increases the shortest addition-chain length by exactly one for
+every positive number with at most two binary ones. -/
+theorem l_two_mul_eq_add_one_of_binaryWeight_le_two {k : ℕ} (hk : 0 < k)
+    (hv : binaryWeight k ≤ 2) : l (2 * k) = l k + 1 := by
+  rcases eq_two_pow_or_sum_of_binaryWeight_le_two hk hv with
+    ⟨a, rfl⟩ | ⟨a, b, hab, rfl⟩
+  · exact l_two_mul_two_pow a
+  · have hdouble : 2 * (2 ^ a + 2 ^ b) = 2 ^ (a + 1) + 2 ^ (b + 1) := by ring
+    rw [hdouble, l_two_pow_add_two_pow (a + 1) (b + 1) (by omega),
+      l_two_pow_add_two_pow a b hab]
+
+/-- Slizkov's doubling inequality for the bounded binary-weight family:
+`l k ≤ l (2 * k) + 1` for every `0 < k` with at most two binary ones.
+In fact doubling costs exactly one addition on this family. -/
+theorem slizkov_of_binaryWeight_le_two {k : ℕ} (hk : 0 < k)
+    (hv : binaryWeight k ≤ 2) : l k ≤ l (2 * k) + 1 := by
+  rw [l_two_mul_eq_add_one_of_binaryWeight_le_two hk hv]
+  omega
+
+-- Joint satisfiability at the one-bit boundary and at two separated ones.
+example : 0 < 1 ∧ binaryWeight 1 ≤ 2 ∧ l (2 * 1) = l 1 + 1 :=
+  ⟨by decide, by decide,
+    l_two_mul_eq_add_one_of_binaryWeight_le_two (by decide) (by decide)⟩
+
+example : 0 < 9 ∧ binaryWeight 9 = 2 ∧ l (2 * 9) = l 9 + 1 :=
+  ⟨by decide, by decide,
+    l_two_mul_eq_add_one_of_binaryWeight_le_two (by decide) (by decide)⟩
+
+example : 0 < 9 ∧ binaryWeight 9 ≤ 2 ∧ l 9 ≤ l (2 * 9) + 1 :=
+  ⟨by decide, by decide, slizkov_of_binaryWeight_le_two (by decide) (by decide)⟩
+
 /-! ## Kernel-certified `l` values (ground truth: `oeis show A003313`)
 
 Each value is certified by an explicit optimal chain (upper bound, via the
@@ -116,11 +157,7 @@ chains (lower bound, via the layer's `Decidable (l n ≤ k)` instance) — the
 layer's own certification pattern.  `l 1, l 2, l 4, l 8` come from the layer
 (`l_one`, `l_two`, `l_two_pow`). -/
 
-/-- `l 3 = 2` (entry `a(3) = 2`). -/
-theorem l_three : l 3 = 2 := by
-  have h1 : l 3 ≤ 2 := l_le_of_isAddChain [3, 2, 1] (by decide) rfl (by decide)
-  have h2 : ¬l 3 ≤ 1 := by decide
-  omega
+-- `l_three : l 3 = 2` is supplied by `KnuthStolarsky` through the helper import.
 
 /-- `l 4 = 2` (entry `a(4) = 2`), the case `k = 2` of the layer's `l_two_pow`. -/
 theorem l_four : l 4 = 2 := by
@@ -334,6 +371,11 @@ example : l 12 ≤ 4 := by decide
 `sorry` and reports `sorryAx` by construction.  Everything below must report a
 subset of `{propext, Classical.choice, Quot.sound}`. -/
 
+#check @l_three
+#check @l_two_mul_eq_add_one_of_binaryWeight_le_two
+#check @slizkov_of_binaryWeight_le_two
+#print axioms l_two_mul_eq_add_one_of_binaryWeight_le_two
+#print axioms slizkov_of_binaryWeight_le_two
 #print axioms l_two_mul_le_of_pos
 #print axioms l_two_mul_two_pow
 #print axioms log_two_add_one_le_l_two_mul

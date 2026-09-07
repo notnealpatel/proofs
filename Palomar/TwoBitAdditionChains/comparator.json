@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.TwoBitAdditionChains.Challenge",
+  "solution_module": "Palomar.TwoBitAdditionChains.Solution",
+  "theorem_names": [
+    "Palomar.TwoBitAdditionChains.l_two_mul_eq_add_one_of_binaryWeight_le_two"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
