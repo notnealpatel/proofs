@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.NoeOddZumkeller.Challenge",
+  "solution_module": "Palomar.NoeOddZumkeller.Solution",
+  "theorem_names": [
+    "Palomar.NoeOddZumkeller.noeOddZumkellerForward_iff_not_exists_odd_perfect"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}

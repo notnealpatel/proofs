@@ -1,0 +1,167 @@
+version: "v0.4"
+
+project:
+  name: "Noe's odd-Zumkeller forward assertion and the odd-perfect obstruction"
+  description: >-
+    A Lean 4 formalization of the exact obstruction to one direction of T. D.
+    Noe's observation about odd Zumkeller numbers. The assertion that every odd
+    Zumkeller number is strictly abundant with even divisor sum holds if and
+    only if no odd perfect number exists. This equivalence does not prove the
+    nonexistence of odd perfect numbers and does not prove Noe's full
+    biconditional.
+  # Authoritative human package identities were not available. Empty lists
+  # expose the metadata blockers rather than inventing names.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "OEIS A083207 — Zumkeller numbers"
+    authors:
+      - "T. D. Noe (quoted comment author)"
+      - "OEIS Foundation Inc. and contributors to entry A083207"
+    id: "https://oeis.org/A083207"
+    type: "database-entry"
+    location: >-
+      T. D. Noe comments dated 2010-03-31 and 2010-11-14 concerning odd
+      Zumkeller numbers and odd abundant numbers with even abundance
+    relationship: "states-finite-computational-evidence"
+    license: "OEIS End-User License Agreement"
+    author_endorsement: "not-contacted"
+    note: >-
+      The comments report equality below 10^6 and a later finite converse check
+      below 10^8. Those computations are not a universal proof. This package
+      makes no novelty, priority, endorsement, or source-author review claim.
+  - title: "OEIS A174865 — Odd abundant numbers whose abundance is even"
+    authors:
+      - "T. D. Noe"
+      - "OEIS Foundation Inc. and contributors to entry A174865"
+    id: "https://oeis.org/A174865"
+    type: "database-entry"
+    location: "Sequence definition and Mathematica predicate"
+    relationship: "defines-sequence-side"
+    license: "OEIS End-User License Agreement"
+    author_endorsement: "not-contacted"
+    note: >-
+      The package uses the equivalent literal condition: odd n, 2*n < sigma(n),
+      and even sigma(n). The Zumkeller conjectural comment is on A083207 rather
+      than A174865.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.NT"
+  msc2020:
+    - "11A25"
+
+status:
+  scope: >-
+    The sole selected result is the equivalence between the universally
+    quantified forward implication (odd and Zumkeller implies A174865) and the
+    nonexistence of an odd Mathlib Nat.Perfect number. Challenge and Solution
+    independently define the positive divisor-partition predicate, strict
+    abundance, and the literal A174865 condition. Solution bridges them to
+    Proofs/Enumerative/NoeZumkellerOdd.lean through explicit equivalences. The
+    full Noe biconditional, its converse, any abundance-implies-Zumkeller
+    statement, and any proof that odd perfect numbers do not exist are outside
+    scope.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.NoeOddZumkeller.noeOddZumkellerForward_iff_not_exists_odd_perfect"
+      file: "Palomar/NoeOddZumkeller/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/NoeOddZumkeller/comparator.json"
+      literature_dependencies: []
+      note: >-
+        The one package sorry is the intentional selected-theorem hole in
+        Challenge.lean. Fresh Solution compilation and #print axioms show no
+        sorryAx, native_decide, Lean.ofReduceBool, or custom axiom in the
+        selected closure.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "model identifier not exposed by the Yah runtime"
+      framework: "Yah"
+      tool_setup: >-
+        Autonomous AI-assisted package construction, independent Challenge and
+        Solution elaboration, a transparent bridge to the existing repository
+        theorem, and declaration-level axiom auditing. No prover subagents or
+        agent reviewers were used for this package.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        Work was restricted to five allowlisted package files, a Mathlib-only
+        Challenge, exact strict-abundance and quantified modalities, one-core
+        bounded checks, and honest recording of unavailable Comparator tooling.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. The reused Proofs source is repository work and
+    is also documented there as AI-assisted. No human formalization author,
+    responsible maintainer, or reviewer is named because no authoritative
+    identity was available.
+
+fidelity:
+  divergences: >-
+    The package deliberately selects only NoeOddZumkellerForward, not Noe's
+    full biconditional. Zumkeller membership includes positivity and a literal
+    finite partition of all positive divisors into equal-sum sides. A174865 is
+    represented as oddness, strict 2*n < sigma(n), and even sigma(n); it is not
+    weakened to the nondeficient inequality 2*n <= sigma(n). Mathlib's
+    Nat.Perfect supplies positivity and sigma(n)=2*n. Finite OEIS checks are
+    treated only as evidence. No universal converse or odd-perfect
+    nonexistence theorem is claimed.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER is the sole review gate and review remains pending. Lean elaboration,
+    exact type output, and axiom-closure output are mechanical evidence, not
+    human mathematical, attribution, source-fidelity, submission, acceptance,
+    publication, or approval review.
+
+alignment:
+  namespace: "Palomar.NoeOddZumkeller"
+  statements:
+    - source: >-
+        Every odd Zumkeller number is strictly abundant with even divisor sum
+        if and only if no odd perfect number exists.
+      lean: "Palomar.NoeOddZumkeller.noeOddZumkellerForward_iff_not_exists_odd_perfect"
+      module: "Palomar.NoeOddZumkeller.Solution"
+      status: "proved"
+      note: >-
+        The left side is displayed literally as a forall over n with oddness
+        and the positive divisor-partition predicate as hypotheses. The right
+        side is displayed literally as not-exists n, Odd n and n.Perfect. The
+        theorem asserts an equivalence; it does not establish either open side.
+
+metadata_blockers:
+  - >-
+    project.authors is required to contain human names, but no authoritative
+    human formalization-author identity was available.
+  - >-
+    project.responsible_maintainers is required to contain human names, but no
+    responsible human maintainer was identified or authorized.
+  - "USER mathematical, attribution, and source-fidelity review is pending."
+  - >-
+    Comparator could not be run because all required executables are absent
+    and the available local Comparator source targets a newer Lean toolchain.
+
+acknowledgements: >-
+  The formalization uses Lean 4 and Mathlib. T. D. Noe is credited for the OEIS
+  observations. This acknowledgement is not an endorsement, priority,
+  submission, acceptance, or review claim.
