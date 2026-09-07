@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.PrimeSquareGroupDeficiency.Challenge",
+  "solution_module": "Palomar.PrimeSquareGroupDeficiency.Solution",
+  "theorem_names": [
+    "Palomar.PrimeSquareGroupDeficiency.groupDeficient_prime_sq"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

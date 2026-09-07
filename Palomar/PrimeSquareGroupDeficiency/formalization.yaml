@@ -1,0 +1,169 @@
+version: "v0.4"
+
+project:
+  name: "Prime-square group deficiency"
+  description: >-
+    Every prime square p^2 is group-deficient: the number of isomorphism
+    classes of groups of order p^2 is strictly less than p^2. The independent
+    challenge counts the quotient of all Mathlib group structures on Fin(n)
+    by multiplication-preserving bijections, not labeled structures or a
+    parameter assumed to have a prescribed value.
+  # Human formalization-author and maintainer identities are not established.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "OEIS A000001: Number of groups of order n"
+    authors:
+      - "The OEIS Foundation Inc. and contributors"
+    id: "https://oeis.org/A000001"
+    type: "web"
+    location: "Group-isomorphism-class count and prime-square formula a(p^2) = 2"
+    relationship: "documents"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The selected inequality is an elementary corollary of the classical
+      classification of groups of order p^2 as C_(p^2) or C_p x C_p.
+      CdoIteration.lean credits Mitch Harris for the entry's formula, not
+      for original discovery of that classification. OEIS attribution here
+      is inherited from the inspected repository source; no fresh OEIS
+      retrieval or comprehensive literature-priority audit was performed.
+  - title: "OEIS A090052: Group-abundant numbers"
+    authors:
+      - "The OEIS Foundation Inc. and contributors"
+    id: "https://oeis.org/A090052"
+    type: "web"
+    location: "Group-perfect, group-deficient, and group-abundant terminology"
+    relationship: "documents"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The terminology and separate unattributed open conjectures are recorded
+      in GroupPerfect.lean. This package selects neither the group-perfect
+      uniqueness conjecture nor the group-abundant density conjecture.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.GR"
+  msc2020:
+    - "20D15"
+    - "20D60"
+
+status:
+  scope: >-
+    Only the prime-square deficiency family is selected. Challenge and
+    Solution repeat the same independent group-isomorphism quotient model.
+    Solution proves a quotient equivalence and equality of natural counts
+    with GroupCount.gnu for all natural n, including n=0, and then applies
+    GroupCount.groupDeficient_prime_sq. No proof source was changed during
+    packaging; the accepted source revision is
+    55ab7d253f32b9632581cf31cc4951c2b2119533.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.PrimeSquareGroupDeficiency.groupDeficient_prime_sq"
+      file: "Palomar/PrimeSquareGroupDeficiency/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/PrimeSquareGroupDeficiency/comparator.json"
+      literature_dependencies:
+        - "Classical classification of groups of order p^2 for prime p"
+      note: >-
+        Fresh Lean checks report exactly the three standard axioms for the
+        selected Solution declaration, the all-n count bridge, and the source
+        prime-square deficiency theorem. Imported archived conjectures have
+        intended sorries but are not in these dependency closures. The sole
+        package sorry is the selected Challenge theorem.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "gpt-6-astra"
+      framework: "Yah"
+      tool_setup: >-
+        Latest prime-square corollary implementation and package preparation
+        used the xhigh reasoning setting. Work included an independent
+        Mathlib-only group-count model, an explicit quotient/cardinality
+        bridge, separate bounded Lean checks, and declaration-level axiom
+        audits. Earlier foundational infrastructure models are unknown.
+      cost:
+        wall_time: "not reconstructed; bounded check timings are in verification.md"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; tool_atop reports 23.46 GB physical RAM"
+      prompting_notes: >-
+        Packaging was restricted to the six new files in
+        Palomar/PrimeSquareGroupDeficiency. Existing Proofs sources and all
+        unrelated files were preserved. No subagents or reviewers were used;
+        USER is the sole reviewer and parent integration is not a review.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. No human formalization author, maintainer,
+    reviewer, original-discovery, or external formalization-priority claim
+    has been invented.
+
+fidelity:
+  divergences: >-
+    The challenge uses the type of Mathlib Group(Fin n) structures rather
+    than the source's explicit-table GroupStructure n. Isomorphism means
+    a bijection preserving the two structures' multiplication tables;
+    a checked lemma identifies this with Mathlib MulEquiv using those
+    exact group structures, not the ambient arithmetic on Fin n. The
+    finite quotient is counted with Nat.card instead of Fintype.card.
+    Bridge.isoClassEquiv and Bridge.groupCount_eq_gnu prove equivalence
+    and exact count equality for every natural n. Empty order zero agrees
+    on both sides but is excluded by the selected explicit primality guard.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER mathematical, source-fidelity, and attribution review remains
+    pending and is the sole review gate. Lean checks and JSON/YAML parsing
+    are mechanical checks, not human review or full schema validation.
+
+alignment:
+  namespace: "Palomar.PrimeSquareGroupDeficiency"
+  statements:
+    - source: >-
+        GroupCount.groupDeficient_prime_sq: for every prime p,
+        GroupCount.gnu(p^2) < p^2; a corollary of gnu(p^2)=2
+      lean: "Palomar.PrimeSquareGroupDeficiency.groupDeficient_prime_sq"
+      module: "Palomar.PrimeSquareGroupDeficiency.Solution"
+      status: "proved"
+      note: >-
+        The independently defined groupCount is proved equal to source gnu
+        for all n. Both selected headers are identical, with implicit natural
+        p and the explicit hypothesis hp : p.Prime. The prime guards hold
+        at 2 and 3; Solution also proves both concrete deficiency instances.
+
+metadata_blockers:
+  - >-
+    project.authors is empty because no authoritative human formalization
+    author identity was provided.
+  - >-
+    project.responsible_maintainers is empty because no responsible human
+    maintainer identity was provided.
+  - "USER review is pending."
+  - >-
+    Comparator, landrun, lean4export, nanoda, and nanoda_bin are absent from
+    PATH. Comparator and independent verification were NOT RUN; tools
+    were not installed and enable_nanoda remains true for later checking.
+  - "JSON/YAML syntax and local assertions passed; full schema validation was not run."
+
+acknowledgements: >-
+  This formalization uses Lean 4, Mathlib, and the existing GroupCount
+  development. The prime-square classification is classical mathematics,
+  not a new theorem. These acknowledgements do not assert endorsement,
+  human authorship, or review.

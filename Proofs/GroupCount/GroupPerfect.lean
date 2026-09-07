@@ -1,4 +1,4 @@
-import GroupCount.Gnu
+import GroupCount.CdoIteration
 
 /-!
 # A090052: group-perfect, group-deficient, and group-abundant numbers
@@ -26,12 +26,17 @@ This file archives both conjectures together with their provable strata.
     `n = 0` through the pinned junk value `gnu 0 = 0` (see the junk-value section);
   - `GroupCount.groupDeficient_of_prime` — **every prime is group-deficient**
     (`gnu p = 1 < p`, including the edge prime `p = 2`): an infinite family;
+  - `GroupCount.groupDeficient_prime_sq` — **every prime square is group-deficient**
+    (`gnu (p ^ 2) = 2 < p ^ 2`, including `p = 2`);
   - `GroupCount.groupDeficient_four` — `4` is group-deficient (`gnu 4 = 2 < 4`);
   - `GroupCount.infinite_setOf_groupDeficient` — the group-deficient set is infinite;
   - `GroupCount.not_groupPerfect_of_groupDeficient`,
     `GroupCount.not_groupAbundant_of_groupDeficient` — the strata are disjoint, so
     every certified deficiency instance also certifies conjecture (i) at that index
     and certifies `n ∉ A090052` (consistent with the entry's first term being `32`);
+  - `GroupCount.not_groupPerfect_prime_sq`,
+    `GroupCount.not_groupAbundant_prime_sq` — every prime square is neither
+    group-perfect nor group-abundant;
   - `GroupCount.groupAbundantCount` with its ground checks — the counting function
     of the abundant stratum, the quantity conjecture (ii) is about.
 * **Tier 2 (OPEN, intended `sorry`)** — conjecture (i),
@@ -65,8 +70,8 @@ This file archives both conjectures together with their provable strata.
   `sorry`d.
 * **A positive `GroupAbundant` witness.**  The first group-abundant number is `32`,
   with `gnu 32 = 51` (A000001, external), far beyond both the measured kernel
-  `decide` wall (exact `gnu` values stop at `n = 2`) and the classification layer
-  landed upstream (`gnu 4 = 2` is the largest classified value).  So this file
+  `decide` wall (exact `gnu` values stop at `n = 2`) and the classification results
+  used here (`gnu p = 1` and `gnu (p ^ 2) = 2` for prime `p`).  So this file
   certifies many *negative* instances `¬ GroupAbundant n` but no positive one; the
   satisfiability of the abundant stratum rests on external ground truth (GAP /
   A090052), and is disclosed here rather than asserted.
@@ -76,7 +81,7 @@ This file archives both conjectures together with their provable strata.
 **Zero `native_decide` anywhere in this module.**  Kernel `decide` appears only at
 sizes measured feasible upstream (values of `gnu n` for `n ≤ 2`).  Every other
 numeric fact routes through the certified upstream values `gnu_zero`, `gnu_one` …
-`gnu_five`, `gnu_seven`, `gnu_four`, `gnu_prime`.  The axiom sweep at the end
+`gnu_five`, `gnu_seven`, `gnu_four`, `gnu_prime`, `gnu_prime_sq`.  The axiom sweep at the end
 confirms: `sorryAx` on the two archived conjectures only, everything else within
 `{propext, Classical.choice, Quot.sound}` — an *allowlist* check, and the sound
 `native_decide` detector on this toolchain: a use would surface as a
@@ -171,10 +176,16 @@ theorem groupDeficient_of_prime {p : ℕ} (hp : p.Prime) : GroupDeficient p := b
   rw [gnu_prime hp]
   exact hp.one_lt
 
+/-- Every prime square is group-deficient: there are exactly two groups of order
+`p ^ 2`, and primality gives `4 ≤ p ^ 2`.  This includes the edge prime `p = 2`. -/
+theorem groupDeficient_prime_sq {p : ℕ} (hp : p.Prime) : GroupDeficient (p ^ 2) := by
+  show gnu (p ^ 2) < p ^ 2
+  rw [gnu_prime_sq hp]
+  have hfour : 4 ≤ p ^ 2 := Nat.pow_le_pow_left hp.two_le 2
+  exact lt_of_lt_of_le (by decide : 2 < 4) hfour
+
 /-- **`4` is group-deficient**: `gnu 4 = 2 < 4`, from the classification-certified
-`GroupCount.gnu_four`.  This is the smallest deficiency instance at a non-prime
-(and the largest index at which this file can certify deficiency at all — `gnu 6`
-is not certified upstream). -/
+`GroupCount.gnu_four`.  This is the smallest deficiency instance at a non-prime. -/
 theorem groupDeficient_four : GroupDeficient 4 := by
   show gnu 4 < 4
   rw [gnu_four]
@@ -211,6 +222,14 @@ theorem not_groupAbundant_of_groupDeficient {n : ℕ} (h : GroupDeficient n) :
   have hlt : gnu n < n := h
   have hgt : n < gnu n := ha
   omega
+
+/-- Every prime square is not group-perfect, since it is group-deficient. -/
+theorem not_groupPerfect_prime_sq {p : ℕ} (hp : p.Prime) : ¬ GroupPerfect (p ^ 2) :=
+  not_groupPerfect_of_groupDeficient (groupDeficient_prime_sq hp)
+
+/-- Every prime square is not group-abundant, since it is group-deficient. -/
+theorem not_groupAbundant_prime_sq {p : ℕ} (hp : p.Prime) : ¬ GroupAbundant (p ^ 2) :=
+  not_groupAbundant_of_groupDeficient (groupDeficient_prime_sq hp)
 
 /-! ## The counting function of the abundant stratum
 
@@ -337,6 +356,16 @@ example : GroupDeficient 5 := groupDeficient_of_prime (by norm_num)
 example : GroupDeficient 7 := groupDeficient_of_prime (by norm_num)
 example : GroupDeficient 4 := groupDeficient_four
 
+-- Prime-square hypotheses and conclusions hold jointly, including the edge prime.
+example : Nat.Prime 2 ∧ GroupDeficient (2 ^ 2) :=
+  ⟨Nat.prime_two, groupDeficient_prime_sq Nat.prime_two⟩
+example : Nat.Prime 3 ∧ GroupDeficient (3 ^ 2) :=
+  ⟨Nat.prime_three, groupDeficient_prime_sq Nat.prime_three⟩
+example : Nat.Prime 2 ∧ ¬ GroupPerfect (2 ^ 2) :=
+  ⟨Nat.prime_two, not_groupPerfect_prime_sq Nat.prime_two⟩
+example : Nat.Prime 2 ∧ ¬ GroupAbundant (2 ^ 2) :=
+  ⟨Nat.prime_two, not_groupAbundant_prime_sq Nat.prime_two⟩
+
 -- Direct route (no prime detour) at 2, pinning the definitional content.
 example : GroupDeficient 2 := by show gnu 2 < 2; rw [gnu_two]; omega
 
@@ -408,6 +437,15 @@ other declaration must report a subset of `{propext, Classical.choice, Quot.soun
 The subset is the sound `native_decide` detector: a use would appear as a
 per-declaration `*._native.native_decide.ax_*` axiom on this toolchain
 (`Lean.ofReduceBool` is never emitted, so grepping for it detects nothing). -/
+
+#check @gnu_prime_sq
+#check @groupDeficient_prime_sq
+#check @not_groupPerfect_prime_sq
+#check @not_groupAbundant_prime_sq
+#print axioms gnu_prime_sq
+#print axioms groupDeficient_prime_sq
+#print axioms not_groupPerfect_prime_sq
+#print axioms not_groupAbundant_prime_sq
 
 #print axioms GroupDeficient
 #print axioms GroupPerfect
