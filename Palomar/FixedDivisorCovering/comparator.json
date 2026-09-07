@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Palomar.FixedDivisorCovering.Challenge",
+  "solution_module": "Palomar.FixedDivisorCovering.Solution",
+  "theorem_names": [
+    "Palomar.FixedDivisorCovering.IsFixedDivisorSystemBase.exists_mem_fixedDivisors_dvd",
+    "Palomar.FixedDivisorCovering.IsFixedDivisorSystemBase.not_prime"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}

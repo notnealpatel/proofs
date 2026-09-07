@@ -1,0 +1,171 @@
+version: "v0.4"
+
+project:
+  name: "Arbitrary-base fixed-divisor covering criterion"
+  description: >-
+    A reusable Lean 4 criterion for integer affine-exponential families
+    A*b^n+B at an arbitrary natural base. A finite certificate consists of
+    literal triples (a,d,p) whose exponent classes cover the integers, with
+    b^d congruent to one modulo p and p dividing A*b^a+B. The headline proves
+    that every family value has a listed divisor; a companion non-primality
+    theorem makes the proper-divisor bound explicit.
+  # Required human identities have not been established. Empty lists expose
+  # the submission blocker rather than inventing attribution.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "Verifying Sierpiński and Riesel Numbers in ACL2"
+    authors:
+      - "John R. Cowles"
+      - "Ruben Gamboa"
+    id: "https://arxiv.org/abs/1110.4671"
+    type: "paper"
+    location: "EPTCS 70 (2011), 31–39"
+    relationship: "documents"
+    license: "CC BY-NC-ND 3.0"
+    author_endorsement: "not-contacted"
+    note: >-
+      This is prior machine-checked work for the concrete base-two numbers
+      78557 and 509203. It is cited for Sierpiński/Riesel context and prior
+      formalization, not as a source of or priority claim for the selected
+      arbitrary-base Lean theorem.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.NT"
+  msc2020:
+    - "11A07"
+    - "11B50"
+
+status:
+  scope: >-
+    Challenge and Solution independently define the projections of a finite
+    set of natural triples, integer residue-class coverage, and the four-field
+    arbitrary-base certificate. The selected headline is the fixed-divisor
+    existence theorem for every n : Nat. The only companion selected theorem
+    is the non-primality corollary with explicit p <= M < N control. The
+    package does not select the base-two transports, progression results, or
+    the concrete 78557 and 509203 applications from the source development.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.FixedDivisorCovering.IsFixedDivisorSystemBase.exists_mem_fixedDivisors_dvd"
+      file: "Palomar/FixedDivisorCovering/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/FixedDivisorCovering/comparator.json"
+      literature_dependencies: []
+      note: >-
+        For arbitrary b : Nat, A B : Int, literal finite triples T, and every
+        n : Nat, a valid certificate supplies p in fixedDivisors T with
+        (p : Int) dividing A*(b : Int)^n+B.
+    - declaration: "Palomar.FixedDivisorCovering.IsFixedDivisorSystemBase.not_prime"
+      file: "Palomar/FixedDivisorCovering/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/FixedDivisorCovering/comparator.json"
+      literature_dependencies: []
+      note: >-
+        If every listed p is at most M, the natural family value is N, and
+        M < N, then N is not prime. The strict upper bound is load-bearing;
+        divisibility alone allows p=N.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "model identifier not exposed by the Yah runtime"
+      framework: "Yah"
+      tool_setup: >-
+        Autonomous AI-assisted package authoring, independent Challenge and
+        Solution elaboration, a definitional bridge to the existing Proofs
+        theorem, exact signature checks, and declaration-level axiom auditing.
+        No prover subagents, reviewers, or submission tooling were used.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        Work was constrained to five allowlisted package files, a standalone
+        Mathlib-only Challenge, an independent Solution, arbitrary-base and
+        integer-sign fidelity, explicit proper-divisor bounds, narrow one-core
+        checks, and pending USER-only review.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. The reused substantive source development is
+    repository-disclosed as AI-assisted. No human formalization author,
+    responsible maintainer, or reviewer is attributed because authoritative
+    identities were unavailable.
+
+fidelity:
+  divergences: >-
+    The selected criterion is more general than the classical base-two
+    Sierpiński and Riesel instances: b is arbitrary, A and B are integers, and
+    n ranges over all naturals. It proves listed divisibility, not composite
+    values without further hypotheses. The companion theorem therefore
+    requires a natural value N and an explicit listed-divisor bound p <= M < N.
+    In particular, nothing silently asserts the false n=0 compositeness claim
+    for 4*14^n+1; at n=0 the value and listed divisor can both be 5. No novelty
+    or first-formalization claim is made.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER is the sole review gate and review remains pending. Lean elaboration,
+    signature checks, and axiom-closure output in verification.md are
+    mechanical evidence, not human mathematical, attribution, source-fidelity,
+    submission, acceptance, or approval review.
+
+alignment:
+  namespace: "Palomar.FixedDivisorCovering"
+  statements:
+    - source: >-
+        Finite fixed-divisor covering criterion for A*b^n+B: covering exponent
+        classes and compatible per-class divisors give a listed divisor of
+        every family value.
+      lean: "Palomar.FixedDivisorCovering.IsFixedDivisorSystemBase.exists_mem_fixedDivisors_dvd"
+      module: "Palomar.FixedDivisorCovering.Solution"
+      status: "proved"
+      note: >-
+        Coverage is over integer residue classes; exponents in the conclusion
+        are natural. Congruences use Nat.ModEq for b^d and Int.ModEq for the
+        integer family.
+    - source: >-
+        A nontrivial listed divisor strictly below a natural family value
+        witnesses non-primality.
+      lean: "Palomar.FixedDivisorCovering.IsFixedDivisorSystemBase.not_prime"
+      module: "Palomar.FixedDivisorCovering.Solution"
+      status: "proved"
+      note: "The theorem exposes the sufficient inequalities as p <= M < N."
+
+metadata_blockers:
+  - >-
+    project.authors is required to contain human names, but no authoritative
+    human formalization-author identity was available.
+  - >-
+    project.responsible_maintainers is required to contain human names, but no
+    responsible human maintainer was identified or authorized.
+  - "USER mathematical, attribution, and source-fidelity review remains pending."
+  - >-
+    Comparator could not be run because its required executables are absent
+    and the locally available Comparator source targets a newer Lean toolchain.
+
+acknowledgements: >-
+  The formalization uses Lean 4 and Mathlib. Cowles and Gamboa are credited for
+  prior ACL2 verification of the classical concrete Sierpiński and Riesel
+  numbers; this is not an endorsement, review, or novelty claim.
