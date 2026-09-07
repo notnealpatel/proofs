@@ -1,0 +1,190 @@
+version: "v0.4"
+
+project:
+  name: "Gcd sunflower bound on an almost-prime layer"
+  description: >-
+    A Lean 4 packaging of the classical Erdős reduction from finite families
+    of natural numbers with constant multiplicity-counted Omega to uniform
+    sunflower families. If r >= 2, every a in A is nonzero with Omega(a) = k,
+    and no r-element subset has one common pairwise gcd, then
+    card(A) <= (r-1)^k * k!. This is only the exact almost-prime layer bound;
+    it neither estimates f_r(N) nor proves the open c_r^k strengthening.
+  # Required human identities were not available. Empty lists expose the
+  # blocker rather than inventing an author or maintainer.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "Erdős Problem #535"
+    authors:
+      - "erdosproblems.com contributors"
+    id: "https://www.erdosproblems.com/535"
+    type: "web"
+    location: "problem statement and discussion of the gcd-to-sunflower reduction"
+    relationship: "documents"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The repository's recovered source attributes the encoding argument to
+      Erdős (1964), and a later stronger auxiliary formulation using prime
+      factors counted with multiplicity to Erdős (1973). Full page-level
+      bibliographic pins for those two papers remain incomplete, so this
+      package makes no novelty, priority, or source-fidelity claim.
+  - title: "The Sunflower Lemma of Erdős and Rado"
+    authors:
+      - "René Thiemann"
+    id: "https://www.isa-afp.org/entries/Sunflowers.html"
+    type: "web"
+    location: "Archive of Formal Proofs entry, 2021"
+    relationship: "documents"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The imported Lean theorem proves the same classical Erdős-Rado uniform
+      sunflower bound. The AFP development is background and is not imported
+      into Lean.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.CO"
+    - "math.NT"
+  msc2020:
+    - "05D05"
+    - "11A05"
+
+status:
+  scope: >-
+    The selected result is only
+    Palomar.GcdSunflower.card_le_of_isAlmostPrime. Challenge and Solution each
+    literally define EqualPairwiseGcd, GcdPatternFree, and layerSet. The
+    Solution transports the statement to Erdos535.card_le_of_isAlmostPrime in
+    Proofs/Erdos/Erdos535/GcdSunflower.lean, whose proof uses
+    erdos_rado_sunflower_same_card. Optional k=1 sharpness, gcd sunflower
+    suprema, the interval function f_r(N), and all interval estimates are
+    deliberately outside the selected package.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.GcdSunflower.card_le_of_isAlmostPrime"
+      file: "Palomar/GcdSunflower/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/GcdSunflower/comparator.json"
+      literature_dependencies:
+        - "classical Erdős gcd-to-sunflower reduction"
+        - "classical Erdős-Rado sunflower bound"
+      note: >-
+        Fresh Lean output audits the wrapper, the imported source theorem, and
+        the imported uniform sunflower theorem. None depends on sorryAx,
+        native_decide, Lean.ofReduceBool, or a custom axiom.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "model identifier not exposed by the Yah runtime"
+      framework: "Yah"
+      tool_setup: >-
+        Autonomous AI-assisted package construction, literal-definition
+        alignment, separate Lean elaboration, and declaration-level axiom
+        auditing. No subagent, parent, or independent mathematical reviewer
+        was used; USER review is the sole review gate.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        Work was restricted to five authorized package files, with narrow
+        imports and one-core bounded Lean commands. Existing source objects
+        were reused only after exact source, manifest, and toolchain hashes
+        matched the read-only cache root.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. The assigned base was
+    ee0cb27655f6bb6c37e8647c79184745017c5b24; Lean was 4.33.0-rc1 at commit
+    62eed1db4d67327ec8120be05f1a1b0847d74561; Mathlib was pinned at
+    3edb3c0658f69f197b1e501b1f7623f3f7b3898c. The substantive source SHA-256
+    was 65d6d9de41718c32e616edd3972bd4786870074007033625546b9e64dccf9972.
+    No human formalization author, maintainer, or reviewer is attributed.
+
+fidelity:
+  divergences: >-
+    EqualPairwiseGcd quantifies over two pairs (a,b) and (c,d), requiring both
+    pairs to consist of distinct members, and equates Nat.gcd a b with
+    Nat.gcd c d. GcdPatternFree quantifies over A.powersetCard r, so the r
+    elements are distinct. Nat.IsAlmostPrime k a is Mathlib's conjunction
+    a != 0 and Omega(a) = k, where Omega counts multiplicity; it is not the
+    squarefree distinct-prime count omega. layerSet N a consists of prime
+    powers q <= N dividing a, represented in Fin (N+1). This relabels the
+    classical (p,j) layers by p^j. The imported result proves the factorial
+    Erdős-Rado bound under the stronger prohibition of every equal-gcd tuple;
+    it does not prove the corrected coprime-quotient auxiliary conjecture or a
+    c_r^k estimate.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER review is the only review stage and remains pending. Lean elaboration,
+    exact signatures, and axiom output in verification.md are mechanical
+    evidence, not mathematical approval, literature review, or a submission
+    claim.
+
+alignment:
+  namespace: "Palomar.GcdSunflower"
+  statements:
+    - source: "All two pairs of distinct members of S have the same gcd"
+      lean: "Palomar.GcdSunflower.EqualPairwiseGcd"
+      module: "Palomar.GcdSunflower.Solution"
+      status: "defined"
+      note: "The pair-of-pairs quantifiers are literal in both package modules."
+    - source: "No r distinct members of A have equal pairwise gcd"
+      lean: "Palomar.GcdSunflower.GcdPatternFree"
+      module: "Palomar.GcdSunflower.Solution"
+      status: "defined"
+      note: "Distinctness is supplied by Finset.powersetCard r."
+    - source: "Prime-power divisor layer encoding truncated at N"
+      lean: "Palomar.GcdSunflower.layerSet"
+      module: "Palomar.GcdSunflower.Solution"
+      status: "defined"
+      note: "It contains prime powers q in Fin (N+1) that divide a."
+    - source: >-
+        Classical almost-prime layer reduction to the Erdős-Rado sunflower
+        bound
+      lean: "Palomar.GcdSunflower.card_le_of_isAlmostPrime"
+      module: "Palomar.GcdSunflower.Solution"
+      status: "proved"
+      note: >-
+        For 2 <= r and uniform multiplicity-counted Omega k, pattern-freeness
+        implies A.card <= (r-1)^k*k!.
+
+metadata_blockers:
+  - >-
+    project.authors requires human names, but no authoritative human
+    formalization-author identity was available.
+  - >-
+    project.responsible_maintainers requires human names, but no responsible
+    human maintainer was identified or authorized.
+  - "USER mathematical, attribution, and source-fidelity review remains pending."
+  - >-
+    Full bibliographic identification and page-level checking of the cited
+    Erdős 1964 and 1973 sources remain incomplete.
+  - >-
+    Comparator could not be run because comparator, landrun, lean4export, and
+    nanoda_bin were absent, while the available Comparator source targets a
+    newer Lean release.
+
+acknowledgements: >-
+  The formalization uses Lean 4 and Mathlib. The reduction is attributed to
+  Erdős and the consumed combinatorial estimate to Erdős and Rado. These
+  attributions are not novelty, endorsement, review, or approval claims.

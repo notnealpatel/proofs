@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.GcdSunflower.Challenge",
+  "solution_module": "Palomar.GcdSunflower.Solution",
+  "theorem_names": [
+    "Palomar.GcdSunflower.card_le_of_isAlmostPrime"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}
