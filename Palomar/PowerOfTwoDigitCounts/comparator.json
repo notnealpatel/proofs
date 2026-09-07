@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Palomar.PowerOfTwoDigitCounts.Challenge",
+  "solution_module": "Palomar.PowerOfTwoDigitCounts.Solution",
+  "theorem_names": [
+    "Palomar.PowerOfTwoDigitCounts.card_erdos406_filter_le_rpow",
+    "Palomar.PowerOfTwoDigitCounts.card_sieveClasses"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}
