@@ -1,0 +1,157 @@
+version: "v0.4"
+
+project:
+  name: "Hegarty's three-eighths bound for the greedy AP-avoiding permutation"
+  description: >-
+    A Lean 4 formalization of Peter Hegarty's lower bound for the greedy
+    arithmetic-pattern-avoiding permutation: in zero-based indexing,
+    3*(n+1) <= 8*a(n). The challenge independently defines the ordinary greedy
+    construction by positivity, non-reuse, exact three-term arithmetic-progression
+    exclusion, and least admissible selection.
+  # Required human identities have not been established. These empty lists expose
+  # the metadata blocker rather than inventing an author or maintainer.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "Permutations Avoiding Arithmetic Patterns"
+    authors:
+      - "Peter Hegarty"
+    id: "https://doi.org/10.37236/1792"
+    type: "paper"
+    location: "The Electronic Journal of Combinatorics 11 (2004), R39, Theorem 3.3"
+    relationship: "formalizes"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The result is Hegarty's published Theorem 3.3. Repository notes report a
+      parity-word typo in the counting argument after equation (6): the relevant
+      excluded values must have parity opposite to n. The formal proof uses that
+      corrected reading. The referenced extracted paper text is absent from this
+      workspace, so the page-level comparison and correction attribution are
+      inherited repository evidence, not a new human-checked source audit.
+  - title: "OEIS A094870"
+    authors:
+      - "The OEIS Foundation Inc. and contributors"
+    id: "https://oeis.org/A094870"
+    type: "web"
+    location: "sequence definition, terms, indexing, and Hegarty attribution"
+    relationship: "documents"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The repository source records a dated OEIS transcription. No broad or fresh
+      literature sweep was undertaken for this package.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.CO"
+  msc2020:
+    - "05A05"
+    - "11B75"
+
+status:
+  scope: >-
+    The package selects only Hegarty's proved three-eighths lower bound. It does
+    not select or prove the open limit conjecture a(n)/(n+1) -> 1. Challenge and
+    Solution both define reversed prefixes, exact admissibility, the least next
+    term, and the zero-indexed sequence independently of the project source.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.HegartyThreeEighths.hegarty_three_eighths"
+      file: "Palomar/HegartyThreeEighths/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/HegartyThreeEighths/comparator.json"
+      literature_dependencies:
+        - "Hegarty 2004, Theorem 3.3"
+      note: >-
+        A fresh Lean axiom audit shows no dependency on sorryAx. The imported
+        HegartyPermutation archive contains the separate intended sorry theorem
+        A094870.conj_3_2 for the open limit conjecture, but that theorem is not in
+        the selected result's dependency closure.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "model identifier not exposed by the Yah runtime"
+      framework: "Yah"
+      tool_setup: >-
+        Autonomous AI-assisted package construction, independent greedy-definition
+        alignment, targeted Lean compilation, and declaration-level axiom auditing.
+        The existing substantive Proofs development is disclosed by the repository
+        as at least partly or wholly AI-assisted; its exact prior model and session
+        details were not reconstructed.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        Work was restricted to the five authorized package artifacts. No agent or
+        parent review was used; USER review remains the sole review gate.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. No human formalization author, responsible
+    maintainer, or reviewer is attributed because authoritative identities were
+    unavailable during packaging.
+
+fidelity:
+  divergences: >-
+    The challenge uses a reversed List prefix, as does the repository source. For
+    a prefix of length n, candidate t must be positive, absent from the prefix,
+    and satisfy t + a(n-2i) != 2*a(n-i) for every 1 <= i with 2*i <= n. Nat.find
+    enforces least selection, and a(n) is the paper's pi_g(n+1). The theorem is
+    the paper's 3*N <= 8*pi_g(N) with N=n+1. The substantive counting proof follows
+    the repository's documented correction from “same” to “opposite” parity; the
+    absent extracted source text prevents upgrading that inherited attribution to
+    independently human-checked evidence.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER review is the sole review stage and is pending. Lean elaboration and
+    axiom output in verification.md are technical checks, not human mathematical,
+    attribution, or source-fidelity review.
+
+alignment:
+  namespace: "Palomar.HegartyThreeEighths"
+  statements:
+    - source: >-
+        Hegarty 2004, Theorem 3.3: for every one-based N>0,
+        pi_g(N)/N >= 3/8
+      lean: "Palomar.HegartyThreeEighths.hegarty_three_eighths"
+      module: "Palomar.HegartyThreeEighths.Solution"
+      status: "proved"
+      note: >-
+        Naturals are zero-indexed: n ranges over all Nat and N=n+1 is therefore
+        always positive. Clearing denominators gives 3*(n+1) <= 8*a(n).
+
+metadata_blockers:
+  - >-
+    project.authors is required to contain human names, but no authoritative human
+    formalization-author identity was available.
+  - >-
+    project.responsible_maintainers is required to contain human names, but no
+    responsible human maintainer was identified or authorized.
+  - "USER mathematical and source-fidelity review remains pending."
+  - >-
+    Comparator could not be run because comparator, landrun, lean4export, and
+    nanoda_bin were unavailable in the pinned project toolchain environment.
+
+acknowledgements: >-
+  The formalization uses Lean 4 and Mathlib. Mathematical attribution for the
+  theorem and greedy construction is to Peter Hegarty; this acknowledgement is
+  not an endorsement or review claim.

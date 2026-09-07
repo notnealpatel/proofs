@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.HegartyThreeEighths.Challenge",
+  "solution_module": "Palomar.HegartyThreeEighths.Solution",
+  "theorem_names": [
+    "Palomar.HegartyThreeEighths.hegarty_three_eighths"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
