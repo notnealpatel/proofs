@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.CongruentTwentyOne.Challenge",
+  "solution_module": "Palomar.CongruentTwentyOne.Solution",
+  "theorem_names": [
+    "Palomar.CongruentTwentyOne.isPrimitiveCongruent_twentyOne"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

@@ -1,0 +1,149 @@
+version: "v0.4"
+
+project:
+  name: "The concrete primitive congruent number 21"
+  description: >-
+    A Lean 4 certificate that 21 is squarefree and is the area of a right
+    triangle with three positive rational sides. The selected theorem is
+    expanded directly into standard Mathlib notions in both package modules.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "CongruentBSD concrete certificate for 21"
+    authors: []
+    id: "Proofs/Enumerative/CongruentBSD.lean"
+    type: "repository"
+    location: "A273929.isPrimitiveCongruent_twentyOne"
+    relationship: "reuses-proof"
+    license: "MIT"
+    author_endorsement: "not-contacted"
+    note: >-
+      USER-supplied accepted source revision
+      55ab7d253f32b9632581cf31cc4951c2b2119533. The proof uses the explicit
+      positive rational triangle (7/2,12,25/2) and a bounded squarefree check.
+      Human formalization-author identity is unknown.
+  - title: "OEIS A006991: Primitive congruent numbers"
+    authors:
+      - "The OEIS Foundation Inc. and contributors"
+    id: "https://oeis.org/A006991"
+    type: "web"
+    location: "name and characterization as squarefree terms of A003273"
+    relationship: "documents-definition"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      Definition inherited from the repository's pinned transcription, not a
+      new source audit. No general OEIS inclusion is assumed or proved here.
+  - title: "Congruent number"
+    authors:
+      - "Wikipedia contributors"
+    id: "https://en.wikipedia.org/wiki/Congruent_number"
+    type: "web"
+    location: "definition and list of examples including 21"
+    relationship: "mathematical-context"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: "Read during the concrete-certificate work; not a priority claim."
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.NT"
+  msc2020:
+    - "11D09"
+
+status:
+  scope: >-
+    Only the known finite statement that 21 is a primitive congruent number.
+    This is not BSD, a Mordell-Weil rank statement, the A273929 inclusion,
+    or a resolution of the source's archived conditional conjecture.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.CongruentTwentyOne.isPrimitiveCongruent_twentyOne"
+      file: "Palomar/CongruentTwentyOne/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/CongruentTwentyOne/comparator.json"
+      literature_dependencies: []
+      note: >-
+        The package's one intentional theorem hole is in Challenge only.
+        The selected Solution closure excludes sorryAx despite the unrelated
+        archival sorry in the imported CongruentBSD module.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "gpt-6-astra (xhigh; USER-specified run attribution)"
+      framework: "Yah"
+      tool_setup: >-
+        Material AI assistance in the latest concrete certificate implementation
+        and packaging, direct source-definition alignment, bounded fresh Lean
+        compilation, declaration-level axiom checks, and JSON/YAML parsing.
+        Earlier infrastructure model and authorship history are unknown.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        Packaging was restricted to six new files in Palomar/CongruentTwentyOne.
+        No Proofs files or existing packages were edited. No external reviewer
+        or subagent was used; USER alone reviews the package.
+  spend_usd: "not available"
+  notes: >-
+    No human author, maintainer, or reviewer identity is inferred from the AI
+    run, the source license, or the infrastructure owner.
+
+fidelity:
+  divergences: >-
+    No mathematical divergence: the package expands IsPrimitiveCongruent 21
+    as Squarefree (21 : Nat) and existence of positive rational a,b,c with
+    a^2+b^2=c^2 and a*b=2*(21 : Rat). The source's IsCongruentNumber and
+    IsCongruentArea wrappers are omitted from both package statements, and
+    the Solution's change/exact bridge checks definitional equality. The
+    witness is proved in the source, not made a theorem hypothesis.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER review is pending and is the sole review gate. Lean compilation,
+    axiom auditing, and metadata parsing are mechanical checks, not human
+    approval. No submission, acceptance, novelty, or priority is claimed.
+
+alignment:
+  namespace: "Palomar.CongruentTwentyOne"
+  statements:
+    - source: "A273929.isPrimitiveCongruent_twentyOne : IsPrimitiveCongruent 21"
+      lean: "Palomar.CongruentTwentyOne.isPrimitiveCongruent_twentyOne"
+      module: "Palomar.CongruentTwentyOne.Solution"
+      status: "proved"
+      note: >-
+        Both package modules contain the identical literal expanded statement
+        and no custom definitions. The existential domain Rat is nonempty;
+        all three side lengths must be strictly positive.
+
+metadata_blockers:
+  - "No authoritative human formalization-author identity: project.authors is empty."
+  - "No authorized human maintainer identity: project.responsible_maintainers is empty."
+  - "USER mathematical and source-fidelity review remains pending."
+  - >-
+    Comparator, landrun, lean4export, nanoda, and nanoda_bin were absent from
+    PATH. Comparator/export/Nanoda checks were NOT RUN; no installation or
+    toolchain upgrade was attempted.
+  - "YAML parsing is not validation against an external v0.4 metadata schema."
+
+acknowledgements: >-
+  Uses Lean 4 and Mathlib and reuses the repository's concrete certificate.
+  This acknowledgement does not attribute a human author or imply endorsement.

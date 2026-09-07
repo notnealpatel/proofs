@@ -117,9 +117,10 @@ Proved here, `sorry`-free and kernel-checked:
 * `a273929_subset_iff_hasNontrivialPoint` — the archived claim restated as a point
   existence statement, `sorry`-free (it is an `iff` between two open statements, proved
   from the reformulation).
-* `isCongruentNumber_five` … `isCongruentNumber_fifteen` — the first six terms
-  `5, 6, 7, 13, 14, 15` of the pinned `terms` field are congruent, by explicit rational
-  triangles; and `curvePointSix`, `curvePointFive`, `curvePointSeven` exhibit the
+* `isCongruentNumber_five` … `isCongruentNumber_twentyOne` — the first seven terms
+  `5, 6, 7, 13, 14, 15, 21` of the pinned `terms` field are congruent, by explicit rational
+  triangles; `isPrimitiveCongruent_twentyOne` also certifies that `21` is squarefree;
+  and `curvePointSix`, `curvePointFive`, `curvePointSeven` exhibit the
   corresponding `WeierstrassCurve.Affine.Point`s.
 * `isPrimitiveCongruentLow_thirtyFour/fortyOne/twoHundredNineteen` — the complementary
   piece is inhabited in each of the residues `2, 1, 3 (mod 8)`.
@@ -606,10 +607,10 @@ theorem not_memA273929_four : ¬ MemA273929 4 := by
   rw [← mem_a273929Prefix_iff (by norm_num)]
   decide
 
-/-! ## Small-case certificates: the first six terms are congruent
+/-! ## Small-case certificates: the first seven terms are congruent
 
 Each triangle is checked in the kernel: `a² + b² = c²` and `a·b = 2n` with `a, b, c > 0`.
-These are exactly the six values `5, 6, 7, 13, 14, 15` that open the pinned `terms`
+These are exactly the seven values `5, 6, 7, 13, 14, 15, 21` that open the pinned `terms`
 field. -/
 
 /-- `5` is congruent: the `(3/2, 20/3, 41/6)` triangle. -/
@@ -636,6 +637,17 @@ theorem isCongruentNumber_fourteen : IsCongruentNumber 14 :=
 /-- `15` is congruent: the `(4, 15/2, 17/2)` triangle. -/
 theorem isCongruentNumber_fifteen : IsCongruentNumber 15 :=
   ⟨4, 15 / 2, 17 / 2, by norm_num, by norm_num, by norm_num, by norm_num, by norm_num⟩
+
+/-- `21` is congruent: the positive rational `(7/2, 12, 25/2)` triangle has area `21`. -/
+theorem isCongruentNumber_twentyOne : IsCongruentNumber 21 :=
+  ⟨7 / 2, 12, 25 / 2, by norm_num, by norm_num, by norm_num, by norm_num, by norm_num⟩
+
+/-- `21` is primitive congruent: it is squarefree and is the area of a rational right
+triangle, independently of BSD or the archived inclusion claim. -/
+theorem isPrimitiveCongruent_twentyOne : IsPrimitiveCongruent 21 := by
+  have hsf : Squarefree (21 : ℕ) :=
+    (squarefree_iff_forall_mem_Icc (by norm_num)).2 (by decide)
+  exact ⟨hsf, isCongruentNumber_twentyOne⟩
 
 /-- The archived claim holds at the first six terms of the pinned `terms` field.  This is
 `a273929_subset_a006991` restricted to `{5, 6, 7, 13, 14, 15}`, proved. -/
@@ -901,6 +913,8 @@ theorem a273929_subset_iff_hasNontrivialPoint :
 #check @isCongruentNumber_thirteen
 #check @isCongruentNumber_fourteen
 #check @isCongruentNumber_fifteen
+#check @isCongruentNumber_twentyOne
+#check @isPrimitiveCongruent_twentyOne
 #check @isPrimitiveCongruent_of_mem_first_six
 #check @curvePointSix
 #check @curvePointFive
@@ -954,6 +968,8 @@ Everything below is `{propext, Classical.choice, Quot.sound}` except
 #print axioms isCongruentNumber_thirteen
 #print axioms isCongruentNumber_fourteen
 #print axioms isCongruentNumber_fifteen
+#print axioms isCongruentNumber_twentyOne
+#print axioms isPrimitiveCongruent_twentyOne
 #print axioms isPrimitiveCongruent_of_mem_first_six
 #print axioms curvePointSix
 #print axioms curvePointFive
