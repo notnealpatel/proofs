@@ -1,0 +1,140 @@
+version: "v0.4"
+
+project:
+  name: "Every positive even number is a sum of two practical numbers"
+  description: >-
+    A Lean 4 formalization of Melfi's practical-number analogue of Goldbach's
+    conjecture: every positive even natural number is the sum of two practical
+    numbers. Practicality is stated using finite subsets of the positive
+    divisors, so the summands are distinct divisors. The checked Lean proof uses
+    an elementary covering argument rather than claiming to reproduce Melfi's
+    published proof route.
+  # Required human identities have not yet been established. These empty lists
+  # deliberately expose the submission blocker instead of inventing attribution.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "On Two Conjectures about Practical Numbers"
+    authors:
+      - "Giuseppe Melfi"
+    id: "https://doi.org/10.1006/jnth.1996.0012"
+    type: "paper"
+    location: "Journal of Number Theory 56 (1996), 205–210; positive-even sum theorem"
+    relationship: "independently-proves"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      This formalization proves the published result by an alternative
+      two-family covering argument. The detailed proof in the source and the
+      comparison of proof routes have not been independently human-reviewed.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.NT"
+  msc2020:
+    - "11A25"
+
+status:
+  scope: >-
+    The package selects the single headline that every positive even natural
+    number is a sum of two practical numbers. It includes its ordinary
+    practical-number definition in separate Challenge and Solution modules and
+    uses the repository's substantive proof in
+    Proofs/Enumerative/MelfiPracticalSum.lean. Supporting lemmas are not
+    advertised as separate results.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.Melfi.even_eq_practical_add_practical"
+      file: "Palomar/Melfi/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/Melfi/comparator.json"
+      literature_dependencies: []
+      note: >-
+        The project-wide sorry count records an unrelated archived Coleman
+        theorem in Proofs/Enumerative/Practical.lean. A fresh axiom audit shows
+        that neither this result nor its source declaration depends on sorryAx.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "model identifier not exposed by the Yah runtime"
+      framework: "Yah"
+      tool_setup: >-
+        Autonomous AI-assisted Lean packaging, theorem elaboration, targeted
+        Lake build, and declaration-level axiom auditing. The existing
+        substantive Proofs development is also disclosed by the repository as
+        at least partly or wholly AI-assisted; exact earlier model and session
+        details were not reconstructed.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        Work was constrained to a narrow allowlisted Challenge, an independent
+        Solution module, exact axiom-closure checks, and honest source/review
+        disclosure. No proof-route comparison with the paper was asserted.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. No human author, responsible maintainer, or
+    human reviewer is attributed by this file because authoritative identities
+    were unavailable during packaging.
+
+fidelity:
+  divergences: >-
+    The formal statement matches the published positive-even natural-number
+    claim. Practical numbers are represented by positivity plus representability
+    of every m ≤ n as a sum over a finite subset of n's positive divisors. The
+    Lean development uses an elementary covering by practical families based on
+    powers of two and twice powers of three, not Melfi's twin-practical-sequence
+    construction. The detailed source proof was not independently read, so this
+    proof-route description has not been source-verified by a human.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER review is the sole review gate and is still pending. Automated Lean
+    elaboration and axiom auditing are recorded in verification.md; they do not
+    constitute human mathematical, attribution, or source-fidelity review.
+
+alignment:
+  namespace: "Palomar.Melfi"
+  statements:
+    - source: >-
+        Melfi's theorem that every positive even integer is the sum of two
+        practical numbers
+      lean: "Palomar.Melfi.even_eq_practical_add_practical"
+      module: "Palomar.Melfi.Solution"
+      status: "proved"
+      note: >-
+        The theorem requires Even n and 0 < n and returns practical q and r
+        with q + r = n. The positivity hypothesis excludes the degenerate even
+        value zero.
+
+metadata_blockers:
+  - >-
+    project.authors is required to contain human names, but no authoritative
+    human formalization-author identity was available.
+  - >-
+    project.responsible_maintainers is required to contain human names, but no
+    responsible human maintainer was identified or authorized.
+  - "Human mathematical and source-fidelity review remains pending."
+
+acknowledgements: >-
+  The formalization uses Lean 4 and Mathlib. Mathematical attribution for the
+  headline result is to Giuseppe Melfi; this acknowledgement is not an
+  endorsement or review claim.

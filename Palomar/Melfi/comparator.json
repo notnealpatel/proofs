@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.Melfi.Challenge",
+  "solution_module": "Palomar.Melfi.Solution",
+  "theorem_names": [
+    "Palomar.Melfi.even_eq_practical_add_practical"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}

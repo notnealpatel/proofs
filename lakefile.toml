@@ -53,6 +53,10 @@ srcDir = "Proofs"
 name = "Scratch"
 srcDir = "Proofs"
 
+[[lean_lib]]
+name = "Palomar"
+srcDir = "."
+
 [[lean_exe]]
 name = "binary-search"
 root = "BilinearComplexity.BinarySearchMain"
