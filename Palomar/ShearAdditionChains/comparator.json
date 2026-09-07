@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.ShearAdditionChains.Challenge",
+  "solution_module": "Palomar.ShearAdditionChains.Solution",
+  "theorem_names": [
+    "Palomar.ShearAdditionChains.minimumMonomialShears_eq_l"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}

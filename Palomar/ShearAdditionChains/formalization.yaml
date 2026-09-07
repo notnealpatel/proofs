@@ -1,0 +1,172 @@
+version: "v0.4"
+
+project:
+  name: "Shortest addition chains as restricted fresh-target monomial shear programs"
+  description: >-
+    A Lean 4 formalization that the minimum number of restricted, source-indexed
+    fresh-target monomial shears computing exponent n from one exponent-1
+    register equals the ordinary shortest addition-chain length l(n), for n
+    nonzero. Programs retain all older registers and store exponent traces
+    newest first.
+  # Required human identities remain unknown. Empty lists expose the blocker
+  # rather than inventing a human author or maintainer.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "A003313: Length of shortest addition chain for n"
+    authors:
+      - "OEIS Foundation Inc."
+    id: "https://oeis.org/A003313"
+    type: "database-entry"
+    location: "OEIS A003313; definition and initial values"
+    relationship: "background-definition"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The established addition-chain function is the mathematical background.
+      This source does not state the package's restricted monomial-shear model
+      correspondence.
+  - title: "The Art of Computer Programming, Volume 2: Seminumerical Algorithms"
+    authors:
+      - "Donald E. Knuth"
+    id: "ISBN 978-0-201-89684-8"
+    type: "book"
+    location: "Section 4.6.3, addition chains"
+    relationship: "background-definition"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      Cited by the repository addition-chain development for the ordinary,
+      permissive addition-chain convention. No claim is made that the Lean
+      proof reproduces a particular proof from this book.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.NT"
+    - "cs.LO"
+  msc2020:
+    - "11Y16"
+    - "68V20"
+
+status:
+  scope: >-
+    The package selects one headline theorem. Challenge.lean independently
+    defines ordinary newest-first addition chains, their step-count infimum,
+    proof-relevant source-indexed fresh-target monomial programs, actual
+    program computations, and their shear-count infimum. Solution.lean repeats
+    those declarations without importing Challenge and gives explicit
+    trace-preserving, cost-preserving translations to the substantive source
+    model in Proofs/ShearEC/ShearAdditionChain.lean. The similarly named plural
+    source file is scaffolding and is not theorem evidence.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.ShearAdditionChains.minimumMonomialShears_eq_l"
+      file: "Palomar/ShearAdditionChains/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/ShearAdditionChains/comparator.json"
+      literature_dependencies:
+        - "OEIS A003313"
+        - "Knuth, TAOCP Volume 2, Section 4.6.3"
+      note: >-
+        The one package sorry is the intentional Challenge theorem hole. The
+        proved Solution theorem and the imported source theorem have fresh
+        axiom audits with no sorryAx.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "model identifier not exposed by the Yah runtime"
+      framework: "Yah"
+      tool_setup: >-
+        Autonomous AI-assisted Lean packaging, independent syntax duplication,
+        explicit inductive translations and cost transport, bounded one-core
+        elaboration, targeted prerequisite compilation, and declaration-level
+        axiom auditing. The pre-existing Proofs development is also disclosed
+        by the repository as AI-assisted; earlier model and session identifiers
+        were not reconstructed.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        Work was constrained to the five allowlisted package files, with no
+        source edits or mathematical review agents. The model boundary and the
+        unavailable external verifier tooling were required to be explicit.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. The project was pinned to Lean 4.33.0-rc1,
+    Mathlib manifest revision 3edb3c0658f69f197b1e501b1f7623f3f7b3898c,
+    and assigned campaign base ee0cb27655f6bb6c37e8647c79184745017c5b24.
+    No human formalization author, maintainer, or reviewer is inferred from AI
+    operation or from mathematical attribution.
+
+fidelity:
+  divergences: >-
+    The theorem concerns only the declared restricted model: one initial
+    register with exponent 1; each counted constructor chooses two existing
+    source indices; it allocates a new target with exponent equal to their sum;
+    and it retains all older registers as permitted garbage. There is no free
+    affine mixing and no scratch cleanup. At n = 0 both indexed types are empty
+    and both Nat infima equal the junk convention 0, so the headline explicitly
+    assumes n != 0. The result does not assert optimality for unrestricted
+    ShearCircuit circuits, reversible arithmetic, elliptic-curve point
+    addition, or inversion. Established addition-chain mathematics is used;
+    novelty, priority, and existence of earlier formalizations of this exact
+    model correspondence are unestablished.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER is the sole review gate and review remains pending. Lean elaboration,
+    cost-preserving translation proofs, and axiom auditing are mechanical
+    evidence only; they are not human mathematical or source-fidelity review.
+
+alignment:
+  namespace: "Palomar.ShearAdditionChains"
+  statements:
+    - source: >-
+        Proofs/ShearEC/ShearAdditionChain.lean theorem
+        ShearEC.ShearAdditionChain.minimumMonomialShears_eq_l, supported by
+        NumberComplexity.l from Proofs/NumberComplexity/AdditionChain.lean
+      lean: "Palomar.ShearAdditionChains.minimumMonomialShears_eq_l"
+      module: "Palomar.ShearAdditionChains.Solution"
+      status: "proved"
+      note: >-
+        Solution defines separate inductives and minima. isAddChain_iff_source
+        identifies chain traces; MonomialShearProgram.toSource and ofSource
+        transport source indices; shearCount_toSource and shearCount_ofSource
+        preserve costs; minimumMonomialShears_eq_source and l_eq_source_l
+        transport the two minima before applying the substantive source theorem.
+
+metadata_blockers:
+  - >-
+    project.authors is required to contain human names, but no authoritative
+    human formalization-author identity was available.
+  - >-
+    project.responsible_maintainers is required to contain human names, but no
+    responsible human maintainer was identified or authorized.
+  - "Human mathematical, attribution, and source-fidelity review remains pending."
+  - >-
+    Comparator, landrun, lean4export, and nanoda_bin were unavailable; the only
+    observed Comparator checkout requires Lean 4.34.0-rc1, newer than this
+    project's Lean 4.33.0-rc1 pin.
+
+acknowledgements: >-
+  The formalization uses Lean 4 and Mathlib. OEIS and Donald Knuth are credited
+  only for established addition-chain background; no endorsement or review is
+  implied.
