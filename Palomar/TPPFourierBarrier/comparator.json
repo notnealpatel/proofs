@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.TPPFourierBarrier.Challenge",
+  "solution_module": "Palomar.TPPFourierBarrier.Solution",
+  "theorem_names": [
+    "Palomar.TPPFourierBarrier.tpp_card_product_le_fourier_barrier"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}

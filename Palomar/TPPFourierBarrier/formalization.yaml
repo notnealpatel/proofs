@@ -1,0 +1,158 @@
+version: "v0.4"
+
+project:
+  name: "The BCGPU Fourier barrier for triple-product-property triples"
+  description: >-
+    A Lean 4 packaging of Blasiak--Church--Cohn--Grochow--Umans Theorem 3.2:
+    finite subsets S, T, and U with the triple product property in a finite
+    nonabelian group G satisfy |S||T||U| <= |G|^(3/2)/sqrt(n(G)) + |G|.
+    Here n(G) is defined from the complex character-degree multiset as the
+    least irreducible dimension strictly greater than one, so nontrivial
+    one-dimensional characters are intentionally excluded.
+  # Required human identities have not been established. Empty lists expose
+  # the submission blocker rather than inventing attribution.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "Matrix multiplication via matrix groups"
+    authors:
+      - "Jonah Blasiak"
+      - "Thomas Church"
+      - "Henry Cohn"
+      - "Joshua A. Grochow"
+      - "Chris Umans"
+    id: "https://arxiv.org/abs/2204.03826"
+    type: "paper"
+    location: >-
+      Section 3.1, definition of n(G) and Theorem 3.2
+      (LaTeX label thm:gowerstrick)
+    relationship: "formalizes"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The local primary-paper source was checked at paper.tex lines 164--169.
+      It defines n(G) using irreducible dimensions strictly greater than one
+      and states the same finite-group inequality. No author endorsement or
+      independent human source-fidelity review is claimed.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.GR"
+    - "cs.CC"
+  msc2020:
+    - "20C15"
+    - "20D60"
+    - "68Q17"
+
+status:
+  scope: >-
+    The package selects only BCGPU Theorem 3.2, the finite nonabelian Fourier
+    barrier. Challenge.lean independently defines the TPP predicate and the
+    character-degree invariant using Mathlib's group algebra, isotypic
+    components, and module length. Solution.lean repeats those definitions,
+    proves their bridge to GroupTPP.CharDegrees, and applies the existing
+    theorem GroupTPP.BCGPUBarrier.bcgpu_thm_3_2. It does not package the
+    asymptotic omega corollaries or claim a new result.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.TPPFourierBarrier.tpp_card_product_le_fourier_barrier"
+      file: "Palomar/TPPFourierBarrier/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/TPPFourierBarrier/comparator.json"
+      literature_dependencies:
+        - "Blasiak--Church--Cohn--Grochow--Umans, arXiv:2204.03826, Theorem 3.2"
+      note: >-
+        The package-level sorry is the intentional theorem hole in
+        Challenge.lean. A fresh declaration-level audit of the Solution
+        theorem reports no sorryAx, native_decide, Lean.ofReduceBool, or
+        custom axioms.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "model identifier not exposed by the Yah runtime"
+      framework: "Yah"
+      tool_setup: >-
+        Autonomous AI-assisted definition design, bridge proof, targeted Lean
+        elaboration, signature comparison, axiom auditing, and package metadata
+        preparation. The existing GroupTPP proof development is also disclosed
+        by the repository as AI-assisted; its earlier model and session details
+        were not reconstructed here.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        Work was constrained to five allowlisted package files, independent
+        Challenge definitions, reuse of the existing source-based proof, exact
+        signature and axiom checks, and explicit pending USER review.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. No human formalization author, responsible
+    maintainer, reviewer, or Palomar approver is attributed because no such
+    identity or approval was established.
+
+fidelity:
+  divergences: >-
+    The formal statement matches the paper's finite nonabelian-group theorem.
+    Finite subsets are represented as Finset values. The complex character
+    degrees are represented canonically by the composition lengths of the
+    isotypic components of the regular complex group algebra; the filtered
+    minimum uses only degrees d with 1 < d and returns zero if the filtered set
+    is empty. The theorem's explicit nonabelianness hypothesis makes the latter
+    default irrelevant because the repository bridge proves n(G) >= 2. The
+    Solution delegates the analytic Fourier argument to the existing
+    source-based GroupTPP theorem rather than duplicating that long proof.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER review is the sole review gate and remains pending. Mechanical Lean
+    elaboration, exact-signature checks, and axiom auditing are evidence only;
+    they do not constitute human approval, Palomar acceptance, registration,
+    or submission.
+
+alignment:
+  namespace: "Palomar.TPPFourierBarrier"
+  statements:
+    - source: >-
+        BCGPU Theorem 3.2: for TPP subsets S, T, U of a finite nonabelian G,
+        |S||T||U| <= |G|^(3/2)/n(G)^(1/2) + |G|, with n(G) the minimum
+        irreducible dimension strictly greater than one
+      lean: "Palomar.TPPFourierBarrier.tpp_card_product_le_fourier_barrier"
+      module: "Palomar.TPPFourierBarrier.Solution"
+      status: "proved"
+      note: >-
+        The nonabelian witness is explicit, the TPP is defined by left
+        quotients, and the denominator is Real.sqrt of the filtered minimum
+        cast to the reals.
+
+metadata_blockers:
+  - >-
+    project.authors is required to contain human names, but no authoritative
+    human formalization-author identity was available.
+  - >-
+    project.responsible_maintainers is required to contain human names, but no
+    responsible human maintainer was identified or authorized.
+  - "Human mathematical and source-fidelity review remains pending."
+
+acknowledgements: >-
+  The formalization uses Lean 4, Mathlib, and the repository's GroupTPP
+  library. Mathematical attribution for the selected theorem is to Jonah
+  Blasiak, Thomas Church, Henry Cohn, Joshua A. Grochow, and Chris Umans; this
+  acknowledgement is not an endorsement or review claim.
