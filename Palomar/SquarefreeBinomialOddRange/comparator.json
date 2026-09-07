@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.SquarefreeBinomialOddRange.Challenge",
+  "solution_module": "Palomar.SquarefreeBinomialOddRange.Solution",
+  "theorem_names": [
+    "Palomar.SquarefreeBinomialOddRange.not_squarefree_choose_half_of_odd"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

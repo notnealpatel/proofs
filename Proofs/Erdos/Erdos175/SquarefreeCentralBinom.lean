@@ -1,7 +1,7 @@
 /-
   OEIS A046098 — "Numbers n such that central binomial coefficient
-  C(n, floor(n/2)) is squarefree" — STATEMENT ARCHIVE with one intended
-  `sorry`, plus a sorry-free even-index classification.
+  C(n, floor(n/2)) is squarefree" — bounded Noe-range proof, plus a
+  bounded even-index classification. No unbounded classification is claimed.
 
   ── SOURCE PIN (verbatim, `goof oeis show A046098`, re-pulled 2026-08-05) ──
 
@@ -55,7 +55,7 @@
   But the odd half is stated on the problem page only for "$n$ sufficiently
   large", with no threshold given there, so nothing in the cited literature
   certifies the range `[72, 10^8)`. That range is precisely Noe's
-  computation, and precisely the `sorry` below.
+  computation, verified below by bounded Kummer certificates.
 
   Note that the odd case does NOT follow from the even case: with `n = 2k+1`
   one has `C(n, ⌊n/2⌋) = centralBinom (k+1) / 2`, and halving can *destroy*
@@ -88,26 +88,30 @@
       ·47·53·59·61·67·71` is squarefree, so the archived threshold `72` is
       *tight* — it is not an off-by-one.
 
-  ── THE ONE INTENDED `sorry` ──
+  ── THE KERNEL-CHECKED ODD RESIDUAL ──
 
   `not_squarefree_choose_half_of_odd_of_sum_digits_le_two`: odd `n` in
   `[72, 10^8)` whose half-successor `m = n/2 + 1` has binary digit sum `≤ 2`.
-  Everything else in the archived range is discharged above. Implementation
-  note for whoever closes it: there are exactly **331** such `m` in
-  `[37, 5·10^7]` (they are the `2^a` and `2^a + 2^b`), and for each one the
-  Kummer carry certificate of `Erdos175.two_le_padicValNat_centralBinom`,
+  There are exactly **331** such `m` in `[37, 5·10^7]`: powers `2^a` and sums
+  `2^a + 2^b` with `a < b`. For each one, a prime in `{3, 5, 7}` satisfies
+  the certificate of `Erdos175.two_le_padicValNat_centralBinom`,
 
-      s_p(2m) + 2(p−1) ≤ 2·s_p(m)  ⟹  v_p(centralBinom m) ≥ 2,
+      s_p(2m) + 2(p−1) ≤ 2·s_p(m)  ⟹  v_p(centralBinom m) ≥ 2.
 
-  holds at a witness prime `p ≤ 7` — and `v_p` is unchanged by the halving
-  for odd `p`. Witness distribution (computed with Python/sympy, see the
-  disclosure below): `p = 3` for 312 of the 331; `p = 5` for
+  The valuation is unchanged by halving because the prime is odd. The helper
+  module `SquarefreeCentralBinomResidual` proves the binary representation
+  by strong induction and bounds every exponent by `26`. It checks all
+  relevant single exponents and ordered pairs in `Fin 26` with ordinary
+  `decide`, not native computation. Its structurally recursive digit sum
+  is proved equal to `(Nat.digits p m).sum` when `m < p^fuel`; fuel `18`
+  suffices since `10^8 < 3^18`. No large binomial is evaluated.
+
+  The earlier Python/sympy witness distribution was `p = 3` for 312 of the
+  331; `p = 5` for
   `m ∈ {64, 66, 192, 264, 513, 514, 516, 576, 768, 2304, 65664, 532480}`;
-  `p = 7` for `m ∈ {40, 256, 272, 1026, 1056, 16392, 81920}`. Turning that
-  into Lean needs (i) `s₂(m) ≤ 2 ↔ m = 2^a ∨ m = 2^a + 2^b` and (ii) a
-  331-entry certificate table; base-`p` digit sums of numbers up to `10^8`
-  are behind `Nat.digits`' well-founded recursion, so the table would need
-  `native_decide` or a fuel-indexed digit-sum surrogate. Out of scope here.
+  `p = 7` for `m ∈ {40, 256, 272, 1026, 1056, 16392, 81920}`. This external
+  computation is not trusted by the proof; the kernel checks a disjunction
+  of the three carry inequalities independently.
 
   ── AXIOM / TRUST DISCLOSURE ──
 
@@ -116,24 +120,28 @@
   `native_decide` from `Erdos175.witness_cert` in `NotSquarefree.lean` (digit
   sums of `2^k, 2^(k+1) ≤ 2^31` in bases 3, 5, 7), because they are proved
   through `Erdos175.squarefree_centralBinom_iff` /
-  `Erdos175.not_squarefree_centralBinom`. The odd-side 2-adic results
-  (`two_mul_choose_half_of_odd`, `padicValNat_two_choose_half_of_odd`,
-  `not_squarefree_choose_half_of_odd_of_three_le_sum_digits`) and the
+  `Erdos175.not_squarefree_centralBinom`. All odd-side results, including
+  the bounded residual and `not_squarefree_choose_half_of_odd`, and the
   arithmetic sanity layer (`squarefree_list_prod`, `terms_squarefree`) use
-  only `propext, Classical.choice, Quot.sound`. See the `#print axioms`
+  only `propext, Classical.choice, Quot.sound`. The combined
+  `noe_not_squarefree_choose_half` still inherits the existing native trust
+  axiom through its unchanged even branch. See the `#print axioms`
   block at the end of the file for the exact per-declaration report.
 
   Computational disclosure: `sage` is NOT installed in this environment
   (`command -v sage` empty), so all pre-proof computation — the term list,
   the factorizations pinned in `terms_squarefree`, the 331-value reduction
-  and its witness primes — was done with `python3` + `sympy` 1.14.0. None of
-  it enters any proof.
+  and its witness primes — was done with `python3` + `sympy` 1.14.0. These
+  external computations are not trusted; Lean verifies the certificates.
 -/
 
 import Erdos.Erdos175.NotSquarefree
+import Erdos.Erdos175.SquarefreeCentralBinomResidual
 import Mathlib.Data.Nat.Choose.Central
 import Mathlib.Data.Nat.Squarefree
 import Mathlib.Tactic.NormNum.Prime
+
+set_option autoImplicit false
 
 namespace Erdos175.A046098
 
@@ -234,35 +242,70 @@ theorem not_squarefree_choose_half_of_odd_of_three_le_sum_digits {n : ℕ}
   omega
 
 -- ════════════════════════════════════════════════════════════════════
--- §4 THE ARCHIVED CLAIM (ONE INTENDED `sorry`)
+-- §4 THE BOUNDED NOE-RANGE CLAIM
 -- ════════════════════════════════════════════════════════════════════
 
-/-- Joint satisfiability of the hypotheses of the archived statement below:
+/-- Joint satisfiability of the hypotheses of the bounded residual below:
     `n = 79` is odd, lies in `[72, 10^8)`, and has
-    `s₂(79/2 + 1) = s₂(40) = s₂(101000₂) = 2 ≤ 2`. So the archived theorem is
+    `s₂(79/2 + 1) = s₂(40) = s₂(101000₂) = 2 ≤ 2`. So the theorem is
     not vacuous. (`79` is in fact the *smallest* such `n`; its witness prime
     is `7`, per the header table.) -/
 example : Odd 79 ∧ 72 ≤ 79 ∧ 79 < 10 ^ 8 ∧ (Nat.digits 2 (79 / 2 + 1)).sum ≤ 2 :=
   ⟨⟨39, by norm_num⟩, by norm_num, by norm_num, by decide⟩
 
-/-- **ARCHIVED — the one intended `sorry` of this file.** T. D. Noe's
-    computation ("No other n < 10^8", A046098, Apr 06 2007), restricted to
-    the part not already discharged in §2–§3: odd `n` with `72 ≤ n < 10^8`
-    whose half-successor `m = ⌊n/2⌋ + 1` has binary digit sum at most `2`
-    (equivalently `m = 2^a` or `m = 2^a + 2^b`). There are exactly `331`
-    such `m` in `[37, 5·10^7]`, each certified by a Kummer carry witness
-    prime `p ∈ {3, 5, 7}`; see the file header for the full reduction and
-    the exceptional lists. Not a theorem with a published proof — a finite
-    computer verification. -/
+/-- **Kernel-verified bounded residual of Noe's computation.** No odd `n`
+    with `72 ≤ n < 10^8` and binary digit sum of `m = ⌊n/2⌋ + 1` at most
+    two has squarefree `C(n, ⌊n/2⌋)`. Such an `m` is a power of two or the
+    sum of two distinct powers, with exponents below `26`. The helper module
+    checks Kummer certificates at `3`, `5`, or `7` for those finite exponent
+    cases; their valuations survive halving the central binomial. This is
+    a bounded verification, not an unbounded analytic theorem. -/
 theorem not_squarefree_choose_half_of_odd_of_sum_digits_le_two {n : ℕ}
     (hn : Odd n) (h72 : 72 ≤ n) (hlt : n < 10 ^ 8)
     (hs : (Nat.digits 2 (n / 2 + 1)).sum ≤ 2) :
     ¬ Squarefree (n.choose (n / 2)) := by
-  sorry
+  let m := n / 2 + 1
+  change (Nat.digits 2 m).sum ≤ 2 at hs
+  have hm37 : 37 ≤ m := by dsimp [m]; omega
+  have hmmax : m ≤ 50000000 := by
+    have hbound : n < 100000000 := by simpa using hlt
+    dsimp [m]
+    omega
+  have hsumpos : 0 < (Nat.digits 2 m).sum :=
+    Erdos175.sum_digits_pos 2 (by omega)
+  have hcert : Residual.oddCarryCertificate m := by
+    by_cases hsum1 : (Nat.digits 2 m).sum = 1
+    · obtain ⟨a, ha⟩ := Erdos175.exists_two_pow_of_sum_digits_eq_one hsum1
+      rw [ha] at hm37 hmmax ⊢
+      exact Residual.pow_certificate ⟨a, Residual.exponent_lt_twenty_six hmmax⟩
+        hm37 hmmax
+    · have hsum2 : (Nat.digits 2 m).sum = 2 := by omega
+      obtain ⟨a, b, hab, hm⟩ :=
+        Residual.exists_two_pow_add_two_pow_of_sum_digits_eq_two hsum2
+      rw [hm] at hm37 hmmax ⊢
+      have ha26 : a < 26 := Residual.exponent_lt_twenty_six
+        ((Nat.le_add_right (2 ^ a) (2 ^ b)).trans hmmax)
+      have hb26 : b < 26 := Residual.exponent_lt_twenty_six
+        ((Nat.le_add_left (2 ^ b) (2 ^ a)).trans hmmax)
+      exact Residual.sum_certificate ⟨a, ha26⟩ ⟨b, hb26⟩ hab hm37 hmmax
+  obtain ⟨p, hp3, hp, hcarry⟩ := Residual.oddCarryCertificate_sound hmmax hcert
+  haveI : Fact p.Prime := ⟨hp⟩
+  have hvaluation : 2 ≤ padicValNat p (Nat.centralBinom m) :=
+    Erdos175.two_le_padicValNat_centralBinom hp hcarry
+  have hnotdvd : ¬ p ∣ 2 := by
+    intro hdvd
+    have hcases : p = 1 ∨ p = 2 := (Nat.dvd_prime Nat.prime_two).mp hdvd
+    omega
+  have htwo : padicValNat p 2 = 0 := padicValNat.eq_zero_of_not_dvd hnotdvd
+  have hne : n.choose (n / 2) ≠ 0 := (Nat.choose_pos (Nat.div_le_self n 2)).ne'
+  change 2 ≤ padicValNat p (Nat.centralBinom (n / 2 + 1)) at hvaluation
+  rw [← two_mul_choose_half_of_odd hn, padicValNat.mul (by norm_num) hne,
+    htwo, zero_add] at hvaluation
+  exact Erdos175.not_squarefree_of_two_le_padicValNat hp hvaluation
 
 /-- Odd half of Noe's claim: no odd `n` with `72 ≤ n < 10^8` has squarefree
     `C(n, ⌊n/2⌋)`. Splits on the binary digit sum of `(n+1)/2`: at least `3`
-    is §3 (sorry-free, unbounded), at most `2` is the archived residue. -/
+    is §3 (sorry-free, unbounded), at most `2` is the kernel-checked residue. -/
 theorem not_squarefree_choose_half_of_odd {n : ℕ} (hn : Odd n) (h72 : 72 ≤ n)
     (hlt : n < 10 ^ 8) : ¬ Squarefree (n.choose (n / 2)) := by
   rcases Nat.lt_or_ge (Nat.digits 2 (n / 2 + 1)).sum 3 with hs | hs
@@ -270,16 +313,17 @@ theorem not_squarefree_choose_half_of_odd {n : ℕ} (hn : Odd n) (h72 : 72 ≤ n
       (by omega)
   · exact not_squarefree_choose_half_of_odd_of_three_le_sum_digits hn hs
 
-/-- **ARCHIVED STATEMENT (restriction of A046098's Noe comment to n ≥ 72).**
+/-- **Bounded theorem (restriction of A046098's Noe comment to `72 ≤ n`).**
     T. D. Noe (Apr 06 2007): "No other n < 10^8." Noe's full claim covers all
     `n < 10^8` not in the 13-term list; this theorem captures only the `72 ≤ n`
     portion. Ten odd values below 72 with `s₂((n+1)/2) ≤ 2` (n ∈ {9, 15, 31,
     33, 35, 39, 47, 63, 65, 67}) fall outside both §3's `s₂ ≥ 3` guard and
     this theorem's `72 ≤ n` guard — they are non-squarefree (verified
-    computationally) but not formalized here. The even half
-    and the odd `s₂ ≥ 3` half are proved above; the remaining `331` odd
-    values sit behind
-    `not_squarefree_choose_half_of_odd_of_sum_digits_le_two`.
+    computationally) but not formalized here. The even half and the odd
+    `s₂ ≥ 3` half are proved above; the remaining `331` odd values are
+    certified by `not_squarefree_choose_half_of_odd_of_sum_digits_le_two`.
+    The combined theorem inherits the existing native trust axiom from the
+    even branch; the odd branch uses only the standard logical axioms.
 
     Not implied by the literature: Granville–Ramaré/Velammal cover the even
     indices for all `m ≥ 5`, and Sander [Sa92b] covers the odd indices only
@@ -414,9 +458,10 @@ end Erdos175.A046098
 #print axioms Erdos175.A046098.not_squarefree_choose_half_of_even
 #print axioms Erdos175.A046098.squarefree_choose_71_and_not_choose_72
 
--- Carrying the one intended `sorry` (archived, not proved);
--- `noe_not_squarefree_choose_half` additionally inherits the native_decide
--- from the even branch:
+-- The bounded odd residual and its odd-range corollary use only standard axioms:
+#check @Erdos175.A046098.not_squarefree_choose_half_of_odd_of_sum_digits_le_two
 #print axioms Erdos175.A046098.not_squarefree_choose_half_of_odd_of_sum_digits_le_two
 #print axioms Erdos175.A046098.not_squarefree_choose_half_of_odd
+
+-- The combined theorem still inherits native trust from the unchanged even branch:
 #print axioms Erdos175.A046098.noe_not_squarefree_choose_half

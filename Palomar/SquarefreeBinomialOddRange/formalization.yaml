@@ -1,0 +1,153 @@
+version: "v0.4"
+
+project:
+  name: "Squarefree middle binomial coefficients: bounded odd range"
+  description: >-
+    For every odd natural number n with 72 <= n < 10^8, the middle binomial
+    coefficient n.choose (n / 2) is not squarefree. The independent Challenge
+    uses only standard Mathlib arithmetic; the Solution bridges to the
+    repository's proved bounded odd-range theorem.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "OEIS A046098: Noe's bounded computation comment"
+    authors:
+      - "T. D. Noe"
+    id: "https://oeis.org/A046098"
+    type: "web"
+    location: "Comment dated Apr 06 2007: No other n < 10^8"
+    relationship: "formalizes-bounded-odd-restriction"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      Noe is attributed here as the author of the quoted computation comment,
+      not as the author of the whole OEIS entry or of this Lean code. The
+      attribution is inherited from the repository source's OEIS pin, not a
+      fresh external source review. The selected theorem restricts the
+      computational assertion to odd n with 72 <= n < 10^8; the proof instead
+      verifies finite Kummer certificates in Lean's kernel.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.NT"
+  msc2020:
+    - "11B65"
+
+status:
+  scope: >-
+    Exactly the bounded odd-range theorem is selected. No binary digit-sum
+    hypothesis is imposed on the caller. No unbounded analytic theorem, full
+    thirteen-term classification, or combined even-and-odd Noe theorem is
+    selected. The sole package sorry is the intentional Challenge theorem
+    hole; the Solution has no sorry.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.SquarefreeBinomialOddRange.not_squarefree_choose_half_of_odd"
+      file: "Palomar/SquarefreeBinomialOddRange/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/SquarefreeBinomialOddRange/comparator.json"
+      literature_dependencies:
+        - "OEIS A046098, T. D. Noe comment of Apr 06 2007, bounded odd restriction"
+      note: >-
+        Fresh separate Solution elaboration and #print axioms report precisely
+        the three standard logical axioms and no sorryAx or native-computation
+        axiom. The direct source theorem is
+        Erdos175.A046098.not_squarefree_choose_half_of_odd in
+        Proofs/Erdos/Erdos175/SquarefreeCentralBinom.lean, matching source
+        revision 55ab7d253f32b9632581cf31cc4951c2b2119533. The imported module's
+        unchanged even branch and combined Noe theorem retain an earlier
+        native certificate axiom, but are outside this selected closure.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "gpt-6-astra (xhigh)"
+      framework: "Yah"
+      tool_setup: >-
+        AI-assisted bounded-residual implementation and package construction,
+        narrow standalone Lean checks with -j1 and -M2048, exact elaborated
+        theorem-type comparison in separate environments, declaration-level
+        axiom auditing, and JSON/YAML parsing. No native_decide was introduced.
+        Existing source-matched local proof artifacts and shared Mathlib
+        artifacts were reused without rebuilding the dependency cache.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM reported by tool_atop"
+      prompting_notes: >-
+        Packaging was restricted to six new files under
+        Palomar/SquarefreeBinomialOddRange. No Proofs files, existing package
+        files, source inputs, root configuration, or existing README files
+        were changed. No subagents or non-USER review stage were used.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. The implementation and packaging model is
+    recorded as gpt-6-astra with xhigh reasoning, as specified for this work.
+    Prior shared infrastructure's model and session details are unknown.
+    No human formalization author, maintainer, or reviewer is invented.
+
+fidelity:
+  divergences: >-
+    This is an explicit restriction of Noe's finite computation comment, not
+    a full formalization of every index below 10^8. Both files use identical
+    Mathlib constants and canonical natural-number instances for Odd,
+    Nat.choose, Squarefree, comparisons, powers, and division by 2. Their
+    selected theorem headers and raw elaborated Lean expression types match
+    exactly. No package-defined mathematical models require a separate
+    semantic bridge. The proof bridge applies only the bounded odd theorem.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER review is pending and is the sole review gate. Technical Lean and
+    metadata checks do not constitute human mathematical, attribution, or
+    source-fidelity approval. No acceptance or submission is asserted.
+
+alignment:
+  namespace: "Palomar.SquarefreeBinomialOddRange"
+  statements:
+    - source: >-
+        OEIS A046098, Noe's finite computation comment restricted to odd
+        natural numbers n with 72 <= n < 10^8
+      lean: "Palomar.SquarefreeBinomialOddRange.not_squarefree_choose_half_of_odd"
+      module: "Palomar.SquarefreeBinomialOddRange.Solution"
+      status: "proved"
+      note: >-
+        Nat division by the fixed positive divisor 2 gives floor(n/2).
+        Joint satisfiability of Odd n, 72 <= n, and n < 10^8 is checked
+        independently at n = 73 in both files. The source proof's binary
+        digit-sum split is internal and is not an extra theorem hypothesis.
+
+metadata_blockers:
+  - >-
+    No authoritative human formalization-author identity is available;
+    project.authors is therefore empty.
+  - >-
+    No responsible human maintainer has been identified or authorized;
+    project.responsible_maintainers is therefore empty.
+  - "USER mathematical, attribution, and source-fidelity review remains pending."
+  - >-
+    Comparator was not run: comparator, landrun, lean4export, nanoda, and
+    nanoda_bin are unavailable in PATH. No verifier installation or toolchain
+    change was attempted. enable_nanoda remains true in the configuration.
+
+acknowledgements: >-
+  Lean 4 and Mathlib supply the standard arithmetic and p-adic infrastructure.
+  T. D. Noe is credited for the source's finite computation comment. The
+  repository's prior Kummer, halving, and binary-digit infrastructure is
+  reused. These acknowledgements do not assert endorsement or review.
