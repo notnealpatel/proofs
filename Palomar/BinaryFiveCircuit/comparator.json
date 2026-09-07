@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.BinaryFiveCircuit.Challenge",
+  "solution_module": "Palomar.BinaryFiveCircuit.Solution",
+  "theorem_names": [
+    "Palomar.BinaryFiveCircuit.finiteDimensional_ambient_fiveCircuit_classification"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}
