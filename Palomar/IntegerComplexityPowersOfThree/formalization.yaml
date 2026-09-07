@@ -1,0 +1,191 @@
+version: "v0.4"
+
+project:
+  name: "Integer complexity of positive powers of three"
+  description: >-
+    A Lean 4 formalization of the classical exact value of Mahler–Popken
+    integer complexity on positive powers of three: the least number of ones
+    needed to construct 3^b using addition and multiplication is 3*b. The
+    Challenge and Solution independently define the literal expression syntax,
+    evaluator, leaf cost, and infimum-based complexity.
+  # Required human identities are unknown. Empty lists expose the blocker
+  # instead of inventing a formalization author or responsible maintainer.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "Integer complexity: experimental and analytical results"
+    authors:
+      - "Juris Iraids"
+      - "Kārlis Balodis"
+      - "Jānis Čerņenoks"
+      - "Māris Opmanis"
+      - "Rihards Opmanis"
+      - "Kārlis Podnieks"
+    id: "https://arxiv.org/abs/1203.6462"
+    type: "paper"
+    location: "Theorem cbounds2; in particular, the equality for every b >= 1"
+    relationship: "formalizes"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The repository source quotes this theorem and proves its positive-power
+      equality. This package selects only that equality, not the paper's iff or
+      shortest-representation parenthetical clauses. No new-theorem or priority
+      claim is made, and no fresh human source comparison was performed.
+  - title: "OEIS A005245 — Mahler–Popken complexity"
+    authors:
+      - "The OEIS Foundation Inc. and contributors"
+    id: "https://oeis.org/A005245"
+    type: "website"
+    location: "sequence definition and classical lower-bound attribution"
+    relationship: "documents"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The definition and attribution are inherited from the repository source
+      and candidate README; this packaging task did not undertake a broad
+      literature search.
+  - title: "Numbers with integer complexity close to the lower bound"
+    authors:
+      - "Harry Altman"
+      - "Joshua Zelinsky"
+    id: "https://arxiv.org/abs/1207.4841"
+    type: "paper"
+    location: "Abstract; credits John Selfridge with complexity(n) >= 3 log_3 n"
+    relationship: "supports-proof-attribution"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      This supports the inherited attribution of the cube lower bound used by
+      the repository proof. The package does not claim to reproduce a published
+      proof line by line.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.NT"
+  msc2020:
+    - "11A25"
+
+status:
+  scope: >-
+    The package inventory consists of Challenge.lean, Solution.lean,
+    comparator.json, formalization.yaml, and verification.md. The selected
+    declaration is only the equality complexity(3^b)=3*b for natural b with
+    1<=b. Both Lean modules define their own Expr with constructors one/add/mul,
+    recursive eval and cost, and complexity as the natural infimum over all
+    expressions of the requested value. Solution imports the repository's
+    DoublingConjecture module and transports the independent minimization
+    through explicit expression translations. It neither selects nor claims the
+    unrelated open powers-of-two conjecture in that imported module.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.IntegerComplexityPowersOfThree.complexity_three_pow"
+      file: "Palomar/IntegerComplexityPowersOfThree/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/IntegerComplexityPowersOfThree/comparator.json"
+      literature_dependencies:
+        - "Iraids et al., arXiv:1203.6462, Theorem cbounds2"
+        - "Selfridge lower bound, as attributed in the repository sources"
+      note: >-
+        The sole package sorry is the intentional Challenge theorem hole. Fresh
+        axiom output shows the selected Solution theorem has no sorryAx
+        dependency, while the separately printed powers-of-two conjecture does.
+
+  # Versions are pinned by lean-toolchain and lake-manifest.json and are repeated
+  # here to make the source relationship auditable without implying submission.
+  toolchain: "Lean 4.33.0-rc1 (commit 62eed1db4d67327ec8120be05f1a1b0847d74561)"
+  mathlib_revision: "3edb3c0658f69f197b1e501b1f7623f3f7b3898c"
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "model identifier not exposed by the Yah runtime"
+      framework: "Yah"
+      tool_setup: >-
+        Autonomous AI-assisted construction of the five authorized package
+        files, explicit bidirectional syntax translation, minimization
+        transport, separate Lean elaboration, and declaration-level axiom
+        auditing. The exact matching read-only source cache under
+        /home/exedev/p/proofs was reused through LEAN_PATH; no Proofs,
+        References, README, project configuration, dependency, or toolchain
+        file was modified.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        Work was restricted to the five allowlisted package artifacts, with no
+        subagents or independent review stage. USER review is the sole gate.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. No human formalization author, responsible
+    maintainer, or reviewer is attributed because authoritative identities were
+    unavailable.
+
+fidelity:
+  divergences: >-
+    The formal statement is the positive-exponent consequence stated in the
+    repository's quoted Theorem cbounds2. It does not formalize the theorem's
+    converse characterization or the parenthetical comparison with every other
+    representation. The independent syntax is intentionally isomorphic rather
+    than definitionally equal to NumberComplexity.Expr; Solution proves that
+    both translations preserve eval and cost and then proves equality of the two
+    infimum definitions on positive inputs. The exponent guard excludes b=0,
+    where complexity(1)=1 but 3*0=0. The imported source file also contains an
+    intended open powers-of-two sorry, which is outside the selected axiom
+    closure.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER review is the sole review stage and remains pending. Lean elaboration,
+    signature output, source scans, and axiom auditing in verification.md are
+    mechanical evidence, not human mathematical, attribution, or source-fidelity
+    review.
+
+alignment:
+  namespace: "Palomar.IntegerComplexityPowersOfThree"
+  statements:
+    - source: >-
+        For every integer b >= 1, the Mahler–Popken integer complexity of 3^b
+        equals 3b.
+      lean: "Palomar.IntegerComplexityPowersOfThree.complexity_three_pow"
+      module: "Palomar.IntegerComplexityPowersOfThree.Solution"
+      status: "proved"
+      note: >-
+        The Lean theorem quantifies b : Nat, assumes 1 <= b, and concludes that
+        the independently defined complexity of 3^b is 3*b.
+
+metadata_blockers:
+  - >-
+    project.authors is required to contain human names, but no authoritative
+    human formalization-author identity was available.
+  - >-
+    project.responsible_maintainers is required to contain human names, but no
+    responsible human maintainer was identified or authorized.
+  - "USER mathematical and source-fidelity review remains pending."
+  - >-
+    Comparator could not be run because comparator, landrun, lean4export, and
+    nanoda_bin are unavailable, while the present Comparator source targets a
+    newer Lean toolchain.
+
+acknowledgements: >-
+  The formalization uses Lean 4 and Mathlib. Mathematical attribution follows
+  the repository sources: Mahler–Popken integer complexity, the classical lower
+  bound credited to Selfridge/Coppersmith, and Iraids et al. for the cited
+  base-three theorem statement. This is not an endorsement or review claim.

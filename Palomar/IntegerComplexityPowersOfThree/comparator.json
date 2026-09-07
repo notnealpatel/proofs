@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.IntegerComplexityPowersOfThree.Challenge",
+  "solution_module": "Palomar.IntegerComplexityPowersOfThree.Solution",
+  "theorem_names": [
+    "Palomar.IntegerComplexityPowersOfThree.complexity_three_pow"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
