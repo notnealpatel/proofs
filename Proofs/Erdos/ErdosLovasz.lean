@@ -2,7 +2,8 @@
   Erdős Problem #21 / OEIS A391599 — the Erdős–Lovász cover number g(r).
 
   STATUS: STATEMENT ARCHIVE (USER directive) for the large-n and n ≥ 4
-  literature, PROVED for n ≤ 3. The §6 theorems carry INTENDED, DISCLOSED
+  equalities, PROVED for n ≤ 3 and for the upper bound g(4) ≤ 9. The §6
+  theorems carry INTENDED, DISCLOSED
   sorries; everything else in this file is proved. See "SORRY LEDGER" at the
   end of this header for the exact list.
 
@@ -169,6 +170,11 @@
                                           triples, over every ground type
     tripathi_six_le_erdosLovaszNum_three — 6 ≤ g(3)
     tripathi_erdosLovaszNum_three       — g(3) = 6   [FOT96]; see §4
+    witnessFour_isTransversal          — explicit four-vertex cover
+    witnessFour_no_small_transversal   — no cover of size < 4
+    coveringNumber_witnessFour         — τ(witnessFour) = 4
+    isErdosLovaszFamily_witnessFour     — Tripathi's nine-edge 4-uniform family
+    erdosLovaszNum_four_le             — g(4) ≤ 9, independently of §6
     sivashankarConst_bounds             — 61/20 < (41−√19)/12 < 3.054
     isBigO_of_forall_le_linear          — explicit constant → IsBigO
     lower_bound_61_20_of_asymptotic     — Thm 1(ii) → the 61/20 rounding
@@ -198,19 +204,23 @@
   `tripathi_erdosLovaszNum_three : g(3) = 6` out of Tier 3 into Tier 1. The
   remaining sorries are the four asymptotic/large-n bounds ([EL75], [Ka94],
   [Si26](i), [Si26](ii)) and the three finite values beyond n = 3 ([Tr14]'s
-  g(4) = 9, [Ba21]'s g(5) = 13 and g(6) ≤ 18), for which no witness family is
-  transcribed here.
+  g(4) = 9, [Ba21]'s g(5) = 13 and g(6) ≤ 18). The upper half of g(4) = 9
+  is now proved from Tripathi's explicit witness, transcribed in
+  Erdos/ErdosLovaszFourWitness.lean; the lower half remains archived.
 
-  Axiom audit (2026-08-05, §9 of this file runs `#print axioms` on every one
-  of the 51 named declarations, in source order): the 42 Tier 1 declarations
+  Axiom audit (2026-08-05, original 51 named declarations): the original
+  42 Tier 1 declarations
   report exactly {propext, Classical.choice, Quot.sound}; the 7 Tier 2 and
   2 Tier 3 declarations report those plus `sorryAx`; nothing reports anything
-  else. The build emits exactly 7 `declaration uses sorry` warnings, one per
+  else. The five additional witness-four declarations are audited in §9,
+  and their finite certificates in Erdos/ErdosLovaszFourWitness.lean.
+  The build emits exactly 7 `declaration uses sorry` warnings, one per
   Tier 2 statement. No `native_decide`, no custom axioms; all ground checks
   are kernel `decide`. Signatures of the §1–§4 theorems (stated inside
   `variable` sections) were confirmed with `#check @…` per STYLE.md.
 -/
 import Erdos.CoveringNumber
+import Erdos.ErdosLovaszFourWitness
 
 set_option autoImplicit false
 
@@ -755,6 +765,67 @@ counting argument. -/
 theorem tripathi_erdosLovaszNum_three : erdosLovaszNum 3 = 6 :=
   le_antisymm erdosLovaszNum_three_le tripathi_six_le_erdosLovaszNum_three
 
+/-- The first edge `{0,1,2,3}` is an explicit four-vertex cover of
+Tripathi's family, since every edge meets it. Its cardinality is checked in
+`Erdos.ErdosLovaszFourWitness`. -/
+theorem witnessFour_isTransversal :
+    IsTransversal witnessFour ({0, 1, 2, 3} : Finset (Fin 11)) := by
+  intro A hA
+  exact Finset.not_disjoint_iff.mp (witnessFour_intersecting A hA _ (by decide))
+
+/-- Tripathi's family has no cover with fewer than four vertices. Extend a
+candidate to a three-element set and apply the certificate over the 165
+triples; an edge missing the extension also misses the candidate. -/
+theorem witnessFour_no_small_transversal (S : Finset (Fin 11)) (hS : S.card < 4) :
+    ¬ IsTransversal witnessFour S := by
+  obtain ⟨T, hST, hTcard⟩ :=
+    Finset.exists_superset_card_eq (s := S) (n := 3) (by omega) (by decide)
+  obtain ⟨A, hA, hdisj⟩ := witnessFour_triples T
+    (Finset.mem_powersetCard.mpr ⟨Finset.subset_univ T, hTcard⟩)
+  intro htrans
+  obtain ⟨x, hxA, hxS⟩ := htrans A hA
+  exact Finset.disjoint_left.mp hdisj hxA (hST hxS)
+
+/-- The covering number of Tripathi's family is exactly four: the first
+edge is a four-vertex cover, and the finite certificate excludes smaller
+covers. The empty-edge guard is checked explicitly before attainment is used. -/
+theorem coveringNumber_witnessFour : coveringNumber witnessFour = 4 := by
+  apply le_antisymm
+  · calc coveringNumber witnessFour ≤ ({0, 1, 2, 3} : Finset (Fin 11)).card :=
+          coveringNumber_le_card witnessFour_isTransversal
+      _ = 4 := by decide
+  · by_contra hlt
+    have hguard : ∅ ∉ witnessFour := by decide
+    obtain ⟨S, hS, hScard⟩ := exists_isTransversal_card_eq hguard
+    exact witnessFour_no_small_transversal S (by omega) hS
+
+/-- Tripathi's nine-edge family is 4-uniform and intersecting, with
+covering number four, hence satisfies the existing Erdős–Lovász predicate. -/
+theorem isErdosLovaszFamily_witnessFour : IsErdosLovaszFamily 4 witnessFour :=
+  isErdosLovaszFamily_of_coveringNumber_eq witnessFour_uniform
+    witnessFour_intersecting coveringNumber_witnessFour
+
+/-- **`g(4) ≤ 9`**, from the explicit eleven-vertex witness in Tripathi
+[Tr14, §An Example]. This proves only the upper bound and does not use the
+archived equality `tripathi_erdosLovaszNum_four` or any other archived result. -/
+theorem erdosLovaszNum_four_le : erdosLovaszNum 4 ≤ 9 :=
+  Nat.sInf_le ⟨11, witnessFour, isErdosLovaszFamily_witnessFour, witnessFour_card⟩
+
+example : IsErdosLovaszFamily 4 witnessFour ∧ 0 < 4 ∧ witnessFour.card = 9 :=
+  ⟨isErdosLovaszFamily_witnessFour, by decide, witnessFour_card⟩
+example : (9 : ℕ) ∈ erdosLovaszCards 4 :=
+  ⟨11, witnessFour, isErdosLovaszFamily_witnessFour, witnessFour_card⟩
+example : ({0, 1, 2} : Finset (Fin 11)).card < 4 ∧
+    ¬ IsTransversal witnessFour ({0, 1, 2} : Finset (Fin 11)) :=
+  ⟨by decide, witnessFour_no_small_transversal _ (by decide)⟩
+example : ∅ ∉ witnessFour := isErdosLovaszFamily_witnessFour.empty_notMem
+
+#check @witnessFour_isTransversal
+#check @witnessFour_no_small_transversal
+#check @coveringNumber_witnessFour
+#check @isErdosLovaszFamily_witnessFour
+#check @erdosLovaszNum_four_le
+
 -- ════════════════════════════════════════════════════════════════════
 -- §6 LITERATURE STATEMENTS (INTENDED SORRIES)
 -- ════════════════════════════════════════════════════════════════════
@@ -799,13 +870,12 @@ theorem sivashankar_asymptotic_lower_bound (ε : ℝ) (hε : 0 < ε) :
 
 /-- **[Tr14]** (literature, INTENDED SORRY): `g(4) = 9` (OEIS A391599,
 a(4) = 9). [Ba21] showed the extremal example is unique and "notably
-asymmetric" (erdosproblems.com/21, comment of 03 Dec 2025). A 9-edge witness
-on 11 vertices was checked computationally while preparing this file, but is
-not transcribed here: a kernel `decide` over `Finset (Fin 11)` enumerates
-2^11 subsets, so `g(4) ≤ 9` is archived rather than proved. -/
+asymmetric" (erdosproblems.com/21, comment of 03 Dec 2025). The upper bound
+is proved independently as `erdosLovaszNum_four_le` using Tripathi's
+nine-edge witness and a certificate over the 165 triples on eleven vertices.
+The lower bound, and hence this full equality, remain archived. -/
 theorem tripathi_erdosLovaszNum_four : erdosLovaszNum 4 = 9 := by
-  -- INTENDED SORRY: statement-archive lane; no witness family transcribed
-  -- here, so both inequalities are archived.
+  -- INTENDED SORRY: the lower bound 9 ≤ g(4) is not formalized here.
   sorry
 
 /-- **[Ba21]** (literature, INTENDED SORRY): `g(5) = 13` (OEIS A391599,
@@ -1162,7 +1232,7 @@ end GroundChecks
 -- §9 AXIOM AUDIT
 -- ════════════════════════════════════════════════════════════════════
 
-/-! Every named declaration of this file, in source order. The 42 Tier 1
+/-! Every named declaration of this file, in source order. The 47 Tier 1
 declarations must report exactly `[propext, Classical.choice, Quot.sound]`;
 the 7 Tier 2 statements and the 2 Tier 3 consequences must additionally
 report `sorryAx`, and nothing must report anything else. No `native_decide`,
@@ -1214,6 +1284,11 @@ section AxiomAudit
 #print axioms erdosLovaszNum_three_le
 #print axioms tripathi_six_le_erdosLovaszNum_three
 #print axioms tripathi_erdosLovaszNum_three
+#print axioms witnessFour_isTransversal
+#print axioms witnessFour_no_small_transversal
+#print axioms coveringNumber_witnessFour
+#print axioms isErdosLovaszFamily_witnessFour
+#print axioms erdosLovaszNum_four_le
 
 -- §6 TIER 2 — the archived literature statements; these must and do report
 -- `sorryAx`.

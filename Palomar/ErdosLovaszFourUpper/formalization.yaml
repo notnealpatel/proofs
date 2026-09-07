@@ -1,0 +1,135 @@
+version: "v0.4"
+
+project:
+  name: "The Erdős–Lovász upper bound g(4) ≤ 9"
+  description: >-
+    A Lean 4 package for the existing Erdős–Lovász minimum-edge-count
+    invariant, proving only g(4) <= 9 using Tripathi's explicit nine-edge
+    intersecting 4-uniform family on eleven vertices.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "A result on intersecting families with maximum transversal size"
+    authors:
+      - "Amit Tripathi"
+    id: "https://arxiv.org/abs/1409.4610"
+    type: "paper"
+    location: "2014 preprint, subsection An Example"
+    relationship: "formalizes"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The primary TeX source was checked during the preceding proof task.
+      Its nine blocks, labelled 1 through 11, are transcribed with labels
+      shifted to 0 through 10. Only the upper-bound witness is selected;
+      the paper's full equality is not selected or assumed.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.CO"
+  msc2020:
+    - "05D05"
+
+status:
+  scope: >-
+    Challenge and Solution independently expose the full finite uniform,
+    intersecting, no-small-cover predicate, the set of attainable edge
+    counts over every finite labelled ground type, and its natural infimum.
+    The selected parameter is r=4. The lower bound and full equality g(4)=9
+    are outside this package's selected proof.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.ErdosLovaszFourUpper.erdosLovaszNum_four_le"
+      file: "Palomar/ErdosLovaszFourUpper/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/ErdosLovaszFourUpper/comparator.json"
+      literature_dependencies:
+        - "Tripathi, arXiv:1409.4610, An Example"
+      note: >-
+        The Solution proves predicate, edge-count-set, and invariant alignment
+        before applying the existing erdosLovaszNum_four_le theorem. Imported
+        archived declarations include the separate full equality, but it is
+        absent from the selected theorem's axiom dependency closure.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "gpt-6-astra"
+      framework: "Yah"
+      tool_setup: >-
+        Material AI assistance in the latest proof and packaging tasks, with
+        user-specified gpt-6-astra xhigh. The proof uses kernel decide over
+        165 triples, not native_decide. Packaging uses an independent model,
+        definitional-equivalence bridges, targeted Lean elaboration, exact
+        statement/model comparison, and declaration-level axiom auditing.
+      cost:
+        wall_time: "total not reconstructed; bounded compilation timings in verification.md"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        The latest tasks were user-specified as gpt-6-astra with xhigh reasoning.
+        Earlier invariant infrastructure and its model/session details were not
+        reconstructed. Packaging was restricted to six new files. No subagent
+        or reviewer was dispatched; USER alone performs the pending review.
+  spend_usd: "not available"
+  notes: >-
+    No human formalization authors, maintainers, or reviewers have been
+    authoritatively identified. Empty identity fields disclose this blocker.
+
+fidelity:
+  divergences: >-
+    No change to the invariant: the independent definitions are definitionally
+    equal to the repository definitions, as checked by Lean. The no-small-cover
+    clause says every finite set with fewer than r vertices misses an edge.
+    Intersecting includes the diagonal. At r=4 a nonempty index set is proved
+    independently using the four-subsets of seven vertices; the Solution also
+    exhibits the actual nine-edge family. Tripathi's labels are shifted by one.
+    This package proves only the upper bound, not the paper's full equality.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER mathematical, attribution, and source-fidelity review is pending and
+    is the sole review gate. Technical compilation and axiom checks do not
+    constitute human review, endorsement, acceptance, or submission approval.
+
+alignment:
+  namespace: "Palomar.ErdosLovaszFourUpper"
+  statements:
+    - source: "Tripathi, arXiv:1409.4610, An Example: an intersecting 4-family with nine blocks and transversal size four"
+      lean: "Palomar.ErdosLovaszFourUpper.erdosLovaszNum_four_le"
+      module: "Palomar.ErdosLovaszFourUpper.Solution"
+      status: "proved"
+      note: >-
+        The existence witness bounds the minimum number of edges by nine.
+        The independent model is aligned with the repository before the
+        already-proved upper bound is applied.
+
+metadata_blockers:
+  - "Human project.authors identities are unknown and remain empty."
+  - "Human project.responsible_maintainers identities are unknown and remain empty."
+  - "USER review remains pending."
+  - >-
+    Comparator and external-kernel checks are NOT RUN: comparator, landrun,
+    lean4export, nanoda, and nanoda_bin executables were absent in preflight.
+    No verifier infrastructure or alternate toolchain was installed.
+
+acknowledgements: >-
+  Mathematical attribution for the explicit witness is to Amit Tripathi.
+  Lean 4 and Mathlib provide the proof infrastructure. No novelty, priority,
+  author endorsement, or acceptance claim is made.
