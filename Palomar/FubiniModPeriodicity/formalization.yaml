@@ -1,0 +1,148 @@
+version: "v0.4"
+
+project:
+  name: "Eventual periodicity of the Fubini numbers modulo a positive integer"
+  description: >-
+    A Lean 4 package for the Fubini (ordered Bell) sequence. For every positive
+    modulus k, a strictly positive eventual period exists and can be chosen to
+    divide Euler's totient of k. The Challenge and Solution independently
+    define the sequence by its literal binomial recurrence.
+  # Required human identities have not been established. These empty lists
+  # expose the submission blocker rather than inventing attribution.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "Periodicity of a Combinatorial Sequence"
+    authors:
+      - "Bjorn Poonen"
+    id: "https://www.fq.math.ca/Scanned/26-1/poonen.pdf"
+    type: "paper"
+    location: "The Fibonacci Quarterly 26 (1988), 70–76; Theorems 2 and 6"
+    relationship: "proves"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      Theorem 2 supplies the prime-power periodicity and Theorem 6 combines
+      prime-power components. The repository proof formalizes an elementary
+      truncated-power-sum route for the Fubini sequence.
+  - title: "OEIS A000670 — Fubini numbers"
+    authors:
+      - "The OEIS Foundation Inc."
+    id: "https://oeis.org/A000670"
+    type: "website"
+    location: "Peter Bala comment dated 2022-07-08"
+    relationship: "states"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The OEIS comment labels the Fubini-specific statement a conjecture. The
+      mathematics was already contained in Poonen's 1988 results, so this
+      package makes no novelty or priority claim.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.CO"
+    - "math.NT"
+  msc2020:
+    - "05A15"
+    - "11B50"
+
+status:
+  scope: >-
+    The selected result concerns only the Fubini/ordered Bell sequence. It does
+    not state or prove a generalized theorem for sequences with exponential
+    generating function G(exp(x)-1). The package preserves the valid k = 1
+    case and requires the eventual period to be strictly positive.
+  sorry_count: 1
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.FubiniModPeriodicity.fubini_mod_eventuallyPeriodic"
+      file: "Palomar/FubiniModPeriodicity/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/FubiniModPeriodicity/comparator.json"
+      literature_dependencies:
+        - "Poonen 1988, Theorems 2 and 6"
+      note: >-
+        The one package sorry is the intentional theorem hole in Challenge.lean.
+        The independently compiled Solution theorem has no sorryAx dependency.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "model identifier not exposed by the Yah runtime"
+      framework: "Yah"
+      tool_setup: >-
+        Autonomous AI-assisted Lean packaging, separate theorem elaboration,
+        recurrence-bridge construction, and declaration-level axiom auditing.
+        The existing substantive Proofs development is reused rather than
+        reproduced in the package wrapper.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        Work was constrained to five allowlisted package files, a Mathlib-only
+        Challenge, an independent Solution, exact axiom closure, Fubini-only
+        scope, and pending USER review.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. No human formalization author, responsible
+    maintainer, or reviewer is attributed because authoritative identities
+    were unavailable during packaging.
+
+fidelity:
+  divergences: >-
+    The selected statement matches the Fubini-specific eventual-periodicity
+    consequence, with a positive period dividing Nat.totient k. Challenge and
+    Solution define F(0)=1 and F(n+1)=sum over i<n+1 of choose(n+1,i)*F(i).
+    Solution proves a small induction bridge to the repository's
+    A051293.fubini and then applies its Poonen-based theorem. No broader
+    G(exp(x)-1) theorem is claimed or formalized.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER review is the sole review gate and remains pending. Automated Lean
+    elaboration and axiom auditing in verification.md are mechanical evidence,
+    not mathematical review, submission, acceptance, or approval.
+
+alignment:
+  namespace: "Palomar.FubiniModPeriodicity"
+  statements:
+    - source: >-
+        For every positive modulus k, the Fubini sequence has an eventual
+        positive period dividing Euler's totient of k.
+      lean: "Palomar.FubiniModPeriodicity.fubini_mod_eventuallyPeriodic"
+      module: "Palomar.FubiniModPeriodicity.Solution"
+      status: "proved"
+      note: >-
+        The theorem quantifies k with 1 ≤ k and returns N and P with
+        P ∣ Nat.totient k, 0 < P, and the stated Nat.ModEq for every n ≥ N.
+
+metadata_blockers:
+  - >-
+    project.authors is required to contain human names, but no authoritative
+    human formalization-author identity was available.
+  - >-
+    project.responsible_maintainers is required to contain human names, but no
+    responsible human maintainer was identified or authorized.
+  - "Human mathematical and source-fidelity review remains pending."
+
+acknowledgements: >-
+  The formalization uses Lean 4 and Mathlib. Mathematical attribution for the
+  periodicity result is to Bjorn Poonen; Peter Bala is credited for the 2022
+  OEIS formulation. This is not an endorsement or review claim.

@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.FubiniModPeriodicity.Challenge",
+  "solution_module": "Palomar.FubiniModPeriodicity.Solution",
+  "theorem_names": [
+    "Palomar.FubiniModPeriodicity.fubini_mod_eventuallyPeriodic"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}
