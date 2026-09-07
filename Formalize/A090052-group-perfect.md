@@ -22,13 +22,15 @@ LEAN
   limit of counting function / n).
 
 ROUTE
-  (i) open in general (needs upper bounds on gnu
-  away from 2-heavy orders and exact knowledge at
-  them). For squarefree and cube-free n there are
-  classical gnu bounds that likely settle those
-  strata — a provable partial. (ii) open; Pyber-type
-  gnu upper bounds are the tool, far from current
-  machinery.
+  (i) remains open in general (it needs upper bounds on gnu
+  away from 2-heavy orders and exact knowledge at them).
+  `GroupCount.groupDeficient_of_prime` and
+  `GroupCount.groupDeficient_prime_sq` prove every prime and every
+  prime square deficient, including the edge case p=2; these settle
+  infinite strata but not uniqueness. The stronger squarefree and
+  cube-free strata need classification input not yet formalized.
+  (ii) remains open; Pyber-type gnu upper bounds are the tool, far
+  from current machinery.
 
 EVIDENCE
   No group-perfect n found in GAP range; abundant n

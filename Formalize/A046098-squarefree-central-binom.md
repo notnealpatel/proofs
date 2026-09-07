@@ -1,7 +1,7 @@
-# A046098 — squarefree central binomial coefficients
+# A046098 — squarefree middle binomial coefficients
 
-- **Mathematical status:** known theorem in the central-binomial formulation (Granville–Ramaré); OEIS A046098 asserts the resulting 13-term list.
-- **Work status:** hard-blocked; the unbounded power-of-two stratum remains.
-- **Remaining target:** prove the full A046098 list is complete, equivalently complete the theorem that `Nat.centralBinom n` is not squarefree for all `n≥5`.
-- **Proved prerequisites:** `Proofs/Erdos/Erdos175/NotSquarefree.lean` proves the non-power-of-two case without a bound and the power-of-two case through `2^30`.
-- **Next obligation:** formalize the Granville–Ramaré exponential-sum argument for arbitrary powers of two. The bounded certificate is not an unbounded proof.
+- **Mathematical status:** the even-index central-binomial theorem is known, but the exact 13-term A046098 classification is not supplied by it; the unbounded odd range and the even power-of-two stratum beyond the certified exponent bound remain unresolved here.
+- **Work status:** hard-blocked; the bounded range is substantially formalized, not the full classification.
+- **Remaining target:** prove for every `n` that `n.choose (n / 2)` is squarefree exactly when `n ∈ {0,1,2,3,4,5,7,8,11,17,19,23,71}`.
+- **Proved prerequisites:** `Proofs/Erdos/Erdos175/SquarefreeCentralBinom.lean` proves all 13 listed values squarefree, the unbounded odd digit-sum-at-least-three stratum, and non-squarefreeness for every odd `72 ≤ n < 10^8`; its bounded odd residual theorem uses only standard axioms. The combined `72 ≤ n < 10^8` theorem also uses the older even branch and therefore inherits that branch's `native_decide` axiom. In `Proofs/Erdos/Erdos175/NotSquarefree.lean`, `Erdos175.not_squarefree_centralBinom_of_not_two_pow` handles non-power-of-two central-binomial indices without a bound, while `Erdos175.not_squarefree_centralBinom_two_pow` handles `Nat.centralBinom (2^k)` only for `3 ≤ k ≤ 30`.
+- **Next obligation:** certify the ten uncovered odd values below `72`, eliminate the unbounded odd range `n ≥ 10^8`, and extend `Erdos175.not_squarefree_centralBinom_two_pow` beyond `k=30`. The last item closes the remaining even A046098 indices `n=2^(k+1)` whose half-index is `2^k`; neither the bounded computation nor the known but unformalized analytic theorem proves these cases in Lean.
