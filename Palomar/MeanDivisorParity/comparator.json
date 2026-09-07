@@ -1,0 +1,15 @@
+{
+  "challenge_module": "Palomar.MeanDivisorParity.Challenge",
+  "solution_module": "Palomar.MeanDivisorParity.Solution",
+  "theorem_names": [
+    "Palomar.MeanDivisorParity.a_modEq_card_divisors",
+    "Palomar.MeanDivisorParity.odd_a_iff_isSquare",
+    "Palomar.MeanDivisorParity.a_eq_two_iff_prime"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

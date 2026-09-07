@@ -1,0 +1,193 @@
+version: "v0.4"
+
+project:
+  name: "Parity of subsets whose integer mean divides n"
+  description: >-
+    A Lean 4 formalization of the literal finite count of nonempty subsets of
+    {1, ..., n} whose arithmetic mean is an integer m dividing n. It proves
+    that this count is congruent modulo two to the number of divisors of n and,
+    for n != 0, is odd exactly when n is a perfect square. It also packages the
+    focused prime characterization that the count equals two exactly at primes.
+  # Required human identities are unknown. Empty lists expose the metadata
+  # blocker rather than inventing an author or maintainer.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "The William Lowell Putnam Mathematical Competition 2002: solutions"
+    authors:
+      - "Kiran S. Kedlaya"
+      - "Lenny Ng"
+    id: "https://kskedlaya.org/putnam-archive/2002s.pdf"
+    type: "problem-solutions"
+    location: "Problem A3 and its mean-toggle parity solution"
+    relationship: "adapts-technique-from"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      Putnam 2002 A3 treats all nonempty subsets of {1, ..., n} having integer
+      mean. The present theorem restricts the allowed means to divisors of n
+      and partitions the literal subset family by its unique mean. No claim of
+      a new involution or priority is made.
+  - title: "OEIS A114976"
+    authors:
+      - "The OEIS Foundation Inc. and contributors to entry A114976"
+    id: "https://oeis.org/A114976"
+    type: "database-entry"
+    location: >-
+      Sequence of numbers of subsets of {1, ..., n} whose arithmetic mean is
+      an integer divisor of n
+    relationship: "formalizes"
+    license: "OEIS End-User License Agreement"
+    author_endorsement: "not-contacted"
+    note: >-
+      The package formalizes the sequence definition and the parity/square and
+      prime patterns proved in the existing repository development. No broad
+      literature or priority search was undertaken during packaging.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.CO"
+    - "math.NT"
+  msc2020:
+    - "05A15"
+    - "11A25"
+
+status:
+  scope: >-
+    Challenge and Solution independently define IsMeanDiv, meanDivSubsets, and
+    a. Each counted S is a nonempty Finset subset of Finset.Icc 1 n and has a
+    witness m with S.sum id = m*S.card and m | n. This is not a count of subsets
+    of n.divisors. The selected results are the modulo-two divisor-count
+    congruence, the nonzero square criterion, and the inexpensive existing
+    prime characterization. The convention a 0 = 0 is checked separately.
+  sorry_count: 3
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.MeanDivisorParity.a_modEq_card_divisors"
+      file: "Palomar/MeanDivisorParity/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/MeanDivisorParity/comparator.json"
+      literature_dependencies:
+        - "Putnam 2002 A3 mean-toggle argument"
+      note: >-
+        For every natural n, a n and n.divisors.card have equal residues
+        modulo two.
+    - declaration: "Palomar.MeanDivisorParity.odd_a_iff_isSquare"
+      file: "Palomar/MeanDivisorParity/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/MeanDivisorParity/comparator.json"
+      literature_dependencies:
+        - "Putnam 2002 A3 mean-toggle argument"
+      note: >-
+        Requires n != 0. The zero convention is a 0 = 0 and is not folded into
+        the positive divisor-count/square statement.
+    - declaration: "Palomar.MeanDivisorParity.a_eq_two_iff_prime"
+      file: "Palomar/MeanDivisorParity/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/MeanDivisorParity/comparator.json"
+      literature_dependencies: []
+      note: "The literal count equals two exactly when n is prime."
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "model identifier not exposed by the Yah runtime"
+      framework: "Yah"
+      tool_setup: >-
+        Autonomous AI-assisted packaging, literal-definition alignment, bounded
+        one-core Lean compilation, exact signature printing, and selected
+        declaration axiom auditing. No prover subagents, agent reviewers, or
+        parent mathematical review were used.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        Work was restricted to five allowlisted package files. Existing source
+        oleans were reused only after exact source, manifest, and toolchain hash
+        matches; expensive historical source examples were not recompiled.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. The existing repository development is also
+    disclosed as AI-assisted. No human formalization author, responsible
+    maintainer, or reviewer is attributed because authoritative identities
+    were unavailable.
+
+fidelity:
+  divergences: >-
+    The arithmetic-mean requirement is expressed multiplicatively as
+    S.sum id = m*S.card to avoid totalized Nat division. Nonemptiness makes m
+    the genuine unique mean. Elements of S range over every integer from 1 to
+    n; only m is constrained to divide n. Putnam 2002 A3 allows every integer
+    mean, whereas this package adapts the same toggle to divisor-restricted
+    means and sums the odd contributions. The square theorem explicitly
+    assumes n != 0 because Nat.divisors uses a separate zero convention.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER is the sole review gate and review remains pending. Lean elaboration,
+    exact signatures, and axiom-closure output are mechanical evidence, not
+    human mathematical, attribution, source-fidelity, submission, acceptance,
+    or publication review.
+
+alignment:
+  namespace: "Palomar.MeanDivisorParity"
+  statements:
+    - source: >-
+        The number a(n) of nonempty subsets of {1, ..., n} with integer mean
+        dividing n has the same parity as the number of divisors of n
+      lean: "Palomar.MeanDivisorParity.a_modEq_card_divisors"
+      module: "Palomar.MeanDivisorParity.Solution"
+      status: "proved"
+      note: "Stated as Nat.ModEq 2 (a n) n.divisors.card."
+    - source: "For nonzero n, a(n) is odd if and only if n is a square"
+      lean: "Palomar.MeanDivisorParity.odd_a_iff_isSquare"
+      module: "Palomar.MeanDivisorParity.Solution"
+      status: "proved"
+      note: "The n != 0 guard is material; a 0 = 0 is separately checked."
+    - source: "The count a(n) equals two if and only if n is prime"
+      lean: "Palomar.MeanDivisorParity.a_eq_two_iff_prime"
+      module: "Palomar.MeanDivisorParity.Solution"
+      status: "proved"
+      note: "Included as a focused existing corollary."
+
+metadata_blockers:
+  - >-
+    project.authors is required to contain human names, but no authoritative
+    human formalization-author identity was available.
+  - >-
+    project.responsible_maintainers is required to contain human names, but no
+    responsible human maintainer was identified or authorized.
+  - "USER mathematical, attribution, and source-fidelity review remains pending."
+  - >-
+    Comparator could not be run because comparator, landrun, lean4export, and
+    nanoda_bin are unavailable and the local Comparator source targets a newer
+    Lean toolchain.
+
+acknowledgements: >-
+  The formalization uses Lean 4 and Mathlib. The mean-toggle argument is
+  attributed to the Putnam 2002 A3 solution and adapted to restricted means;
+  this is not an endorsement, priority, novelty, submission, or review claim.
