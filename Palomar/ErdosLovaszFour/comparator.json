@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.ErdosLovaszFour.Challenge",
+  "solution_module": "Palomar.ErdosLovaszFour.Solution",
+  "theorem_names": [
+    "Palomar.ErdosLovaszFour.tripathi_erdosLovaszNum_four"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

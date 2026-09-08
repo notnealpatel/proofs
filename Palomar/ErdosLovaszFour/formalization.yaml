@@ -1,0 +1,203 @@
+version: "v0.4"
+
+project:
+  name: "The exact Erdős–Lovász value g(4) = 9"
+  description: >-
+    A Lean 4 package for the Erdős–Lovász minimum-edge-count invariant,
+    proving the exact value g(4) = 9 from Tripathi's nine-edge witness and
+    a universal lower bound for every admissible four-uniform family.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "A result on intersecting families with maximum transversal size"
+    authors:
+      - "Amit Tripathi"
+    id: "https://arxiv.org/abs/1409.4610"
+    type: "paper"
+    location: "2014 preprint, Theorem q(4)=9 and subsection An Example"
+    relationship: "formalizes"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The canonical arXiv TeX was retrieved and read during this packaging
+      task. It proves q(4)=9 by degree reduction and supplies the nine-block
+      example. The Lean upper bound transcribes that example with labels
+      shifted from 1,...,11 to 0,...,10. The Lean lower proof follows the
+      degree-reduction strategy but replaces the five-edge classification
+      and final global pair count with direct finite incidence arguments.
+
+related_formalizations:
+  - title: "Erdős–Lovász: the upper bound g(4) ≤ 9"
+    id: "Palomar/ErdosLovaszFourUpper"
+    type: "formalization"
+    relationship: "supersedes"
+    note: >-
+      An earlier candidate in the same repository selects only g(4) <= 9.
+      It is not imported or modified by this full-equality package.
+
+classification:
+  arxiv:
+    - "math.CO"
+  msc2020:
+    - "05D05"
+
+status:
+  scope: >-
+    Challenge and Solution independently expose the full finite uniform,
+    intersecting, no-small-cover predicate, all attainable edge counts over
+    every finite labelled ground type Fin N, and their natural infimum. The
+    sole selected result is the unconditional full equality at r=4. The
+    lower helper is universal over arbitrary ground types and does not assume
+    a bounded vertex set, an enumeration of families, or a classification.
+    The v0.4 selected/package-proof sorry count is zero: it excludes the one
+    deliberate Comparator placeholder in Challenge and the six unrelated
+    imported archive sorries, none of which belongs to the selected proof
+    closure.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.ErdosLovaszFour.tripathi_erdosLovaszNum_four"
+      file: "Palomar/ErdosLovaszFour/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/ErdosLovaszFour/comparator.json"
+      literature_dependencies: []
+      note: >-
+        The Solution proves predicate, attainable-count-set, and invariant
+        alignment before applying the proved source theorem. Six unrelated
+        archived literature declarations imported with the source module
+        still contain sorry, but none occurs in the selected dependency
+        closure or in the audited upper/lower bridges.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "gpt-6-astra"
+      framework: "Yah"
+      tool_setup: >-
+        The original substantive g(4) proof task used user-specified
+        gpt-6-astra with xhigh reasoning. The proof combines kernel-decided
+        finite witness facts with ordinary Lean incidence arguments. It uses
+        no native_decide, custom axiom, assumed classification, or bounded
+        exhaustive search for the lower bound.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        The substantive proof task targeted the exact source theorem and
+        universal arbitrary-type lower helper.
+    - method: "autonomous"
+      models:
+        - "gpt-5.6-sol"
+      framework: "Yah"
+      tool_setup: >-
+        This separate packaging task used user-specified gpt-5.6-sol with
+        high reasoning to construct the independent Challenge and Solution
+        bridge, audit source fidelity and dependencies, and run narrow
+        elaboration, signature, and axiom checks.
+      cost:
+        wall_time: "bounded compilation timings are in verification.md"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        No subagent or reviewer was dispatched in the packaging task.
+  spend_usd: "not available"
+  notes: >-
+    No human formalization authors, maintainers, or reviewers have been
+    authoritatively identified. Empty identity fields disclose this blocker.
+
+fidelity:
+  divergences: >-
+    The mathematical quantity is unchanged: the package definitions are
+    definitionally equal to the repository definitions, as checked by Lean.
+    The no-small-cover clause requires every finite set with cardinality less
+    than r to miss an edge; for an intersecting r-uniform family this is
+    equivalent to transversal number r. Intersecting includes the diagonal.
+    At r=4 the attainable-count set is independently proved nonempty, and the
+    Solution exhibits the actual nine-edge family. Tripathi's labels are
+    shifted by one. The lower proof adapts, rather than line-for-line copies,
+    the paper's proof as detailed in the source note. This is a nontrivial
+    formalization of known mathematics; no novelty or first-formalization
+    claim is established.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    The parent inspected diffs and freshly compiled nine substantive modules
+    with 23 declaration-level axiom audits before packaging handoff. An
+    independent AI foundations review of the combined candidate at exact
+    revision dcf241b5a1f33b86325e82d575fa588d9a3575e6 found the formal
+    statement and source adaptation faithful and requested metadata corrections
+    EF-1 and EF-2, which this revision applies; those corrections await
+    foundations recheck at final integration. A separate independent AI vacuity
+    review of that exact revision passed both the g(4) package and source proof.
+    It checked the raw exact target, independent-model definitional bridges,
+    quantification over every Fin N without a bounded-ground surrogate, the
+    genuine nine-edge witness, the arbitrary-type lower bound, and attainment
+    of the minimum, with no VACUOUS, DRIFT, TRUST, or material STYLE finding.
+    The reviewer freshly compiled Challenge and Solution separately and checked
+    that the target, source lower theorem, and witness closures use only
+    propext, Classical.choice, and Quot.sound. The reviewed Challenge and
+    Solution SHA-256 values were respectively
+    d234f327fa99f5810d8e33734fb441aa97263c7847b8f03d617bcd4579de7294 and
+    70cd4a5e6ae26246248f0cc042a92bbf1837dc732182943068cffb71fe6430d0;
+    the present Lean bytes match them exactly. The reviewer successfully omitted
+    a nonexistent optional Cli dependency output path from LEAN_PATH.
+    Comparator and NanoDa remained unavailable and were not run. A redundant
+    attempt to re-run the entire 165-triple witness with decide timed out at
+    800000 heartbeats after 117.73 seconds; this is not positive evidence, and
+    the full certificate was not independently recomputed. The trust basis is
+    the freshly compiled source parent olean with verified hash and standard
+    axiom closure, successful fresh package compilation, source inspection, and
+    smaller re-reduced checks. review.status remains unchecked because it
+    records the absence of human review; neither AI review is human approval.
+    USER maintainer/approval and registration decisions remain pending. No
+    author endorsement has been sought.
+
+alignment:
+  namespace: "Palomar.ErdosLovaszFour"
+  statements:
+    - source: "Tripathi, arXiv:1409.4610, Theorem q(4)=9"
+      lean: "Palomar.ErdosLovaszFour.tripathi_erdosLovaszNum_four"
+      module: "Palomar.ErdosLovaszFour.Solution"
+      status: "proved"
+      note: >-
+        The upper half uses Tripathi's explicit nine-edge family. The lower
+        half is an adapted universal incidence proof. The package theorem
+        bridges definitionally to the accepted repository theorem.
+
+metadata_blockers:
+  - "Human project.authors identities are unknown and remain empty."
+  - "Human project.responsible_maintainers identities are unknown and remain empty."
+  - "Submission requires a responsible maintainer or substantive-formalization approval; neither is recorded here."
+  - >-
+    The EF-1 and EF-2 metadata corrections await independent foundations
+    recheck at final integration; the prior foundations review at
+    dcf241b5a1f33b86325e82d575fa588d9a3575e6 does not automatically approve
+    the corrected metadata.
+  - >-
+    review.status remains unchecked for human review. The independent AI
+    vacuity PASS applies to the unchanged Lean bytes but is not human approval.
+  - "USER mathematical, attribution, source-fidelity, and publication decisions remain pending."
+  - >-
+    Comparator and external-kernel checks are NOT RUN: comparator, landrun,
+    lean4export, nanoda, and nanoda_bin executables were absent in preflight.
+    No verifier infrastructure or alternate toolchain was installed.
+
+acknowledgements: >-
+  Mathematical attribution for q(4)=9 and the explicit witness is to Amit
+  Tripathi. Lean 4 and Mathlib provide the proof infrastructure. No novelty,
+  priority, author endorsement, acceptance by Palomar, or publication claim
+  is made.
