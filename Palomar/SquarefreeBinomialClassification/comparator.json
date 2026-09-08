@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Palomar.SquarefreeBinomialClassification.Challenge",
+  "solution_module": "Palomar.SquarefreeBinomialClassification.Solution",
+  "theorem_names": [
+    "Palomar.SquarefreeBinomialClassification.squarefree_choose_half_iff"
+  ],
+  "definition_names": [],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}

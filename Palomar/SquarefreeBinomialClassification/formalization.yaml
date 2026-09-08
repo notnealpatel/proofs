@@ -1,0 +1,181 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Squarefree middle binomial coefficients: complete bounded A046098 classification"
+  description: >-
+    For every natural number n strictly below 10^8, the middle binomial
+    coefficient C(n, floor(n/2)) is squarefree exactly when n is one of
+    0, 1, 2, 3, 4, 5, 7, 8, 11, 17, 19, 23, or 71. This is a bounded
+    classification formalizing T. D. Noe's finite computational comment on
+    OEIS A046098; it is not an unbounded classification or a priority claim.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+classification:
+  arxiv:
+    - "math.NT"
+  msc2020:
+    - "11B65"
+
+sources:
+  - title: "OEIS A046098 computational comment by T. D. Noe"
+    authors:
+      - "T. D. Noe"
+    id: "https://oeis.org/A046098"
+    location: "Comment dated Apr 06 2007: No other n < 10^8"
+    relationship: "formalizes"
+    note: >-
+      The source is Noe's attributed finite computational comment together
+      with the thirteen terms displayed by A046098. Noe is credited as author
+      of that comment, not as author of the whole OEIS entry or of the Lean
+      development. The formal proof verifies bounded carry certificates in
+      Lean's kernel. Contact and endorsement status were not established.
+    license: "unknown"
+
+related_formalizations:
+  - id: "Palomar/SquarefreeBinomialOddRange@dbe40a6bf54ae15b54e0a62fe7e35f274ed77c13"
+    relationship: "other"
+    note: >-
+      A narrower candidate in the same repository and accepted base, selecting
+      only odd n with 72 <= n < 10^8. It is not a registered dependency and
+      this package does not import it.
+
+status:
+  scope: >-
+    The selected theorem quantifies over every natural n with the strict guard
+    n < 10^8 and gives the full thirteen-value equivalence in that bounded
+    domain. The strict bound is essential: no claim is made at n = 10^8 or for
+    all n. There are no package-defined mathematical notions or extra
+    certificate hypotheses. The Challenge's sole hole is its deliberate
+    theorem proof; the Solution and substantive source proof have no sorry.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.SquarefreeBinomialClassification.squarefree_choose_half_iff"
+      file: "Palomar/SquarefreeBinomialClassification/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/SquarefreeBinomialClassification/comparator.json"
+      literature_dependencies: []
+      note: >-
+        Direct bridge to Erdos175.A046098.squarefree_choose_half_iff in
+        Proofs/Erdos/Erdos175/SquarefreeCentralBinom.lean at accepted base
+        dbe40a6bf54ae15b54e0a62fe7e35f274ed77c13.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "gpt-6-astra (xhigh)"
+      framework: "Yah"
+      tool_setup: >-
+        Material AI assistance in the original source-proof development,
+        including Lean proof construction and kernel-checked finite
+        certificate work.
+      prompting_notes: >-
+        The proof campaign targeted the bounded even and odd branches,
+        residual carry certificates, the thirteen listed cases, and removal
+        of native trust from Erdos175.witness_cert.
+    - method: "autonomous"
+      models:
+        - "gpt-5.6-sol (high)"
+      framework: "Yah"
+      tool_setup: >-
+        Packaging into independent Challenge and Solution environments,
+        policy and source inspection, source/pin alignment, serial Lean checks,
+        type comparison, axiom audit, and metadata preparation.
+      prompting_notes: >-
+        Work was restricted to this six-file package. No subagents,
+        publication, dependency setup, shared-cache writes, or full build were
+        used.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material in both phases. Source self-audits and parent
+    technical build/diff checks preceded two independent AI reviews completed
+    on 2026-09-08 against integration
+    dcf241b5a1f33b86325e82d575fa588d9a3575e6 and the frozen Challenge/Solution
+    hashes recorded in verification.md. Human formalization-author,
+    responsible-maintainer, authorization, and reviewer identities were not
+    supplied and have not been inferred.
+
+fidelity:
+  divergences: >-
+    The Lean theorem matches the finite OEIS assertion only in the explicit
+    bounded form n < 10^8. It uses Nat division by 2, hence floor division, and
+    Mathlib's ordinary Nat.choose and Squarefree. It proves both the thirteen
+    inclusions and every exclusion under the bound. It does not turn the OEIS
+    comment into an unbounded, analytic, novelty, or priority claim.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    Two independent AI reviews completed with PASS results on 2026-09-08 against
+    reviewed integration dcf241b5a1f33b86325e82d575fa588d9a3575e6 and frozen
+    Challenge SHA-256
+    2cfd723bc0a39f29284e073d9312683b4b15307e6ee4504d85aaa5c1be2c1331 and
+    Solution SHA-256
+    df8fa0385020df7052430f65078de2a7d03e2d76699cbab96832d695ad961cb4.
+    The foundations/fidelity review passed the exact finite Noe assertion,
+    thirteen-value list, strict n < 10^8 guard, floor division, Mathlib
+    Squarefree semantics, source proof, pins, and certificate provenance with
+    no required correction. The vacuity/trust review found no vacuity, drift,
+    trust, or material style issue after fresh compilation, raw-type comparison,
+    boundary and hypothesis checks, representative independent kernel
+    reductions, and axiom audits. These scoped AI reviews apply to those frozen
+    Lean bytes, not automatically to later metadata changes. The status remains
+    unchecked because no human mathematical, attribution, fidelity, or Palomar
+    review is claimed. Human authorship, maintenance, submission authorization,
+    and review remain pending; the parent will review the combined metadata
+    before publication.
+
+alignment:
+  namespace: "Palomar.SquarefreeBinomialClassification"
+  statements:
+    - source: >-
+        OEIS A046098, T. D. Noe's Apr 06 2007 finite computation comment,
+        together with the entry's thirteen displayed indices
+      lean: "Palomar.SquarefreeBinomialClassification.squarefree_choose_half_iff"
+      module: "Palomar.SquarefreeBinomialClassification.Solution"
+      status: "proved"
+      note: >-
+        For all natural n with n < 10^8, Squarefree (n.choose (n / 2)) is
+        equivalent to membership in the thirteen-element Finset. Challenge and
+        Solution elaborate the same proposition. The Solution directly applies
+        Erdos175.A046098.squarefree_choose_half_iff without changing its bound
+        or conclusion.
+
+metadata_blockers:
+  - >-
+    Current Palomar policy mechanically requires a nonempty human-only
+    project.authors list. No authoritative human formalization-author identity
+    was supplied, so the list is intentionally empty rather than invented.
+  - >-
+    Current Palomar policy mechanically requires a nonempty human-only
+    project.responsible_maintainers list. No authorized responsible maintainer
+    was supplied, so the list is intentionally empty rather than invented.
+  - >-
+    Submission authorization is unresolved. A responsible author or maintainer
+    of the substantive development, or a person with approval from one, must
+    make that declaration outside this packaging task.
+  - >-
+    Source-author contact and endorsement status are unknown; no endorsement
+    is asserted.
+  - >-
+    Comparator, lean4export, Landrun, and NanoDa were not run because their
+    executables were unavailable. No installation was attempted.
+
+acknowledgements: >-
+  Lean 4 and Mathlib provide the arithmetic, binomial, squarefreeness, and
+  valuation infrastructure. T. D. Noe is credited only for the attributed OEIS
+  computational comment. The existing repository supplies the substantive
+  formal proof. These acknowledgements do not assert endorsement or review.
