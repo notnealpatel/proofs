@@ -1,7 +1,8 @@
 /-
   OEIS A046098 — "Numbers n such that central binomial coefficient
-  C(n, floor(n/2)) is squarefree" — bounded Noe-range proof, plus a
-  bounded even-index classification. No unbounded classification is claimed.
+  C(n, floor(n/2)) is squarefree" — complete classification for `n < 10^8`,
+  plus a larger bounded even-index classification. No unbounded
+  classification is claimed.
 
   ── SOURCE PIN (verbatim, `goof oeis show A046098`, re-pulled 2026-08-05) ──
 
@@ -20,12 +21,14 @@
 
   The entry carries NO finiteness conjecture. Its only strengthening beyond
   the 13 listed terms is Noe's computation: "No other n < 10^8." That is the
-  claim archived here, in the honest bounded form
+  claim proved here, in the honest bounded form
 
-      ∀ n, 72 ≤ n → n < 10^8 → ¬ Squarefree (C(n, ⌊n/2⌋)),
+      ∀ n < 10^8, Squarefree (C(n, ⌊n/2⌋)) ↔
+        n ∈ {0, 1, 2, 3, 4, 5, 7, 8, 11, 17, 19, 23, 71}.
 
-  which is a *finite computational assertion* (Noe 2007), not a theorem with
-  a published proof.
+  Noe's comment is a *finite computational assertion* (2007), not a
+  published analytic proof. The Lean proof below verifies bounded Kummer
+  certificates and the factorizations of the thirteen positive cases.
 
   ── LITERATURE PIN (verbatim, `goof erdos fetch 175`, 2026-08-05, from
      https://www.erdosproblems.com/175) ──
@@ -68,6 +71,10 @@
 
   ── WHAT IS PROVED HERE, SORRY-FREE ──
 
+  * `squarefree_choose_half_iff` — the COMPLETE classification for every
+      `n < 10^8`, with precisely the thirteen terms in the source pin.
+      The small-case theorem and the bounded Noe-range exclusion cover
+      complementary ranges; all finite computations are kernel-checked.
   * `choose_half_eq_centralBinom_of_even` — for even `n`,
       `C(n, n/2) = Nat.centralBinom (n/2)`.
   * `squarefree_choose_half_iff_of_even` — **full classification at even
@@ -102,9 +109,17 @@
   module `SquarefreeCentralBinomResidual` proves the binary representation
   by strong induction and bounds every exponent by `26`. It checks all
   relevant single exponents and ordered pairs in `Fin 26` with ordinary
-  `decide`, not native computation. Its structurally recursive digit sum
-  is proved equal to `(Nat.digits p m).sum` when `m < p^fuel`; fuel `18`
-  suffices since `10^8 < 3^18`. No large binomial is evaluated.
+  `decide`, not native computation. The structurally recursive digit sum
+  and its correctness theorem live in `SquarefreeCentralBinomCertificates`,
+  shared with the even-side witnesses without an import cycle. The sum
+  equals `(Nat.digits p m).sum` when `m < p^fuel`; fuel `18` suffices since
+  `10^8 < 3^18`. No large binomial is evaluated for these exclusions.
+
+  `Residual.small_odd_certificate` checks every odd `n < 72`: it is listed,
+  its half-successor has at least three binary ones, or it has an odd-prime
+  carry certificate. This proves the previously missing ten small residual
+  exclusions `9, 15, 31, 33, 35, 39, 47, 63, 65, 67`. The same valuation
+  bridge handles both the small cases and the 331 larger residual values.
 
   The earlier Python/sympy witness distribution was `p = 3` for 312 of the
   331; `p = 5` for
@@ -115,24 +130,19 @@
 
   ── AXIOM / TRUST DISCLOSURE ──
 
-  No `native_decide`, `axiom`, `@[implemented_by]`, `@[extern]`, or `@[csimp]`
-  is written in this file. The even-side results *inherit* one documented
-  `native_decide` from `Erdos175.witness_cert` in `NotSquarefree.lean` (digit
-  sums of `2^k, 2^(k+1) ≤ 2^31` in bases 3, 5, 7), because they are proved
-  through `Erdos175.squarefree_centralBinom_iff` /
-  `Erdos175.not_squarefree_centralBinom`. All odd-side results, including
-  the bounded residual and `not_squarefree_choose_half_of_odd`, and the
-  arithmetic sanity layer (`squarefree_list_prod`, `terms_squarefree`) use
-  only `propext, Classical.choice, Quot.sound`. The combined
-  `noe_not_squarefree_choose_half` still inherits the existing native trust
-  axiom through its unchanged even branch. See the `#print axioms`
-  block at the end of the file for the exact per-declaration report.
+  Every theorem in this file uses only `propext, Classical.choice,
+  Quot.sound`, including the even branch, the combined Noe-range theorem,
+  and the exact bounded classification. `Erdos175.witness_cert` now uses
+  the kernel-checked fuel-21 certificate, not native computation. No
+  `native_decide`, custom axiom, `sorry`, `@[implemented_by]`, `@[extern]`,
+  or `@[csimp]` is used in this proof chain. The `#print axioms` block at
+  the end records the per-declaration audit.
 
-  Computational disclosure: `sage` is NOT installed in this environment
-  (`command -v sage` empty), so all pre-proof computation — the term list,
-  the factorizations pinned in `terms_squarefree`, the 331-value reduction
-  and its witness primes — was done with `python3` + `sympy` 1.14.0. These
-  external computations are not trusted; Lean verifies the certificates.
+  Computational disclosure: the earlier term factorizations and 331-value
+  witness distribution were obtained with `python3` + `sympy` 1.14.0.
+  Sage subsequently checked that each of the ten small odd residuals has
+  a carry witness in `{3, 5, 7}`. None of these external computations is
+  trusted: ordinary Lean kernel reduction verifies the certificates.
 -/
 
 import Erdos.Erdos175.NotSquarefree
@@ -253,6 +263,30 @@ theorem not_squarefree_choose_half_of_odd_of_three_le_sum_digits {n : ℕ}
 example : Odd 79 ∧ 72 ≤ 79 ∧ 79 < 10 ^ 8 ∧ (Nat.digits 2 (79 / 2 + 1)).sum ≤ 2 :=
   ⟨⟨39, by norm_num⟩, by norm_num, by norm_num, by decide⟩
 
+example : Odd 9 ∧ 9 / 2 + 1 ≤ 50000000 ∧
+    Residual.oddCarryCertificate (9 / 2 + 1) := by decide
+
+/-- An odd-prime carry certificate for the half-successor of an odd index
+rules out squarefreeness. The prime's valuation is unchanged by halving
+`centralBinom (n / 2 + 1)`, since each possible prime is at least three. -/
+theorem not_squarefree_choose_half_of_odd_of_oddCarryCertificate {n : ℕ}
+    (hn : Odd n) (hm : n / 2 + 1 ≤ 50000000)
+    (hc : Residual.oddCarryCertificate (n / 2 + 1)) :
+    ¬ Squarefree (n.choose (n / 2)) := by
+  obtain ⟨p, hp3, hp, hcarry⟩ := Residual.oddCarryCertificate_sound hm hc
+  haveI : Fact p.Prime := ⟨hp⟩
+  have hvaluation : 2 ≤ padicValNat p (Nat.centralBinom (n / 2 + 1)) :=
+    Erdos175.two_le_padicValNat_centralBinom hp hcarry
+  have hnotdvd : ¬ p ∣ 2 := by
+    intro hdvd
+    have hcases : p = 1 ∨ p = 2 := (Nat.dvd_prime Nat.prime_two).mp hdvd
+    omega
+  have htwo : padicValNat p 2 = 0 := padicValNat.eq_zero_of_not_dvd hnotdvd
+  have hne : n.choose (n / 2) ≠ 0 := (Nat.choose_pos (Nat.div_le_self n 2)).ne'
+  rw [← two_mul_choose_half_of_odd hn, padicValNat.mul (by norm_num) hne,
+    htwo, zero_add] at hvaluation
+  exact Erdos175.not_squarefree_of_two_le_padicValNat hp hvaluation
+
 /-- **Kernel-verified bounded residual of Noe's computation.** No odd `n`
     with `72 ≤ n < 10^8` and binary digit sum of `m = ⌊n/2⌋ + 1` at most
     two has squarefree `C(n, ⌊n/2⌋)`. Such an `m` is a power of two or the
@@ -288,20 +322,7 @@ theorem not_squarefree_choose_half_of_odd_of_sum_digits_le_two {n : ℕ}
       have hb26 : b < 26 := Residual.exponent_lt_twenty_six
         ((Nat.le_add_left (2 ^ b) (2 ^ a)).trans hmmax)
       exact Residual.sum_certificate ⟨a, ha26⟩ ⟨b, hb26⟩ hab hm37 hmmax
-  obtain ⟨p, hp3, hp, hcarry⟩ := Residual.oddCarryCertificate_sound hmmax hcert
-  haveI : Fact p.Prime := ⟨hp⟩
-  have hvaluation : 2 ≤ padicValNat p (Nat.centralBinom m) :=
-    Erdos175.two_le_padicValNat_centralBinom hp hcarry
-  have hnotdvd : ¬ p ∣ 2 := by
-    intro hdvd
-    have hcases : p = 1 ∨ p = 2 := (Nat.dvd_prime Nat.prime_two).mp hdvd
-    omega
-  have htwo : padicValNat p 2 = 0 := padicValNat.eq_zero_of_not_dvd hnotdvd
-  have hne : n.choose (n / 2) ≠ 0 := (Nat.choose_pos (Nat.div_le_self n 2)).ne'
-  change 2 ≤ padicValNat p (Nat.centralBinom (n / 2 + 1)) at hvaluation
-  rw [← two_mul_choose_half_of_odd hn, padicValNat.mul (by norm_num) hne,
-    htwo, zero_add] at hvaluation
-  exact Erdos175.not_squarefree_of_two_le_padicValNat hp hvaluation
+  exact not_squarefree_choose_half_of_odd_of_oddCarryCertificate hn hmmax hcert
 
 /-- Odd half of Noe's claim: no odd `n` with `72 ≤ n < 10^8` has squarefree
     `C(n, ⌊n/2⌋)`. Splits on the binary digit sum of `(n+1)/2`: at least `3`
@@ -316,14 +337,12 @@ theorem not_squarefree_choose_half_of_odd {n : ℕ} (hn : Odd n) (h72 : 72 ≤ n
 /-- **Bounded theorem (restriction of A046098's Noe comment to `72 ≤ n`).**
     T. D. Noe (Apr 06 2007): "No other n < 10^8." Noe's full claim covers all
     `n < 10^8` not in the 13-term list; this theorem captures only the `72 ≤ n`
-    portion. Ten odd values below 72 with `s₂((n+1)/2) ≤ 2` (n ∈ {9, 15, 31,
-    33, 35, 39, 47, 63, 65, 67}) fall outside both §3's `s₂ ≥ 3` guard and
-    this theorem's `72 ≤ n` guard — they are non-squarefree (verified
-    computationally) but not formalized here. The even half and the odd
-    `s₂ ≥ 3` half are proved above; the remaining `331` odd values are
-    certified by `not_squarefree_choose_half_of_odd_of_sum_digits_le_two`.
-    The combined theorem inherits the existing native trust axiom from the
-    even branch; the odd branch uses only the standard logical axioms.
+    portion. The ten small odd residual values below `72` are handled by
+    `squarefree_choose_half_iff_of_lt_seventy_two` below. The even half and
+    the odd `s₂ ≥ 3` half are proved above; the remaining `331` odd values
+    are certified by
+    `not_squarefree_choose_half_of_odd_of_sum_digits_le_two`.
+    Both branches use only the standard logical axioms.
 
     Not implied by the literature: Granville–Ramaré/Velammal cover the even
     indices for all `m ≥ 5`, and Sander [Sa92b] covers the odd indices only
@@ -404,7 +423,7 @@ theorem terms_squarefree :
 /-- **The threshold `72` is tight.** `C(71, 35)` is squarefree (so `71` is a
     term, matching OEIS's last listed value) while `C(72, 36)` is not (so the
     archived range starts exactly where it should). Both halves are
-    sorry-free; the second inherits `witness_cert`'s `native_decide`. -/
+    proved using only the standard logical axioms. -/
 theorem squarefree_choose_71_and_not_choose_72 :
     Squarefree (Nat.choose 71 35) ∧ ¬ Squarefree (Nat.choose 72 36) :=
   ⟨terms_squarefree 71 (by simp),
@@ -437,13 +456,78 @@ example : Squarefree (Nat.choose 8 4) ∧ ¬ Squarefree (Nat.choose 6 3) :=
         (by norm_num)).mp (by simpa using h)
       omega⟩
 
+-- ════════════════════════════════════════════════════════════════════
+-- §6 COMPLETE BOUNDED A046098 CLASSIFICATION
+-- ════════════════════════════════════════════════════════════════════
+
+example : (0 : ℕ) < 72 ∧ (71 : ℕ) < 72 := by decide
+
+/-- Below `72`, the thirteen listed A046098 indices are exactly those with
+squarefree middle binomial coefficient. Even indices use the central-binomial
+classification; odd indices use the kernel-checked small carry certificates. -/
+theorem squarefree_choose_half_iff_of_lt_seventy_two {n : ℕ} (h72 : n < 72) :
+    Squarefree (n.choose (n / 2)) ↔
+      n ∈ ([0, 1, 2, 3, 4, 5, 7, 8, 11, 17, 19, 23, 71] : List ℕ) := by
+  constructor
+  · intro hsq
+    rcases Nat.even_or_odd n with heven | hodd
+    · have hle : n ≤ 2 ^ 31 := by norm_num; omega
+      rcases (squarefree_choose_half_iff_of_even heven hle).mp hsq with
+        rfl | rfl | rfl | rfl <;> simp
+    · rcases Residual.small_odd_certificate ⟨n, h72⟩ hodd with hmem | hsum | hcarry
+      · exact hmem
+      · have hfuel : n / 2 + 1 < 2 ^ 6 := by norm_num; omega
+        have hsum_digits : 3 ≤ (Nat.digits 2 (n / 2 + 1)).sum := by
+          rwa [Residual.digitSum_eq_sum_digits (by norm_num : 1 < (2 : ℕ)) hfuel]
+            at hsum
+        exact False.elim
+          (not_squarefree_choose_half_of_odd_of_three_le_sum_digits hodd hsum_digits hsq)
+      · exact False.elim
+          (not_squarefree_choose_half_of_odd_of_oddCarryCertificate hodd (by omega)
+            hcarry hsq)
+  · exact terms_squarefree n
+
+example : (0 : ℕ) < 10 ^ 8 ∧ (99999999 : ℕ) < 10 ^ 8 := by decide
+
+/-- **Complete bounded A046098 classification.** For every natural index
+`n < 10^8`, the middle binomial coefficient `C(n, floor(n/2))` is squarefree
+if and only if `n` is one of `0, 1, 2, 3, 4, 5, 7, 8, 11, 17, 19, 23, 71`.
+The bound is essential to the proof: no unbounded classification is asserted. -/
+theorem squarefree_choose_half_iff {n : ℕ} (hlt : n < 10 ^ 8) :
+    Squarefree (n.choose (n / 2)) ↔
+      n ∈ ({0, 1, 2, 3, 4, 5, 7, 8, 11, 17, 19, 23, 71} : Finset ℕ) := by
+  constructor
+  · intro hsq
+    have h72 : n < 72 := by
+      by_contra hnot
+      exact noe_not_squarefree_choose_half (by omega) hlt hsq
+    simpa using (squarefree_choose_half_iff_of_lt_seventy_two h72).mp hsq
+  · intro hmem
+    exact terms_squarefree n (by simpa using hmem)
+
+example : ∀ n ∈ ([9, 15, 31, 33, 35, 39, 47, 63, 65, 67] : List ℕ),
+    ¬ Squarefree (n.choose (n / 2)) := by
+  intro n hn hsq
+  have h72 : n < 72 := by
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hn
+    omega
+  have hmem := (squarefree_choose_half_iff_of_lt_seventy_two h72).mp hsq
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hn hmem
+  omega
+
+example : Squarefree (Nat.choose 0 0) :=
+  (squarefree_choose_half_iff (n := 0) (by decide)).mpr (by simp)
+
+example : ¬ Squarefree (Nat.choose 99999999 (99999999 / 2)) :=
+  noe_not_squarefree_choose_half (by decide) (by decide)
+
 end Erdos175.A046098
 
 -- ════════════════════════════════════════════════════════════════════
--- §6 AXIOM REPORT
+-- §7 AXIOM REPORT
 -- ════════════════════════════════════════════════════════════════════
 
--- Sorry-free, and free of the inherited `native_decide`:
+-- All results below use only the standard logical axioms:
 #print axioms Erdos175.A046098.centralBinom_succ_eq_two_mul_choose
 #print axioms Erdos175.A046098.choose_half_eq_centralBinom_of_even
 #print axioms Erdos175.A046098.two_mul_choose_half_of_odd
@@ -453,7 +537,7 @@ end Erdos175.A046098
 #print axioms Erdos175.A046098.squarefree_of_eq_list_prod
 #print axioms Erdos175.A046098.terms_squarefree
 
--- Sorry-free, but inheriting `Erdos175.witness_cert`'s single `native_decide`:
+-- The bounded even branch no longer inherits any native computation axiom:
 #print axioms Erdos175.A046098.squarefree_choose_half_iff_of_even
 #print axioms Erdos175.A046098.not_squarefree_choose_half_of_even
 #print axioms Erdos175.A046098.squarefree_choose_71_and_not_choose_72
@@ -463,5 +547,11 @@ end Erdos175.A046098
 #print axioms Erdos175.A046098.not_squarefree_choose_half_of_odd_of_sum_digits_le_two
 #print axioms Erdos175.A046098.not_squarefree_choose_half_of_odd
 
--- The combined theorem still inherits native trust from the unchanged even branch:
+-- The combined Noe-range theorem and the complete bounded classification:
 #print axioms Erdos175.A046098.noe_not_squarefree_choose_half
+#check @Erdos175.A046098.squarefree_choose_half_iff
+#print axioms Erdos175.A046098.not_squarefree_choose_half_of_odd_of_oddCarryCertificate
+#print axioms Erdos175.A046098.squarefree_choose_half_iff_of_lt_seventy_two
+#print axioms Erdos175.A046098.squarefree_choose_half_iff
+#print axioms Erdos175.A046098.Residual.witness_digitSum_certificate
+#print axioms Erdos175.A046098.Residual.small_odd_certificate

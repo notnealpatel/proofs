@@ -30,7 +30,7 @@
       digit-sum formula at a per-k witness prime, never by computing the
       (astronomically large) binomial itself: the certificate
       s_p(2n) + 2(p-1) ≤ 2·s_p(n) forces v_p(C(2n,n)) ≥ 2. Witness
-      primes (found computationally, verified by `native_decide`):
+      primes (found computationally, verified by ordinary kernel `decide`):
       p = 5 for k = 6 (v₅ = 3), p = 7 for k = 8 (v₇ = 2), p = 3 for all
       other 3 ≤ k ≤ 30. (SageMath check: p = 3 works for every
       3 ≤ k ≤ 200 except k ∈ {6, 8}.)
@@ -44,18 +44,14 @@
   in Mathlib; the only genuinely new ingredients are the binary digit-sum
   characterization of powers of two (strong induction on n via
   `Nat.digits_def'`) and the decide-friendly witness-prime certificates.
-  `native_decide` is used exactly once (`witness_cert`), for digit sums
-  of 2^k, 2^(k+1) in bases 3, 5, 7 — numbers ≤ 2^31, instant to check.
+  The helper `SquarefreeCentralBinomCertificates` uses ordinary `decide`
+  on structurally recursive digit sums with fuel 21. Its correctness lemma
+  transports the finite certificates to Mathlib's digits in `witness_cert`;
+  `2^31 < 3^21` ensures sufficient fuel at every witness prime.
 
-  Axiom audit (2026-07-11, `#print axioms` via `lake env lean`):
-  `padicValNat_two_centralBinom`, `sum_digits_two_eq_one_iff`,
-  `four_dvd_centralBinom`, `not_squarefree_centralBinom_of_not_two_pow`
-  depend on exactly propext, Classical.choice, Quot.sound.
-  `not_squarefree_centralBinom_two_pow`, `not_squarefree_centralBinom`,
-  `squarefree_centralBinom_iff` additionally carry the per-use
-  `native_decide` trust axiom of `witness_cert`
-  (`Erdos175.witness_cert._native.native_decide.ax_1_1`, Lean ≥ 4.30's
-  form of `Lean.ofReduceBool`). No `sorryAx` anywhere.
+  Axiom audit: `witness_cert` and all the results in this file use only
+  propext, Classical.choice, Quot.sound. There is no native computation
+  trust axiom and no `sorryAx`. The audit commands appear at the end.
 
   References:
   [Sa85]   Sárközy, A., "On divisors of binomial coefficients, I",
@@ -67,12 +63,15 @@
            squarefree?", Hardy-Ramanujan J. 18 (1995), 23–45.
 -/
 
+import Erdos.Erdos175.SquarefreeCentralBinomCertificates
 import Mathlib.NumberTheory.Padics.PadicVal.Basic
 import Mathlib.Data.Nat.Choose.Central
 import Mathlib.Data.Nat.Squarefree
 import Mathlib.Data.Nat.Digits.Defs
 import Mathlib.Algebra.Order.BigOperators.Group.List
 import Mathlib.Tactic.NormNum.Prime
+
+set_option autoImplicit false
 
 namespace Erdos175
 
@@ -215,6 +214,9 @@ theorem not_squarefree_centralBinom_of_not_two_pow {n : ℕ} (hn : n ≠ 0)
 def witness (k : ℕ) : ℕ :=
   if k = 6 then 5 else if k = 8 then 7 else 3
 
+example : witness 0 = 3 ∧ witness 6 = 5 ∧ witness 8 = 7 := by decide
+example : 3 ≤ (3 : ℕ) ∧ (3 : ℕ) < 31 := by decide
+
 /-- Batched digit-sum certificates for all `3 ≤ k ≤ 30`: the witness
     prime is prime, and the carry certificate of
     `two_le_padicValNat_centralBinom` holds at `n = 2^k`. The check only
@@ -223,7 +225,24 @@ theorem witness_cert : ∀ k < 31, 3 ≤ k →
     (witness k).Prime ∧
       (Nat.digits (witness k) (2 ^ (k + 1))).sum + 2 * (witness k - 1) ≤
         2 * (Nat.digits (witness k) (2 ^ k)).sum := by
-  native_decide
+  intro k hk h3
+  have hcert := A046098.Residual.witness_digitSum_certificate ⟨k, hk⟩ h3
+  change (witness k).Prime ∧
+    A046098.Residual.digitSum (witness k) 21 (2 ^ (k + 1)) + 2 * (witness k - 1) ≤
+      2 * A046098.Residual.digitSum (witness k) 21 (2 ^ k) at hcert
+  have hp3 : 3 ≤ witness k := by
+    unfold witness
+    split_ifs <;> norm_num
+  have hpow : 2 ^ 31 < witness k ^ 21 :=
+    lt_of_lt_of_le (by norm_num : (2 : ℕ) ^ 31 < 3 ^ 21)
+      (Nat.pow_le_pow_left hp3 21)
+  have hk1 : 2 ^ (k + 1) < witness k ^ 21 :=
+    lt_of_le_of_lt (Nat.pow_le_pow_right (by norm_num) (by omega : k + 1 ≤ 31)) hpow
+  have hk0 : 2 ^ k < witness k ^ 21 :=
+    lt_of_le_of_lt (Nat.pow_le_pow_right (by norm_num) (by omega : k ≤ 31)) hpow
+  rw [A046098.Residual.digitSum_eq_sum_digits (by omega : 1 < witness k) hk1,
+    A046098.Residual.digitSum_eq_sum_digits (by omega : 1 < witness k) hk0] at hcert
+  exact hcert
 
 /-- **Erdős #175, bounded power-of-two part.** For `n = 2^k` with
     `3 ≤ k ≤ 30`, `C(2n,n)` is not squarefree. (For all `k ≥ 3` this is
@@ -318,3 +337,9 @@ theorem squarefree_centralBinom_iff {n : ℕ} (hle : n ≤ 2 ^ 30) :
         hp5.prime.squarefree, hp7.prime.squarefree⟩
 
 end Erdos175
+
+#check @Erdos175.witness_cert
+#print axioms Erdos175.witness_cert
+#print axioms Erdos175.not_squarefree_centralBinom_two_pow
+#print axioms Erdos175.not_squarefree_centralBinom
+#print axioms Erdos175.squarefree_centralBinom_iff

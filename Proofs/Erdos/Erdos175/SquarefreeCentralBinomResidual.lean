@@ -4,39 +4,6 @@ set_option autoImplicit false
 
 namespace Erdos175.A046098.Residual
 
-/-- The sum of the first `fuel` base-`p` digits, computed by structural recursion.
-The correctness theorem below assumes `1 < p` and enough fuel. -/
-def digitSum (p : ℕ) : ℕ → ℕ → ℕ
-  | 0, _ => 0
-  | fuel + 1, n => n % p + digitSum p fuel (n / p)
-
-example : digitSum 7 18 40 = 10 := by decide
-example : digitSum 7 0 40 = 0 := rfl
-example : 1 < 7 ∧ (40 : ℕ) < 7 ^ 18 := by decide
-
-/-- Zero has truncated digit sum zero at every fuel. -/
-@[simp] theorem digitSum_zero (p fuel : ℕ) : digitSum p fuel 0 = 0 := by
-  induction fuel with
-  | zero => rfl
-  | succ fuel ih => simp [digitSum, ih]
-
-/-- With enough fuel and a genuine positional base, the structurally recursive
-sum agrees with the sum of Mathlib's digits. -/
-theorem digitSum_eq_sum_digits {p fuel n : ℕ} (hp : 1 < p) (hn : n < p ^ fuel) :
-    digitSum p fuel n = (Nat.digits p n).sum := by
-  induction fuel generalizing n with
-  | zero =>
-    have hn0 : n = 0 := by simpa using hn
-    subst n
-    simp [digitSum]
-  | succ fuel ih =>
-    rcases Nat.eq_zero_or_pos n with rfl | hn0
-    · simp
-    · have hdiv : n / p < p ^ fuel := by
-        apply (Nat.div_lt_iff_lt_mul (by omega)).mpr
-        simpa only [pow_succ] using hn
-      rw [digitSum, Nat.digits_def' hp hn0, List.sum_cons, ih hdiv]
-
 /-- A natural number with binary digit sum two is the sum of two distinct
 powers of two, ordered by exponent. -/
 theorem exists_two_pow_add_two_pow_of_sum_digits_eq_two : ∀ {n : ℕ},
@@ -124,6 +91,21 @@ only bounded digit sums are computed, using ordinary kernel reduction. -/
 theorem sum_certificate : ∀ a b : Fin 26, a.val < b.val →
     37 ≤ 2 ^ a.val + 2 ^ b.val → 2 ^ a.val + 2 ^ b.val ≤ 50000000 →
       oddCarryCertificate (2 ^ a.val + 2 ^ b.val) := by
+  decide
+
+example : (⟨9, by decide⟩ : Fin 72).val = 9 ∧ Odd 9 := by decide
+example : (36 : ℕ) < 2 ^ 6 := by decide
+
+set_option maxRecDepth 4096 in
+set_option maxHeartbeats 2000000 in
+/-- For each odd index below `72`, either it is one of the listed A046098
+terms, its half-successor has at least three binary ones, or an odd-prime
+carry certificate rules it out. This kernel check includes the ten small
+residual indices `9, 15, 31, 33, 35, 39, 47, 63, 65, 67`. Six binary digits
+suffice because the half-successor is at most `36`. -/
+theorem small_odd_certificate : ∀ n : Fin 72, Odd n.val →
+    n.val ∈ ([0, 1, 2, 3, 4, 5, 7, 8, 11, 17, 19, 23, 71] : List ℕ) ∨
+      3 ≤ digitSum 2 6 (n.val / 2 + 1) ∨ oddCarryCertificate (n.val / 2 + 1) := by
   decide
 
 end Erdos175.A046098.Residual
