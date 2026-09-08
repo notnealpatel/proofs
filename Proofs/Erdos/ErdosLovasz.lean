@@ -1,15 +1,15 @@
 /-
   Erdős Problem #21 / OEIS A391599 — the Erdős–Lovász cover number g(r).
 
-  STATUS: STATEMENT ARCHIVE (USER directive) for the large-n and n ≥ 4
-  equalities, PROVED for n ≤ 3 and for the upper bound g(4) ≤ 9. The §6
-  theorems carry INTENDED, DISCLOSED
-  sorries; everything else in this file is proved. See "SORRY LEDGER" at the
-  end of this header for the exact list.
+  STATUS: PROVED for n ≤ 4, including the exact equality g(4) = 9.
+  The remaining large-n and n ≥ 5 literature statements in §6 are a
+  STATEMENT ARCHIVE (USER directive) with INTENDED, DISCLOSED sorries;
+  everything else in this file is proved. See "SORRY LEDGER" below.
 
-  The first three OEIS A391599 terms are now sorry-free: g(1) = 1, g(2) = 3,
-  and — as of 2026-08-05 — g(3) = 6, whose lower half `6 ≤ g(3)` used to be
-  archived and is now the §4 counting argument.
+  The first four OEIS A391599 terms are sorry-free: g(1) = 1, g(2) = 3,
+  g(3) = 6, and g(4) = 9. The lower half `6 ≤ g(3)` is the §4 counting
+  argument; `9 ≤ g(4)` is the universal incidence argument in
+  Erdos/ErdosLovaszFourLower.lean, bridged to the attained minimum in §5.
 
   THE QUANTITY. Following Erdős–Lovász [EL75] (and Sivashankar [Si26], who
   writes g(r); Kahn [Ka94] writes n(r); erdosproblems.com/21 writes f(r);
@@ -53,8 +53,11 @@
   * References/Erdos/arXiv-2606-24878/erdos_lovasz.tex (re-fetched 2026-08-05
     after the earlier copy went missing), abstract and Theorem 1, read
     directly — see [Si26] below.
-  * References/Erdos/arXiv-1409-4610/paper.tex (fetched 2026-08-05), read
-    directly — see [Tr14] below.
+  * Tripathi's canonical source https://arxiv.org/abs/1409.4610, retrieved
+    with `tool_arxiv` for the g(4) lower-bound proof and read directly.
+    The historical References/Erdos/arXiv-1409-4610/paper.tex pointer is
+    absent from this checkout; the new download is outside the repository.
+    The quotations below were checked against its paper.tex.
 
   LITERATURE, verbatim where it matters.
   [EL75] P. Erdős, L. Lovász, "Problems and results on 3-chromatic
@@ -73,7 +76,8 @@
     own text, quoted next, and is corroborated by [Si26].
   [Tr14] A. Tripathi, "A result on intersecting families with maximum
     transversal size", arXiv:1409.4610 (2014): g(4) = 9, plus a second proof
-    of g(3) = 6. Verbatim from References/Erdos/arXiv-1409-4610/paper.tex:
+    of g(3) = 6. Verbatim from the canonical paper.tex (see the source
+    pointer above):
       "It is easy to see that $q(2) = 3$. In \cite{Frankl}, it was proved
        (among other things) that $q(3) = 6$."
     and, introducing the corollary in his §2,
@@ -175,6 +179,10 @@
     coveringNumber_witnessFour         — τ(witnessFour) = 4
     isErdosLovaszFamily_witnessFour     — Tripathi's nine-edge 4-uniform family
     erdosLovaszNum_four_le             — g(4) ≤ 9, independently of §6
+    IsErdosLovaszFamily.nine_le_card    — 9 ≤ |F| for every EL family of
+                                          four-sets, over every ground type
+    tripathi_nine_le_erdosLovaszNum_four — 9 ≤ g(4)
+    tripathi_erdosLovaszNum_four        — g(4) = 9   [Tr14], now proved
     sivashankarConst_bounds             — 61/20 < (41−√19)/12 < 3.054
     isBigO_of_forall_le_linear          — explicit constant → IsBigO
     lower_bound_61_20_of_asymptotic     — Thm 1(ii) → the 61/20 rounding
@@ -188,7 +196,6 @@
     kahn_erdosLovaszNum_le_linear       [Ka94]      ∃C, g(n) ≤ Cn
     sivashankar_three_mul_sub_four      [Si26](i)   3n − 4 ≤ g(n)
     sivashankar_asymptotic_lower_bound  [Si26](ii)  ((41−√19)/12 − ε)n ≤ g(n) ev.
-    tripathi_erdosLovaszNum_four        [Tr14]      g(4) = 9
     barat_erdosLovaszNum_five    [Ba21]    g(5) = 13
     barat_erdosLovaszNum_six_le  [Ba21]    g(6) ≤ 18
 
@@ -198,29 +205,28 @@
     kahn_erdosLovaszNum_isBigO          [Ka94] in IsBigO form
     sivashankar_lower_bound_61_20       the 61/20 rounding
 
-  SORRY LEDGER (2026-08-05): exactly the seven Tier 2 statements, one
-  `declaration uses sorry` warning each. `6 ≤ g(3)` LEFT THE LEDGER on
-  2026-08-05 — it is now proved outright in §4, which also promotes
-  `tripathi_erdosLovaszNum_three : g(3) = 6` out of Tier 3 into Tier 1. The
-  remaining sorries are the four asymptotic/large-n bounds ([EL75], [Ka94],
-  [Si26](i), [Si26](ii)) and the three finite values beyond n = 3 ([Tr14]'s
-  g(4) = 9, [Ba21]'s g(5) = 13 and g(6) ≤ 18). The upper half of g(4) = 9
-  is now proved from Tripathi's explicit witness, transcribed in
-  Erdos/ErdosLovaszFourWitness.lean; the lower half remains archived.
+  SORRY LEDGER: exactly the six Tier 2 statements, one
+  `declaration uses sorry` warning each. `6 ≤ g(3)` left the ledger on
+  2026-08-05; `tripathi_erdosLovaszNum_four : g(4) = 9` has now also left
+  the ledger. The remaining sorries are the four asymptotic/large-n bounds
+  ([EL75], [Ka94], [Si26](i), [Si26](ii)) and [Ba21]'s g(5) = 13 and
+  g(6) ≤ 18. These unrelated archived statements are unchanged.
 
-  Axiom audit (2026-08-05, original 51 named declarations): the original
-  42 Tier 1 declarations
-  report exactly {propext, Classical.choice, Quot.sound}; the 7 Tier 2 and
-  2 Tier 3 declarations report those plus `sorryAx`; nothing reports anything
-  else. The five additional witness-four declarations are audited in §9,
-  and their finite certificates in Erdos/ErdosLovaszFourWitness.lean.
-  The build emits exactly 7 `declaration uses sorry` warnings, one per
-  Tier 2 statement. No `native_decide`, no custom axioms; all ground checks
-  are kernel `decide`. Signatures of the §1–§4 theorems (stated inside
-  `variable` sections) were confirmed with `#check @…` per STYLE.md.
+  The exact g(4) proof combines Tripathi's explicit witness in
+  Erdos/ErdosLovaszFourWitness.lean with the universal lower bound in
+  Erdos/ErdosLovaszFourLower.lean. Its selected dependency closure, both
+  bounds, and the family-level lower-bound bridge report exactly
+  {propext, Classical.choice, Quot.sound}; no archived theorem is used.
+  The build emits exactly 6 `declaration uses sorry` warnings, one per
+  Tier 2 statement. The two Tier 3 consequences still inherit `sorryAx`.
+  The declaration-level axiom audit is retained in §9. No `native_decide`,
+  no custom axioms; all finite ground checks are kernel `decide`.
+  Signatures of the §1–§4 theorems (stated inside `variable` sections)
+  and of the new g(4) bridges are checked with `#check @…`.
 -/
 import Erdos.CoveringNumber
 import Erdos.ErdosLovaszFourWitness
+import Erdos.ErdosLovaszFourLower
 
 set_option autoImplicit false
 
@@ -806,28 +812,68 @@ theorem isErdosLovaszFamily_witnessFour : IsErdosLovaszFamily 4 witnessFour :=
     witnessFour_intersecting coveringNumber_witnessFour
 
 /-- **`g(4) ≤ 9`**, from the explicit eleven-vertex witness in Tripathi
-[Tr14, §An Example]. This proves only the upper bound and does not use the
-archived equality `tripathi_erdosLovaszNum_four` or any other archived result. -/
+[Tr14, §An Example]. This proves the upper bound independently of the
+lower bound or any archived result. -/
 theorem erdosLovaszNum_four_le : erdosLovaszNum 4 ≤ 9 :=
   Nat.sInf_le ⟨11, witnessFour, isErdosLovaszFamily_witnessFour, witnessFour_card⟩
 
+/-- **`9 ≤ |F|`** for every Erdős–Lovász family of four-element sets,
+over every ground type. Tripathi's degree reduction is implemented by
+`ErdosLovaszFourLower.nine_le_card`, with incidence counts replacing the
+five-edge uniqueness assertion and the final global pair count. No finite
+ground-set restriction or archived result enters the proof. -/
+theorem IsErdosLovaszFamily.nine_le_card {α : Type*} {F : Finset (Finset α)}
+    (h : IsErdosLovaszFamily 4 F) : 9 ≤ F.card := by
+  apply ErdosLovaszFourLower.nine_le_card F h.1 h.2.1
+  intro T hT
+  by_contra hsmall
+  obtain ⟨A, hA, hdisj⟩ := h.2.2 T (by omega)
+  obtain ⟨x, hxA, hxT⟩ := hT A hA
+  exact Finset.disjoint_left.mp hdisj hxA hxT
+
+/-- **`9 ≤ g(4)`**, from the universal four-uniform incidence bound and
+attainment of the minimum over all `Fin N`. In particular the unbounded
+vertex-domain quantifier is handled by a theorem valid on every type. -/
+theorem tripathi_nine_le_erdosLovaszNum_four : 9 ≤ erdosLovaszNum 4 := by
+  obtain ⟨N, F, hF, hcard⟩ := erdosLovaszNum_mem (n := 4) (by decide)
+  exact hcard ▸ hF.nine_le_card
+
 example : IsErdosLovaszFamily 4 witnessFour ∧ 0 < 4 ∧ witnessFour.card = 9 :=
   ⟨isErdosLovaszFamily_witnessFour, by decide, witnessFour_card⟩
+example : 9 ≤ witnessFour.card := isErdosLovaszFamily_witnessFour.nine_le_card
+example : (∀ A ∈ witnessFour, A.card = 4) ∧
+    (∀ A ∈ witnessFour, ∀ B ∈ witnessFour, ¬ Disjoint A B) ∧
+    (∀ T : Finset (Fin 11), IsTransversal witnessFour T → 4 ≤ T.card) := by
+  refine ⟨witnessFour_uniform, witnessFour_intersecting, ?_⟩
+  intro T hT
+  by_contra hsmall
+  exact witnessFour_no_small_transversal T (by omega) hT
 example : (9 : ℕ) ∈ erdosLovaszCards 4 :=
   ⟨11, witnessFour, isErdosLovaszFamily_witnessFour, witnessFour_card⟩
 example : ({0, 1, 2} : Finset (Fin 11)).card < 4 ∧
     ¬ IsTransversal witnessFour ({0, 1, 2} : Finset (Fin 11)) :=
   ⟨by decide, witnessFour_no_small_transversal _ (by decide)⟩
 example : ∅ ∉ witnessFour := isErdosLovaszFamily_witnessFour.empty_notMem
+example : ¬ IsErdosLovaszFamily 4 (∅ : Finset (Finset (Fin 0))) := by decide
+example : ¬ IsErdosLovaszFamily 4
+    ({{0, 1, 2, 3}} : Finset (Finset (Fin 4))) := by decide
+example :
+    (∀ A ∈ ({{0, 1, 2, 3}} : Finset (Finset (Fin 4))), A.card = 4) ∧
+    (∀ A ∈ ({{0, 1, 2, 3}} : Finset (Finset (Fin 4))),
+      ∀ B ∈ ({{0, 1, 2, 3}} : Finset (Finset (Fin 4))), ¬ Disjoint A B) ∧
+    IsTransversal ({{0, 1, 2, 3}} : Finset (Finset (Fin 4))) {0} ∧
+    ({{0, 1, 2, 3}} : Finset (Finset (Fin 4))).card < 9 := by decide
 
 #check @witnessFour_isTransversal
 #check @witnessFour_no_small_transversal
 #check @coveringNumber_witnessFour
 #check @isErdosLovaszFamily_witnessFour
 #check @erdosLovaszNum_four_le
+#check @IsErdosLovaszFamily.nine_le_card
+#check @tripathi_nine_le_erdosLovaszNum_four
 
 -- ════════════════════════════════════════════════════════════════════
--- §6 LITERATURE STATEMENTS (INTENDED SORRIES)
+-- §6 LITERATURE STATEMENTS (g(4) PROVED; OTHER STATEMENTS ARCHIVED)
 -- ════════════════════════════════════════════════════════════════════
 
 /-- **[EL75] lower bound** (literature, INTENDED SORRY): `8n/3 − 3 ≤ g(n)`
@@ -868,15 +914,15 @@ theorem sivashankar_asymptotic_lower_bound (ε : ℝ) (hε : 0 < ε) :
   -- small-codegree hypergraph edge-colouring theorem.
   sorry
 
-/-- **[Tr14]** (literature, INTENDED SORRY): `g(4) = 9` (OEIS A391599,
-a(4) = 9). [Ba21] showed the extremal example is unique and "notably
-asymmetric" (erdosproblems.com/21, comment of 03 Dec 2025). The upper bound
-is proved independently as `erdosLovaszNum_four_le` using Tripathi's
-nine-edge witness and a certificate over the 165 triples on eleven vertices.
-The lower bound, and hence this full equality, remain archived. -/
-theorem tripathi_erdosLovaszNum_four : erdosLovaszNum 4 = 9 := by
-  -- INTENDED SORRY: the lower bound 9 ≤ g(4) is not formalized here.
-  sorry
+/-- **[Tr14] `g(4) = 9`**, now proved (OEIS A391599, a(4) = 9).
+The upper bound is Tripathi's nine-edge witness; the lower bound is a
+universal incidence argument on arbitrary ground types, passed through
+attainment of the existing minimum. The historical theorem name and exact
+statement are preserved; its closure contains no archived lower bound. -/
+theorem tripathi_erdosLovaszNum_four : erdosLovaszNum 4 = 9 :=
+  le_antisymm erdosLovaszNum_four_le tripathi_nine_le_erdosLovaszNum_four
+
+#check @tripathi_erdosLovaszNum_four
 
 /-- **[Ba21]** (literature, INTENDED SORRY): `g(5) = 13` (OEIS A391599,
 a(5) = 13), with exactly three non-isomorphic extremal examples
@@ -1232,9 +1278,9 @@ end GroundChecks
 -- §9 AXIOM AUDIT
 -- ════════════════════════════════════════════════════════════════════
 
-/-! Every named declaration of this file, in source order. The 47 Tier 1
+/-! Every named declaration of this file, in source order. The 50 Tier 1
 declarations must report exactly `[propext, Classical.choice, Quot.sound]`;
-the 7 Tier 2 statements and the 2 Tier 3 consequences must additionally
+the 6 Tier 2 statements and the 2 Tier 3 consequences must additionally
 report `sorryAx`, and nothing must report anything else. No `native_decide`,
 no `@[implemented_by]`/`@[extern]`/`@[csimp]`, no declared `axiom`. -/
 
@@ -1289,9 +1335,11 @@ section AxiomAudit
 #print axioms coveringNumber_witnessFour
 #print axioms isErdosLovaszFamily_witnessFour
 #print axioms erdosLovaszNum_four_le
+#print axioms IsErdosLovaszFamily.nine_le_card
+#print axioms tripathi_nine_le_erdosLovaszNum_four
 
--- §6 TIER 2 — the archived literature statements; these must and do report
--- `sorryAx`.
+-- §6: the archived Tier 2 statements report `sorryAx`; the proved
+-- `tripathi_erdosLovaszNum_four` is Tier 1 and must not report it.
 #print axioms erdos_lovasz_lower_bound
 #print axioms kahn_erdosLovaszNum_le_linear
 #print axioms sivashankar_three_mul_sub_four
