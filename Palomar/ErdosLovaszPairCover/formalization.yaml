@@ -1,0 +1,228 @@
+version: "v0.4"
+
+project:
+  name: "The elementary pair-cover lower bound for the Erdős–Lovász number"
+  description: >-
+    A Lean 4 formalization of the elementary bound 2r - 1 <= g(r) for every
+    positive integer r, where g(r) is the minimum number of edges in an
+    r-uniform intersecting finite hypergraph with transversal number r. The
+    independent statement ranges over all finite labelled ground types and
+    proves that its natural-infimum index is nonempty and attained for every
+    positive r. The proof pairs edges, choosing one common vertex per pair and
+    one vertex for a possible unpaired edge. This is the exact elementary
+    prior-art argument recorded in Bushaw–Danielsson–Hurlbert, Fact 17, and is
+    weaker in the large-r regime than published bounds; no novelty or priority
+    is claimed.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "Erdős-Ko-Rado Theorems for Paths in Graphs"
+    authors:
+      - "Neal Bushaw"
+      - "James Danielsson"
+      - "Glenn Hurlbert"
+    id: "https://arxiv.org/abs/2504.05406v1"
+    type: "paper"
+    location: "§3.1, Fact 17 (7 April 2025; TeX label f:basicUpperBound)"
+    relationship: "independently-proves"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      Fact 17 states that every intersecting family F has transversal number
+      tau(F) <= ceil(|F|/2), and proves it by pairing the sets, choosing one
+      common element from each pair, and choosing one element from a possible
+      unpaired set. For tau(F)=r this gives 2r-1 <= |F|, exactly the selected
+      structural mechanism and elementary family-level implication. This
+      source was located after the recorded Lean proof construction; the Lean
+      proof does not import or assume Fact 17. That chronology is not a claim
+      of retrieval-blind discovery, global novelty, or priority.
+  - title: "Problems and results on 3-chromatic hypergraphs and some related questions"
+    authors:
+      - "Paul Erdős"
+      - "László Lovász"
+    id: "P. Erdős and L. Lovász, Infinite and Finite Sets, Colloq. Math. Soc. János Bolyai 10 (1975), 609–627"
+    type: "paper"
+    location: "the Erdős–Lovász cover-number problem and the bound g(r) >= 8r/3 - 3"
+    relationship: "background"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      This paper supplies the historical Erdős–Lovász invariant and its
+      stronger 8r/3 - 3 lower bound. It is background rather than the source of
+      the selected pair-cover proof. The selected Lean theorem states only
+      2r - 1 <= g(r), and no novelty or priority claim is made for it.
+  - title: "An Improved Lower Bound for the Erdős–Lovász Cover Number Problem"
+    authors:
+      - "Venkatesan Sivashankar"
+    id: "https://arxiv.org/abs/2606.24878"
+    type: "paper"
+    location: "abstract, introduction, and Theorem 1"
+    relationship: "background"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      The primary TeX was freshly retrieved for this packaging task. It defines
+      the same g(r), reports the Erdős–Lovász 8r/3 - 3 lower bound, and proves
+      3r - 4 for all positive r together with a stronger asymptotic bound. It
+      documents that the selected 2r - 1 bound is not a state-of-the-art
+      large-r result and is not used by the Lean proof.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.CO"
+  msc2020:
+    - "05D05"
+
+status:
+  scope: >-
+    The one selected result is the uniform all-positive-r lower bound
+    Palomar.ErdosLovaszPairCover.two_mul_sub_one_le_erdosLovaszNum. Challenge
+    and Solution independently expose the complete uniform/intersecting/
+    no-small-cover predicate, attainable edge counts over every Fin N, and the
+    natural infimum. The structural pair-cover theorem is proof mechanism, not
+    an additional selected comparator. Unrelated stronger and exact-value
+    declarations are not selected.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.ErdosLovaszPairCover.two_mul_sub_one_le_erdosLovaszNum"
+      file: "Palomar/ErdosLovaszPairCover/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/ErdosLovaszPairCover/comparator.json"
+      literature_dependencies: []
+      note: >-
+        The Solution first proves definitional equality of the complete package
+        model with the source model and checks the source's positive-r
+        attainment theorem. It then applies the source theorem. The deliberate
+        Challenge placeholder is excluded from this count; the Solution has no
+        holes and the selected dependency closure has no sorryAx.
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "gpt-6-astra"
+      framework: "Yah"
+      tool_setup: >-
+        Material AI assistance in the source-proof phase, specified by the user
+        as gpt-6-astra with xhigh reasoning. The proof uses strong induction on
+        the finite edge family, Mathlib combinatorial APIs, and omega; it uses
+        no native_decide or custom axiom.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        The source task required a general arbitrary-ground-type pair-cover
+        theorem, an attained-minimum bridge, boundary tests, and standard axiom
+        closure.
+    - method: "autonomous"
+      models:
+        - "gpt-5.6-sol"
+      framework: "Yah"
+      tool_setup: >-
+        Separate packaging by gpt-5.6-sol with high reasoning. Work was limited
+        to the six candidate files, with an independent Mathlib-only Challenge,
+        repeated Solution model, definitional source bridges, targeted Lean
+        elaboration, signature and axiom checks, and metadata audits. No
+        subagent was used. After an independent AI foundations review of exact
+        combined candidate dcf241b5a1f33b86325e82d575fa588d9a3575e6 found
+        provenance correction PC-1, this phase retrieved arXiv:2504.05406v1
+        and corrected the package metadata and narrative without changing Lean.
+      cost:
+        wall_time: "bounded compilation timings are recorded in verification.md"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        The packaging task required all-positive-r nonemptiness and attainment,
+        small-r and empty-ground checks, one comparator target, and explicit
+        disclosure of unknown human identities and unavailable external tools.
+  spend_usd: "not available"
+  notes: >-
+    Human authors and responsible maintainers were not authoritatively supplied
+    and have not been invented. Palomar's current policy requires both lists to
+    be nonempty, so this metadata is an explicit submission blocker rather than
+    a mechanically admissible identity claim.
+
+fidelity:
+  divergences: >-
+    The independent predicate is definitionally identical to the source
+    predicate: all edges have cardinality r, every pair including the diagonal
+    is non-disjoint, and every finite set of cardinality less than r misses an
+    edge. Edge counts range over all Fin N and g(r) is their Nat.sInf. The
+    positive hypothesis is material: it provides a nonempty index and actual
+    attained minimum and keeps 2*r-1 away from the r=0 truncation issue. At r=0
+    the empty family honestly realizes g(0)=0. The prose calls the no-small-cover
+    condition transversal number r; for positive r, uniformity and intersection
+    make each edge a transversal and the last clause excludes every smaller
+    one. The selected result is weaker than published large-r lower bounds and
+    carries no new-mathematics, significance, or priority claim.
+
+review:
+  status: "agent-reviewed"
+  reviewers:
+    - "Independent AI foundations reviewer"
+    - "Independent AI vacuity reviewer"
+  notes: >-
+    An independent AI foundations review of exact combined candidate revision
+    dcf241b5a1f33b86325e82d575fa588d9a3575e6 found the formal statement and
+    model faithful but issued material provenance correction PC-1: identify
+    Bushaw–Danielsson–Hurlbert Fact 17 as exact prior art. The present metadata
+    records that finding as requiring correction. It is not human approval and
+    does not approve or review this corrected revision. A separate independent
+    AI vacuity review passed at that same exact revision on frozen Lean source
+    hashes Challenge
+    80d50b25af6a8266a7c2402149a1a74afdd5dd9f44e58cb20cbe41ec07a004ae and
+    Solution
+    b825d9ba1a28136cad53a1a44fe7085e0949136b37dea80b9925e28d434aecde.
+    It checked all three package/source proofs, separately compiled the six
+    reviewed package Lean modules, checked raw types and the model, confirmed
+    standard-three selected closures, and reported no semantic, trust, or
+    material-style findings. The vacuity PASS applies to those exact frozen
+    Lean bytes, not to the corrected metadata, and is not human approval. Final
+    foundations recheck of the PC-1 correction and human review remain pending.
+    Palomar review has not occurred.
+
+alignment:
+  namespace: "Palomar.ErdosLovaszPairCover"
+  statements:
+    - source: "Bushaw–Danielsson–Hurlbert, arXiv:2504.05406v1, §3.1 Fact 17, applied to the Erdős–Lovász invariant"
+      lean: "Palomar.ErdosLovaszPairCover.two_mul_sub_one_le_erdosLovaszNum"
+      module: "Palomar.ErdosLovaszPairCover.Solution"
+      status: "proved"
+      note: >-
+        For 0 < r, the theorem says 2*r-1 <= g(r). Lean proves the independent
+        predicate, attainable-card set, and invariant definitionally equal to
+        the repository versions before applying the accepted source theorem.
+        Fact 17 is the exact prior-art structural bound tau(F) <= ceil(|F|/2);
+        the Lean proof was constructed before that source was located and does
+        not assume it. The source theorem attains g(r) through
+        erdosLovaszNum_mem rather than reasoning from an empty sInf.
+
+metadata_blockers:
+  - "Palomar requires a nonempty list of human project.authors; identities are unknown."
+  - "Palomar requires a nonempty list of human project.responsible_maintainers; identities are unknown."
+  - "Submission authorization by a responsible human author or maintainer has not been established."
+  - "Final foundations recheck of the PC-1-corrected metadata and human review remain pending; the independent AI vacuity PASS applies only to the frozen Lean bytes at dcf241b5a1f33b86325e82d575fa588d9a3575e6."
+  - >-
+    Comparator, lean4export, Landrun, and NanoDa checks are NOT RUN because the
+    executables are unavailable; no verifier infrastructure was installed.
+
+acknowledgements: >-
+  The invariant originates with Paul Erdős and László Lovász. Neal Bushaw,
+  James Danielsson, and Glenn Hurlbert record the exact pair-cover statement
+  and proof as Fact 17 of arXiv:2504.05406v1. Lean 4 and Mathlib provide the
+  proof infrastructure. No source-author endorsement, novelty, priority,
+  external acceptance, or submission claim is made.

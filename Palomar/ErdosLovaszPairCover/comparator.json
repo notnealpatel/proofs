@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.ErdosLovaszPairCover.Challenge",
+  "solution_module": "Palomar.ErdosLovaszPairCover.Solution",
+  "theorem_names": [
+    "Palomar.ErdosLovaszPairCover.two_mul_sub_one_le_erdosLovaszNum"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
