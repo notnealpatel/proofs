@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.PalindromeRowBijection.Challenge",
+  "solution_module": "Palomar.PalindromeRowBijection.Solution",
+  "theorem_names": [
+    "PalindromeRowBijection.subsetCount_two_pow_symm"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

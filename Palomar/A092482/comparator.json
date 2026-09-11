@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.A092482.Challenge",
+  "solution_module": "Palomar.A092482.Solution",
+  "theorem_names": [
+    "Palomar.A092482.greedySeq_add_two"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

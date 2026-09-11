@@ -1,0 +1,236 @@
+version: "v0.4"
+
+project:
+  name: "A051293 integer-mean subset asymptotics"
+  description: >-
+    A Lean 4 formalization of the arbitrary-order asymptotic expansion for the
+    number of nonempty subsets of {1, ..., n} whose arithmetic mean is an
+    integer. The coefficients are the Fubini (ordered Bell) numbers. The
+    package also states their first six values and the explicit order-five
+    normalized limit.
+  # Required human identities are unknown. Empty lists expose the metadata
+  # blocker rather than inventing a formalization author or maintainer.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "OEIS A051293 — subsets with integer arithmetic mean"
+    authors:
+      - "The OEIS Foundation Inc. and contributors to entry A051293"
+    id: "https://oeis.org/A051293"
+    type: "database-entry"
+    location: >-
+      Sequence definition and Benoit Cloitre comments of October 2002 giving
+      the general Fubini-coefficient expansion and the explicit order-five form
+    relationship: "formalizes"
+    license: "OEIS End-User License Agreement"
+    author_endorsement: "not-contacted"
+    note: >-
+      The package proves the literal subset-count expansion. It follows the
+      error convention fixed unambiguously by Cloitre's explicit six-term
+      formula; the general OEIS sentence is punctuated in a way that admits a
+      stronger, off-by-one reading which is not claimed here.
+  - title: "OEIS A000670 — Fubini numbers"
+    authors:
+      - "The OEIS Foundation Inc. and contributors to entry A000670"
+    id: "https://oeis.org/A000670"
+    type: "database-entry"
+    location: "Ordered Bell (preferential-arrangement) numbers"
+    relationship: "background"
+    license: "OEIS End-User License Agreement"
+    author_endorsement: "not-contacted"
+    note: >-
+      These are the coefficients 1, 1, 3, 13, 75, 541, ... in the expansion.
+      Challenge and Solution define them independently by their binomial
+      recurrence.
+
+related_formalizations:
+  - title: "Advancing Mathematics Research with AI-Driven Formal Proof Search"
+    id: "https://arxiv.org/abs/2605.22763"
+    type: "formalization account"
+    relationship: "prior-related-formalization"
+    note: >-
+      The cited AlphaProof Nexus account formalizes the fixed order-five
+      normalized-limit target. This package additionally formalizes the
+      arbitrary-order expansion and derives the fixed-order statement through
+      the repository's Cloitre bridge. No priority or first-formalization claim
+      is made for either development.
+
+classification:
+  arxiv:
+    - "math.CO"
+    - "math.NT"
+  msc2020:
+    - "05A16"
+    - "11B65"
+
+status:
+  scope: >-
+    Challenge and Solution independently define the literal Finset.Icc 1 n
+    powerset count and the Fubini coefficients by recurrence. Comparator
+    selects the first-six coefficient theorem, the expansion for every
+    truncation order M, and the fixed order-five normalized limit. The Solution
+    bridges these definitions to Proofs/Enumerative/A051293/Counting.lean and
+    Cloitre.lean. The three Challenge theorem holes are deliberate Comparator
+    placeholders and are excluded from the v0.4 proof-development sorry count.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "PalomarA051293.fubiniCoefficient_first_six"
+      file: "Palomar/A051293/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/A051293/comparator.json"
+      literature_dependencies: []
+      note: >-
+        The recurrence-defined coefficients at indices zero through five are
+        exactly 1, 1, 3, 13, 75, and 541.
+    - declaration: "PalomarA051293.arbitrary_order_asymptotic"
+      file: "Palomar/A051293/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/A051293/comparator.json"
+      literature_dependencies: []
+      note: >-
+        For every natural M, the error after retaining coefficients through M
+        is little-o of 2^n / n^(M+1). The if-branches only totalize n = 0.
+    - declaration: "PalomarA051293.fixed_order_five"
+      file: "Palomar/A051293/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/A051293/comparator.json"
+      literature_dependencies: []
+      note: >-
+        The error after the six displayed coefficients, divided by
+        2^(n+1)/n^6, tends to zero. The Solution derives this from the general
+        theorem through the repository's proved Cloitre bridge.
+
+  toolchain: "Lean 4.33.0-rc1 (commit 62eed1db4d67327ec8120be05f1a1b0847d74561)"
+  mathlib_revision: "3edb3c0658f69f197b1e501b1f7623f3f7b3898c"
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "model identifier not exposed by the recovered proof evidence"
+      framework: "Yah"
+      tool_setup: >-
+        AI-assisted substantive proof development and package-surface repair.
+        Challenge and Solution were separately elaborated, selected statements
+        were normalized and compared, and declaration-level axiom output was
+        recorded in verification.md.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        The recovered work was constrained to the literal subset count, a
+        transparent coefficient recurrence, the explicit remainder convention,
+        independent Challenge and Solution surfaces, and no novelty claim.
+    - method: "autonomous"
+      models:
+        - "gpt-5.6-sol"
+      framework: "Yah"
+      tool_setup: >-
+        A separate metadata-only campaign pass added comparator.json and
+        formalization.yaml from the existing Lean and verification evidence,
+        checked local v0.4 schema consistency, and did not modify Lean source,
+        references, dependencies, or the root toolchain.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        The task was restricted to the two missing package configuration files
+        and prohibited invented human identities.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material. No authoritative human formalization author,
+    responsible maintainer, or reviewer was available, so no such identity is
+    attributed.
+
+fidelity:
+  divergences: >-
+    The formal count is the literal number of nonempty subsets S of
+    Finset.Icc 1 n satisfying S.card | S.sum id. At n = 0 the asymptotic
+    expressions use explicit branches solely to avoid divisions by zero; this
+    changes only one value and not the atTop result. The arbitrary-order
+    theorem uses an external error scale o(2^n/n^(M+1)), equivalently
+    o(1/n^M) after division by the leading prefactor 2^(n+1)/n. This agrees
+    with the explicit order-five OEIS formula but does not assert the
+    potentially stronger off-by-one reading of the general OEIS punctuation.
+    The fixed-order statement matches the prior AlphaProof Nexus target form,
+    while the arbitrary-M result is the broader theorem proved here.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER mathematical, attribution, source-fidelity, and publication review is
+    pending. Existing Lean elaboration, signature checks, and axiom auditing are
+    mechanical evidence, not human review, endorsement, submission, acceptance,
+    or approval.
+
+alignment:
+  namespace: "PalomarA051293"
+  statements:
+    - source: >-
+        OEIS A000670: the first six ordered Bell numbers are
+        1, 1, 3, 13, 75, 541
+      lean: "PalomarA051293.fubiniCoefficient_first_six"
+      module: "Palomar.A051293.Solution"
+      status: "proved"
+      note: "The coefficients are defined by the displayed binomial recurrence."
+    - source: >-
+        Cloitre's general A051293 expansion, interpreted consistently with his
+        explicit order-five remainder
+      lean: "PalomarA051293.arbitrary_order_asymptotic"
+      module: "Palomar.A051293.Solution"
+      status: "proved"
+      note: >-
+        The theorem is uniform in the chosen natural truncation order M and is
+        stated directly for the literal integer-mean subset count.
+    - source: >-
+        Cloitre's explicit order-five A051293 expansion and the corresponding
+        AlphaProof Nexus normalized-limit target_theorem_0
+      lean: "PalomarA051293.fixed_order_five"
+      module: "Palomar.A051293.Solution"
+      status: "proved"
+      note: >-
+        The denominator is 2^(n+1)/n^6 and the six displayed coefficients are
+        exactly 1, 1, 3, 13, 75, and 541.
+
+metadata_blockers:
+  - >-
+    project.authors is required to contain human names, but no authoritative
+    human formalization-author identity was available.
+  - >-
+    project.responsible_maintainers is required by current submission policy to
+    contain a human name, but no responsible human maintainer was identified or
+    authorized.
+  - "Human mathematical, attribution, and source-fidelity review remains pending."
+  - >-
+    Comparator and NanoDa are not claimed as run by this metadata-only pass;
+    existing verification.md records the available mechanical evidence and
+    tooling boundary.
+
+acknowledgements: >-
+  The formalization uses Lean 4 and Mathlib. The asymptotic expansion is
+  attributed to Benoit Cloitre's OEIS A051293 comments, and the prior explicit
+  fixed-order formalization is credited to AlphaProof Nexus. These credits do
+  not imply endorsement, human review, novelty, priority, submission, or
+  acceptance.

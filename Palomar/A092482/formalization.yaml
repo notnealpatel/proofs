@@ -1,0 +1,160 @@
+version: "v0.4"
+
+project:
+  name: "OEIS A092482 greedy sequence with exceptional initial progression"
+  description: >-
+    A Lean 4 package for the zero-indexed increasing greedy sequence beginning
+    at 1 that permits the initial arithmetic progression (1, 2, 3) and no
+    other strictly ordered three-term arithmetic progression. It proves the
+    OEIS A092482 closed form using the binary expansion read in base three.
+  # Required human identities have not been established. Empty lists expose
+  # the blocker rather than inventing an author or responsible maintainer.
+  authors: []
+  responsible_maintainers: []
+  license: "MIT"
+
+sources:
+  - title: "OEIS A092482 — sequence with no three-term arithmetic progression beyond 1, 2, 3"
+    authors:
+      - "Jean-François Alcover (formula/comment contributor)"
+      - "The OEIS Foundation Inc. and contributors to entry A092482"
+    id: "https://oeis.org/A092482"
+    type: "database-entry"
+    location: >-
+      Sequence definition and the 2019-01-15 formula/comment attributed to
+      Jean-François Alcover, as represented in the pinned 2026-08-05 source
+      snapshot
+    relationship: "formalizes"
+    license: "OEIS End-User License Agreement"
+    author_endorsement: "not-contacted"
+    note: >-
+      The pinned 2026-08-05 source snapshot labeled the closed form
+      conjectured and checked through n = 512. This package proves its
+      corrected zero-offset interpretation. The historical display had the
+      bound-variable occurrence recorded as n where the summand requires k,
+      and A005836 is read here from offset zero. The OEIS record was
+      subsequently updated to state that the conjecture is correct and to
+      link Neal Patel's proof note; this package makes no independent claim
+      about current proof status, novelty, or priority.
+
+related_formalizations: []
+
+classification:
+  arxiv:
+    - "math.CO"
+    - "math.NT"
+  msc2020:
+    - "11B75"
+    - "11B83"
+
+status:
+  scope: >-
+    Challenge and Solution independently define binToTernary, the exceptional
+    three-term-progression predicate, finite greedy prefixes, and greedySeq.
+    The recursion starts from the singleton {1}; the allowed progression makes
+    2 and 3 arise from the greedy rule rather than inserting the whole seed.
+    The sole selected result is the pointwise closed form for index m + 2.
+    Solution proves equality with the existing repository recursion before
+    applying _root_.A092482.greedySeq_add_two.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Palomar.A092482.greedySeq_add_two"
+      file: "Palomar/A092482/Solution.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "Palomar/A092482/comparator.json"
+      literature_dependencies: []
+      note: >-
+        For every natural m, greedySeq (m + 2) equals
+        1 + 2 ^ Nat.log 2 (m + 1) + binToTernary (m + 1). The only package
+        sorry is the intentional matching theorem hole in Challenge.lean,
+        which v0.4 excludes from sorry_count; the selected Solution declaration
+        has no sorryAx dependency.
+
+  toolchain: "Lean 4.33.0-rc1 (commit 62eed1db4d67327ec8120be05f1a1b0847d74561)"
+  mathlib_revision: "3edb3c0658f69f197b1e501b1f7623f3f7b3898c"
+
+automation:
+  methods:
+    - method: "autonomous"
+      models:
+        - "model identifier not exposed by the Yah runtime"
+      framework: "Yah"
+      tool_setup: >-
+        AI-assisted package configuration based on the existing Challenge,
+        Solution, verification record, and neighboring v0.4 packages. Checks
+        cover JSON and YAML parsing, exact selected theorem names and headers,
+        separate Lean elaboration, and declaration-level axiom output. No Lean
+        declaration, reference, dependency, or toolchain file was changed.
+      cost:
+        wall_time: "not reconstructed"
+        spend_usd: "not available"
+        hardware: "8-core Linux host; 23.46 GiB RAM"
+      prompting_notes: >-
+        This task was restricted to the two missing package metadata and
+        Comparator configuration files and prohibited invented human identities.
+  spend_usd: "not available"
+  notes: >-
+    AI assistance was material to this metadata/configuration pass. The
+    provenance of the substantive source proof was not reconstructed here.
+    No human formalization author, responsible maintainer, or reviewer is
+    attributed because no authoritative identity was available for those roles.
+
+fidelity:
+  divergences: >-
+    The package is zero-indexed: greedySeq r represents OEIS a(r+1), and
+    binToTernary begins 0, 1, 3, 4 rather than adopting the OEIS display
+    offset. Consequently the theorem uses m + 1 in both Nat.log and
+    binToTernary. The summation typo in the OEIS display is documented but is
+    not part of the selected theorem. The legality predicate permits only the
+    strictly ordered progression (1, 2, 3), and the recursion derives that
+    seed from {1}. A092482 is not identified with the differently seeded rows
+    of A093682 or with an ordinary Stanley sequence.
+
+review:
+  status: "unchecked"
+  reviewers: []
+  notes: >-
+    USER mathematical, attribution, and source-fidelity review remains pending.
+    Lean elaboration, exact-header comparison, and axiom auditing are mechanical
+    evidence, not human review, endorsement, submission, or Palomar acceptance.
+
+alignment:
+  namespace: "Palomar.A092482"
+  statements:
+    - source: >-
+        For n >= 1, the A092482 term a(n+2) equals one plus
+        2^floor(log base 2 of n) plus the binary digits of n read in base three.
+      lean: "Palomar.A092482.greedySeq_add_two"
+      module: "Palomar.A092482.Solution"
+      status: "proved"
+      note: >-
+        With n = m + 1 and zero-indexed greedySeq, Lean states that
+        greedySeq (m + 2) is
+        1 + 2 ^ Nat.log 2 (m + 1) + binToTernary (m + 1).
+
+metadata_blockers:
+  - >-
+    project.authors is required to contain human names, but no authoritative
+    human formalization-author identity was available.
+  - >-
+    project.responsible_maintainers is required to contain human names, but no
+    responsible human maintainer was identified or authorized.
+  - "Human mathematical, attribution, and source-fidelity review remains pending."
+  - >-
+    Comparator and external-kernel checks are not claimed because comparator,
+    landrun, lean4export, and nanoda_bin were unavailable in the recorded
+    verification environment.
+
+acknowledgements: >-
+  The formalization uses Lean 4 and Mathlib. The OEIS formula is attributed to
+  Jean-François Alcover, and OEIS contributors supplied the sequence record.
+  This is not an endorsement, novelty, priority, review, or acceptance claim.

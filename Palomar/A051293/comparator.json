@@ -1,0 +1,15 @@
+{
+  "challenge_module": "Palomar.A051293.Challenge",
+  "solution_module": "Palomar.A051293.Solution",
+  "theorem_names": [
+    "PalomarA051293.fubiniCoefficient_first_six",
+    "PalomarA051293.arbitrary_order_asymptotic",
+    "PalomarA051293.fixed_order_five"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
