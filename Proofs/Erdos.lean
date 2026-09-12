@@ -35,6 +35,9 @@ import Erdos.Erdos142.SpectralDeficit
 import Erdos.Erdos142.FourierIntervalTransport
 import Erdos.Erdos142.FourierIncrement
 import Erdos.Erdos142.IntervalSpectralDeficit
+import Erdos.Erdos142.DensityIteration
+import Erdos.Erdos142.OptimizedDensityStep
+import Erdos.Erdos142.ExplicitRothThreshold
 import Erdos.Erdos142.TorusBuildingBlock
 import Erdos.Erdos1063.DefectCarryBound
 import Erdos.Erdos1063.SelfridgeDefect
