@@ -31,6 +31,7 @@ import Erdos.Erdos1140.MinusTwoSquare
 import Erdos.Erdos535.GcdSunflower
 import Erdos.Erdos440.LcmCount
 import Erdos.Erdos542.SchinzelSzekeres
+import Erdos.Erdos673.DivisorRatios
 import Erdos.Erdos715.RegularSubgraph
 import Erdos.Erdos857.NaslundSawin
 import Erdos.Erdos880.BurrErdos

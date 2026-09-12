@@ -12,9 +12,11 @@
     an asymptotic formula for $\sum_{n\leq X}G(n)$?"
 
   DB remarks: Erdős writes it is 'easy' that the mean of G grows.
-  Tao: for any m ∣ n, τ(n/m)/m ≤ G(n) ≤ τ(n); hence
-  τ(n)/4 ≤ G(n) ≤ τ(n) for even n (m = 2), G grows on average and
-  behaves like τ; answer to question 1 is YES.  Erdős [Er82e] recalls
+  The live entry attributes to Tao the claim that for any m ∣ n,
+  τ(n/m)/m ≤ G(n) ≤ τ(n).  Its literal lower bound at m = 1 is false:
+  n = 7 gives τ(7) = 2 but G(7) = 1/7.  The corrected lower bound assumes
+  2 ≤ m; at m = 2 it still gives τ(n)/4 ≤ G(n) ≤ τ(n) for even n.
+  Erdős [Er82e] recalls
   the conjecture as trivial; he and Tenenbaum proved G(n)/τ(n) has a
   continuous distribution function.
 
@@ -49,6 +51,10 @@ example : G 12 = 37 / 12 := by sorry
     -- PROVABLE (decide at p = 7). -/
 example : G 7 = 1 / 7 ∧ G 1 = 0 := by sorry
 
+/-- The live entry's literal `m = 1` lower bound fails at `n = 7`.
+    This remains quarantined with the other archival checks. -/
+example : ¬(((7 / 1).divisors.card : ℚ) / 1 ≤ G 7) := by sorry
+
 /-- **Upper inequality** (Tao; trivial): `G(n) ≤ τ(n)` — indeed
     `G(n) ≤ τ(n) − 1` since each of the `τ(n) − 1` ratios is `< 1`…
     stated with the clean bound `G n ≤ n.divisors.card`.
@@ -57,14 +63,13 @@ example : G 7 = 1 / 7 ∧ G 1 = 0 := by sorry
 theorem G_le_tau (n : ℕ) (hn : 1 ≤ n) : G n ≤ n.divisors.card := by
   sorry
 
-/-- **Lower inequality** (Tao): for any divisor `m ∣ n`,
-    `τ(n/m) / m ≤ G(n)`.  Proof idea: the divisors `d` of `n/m` pair
-    with `d·m ∣ n`; between `d` and `d·m` the consecutive-ratio
-    product telescopes ≥ d/(dm) = 1/m, and summing the disjoint
-    ratio-blocks over the τ(n/m) divisors of n/m gives the bound.
-    (Tao's one-liner; the block-disjointness bookkeeping is the Lean
-    work.)  Effort S–M. -/
-theorem tau_div_le_G (n m : ℕ) (hn : 1 ≤ n) (hm : m ∣ n) (hm1 : 1 ≤ m) :
+/-- **Corrected lower inequality**: if `m ∣ n` and `2 ≤ m`, then
+    `τ(n/m) / m ≤ G(n)`.  The live entry attributes the unqualified
+    inequality to Tao, but the `m = 1` boundary is false.  For `2 ≤ m`,
+    each divisor `d` of `n/m` is a proper divisor of `n`, and its outgoing
+    consecutive-divisor edge contributes at least `1/m` because the next
+    divisor after `d` is at most `d*m`.  Effort S–M. -/
+theorem tau_div_le_G (n m : ℕ) (hn : 1 ≤ n) (hm : m ∣ n) (hm2 : 2 ≤ m) :
     ((n / m).divisors.card : ℚ) / m ≤ G n := by
   sorry
 
@@ -102,15 +107,17 @@ theorem G_mean_order :
 
 end ErdosCandidates.E673
 
-/- SOURCE-FIDELITY REVIEW (flash, 2026-08-05)
-   Verdict: PASS
+/- SOURCE-FIDELITY REVIEW (corrected 2026-09-12)
+   Verdict: CORRECTED STATEMENTS, ARCHIVAL SORRIES (NOT FORMALLY PROVED HERE)
    - Verbatim statement matches `goof erdos fetch 673` exactly.
    - G(n) definition via zipWith on sorted divisors faithfully encodes
      sum of d_i/d_{i+1} over consecutive divisor pairs.
    - Arithmetic verified: G(12) = 37/12 correct (1/2+2/3+3/4+4/6+6/12);
      G(7) = 1/7 correct; G(1) = 0 correct (empty sum).
-   - Tao inequalities: tau(n/m)/m <= G(n) <= tau(n) match DB remarks.
-   - Even-n corollary tau(n)/4 <= G(n) correctly justified by
+   - The live entry attributes tau(n/m)/m <= G(n) to Tao for any m | n,
+     but its m = 1 boundary is false: n = 7 would require 2 <= 1/7.
+   - The lower theorem is corrected to require 2 <= m; the upper bound is unchanged.
+   - Even-n corollary tau(n)/4 <= G(n) remains correctly justified by
      tau(n) <= 2*tau(n/2) for even n.
    - Erdős–Tenenbaum distribution function and [Er82e] attribution correct.
    - Density-form Q1 and mean-order Q2 faithfully encode the two questions.
