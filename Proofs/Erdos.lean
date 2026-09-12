@@ -27,7 +27,9 @@ import Erdos.Erdos142.AffineWindows
 import Erdos.Erdos142.AffineSupersaturation
 import Erdos.Erdos142.CorrelationIncrement
 import Erdos.Erdos142.PhasePartition
+import Erdos.Erdos142.SmallPhase
 import Erdos.Erdos142.AffineIncrement
+import Erdos.Erdos142.FourierIncrement
 import Erdos.Erdos1063.DefectCarryBound
 import Erdos.Erdos1063.SelfridgeDefect
 import Erdos.Erdos175.KummerDigits
