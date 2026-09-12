@@ -8,6 +8,7 @@ import Erdos.Covering.OddCovering
 import Erdos.Covering.RankOfApparition
 import Erdos.Covering.Riesel
 import Erdos.Covering.Sierpinski
+import Erdos.Covering.Selfridge
 import Erdos.CoveringNumber
 import Erdos.ErdosLovasz
 import Erdos.Erdos20.Counterexample
