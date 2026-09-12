@@ -29,7 +29,13 @@ import Erdos.Erdos142.CorrelationIncrement
 import Erdos.Erdos142.PhasePartition
 import Erdos.Erdos142.SmallPhase
 import Erdos.Erdos142.AffineIncrement
+import Erdos.Erdos142.CyclicAPCount
+import Erdos.Erdos142.FourierAP
+import Erdos.Erdos142.SpectralDeficit
+import Erdos.Erdos142.FourierIntervalTransport
 import Erdos.Erdos142.FourierIncrement
+import Erdos.Erdos142.IntervalSpectralDeficit
+import Erdos.Erdos142.TorusBuildingBlock
 import Erdos.Erdos1063.DefectCarryBound
 import Erdos.Erdos1063.SelfridgeDefect
 import Erdos.Erdos175.KummerDigits
