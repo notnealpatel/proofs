@@ -40,3 +40,4 @@ import Erdos.Erdos857.NaslundSawin
 import Erdos.Erdos880.BurrErdos
 import Erdos.Erdos880.RestrictedSumset
 import Erdos.Erdos142.Sampling
+import Erdos.Erdos142.SamplingBounds
