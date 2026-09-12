@@ -1,5 +1,9 @@
 # Verification: A092482 Challenge/Solution pair
 
+## Current mechanical verification
+
+[Authoritative campaign manifest](../Wave4ComparatorEvidence.yaml): **PASS** for every declaration selected by this package’s `comparator.json`. Earlier text below is historical and superseded. Human review remains **UNCHECKED**; this makes no claim of Palomar acceptance, submission, or publication.
+
 ## Scope and statement alignment
 
 `Challenge.lean` is independent of the claimed answer: it imports only `Mathlib`, defines

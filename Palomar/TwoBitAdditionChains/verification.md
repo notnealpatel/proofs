@@ -1,5 +1,9 @@
 # Verification — two-bit addition-chain doubling
 
+## Current mechanical verification
+
+[Authoritative campaign manifest](../Wave4ComparatorEvidence.yaml): **PASS** for every declaration selected by this package’s `comparator.json`. Earlier text below is historical and superseded. Human review remains **UNCHECKED**; this makes no claim of Palomar acceptance, submission, or publication.
+
 Verification date: **2026-09-07**. This report concerns exactly the six new
 files in `Palomar/TwoBitAdditionChains/`, not other packages.
 

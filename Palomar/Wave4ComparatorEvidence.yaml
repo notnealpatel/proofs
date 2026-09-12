@@ -1,0 +1,464 @@
+schema: palomar.wave4-comparator-evidence
+version: 1
+repository:
+  verified_source_revision: ab6905e3b7382f4f92143942763761bf05381ab5
+  manifest_scope: package sources were verified at the verified source revision; this manifest-only child does not alter package sources
+  result: PASS
+  package_count: 24
+  source_diff_validation:
+    from_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+    to_revision: ab6905e3b7382f4f92143942763761bf05381ab5
+    only_changed_package_paths:
+    - Palomar/MeanDivisorParity
+    - Palomar/TPPFourierBarrier
+    changed_source_files:
+    - Palomar/MeanDivisorParity/Challenge.lean
+    - Palomar/MeanDivisorParity/Definitions.lean
+    - Palomar/MeanDivisorParity/Solution.lean
+    - Palomar/TPPFourierBarrier/Challenge.lean
+    - Palomar/TPPFourierBarrier/Definitions.lean
+    - Palomar/TPPFourierBarrier/Solution.lean
+boundary:
+  scope: mechanical Comparator verification of only the declarations configured below
+  human_review: UNCHECKED
+  palomar_acceptance_claim: false
+  submission_claim: false
+  publication_claim: false
+toolchain:
+  lean:
+    version: v4.33.0-rc1
+    source_revision: 62eed1db4d67327ec8120be05f1a1b0847d74561
+tools:
+  comparator:
+    source_revision: c3903e1ed0148a32cd39510707c632dc4d265514
+    outer_landrun_separator_patch:
+      description: one-line insertion of `--` before the outer Landrun command
+      sha256: d0965f95ef44fc05adb89a0c4dd421a4522af11a05cf0bb0ba2789a4373dcff4
+    binary_sha256: 91439bc0e8469960e786400bc03f3f5fbc77dad0da2d0f4dd1ba9953a8ec34a6
+  lean4export:
+    source_revision: af5aa64bb914c3c2c781f378088dbd38acf4f804
+    binary_sha256: 05c2501c26ee56729c92c8cf31b57d7449928de7b9700aa2d83e99562cb34fc7
+  landrun:
+    source_revision: 811cfff51ceaf3d9843708aa6d22e9b84ccac8b4
+    binary_sha256: 4678e83f22d5b2bd784d4b928e1b50ce2eb0b9a5bcb6c34f6cc98d935cf07af5
+    implementation: real Landrun; Comparator nested sandbox policy was retained
+  nanoda:
+    source_revision: 4c544ed4099c8227f07d5de77ad1e69fb0740a27
+    binary_sha256: ab68a43423744d7c678954bcfa818ae004bfc634ea717fb03716ddb2d5b9a4e8
+execution:
+  source_projects:
+    isolation: private independent project copies
+    dependency_copy_method: standard copy
+    hardlinks: false
+    dot_lake_symlink: false
+    copy_validation: representative source/private inodes were distinct
+  cache:
+    initial_state: cache-seeded-never-cold
+    cold_run_performed: false
+    later_warmed_states:
+    - warmed-by-congruent-pilot
+    - warmed-by-matrix-lane-b
+    - warmed-by-prior-10G-OOM
+    - warmed-by-29-minute-timeout-attempt
+  generic_command_template: |
+    systemd-run --user --wait --pipe --collect \
+      --unit="$UNIT" \
+      --property="RestrictAddressFamilies=~AF_UNIX" \
+      --property="RuntimeMaxSec=$OUTER_RUNTIME" \
+      --property="TimeoutStopSec=30s" \
+      --property="MemoryMax=$MEMORY_MAX" \
+      ${CPU_QUOTA_PROPERTY} \
+      --property="CPUAccounting=yes" \
+      --property="MemoryAccounting=yes" \
+      --property="TasksAccounting=yes" \
+      --working-directory="$PRIVATE_PROJECT" \
+      --setenv="PATH=$PATH" \
+      --setenv="HOME=$HOME" \
+      --setenv="LEAN_ABORT_ON_PANIC=1" \
+      --setenv="LAKE_JOBS=$LAKE_JOBS" \
+      --setenv="COMPARATOR_LANDRUN=$LANDRUN" \
+      --setenv="COMPARATOR_LEAN4EXPORT=$LEAN4EXPORT" \
+      --setenv="COMPARATOR_NANODA=$NANODA" \
+      timeout --signal=TERM --kill-after=30s "$INNER_RUNTIME" \
+      time -v -o "$RESOURCE_EVIDENCE" \
+      "$LAKE" env "$COMPARATOR" "$CONFIG_PATH"
+  command_substitution:
+    CPU_QUOTA_PROPERTY: omitted for pilot; otherwise `--property="CPUQuota=<profile cpu_quota>"`
+    runtime_memory_and_jobs: use the selected outer_guard_profile values
+  outer_guard_profiles:
+
+    matrix:
+      outer_runtime: 1800s
+      inner_runtime: 1740s
+      memory_max: 10G
+      cpu_quota: 350%
+      lake_jobs: 3
+    pilot:
+      outer_runtime: 1800s
+      inner_runtime: 1740s
+      memory_max: 16G
+      cpu_quota_property: omitted
+      lake_jobs: 1
+    binary_final:
+      outer_runtime: 3600s
+      inner_runtime: 3540s
+      memory_max: 20G
+      cpu_quota: 250%
+      lake_jobs: 2
+    boolean_isolated:
+      outer_runtime: 7200s
+      inner_runtime: 7140s
+      memory_max: 21G
+      cpu_quota: 200%
+      lake_jobs: 1
+  success_contract:
+    outer_and_inner_exit_code: 0
+    required_stdout_lines:
+    - Nanoda kernel accepts the solution
+    - Lean default kernel accepts the solution
+    exact_final_stdout_line: Your solution is okay!
+source_relationships:
+  base_path_unchanged_to_current:
+    verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+    verified_source_revision: ab6905e3b7382f4f92143942763761bf05381ab5
+    statement: entire package path is byte-unchanged
+    package_count: 22
+  tpp_repair_to_current:
+    verification_revision: 17eb779e1e99ef29ff82df314087ec1160ab234e
+    integrated_revision: 541519f173fc62195f47f14af6c9ce7f1b41a44c
+    verified_source_revision: ab6905e3b7382f4f92143942763761bf05381ab5
+    statement: entire TPPFourierBarrier package path is byte-identical at all three revisions
+  mean_repair_to_current:
+    verification_revision: 3738b3a4c0647558977fd0388dc3fbc99ef080b0
+    integrated_revision: ab6905e3b7382f4f92143942763761bf05381ab5
+    verified_source_revision: ab6905e3b7382f4f92143942763761bf05381ab5
+    statement: entire MeanDivisorParity package path is byte-identical at repair and current integration
+raw_evidence:
+  digest_algorithm: SHA256 of the concatenation, in sorted POSIX-relative-path order, of `<file SHA256>  <relative path>\n` for every regular file; evidence roots and logs remain untracked
+  roots:
+    pilot_congruent21:
+      id: congruent21-20260911T230200Z-76c23818-patched
+      file_count: 83
+      tree_sha256: 3278937a72e7a680c4ce2971a64ab8507d04568bf0ed4a0c37362971acab5f7c
+      role: CongruentTwentyOne PASS and common infrastructure provenance
+    matrix_lane_b:
+      id: matrix-lane-b-20260911T231919Z-b389840e-3162-438e-9752-b59bdf44f60e
+      file_count: 226
+      tree_sha256: fa266cfa5e79bdfbee0f0ddd8c2f8b4fe1a0871b3b191ac50579752a7274e9af
+      role: eleven initial PASS results and superseded TPP mismatch
+    matrix_lane_a:
+      id: matrix-lane-a-20260912T031910Z-direct
+      file_count: 169
+      tree_sha256: 8f7c66acf2dd05e2d156b1e0baaa2a3b43f1db2a6f0c37f2d5f3a5cc61e2defd
+      role: eight initial PASS results, superseded Mean mismatch, and Binary 10G OOM
+    binary_final:
+      id: binary-five-circuit-retry2-20260912T041220Z-memory20g-time60m
+      file_count: 25
+      tree_sha256: 78cbfd318c90fdd7acfe10d2e9178a30af6335b6b04a43cb68ba0b85f76a2283
+      role: BinaryFiveCircuit isolated final PASS and reference to superseded 29-minute timeout
+    boolean_final:
+      id: boolean-full-rank-isolated-20260912T043048Z-memory21g-jobs1
+      file_count: 25
+      tree_sha256: e36f9a504775fbd13a48b4650807a779d52e32f2fe8eab0994008eed3936723a
+      role: BooleanFullRank isolated PASS
+    tpp_final:
+      id: TPPFourierBarrier-repair-authentic
+      file_count: 14
+      tree_sha256: 5335aad741dfc8e5c0b71ca13d8c8dd6548c1ef499e197878e1cceefae61b0be
+      role: TPPFourierBarrier repaired authentic PASS
+    mean_final:
+      id: MeanDivisorParity-patched-20260912T040723Z
+      file_count: 16
+      tree_sha256: b4f6c1deb39eea80960912f03daa5450bdaac1d1610b2adcf165f4485027361c
+      role: MeanDivisorParity repaired authentic PASS
+superseded_attempt_history:
+  TPPFourierBarrier:
+    evidence: matrix_lane_b:05-TPPFourierBarrier/result.json
+    revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+    outcome: 'comparison mismatch: Const does not match between challenge and target `Palomar.TPPFourierBarrier.characterDegrees._proof_1`'
+    current_status: superseded by repaired authentic PASS
+  MeanDivisorParity:
+    evidence: matrix_lane_a:08-MeanDivisorParity/result.json
+    revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+    outcome: 'comparison mismatch: Const does not match between challenge and target `Palomar.MeanDivisorParity.instDecidableIsMeanDiv`'
+    current_status: superseded by repaired authentic PASS
+  BinaryFiveCircuit:
+  - evidence: matrix_lane_a:01-BinaryFiveCircuit
+    outcome: 'resource failure: outer systemd 10G OOM kill'
+    current_status: superseded
+  - evidence: binary_final:preparation.txt
+    outcome: preserved prior 20G attempt reached the 1740-second (29-minute) timeout after solution build
+    current_status: superseded by final isolated PASS
+packages:
+- package: A051293
+  package_path: Palomar/A051293
+  config_path: Palomar/A051293/comparator.json
+  config_sha256: daf50d32d129a12f4b77978bfb2e35763637ffc62e128a3bfc51c01dfad58027
+  declarations:
+  - PalomarA051293.fubiniCoefficient_first_six
+  - PalomarA051293.arbitrary_order_asymptotic
+  - PalomarA051293.fixed_order_five
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_b:10-A051293/result.json
+  guard_profile: matrix
+- package: A092482
+  package_path: Palomar/A092482
+  config_path: Palomar/A092482/comparator.json
+  config_sha256: 4aec9b453dda39d0f02aec57788d60d053502972459c06f35482ab7ddd1fc4d2
+  declarations:
+  - Palomar.A092482.greedySeq_add_two
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_b:11-A092482/result.json
+  guard_profile: matrix
+- package: BinaryFiveCircuit
+  package_path: Palomar/BinaryFiveCircuit
+  config_path: Palomar/BinaryFiveCircuit/comparator.json
+  config_sha256: 04c13a4b14df74390054f14a57f032541ad951080b1fb49f060283a8179d1046
+  declarations:
+  - Palomar.BinaryFiveCircuit.finiteDimensional_ambient_fiveCircuit_classification
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: binary_final:01-BinaryFiveCircuit/result.json
+  guard_profile: binary_final
+- package: BooleanFullRank
+  package_path: Palomar/BooleanFullRank
+  config_path: Palomar/BooleanFullRank/comparator.json
+  config_sha256: 00458578080965aa26000d954398b09faf686e07908fa2eab0fb20ddfcfb450d
+  declarations:
+  - Palomar.BooleanFullRank.one_sub_le_fullRowRankFraction
+  - Palomar.BooleanFullRank.fullRowRankFraction_le_one
+  - Palomar.BooleanFullRank.fullRowRankFraction_tendsto_one
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: boolean_final:01-BooleanFullRank/result.json
+  guard_profile: boolean_isolated
+- package: CongruentTwentyOne
+  package_path: Palomar/CongruentTwentyOne
+  config_path: Palomar/CongruentTwentyOne/comparator.json
+  config_sha256: 6c691b04bfaa6553267792c085517c59dd695f98d2ce0e98da3f791399d971f5
+  declarations:
+  - Palomar.CongruentTwentyOne.isPrimitiveCongruent_twentyOne
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: pilot_congruent21:result.txt
+  guard_profile: pilot
+- package: ErdosLovaszFour
+  package_path: Palomar/ErdosLovaszFour
+  config_path: Palomar/ErdosLovaszFour/comparator.json
+  config_sha256: 262edf64cd573b19960723d59a55ba751682e92372743f4df2c39cb36fef230b
+  declarations:
+  - Palomar.ErdosLovaszFour.tripathi_erdosLovaszNum_four
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_a:02-ErdosLovaszFour/result.json
+  guard_profile: matrix
+- package: ErdosLovaszFourUpper
+  package_path: Palomar/ErdosLovaszFourUpper
+  config_path: Palomar/ErdosLovaszFourUpper/comparator.json
+  config_sha256: 0d6922df5449e203cf2a74332d683259daab64463327028d365a58284018a59f
+  declarations:
+  - Palomar.ErdosLovaszFourUpper.erdosLovaszNum_four_le
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_a:06-ErdosLovaszFourUpper/result.json
+  guard_profile: matrix
+- package: ErdosLovaszPairCover
+  package_path: Palomar/ErdosLovaszPairCover
+  config_path: Palomar/ErdosLovaszPairCover/comparator.json
+  config_sha256: 612e07377fa54334a65cbd574fad1ce2ddcf4d2563ce61adad46d82e1f08d8b2
+  declarations:
+  - Palomar.ErdosLovaszPairCover.two_mul_sub_one_le_erdosLovaszNum
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_b:01-ErdosLovaszPairCover/result.json
+  guard_profile: matrix
+- package: FixedDivisorCovering
+  package_path: Palomar/FixedDivisorCovering
+  config_path: Palomar/FixedDivisorCovering/comparator.json
+  config_sha256: d5fc114bc47a759106dfbd2dc09ffa7283d18c5fb84caa57e4e693c314890fc7
+  declarations:
+  - Palomar.FixedDivisorCovering.IsFixedDivisorSystemBase.exists_mem_fixedDivisors_dvd
+  - Palomar.FixedDivisorCovering.IsFixedDivisorSystemBase.not_prime
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_a:03-FixedDivisorCovering/result.json
+  guard_profile: matrix
+- package: FubiniModPeriodicity
+  package_path: Palomar/FubiniModPeriodicity
+  config_path: Palomar/FubiniModPeriodicity/comparator.json
+  config_sha256: 8b20c9a178e0a1ef508261ef78d2bd162186d98219a6bfdd9eb6b6800e3238fd
+  declarations:
+  - Palomar.FubiniModPeriodicity.fubini_mod_eventuallyPeriodic
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_a:07-FubiniModPeriodicity/result.json
+  guard_profile: matrix
+- package: GcdSunflower
+  package_path: Palomar/GcdSunflower
+  config_path: Palomar/GcdSunflower/comparator.json
+  config_sha256: b04c297f1237c627266f32a36f723116abe9349158eb7e219460e0b9f7a9b714
+  declarations:
+  - Palomar.GcdSunflower.card_le_of_isAlmostPrime
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_b:02-GcdSunflower/result.json
+  guard_profile: matrix
+- package: HegartyThreeEighths
+  package_path: Palomar/HegartyThreeEighths
+  config_path: Palomar/HegartyThreeEighths/comparator.json
+  config_sha256: 52c4b14d11ebbaee5a0bbc0cd23dfaa8f7a5e6445f71dcedb2742e74c98479a6
+  declarations:
+  - Palomar.HegartyThreeEighths.hegarty_three_eighths
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_b:06-HegartyThreeEighths/result.json
+  guard_profile: matrix
+- package: IntegerComplexityPowersOfThree
+  package_path: Palomar/IntegerComplexityPowersOfThree
+  config_path: Palomar/IntegerComplexityPowersOfThree/comparator.json
+  config_sha256: a50eee6e18b47df0b97eb6bea6e5723ba04aa7960981fc247ccb4c6f1f721361
+  declarations:
+  - Palomar.IntegerComplexityPowersOfThree.complexity_three_pow
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_b:07-IntegerComplexityPowersOfThree/result.json
+  guard_profile: matrix
+- package: MeanDivisorParity
+  package_path: Palomar/MeanDivisorParity
+  config_path: Palomar/MeanDivisorParity/comparator.json
+  config_sha256: 0e1d181e82d7078c1b306b636581cbcf204410d5732733f6f7f73b16dc3a7ffd
+  declarations:
+  - Palomar.MeanDivisorParity.a_modEq_card_divisors
+  - Palomar.MeanDivisorParity.odd_a_iff_isSquare
+  - Palomar.MeanDivisorParity.a_eq_two_iff_prime
+  result: PASS
+  verification_revision: 3738b3a4c0647558977fd0388dc3fbc99ef080b0
+  current_source_relationship: mean_repair_to_current
+  evidence: mean_final:result.json
+  guard_profile: matrix
+- package: Melfi
+  package_path: Palomar/Melfi
+  config_path: Palomar/Melfi/comparator.json
+  config_sha256: 41b41f491ffefb041577e992075d79628335ea46a0659f507b54731b9ccda958
+  declarations:
+  - Palomar.Melfi.even_eq_practical_add_practical
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_a:04-Melfi/result.json
+  guard_profile: matrix
+- package: NoeOddZumkeller
+  package_path: Palomar/NoeOddZumkeller
+  config_path: Palomar/NoeOddZumkeller/comparator.json
+  config_sha256: 3db8415fd21eedcbb77e86152f33a3cecd1cc1663d8e61ca926fb346ff257444
+  declarations:
+  - Palomar.NoeOddZumkeller.noeOddZumkellerForward_iff_not_exists_odd_perfect
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_b:03-NoeOddZumkeller/result.json
+  guard_profile: matrix
+- package: PalindromeRowBijection
+  package_path: Palomar/PalindromeRowBijection
+  config_path: Palomar/PalindromeRowBijection/comparator.json
+  config_sha256: d897f23a12c378a877148ea8e71616ed0a875ff1d2f600a62c2e869df654f2b3
+  declarations:
+  - PalindromeRowBijection.subsetCount_two_pow_symm
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_b:12-PalindromeRowBijection/result.json
+  guard_profile: matrix
+- package: PowerOfTwoDigitCounts
+  package_path: Palomar/PowerOfTwoDigitCounts
+  config_path: Palomar/PowerOfTwoDigitCounts/comparator.json
+  config_sha256: 395dfc414bb1df779412bc3c6decbbc1ac13190242c0e36aec61efb4d69b4e4c
+  declarations:
+  - Palomar.PowerOfTwoDigitCounts.card_erdos406_filter_le_rpow
+  - Palomar.PowerOfTwoDigitCounts.card_sieveClasses
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_a:05-PowerOfTwoDigitCounts/result.json
+  guard_profile: matrix
+- package: PrimeSquareGroupDeficiency
+  package_path: Palomar/PrimeSquareGroupDeficiency
+  config_path: Palomar/PrimeSquareGroupDeficiency/comparator.json
+  config_sha256: b72597b6696d8f12e97d905c18920d1b1aeacf4b22f7c1e4cc1d5e65f6203646
+  declarations:
+  - Palomar.PrimeSquareGroupDeficiency.groupDeficient_prime_sq
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_a:09-PrimeSquareGroupDeficiency/result.json
+  guard_profile: matrix
+- package: ShearAdditionChains
+  package_path: Palomar/ShearAdditionChains
+  config_path: Palomar/ShearAdditionChains/comparator.json
+  config_sha256: f3c93195fcd3474727799f9eabdfd4a08da041a1a2f3e4d493855922986a39e9
+  declarations:
+  - Palomar.ShearAdditionChains.minimumMonomialShears_eq_l
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_a:10-ShearAdditionChains/result.json
+  guard_profile: matrix
+- package: SquarefreeBinomialClassification
+  package_path: Palomar/SquarefreeBinomialClassification
+  config_path: Palomar/SquarefreeBinomialClassification/comparator.json
+  config_sha256: 5c54acb549d7115b16c297d4d9323601d6a5a2edc72464de2e02818e26397c96
+  declarations:
+  - Palomar.SquarefreeBinomialClassification.squarefree_choose_half_iff
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_b:04-SquarefreeBinomialClassification/result.json
+  guard_profile: matrix
+- package: SquarefreeBinomialOddRange
+  package_path: Palomar/SquarefreeBinomialOddRange
+  config_path: Palomar/SquarefreeBinomialOddRange/comparator.json
+  config_sha256: 7fbf3e061ecd267d5c91d5885db2745defeef10cf559e04453f063a5fab1f9ef
+  declarations:
+  - Palomar.SquarefreeBinomialOddRange.not_squarefree_choose_half_of_odd
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_b:08-SquarefreeBinomialOddRange/result.json
+  guard_profile: matrix
+- package: TPPFourierBarrier
+  package_path: Palomar/TPPFourierBarrier
+  config_path: Palomar/TPPFourierBarrier/comparator.json
+  config_sha256: 8180d513306693323368d90dced321ef8bc7d8ead3876915d9cc4dfa2675d6db
+  declarations:
+  - Palomar.TPPFourierBarrier.tpp_card_product_le_fourier_barrier
+  result: PASS
+  verification_revision: 17eb779e1e99ef29ff82df314087ec1160ab234e
+  current_source_relationship: tpp_repair_to_current
+  evidence: tpp_final:result.json
+  guard_profile: matrix
+- package: TwoBitAdditionChains
+  package_path: Palomar/TwoBitAdditionChains
+  config_path: Palomar/TwoBitAdditionChains/comparator.json
+  config_sha256: c982e5b38ff4ebcfabe5d69a7dea932fd41774132d2ea0d5ab95ac2236859a49
+  declarations:
+  - Palomar.TwoBitAdditionChains.l_two_mul_eq_add_one_of_binaryWeight_le_two
+  result: PASS
+  verification_revision: 76c2381849501e08a91e1aea303c076ebecfdf14
+  current_source_relationship: base_path_unchanged_to_current
+  evidence: matrix_lane_b:09-TwoBitAdditionChains/result.json
+  guard_profile: matrix

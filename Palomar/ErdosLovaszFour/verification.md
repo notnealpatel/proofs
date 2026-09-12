@@ -1,5 +1,9 @@
 # Verification: exact Erdős–Lovász value g(4) = 9
 
+## Current mechanical verification
+
+[Authoritative campaign manifest](../Wave4ComparatorEvidence.yaml): **PASS** for every declaration selected by this package’s `comparator.json`. Earlier text below is historical and superseded. Human review remains **UNCHECKED**; this makes no claim of Palomar acceptance, submission, or publication.
+
 ## Status and scope
 
 - **Challenge separate fresh elaboration: PASS**, with exactly the one

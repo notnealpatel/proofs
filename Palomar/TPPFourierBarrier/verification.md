@@ -1,5 +1,9 @@
 # Verification record: BCGPU TPP Fourier barrier
 
+## Current mechanical verification
+
+[Authoritative campaign manifest](../Wave4ComparatorEvidence.yaml): **PASS** for every declaration selected by this package’s `comparator.json`. Earlier text below is historical and superseded. Human review remains **UNCHECKED**; this makes no claim of Palomar acceptance, submission, or publication.
+
 ## Status
 
 - **Challenge compilation:** PASS. It produced an `.olean`; its only warning is the intentional challenge theorem hole.

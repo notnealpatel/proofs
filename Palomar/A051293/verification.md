@@ -1,5 +1,9 @@
 # A051293 verification
 
+## Current mechanical verification
+
+[Authoritative campaign manifest](../Wave4ComparatorEvidence.yaml): **PASS** for every declaration selected by this package’s `comparator.json`. Earlier text below is historical and superseded. Human review remains **UNCHECKED**; this makes no claim of Palomar acceptance, submission, or publication.
+
 ## Result
 
 The recovered pair was repaired and freshly elaborated. `Challenge.lean` is an independent statement surface: it imports only Mathlib modules, gives the literal powerset count, and gives the recursive Fubini definition. Its three theorem bodies deliberately remain `sorry`. `Solution.lean` does not import `Challenge.lean`; it repeats the independent definitions and proves the selected declarations by bridging to `A051293.a_oeis`, `A051293.fubini`, `A051293.cloitre_conjecture`, and the general-theorem-derived fixed-order result in `Enumerative.A051293.Cloitre`.

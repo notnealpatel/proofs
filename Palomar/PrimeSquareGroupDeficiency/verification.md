@@ -1,5 +1,9 @@
 # Verification: prime-square group deficiency
 
+## Current mechanical verification
+
+[Authoritative campaign manifest](../Wave4ComparatorEvidence.yaml): **PASS** for every declaration selected by this package’s `comparator.json`. Earlier text below is historical and superseded. Human review remains **UNCHECKED**; this makes no claim of Palomar acceptance, submission, or publication.
+
 ## Final mechanical status
 
 - **Challenge: PASS**, checked independently with only Mathlib on its import path.

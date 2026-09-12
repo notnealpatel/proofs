@@ -1,5 +1,9 @@
 # Verification record: Noe odd-Zumkeller forward obstruction
 
+## Current mechanical verification
+
+[Authoritative campaign manifest](../Wave4ComparatorEvidence.yaml): **PASS** for every declaration selected by this package’s `comparator.json`. Earlier text below is historical and superseded. Human review remains **UNCHECKED**; this makes no claim of Palomar acceptance, submission, or publication.
+
 ## Mechanical status
 
 - **Challenge elaboration:** **PASS**. Its sole warning is the intentional selected-theorem hole.

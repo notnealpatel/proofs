@@ -1,5 +1,9 @@
 # Verification record: binary five-circuit ambient classification
 
+## Current mechanical verification
+
+[Authoritative campaign manifest](../Wave4ComparatorEvidence.yaml): **PASS** for every declaration selected by this package’s `comparator.json`. Earlier text below is historical and superseded. Human review remains **UNCHECKED**; this makes no claim of Palomar acceptance, submission, or publication.
+
 ## Final technical status
 
 - **Challenge elaboration: PASS.** The repaired independent model and concrete joint-satisfiability theorem elaborate; the only diagnostic is the intentional selected-theorem `sorry`.
