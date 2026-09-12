@@ -44,9 +44,9 @@ namespace ErdosCandidates.E376
 def DigitsBelow (b n B : ℕ) : Prop :=
   ∀ d ∈ Nat.digits b n, d < B
 
-/-- Ground truth for the digit predicate: `756 = (1000000)₃`… actually
-    `756 = 2·3⁵ + 3⁴ + ... ` — pinned instead on a transparent case:
-    `10 = (101)₃` has digits {1, 0, 1} all < 2.  -- PROVABLE (decide). -/
+/-- Ground truth for the digit predicate: `756 = (1001000)₃ = 3⁶ + 3³`.
+    The smaller case `10 = (101)₃` has digits {1, 0, 1} all < 2.
+    -- PROVABLE (decide). -/
 example : DigitsBelow 3 10 2 ∧ ¬ DigitsBelow 3 5 2 := by
   sorry
 
@@ -56,10 +56,11 @@ example : DigitsBelow 3 10 2 ∧ ¬ DigitsBelow 3 5 2 := by
     Stated multiplicatively (`2 * d < p`).
 
     Proof sketch: Kummer — `v_p(C(2n,n))` equals the number of carries
-    in `n + n` base `p`; a carry occurs at position `i` iff the running
-    digit sum ≥ p, and for doubling this happens iff some digit
-    `≥ p/2` (a digit `< p/2` never produces a carry even with an
-    incoming carry, since `2d + 1 < p`; induct on digit positions).
+    in `n + n` base `p`; at least one carry occurs iff some digit
+    satisfies `p ≤ 2*d`. If every digit satisfies `2*d < p`, induction from the
+    initial incoming carry `0` propagates carry `0` at every position.
+    This does not assert `2*d + 1 < p` for an incoming carry `1`:
+    that inequality fails at the maximal allowed digit of an odd base.
     Mathlib: `padicValNat_choose` / `Nat.Prime.factorization_choose`
     (Legendre) + `Nat.digits` API (`Nat.digits_add_two_add_one`,
     `Nat.sum_digits_eq_sum_digits_add_sum_carries`-shaped lemmas; if
@@ -90,9 +91,8 @@ example : DigitsBelow 3 756 2 ∧ DigitsBelow 5 756 3 ∧ DigitsBelow 7 756 4 �
   sorry
 
 /-- **Erdős #376, headline (OPEN, $1000)**: infinitely many `n` with
-    `C(2n,n)` coprime to 105.  Archived; the known A030979 terms grow
-    doubly-exponentially sparse and the problem is expected true but
-    deep. -/
+    `C(2n,n)` coprime to 105. Archived and not proved here. The live
+    sources leave infinitude open; no growth-rate assertion is made. -/
 theorem erdos_376 :
     {n : ℕ | Nat.Coprime (Nat.centralBinom n) 105}.Infinite := by
   sorry
