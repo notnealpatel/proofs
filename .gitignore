@@ -10,3 +10,11 @@ __pycache__
 
 # TODO: Re-home to supermarket server.
 References/
+
+Programs/**
+!Programs/**/
+!Programs/**/*.sage
+!Programs/**/*.py
+!Programs/**/*.go
+!Programs/**/*.mod
+!Programs/**/*.md
