@@ -40,6 +40,7 @@ import Erdos.Erdos142.DensityIteration
 import Erdos.Erdos142.OptimizedDensityStep
 import Erdos.Erdos142.ExplicitRothThreshold
 import Erdos.Erdos142.TorusBuildingBlock
+import Erdos.Erdos142.TorusGrid
 import Erdos.Erdos1063.DefectCarryBound
 import Erdos.Erdos1063.SelfridgeDefect
 import Erdos.Erdos175.KummerDigits
