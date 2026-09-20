@@ -24,6 +24,7 @@ import Erdos.Erdos142.ThreeAPCount
 import Erdos.Erdos142.WeightedCapacity
 import Erdos.Erdos142.RobustCapacity
 import Erdos.Erdos142.AffineWindows
+import Erdos.Erdos142.AffineTranslationAverage
 import Erdos.Erdos142.AffineSupersaturation
 import Erdos.Erdos142.CorrelationIncrement
 import Erdos.Erdos142.PhasePartition
