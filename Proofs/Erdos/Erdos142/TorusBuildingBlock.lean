@@ -17,6 +17,8 @@ import Mathlib
 
 set_option autoImplicit false
 
+open scoped BigOperators
+
 namespace Erdos142
 
 /-- The sum of the two coordinates of a point in the torus square. -/
@@ -449,5 +451,165 @@ theorem torusF_threeAP {ε : ℝ} (hε : 0 < ε) (hεle : ε ≤ 1 / 6)
 
 #check @torusF_threeAP
 #print axioms torusF_threeAP
+
+/-! ### Product/slice transfer of the torus building block
+
+The building block `torusF_threeAP` is a pointwise statement about a single
+pair of torus coordinates.  The EHPS construction (arXiv:2406.12290, proof of
+Proposition 2.2 from Proposition 5.1) applies it independently in every block
+of a product configuration and then sums.  The lemmas below perform exactly
+that summation, without any area or measure bookkeeping: they consume
+`torusF_threeAP` coordinatewise and expose the two conclusions the transfer
+needs, namely the total squared endpoint separation and its per-coordinate
+consequences. -/
+
+/-- The squared Euclidean separation of two points of the unit torus square. -/
+def torusSepSq (x z : ℝ × ℝ) : ℝ := (x.1 - z.1) ^ 2 + (x.2 - z.2) ^ 2
+
+/-- Ground truth: the squared separation of `(0,0)` and `(3,4)` is `25`. -/
+example : torusSepSq ((0 : ℝ), 0) ((3 : ℝ), 4) = 25 := by
+  norm_num [torusSepSq]
+
+/-- Ground truth: the squared separation of `(1/2,0)` and `(0,0)` is `1/4`. -/
+example : torusSepSq ((1 / 2 : ℝ), 0) ((0 : ℝ), 0) = 1 / 4 := by
+  norm_num [torusSepSq]
+
+/-- Squared torus separation is nonnegative. -/
+theorem torusSepSq_nonneg (x z : ℝ × ℝ) : 0 ≤ torusSepSq x z := by
+  simp only [torusSepSq]
+  positivity
+
+/-- The block weight deficit splits into the three block weight sums. -/
+theorem torusF_sum_sub {ι : Type*} (s : Finset ι) (X Y Z : ι → ℝ × ℝ)
+    (ε : ℝ) :
+    ∑ i ∈ s, (torusF ε (X i) + torusF ε (Z i) - 2 * torusF ε (Y i)) =
+      (∑ i ∈ s, torusF ε (X i)) + (∑ i ∈ s, torusF ε (Z i)) -
+        2 * (∑ i ∈ s, torusF ε (Y i)) := by
+  rw [Finset.sum_sub_distrib, Finset.sum_add_distrib, ← Finset.mul_sum]
+
+/-- Summed torus energy.  Applying `torusF_threeAP` in every block and
+summing over the block index set `s`, the total squared endpoint separation
+is bounded by the total weight deficit. -/
+theorem torusF_product_energy_le {ε : ℝ} (hε : 0 < ε) (hεle : ε ≤ 1 / 6)
+    {ι : Type*} (s : Finset ι) (X Y Z : ι → ℝ × ℝ)
+    (hX : ∀ i ∈ s, torusT ε (X i)) (hY : ∀ i ∈ s, torusT ε (Y i))
+    (hZ : ∀ i ∈ s, torusT ε (Z i))
+    (w₁ w₂ : ι → ℤ)
+    (hw₁ : ∀ i ∈ s, (X i).1 + (Z i).1 - 2 * (Y i).1 = (w₁ i : ℝ))
+    (hw₂ : ∀ i ∈ s, (X i).2 + (Z i).2 - 2 * (Y i).2 = (w₂ i : ℝ)) :
+    ∑ i ∈ s, torusSepSq (X i) (Z i) ≤
+      ∑ i ∈ s, (torusF ε (X i) + torusF ε (Z i) - 2 * torusF ε (Y i)) := by
+  have hpoint : ∀ i ∈ s, 2 * torusF ε (Y i) + torusSepSq (X i) (Z i) ≤
+      torusF ε (X i) + torusF ε (Z i) :=
+    fun i hi => by
+      have h := torusF_threeAP hε hεle (hX i hi) (hY i hi) (hZ i hi)
+        (hw₁ i hi) (hw₂ i hi)
+      simp only [torusSepSq]
+      linarith
+  have hsum := Finset.sum_le_sum hpoint
+  rw [Finset.sum_add_distrib, ← Finset.mul_sum] at hsum
+  have hsplit := torusF_sum_sub s X Y Z ε
+  have hsplit2 : ∑ i ∈ s, (torusF ε (X i) + torusF ε (Z i)) =
+      (∑ i ∈ s, torusF ε (X i)) + (∑ i ∈ s, torusF ε (Z i)) := by
+    rw [Finset.sum_add_distrib]
+  linarith
+
+/-- Half-open slice form of the summed torus energy.  If the three block
+weight sums all lie in the same half-open interval `[L, L + Δ)`, then the
+total squared endpoint separation is strictly below `2 * Δ`. -/
+theorem torusF_product_slice_energy {ε L Δ : ℝ} (hε : 0 < ε)
+    (hεle : ε ≤ 1 / 6) {ι : Type*} (s : Finset ι) (X Y Z : ι → ℝ × ℝ)
+    (hX : ∀ i ∈ s, torusT ε (X i)) (hY : ∀ i ∈ s, torusT ε (Y i))
+    (hZ : ∀ i ∈ s, torusT ε (Z i))
+    (w₁ w₂ : ι → ℤ)
+    (hw₁ : ∀ i ∈ s, (X i).1 + (Z i).1 - 2 * (Y i).1 = (w₁ i : ℝ))
+    (hw₂ : ∀ i ∈ s, (X i).2 + (Z i).2 - 2 * (Y i).2 = (w₂ i : ℝ))
+    (hXband : L ≤ ∑ i ∈ s, torusF ε (X i) ∧
+      ∑ i ∈ s, torusF ε (X i) < L + Δ)
+    (hYband : L ≤ ∑ i ∈ s, torusF ε (Y i) ∧
+      ∑ i ∈ s, torusF ε (Y i) < L + Δ)
+    (hZband : L ≤ ∑ i ∈ s, torusF ε (Z i) ∧
+      ∑ i ∈ s, torusF ε (Z i) < L + Δ) :
+    ∑ i ∈ s, torusSepSq (X i) (Z i) < 2 * Δ := by
+  have henergy := torusF_product_energy_le hε hεle s X Y Z hX hY hZ
+    w₁ w₂ hw₁ hw₂
+  have hsplit := torusF_sum_sub s X Y Z ε
+  rw [hsplit] at henergy
+  have hXhi := hXband.2
+  have hZhi := hZband.2
+  have hYlo := hYband.1
+  nlinarith [henergy]
+
+/-- Square-form endpoint separation.  Under the half-open slice hypotheses,
+every coordinate of the endpoint difference has square strictly below
+`2 * Δ`; this is the sqrt-free conclusion used by finite-grid transfers. -/
+theorem torusF_product_slice_separation_sq {ε L Δ : ℝ} (hε : 0 < ε)
+    (hεle : ε ≤ 1 / 6) {ι : Type*} (s : Finset ι) (X Y Z : ι → ℝ × ℝ)
+    (hX : ∀ i ∈ s, torusT ε (X i)) (hY : ∀ i ∈ s, torusT ε (Y i))
+    (hZ : ∀ i ∈ s, torusT ε (Z i))
+    (w₁ w₂ : ι → ℤ)
+    (hw₁ : ∀ i ∈ s, (X i).1 + (Z i).1 - 2 * (Y i).1 = (w₁ i : ℝ))
+    (hw₂ : ∀ i ∈ s, (X i).2 + (Z i).2 - 2 * (Y i).2 = (w₂ i : ℝ))
+    (hXband : L ≤ ∑ i ∈ s, torusF ε (X i) ∧
+      ∑ i ∈ s, torusF ε (X i) < L + Δ)
+    (hYband : L ≤ ∑ i ∈ s, torusF ε (Y i) ∧
+      ∑ i ∈ s, torusF ε (Y i) < L + Δ)
+    (hZband : L ≤ ∑ i ∈ s, torusF ε (Z i) ∧
+      ∑ i ∈ s, torusF ε (Z i) < L + Δ) :
+    ∀ i ∈ s, ((X i).1 - (Z i).1) ^ 2 < 2 * Δ ∧
+      ((X i).2 - (Z i).2) ^ 2 < 2 * Δ := by
+  have henergy := torusF_product_slice_energy hε hεle s X Y Z hX hY hZ
+    w₁ w₂ hw₁ hw₂ hXband hYband hZband
+  simp only [torusSepSq] at henergy
+  intro i hi
+  have hle := Finset.single_le_sum
+    (fun j _ => torusSepSq_nonneg (X j) (Z j)) hi
+  simp only [torusSepSq] at hle
+  constructor <;>
+    nlinarith [sq_nonneg ((X i).1 - (Z i).1), sq_nonneg ((X i).2 - (Z i).2)]
+
+/-- Absolute-value endpoint separation.  Under the half-open slice
+hypotheses and `0 < Δ`, every coordinate of the endpoint difference is
+strictly below `sqrt (2 * Δ)`.  With the paper's slice width `Δ = δ^2 / 2`
+this is exactly the conclusion `|x_i - z_i| < δ`. -/
+theorem torusF_product_slice_separation {ε L Δ : ℝ} (hε : 0 < ε)
+    (hεle : ε ≤ 1 / 6) (hΔ : 0 < Δ) {ι : Type*} (s : Finset ι)
+    (X Y Z : ι → ℝ × ℝ)
+    (hX : ∀ i ∈ s, torusT ε (X i)) (hY : ∀ i ∈ s, torusT ε (Y i))
+    (hZ : ∀ i ∈ s, torusT ε (Z i))
+    (w₁ w₂ : ι → ℤ)
+    (hw₁ : ∀ i ∈ s, (X i).1 + (Z i).1 - 2 * (Y i).1 = (w₁ i : ℝ))
+    (hw₂ : ∀ i ∈ s, (X i).2 + (Z i).2 - 2 * (Y i).2 = (w₂ i : ℝ))
+    (hXband : L ≤ ∑ i ∈ s, torusF ε (X i) ∧
+      ∑ i ∈ s, torusF ε (X i) < L + Δ)
+    (hYband : L ≤ ∑ i ∈ s, torusF ε (Y i) ∧
+      ∑ i ∈ s, torusF ε (Y i) < L + Δ)
+    (hZband : L ≤ ∑ i ∈ s, torusF ε (Z i) ∧
+      ∑ i ∈ s, torusF ε (Z i) < L + Δ) :
+    ∀ i ∈ s, |(X i).1 - (Z i).1| < Real.sqrt (2 * Δ) ∧
+      |(X i).2 - (Z i).2| < Real.sqrt (2 * Δ) := by
+  have hsq := torusF_product_slice_separation_sq hε hεle s X Y Z hX hY hZ
+    w₁ w₂ hw₁ hw₂ hXband hYband hZband
+  have hpos : 0 < 2 * Δ := by linarith
+  have hsqrtpos : 0 < Real.sqrt (2 * Δ) := Real.sqrt_pos.mpr hpos
+  have hs : (Real.sqrt (2 * Δ)) ^ 2 = 2 * Δ := Real.sq_sqrt hpos.le
+  intro i hi
+  obtain ⟨h1, h2⟩ := hsq i hi
+  constructor
+  · have h1' : ((X i).1 - (Z i).1) ^ 2 < (Real.sqrt (2 * Δ)) ^ 2 := by
+      rw [hs]
+      exact h1
+    have := (sq_lt_sq.mp h1')
+    rwa [abs_of_pos hsqrtpos] at this
+  · have h2' : ((X i).2 - (Z i).2) ^ 2 < (Real.sqrt (2 * Δ)) ^ 2 := by
+      rw [hs]
+      exact h2
+    have := (sq_lt_sq.mp h2')
+    rwa [abs_of_pos hsqrtpos] at this
+
+#print axioms torusF_product_energy_le
+#print axioms torusF_product_slice_energy
+#print axioms torusF_product_slice_separation_sq
+#print axioms torusF_product_slice_separation
 
 end Erdos142
