@@ -155,16 +155,18 @@ theorem rothProductDefect_le_rothLogDeficit_add_log {N M : ℕ} (hN : 1 ≤ N)
   linarith
 
 /-- **Arbitrarily late one-sided approximation of the fixed-right threshold.**
-For every `M ≥ 2` and every `ε > 0` the Roth product defect lies eventually,
-and arbitrarily often, in the interval `(T_M - ε, T_M]`, where
+For every `M ≥ 2` and every `ε > 0`, arbitrarily often the Roth product
+defect lies in the interval `(T_M - ε, T_M]`, where
 `T_M = rothLogDeficit M + log ((2 * M - 1) / M)`:
 
 `∃ᶠ N in atTop, T_M - ε < rothProductDefect N M ∧ rothProductDefect N M ≤ T_M`.
 
 The lower bound is the accepted frequently-exceeded threshold
 `frequently_fixed_right_rothProductDefect_gt`, applied at the level `T_M - ε`
-(which is below `T_M` because `ε > 0`); the upper bound is the eventual pointwise
-envelope `rothProductDefect_le_rothLogDeficit_add_log`, valid for all `N ≥ 1`.
+(which is below `T_M` because `ε > 0`); the upper bound is the pointwise
+envelope `rothProductDefect_le_rothLogDeficit_add_log`, valid for all `N ≥ 1`
+(so its upper bound by `T_M` holds on the whole positive range, and in
+particular eventually).
 
 This is a two-sided approximation *from below* and no more: it does **not** prove
 that `T_M` is attained for any `N`, does **not** prove that
