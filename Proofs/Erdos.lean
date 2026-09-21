@@ -82,5 +82,6 @@ import Erdos.Erdos142.TorusAsymptoticLowerBound
 import Erdos.Erdos142.TorusAsymptoticConsequences
 import Erdos.Erdos142.RegularityDiscriminator
 import Erdos.Erdos142.FixedRadixDefect
+import Erdos.Erdos142.FixedRadixRecurrence
 import Erdos.Erdos142.SquareScaleCriterion
 import Erdos.Erdos142.PowerLawObstruction
