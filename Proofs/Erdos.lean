@@ -64,3 +64,8 @@ import Erdos.Erdos142.ShortMultipleAvoidance
 import Erdos.Erdos142.EnergySlicing
 import Erdos.Erdos142.ScaleProduct
 import Erdos.Erdos142.SignedShortResidue
+import Erdos.Erdos142.TorusTransferArithmetic
+import Erdos.Erdos142.TorusProduct
+import Erdos.Erdos142.TorusProductSlicing
+import Erdos.Erdos142.FiniteTorusTransfer
+import Erdos.Erdos142.TorusGridCensus
