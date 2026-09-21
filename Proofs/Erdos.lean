@@ -40,6 +40,7 @@ import Erdos.Erdos142.DensityIteration
 import Erdos.Erdos142.OptimizedDensityStep
 import Erdos.Erdos142.ExplicitRothThreshold
 import Erdos.Erdos142.TorusBuildingBlock
+import Erdos.Erdos142.TorusBuildingBlockSharp
 import Erdos.Erdos142.TorusGrid
 import Erdos.Erdos142.TorusEnergyBounds
 import Erdos.Erdos1063.DefectCarryBound
@@ -71,4 +72,5 @@ import Erdos.Erdos142.TorusProductSlicing
 import Erdos.Erdos142.FiniteTorusTransfer
 import Erdos.Erdos142.TorusGridCensus
 import Erdos.Erdos142.TorusLowerBound
+import Erdos.Erdos142.TorusAsymptoticParameters
 import Erdos.Erdos142.RegularityDiscriminator
