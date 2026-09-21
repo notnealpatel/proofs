@@ -9,7 +9,9 @@
   The endpoint of the asymptotic argument is always the same: from
   `F(N) = O(sqrt (log N))` (i.e. `D` bounded) together with the approximate
   product relation `a(N M) ≈ a(N) a(M)` (defect `o(sqrt (log N + log M))`), one
-  must conclude `D(N) → 0`, i.e. `a(N) = N^{1-o(1)}`.
+  must conclude `D(N) → 0`, i.e. `log(N/a(N)) = o(sqrt(log N))`, equivalently
+  `a(N) = N * exp(-o(sqrt(log N)))`; this implies, but is stronger than, the
+  coarser logarithmic-exponent statement `a(N) = N^{1-o(1)}`.
 
   This file isolates the **deterministic analytic kernel** of that endpoint, so
   that the number-theoretic/combinatorial lanes can feed it without duplicating
