@@ -69,3 +69,4 @@ import Erdos.Erdos142.TorusProduct
 import Erdos.Erdos142.TorusProductSlicing
 import Erdos.Erdos142.FiniteTorusTransfer
 import Erdos.Erdos142.TorusGridCensus
+import Erdos.Erdos142.TorusLowerBound
