@@ -1,28 +1,25 @@
 /-
   Erdős Problem #142 — finite affine-translation averaging.
 
-  Over a finite additive commutative group `G`, a direction `b : G`, a
-  horizon `N : ℕ`, and a finite set `S : Finset G`, the *affine preimage* at
-  translation `a` is the set of indices `n < N` whose translated point
-  `a + n • b` lies in `S`.
+  The neutral finite counting kernel now lives in `Combinatorics.FiniteAffine`:
+  over any finite decidable additive commutative group `G`, a direction
+  `b : G`, a horizon `N : ℕ`, and a finite set `S : Finset G`, it defines the
+  *affine preimage* at translation `a` as the set of indices `n < N` with
+  `a + n • b ∈ S`, proves the exact double count
+  `∑ a, #(preimage a) = N * #S`, and derives the averaging/capacity pigeonhole
+  bound `N * #S ≤ #G * r` from a uniform fiber-capacity hypothesis.
 
-  The exact double count below computes the total incidence of these
-  preimages: summing `#(preimage a)` over every `a : G` counts the pairs
-  `(a, n)` with `n < N` and `a + n • b ∈ S`.  For each fixed `n`, the map
-  `a ↦ a + n • b` is a bijection of `G`, so exactly `#S` translations
-  contribute; the total is therefore `N * #S`.
-
-  The averaging/capacity consequence is the finite pigeonhole bound: if every
-  affine preimage has at most `r` elements, then `N * #S ≤ #G * r`.  Its
-  arithmetic-progression corollary takes `r` to be `rothNumberNat N` whenever
-  every preimage is 3-AP-free.
+  This module re-exports that kernel under the historical `Erdos142` names
+  (thin compatibility aliases, so downstream statements are unchanged) and adds
+  the arithmetic-progression corollary that takes the capacity `r` to be
+  `rothNumberNat N` whenever every preimage is 3-AP-free.
 
   These are reusable finite counting statements.  They do not prove the
   asymptotic assertion of Erdős Problem #142.
 -/
 
+import Combinatorics.FiniteAffine
 import Mathlib.Combinatorics.Additive.AP.Three.Defs
-import Mathlib.Algebra.BigOperators.Group.Finset.Sigma
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Tactic
 
@@ -35,67 +32,49 @@ namespace Erdos142
 variable {G : Type*} [AddCommGroup G] [DecidableEq G]
 
 /-- The affine preimage of `S` at translation `a`: the indices `n < N` with
-`a + n • b ∈ S`. -/
-def affinePreimage (S : Finset G) (N : ℕ) (b : G) (a : G) : Finset ℕ :=
-  (Finset.range N).filter fun n => a + n • b ∈ S
+`a + n • b ∈ S`.  Re-export of `FiniteAffine.affinePreimage`. -/
+abbrev affinePreimage (S : Finset G) (N : ℕ) (b : G) (a : G) : Finset ℕ :=
+  FiniteAffine.affinePreimage S N b a
 
 /-- Membership in the affine preimage unfolds to a range bound and the
 translation incidence. -/
 theorem mem_affinePreimage {S : Finset G} {N : ℕ} {b a : G} {n : ℕ} :
-    n ∈ affinePreimage S N b a ↔ n < N ∧ a + n • b ∈ S := by
-  rw [affinePreimage, mem_filter, mem_range]
+    n ∈ affinePreimage S N b a ↔ n < N ∧ a + n • b ∈ S :=
+  FiniteAffine.mem_affinePreimage
 
 /-- Every affine preimage is contained in `range N`. -/
 theorem affinePreimage_subset_range (S : Finset G) (N : ℕ) (b a : G) :
-    affinePreimage S N b a ⊆ Finset.range N := by
-  intro n hn
-  exact mem_range.mpr (mem_affinePreimage.mp hn).1
+    affinePreimage S N b a ⊆ Finset.range N :=
+  FiniteAffine.affinePreimage_subset_range S N b a
 
 /-- The affine preimage as a boolean count: its cardinality is the number of
 indices `n < N` at which `a + n • b` lands in `S`. -/
 theorem card_affinePreimage (S : Finset G) (N : ℕ) (b a : G) :
     (affinePreimage S N b a).card =
-      ∑ n ∈ Finset.range N, (if a + n • b ∈ S then 1 else 0) := by
-  rw [affinePreimage, card_filter]
+      ∑ n ∈ Finset.range N, (if a + n • b ∈ S then 1 else 0) :=
+  FiniteAffine.card_affinePreimage S N b a
 
 variable [Fintype G]
 
 /-- Translating the index of summation by a fixed `c` does not change the
 total number of translations landing in `S`. -/
 theorem sum_ite_add_right_eq_card (S : Finset G) (c : G) :
-    (∑ a : G, (if a + c ∈ S then 1 else 0)) = S.card := by
-  classical
-  have hshift :
-      (∑ a : G, (if a + c ∈ S then 1 else 0)) =
-        ∑ a : G, (if a ∈ S then 1 else 0) :=
-    Equiv.sum_comp (Equiv.addRight c) fun x : G => if x ∈ S then 1 else 0
-  rw [hshift, ← card_filter (fun a : G => a ∈ S) Finset.univ]
-  congr 1
-  ext a
-  simp
+    (∑ a : G, (if a + c ∈ S then 1 else 0)) = S.card :=
+  FiniteAffine.sum_ite_add_right_eq_card S c
 
 /-- **Exact affine-translation double count.** Summing the cardinalities of
 the affine preimages over all translations equals `N * #S`. -/
 theorem sum_card_affinePreimage (S : Finset G) (N : ℕ) (b : G) :
-    (∑ a : G, (affinePreimage S N b a).card) = N * S.card := by
-  classical
-  simp_rw [card_affinePreimage]
-  rw [Finset.sum_comm]
-  simp_rw [sum_ite_add_right_eq_card]
-  simp [Finset.sum_const, Finset.card_range]
+    (∑ a : G, (affinePreimage S N b a).card) = N * S.card :=
+  FiniteAffine.sum_card_affinePreimage S N b
 
 /-- **Averaging/capacity bound.** If every affine preimage has cardinality at
 most `r`, then the total incidence `N * #S` is at most `#G * r`. -/
 theorem mul_card_le_card_mul_of_affinePreimage_card_le
     (S : Finset G) (N r : ℕ) (b : G)
     (h : ∀ a : G, (affinePreimage S N b a).card ≤ r) :
-    N * S.card ≤ Fintype.card G * r := by
-  calc
-    N * S.card = ∑ a : G, (affinePreimage S N b a).card :=
-      (sum_card_affinePreimage S N b).symm
-    _ ≤ ∑ _a : G, r := sum_le_sum fun a _ => h a
-    _ = Fintype.card G * r := by
-      simp [Finset.sum_const, Finset.card_univ]
+    N * S.card ≤ Fintype.card G * r :=
+  FiniteAffine.mul_card_le_card_mul_of_affinePreimage_card_le S N r b h
 
 /-- **3-AP-free corollary.** If every affine preimage is 3-AP-free, then the
 capacity bound holds with `r = rothNumberNat N`.  Each preimage lies in
