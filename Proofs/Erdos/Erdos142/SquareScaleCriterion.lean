@@ -1,46 +1,62 @@
 /-
-  Erdős Problem #142 — the sharp square-scale criterion for the endpoint.
+  Erdős Problem #142 — an exact square-scale criterion.
 
   `RegularityDiscriminator` isolates the deterministic analytic kernel of the
-  #142 endpoint: a nonnegative, bounded-above *normalized deficit* `D` obeying
-  the square-scale recurrence `D(N²) = √2 · D(N) + o(1)` must tend to `0`.  This
-  module instantiates that kernel at the *actual* Roth number `r₃ = rothNumberNat`
-  and shows that the resulting statement is sharp: an exact `iff`, with nothing
-  lost in either direction.
+  square-root-scale programme: a nonnegative, bounded-above *normalized deficit*
+  `D` obeying the square-scale recurrence `D(N²) = √2 · D(N) + o(1)` must tend
+  to `0`.  This module instantiates that kernel at the *actual* Roth number
+  `r₃ = rothNumberNat` and records the resulting statement as an exact `iff`,
+  with nothing lost in either direction.  The criterion is *exact*, not
+  *sharp*: no optimality of the rate and no matching upper bound is claimed, and
+  neither side of the equivalence is asserted.
 
   The two quantities compared are
 
   * the normalized deficit
     `D(N) = normalizedDeficit r₃ N = log (N / r₃ N) / √(log N)`, and
   * the *square-scale defect*
-    `X(N) = log (r₃(N)² / r₃(N²)) / √(log N)`,
-    the logarithm of the multiplicativity defect of `r₃` at the single scale pair
-    `(N, N)`, divided by `√(log N)`.
+    `X(N) = log (r₃(N)² / r₃(N²))`,
+    the logarithm of the multiplicativity defect of `r₃` at the single scale
+    pair `(N, N)`.  Its *normalized* form is the quotient `X(N) / √(log N)`,
+    and that quotient — not `X` itself — is the quantity driven to `0` in the
+    criterion below.
 
   The bridge is the exact identity `normalizedDeficit_sq_sub` at `a = r₃`,
   recorded below as `normalizedDeficit_sq_sub_roth`:
 
-      `√2 · (D(N²) - √2 · D(N)) = X(N)`   for `N ≥ 2`.
+      `√2 · (D(N²) - √2 · D(N)) = X(N) / √(log N)`   for `N ≥ 2`.
 
   * **Forward.**  `D → 0` and `N ↦ N² → ∞` give `D(N²) → 0`, hence
-    `√2 · (D(N²) - √2 · D(N)) → 0`; the identity transfers this to `X → 0`.
-  * **Backward.**  `X → 0` feeds `tendsto_zero_of_sqrt_two_recurrence` at a
-    threshold `N₀ ≥ 2` chosen from the eventual lower bound: eventual
-    nonnegativity of `D` comes from `1 ≤ r₃ N ≤ N`, and eventual boundedness
-    `D ≤ torusLeadingConstant + 1` comes from
+    `√2 · (D(N²) - √2 · D(N)) → 0`; the identity transfers this to
+    `X(N) / √(log N) → 0`.
+  * **Backward.**  `X(N) / √(log N) → 0` feeds
+    `tendsto_zero_of_sqrt_two_recurrence` at a threshold `N₀ ≥ 2` chosen from
+    the eventual lower bound: eventual nonnegativity of `D` comes from
+    `1 ≤ r₃ N ≤ N`, and eventual boundedness `D ≤ torusLeadingConstant + 1`
+    comes from
     `TorusAsymptoticLowerBound.eventually_rothNumberNat_lower_bound` at `δ = 1`.
-    The identity converts the signed defect `X` into the absolute recurrence
-    error `|D(N²) - √2 · D(N)| ≤ |X(N)|`.
+    The identity converts the signed defect into the absolute recurrence error
+    `|D(N²) - √2 · D(N)| ≤ |X(N)| / √(log N)`.
 
   **This is an unconditional characterization, not a resolution of #142.**  It
-  asserts neither `D → 0` nor `X → 0`; it only asserts that the two are
-  equivalent.  What it does is localize the positive endpoint of #142 to a
-  statement about `r₃` alone: `r₃(N) = N^{1-o(1)}` holds exactly when the
-  square-scale multiplicativity defect of `r₃` is `o(√(log N))`, i.e. exactly
-  when `log (r₃(N)^2 / r₃(N²)) = o(√(log N))`.  (The reverse direction needs
-  the accepted unconditional EHPS-shaped lower bound — without it the
-  equivalence is false, e.g. at `a ≡ 1` the defect `X` vanishes identically
-  while `D` diverges.)
+  asserts neither `D → 0` nor `X(N) / √(log N) → 0`; it only asserts that the
+  two are equivalent.  What it does is localize the square-root-scale milestone
+  of #142 to a statement about `r₃` alone: the milestone
+
+      `r₃(N) = N · exp(-o(√(log N)))`,   equivalently `D → 0`,
+
+  holds exactly when the normalized square-scale multiplicativity defect of
+  `r₃` vanishes, i.e. exactly when `X(N) / √(log N) → 0`, equivalently when the
+  unnormalized defect `X(N) = log (r₃(N)^2 / r₃(N²))` is `o(√(log N))`.  The
+  milestone `D → 0` is important,
+  but it is still not an asymptotic formula for `r₃`: it pins `r₃` down only up
+  to a factor `exp(o(√(log N)))`.  The strictly weaker statement
+  `r₃(N) = N^{1-o(1)}` is *already established* (unconditionally, in this
+  programme), and it is *not* equivalent to `D → 0`; in particular the criterion
+  below is not about it.  (The reverse direction of the equivalence needs the
+  accepted unconditional EHPS-shaped lower bound — without it the equivalence
+  is false, e.g. at `a ≡ 1` the defect `X` vanishes identically while `D`
+  diverges.)
 
   No `sorry`, no `unsafe`, no new axioms, and no existing declaration is edited;
   the axiom audit is at the end of the file.
@@ -127,10 +143,12 @@ theorem eventually_le_normalizedDeficit_rothNumberNat :
 
 /-- **The exact square-scale bridge for `r₃`.**  For `N ≥ 2`,
 
-`√2 · (D(N²) - √2 · D(N)) = log (r₃(N)² / r₃(N²)) / √(log N)`,
+`√2 · (D(N²) - √2 · D(N)) = X(N) / √(log N)`,
 
-i.e. the square-scale defect `X(N)` is exactly the `√2`-multiple of the
-recurrence difference of `D`.  This is `normalizedDeficit_sq_sub` at
+i.e. the *normalized* square-scale defect `X(N) / √(log N)` is exactly the
+`√2`-multiple of the recurrence difference of `D` (here
+`X(N) = log (r₃(N)² / r₃(N²))` is the unnormalized defect).  This is
+`normalizedDeficit_sq_sub` at
 `a = rothNumberNat` together with `√(2 · log N) = √2 · √(log N)`.
 
 Its consumers are both directions of `tendsto_normalizedDeficit_zero_iff_square_defect`. -/
@@ -147,38 +165,51 @@ theorem normalizedDeficit_sq_sub_roth (N : ℕ) (hN : 2 ≤ N) :
   have h2 : Real.sqrt 2 ≠ 0 := ne_of_gt (Real.sqrt_pos.2 (by norm_num))
   field_simp
 
-/-! ## The sharp square-scale criterion -/
+/-! ## The exact square-scale criterion -/
 
-/-- **Sharp square-scale criterion for the #142 endpoint.**  The normalized
-deficit of the Roth number vanishes,
+/-- **Exact square-scale criterion.**  The normalized deficit of the Roth number
+vanishes,
 
 `D(N) = normalizedDeficit r₃ N → 0`,
 
-**if and only if** the square-scale multiplicativity defect of `r₃` is
-`o(√(log N))`:
+**if and only if** the *normalized* square-scale multiplicativity defect of
+`r₃` vanishes, i.e. is `o(1)`:
 
-`log (r₃(N)² / r₃(N²)) / √(log N) → 0`.
+`log (r₃(N)² / r₃(N²)) / √(log N) → 0`,
 
-The forward implication is purely analytic: `D → 0` and `N ↦ N² → ∞` give
-`D(N²) → 0`, so `√2 · (D(N²) - √2 · D(N)) → 0`, and the exact bridge
-`normalizedDeficit_sq_sub_roth` transfers the limit to the defect.  The backward
-implication invokes the deterministic kernel `tendsto_zero_of_sqrt_two_recurrence`
-at a threshold `N₀ ≥ 2` chosen from the eventual lower bound
-`eventually_rothNumberNat_lower_bound 1`: `D ≥ 0` from `1 ≤ r₃ N ≤ N`, and
-`D ≤ torusLeadingConstant + 1` from `eventually_le_normalizedDeficit_rothNumberNat`;
-the bridge turns the signed defect into the absolute recurrence error
-`|D(N²) - √2 · D(N)| ≤ |X(N)| → 0`.
+equivalently, the unnormalized square defect
+`X(N) = log (r₃(N)² / r₃(N²))` is `o(√(log N))`, i.e. `X(N) / √(log N) → 0`.
+
+The criterion is an exact unconditional `iff`, with nothing lost in either
+direction; it is not claimed to be *sharp* (no optimality of the rate is
+asserted), and it asserts neither side.  The forward implication is purely
+analytic: `D → 0` and `N ↦ N² → ∞` give `D(N²) → 0`, so
+`√2 · (D(N²) - √2 · D(N)) → 0`, and the exact bridge
+`normalizedDeficit_sq_sub_roth` transfers the limit to the normalized defect.
+The backward implication invokes the deterministic kernel
+`tendsto_zero_of_sqrt_two_recurrence` at a threshold `N₀ ≥ 2` chosen from the
+eventual lower bound `eventually_rothNumberNat_lower_bound 1`: `D ≥ 0` from
+`1 ≤ r₃ N ≤ N`, and `D ≤ torusLeadingConstant + 1` from
+`eventually_le_normalizedDeficit_rothNumberNat`; the bridge turns the signed
+defect into the absolute recurrence error
+`|D(N²) - √2 · D(N)| ≤ |X(N)| / √(log N) → 0`.
 
 **This theorem is an unconditional characterization and is *not* a claim that
-either side holds.**  It does not assert `D → 0`, does not assert `X → 0`, and
-says nothing about whether `r₃(N) = N^{1-o(1)}`.  Its content is that the
-positive endpoint of #142 is *localized* to the single-scale statement
-`log (r₃(N)^2 / r₃(N²)) = o(√(log N))`; conversely, the accepted unconditional
-EHPS-shaped lower bound makes that square-scale multiplicativity statement
-equivalent to the endpoint.  Neither direction of the equivalence is vacuous:
-the forward direction holds for every real sequence, while the backward
-direction genuinely uses the arithmetic of `r₃` (for the synthetic counting
-function `a ≡ 1` the defect vanishes identically but `D` diverges). -/
+either side holds.**  It does not assert `D → 0` and does not assert
+`X(N) / √(log N) → 0`.  Its content is that the square-root-scale milestone
+`D → 0`, i.e. `r₃(N) = N · exp(-o(√(log N)))`, is *localized* to the
+single-scale statement `log (r₃(N)^2 / r₃(N²)) = o(√(log N))`; conversely, the
+accepted unconditional EHPS-shaped lower bound makes that square-scale
+multiplicativity statement equivalent to the milestone.  The milestone is
+important but is still not an asymptotic formula for `r₃`; in particular it is
+*not* the Erdős #142 endpoint.  The strictly weaker statement
+`r₃(N) = N^{1-o(1)}` is already established unconditionally in this programme
+(see `TorusAsymptoticConsequences.tendsto_rothLogDeficit_div_log_zero`) and is
+*not* equivalent to `D → 0`, so the criterion below does not characterize it.
+Neither direction of the equivalence is vacuous: the forward direction holds
+for every real sequence, while the backward direction genuinely uses the
+arithmetic of `r₃` (for the synthetic counting function `a ≡ 1` the defect
+vanishes identically but `D` diverges). -/
 theorem tendsto_normalizedDeficit_zero_iff_square_defect :
     Tendsto (normalizedDeficit rothNumberNat) atTop (𝓝 0) ↔
     Tendsto (fun N : ℕ =>
