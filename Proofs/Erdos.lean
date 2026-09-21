@@ -73,4 +73,8 @@ import Erdos.Erdos142.FiniteTorusTransfer
 import Erdos.Erdos142.TorusGridCensus
 import Erdos.Erdos142.TorusLowerBound
 import Erdos.Erdos142.TorusAsymptoticParameters
+import Erdos.Erdos142.TorusCensusDecay
+import Erdos.Erdos142.TorusSaddlePoint
+import Erdos.Erdos142.TorusErrorAbsorption
+import Erdos.Erdos142.TorusAsymptoticAssembly
 import Erdos.Erdos142.RegularityDiscriminator
