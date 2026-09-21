@@ -65,6 +65,7 @@ import Erdos.Erdos142.ShortMultipleAvoidance
 import Erdos.Erdos142.EnergySlicing
 import Erdos.Erdos142.ScaleProduct
 import Erdos.Erdos142.ProductDefect
+import Erdos.Erdos142.AsymptoticConsequences
 import Erdos.Erdos142.SignedShortResidue
 import Erdos.Erdos142.TorusTransferArithmetic
 import Erdos.Erdos142.TorusProduct
