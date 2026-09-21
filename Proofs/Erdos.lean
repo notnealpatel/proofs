@@ -83,7 +83,9 @@ import Erdos.Erdos142.TorusAsymptoticConsequences
 import Erdos.Erdos142.RegularityDiscriminator
 import Erdos.Erdos142.FixedRadixDefect
 import Erdos.Erdos142.FixedRadixRecurrence
+import Erdos.Erdos142.FixedRadixUpperEnvelope
 import Erdos.Erdos142.PersistentProductDefect
 import Erdos.Erdos142.SquareScaleCriterion
+import Erdos.Erdos142.SquareScaleProduct
 import Erdos.Erdos142.NormalizedDeficitEnvelope
 import Erdos.Erdos142.PowerLawObstruction
