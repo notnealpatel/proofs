@@ -4,10 +4,17 @@ Put \(r(N)=r_3(N)\), where \(r_3(N)\) is the maximum size of a nontrivial-3AP-fr
 \[
 w_n=\log\log(n+1)-\log\log n.
 \]
-All logarithms below are natural unless a subscript is displayed. Fix \(1<q<2^{1/9}\), and let \(G_q=\{n\ge3:\lambda(n^2)\ge q\lambda(n)\}\). Then
+All logarithms below are natural unless a subscript is displayed. Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v2](https://arxiv.org/abs/2603.27045), Theorem 1.4, is a preprint and external/non-Lean input. Its estimate is for odd \(N>1\); for even \(N\), apply it at \(N+1\), use monotonicity \(r(N)\leq r(N+1)\), and absorb \((N+1)/N\) and the comparable logarithms. Hence eventually for all \(N\),
+\[
+ \lambda(N)\geq c\frac{(\log N)^{1/6}}{\log\log N},\qquad
+ \log\lambda(N)\geq\tfrac16\log\log N-\log\log\log N+O(1). \tag{R}
+\]
+In particular, this is not a pure \(c(\log N)^{1/6}\) lower bound.
+
+Fix \(1<q<2^{1/6}\), and let \(G_q=\{n\ge3:\lambda(n^2)\ge q\lambda(n)\}\). Then
 \[
  \liminf_{M\to\infty}\frac{\displaystyle\sum_{\substack{3\le n\le M\\n\in G_q}}w_n}{\log\log M}
- \ge \delta(q):=\frac{1/9-\log_2q}{1-\log_2q}>0. \tag{1}
+ \ge \delta(q):=\frac{1/6-\log_2q}{1-\log_2q}>0. \tag{1}
 \]
 
 More precisely, define
@@ -37,16 +44,21 @@ Define, for large \(x\),
  C(x)=\log_2\frac{\lambda(n(x)^2)}{\lambda(n(x))},\qquad
  D(x)=\log_2\frac{b(x+h)}{b(x)},\qquad L(x)=\log b(x).
 \]
-The accepted qualitative Roth theorem gives \(\lambda(N)\to\infty\) (this is not Bloom--Sisask). Thus (3), (4), and the additive shift imply the existing estimate
+Qualitative Roth gives \(\lambda(N)\to\infty\). Thus (3), (4), and the additive shift imply the existing estimate
 \[
  C(x)-D(x)=o(1) \quad\text{uniformly as }x\to\infty, \tag{5}
 \]
-and \(0\le C(x)\le1+o(1)\). Bloom--Sisask, arXiv:2309.02353, Theorem 1, is used only in its eventual quantitative form \(\lambda(N)\ge c(\log N)^{1/9}\), so \(L(x)\ge x/9+O(1)\).
+and \(0\le C(x)\le1+o(1)\). From (R), with \(n(x)\) in place of \(N\),
+\[
+ L(x)\ge x/6-\log x+O(1). \tag{6a}
+\]
+The \(-\log x\) term is retained here; it is \(o(x)\), and therefore
+\(\liminf_{x\to\infty}L(x)/x\ge1/6\).
 
-Let \(T=\log\log(M+1)\) and \(R=\log\log3\). Since \(n(x)=n\) on \([\log\log n,\log\log(n+1))\), (5) and continuous telescoping give
+Let \(T=\log\log(M+1)\) and \(R_0=\log\log3\). Since \(n(x)=n\) on \([\log\log n,\log\log(n+1))\), (5) and continuous telescoping give
 \[
 \begin{aligned}
- S(M)&=\int_R^T C(x)\,dx+o(T)\\
+ S(M)&=\int_{R_0}^T C(x)\,dx+o(T)\\
  &=\frac1h\int_T^{T+h}L(y)\,dy+o(T). \tag{6}
 \end{aligned}
 \]
@@ -60,11 +72,11 @@ and \(\lceil t\rceil\le2t\) for \(t\ge1\) gives the displayed bounds in (7). The
 \]
 Since \(\lambda(N)\to\infty\), uniformly on this window \(\log b(y)=\log\lambda(N)+O(1)\). Substitution in (6) proves (2), with the endpoint length \(h\) cancelling the prefactor \(1/h\).
 
-Bloom--Sisask and (2) yield the existing conclusion
+Raghavan and (2) yield
 \[
-\liminf_{M\to\infty}S(M)/\log\log M\ge1/9. \tag{8}
+\liminf_{M\to\infty}S(M)/\log\log M\ge1/6. \tag{8}
 \]
-Using \(\alpha=\log_2q\), the envelope \(0\le C\le1+o(1)\) and (8) give the lower density \((1/9-\alpha)/(1-\alpha)\) of \(C\ge\alpha\), which is exactly (1). The accepted Behrend/EHPS upper-deficit input—EHPS, arXiv:2406.12290, Theorem 1.1 (as accepted in this repository)—gives \(\lambda(N)=O(\sqrt{\log N})\), and together with (2) additionally gives
+Using \(\alpha=\log_2q\), the envelope \(0\le C\le1+o(1)\) and (8) give the lower density \((1/6-\alpha)/(1-\alpha)\) of \(C\ge\alpha\), which is exactly (1). The accepted Behrend/EHPS upper-deficit input—EHPS, arXiv:2406.12290, Theorem 1.1 (as accepted in this repository)—gives \(\lambda(N)=O(\sqrt{\log N})\), and together with (2) additionally gives
 \[
  \limsup_{M\to\infty}S(M)/\log\log M\le\tfrac12. \tag{9}
 \]
@@ -74,11 +86,11 @@ Finally, \(n\in G_q\) is equivalent to \(r(n^2)\le r(n)^q n^{2-q}\). With \(X(n)
 
 ## Eight-part contract/audit
 
-1. **Quantifiers:** every \(1<q<2^{1/9}\) is covered directly; no threshold is lost.
-2. **Modality:** Bloom--Sisask supplies only the quantitative lower bound; qualitative Roth, the square-scale inequality, and Behrend/EHPS are accepted inputs.
+1. **Quantifiers:** every \(1<q<2^{1/6}\) is covered directly; no threshold is lost.
+2. **Modality:** Raghavan supplies only the quantitative lower bound and is an external preprint; qualitative Roth, the square-scale inequality, and Behrend/EHPS are accepted inputs.
 3. **Exact additive structure:** \(b=a+2h\) gives (4), and floor/interval losses are the fixed \(h\) in (3) and (7).
 4. **\(\lambda/X\) implication:** the displayed equivalence and the sign and bound for \(X\) are exact.
-5. **Optimization:** the asymptotic identity (2), its lower bound \(1/9\), and \(0\le C\le1+o(1)\) yield \(\delta(q)\).
-6. **Models/endpoints:** all scales are good at \(q=1\), so the actual density is \(1\) (the density lower bound \(1/9\) is nonsharp); \(\delta=0\) at \(q=2^{1/9}\). The Behrend-scale model \(\lambda\approx a\sqrt{\log N}\) gives eventual goodness for \(q<\sqrt2\); the accepted Behrend/EHPS theorem here only gives \(\lambda(N)=O(\sqrt{\log N})\). \(N/\log N\) contradicts Bloom--Sisask and is inconsistent.
+5. **Optimization:** the asymptotic identity (2), its lower bound \(1/6\), and \(0\le C\le1+o(1)\) yield \(\delta(q)\).
+6. **Models/endpoints:** all scales are good at \(q=1\), so the actual density is \(1\) (the density lower bound \(1/6\) is nonsharp); \(\delta=0\) at \(q=2^{1/6}\). The Behrend-scale model \(\lambda\approx a\sqrt{\log N}\) gives eventual goodness for \(q<\sqrt2\); the accepted Behrend/EHPS theorem here only gives \(\lambda(N)=O(\sqrt{\log N})\). The model \(N/\log N\) contradicts Raghavan's lower bound and is inconsistent.
 7. **Falsifier:** the identity would be falsified by a discrepancy of order \(\log\log M\) between \(S(M)\) and \(\log\lambda(M+1)\); the proof only needs accumulated comparison and endpoint errors \(o(\log\log M)\), while the proved errors are \(O(1)\)/uniform \(o(1)\).
 8. **Future formalization:** the minimal Lean artifact is an abstract positive-sequence prefix-density lemma; the analytic inputs remain hypotheses. This is an ambient integer weighted-density conclusion, not a formal strengthening or subsumption of the fixed-base tower-density statement.

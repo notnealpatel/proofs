@@ -11,16 +11,16 @@ We use the accepted weighted identity
  S(M):=\sum_{3\le n\le M}w_nC_n
    =\log\lambda(M+1)+o(\log\log M),
 \]
-together with the tail-uniform bounds \(0\le C_n\le1+o(1)\), and the current external envelopes
+together with the tail-uniform bounds \(0\le C_n\le1+o(1)\), and the external envelopes
 \[
- \frac19\log\log M+O(1)\le \log\lambda(M)\le
- \frac12\log\log M+O(1).                                      \tag{1}
+ \tfrac16\log\log M-\log\log\log M+O(1)\le \log\lambda(M)\le
+ \tfrac12\log\log M+O(1).                                      \tag{1}
 \]
-(The exponent \(1/9\) here is the current external lower exponent, not an assertion that it is optimal.)
+The lower envelope follows from Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v2](https://arxiv.org/abs/2603.27045), Theorem 1.4, a preprint and external/non-Lean input. Its estimate is stated for odd \(N>1\); applying it at \(N+1\) for even \(N\), using monotonicity and absorbing \((N+1)/N\) and comparable logarithms, gives the displayed eventual all-\(N\) envelope. The \(-\log\log\log M\) term is essential: this is not a pure \(\tfrac16\log\log M+O(1)\) lower bound.
 
 ## Theorem
 
-Fix \(\rho>9/2\). For every real \(T\to\infty\), define, with integer endpoints,
+Fix \(\rho>3\). For every real \(T\to\infty\), define, with integer endpoints,
 \[
  a(T)=\min\{n\ge3:\log\log n\ge T\},\qquad
  b(T)=\max\{n:\log\log n\le\rho T\}.
@@ -33,7 +33,7 @@ we have, with liminf taken over all real \(T\),
 \[
  W_T=(\rho-1)T+o(T),\qquad
  \liminf_{T\to\infty}\frac{\sum_{a(T)\le n\le b(T)}w_nC_n}{W_T}
- \ge A(\rho):=\frac{\rho/9-1/2}{\rho-1}.                    \tag{2}
+ \ge A(\rho):=\frac{\rho/6-1/2}{\rho-1}.                    \tag{2}
 \]
 Consequently, for every fixed \(0<c<A(\rho)\),
 \[
@@ -41,11 +41,11 @@ Consequently, for every fixed \(0<c<A(\rho)\),
  \frac{\sum_{a(T)\le n\le b(T)}w_n\,\mathbf 1_{\{C_n\ge c\}}}{W_T}
  \ge \frac{A(\rho)-c}{1-c}>0.                              \tag{3}
 \]
-Thus every sufficiently large multiplicative-log-log window \(T\le\log\log n\le\rho T\) contains such an \(n\), and the set of such \(n\) has positive relative \(w_n\)-weight. For fixed \(0<c<1/9\), this applies whenever
+Thus every sufficiently large multiplicative-log-log window \(T\le\log\log n\le\rho T\) contains such an \(n\), and the set of such \(n\) has positive relative \(w_n\)-weight. For fixed \(0<c<1/6\), this applies whenever
 \[
- \rho>\frac{1/2-c}{1/9-c}.
+ \rho>\frac{1/2-c}{1/6-c}.
 \]
-At \(\rho=9/2\), the mean lower bound in (2) is \(0\), hence vacuous.
+At \(\rho=3\), the mean lower bound in (2) is \(0\), hence vacuous.
 
 ## Proof
 
@@ -66,9 +66,13 @@ For large \(T\), subtract the accepted identity at \(M=b\) and at \(M=a-1\):
 Apply the lower envelope in (1) at \(b+1\), and the upper envelope at \(a\). The endpoint estimates above give
 \[
  \log\lambda(b+1)-\log\lambda(a)
- \ge \left(\frac\rho9-\frac12\right)T+o(T).
+ \ge \left(\frac\rho6-\frac12\right)T-\log\log\log(b+1)+o(T).
 \]
-Also \(a(T)\le b(T)\) eventually because \(\rho>1\). Dividing (5) by (4) proves (2), including its asserted all-real-\(T\) liminf.
+Now \(\log\log(b+1)=\rho T+o(T)\), so explicitly the terminal lower-order term is
+\[
+ -\log\log\log(b+1)=O(\log T)=o(T),
+\]
+with \(\log\log\log(b+1)=\log T+O(1)\), not \(\log\log T\). Hence (5) and (4) prove (2), including its asserted all-real-\(T\) liminf.
 
 Let \(E_T=\{n\in[a,b]:C_n\ge c\}\), and let \(q_T=\sum_{E_T}w_n/W_T\). Tail-uniformity supplies \(\varepsilon_T\to0\) with \(C_n\le1+\varepsilon_T\) throughout this window. Since the complement has \(C_n<c\),
 \[

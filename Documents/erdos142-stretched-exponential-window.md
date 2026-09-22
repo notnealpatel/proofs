@@ -7,16 +7,19 @@ Write
 \]
 and put \(L=\log N\) (natural logarithms). The following is an unconditional comparison-class exclusion, not an asymptotic formula.
 
-## The two inputs
+## The external input
 
-Bloom--Sisask, *An improvement to the Kelley--Meka bounds on three-term arithmetic progressions*, [arXiv:2309.02353](https://arxiv.org/abs/2309.02353), Theorem 1, proves that for some \(c>0\), eventually
+Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v2](https://arxiv.org/abs/2603.27045), Theorem 1.4, is a preprint and external/non-Lean input. It proves for odd \(N>1\) that
 \[
- r_3(N)\leq N\exp(-cL^{1/9}).
+ r_3(N)\leq N\exp\!\left(-c\,\frac{(\log N)^{1/6}}{\log\log N}\right)
 \]
-Taking logarithms gives the lower deficit bound
+for some \(c>0\), eventually. Oddness can be removed by applying the estimate to the odd number \(N+1\) when \(N\) is even, using monotonicity \(r_3(N)\leq r_3(N+1)\) and absorbing the factor \((N+1)/N\) (and the comparable logarithms) into the constants. Thus, eventually for every \(N\),
 \[
- \lambda(N)\geq cL^{1/9}\qquad(N\text{ sufficiently large}). \tag{B--S}
+ \lambda(N)\geq c\,\frac{L^{1/6}}{\log L},
+ \qquad
+ \log\lambda(N)\geq \tfrac16\log\log N-\log\log\log N+O(1). \tag{R}
 \]
+This is not the stronger pure bound \(\lambda(N)\geq c(\log N)^{1/6}\).
 
 The repository-accepted Behrend/EHPS-shaped construction is
 `Proofs/Erdos/Erdos142/TorusAsymptoticLowerBound.lean`, theorem
@@ -28,13 +31,15 @@ Thus \(\lambda(N)=O(\sqrt L)\). Its construction provenance is Elsholtz--Hunter-
 
 ## Consequences, with the ratio signs made explicit
 
-1. First take the natural stretched-exponential range \(0<\gamma<1/9\). From (B--S),
+1. First take the natural stretched-exponential range \(\gamma<1/6\). From (R), for every fixed real \(\gamma<1/6\),
 \[
- \frac{\lambda(N)}{L^\gamma}\geq cL^{1/9-\gamma}\longrightarrow+\infty.
+ \frac{\lambda(N)}{L^\gamma}
+ \geq c\,\frac{L^{1/6-\gamma}}{\log L}
+ \longrightarrow+\infty.
 \]
-The same inequality proves the stated conclusion for **every real** \(\gamma<1/9\), including \(\gamma\leq0\): for large \(N\), \(L>0\), and \(1/9-\gamma>0\), so the denominator is positive and the right side diverges.
+For large \(N\), \(L>0\), so this also covers \(\gamma\leq0\).
 
-2. Let \(a>0\) and \(0<\gamma<1/9\), and set
+2. Let \(a>0\) and \(\gamma<1/6\), and set
 \[
  f_{a,\gamma}(N)=N\exp(-aL^\gamma).
 \]
@@ -51,7 +56,7 @@ Hence no member of this natural fixed-coefficient family can be an asymptotic fo
 \[
  \frac{r_3(N)}{N/L^A}=\exp\!\left(A\log L-\lambda(N)\right)\longrightarrow0,
 \]
-because \(A\log\log N=A\log L=o(L^{1/9})\), while (B--S) gives \(\lambda(N)\geq cL^{1/9}\). This also excludes every fixed logarithmic-power comparison.
+because \(A\log L=o(L^{1/6}/\log L)\), while (R) gives the displayed lower bound for \(\lambda(N)\). This also excludes every fixed logarithmic-power comparison.
 
 4. Conversely, the construction bound gives, for every \(\gamma>1/2\),
 \[
@@ -65,4 +70,4 @@ Therefore, for \(a>0\),
 \]
 not zero: the bracket tends to \(a>0\), and \(L^\gamma\to\infty\).
 
-Thus present bounds exclude only the pure fixed-coefficient natural stretched-exponential candidates with exponent outside \([1/9,1/2]\). They do **not** validate candidates inside that window, classify endpoint coefficients, or give an asymptotic formula or a solution of canonical Erdős #142. The modality is mathematically unconditional given the published Bloom--Sisask theorem, but this comparison is not Lean-formalized. Existing `Proofs/Erdos/Erdos142/StretchedExponentialObstruction.lean` formalizes the \(\gamma>1/2\) half only (in particular, `tendsto_rothLogDeficit_div_rpow_zero`).
+Thus present bounds exclude only the pure fixed-coefficient natural stretched-exponential candidates with exponent outside \([1/6,1/2]\). The endpoint \(\gamma=1/6\) remains unresolved, as do candidates inside the window and endpoint coefficients. These statements do not prove P, give an asymptotic formula, or solve canonical Erdős #142. The Raghavan estimate is a preprint external input, not Lean-formalized; existing `Proofs/Erdos/Erdos142/StretchedExponentialObstruction.lean` formalizes only the \(\gamma>1/2\) half (in particular, `tendsto_rothLogDeficit_div_rpow_zero`).

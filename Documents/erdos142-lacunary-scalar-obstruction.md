@@ -2,6 +2,8 @@
 
 ## Status and the target
 
+All logarithms are natural unless a subscript is displayed.
+
 Write the desired assertion exactly as
 \[
  P:\quad \exists C>0\ \exists\eta\in(0,\sqrt2-1]\ \exists N_0\ \forall N\geq N_0,
@@ -11,9 +13,9 @@ Here this note is a *synthetic derivability obstruction*: it is not a counterexa
 
 ## The tangent envelope
 
-Put \(a=1/9\), choose
+Put \(a=1/6\), choose
 \[
- 1<p<8,\qquad T_0>\max(1,2^{1/(p-1)}),\qquad T_{k+1}=T_k^p,
+ 1<p<5,\qquad T_0>\max(1,2^{1/(p-1)}),\qquad T_{k+1}=T_k^p,
 \]
 and define
 \[
@@ -26,12 +28,12 @@ The intersection of adjacent tangents is
 \[
  S_k=\frac{1-a}{a}\,\frac{T_{k+1}^a-T_k^a}{T_k^{a-1}-T_{k+1}^{a-1}}.
 \]
-If \(r_k=(T_{k+1}/T_k)^{1/9}\), direct cancellation gives
+If \(r_k=(T_{k+1}/T_k)^{1/6}\), direct cancellation gives
 \[
- S_k=\frac{8T_kr_k^8}{1+r_k+\cdots+r_k^7},
- \qquad T_kr_k\leq S_k\leq8T_kr_k. \tag{1}
+ S_k=\frac{5T_kr_k^5}{1+r_k+r_k^2+r_k^3+r_k^4},
+ \qquad T_kr_k\leq S_k\leq5T_kr_k. \tag{1}
 \]
-For completeness, let \(g(r)=8r^8/(1+\cdots+r^7)\). Its logarithmic derivative is positive (the weighted mean of the exponents \(0,\ldots,7\) is less than \(8\)), so \(g\) is increasing. Since \(r_{k+1}=r_k^p>r_k\),
+For completeness, let \(g(r)=5r^5/(1+r+\cdots+r^4)\). Its logarithmic derivative is positive (the weighted mean of the exponents \(0,\ldots,4\) is less than \(5\)), so \(g\) is increasing. Since \(r_{k+1}=r_k^p>r_k\),
 \[
  \frac{S_{k+1}}{S_k}=T_k^{p-1}\frac{g(r_{k+1})}{g(r_k)}>T_k^{p-1}>2. \tag{2}
 \]
@@ -39,24 +41,28 @@ The intercepts of the lines are increasing and their slopes are decreasing. Toge
 
 Here is the quantitative size check. On \([S_k,S_{k+1}]\), use the line with parameter \(T_{k+1}\). From (1),
 \[
- \frac{T_{k+1}^a}{\sqrt{S_k}}\ll T_k^{(p-8)/18},
+ \frac{T_{k+1}^a}{\sqrt{S_k}}\ll T_k^{(p-5)/12},
  \qquad
  aT_{k+1}^{a-1}\sqrt{S_{k+1}}
- \ll T_{k+1}^{(p-8)/18}.
+ \ll T_{k+1}^{(p-5)/12}.
 \]
-The first controls the intercept and the second controls the slope term, since \(s/\sqrt s=\sqrt s\) is increasing. The condition \(p\leq8\) would make both bounds uniform, while the chosen strict condition \(p<8\) makes them decay. Hence, eventually,
+The first controls the intercept and the second controls the slope term, since \(s/\sqrt s=\sqrt s\) is increasing. The condition \(p\leq5\) would make both bounds uniform, while the chosen strict condition \(p<5\) makes them decay. Hence, eventually,
 \[
- s^a-f(0)\leq F(s)\leq C\sqrt{s}. \tag{3}
+ s^{1/6}-f(0)\leq F(s)\leq C\sqrt{s}. \tag{3}
 \]
 The upper bound is only an eventual bound; no claim \(C\sqrt s\) at \(s=0\) is intended. It follows that \(F(s)\to\infty\) and \(F(s)=o(s)\). Also, since \(2S_k<S_{k+1}\), both points lie on the same tangent and
 \[
  F(2S_k)-F(S_k)=aT_{k+1}^{a-1}S_k.
 \]
-After division by \(S_k^a\), this is \(a(S_k/T_{k+1})^{1-a}\to0\), because \(S_k/T_{k+1}\ll T_k^{-8(p-1)/9}\). The lower bound in (3) then proves
+After division by \(S_k^a\), this is \(a(S_k/T_{k+1})^{1-a}\to0\), because
+\[
+ S_k/T_{k+1}\ll T_k^{-5(p-1)/6}.
+\]
+The lower bound in (3) then proves
 \[
  0\leq\frac{F(2S_k)-F(S_k)}{F(S_k)}\longrightarrow0. \tag{4}
 \]
-Thus the pointwise lower bound \(F(s)\gg s^{1/9}\) is not a positive lower Matuszewska scaling index: indeed, for every fixed \(\lambda>1\), eventually \(\lambda S_k<S_{k+1}\) and the same tangent calculation gives \(F(\lambda S_k)/F(S_k)\to1\). In the O-regular/Matuszewska language, this construction has lower scaling index zero despite its pointwise power lower bound.
+Thus the pointwise lower power is \(s^{1/6}-f(0)\), and the corresponding Matuszewska discussion has exponent \(1/6\): nevertheless, for every fixed \(\lambda>1\), eventually \(\lambda S_k<S_{k+1}\) and the same tangent calculation gives \(F(\lambda S_k)/F(S_k)\to1\). In the O-regular/Matuszewska language, this construction still has lower scaling index zero despite its pointwise \(1/6\)-power lower bound.
 
 ## The integer comparison function
 
@@ -72,11 +78,11 @@ together with \(F(0)=0\) gives \(1\leq R(N)\leq N\) globally; the limits remain 
 \[
  R(N)/N\to0,\qquad \frac{\log R(N)}{\log N}\to1. \tag{5}
 \]
-The deficit has the modern-lower/Behrend-upper envelope
+The deficit has the stronger model envelope
 \[
- c(\log N)^{1/9}\leq F(\log N)\leq C\sqrt{\log N} \tag{6}
+ c(\log N)^{1/6}\leq F(\log N)\leq C\sqrt{\log N} \tag{6}
 \]
-eventually. (The names refer to the corresponding two sides for actual Roth bounds, not to an assertion that \(R\) is an extremal function.)
+eventually. This lower model envelope is stronger than Raghavan's actual external bound, which has the factor \(/\log\log N\); it is therefore a synthetic model choice, not a claim about actual Roth numbers. The names refer to the corresponding sides for actual Roth bounds, not to an assertion that \(R\) is an extremal function.
 
 A nonnegative increasing concave function vanishing at zero is subadditive: its decreasing increments give \(F(x+y)-F(x)\leq F(y)-F(0)\). Thus the following are exact for every indicated integer:
 \[
@@ -112,10 +118,15 @@ Equation (9), together with \(F(\log n_k)\to\infty\), contradicts (10) along \(n
 1. **Quantifiers/status.** \(P\) has one fixed \(\eta\), one fixed \(C\), and a discarded finite initial range. The model defeats all such choices; it does not assert anything about actual \(r_3\).
 2. **Additive structure represented vs absent.** \(R\) has no sets, 3-term progressions, digit fibers, or carries. The obstruction therefore identifies exactly what scalar information cannot see.
 3. **Implication for \(X/\lambda\).** For this model, \(\lambda_R(N)=\log(N/R(N))=F(\log N)\) and \(X_R(N)=\log(R(N)^2/R(N^2))=F(2\log N)-2F(\log N)\). By subadditivity, \(F(2\log N)\leq2F(\log N)\), so \(X_R(N)\leq0\). Scalar control of these quantities, absent an additive lemma, does not force the fixed-power lower bound for \(\lambda_R(N^2)\).
-4. **Optimized \(p<8\) and \(\eta\).** The cutoff \(p<8\) is exactly the square-root upper-envelope calculation; failure holds for every \(\eta>0\), so the permitted \(\sqrt2-1\) range is irrelevant to the obstruction.
+4. **Optimized \(p<5\) and \(\eta\).** The cutoff \(p<5\) is exactly the square-root upper-envelope calculation; failure holds for every \(\eta>0\), so the permitted \(\sqrt2-1\) range is irrelevant to the obstruction.
 5. **Model behavior.** The model is increasing, sublinear, has (6), satisfies the exact relations (7)--(8), and still has lacunary near-doubling plateaux.
 6. **Falsifier/termination.** The sequence \(n_k\) is the termination certificate: (9) directly falsifies (10), with no search or unverified asymptotic guess.
 7. **Exact route exclusion.** Any derivation using only the listed scalar monotonicity, concavity/subadditivity, envelopes, and exact relations (including their simultaneous use) is insufficient for \(P\). A genuinely additive input must enter.
 8. **Minimal future Lean artifact.** A minimal formalization would prove the tangent-envelope bounds, subadditivity, the sampled integer perturbation, and the quantified failure of (10); it need not formalize any claim about actual Roth numbers.
 
-For context, Bloom--Sisask, [arXiv:2309.02353](https://arxiv.org/abs/2309.02353), supplies the actual bound \(r_3(N)\leq N\exp(-c(\log N)^{1/9})\). Matuszewska (1964), [doi:10.4064/sm-24-3-271-279](https://doi.org/10.4064/sm-24-3-271-279), and Bingham--Goldie--Teugels, *Regular Variation*, §2.2, Proposition 2.2.1, provide the O-regular/Matuszewska context. No audited source supplied this exact tangent-envelope Roth-route obstruction; that is not a claim that none exists. Flooring \(R\) is optional intuition only: the exact relations above are not claimed after flooring.
+For context, Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v2](https://arxiv.org/abs/2603.27045), Theorem 1.4, gives for odd \(N>1\) the external bound used for the actual comparison. Passing to \(N+1\) for even \(N\), using monotonicity and absorbing the factor \((N+1)/N\) and comparable logarithms, gives eventually for all \(N\)
+\[
+ \lambda(N)\geq c\frac{(\log N)^{1/6}}{\log\log N},\qquad
+ \log\lambda(N)\geq\tfrac16\log\log N-\log\log\log N+O(1).
+\]
+This actual external envelope is weaker than the model envelope (6), whose stronger pure power is synthetic. Matuszewska (1964), [doi:10.4064/sm-24-3-271-279](https://doi.org/10.4064/sm-24-3-271-279), and Bingham--Goldie--Teugels, *Regular Variation*, §2.2, Proposition 2.2.1, provide the O-regular/Matuszewska context. No audited source supplied this exact tangent-envelope Roth-route obstruction; that is not a claim that none exists. Flooring \(R\) is optional intuition only: the exact relations above are not claimed after flooring.
