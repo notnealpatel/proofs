@@ -82,7 +82,7 @@ The deficit has the stronger model envelope
 \[
  c(\log N)^{1/6}\leq F(\log N)\leq C\sqrt{\log N} \tag{6}
 \]
-eventually. This lower model envelope is stronger than Raghavan's actual external bound, which has the factor \(/\log\log N\); it is therefore a synthetic model choice, not a claim about actual Roth numbers. The names refer to the corresponding sides for actual Roth bounds, not to an assertion that \(R\) is an extremal function.
+eventually. Thus the synthetic lower envelope is \(F(s)\gg s^{1/6}\), which dominates Raghavan's actual external \(s^{1/6}/(\log s)^{1/6}\) envelope. It is therefore a synthetic model choice, not a claim about actual Roth numbers. The names refer to the corresponding sides for actual Roth bounds, not to an assertion that \(R\) is an extremal function.
 
 A nonnegative increasing concave function vanishing at zero is subadditive: its decreasing increments give \(F(x+y)-F(x)\leq F(y)-F(0)\). Thus the following are exact for every indicated integer:
 \[
@@ -124,9 +124,9 @@ Equation (9), together with \(F(\log n_k)\to\infty\), contradicts (10) along \(n
 7. **Exact route exclusion.** Any derivation using only the listed scalar monotonicity, concavity/subadditivity, envelopes, and exact relations (including their simultaneous use) is insufficient for \(P\). A genuinely additive input must enter.
 8. **Minimal future Lean artifact.** A minimal formalization would prove the tangent-envelope bounds, subadditivity, the sampled integer perturbation, and the quantified failure of (10); it need not formalize any claim about actual Roth numbers.
 
-For context, Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v2](https://arxiv.org/abs/2603.27045), Theorem 1.4, gives for odd \(N>1\) the external bound used for the actual comparison. Passing to \(N+1\) for even \(N\), using monotonicity and absorbing the factor \((N+1)/N\) and comparable logarithms, gives eventually for all \(N\)
+For context, Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v3 (15 May 2026)](https://arxiv.org/abs/2603.27045v3), Theorem 1.4, gives for all \(N\) the external bound used for the actual comparison:
 \[
- \lambda(N)\geq c\frac{(\log N)^{1/6}}{\log\log N},\qquad
- \log\lambda(N)\geq\tfrac16\log\log N-\log\log\log N+O(1).
+ \lambda(N)\geq c\frac{(\log N)^{1/6}}{(\log\log N)^{1/6}},\qquad
+ \log\lambda(N)\geq\tfrac16\log\log N-\tfrac16\log\log\log N+O(1).
 \]
-This actual external envelope is weaker than the model envelope (6), whose stronger pure power is synthetic. Matuszewska (1964), [doi:10.4064/sm-24-3-271-279](https://doi.org/10.4064/sm-24-3-271-279), and Bingham--Goldie--Teugels, *Regular Variation*, §2.2, Proposition 2.2.1, provide the O-regular/Matuszewska context. No audited source supplied this exact tangent-envelope Roth-route obstruction; that is not a claim that none exists. Flooring \(R\) is optional intuition only: the exact relations above are not claimed after flooring.
+This actual external envelope is weaker than the model envelope (6), whose stronger pure power is synthetic. The theorem/source is cited rather than the stale abstract, which retains the older loglog exponent. Matuszewska (1964), [doi:10.4064/sm-24-3-271-279](https://doi.org/10.4064/sm-24-3-271-279), and Bingham--Goldie--Teugels, *Regular Variation*, §2.2, Proposition 2.2.1, provide the O-regular/Matuszewska context. No audited source supplied this exact tangent-envelope Roth-route obstruction; that is not a claim that none exists. Flooring \(R\) is optional intuition only: the exact relations above are not claimed after flooring.

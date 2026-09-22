@@ -10,16 +10,16 @@ The interval convention is immaterial here, provided it is fixed. All logarithms
 
 ## External input and exact square towers
 
-We use, and do not formalize in Lean, Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v2](https://arxiv.org/abs/2603.27045), Theorem 1.4, a preprint and external/non-Lean input. For odd \(N>1\) it gives, eventually,
+We use, and do not formalize in Lean, Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v3 (15 May 2026)](https://arxiv.org/abs/2603.27045v3), Theorem 1.4, a preprint and external/non-Lean input. Its source theorem is for all \(N\), with some \(c>0\), and gives
 \[
- r_3(N)\leq N\exp\!\left(-c\,\frac{(\log N)^{1/6}}{\log\log N}\right).
+ r_3(N)\leq N\exp\!\left(-c\,(\log N)^{1/6}(\log\log N)^{-1/6}\right).
 \]
-For even \(N\), apply this at the odd integer \(N+1\), use monotonicity \(r_3(N)\leq r_3(N+1)\), and absorb the factor \((N+1)/N\) and the comparable logarithms. Hence eventually for all \(N\),
+Hence eventually for all \(N\),
 \[
- \lambda(N)\geq c\frac{(\log N)^{1/6}}{\log\log N},\qquad
- \log\lambda(N)\geq\tfrac16\log\log N-\log\log\log N+O(1). \tag{R}
+ \lambda(N)\geq c\frac{(\log N)^{1/6}}{(\log\log N)^{1/6}},\qquad
+ \log\lambda(N)\geq\tfrac16\log\log N-\tfrac16\log\log\log N+O(1). \tag{R}
 \]
-The denominator is essential: this does not imply a pure \(c(\log N)^{1/6}\) bound. Roth's theorem separately gives \(\lambda(N)\to\infty\).
+The denominator is essential: this does not imply a pure \(c(\log N)^{1/6}\) bound. The theorem/source is cited rather than the abstract, whose loglog exponent is stale. Roth's theorem separately gives \(\lambda(N)\to\infty\).
 
 Fix an integer \(B\geq2\), put \(N_k=B^{2^k}\), and write \(a_k=\lambda(N_k)\). The elementary accepted parity-product bound is
 \[
@@ -39,8 +39,8 @@ Thus (1) is not an unsupported input. Consequently, after discarding finitely ma
 \]
 for all sufficiently large \(k\): indeed, use (1) and \(\log2/a_k\leq\varepsilon\). On the other hand, (R) gives the exact eventual consequence
 \[
- a_k\geq c\,\frac{(\log B)^{1/6}2^{k/6}}{k\log2+\log\log B}
- \geq c'\frac{2^{k/6}}{k}
+ a_k\geq c\,\frac{(\log B)^{1/6}2^{k/6}}{(k\log2+\log\log B)^{1/6}}
+ \geq c'\frac{2^{k/6}}{k^{1/6}}
 \tag{3}
 \]
 for all sufficiently large \(k\), where \(c'>0\) depends on \(B\).
@@ -59,9 +59,9 @@ Choose \(k_0\) after both eventual statements above hold. For \(K>k_0\), let
 \]
 Combining (4) with (3), taking logarithms, and dividing by \(K\), yields explicitly
 \[
- \frac{1}{K}\log a_K\geq \frac16\log2-\frac{\log K}{K}+o(1).
+ \frac{1}{K}\log a_K\geq \frac16\log2-\frac16\frac{\log K}{K}+o(1).
 \]
-The term \(- (\log K)/K=o(1)\) is retained in this averaged logarithm. Therefore, after rearranging (4),
+The exact correction \(-\tfrac16(\log K)/K=o(1)\) is retained in this averaged logarithm. Therefore, after rearranging (4),
 \[
  \liminf_{K\to\infty}\frac{|G_q\cap\{0,\ldots,K-1\}|}{K}
  \geq

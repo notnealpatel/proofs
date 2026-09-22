@@ -9,17 +9,17 @@ and put \(L=\log N\) (natural logarithms). The following is an unconditional com
 
 ## The external input
 
-Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v2](https://arxiv.org/abs/2603.27045), Theorem 1.4, is a preprint and external/non-Lean input. It proves for odd \(N>1\) that
+Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v3 (15 May 2026)](https://arxiv.org/abs/2603.27045v3), Theorem 1.4, is a preprint and external/non-Lean input. It proves for all \(N\), with some \(c>0\),
 \[
- r_3(N)\leq N\exp\!\left(-c\,\frac{(\log N)^{1/6}}{\log\log N}\right)
+ r_3(N)\leq N\exp\!\left(-c\,(\log N)^{1/6}(\log\log N)^{-1/6}\right).
 \]
-for some \(c>0\), eventually. Oddness can be removed by applying the estimate to the odd number \(N+1\) when \(N\) is even, using monotonicity \(r_3(N)\leq r_3(N+1)\) and absorbing the factor \((N+1)/N\) (and the comparable logarithms) into the constants. Thus, eventually for every \(N\),
+Thus, eventually for every \(N\),
 \[
- \lambda(N)\geq c\,\frac{L^{1/6}}{\log L},
+ \lambda(N)\geq c\,\frac{L^{1/6}}{(\log L)^{1/6}},
  \qquad
- \log\lambda(N)\geq \tfrac16\log\log N-\log\log\log N+O(1). \tag{R}
+ \log\lambda(N)\geq \tfrac16\log\log N-\tfrac16\log\log\log N+O(1). \tag{R}
 \]
-This is not the stronger pure bound \(\lambda(N)\geq c(\log N)^{1/6}\).
+This is not the stronger pure bound \(\lambda(N)\geq c(\log N)^{1/6}\). The cited theorem/source statement is used here rather than the stale abstract, which retains the older loglog exponent.
 
 The repository-accepted Behrend/EHPS-shaped construction is
 `Proofs/Erdos/Erdos142/TorusAsymptoticLowerBound.lean`, theorem
@@ -34,7 +34,7 @@ Thus \(\lambda(N)=O(\sqrt L)\). Its construction provenance is Elsholtz--Hunter-
 1. First take the natural stretched-exponential range \(\gamma<1/6\). From (R), for every fixed real \(\gamma<1/6\),
 \[
  \frac{\lambda(N)}{L^\gamma}
- \geq c\,\frac{L^{1/6-\gamma}}{\log L}
+ \geq c\,\frac{L^{1/6-\gamma}}{(\log L)^{1/6}}
  \longrightarrow+\infty.
 \]
 For large \(N\), \(L>0\), so this also covers \(\gamma\leq0\).

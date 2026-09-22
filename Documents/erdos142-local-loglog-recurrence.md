@@ -13,10 +13,10 @@ We use the accepted weighted identity
 \]
 together with the tail-uniform bounds \(0\le C_n\le1+o(1)\), and the external envelopes
 \[
- \tfrac16\log\log M-\log\log\log M+O(1)\le \log\lambda(M)\le
+ \tfrac16\log\log M-\tfrac16\log\log\log M+O(1)\le \log\lambda(M)\le
  \tfrac12\log\log M+O(1).                                      \tag{1}
 \]
-The lower envelope follows from Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v2](https://arxiv.org/abs/2603.27045), Theorem 1.4, a preprint and external/non-Lean input. Its estimate is stated for odd \(N>1\); applying it at \(N+1\) for even \(N\), using monotonicity and absorbing \((N+1)/N\) and comparable logarithms, gives the displayed eventual all-\(N\) envelope. The \(-\log\log\log M\) term is essential: this is not a pure \(\tfrac16\log\log M+O(1)\) lower bound.
+The lower envelope follows from Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v3 (15 May 2026)](https://arxiv.org/abs/2603.27045v3), Theorem 1.4, a preprint and external/non-Lean input. Its source theorem is for all \(N\), so no odd-to-all-\(N\) conversion is needed. The \(-\tfrac16\log\log\log M\) term is essential: this is not a pure \(\tfrac16\log\log M+O(1)\) lower bound; the theorem/source is cited rather than the stale abstract.
 
 ## Theorem
 
@@ -66,11 +66,11 @@ For large \(T\), subtract the accepted identity at \(M=b\) and at \(M=a-1\):
 Apply the lower envelope in (1) at \(b+1\), and the upper envelope at \(a\). The endpoint estimates above give
 \[
  \log\lambda(b+1)-\log\lambda(a)
- \ge \left(\frac\rho6-\frac12\right)T-\log\log\log(b+1)+o(T).
+ \ge \left(\frac\rho6-\frac12\right)T-\tfrac16\log\log\log(b+1)+o(T).
 \]
 Now \(\log\log(b+1)=\rho T+o(T)\), so explicitly the terminal lower-order term is
 \[
- -\log\log\log(b+1)=O(\log T)=o(T),
+ -\tfrac16\log\log\log(b+1)=O(\log T)=o(T),
 \]
 with \(\log\log\log(b+1)=\log T+O(1)\), not \(\log\log T\). Hence (5) and (4) prove (2), including its asserted all-real-\(T\) liminf.
 

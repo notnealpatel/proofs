@@ -4,12 +4,16 @@ Put \(r(N)=r_3(N)\), where \(r_3(N)\) is the maximum size of a nontrivial-3AP-fr
 \[
 w_n=\log\log(n+1)-\log\log n.
 \]
-All logarithms below are natural unless a subscript is displayed. Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v2](https://arxiv.org/abs/2603.27045), Theorem 1.4, is a preprint and external/non-Lean input. Its estimate is for odd \(N>1\); for even \(N\), apply it at \(N+1\), use monotonicity \(r(N)\leq r(N+1)\), and absorb \((N+1)/N\) and the comparable logarithms. Hence eventually for all \(N\),
+All logarithms below are natural unless a subscript is displayed. Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v3 (15 May 2026)](https://arxiv.org/abs/2603.27045v3), Theorem 1.4, is a preprint and external/non-Lean input. Its source theorem is for all \(N\), with some \(c>0\), and gives
 \[
- \lambda(N)\geq c\frac{(\log N)^{1/6}}{\log\log N},\qquad
- \log\lambda(N)\geq\tfrac16\log\log N-\log\log\log N+O(1). \tag{R}
+ r_3(N)\leq N\exp\!\left(-c\,(\log N)^{1/6}(\log\log N)^{-1/6}\right).
 \]
-In particular, this is not a pure \(c(\log N)^{1/6}\) lower bound.
+Hence eventually for all \(N\),
+\[
+ \lambda(N)\geq c\frac{(\log N)^{1/6}}{(\log\log N)^{1/6}},\qquad
+ \log\lambda(N)\geq\tfrac16\log\log N-\tfrac16\log\log\log N+O(1). \tag{R}
+\]
+In particular, this is not a pure \(c(\log N)^{1/6}\) lower bound; the theorem/source is cited rather than the abstract, whose loglog exponent is stale.
 
 Fix \(1<q<2^{1/6}\), and let \(G_q=\{n\ge3:\lambda(n^2)\ge q\lambda(n)\}\). Then
 \[
@@ -50,9 +54,9 @@ Qualitative Roth gives \(\lambda(N)\to\infty\). Thus (3), (4), and the additive 
 \]
 and \(0\le C(x)\le1+o(1)\). From (R), with \(n(x)\) in place of \(N\),
 \[
- L(x)\ge x/6-\log x+O(1). \tag{6a}
+ L(x)\ge x/6-(1/6)\log x+O(1). \tag{6a}
 \]
-The \(-\log x\) term is retained here; it is \(o(x)\), and therefore
+The \(-(1/6)\log x\) term is retained here; it is \(o(x)\), and therefore
 \(\liminf_{x\to\infty}L(x)/x\ge1/6\).
 
 Let \(T=\log\log(M+1)\) and \(R_0=\log\log3\). Since \(n(x)=n\) on \([\log\log n,\log\log(n+1))\), (5) and continuous telescoping give
