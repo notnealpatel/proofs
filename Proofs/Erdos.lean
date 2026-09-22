@@ -84,6 +84,7 @@ import Erdos.Erdos142.RegularityDiscriminator
 import Erdos.Erdos142.FixedRadixDefect
 import Erdos.Erdos142.FixedRadixRecurrence
 import Erdos.Erdos142.FixedRadixUpperEnvelope
+import Erdos.Erdos142.OneScaleLPObstruction
 import Erdos.Erdos142.OddScaleRatioRigidity
 import Erdos.Erdos142.AsymptoticComparisonRigidity
 import Erdos.Erdos142.PersistentProductDefect
