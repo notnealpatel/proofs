@@ -40,7 +40,7 @@ The same hypothesis gives the stronger vector statement only with the worse cons
 \[
  R_2(N)\le4e^K r(N)^{1+\eta}N^{1-\eta}.
 \]
-Thus (H) is a strong sufficient condition for **P**, not an equivalent reformulation; the stronger-intermediate classification is independent reduction \((H)\Rightarrow(P)\) versus the separately proved \((H)\Rightarrow\) the displayed \(R_2\) bound.
+Thus (H) is a strong sufficient condition for **P**, not literally equivalent with the same fixed \(\eta,K\): see [critical-contraction regularity](erdos142-critical-contraction-regularity.md) for the exact transfer. After existential quantification over fixed positive eventual gains, however, (H) and square gain/**P** are equivalent after loss in \(\eta\). The stronger-intermediate classification remains the independent reductions \((H)\Rightarrow(P)\) and \((H)\Rightarrow\) the displayed \(R_2\) bound.
 
 ## Rejected but valid Ruzsa lead
 
@@ -62,7 +62,7 @@ The old scalar transfer here was base-\(N\) digitization: a scalar AP-free set i
 ## Eight-part contract/audit
 
 1. **Quantifiers and status.** One fixed \(\eta,K,N_0\) in (H) applies for every \(N\ge N_0\), with the same eventual quantifier in (P). (H) remains an unproved strong sufficient condition at the critical contraction; this is conditional and makes no claim to prove **P**.
-2. **Independent routes.** Combined with (H), direct interval partitioning proves **P**, while carry-free encoding gives the stronger \(R_2\) intermediate with constant \(4e^K\). Ruzsa is valid but dominated; neither route makes (H) necessary, so there is no equivalence.
+2. **Independent routes.** Combined with (H), direct interval partitioning proves **P**, while carry-free encoding gives the stronger \(R_2\) intermediate with constant \(4e^K\). Ruzsa is valid but dominated. The new [regularity note](erdos142-critical-contraction-regularity.md) supplies existential positive-gain equivalence after \(\eta\)-loss, but neither route gives literal fixed-parameter equivalence.
 3. **Constants and directions.** Direct constants are \(2\) for the image/partition step and \(4\) in (D2); the vector conclusion is \(4e^K\). The rejected route is \(4\), then \(64\), then \(128\). Base-\(N\) digitization has carry directions \(x_1+x_3-2x_2=tN\), \(y_1+y_3-2y_2=-t\), with \(t=\pm1\) as well as \(0\); the \(2N-1\) map is carry-free.
 4. **Products and fibers.** \(B\times B\) gives \(R_2(N)\ge r(N)^2\). The whole-set Ruzsa argument does not assume equal fibers and covers unequal fibers; endpoints and ceilings account for every factor \(2\).
 5. **Models and criticality.** Under Behrend-type \(\lambda(N)\approx c\sqrt{\log N}\), (H) predicts \(1+\eta\le\sqrt2\), with no leading-order endpoint slack. The comparison \(r(N)\approx N/\log N\) fails (H) and **P**. The contraction \(N^2\to r(N)^2\) is critical under the accepted EHPS envelope; accepted subcritical growing-dilation regularity does not prove (H).
