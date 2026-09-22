@@ -20,18 +20,18 @@ The lower envelope follows from Rushil Raghavan, *Improved Bounds for 3-Progress
 
 ## Theorem
 
-Fix \(\rho>3\). For every real \(T\to\infty\), define, with integer endpoints,
+Fix \(\rho>3\). For all sufficiently large real \(T\) for which the endpoint sets are nonempty, define over natural numbers \(n\ge3\),
 \[
- a(T)=\min\{n\ge3:\log\log n\ge T\},\qquad
- b(T)=\max\{n:\log\log n\le\rho T\}.
+ a(T)=\min\{n\in\mathbb N:n\ge3,\ \log\log n\ge T\},\qquad
+ b(T)=\max\{n\in\mathbb N:n\ge3,\ \log\log n\le\rho T\}.
 \]
-For all sufficiently large \(T\), the interval is nonempty, and, writing
+For all sufficiently large \(T\), the window is nonempty, \(a(T)\le b(T)\), and, writing
 \[
  W_T=\sum_{a(T)\le n\le b(T)}w_n,
 \]
 we have, with liminf taken over all real \(T\),
 \[
- W_T=(\rho-1)T+o(T),\qquad
+ W_T=(\rho-1)T+o(T),\quad W_T>0,\qquad
  \liminf_{T\to\infty}\frac{\sum_{a(T)\le n\le b(T)}w_nC_n}{W_T}
  \ge A(\rho):=\frac{\rho/6-1/2}{\rho-1}.                    \tag{2}
 \]
@@ -89,4 +89,4 @@ A direct expansion of \(\lambda\) gives the equivalent statement
 \[
  r_3(n^2)\le n^{1-\eta}r_3(n)^{1+\eta}.
 \]
-This is a strictly local recurrence on arbitrarily large prescribed log-log windows. It does not imply eventual \(P\), \(D\to0\), or an asymptotic formula. The scalar model \(\lambda(N)=\log\log N\), arising from \(r_3(N)=N/\log N\), violates the present lower envelope and therefore cannot test this conclusion. A Behrend-scale model \(\lambda(N)\sim c\sqrt{\log N}\) has \(C_n\to1/2\) and is compatible with the envelopes, though nonsharp. A falsifier would be a sequence of windows whose means fall below \(A(\rho)\) by a fixed amount; (5) shows that this would contradict the accepted identity or an envelope at order \(T\). The argument terminates at this local recurrence and makes no eventuality claim. See the predecessor document `erdos142-loglog-dense-square-scales.md`. A minimal Lean formalization would first need the accepted weighted identity and envelopes as formal inputs; there is no vacuous-premise theorem here.
+This is a strictly local recurrence on arbitrarily large prescribed log-log windows. It does not imply eventual \(P\), \(D\to0\), or an asymptotic formula. The scalar model \(\lambda(N)=\log\log N\), arising from \(r_3(N)=N/\log N\), violates the present lower envelope and therefore cannot test this conclusion. A Behrend-scale model \(\lambda(N)\sim c\sqrt{\log N}\) has \(C_n\to1/2\) and is compatible with the envelopes, though nonsharp. A falsifier would be a sequence of windows whose means fall below \(A(\rho)\) by a fixed amount; (5) shows that this would contradict the accepted identity or an envelope at order \(T\). The argument terminates at this local recurrence and makes no eventuality claim. See the predecessor document `erdos142-loglog-dense-square-scales.md`. A minimal Lean formalization would first need the accepted weighted identity and envelopes as formal inputs; there is no vacuous-premise theorem here. See also `erdos142-critical-gain-density.md` for the transferred local gain statement.
