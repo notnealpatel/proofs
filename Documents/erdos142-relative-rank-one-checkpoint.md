@@ -551,13 +551,50 @@ which tends to infinity at Behrend-scale density.  Modular 3-AP-freeness
 controls one three-point pattern, not the centered four-point affine-ratio
 correlations appearing in this fourth moment.
 
-This refutes a fourth-moment bound uniform over **all** long ordinary
-progressions.  It does not yet refute a scale-localized argument: for
-$\ell=\delta^Kp/2$, the witness $R$ is much longer than $\ell$, and a density
-increment on a long progression can potentially be reduced to blocks of
-length comparable to $\ell$.  Whether an adequate fourth-moment or tail bound
-holds uniformly for $|P|\asymp\ell$ remains open.  Thus neither the
-macroscopic heavy tail nor the cyclic carrier decides ordinary `RAI(K)`.
+The macroscopic witness does not by itself address the cutoff
+$\ell=\lceil\delta^Kp/2\rceil$.  The same heavy-tail obstruction nevertheless
+persists at that exact scale.  Fix $K\ge1$, put $H=\lfloor p/8\rfloor$, and
+choose a Behrend cap $C$ of size $|C|=\delta p$ inside the middle half of
+$[0,H)$.  Then $\delta=\exp(-O(\sqrt{\log p}))$, so $\ell=o(p)$ and, for
+large $p$, every point of $C$ is at distance at least $\ell$ from both
+endpoints of $[0,H)$.  Translation preserves ordinary and modular
+3-AP-freeness.
+
+For $0\le s\le H-\ell$, let
+$$
+X_s=|C\cap[s,s+\ell)|.
+$$
+Every point of $C$ belongs to exactly $\ell$ such windows, whence
+$$
+\sum_{s=0}^{H-\ell}X_s=\delta p\ell.
+$$
+If $T$ windows have $X_s\ge(9/8)\delta\ell$, then, since $X_s\le\ell$ and
+$H-\ell+1\le p/8$,
+$$
+\delta p\ell
+ \le T\ell+(H-\ell+1)\frac98\delta\ell,
+\qquad
+T\ge\frac{55}{64}\delta p.
+$$
+For every such $s$, the affine image $C-s$ has intersection $X_s$ with the
+fixed ordinary interval $R=[0,\ell)$.  Therefore
+$$
+\mathbb E_{u\ne0,v}
+ \bigl|| (uC+v)\cap R|-\delta\ell\bigr|^4
+ \ge \frac{55}{2^{18}}\frac{\delta^5\ell^4}{p}.
+$$
+Relative to $(\delta\ell)^2$, this is at least
+$$
+\frac{55}{2^{20}}\delta^{2K+3}p\longrightarrow\infty.
+$$
+Thus the unconditioned fourth-moment estimate fails even at the critical
+RAI length.  This still does not refute ordinary `RAI(K)`: the proof
+exhibits aligned images of probability $\Omega(\delta/p)$, while the entire
+$u=1$ orientation has probability $1/(p-1)=O(1/p)$, and every exhibited
+image actually has the asserted interval density increment.  What
+remains open is a simultaneous-flatness construction or a tail estimate
+after conditioning away the aligned directions.  Neither the critical-scale
+heavy tail nor the cyclic carrier decides ordinary `RAI(K)`.
 
 ## Attempts to prove or refute (RAI)
 

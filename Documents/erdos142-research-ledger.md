@@ -553,10 +553,21 @@ $$
  \ge\frac{625}{7^5}\delta^4p^3.
 $$
 This exceeds a proposed $O((\delta|R|)^2)$ bound by an unbounded factor at
-Behrend density.  The witness is macroscopic, however: for the critical
-length $\ell=\delta^Kp/2$, $|R|\gg\ell$.  A scale-localized fourth-moment or
-tail estimate for $|P|\asymp\ell$ remains open, so this obstruction does not
-settle ordinary `RAI(K)`.
+Behrend density.  The same failure occurs at the exact critical length.
+With $H=\lfloor p/8\rfloor$, place a Behrend cap $C$ of density $\delta$ in
+the middle of $[0,H)$ and put $\ell=\lceil\delta^Kp/2\rceil$.  Sliding
+$\ell$-windows shows that at least $(55/64)\delta p$ translations have
+density at least $9\delta/8$ on the fixed interval $[0,\ell)$.  Consequently
+$$
+\mathbb E_{u\ne0,v}
+ \bigl|| (uC+v)\cap[0,\ell)|-\delta\ell\bigr|^4
+ \ge\frac{55}{2^{18}}\frac{\delta^5\ell^4}{p},
+$$
+which exceeds $(\delta\ell)^2$ by at least
+$(55/2^{20})\delta^{2K+3}p\to\infty$.  This closes the unconditioned
+fourth-moment strategy, not ordinary `RAI(K)`: the rare aligned images
+actually have the required increment.  A simultaneous-flatness construction
+or a tail estimate conditioned away from aligned directions remains open.
 
 The exact full statement survives, but is not proved by, the required stress
 tests.  A carry-free digit product $B+(2N-1)B$ lies in its density range;
@@ -605,9 +616,10 @@ to `RAI(K)`.
 
 1. Prove or refute the exact `RAI(K)` statement in
    [`erdos142-relative-rank-one-checkpoint.md`](erdos142-relative-rank-one-checkpoint.md).
-   First test whether affine-randomized Behrend caps satisfy a usable tail
-   estimate for ordinary progressions at the critical length
-   $|P|\asymp\delta^Kp$; the macroscopic fourth moment is now known to fail.
+   First test whether affine-randomized Behrend caps admit a useful tail
+   estimate after conditioning away the aligned directions; the
+   unconditioned fourth moment now fails even at the critical length
+   $|P|=\lceil\delta^Kp/2\rceil$.
    The other unresolved stress case is the carry-free product
    $B+(2N-1)B$: control every scalar AP of length
    $\gg\beta^{2K}N^2$, not only coordinate fibers.  Any proof must use
