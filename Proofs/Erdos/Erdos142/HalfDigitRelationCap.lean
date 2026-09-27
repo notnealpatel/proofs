@@ -46,7 +46,7 @@
 
   Scope.  This is a finite obstruction statement, not an asymptotic solution of
   Erdős Problem #142, and it claims no new Roth-type estimate.  No `sorry`, no
-  `unsafe`, no new axioms; the axiom audit is at the end of the file.
+  `unsafe`, no new axioms.
 -/
 
 import Mathlib.Combinatorics.Additive.AP.Three.Defs
@@ -313,4 +313,3 @@ theorem rothNumberNat_halfDigit_mul_le_rothNumberNat_sq (N : ℕ) :
 
 end Erdos142
 
--- Axiom audit for the public endpoints.

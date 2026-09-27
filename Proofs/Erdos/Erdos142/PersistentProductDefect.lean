@@ -167,4 +167,3 @@ end
 
 end Erdos142
 
--- Axiom audit for the load-bearing declarations.

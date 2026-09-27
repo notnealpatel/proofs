@@ -45,10 +45,9 @@
   formalization (corpora: Mathlib/.lake packages by grep, 2026-08-20; a
   wider assistant/web sweep was NOT completed, so no "first" is claimed) —
   and NOT a first proof of the mathematical fact.  The proof is complete:
-  the file compiles
-  with no `sorry`, no `admit`, no `axiom`, no `native_decide`, and
-  `#print axioms` on every theorem reports a subset of
-  `{propext, Classical.choice, Quot.sound}`.  Structure:
+  the file compiles with no `sorry`, no `admit`, no `axiom`, or
+  `native_decide`. A recorded per-theorem audit found only dependencies in
+  `{propext, Classical.choice, Quot.sound}`. Structure:
 
   * `a061256`, a division-free computable Euler-transform-of-σ, pinned to the
     11 leading OEIS terms by kernel `decide`;

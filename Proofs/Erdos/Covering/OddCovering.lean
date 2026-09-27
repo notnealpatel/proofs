@@ -190,7 +190,7 @@
   by construction; it is the only declaration allowed to.  Every other
   declaration reports a subset of
   {propext, Classical.choice, Quot.sound}.  No `native_decide`, no
-  `admit`, no custom axioms.  See the `#print axioms` block in §8.
+  `admit`, no custom axioms.
 -/
 
 import Mathlib

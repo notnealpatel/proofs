@@ -308,7 +308,6 @@ example : ∃ n : ℕ, 1 < n ∧ (quasilog n : ℝ) ≤ 2.5 * Real.log n := by
   push_cast
   linarith
 
-/-! ## Axiom audit (sorry-free declarations only) -/
 
 
 end NumberComplexity

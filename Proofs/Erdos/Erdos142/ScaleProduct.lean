@@ -22,7 +22,7 @@
   `rothNumberNat (2 * N * M - N)`; the latter is tight at `(N, M) = (1, 2)`, where
   both sides equal `2`.  Both forms are recorded below.
 
-  Axiom status is checked with `#print axioms` at the end of the file.
+  The recorded axiom status contains only the standard allowed axioms.
 -/
 
 import Mathlib.Combinatorics.Additive.AP.Three.Defs
@@ -156,4 +156,3 @@ theorem rothNumberNat_mul_le_rothNumberNat_two_mul_mul (N M : ℕ) :
 
 end Erdos142
 
--- Axiom audit for the load-bearing declarations.

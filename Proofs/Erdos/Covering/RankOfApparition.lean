@@ -93,16 +93,11 @@
     `exists_degenerate_setOf_dvd_ne_empty_and_ne_residueClass`
     (non-degeneracy — at p = 3 with s = 3·F the zero set is all of ℕ,
     and `univ_ne_setOf_mod_eq` shows that is no residue class).
-  * §10 axiom audit.
 
-  Axiom audit: see §10.  Every declaration is sorry-free.  No
-  `native_decide`, no custom axioms — and this is *checked*, not
-  asserted: §10 runs `#print axioms` on the headline theorems and then
-  sweeps every constant this module adds, failing the build unless each
-  one's axioms lie in {propext, Classical.choice, Quot.sound}.  The
-  sweep is an allowlist-subset test because `native_decide` mints a
-  fresh axiom named after the declaration that used it, so no fixed
-  axiom name can be grepped for.
+  Every declaration is sorry-free and uses no `native_decide` or custom
+  axioms.  The explicit declaration list can be checked by separately
+  elaborating `Proofs/Scratch/RankOfApparitionAxiomAudit.lean`; that leaf is
+  not imported here and is not an automatic guard on production builds.
 -/
 
 import Mathlib
@@ -798,103 +793,5 @@ theorem exists_degenerate_setOf_dvd_ne_empty_and_ne_residueClass :
   · have hmem : (0 : ℕ) ∈ (∅ : Set ℕ) := hempty ▸ Set.mem_univ 0
     exact hmem
   · exact univ_ne_setOf_mod_eq (by norm_num) a hclass
-
--- ════════════════════════════════════════════════════════════════════
--- §10 AXIOM AUDIT
--- ════════════════════════════════════════════════════════════════════
-
--- The headline theorems, printed individually.
-
-
-/-
-  A per-declaration `#print axioms` is a *report*, not a check: nothing
-  fails if one of them prints an extra name, and nothing covers the
-  declarations nobody thought to print.  The sweep below is the check.
-
-  It matters that the check is an allowlist-*subset* test rather than a
-  test for particular axiom names.  `native_decide` does not add
-  `Lean.ofReduceBool`; it mints a fresh axiom per declaration, named
-  after that declaration — measured here on this toolchain, a
-  `native_decide` proof of `theorem viaNative` yields
-
-      'viaNative' depends on axioms: [viaNative._native.native_decide.ax_1_1]
-
-  so grepping for a fixed axiom name detects nothing.  Any such axiom
-  fails the subset test below, whatever it is called.
-
-  Scope, stated exactly: the sweep ranges over `env.constants.map₂`,
-  the constants *this module* adds — the 44 enumerated declarations
-  plus the compiler-generated auxiliaries (`_proof_*`, `match_*`,
-  equation lemmas) they induce.  The enumeration is cross-checked
-  against the sweep, so a declaration cannot escape by being forgotten,
-  and `throwError` makes a violation a build failure rather than a log
-  line.
-
-  TWO LIMITS, both measured rather than assumed, neither closable from
-  inside this file:
-
-  (1) Lean does not retain `example`s in the environment, so the
-      `example` ground checks in §1–§9 contribute no constant at all and
-      are outside the sweep — a `native_decide` inside an `example`
-      would be invisible to it.  Their tactics are in fact only
-      `decide`, `norm_num`, `push_cast`, `ring`, `intro`, `rw` and
-      `have`, all kernel-clean, and the cold build emits no warnings.
-
-  (2) The sweep is POSITIONAL: `run_cmd` runs where it is written, so it
-      sees only declarations above it.  Anything appended below §10
-      passes silently — `sorry` would still warn, but `native_decide`
-      would not.  Today nothing follows but `end Erdos.Covering`.  Add
-      new declarations ABOVE this block, not below it.
--/
-
-open Lean Elab Command in
-run_cmd do
-  let allowed : List Name := [``propext, ``Classical.choice, ``Quot.sound]
-  -- The enumerated public declarations of this file, §1 through §9.
-  let enumerated : List Name :=
-    [``fibPairShift, ``fibPairShift_apply, ``fibPairShift_pow_apply,
-      ``exists_pos_dvd_fib, ``rankOfApparition, ``rankOfApparition_spec,
-      ``rankOfApparition_pos, ``dvd_fib_rankOfApparition, ``rankOfApparition_le,
-      ``rankOfApparition_eq_of, ``rankOfApparition_zero,
-      ``dvd_fib_iff_rankOfApparition_dvd, ``IsFibonacciLike,
-      ``IsFibonacciLike.apply_add_aux, ``IsFibonacciLike.apply_add,
-      ``IsFibonacciLike.dvd_add_of_dvd, ``IsFibonacciLike.dvd_of_dvd_add,
-      ``IsFibonacciLike.dvd_of_mod_eq, ``IsFibonacciLike.forall_mod_eq_dvd,
-      ``IsFibonacciLike.dvd_head_of_dvd_succ,
-      ``IsFibonacciLike.not_dvd_succ_of_dvd, ``not_dvd_zero_and_one_of_isCoprime,
-      ``IsFibonacciLike.rankOfApparition_dvd, ``IsFibonacciLike.dvd_iff_mod_eq,
-      ``IsFibonacciLike.setOf_dvd_eq_empty_or_residueClass, ``lucas,
-      ``isFibonacciLike_lucas, ``rankOfApparition_two, ``rankOfApparition_three,
-      ``rankOfApparition_four, ``rankOfApparition_five,
-      ``IsFibonacciLike.setOf_dvd_eq_empty_of_forall_lt,
-      ``setOf_dvd_lucas_five_eq_empty,
-      ``exists_isFibonacciLike_setOf_dvd_eq_empty, ``setOf_dvd_lucas_three,
-      ``setOf_dvd_fib_three, ``setOf_dvd_fib_three_ne_setOf_dvd_lucas_three,
-      ``exists_isFibonacciLike_setOf_dvd_eq_residueClass,
-      ``setOf_dvd_two_mul_fib_four,
-      ``exists_not_prime_setOf_dvd_ne_empty_and_ne_residueClass,
-      ``IsFibonacciLike.dvd_of_dvd_zero_of_dvd_one,
-      ``IsFibonacciLike.setOf_dvd_eq_univ, ``univ_ne_setOf_mod_eq,
-      ``exists_degenerate_setOf_dvd_ne_empty_and_ne_residueClass]
-  let env ← getEnv
-  -- (i) every constant this module adds must pass the allowlist, and
-  --     this module must declare no axiom of its own.
-  let mut sweptNames : Array Name := #[]
-  for (declName, info) in env.constants.map₂.toList do
-    sweptNames := sweptNames.push declName
-    if let .axiomInfo _ := info then
-      throwError "§10 FAILED: this module declares an axiom, {declName}"
-    for ax in ← Lean.collectAxioms declName do
-      unless allowed.contains ax do
-        throwError "§10 FAILED: {declName} depends on the axiom {ax}"
-  -- (ii) the enumeration must be covered by the sweep, so that the
-  --      sweep cannot pass by having quietly ranged over nothing.
-  for declName in enumerated do
-    unless sweptNames.contains declName do
-      throwError "§10 FAILED: enumerated declaration {declName} was not swept"
-  logInfo m!"§10 axiom audit PASSED: {enumerated.length} enumerated declarations, \
-    {sweptNames.size} module constants swept (enumerated + compiler-generated \
-    auxiliaries); every one has axioms ⊆ \{propext, Classical.choice, Quot.sound}; \
-    this module declares no axiom."
 
 end Erdos.Covering

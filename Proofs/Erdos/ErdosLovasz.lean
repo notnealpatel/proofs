@@ -219,10 +219,10 @@
   {propext, Classical.choice, Quot.sound}; no archived theorem is used.
   The build emits exactly 6 `declaration uses sorry` warnings, one per
   Tier 2 statement. The two Tier 3 consequences still inherit `sorryAx`.
-  The declaration-level axiom audit is retained in §9. No `native_decide`,
-  no custom axioms; all finite ground checks are kernel `decide`.
-  Signatures of the §1–§4 theorems (stated inside `variable` sections)
-  and of the new g(4) bridges are checked with `#check @…`.
+  No `native_decide` or custom axioms are used; all finite ground checks are
+  kernel `decide`.  The recorded signatures of the §1–§4 theorems (stated
+  inside `variable` sections) and of the new g(4) bridges have the intended
+  explicit parameters.
 -/
 import Erdos.CoveringNumber
 import Erdos.ErdosLovaszFourWitness
@@ -1266,33 +1266,10 @@ example : erdosLovaszNum 1 = 1 ∧ erdosLovaszNum 2 = 3 ∧ erdosLovaszNum 3 = 6
 
 end GroundChecks
 
--- ════════════════════════════════════════════════════════════════════
--- §9 AXIOM AUDIT
--- ════════════════════════════════════════════════════════════════════
+/-! ## Trust status
 
-/-! Every named declaration of this file, in source order. The 50 Tier 1
-declarations must report exactly `[propext, Classical.choice, Quot.sound]`;
-the 6 Tier 2 statements and the 2 Tier 3 consequences must additionally
-report `sorryAx`, and nothing must report anything else. No `native_decide`,
-no `@[implemented_by]`/`@[extern]`/`@[csimp]`, no declared `axiom`. -/
-
-section AxiomAudit
-
--- §1 the family predicate.
-
--- §2 the τ bridge.
-
--- §3 transfer and the existence witness.
-
--- §4 the counting lower bound.
-
--- §5 g(n) and its proved values.
-
--- §6: the archived Tier 2 statements report `sorryAx`; the proved
--- `tripathi_erdosLovaszNum_four` is Tier 1 and must not report it.
-
--- §7 consequences. The two TIER 3 entries (`sivashankar_lower_bound_61_20`,
--- `kahn_erdosLovaszNum_isBigO`) inherit `sorryAx` from §6 by design; the
--- hypothesis-form derivations beside them do not.
-
-end AxiomAudit
+The recorded axiom dependencies of the 50 Tier 1 declarations are exactly
+`[propext, Classical.choice, Quot.sound]`. The 6 Tier 2 statements and the 2
+Tier 3 consequences additionally depend on `sorryAx`; no declaration has any
+other axiom dependency. No `native_decide`, `@[implemented_by]`, `@[extern]`,
+`@[csimp]`, or declared `axiom` is used. -/

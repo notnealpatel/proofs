@@ -35,7 +35,7 @@
   `eventually_normalizedDeficit_rothNumberNat_le_add 1`.
 
   No `sorry`, no `admit`, no `native_decide`, no `unsafe`, and no new axioms;
-  the axiom audit is at the end of the file.
+
 -/
 
 import Erdos.Erdos142.NormalizedDeficitEnvelope
@@ -234,7 +234,6 @@ theorem frequently_normalizedSquareScaleDefect_le_of_frequently_normalizedDefici
   intro k hk
   rwa [Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 2)] at hk
 
-/-! ## Axiom audit -/
 
 
 end

@@ -26,7 +26,7 @@
   `sqrt ∘ log ∘ (↑·) → atTop` and `Filter.Tendsto.const_div_atTop`.
 
   The premises are kept explicit; no actual Roth lower bound is asserted, no
-  `sorry`/`axiom`/`unsafe` is used, and the axiom audit is at the end.
+  `sorry`/`axiom`/`unsafe` is used.
 -/
 
 import Erdos.Erdos142.ProductDefect
@@ -168,4 +168,3 @@ end
 
 end Erdos142
 
--- Axiom audit for the load-bearing declarations.

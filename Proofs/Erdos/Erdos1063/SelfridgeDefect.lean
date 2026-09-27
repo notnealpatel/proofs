@@ -511,7 +511,6 @@ misses, with defect `3`.  So the sweep's conclusion `≠ 1` is not the vacuous
 half of a degenerate range. -/
 example : divisorDefect 2402 10 = 3 := by decide
 
-/-! ## Axiom audit -/
 
 
 end Erdos1063

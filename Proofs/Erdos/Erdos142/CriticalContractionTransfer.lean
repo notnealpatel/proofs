@@ -32,7 +32,7 @@
   arguments is used or claimed, so neither `λ x ≥ λ a` nor a fixed sign for
   the difference in (1) is asserted.  Nothing here resolves Erdős #142.
 
-  No `sorry`, no `unsafe`, no new axioms; the axiom audit is at the end.
+  No `sorry`, no `unsafe`, no new axioms.
 -/
 
 import Erdos.Erdos142.ScaleProduct
@@ -229,4 +229,3 @@ end
 
 end Erdos142
 
--- Axiom audit for the load-bearing declarations.

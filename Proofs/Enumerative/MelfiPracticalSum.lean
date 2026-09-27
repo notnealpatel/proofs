@@ -102,11 +102,10 @@ practical numbers are positive.  `Even n` alone would therefore be false at `n =
 
 ## Axiom audit
 
-Every declaration in this file reports a subset of
-`{propext, Classical.choice, Quot.sound}`; the `#print axioms` sweep is at the end.
-There is no `native_decide` and no `sorry`.  The import `Enumerative.Practical` carries
-one intended `sorry` (`Nat.coleman_multiperfect_practical`, an open conjecture); nothing
-here depends on it, as the sweep confirms.
+Every declaration in this file has recorded axiom dependencies contained in
+`{propext, Classical.choice, Quot.sound}`. There is no `native_decide` and no `sorry`.
+The import `Enumerative.Practical` carries one intended `sorry`
+(`Nat.coleman_multiperfect_practical`, an open conjecture); nothing here depends on it.
 -/
 
 set_option autoImplicit false

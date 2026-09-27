@@ -864,7 +864,6 @@ theorem a273929_subset_iff_hasNontrivialPoint :
   · intro h n hn
     exact ⟨hn.1, isCongruentArea_of_hasNontrivialPoint (cast_pos_of_memA273929 hn) (h n hn)⟩
 
-/-! ## Signature audit -/
 
 
 /-! ## Axiom audit

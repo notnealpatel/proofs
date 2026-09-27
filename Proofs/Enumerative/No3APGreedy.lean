@@ -1125,5 +1125,4 @@ example : greedySeq 5 = 14 ∧ stanleyGreedy 4 = 10 := by
 
 end A092482
 
-/-! ## Axiom audit -/
 

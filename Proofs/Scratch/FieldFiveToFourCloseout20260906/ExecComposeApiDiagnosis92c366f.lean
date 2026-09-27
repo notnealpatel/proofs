@@ -821,14 +821,6 @@ private theorem disjoint_right_transport {S D D' : State F3 a b c}
   subst D'
   exact h
 
-set_option pp.all true in
-#print sourceState
-#print outerSource
-#print fullStart
-#print requestStart
-#print ComputedState.union
-#print FieldRankOne.Atom.instDecidableEq
-
 end Executable
 end CertifiedFiveToFour
 end FieldFiveToFourContext

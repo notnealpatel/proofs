@@ -234,9 +234,3 @@ theorem practical_iff_upstream {n : ℕ} (hn : 0 < n) :
 -- and the left-hand side both hold, and the theorem transports them to the right.
 example : upstreamIsPractical 6 := (practical_iff_upstream (by norm_num)).mp (by decide)
 
-/-! ## Axiom audit -/
-
-
--- The conjecture statement itself, printed so a reader can audit the elaborated form
--- rather than the sugar.
-#print IanakievSigmaHalfAt

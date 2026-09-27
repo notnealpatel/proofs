@@ -63,7 +63,7 @@
   oscillation of `D` must escape to unbounded scales.
 
   Nothing here edits an existing declaration; no `sorry`, no `unsafe` and no new
-  axiom is used, and the axiom audit is at the end of the file.
+  axiom is used.
 -/
 
 import Erdos.Erdos142.StretchedExponentialObstruction
@@ -375,4 +375,3 @@ end
 
 end Erdos142
 
--- Axiom audit for the public declarations of this module.

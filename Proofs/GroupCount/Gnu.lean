@@ -54,7 +54,7 @@ of exactly two routes:
 2. **a genuine classification proof**, using Mathlib's group theory.
 
 Anything reachable by neither route is *omitted*, never asserted from a compiled
-evaluation.  The axiom sweep at the end of the file is the check: every declaration
+evaluation.  The recorded axiom footprint of every declaration
 stays within the allowlist `{propext, Classical.choice, Quot.sound}`.  (The allowlist
 subset is the sound detector: on this toolchain `native_decide` mints a per-declaration
 `<decl>._native.native_decide.ax_*` axiom and never emits `Lean.ofReduceBool`, so

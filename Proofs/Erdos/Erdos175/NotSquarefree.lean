@@ -51,7 +51,7 @@
 
   Axiom audit: `witness_cert` and all the results in this file use only
   propext, Classical.choice, Quot.sound. There is no native computation
-  trust axiom and no `sorryAx`. The audit commands appear at the end.
+  trust axiom and no `sorryAx`.
 
   References:
   [Sa85]   Sárközy, A., "On divisors of binomial coefficients, I",

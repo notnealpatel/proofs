@@ -52,8 +52,7 @@
   * `dvd_sub_two_pow_of_modEq_of_general` — the committed one-class
     lemma, re-proved through `dvd_affine_two_pow_of_mod_eq`.
 
-  Axiom audit: see the `#print axioms` block at the end.  Every
-  declaration is sorry-free.  No `native_decide`, no custom axioms.
+  Every declaration is sorry-free.  No `native_decide`, no custom axioms.
 -/
 
 import Mathlib
@@ -232,10 +231,6 @@ example : ∀ {P M p d a m k : ℕ}, m % P = M → p ∣ P → 2 ^ d ≡ 1 [MOD 
 -- transfers with nothing new to prove.
 example : fixedDivisors erdosCert1950 = {3, 5, 7, 13, 17, 241} := by decide
 example : (residueClasses erdosCert1950).image Prod.snd = {2, 3, 4, 8, 12, 24} := by decide
-
--- ════════════════════════════════════════════════════════════════════
--- §3 AXIOM AUDIT
--- ════════════════════════════════════════════════════════════════════
 
 
 end Erdos.Covering

@@ -615,7 +615,6 @@ example : ∃ β : ℝ, 0 < β ∧ β < 2 - Real.sqrt 2 ∧
     (1 / 3 : ℝ) < 1 - Real.log (Real.sqrt 2) / Real.log (2 - β) :=
   exists_beta_density_gt_of_lt_half (1 / 3) (by norm_num)
 
-/-! ## Axiom audit -/
 
 
 end

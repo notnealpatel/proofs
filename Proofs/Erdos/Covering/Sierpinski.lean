@@ -80,8 +80,7 @@
         `n = 0` failure that A146563's comment overstates away, kept
         as a theorem.
 
-  Axiom audit: see the `#print axioms` block at the end.  Every
-  declaration is sorry-free.  No `native_decide`, no custom axioms.
+  Every declaration is sorry-free.  No `native_decide`, no custom axioms.
 -/
 
 import Mathlib
@@ -670,10 +669,6 @@ example : Composite 10977 := isSierpinskiNumberBase_fourteen_four.2 3 (by norm_n
 -- The predicted divisor, class by class.
 example : (3 : ℕ) ∣ 4 * 14 ^ 1 + 1 := by decide  -- n ≡ 1 (mod 2)
 example : (5 : ℕ) ∣ 4 * 14 ^ 2 + 1 := by decide  -- n ≡ 0 (mod 2)
-
--- ════════════════════════════════════════════════════════════════════
--- §7 AXIOM AUDIT
--- ════════════════════════════════════════════════════════════════════
 
 
 end Erdos.Covering

@@ -38,7 +38,7 @@
   Both statements are non-vacuous (`D ≡ 0` satisfies every hypothesis) and carry
   explicit positivity guards (`sqrt`/`log` arguments, the `N ≥ 2` threshold, and
   `sqrt 2 > 1`) so that no denominator or degenerate value is left to junk.
-  Axiom status is checked with `#print axioms` at the end of the file.
+  The recorded axiom status contains only the standard allowed axioms.
 -/
 
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic

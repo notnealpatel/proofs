@@ -52,7 +52,7 @@
   `lim λ(N)/√(log N)`.
 
   No `sorry`, no `unsafe`, no new axioms, and no existing declaration is edited;
-  the axiom audit is at the end of the file.
+
 -/
 
 import Erdos.Erdos142.NormalizedDeficitEnvelope
@@ -255,4 +255,3 @@ end
 
 end Erdos142
 
--- Axiom audit for the public declarations of this module.

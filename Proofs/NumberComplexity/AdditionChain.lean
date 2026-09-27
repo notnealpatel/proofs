@@ -57,7 +57,7 @@ junk; actual chains are provably nonempty (`IsAddChain.ne_nil`).
 
 **Trust.** Every ground check closes by kernel `decide`, `rfl`, or `norm_num`
 (no `native_decide`, no `@[implemented_by]`/`@[extern]`/`@[csimp]` in this
-file); the axiom audit at the bottom reports at most
+file); the recorded axiom footprint contains at most
 `propext, Classical.choice, Quot.sound`.
 
 **Ground truth**, from `goof oeis show A003313`, pulled live 2026-07-29 and
@@ -1228,7 +1228,6 @@ example : ∃ a ∈ [15, 12, 6, 3, 2, 1], ∃ b ∈ [15, 12, 6, 3, 2, 1],
   (show IsAddChain [15, 12, 6, 3, 2, 1] by decide).exists_lt_add_of_mem 15
     (by decide) (by decide)
 
-/-! ## Axiom audit -/
 
 
 end NumberComplexity

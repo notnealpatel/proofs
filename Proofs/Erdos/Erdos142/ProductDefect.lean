@@ -42,7 +42,7 @@
   The single remaining conditional hypothesis is the subpower hypothesis
   `Tendsto (fun N => rothLogDeficit N / log N) atTop (𝓝 0)`, isolated in the
   statement of `rothProductDefect_unbounded_of_tendsto`.  No `sorry`, `axiom`
-  or `unsafe` is used; the axiom audit is at the end of the file.
+  or `unsafe` is used.
 -/
 
 import Erdos.Erdos142.ScaleProduct
@@ -384,4 +384,3 @@ end
 
 end Erdos142
 
--- Axiom audit for the load-bearing declarations.

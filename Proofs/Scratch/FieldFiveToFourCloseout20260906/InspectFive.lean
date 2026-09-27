@@ -1,2 +1,0 @@
-import BilinearComplexity.FieldCircuitContraction
-#print BilinearComplexity.FieldFiveToFour.ContractionData

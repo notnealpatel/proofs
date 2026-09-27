@@ -982,7 +982,7 @@ theorem a93680_ground :
 
 Satisfiability spot-checks for the engine's hypotheses (the four row instantiations
 above already exercise every engine theorem jointly at concrete models), an
-independent diagnostic run of the greedy definition itself, and the axiom audit. -/
+independent diagnostic run of the greedy definition itself. -/
 
 /-- Satisfiability: a positive `BlockMem` witness, `28 = 27·1 + 1`. -/
 example : BlockMem 27 bs93678 28 :=

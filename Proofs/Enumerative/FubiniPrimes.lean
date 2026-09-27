@@ -387,10 +387,8 @@ example : (fubini 0 % 4, fubini 1 % 4, fubini 2 % 4, fubini 3 % 4,
   rw [fubini_zero, fubini_one, fubini_two, fubini_three, fubini_four, fubini_five,
     fubini_six, fubini_seven]
 
-/-! ## Signature audit -/
 
 
-/-! ## Axiom audit -/
 
 
 end A000670

@@ -505,13 +505,3 @@ example : IsA174865 945 ↔ IsOddNonDeficientEvenSigma 945 :=
 odd but not in A171641. -/
 theorem not_isA171641_945 : ¬ IsA171641 945 := fun h => h.2.2.2 isZumkeller_945
 
-/-! ## Axiom audit -/
-
-
--- The conjecture statements themselves, printed so a reader can audit the
--- elaborated forms rather than the sugar.
-#print NoeOddZumkeller
-#print NoeOddZumkellerConverse
-#print NoeOddZumkellerRepaired
-#print IsA174865
-#print IsA171641

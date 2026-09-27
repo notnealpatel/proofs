@@ -115,7 +115,7 @@
   `105`; this file does not resolve it — it proves the complementary
   side, that an explicit infinite progression consists of non-terms.
 
-  Axiom audit: see the `#print axioms` block at the end of the file.
+  The recorded axiom footprint contains only the standard allowed axioms.
   Every declaration is sorry-free.  No `native_decide`, no custom
   axioms.
 -/
@@ -625,10 +625,6 @@ example : 2 ^ 25 < 52368457 ∧ ¬ ((2 : ℕ) ^ 26 < 52368457) := by decide
 example : erdosResidue1950 + erdosModulus1950 * (0 + 1) = 18814027 := by decide
 example : 2 ^ 24 + 241 < 18814027 ∧ ¬ ((2 : ℕ) ^ 25 + 241 < 18814027) := by decide
 example : ¬ Nat.Prime (18814027 - 2 ^ 24) := by norm_num  -- 2036811 = 3·7·23·4217
-
--- ════════════════════════════════════════════════════════════════════
--- §10 AXIOM AUDIT
--- ════════════════════════════════════════════════════════════════════
 
 
 end Erdos.Covering

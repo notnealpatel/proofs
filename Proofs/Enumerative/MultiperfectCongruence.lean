@@ -1061,7 +1061,6 @@ theorem karttunen4_nondegenerate :
 
 end Nat
 
-/-! ## Axiom audit -/
 
 -- A276086 layer.
 

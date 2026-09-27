@@ -16,9 +16,6 @@
     the member Z = {0,1} ∈ F the link is {∅}, which is vacuously
     r-spread for ANY r (probed at r = 100); quantifying the hypothesis
     over |Z| ≤ k would make it unsatisfiable for nonempty F.
-  Tail section: #print axioms audit of every public SpreadDefect
-  theorem — each must report exactly
-  [propext, Classical.choice, Quot.sound] (std-3).
 -/
 import Erdos.Erdos20.SpreadDefect
 
@@ -63,6 +60,5 @@ example : IsRSpread 100 (linkAt {0, 1} familyP) := by
 -- Probe 4: G1's conclusion |F| ≤ r^k is honest here: 1 ≤ 2^2.
 example : ((familyP.card : ℚ)) ≤ 2 ^ 2 := by native_decide
 
--- ── Axiom audit: every public SpreadDefect theorem must be std-3 ──
 
 end SpreadDefectSanity

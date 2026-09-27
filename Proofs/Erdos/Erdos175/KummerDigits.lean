@@ -95,8 +95,7 @@
   advance on the open problem; it is the elementary equivalence layer that the
   problem statement's word "equivalent" refers to.
 
-  No `native_decide`, no `axiom`, no `sorry`; see the `#print axioms` block at
-  the end of the file.
+  No `native_decide`, no `axiom`, and no `sorry` are used.
 -/
 
 import Mathlib.NumberTheory.Padics.PadicVal.Basic

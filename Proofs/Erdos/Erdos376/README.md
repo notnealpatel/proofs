@@ -46,7 +46,8 @@ Mathlib's `padicValNat_choose'`, and the full list-digit bridge already exists
 as `Erdos175.prime_not_dvd_centralBinom_iff_digits`. The old scratch restriction
 to odd primes is unnecessary, as already documented in `KummerDigits.lean`.
 The current development reuses that stronger theorem rather than reproving it.
-`leandoc` was used for exact API inspection, followed by Lean `#check`.
+`leandoc` was used for exact API inspection, followed by Lean `#check` in a
+disposable Scratch probe.
 
 ## Library interface and proof route
 
@@ -94,22 +95,23 @@ invalid bases zero and one. Statements use `2 * d < p`, never truncated `p / 2`.
 
 ## Validation and trust
 
-Successful targeted builds:
+Successful targeted validation uses bounded Lake commands:
 
 ```sh
-flock .lake/agent.lock lake build Erdos.Erdos175.KummerDigits
-flock .lake/agent.lock lake build Erdos.Erdos376.DigitCriterion
-flock .lake/agent.lock lake build Erdos.Erdos376.DigitCertificates
-flock .lake/agent.lock lake build Erdos.Erdos376.Sanity
+timeout 180 lake build Erdos.Erdos175.KummerDigits
+timeout 180 lake build Erdos.Erdos376.DigitCriterion
+timeout 180 lake build Erdos.Erdos376.DigitCertificates
+timeout 180 lake build Erdos.Erdos376.Sanity
 ```
 
 All three new Lean modules set `autoImplicit false` and compile without errors
-or proof placeholders. Every named theorem above has a `#print axioms` audit;
-the exact reported set for each is
-`[propext, Classical.choice, Quot.sound]`, including the inherited single-prime
-bridge. There is no custom axiom or `native_decide` in their trusted closure.
-The finite checks use kernel-checked `decide` on digits rather than evaluating
-large binomial coefficients.
+or proof placeholders. A recorded explicit audit of every named theorem above
+reported exactly `[propext, Classical.choice, Quot.sound]`, including the
+inherited single-prime bridge. The production modules do not embed audit
+commands, so ordinary builds do not automatically rerun that audit. There is
+no custom axiom or `native_decide` in their trusted closure. The finite checks
+use kernel-checked `decide` on digits rather than evaluating large binomial
+coefficients.
 
 `DigitCertificates.lean` is the frozen computation module: downstream semantic
 proofs belong in `Sanity.lean`. Its first build took 1.3 seconds, with Mathlib
@@ -118,17 +120,18 @@ certificate rather than recomputing it. The criterion and sanity modules took
 1.4 and 1.3 seconds respectively. These are module elaboration times, not a
 from-source rebuild of all Mathlib dependencies.
 
-The integration check `flock .lake/agent.lock lake build Erdos` also succeeded
-(8741 jobs). That umbrella target reports pre-existing proof-placeholder
-warnings in unrelated developments, including `Covering/ErdosRows.lean` and
-`Covering/OddCovering.lean`; none is in the dependency closure of these E376
-results. The three targeted E376 builds have no such warnings.
+A historical integration build of `Erdos` also succeeded (8741 jobs), with
+pre-existing proof-placeholder warnings in unrelated developments, including
+`Covering/ErdosRows.lean` and `Covering/OddCovering.lean`; neither is in the
+dependency closure of these E376 results. The bounded targeted commands above
+are the current validation procedure; a broad integration build is not
+required for this documentation-only update.
 
 ## Completed-lane checkpoint
 
-The source reconciliation, equivalence, finite certificates, signature/axiom
-audits, and umbrella import check are complete. No proof obligation or
-computation remains in this lane. The next action is dispatcher review and
-adoption of the three new Lean modules, this source/audit note, the single
-umbrella import, and the three comment-only scratch corrections. Do not import
-the scratch candidate or treat its unfinished headline as part of the result.
+The source reconciliation, equivalence, finite certificates, and recorded
+signature/axiom audits are complete. No proof obligation or computation remains
+in this lane. The next action is dispatcher review and adoption of the three new
+Lean modules, this source/validation note, the single umbrella import, and the
+three comment-only scratch corrections. Do not import the scratch candidate or
+treat its unfinished headline as part of the result.

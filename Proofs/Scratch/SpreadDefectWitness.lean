@@ -28,9 +28,8 @@
       C(16,8)-scan down — ratio 7/4 at k = 2, tame at small k exactly
       as B1 measured; the theorems make it diverge along k.
 
-  Axiom audit tail: every §4 theory theorem must report std-3 (subsets
-  allowed); the ground examples here carry native_decide trust axioms
-  by design (same trust model as Counterexample.lean).
+  The ground examples here carry `native_decide` trust axioms by design
+  (the same trust model as `Counterexample.lean`).
 -/
 import Erdos.Erdos20.SpreadDefect
 import Erdos.Erdos20.Counterexample
@@ -176,7 +175,6 @@ example :
    E_tau,
    ⟨E_isFullShiftOf⟩⟩
 
--- ── Axiom audit: every §4 theory declaration must be std-3 ──────────
 
 
 end SpreadDefectWitness

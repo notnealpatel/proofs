@@ -878,17 +878,11 @@ example : ¬ ∃ C : ℕ, ∀ m n : ℕ, 1 ≤ n → Sun m n ≤ (n * C) ^ m := 
   rw [sun_two_petals 0, pow_zero] at hbad
   omega
 
--- ════════════════════════════════════════════════════════════════════
--- SIGNATURE AUDIT
--- ════════════════════════════════════════════════════════════════════
 
+/-! ## Trust status
 
--- ════════════════════════════════════════════════════════════════════
--- AXIOM AUDIT
---
--- Everything below is `[propext, Classical.choice, Quot.sound]` EXCEPT
--- `sunflower_conjecture` and its consequence `sunflower_conjecture_oeis`,
--- which carry `sorryAx`: that is the single intended `sorry`, the open
--- conjecture itself.
--- ════════════════════════════════════════════════════════════════════
+Every declaration has axiom dependencies contained in
+`{propext, Classical.choice, Quot.sound}`, except `sunflower_conjecture` and
+its consequence `sunflower_conjecture_oeis`, which also carry `sorryAx`: that
+is the single intended `sorry`, the open conjecture itself. -/
 

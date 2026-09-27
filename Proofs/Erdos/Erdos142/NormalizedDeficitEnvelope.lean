@@ -25,7 +25,7 @@
   not a resolution of Erdős Problem #142.
 
   No `sorry`, no `unsafe`, no new axioms, and no existing declaration is edited;
-  the axiom audit is at the end of the file.
+
 -/
 
 import Erdos.Erdos142.SquareScaleCriterion

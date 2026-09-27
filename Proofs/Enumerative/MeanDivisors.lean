@@ -434,7 +434,6 @@ example : a 5 = 2 ∧ (5 : ℕ).Prime := ⟨by decide, by norm_num⟩
 -- Negative instance `n = 4`: `a 4 = 5 ≠ 2` and `4` is not prime.
 example : a 4 ≠ 2 ∧ ¬(4 : ℕ).Prime := ⟨by decide, by norm_num⟩
 
-/-! ## Axiom audit (every named declaration; all are sorry-free) -/
 
 
 end A114976

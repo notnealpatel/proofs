@@ -81,7 +81,7 @@ This file archives both conjectures together with their provable strata.
 **Zero `native_decide` anywhere in this module.**  Kernel `decide` appears only at
 sizes measured feasible upstream (values of `gnu n` for `n ≤ 2`).  Every other
 numeric fact routes through the certified upstream values `gnu_zero`, `gnu_one` …
-`gnu_five`, `gnu_seven`, `gnu_four`, `gnu_prime`, `gnu_prime_sq`.  The axiom sweep at the end
+`gnu_five`, `gnu_seven`, `gnu_four`, `gnu_prime`, `gnu_prime_sq`.  The recorded axiom footprint
 confirms: `sorryAx` on the two archived conjectures only, everything else within
 `{propext, Classical.choice, Quot.sound}` — an *allowlist* check, and the sound
 `native_decide` detector on this toolchain: a use would surface as a

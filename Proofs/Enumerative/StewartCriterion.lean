@@ -59,8 +59,8 @@ has no prime factors — so the criterion covers the whole of A005153, not just 
 
 ## Axiom audit
 
-Every declaration in this file reports a subset of
-`{propext, Classical.choice, Quot.sound}`; the `#print axioms` sweep is at the end.
+Every declaration in this file has recorded axiom dependencies contained in
+`{propext, Classical.choice, Quot.sound}`.
 There is no `native_decide` and no `sorry`.
 -/
 

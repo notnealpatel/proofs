@@ -62,7 +62,7 @@ via `l 0 = 0`, and nothing below relies on that).
 `norm_num`; the single `decide +kernel` (at `¬l 14 ≤ 4`, a 576-chain
 enumeration) only moves evaluation from the elaborator to the kernel and is
 NOT `native_decide`.  No `native_decide`, no `@[implemented_by]`/`@[extern]`/
-`@[csimp]`.  The axiom audit at the bottom reports at most
+`@[csimp]`.  The recorded axiom footprint contains at most
 `propext, Classical.choice, Quot.sound` for everything except the intended
 `sorry` of `slizkov_doubling_gap`.
 

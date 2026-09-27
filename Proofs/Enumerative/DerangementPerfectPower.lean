@@ -609,7 +609,6 @@ empty family. -/
 example : IsPerfectPower (numDerangements 4) ↔ (4 : ℕ) = 4 :=
   sun_isPerfectPower_numDerangements_iff (by norm_num)
 
-/-! ## Signature audit -/
 
 
 /-! ## Axiom audit

@@ -655,7 +655,6 @@ example : (2, 3, 5) ∈ witnesses := by decide
 example : ∃ p : ℕ, 2 < p ∧ p.Prime ∧ ¬ IsCubeMinusSquare p :=
   ⟨3, by norm_num, Nat.prime_three, not_isCubeMinusSquare_three⟩
 
-/-! ## Signature audit -/
 
 
 /-! ## Axiom audit

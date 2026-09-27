@@ -18,11 +18,15 @@
 - You **MUST NOT** use autoParam (`(h : P := by tac)`) in statements; obligations discharged
   silently are obligations the reader never sees.
 
-- You **MUST** accompany every new `def` with ground-truth checks (`example : myDef 3 = 7 := rfl`,
-  `#eval` at boundary inputs) or a proved equivalence to the Mathlib-standard notion; a correct
-  proof of a wrong definition compiles clean.
-- You **MUST** run `#check @thm` on any theorem stated inside a `variable` section and confirm the
-  full signature is the intended claim; section variables silently join the statement.
+- You **MUST** accompany every new `def` with ground-truth checks (`example : myDef 3 = 7 := rfl`
+  or a proved equivalence to the Mathlib-standard notion). Boundary-value `#eval` probes are
+  exploratory: run them only in a disposable `Proofs/Scratch/` leaf and remove them before
+  integration; a correct proof of a wrong definition compiles clean.
+- You **MUST** inspect `#check @thm` for any theorem stated inside a `variable` section and
+  confirm that the full signature is the intended claim; section variables silently join the
+  statement. Run this check only in a disposable `Proofs/Scratch/` leaf probe and remove it
+  before integration. Production modules and modules imported by production **MUST NOT** retain
+  `#check`, `#print`, or exploratory `#eval` commands.
 - You **MUST** audit degeneracy of assumed instances: `[Subsingleton α]`, `[CharP R 1]`, and an
   instance argument on a concrete type (`[Ring ℤ]`) either trivialize the claim or split it from
   the canonical structure.

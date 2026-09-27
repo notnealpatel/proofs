@@ -75,4 +75,3 @@ theorem exists_mul_lt_rothNumberNat (C : ℝ) (hC : 0 < C) :
 
 end Erdos142
 
--- Axiom audit for the load-bearing declarations.

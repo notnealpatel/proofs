@@ -171,8 +171,7 @@
     opposite sign patterns, one in base `6` and one in base `14`, at
     which all four fields hold jointly.
 
-  Axiom audit: see the `#print axioms` block at the end.  Every
-  declaration is sorry-free.  No `native_decide`, no custom axioms.
+  Every declaration is sorry-free.  No `native_decide`, no custom axioms.
 -/
 
 import Mathlib
@@ -895,10 +894,6 @@ example : ¬ IsCoveringSystem
 -- `isSierpinskiNumberBase_fourteen_four`.
 example : IsFixedDivisorSystemBase 14 4 1 {(1, 2, 3), (0, 2, 5)} :=
   (isFixedDivisorSystemBase_iff 14 4 1 _ 2 (by decide) (by decide)).mpr (by decide)
-
--- ════════════════════════════════════════════════════════════════════
--- §8 AXIOM AUDIT
--- ════════════════════════════════════════════════════════════════════
 
 
 end Erdos.Covering

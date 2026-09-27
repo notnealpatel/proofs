@@ -535,7 +535,6 @@ theorem exists_tendsto_gapSum_mul_log_div_sq :
 -- is not quantified over an empty domain
 example : ∃ c : ℝ, 0.006 < c ∧ c < 0.01 := ⟨0.008, by norm_num, by norm_num⟩
 
-/-! ## Axiom audit (sorry-free declarations only) -/
 
 
 end NumberComplexity

@@ -68,7 +68,7 @@ The conjecture proved on the strata reachable from the certified `gnu` values:
 **Zero `native_decide` anywhere in this module.**  Kernel `decide` only where kernel
 evaluation is feasible — per the measured wall in `GroupCount/Gnu.lean`, exact `gnu`
 values reduce in-kernel only for `n ≤ 2`, and the `decide` ground checks below stay
-inside it.  The axiom sweep at the end confirms every declaration rests on
+inside it.  The recorded axiom footprint confirms every declaration rests on
 `{propext, Classical.choice, Quot.sound}` — plus `sorryAx` on `cdo_gnu_iteration`
 alone, its single intended `sorry`.
 -/

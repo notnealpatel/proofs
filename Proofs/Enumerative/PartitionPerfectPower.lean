@@ -81,7 +81,7 @@ this file and is not used.
 What is used instead is a `#guard` block: the compiler (not the kernel) evaluates
 `(List.range 17).map partitionNumber` and compares it against the first 17 entries of the
 pinned OEIS `terms` field.  `#guard` produces **no proof term**, so it contributes nothing
-to any `#print axioms` result below and enlarges no trusted base; a false `#guard` is a
+to a declaration’s axiom dependencies and enlarges no trusted base; a false `#guard` is a
 build error (checked: `#guard (Fintype.card (Nat.Partition 4) == 6)` fails with
 "did not evaluate to `true`").  The range stops at `n = 16` because the composition
 enumeration costs `2 ^ (n-1) · a(n)` multiset comparisons: `n ≤ 16` takes about five
@@ -404,7 +404,6 @@ example : ¬ IsPerfectPower (partitionNumber 1) :=
   not_isPerfectPower_partitionNumber_of_mem_a000041Prefix
     (by rw [partitionNumber_one]; decide)
 
-/-! ## Signature audit -/
 
 
 /-! ## Axiom audit

@@ -46,7 +46,7 @@
   statement being verified.
 
   ══════════════════════════════════════════════════════════════════════
-  WHAT THIS FILE PROVES (sorry-free; see `#print axioms` at the end)
+  WHAT THIS FILE PROVES (sorry-free)
   ══════════════════════════════════════════════════════════════════════
 
   Throughout, `badSet n k` is the set of `i < k` with `(n-i) ∤ C(n,k)`, so
@@ -589,7 +589,6 @@ term `8`. -/
 example : (2 ∣ 4) ∧ ¬ (8 ∣ Nat.choose 9 4) ∧ (7 ∣ Nat.choose 9 4) ∧
     (9 ∣ Nat.choose 9 4) ∧ (6 ∣ Nat.choose 9 4) := by decide
 
-/-! ## Axiom audit -/
 
 
 end Erdos1063

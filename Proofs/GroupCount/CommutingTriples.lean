@@ -485,8 +485,6 @@ end GroundTruth
 
 end GroupCount
 
-/-! ## Signature audit (section variable check) -/
 
 
-/-! ## Axiom audit -/
 

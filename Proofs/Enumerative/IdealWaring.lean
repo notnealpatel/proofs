@@ -188,7 +188,7 @@ including the twelve-term comparison against the `terms` field and the range che
 Every declaration below reports a subset of `{propext, Classical.choice, Quot.sound}`
 except `waringAdmissible_idealWaring` — the single intended `sorry` — and
 `waringG_eq_idealWaring`, which depends on it; both additionally report `sorryAx`.
-The sweep is at the end of the file.  There is no `native_decide`.
+There is no `native_decide`.
 -/
 
 set_option autoImplicit false
@@ -686,7 +686,6 @@ example : WaringAdmissible 2 (idealWaring 2) := by
 example : ¬ WaringAdmissible 0 (idealWaring 0) := not_waringAdmissible_zero (idealWaring 0)
 example : idealWaring 0 = 0 ∧ waringG 0 = 0 := ⟨by decide, waringG_zero⟩
 
-/-! ## Signature audit -/
 
 
 /-! ## Axiom audit

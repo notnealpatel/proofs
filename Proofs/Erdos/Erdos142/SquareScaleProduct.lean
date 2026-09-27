@@ -42,7 +42,7 @@
   `r₃ (N^2) ≤ N · r₃ N` — not from the scale-product bound.
 
   No `sorry`, no `unsafe`, no new axioms, and no existing declaration is edited;
-  the axiom audit is at the end of the file.
+
 -/
 
 import Erdos.Erdos142.ScaleProduct
@@ -311,6 +311,5 @@ example : ∀ᶠ N : ℕ in atTop,
 
 end
 
--- Axiom audit for the load-bearing declarations.
 
 end Erdos142

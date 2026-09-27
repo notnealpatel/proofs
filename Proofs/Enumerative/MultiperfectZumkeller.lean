@@ -194,5 +194,4 @@ that concludes `IsZumkeller n` from multiperfection carries `1 < n` for this rea
 -- multiply-perfect, yet not Zumkeller.  So `1 < n` is doing real work in both.
 example : Nat.IsMultiperfect 1 ∧ (1 : ℕ).Practical ∧ ¬ IsZumkeller 1 := by decide
 
-/-! ## Axiom audit -/
 

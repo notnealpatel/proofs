@@ -615,7 +615,6 @@ example : fullRowRankFraction 1 = 1 / 2 := by
   rw [h1]
   norm_num
 
-/-! ## Axiom audit (every named declaration; all are sorry-free) -/
 
 
 end BilinearComplexity

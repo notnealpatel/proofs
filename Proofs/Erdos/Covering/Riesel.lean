@@ -82,8 +82,7 @@
         statement shape the base parameter creates; base `2` has
         nothing like it.
 
-  Axiom audit: see the `#print axioms` block at the end.  Every
-  declaration is sorry-free.  No `native_decide`, no custom axioms.
+  Every declaration is sorry-free.  No `native_decide`, no custom axioms.
 -/
 
 import Mathlib
@@ -808,10 +807,6 @@ example : Composite 203 :=
 -- `isRieselNumber_iff_base_two` needs its extra `Composite (k - 1)`
 -- conjunct.
 example : ¬ Composite (6 * 34 ^ 0 - 1) := fun h => h.2 (by norm_num)
-
--- ════════════════════════════════════════════════════════════════════
--- §7 AXIOM AUDIT
--- ════════════════════════════════════════════════════════════════════
 
 
 end Erdos.Covering

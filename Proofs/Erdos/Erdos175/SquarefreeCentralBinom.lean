@@ -135,8 +135,8 @@
   and the exact bounded classification. `Erdos175.witness_cert` now uses
   the kernel-checked fuel-21 certificate, not native computation. No
   `native_decide`, custom axiom, `sorry`, `@[implemented_by]`, `@[extern]`,
-  or `@[csimp]` is used in this proof chain. The `#print axioms` block at
-  the end records the per-declaration audit.
+  or `@[csimp]` is used in this proof chain. The recorded per-declaration
+  axiom footprint contains only the three standard axioms.
 
   Computational disclosure: the earlier term factorizations and 331-value
   witness distribution were obtained with `python3` + `sympy` 1.14.0.

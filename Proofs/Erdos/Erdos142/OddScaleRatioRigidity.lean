@@ -221,4 +221,3 @@ end
 
 end Erdos142
 
--- Axiom audit for every public declaration.
