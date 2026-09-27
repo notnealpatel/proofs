@@ -93,6 +93,20 @@ Thus the set counted by \(s_K\) is contained in the set in (1). Combining this i
 
 Roth's theorem gives \(r(N)/N\to0\), and hence \(\lambda(N)\to\infty\). Since \(N_k\to\infty\), for each fixed \(H>0\) there is an index \(k_H\) such that \(a_k\ge H/\beta\) for all \(k\ge k_H\). At each counted index beyond \(k_H\), (7) implies \(X(N_k)\le-H\). Removing the at most \(k_H\) earlier indices does not change a lower density in the index variable. This proves the stated fixed-\(H\) version with the same bound \(\delta_\beta\).
 
+## Formal endpoint corollary: half-density of negative defects
+
+The formal development now also proves that for every fixed \(M\ge3\) and every real \(\delta<1/2\), eventually
+\[
+\delta K\le\#\{0\le k<K:X(N_k)<0\},
+\qquad
+\delta K\le\#\{0\le k<K:X(N_k)\le0\}.
+\]
+Thus the strict-negative set has tower-index lower density at least \(1/2\). These are the public Lean endpoints `Erdos142.eventually_card_squareScaleDefect_neg` and `Erdos142.eventually_card_squareScaleDefect_nonpos` in `Proofs/Erdos/Erdos142/SquareScaleNegativeDensity.lean`.
+
+The proof chooses an admissible \(\beta>0\) from the existing density curve so that \(\delta<\delta_\beta\), then applies the earlier theorem. It does not apply that source theorem at \(\beta=0\): since \(\lambda(N_k)>0\) at every tower scale, the resulting bound \(X(N_k)\le-\beta\lambda(N_k)\) implies strict negativity. The nonpositive statement follows by inclusion.
+
+This is a tower-index lower-density result, not integer density or exact density. The eventual-cardinality statements require \(\delta<1/2\); they do not assert the bound at \(\delta=1/2\). They give no endpoint magnitude, no overlap with the P-shaped good scales, no bounded gaps, and no conclusion \(D\to0\) or asymptotic formula.
+
 ## Separate corollary using an external quantitative input
 
 The preceding density theorem does not use Raghavan's result. The following strengthening does. By Theorem 1.4 of Rushil Raghavan, *Improved Bounds for 3-Progressions*, [arXiv:2603.27045v3](https://arxiv.org/abs/2603.27045v3), there are absolute constants \(c_R>0\) and \(N_0\) such that for every \(N\ge N_0\),
@@ -128,8 +142,10 @@ For each fixed \(\beta\), this upgrades the already accepted
 
 ## Status and scope
 
-The density theorem (1) and its fixed-\(H\) consequence are now kernel checked in `Proofs/Erdos/Erdos142/SquareScaleNegativeDensity.lean`, imported by `Proofs/Erdos.lean`. The public results are `Erdos142.eventually_card_squareScaleDefect_le_neg_mul_rothLogDeficit` and `Erdos142.eventually_card_squareScaleDefect_le_neg_const`: for each fixed \(M\ge3\) and \(0<\beta<2-\sqrt2\), they give the stated lower-density bound for every \(\delta<\delta_\beta\), respectively for \(X(N_k)\le-\beta\lambda(N_k)\) and for every fixed \(H>0\), \(X(N_k)\le-H\). The module and `Erdos` umbrella build succeeded; the axiom audit found exactly `[propext, Classical.choice, Quot.sound]` and no `sorryAx`. This density argument uses the accepted Roth and EHPS/Behrend inputs, not Raghavan's preprint.
+The density results are kernel checked in `Proofs/Erdos/Erdos142/SquareScaleNegativeDensity.lean`, imported by `Proofs/Erdos.lean`. The theorem list is `Erdos142.eventually_card_squareScaleDefect_le_neg_mul_rothLogDeficit` and `Erdos142.eventually_card_squareScaleDefect_le_neg_const` (the \(\delta_\beta\) curve and fixed-\(H\) bound), together with the endpoint corollaries `Erdos142.eventually_card_squareScaleDefect_neg` and `Erdos142.eventually_card_squareScaleDefect_nonpos`. For every fixed \(M\ge3\) and every real \(\delta<1/2\), these last endpoints give eventually at least \(\delta K\) strict-negative, respectively nonpositive, defects among \(k<K\). The focused module and full `Erdos` umbrella builds succeeded. The exact axiom audit is `[propext, Classical.choice, Quot.sound]`, with no `sorryAx`. The proof chooses \(\beta>0\) with \(\delta<\delta_\beta\), does not apply the source theorem at \(\beta=0\), and uses positivity of \(\lambda\) on every tower scale. The density argument uses accepted Roth and EHPS/Behrend inputs, not Raghavan's preprint.
+
+Issue [#57](https://github.com/thatnealpatel/proofs/issues/57) tracks independent evaluation of soundness and global novelty. A scoped literature review found the growth-budget lemma standard and no explicit published Roth-number application; the status remains a repository-level consequence, with no global novelty claim. The issue is not external certification of novelty.
 
 The stronger quantitative-rate conclusion (8)–(9) remains a prose combination, not a Lean theorem: it combines this density result with Theorem 1.4 of the external v3 preprint cited above. It is also recorded separately in [`erdos142-raghavan-square-defect-rate.md`](erdos142-raghavan-square-defect-rate.md). In particular, for each fixed admissible \(\beta\), the external lower bound on \(\lambda\) holds eventually on the same tower, so deleting a finite initial segment preserves the lower density while yielding the explicit growing magnitude in (9).
 
-This is density in the tower index \(k\), not density among integers \(N\). It does not prove P, an asymptotic formula, or \(D(N)\to0\). Existing positive-density P-shaped good-scale results bound \(X\) from below on their good indices (for example, a ratio growth condition gives \(X(N_k)\ge-(2-q)\lambda(N_k)\)); the present theorem bounds \(X\) from above by a negative quantity on a positive-lower-density set. No overlap or common set is asserted. The statement is for each fixed \(\beta\); it does not assert a common set as \(\beta\) varies. The endpoint \(\beta=2-\sqrt2\) is not included, and \(\delta_\beta\to0\) as \(\beta\uparrow2-\sqrt2\). Nothing here proves eventual P, \(D(N)\to0\), an asymptotic formula, or two-sided oscillation.
+The half-density conclusion is in the tower index \(k\), not density among integers \(N\), and is only a lower bound: it asserts neither exact density nor the eventual-cardinality inequality at \(\delta=1/2\). It gives no magnitude for \(X\) at the half-density endpoint. Existing positive-density P-shaped good-scale results bound \(X\) from below on their good indices (for example, a ratio growth condition gives \(X(N_k)\ge-(2-q)\lambda(N_k)\)); no overlap or common set with the negative-defect indices is established, and no bounded gaps follow. The \(\delta_\beta\) theorem is still stated for each fixed \(\beta\), without a common set as \(\beta\) varies; its parameter endpoint \(\beta=2-\sqrt2\) remains excluded. None of these results proves eventual P, \(D(N)\to0\), an asymptotic formula, or two-sided oscillation.

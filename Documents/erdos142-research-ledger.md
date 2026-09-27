@@ -106,13 +106,11 @@ and vacuity reviews certified the theorem and its advertised scope.
 
 ### Tower-index negative-defect density and quantitative rate
 
-**Kernel checked.** `Proofs/Erdos/Erdos142/SquareScaleNegativeDensity.lean`, imported by `Proofs/Erdos.lean`, proves (1) and its fixed-threshold consequence in `Documents/erdos142-negative-defect-density.md`. The public endpoints are `Erdos142.eventually_card_squareScaleDefect_le_neg_mul_rothLogDeficit` and `Erdos142.eventually_card_squareScaleDefect_le_neg_const`. For every fixed tower $N_k=M^{2^k}$ with $M\ge3$, every $0<\beta<2-\sqrt2$, and every $\delta<\delta_\beta=1-\log\sqrt2/\log(2-\beta)$, eventually at least $\delta K$ indices $k<K$ satisfy
+**Kernel checked.** At revision `6a6bb75bfbaa7301070a3ab5a5c24a3fde9b626b`, `Proofs/Erdos/Erdos142/SquareScaleNegativeDensity.lean`, imported by `Proofs/Erdos.lean`, proves the density results recorded in `Documents/erdos142-negative-defect-density.md`. The public endpoints are `Erdos142.eventually_card_squareScaleDefect_le_neg_mul_rothLogDeficit`, `Erdos142.eventually_card_squareScaleDefect_le_neg_const`, `Erdos142.eventually_card_squareScaleDefect_neg`, and `Erdos142.eventually_card_squareScaleDefect_nonpos`. The first pair give the existing $\delta_\beta=1-\log\sqrt2/\log(2-\beta)$ lower-density curve and its fixed-$H$ consequence. The new endpoint corollaries say that for every fixed tower $N_k=M^{2^k}$ with $M\ge3$ and every real $\delta<1/2$, eventually at least $\delta K$ indices $k<K$ have, respectively, $X(N_k)<0$ and $X(N_k)\le0$. Equivalently, the strict-negative set has tower-index lower density at least $1/2$.
 
-$$
-X(N_k)\le-\beta\lambda(N_k).
-$$
+The half-density proof chooses $\beta>0$ in the existing curve with $\delta<\delta_\beta$; it does not apply the source theorem at $\beta=0$. Positivity of $\lambda(N_k)$ at every tower scale makes the source bound imply strict negativity. The focused module and full `Erdos` umbrella builds succeeded; the exact axiom audit is `[propext, Classical.choice, Quot.sound]`, with no `sorryAx`. This uses accepted Roth and EHPS/Behrend inputs, not Raghavan. It is tower-index density, not integer density or exact density, and does not assert the eventual-cardinality bound at $\delta=1/2$ or any endpoint magnitude. No overlap with P-shaped good scales, bounded gaps, $D\to0$, or asymptotic formula follows. The parameter endpoint $\beta=2-\sqrt2$ in the original density curve remains excluded, and no common set as $\beta$ varies is asserted.
 
-The fixed-$H$ theorem gives the same lower-density bound for $X(N_k)\le-H$ for every fixed $H>0$. The focused module and full `Erdos` umbrella build succeeded; the audited axioms are exactly `propext`, `Classical.choice`, and `Quot.sound`, with no `sorryAx`. This unconditional density result uses the accepted Roth and EHPS/Behrend inputs, but not Raghavan. Its density is in the tower index, not among integers; the endpoint $\beta=2-\sqrt2$ is excluded and $\delta_\beta\to0$ there. No common set as $\beta$ varies is asserted.
+Issue [#57](https://github.com/thatnealpatel/proofs/issues/57) tracks independent evaluation of soundness and global novelty. A scoped literature review found the growth-budget lemma standard and no explicit published Roth-number application. The live status remains **repository-level consequence / no global novelty claim**; issue #57 is not external certification of novelty.
 
 **Accepted prose deduction plus external theorem.**  The separately accepted `Documents/erdos142-raghavan-square-defect-rate.md` combines the density theorem with Raghavan, arXiv:2603.27045v3, Theorem 1.4. On the same lower-density set (up to deleting finitely many indices), it yields the explicit growing bound
 
@@ -120,7 +118,7 @@ $$
 X(N_k)\le-\beta c_R\left(\frac{\log N_k}{\log\log N_k}\right)^{1/6}.
 $$
 
-The density theorem itself is kernel checked and unconditional from accepted inputs; this quantitative magnitude is not Lean formalized and its Raghavan input remains external. This verified unconditional asymptotic progress meets the campaign's third exit criterion at repository scope; it is not an Erdős 142 solution and makes no claim of global literature novelty.
+The density theorem itself is kernel checked and unconditional from accepted inputs; this quantitative magnitude is not Lean formalized and its Raghavan input remains external. This is a repository-level consequence, not an Erdős 142 solution or a global novelty claim.
 
 This complements the existing positive-density P-shaped good-scale result in `Documents/erdos142-positive-density-square-scales.md`: on its positive-density tower-index set the good ratio gives a lower bound $X(N_k)\ge-(2-q)\lambda(N_k)$, whereas the new theorem gives an upper bound $X(N_k)\le-\beta\lambda(N_k)$ on a positive-lower-density set. No overlap, bounded-gap conclusion, or two-sided oscillation follows. Neither result proves eventual P, $D(N)\to0$, or an asymptotic formula.
 
@@ -218,10 +216,12 @@ entropy calculation, asymptotic bookkeeping, and exact non-consequence.
 
 ## Next decisions
 
-1. Sharpen the negative-defect distribution: investigate endpoint behavior,
+1. Sharpen the negative-defect distribution: the strict-negative set now has
+   lower tower-index density at least $1/2$ (every fixed $\delta<1/2$ is
+   eventually attained). Investigate exact density or endpoint magnitude,
    overlap with the positive-density P-shaped good scales, and gap control.
-   The endpoint is currently excluded, the guaranteed density tends to zero
-   there, and no common set across $\beta$ is known.
+   The original $\beta$-curve endpoint remains excluded; no cardinal bound at
+   $\delta=1/2$, no bounded gaps, and no common set across $\beta$ is known.
 2. Develop carry-sensitive global aggregation, especially an unequal-fiber
    inequality or Bohr-to-interval density averaging, with Cartesian
    sub-products as a mandatory stress test.
