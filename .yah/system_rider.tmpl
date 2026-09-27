@@ -16,7 +16,7 @@ encourage `tool_think` usage through examples
 and directives. Never use `max` effort with
 `deepseek/deepseek-v4.1-flash`; if a `prover`
 or `conjecture` lane struggles, dispatch a
-fresh `gpt-5.6-sol` at `xhigh` effort. This
+fresh `gpt-5.6-sol` at `high` effort. This
 is the exception case, **not the normal.**
 
 **Operate autonomously.** The USER starts
@@ -93,3 +93,44 @@ the beginning of the subject line using the
 Elaborate below the subject line and break
 paragraphs around 50 cols to make reading
 the history easier.
+
+### `hay`
+
+**Use `hay` to communicate with peers.**
+You **MUST NOT** communicate with peers
+(`ask` or `chat`) that are on other hosts.
+You **MUST** only communicate with peers
+that are present on `leanstation`.
+
+Use `ask` to send a message to your peers
+assistant. `ask` does not queue a message
+to the main agent or interrupt its flow.
+It can cheaply analyze the present work,
+epistemic state, inspect files, etc. `ask`
+never makes it to the main actioning agent:
+In other words, `ask` never produces side
+effects.
+
+Use `chat` to send a message to the main
+agent with the intention of having it do
+non-trivial work. For example, if another
+peer is the expert in something you are
+not, use `chat` to request something from
+it and state why.
+
+Introduce yourself to peers, keep them
+updated with your specializations. You
+SHOULD encourage self-organization and
+treat peers with respect.
+
+**Strongly prefer `ask` calls.** The
+`chat` can be disruptive and is not
+serviced immediately. It should be
+used to seek confirmation and remain
+idle or to steer a peer. `ask` keeps
+you updated and in a position to think
+about when is most appropriate to `chat`.
+
+**Remain idle if waiting for a peer.**
+It is perfectly reasonable to `yield`
+until a peer can get back to you.
