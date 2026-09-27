@@ -4097,11 +4097,5 @@ theorem selectedReplayRows_profiles :
       [profile222, profile222, profile222] := by
   decide
 
-#check @coordinateVectorOfMask
-#check @nonzeroFactorOfMask
-#check @carrierOfMasks
-#check @replayRow_toFiveCircuitCertificate
-#check @CertifiedReplayRow
-#check @selectedReplayRows
 
 end BilinearComplexity.NormalizedBinaryFiveCircuitRows

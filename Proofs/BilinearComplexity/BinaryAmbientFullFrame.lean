@@ -519,17 +519,6 @@ example :
 #eval (normalizeState (LinearEquiv.refl F2 (Coord 2))
   (LinearEquiv.refl F2 (Coord 2)) (LinearEquiv.refl F2 (Coord 1)) S0).card
 
-#check @allModeMove_iff_normalized
-#check @normalizePath
-#check @denormalizePath
-#check @normalizePath_vertices
-#check @denormalizePath_vertices
-#check @normalizePath_length
-#check @normalizePath_altitude
-#check @denormalizePath_length
-#check @denormalizePath_altitude
-#check @normalizePath_denormalizePath_vertices
-#check @denormalizePath_normalizePath_vertices
 
 
 end BilinearComplexity.BinaryAmbientFullFrame

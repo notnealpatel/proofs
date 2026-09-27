@@ -47,5 +47,3 @@ example : Nat.Prime 3 ∧ Odd (3 : ℕ) ∧ 2 * (1 : ℕ) < 3 ∧
 
 end Erdos376
 
-#check @Erdos376.small_a030979_coprime_certificates
-#check @Erdos376.not_coprime_105_two

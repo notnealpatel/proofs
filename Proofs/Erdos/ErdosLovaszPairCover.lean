@@ -148,9 +148,4 @@ example : 2 * coveringNumber ({{0, 1}, {0, 2}, {1, 2}} : Finset (Finset (Fin 3))
 example : 2 * 1 - 1 = erdosLovaszNum 1 := by rw [erdosLovaszNum_one]
 example : 2 * 2 - 1 = erdosLovaszNum 2 := by rw [erdosLovaszNum_two]
 
-#check @exists_isTransversal_two_mul_card_le
-#check @two_mul_coveringNumber_le_card_add_one
-#check @IsErdosLovaszFamily.two_mul_le_card_add_one
-#check @IsErdosLovaszFamily.two_mul_sub_one_le_card
-#check @two_mul_sub_one_le_erdosLovaszNum
 

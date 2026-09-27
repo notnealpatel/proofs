@@ -319,10 +319,6 @@ theorem reverse_path_length_ge_of_normalized_context_lower
       simp only [q, MovePath.one, MovePath.length]
     omega
 
-#check @short_forward_path_reflects_two_edges
-#check @short_reverse_path_reflects_two_edges
-#check @forward_path_length_ge_of_normalized_context_lower
-#check @reverse_path_length_ge_of_normalized_context_lower
 
 
 end BilinearComplexity.BinaryAmbientContextDistance

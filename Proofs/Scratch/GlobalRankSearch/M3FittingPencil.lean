@@ -133,12 +133,6 @@ example :
   (M3HyperplaneRankLE.twentySeven
     (0 : Matrix (Fin 3) (Fin 3) ℚ →ₗ[ℚ] ℚ)).exists_fittingPencil_factorization
 
-#check @m3FunctionalVec
-#check @m3OutputVec
-#check @m3LinearMap_apply_eq_sum_functionalVec_mul
-#check @M3HyperplaneRankLE.exists_fittingPencil_factorization
-#check @m3_repeatedBlock_rank
-#check @m3_repeatedBlock_det
 
 
 end BilinearComplexity

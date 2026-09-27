@@ -37,7 +37,3 @@ example : ((Finset.univ : Finset (Fin 11)).powersetCard 3).card = 165 := by
   decide
 example : Nonempty (Fin 11) := ⟨0⟩
 
-#check @witnessFour_card
-#check @witnessFour_uniform
-#check @witnessFour_intersecting
-#check @witnessFour_triples

@@ -635,34 +635,6 @@ end Scheme.Replacement.LiteralFirstFactorClass
 
 end BoundaryAcceptance
 
-#check @matrix_rank_sum_le_card_of_rank_le_one
-#check @matrix_rank_sum_growth
-#check @matrixRankDefectNat
-#check @matrixRankDefectNat_mono
-#check @matrixRankDefectNat_eq_zero_of_subset
-#check @matrixRankDefectNat_pos_of_subset
-#check @exists_eq_sum_vecMulVec_rank
-#check @rankLE_common_first_factor_matrix
-#check @rankLE_sum_shared_first_factor
-#check @rankLE_sum_shared_second_factor
-#check @rankLE_sum_shared_third_factor
-#check @Scheme.Replacement.LiteralFirstFactorClass
-#check @Scheme.Replacement.LiteralFirstFactorClass.mk
-#check @Scheme.Replacement.LiteralFirstFactorClass.mem_slots
-#check @Scheme.Replacement.LiteralFirstFactorClass.anchor_mem_slots
-#check @Scheme.Replacement.LiteralFirstFactorClass.slots_nonempty
-#check @Scheme.Replacement.LiteralFirstFactorClass.matrixRankDefectNat_eq_card_sub_rank
-#check @Scheme.Replacement.exists_literalFirstFactorClass_certificate
-#check @Scheme.Replacement.LiteralFirstFactorClass.certificate_local_eq
-#check @Scheme.Replacement.LiteralFirstFactorClass.certificate_sumTensor_eq
-#check @Scheme.Replacement.LiteralFirstFactorClass.certificate_rankLE
-#check @Scheme.Replacement.LiteralFirstFactorClass.certificate_resultRank_lt
-#check @Scheme.Replacement.LiteralFirstFactorClass.certificate_resultRank_lt_of_matrixRankDefectNat_pos
-#check @Scheme.Replacement.LiteralFirstFactorClass.rankLE_pred_of_complementaryMatrix_rank_lt
-#check @exists_shared_first_factor_reduction_certificate
-#check @rankLE_sum_shared_first_factor_of_not_linearIndependent
-#check @rankLE_sum_scalar_shared_first_factor_of_not_linearIndependent
-#check @rankLE_sum_shared_second_factor_of_not_linearIndependent
 
 
 end BilinearComplexity

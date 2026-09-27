@@ -2002,34 +2002,6 @@ end ActionTransport
 example : ((1 + 0) * (1 + 0) : ZMod 2) = 1 := by
   norm_num
 
-#check @ThreeCircuit
-#check @factors_ne_zero_of_triad_ne_zero
-#check @triad_ne_zero_of_factors
-#check @triad_map_ne_zero
-#check @Witness
-#check @Witness.exact_family
-#check @Witness.reorder
-#check @LocalReplay.certificate
-#check @LocalReplay.certificate_output_eq_family
-#check @LocalReplay.binaryCertificate
-#check @ActionTransport.Evidence.map
-#check @ActionTransport.SchemeWitness.sandwich
-#check @ActionTransport.SchemeWitness.orientMatrix
-#check @ActionTransport.sourceVLeg_allSix
-#check @ActionTransport.PhysicalReplay.physicalSourceScheme_term_eq
-#check @ActionTransport.PhysicalReplay.physicalSourceScheme_term_eval_ne_zero
-#check @ActionTransport.PhysicalReplay.physicalSourceScheme_eq_reorder
-#check @ActionTransport.PhysicalReplay.physicalFamilyScheme_sumTensor_eq
-#check @ActionTransport.PhysicalReplay.certificate
-#check @ActionTransport.PhysicalReplay.certificate_output_sumTensor_eq
-#check @ActionTransport.PhysicalReplay.binary_allSix_certificates
-#check @ActionTransport.PhysicalReplay.binary_allSix_physical_supported
-#check @BinaryFiveMask.witness
-#check @BinaryFiveMask.sourceTerms_eval_ne_zero
-#check @BinaryFiveMaskRatFunc.factors_decode_sourceMasks
-#check @BinaryFiveMaskRatFunc.sourceTerms_eval_ne_zero
-#check @BinaryFiveMaskRatFunc.nontrivial_replacement_certificate
-#check @BinaryFiveMaskRatFunc.sameMasks_nontrivial_replacement_fixture
 
 
 end PairedCircuit

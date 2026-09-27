@@ -487,11 +487,6 @@ end GroupCount
 
 /-! ## Signature audit (section variable check) -/
 
-#check @GroupCount.commute_conjAct_smul
-#check @GroupCount.instMulActionConjActCommutingPair
-#check @GroupCount.coe_conjAct_smul_commutingPair
-#check @GroupCount.conjAct_smul_eq_self_iff
-#check @GroupCount.mem_fixedBy_commutingPair
 
 /-! ## Axiom audit -/
 

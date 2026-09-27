@@ -253,14 +253,5 @@ example : ExactRelation profile221 :=
     NormalizedBinaryReplay221.endpoint_evaluations.2,
     NormalizedBinaryFiveCircuitCertificate.designated_endpoint_hasExactFactorProfile⟩
 
-#check @mem_combinationSet_iff
-#check @spansCheck_eq_true_iff
-#check @reflectedExactProfile_eq_true_iff
-#check @mem_allExactSupports_iff
-#check @IsExactRelation.circuit
-#check @stateEvaluation_union
-#check @stateEvaluation_union_eq_zero_iff
-#check @mem_relationsOnSupport_iff
-#check @mem_allExactRelations_iff
 
 end BilinearComplexity.NormalizedBinaryRelationEnumeration

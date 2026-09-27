@@ -57,8 +57,6 @@ example {k : Type*} [Field k] {a b c : ℕ} (T : Tensor k a b c)
     (i : Fin a) (j : Fin b) (l : Fin c) :
     flatteningLinear T i (j, l) = T i j l := rfl
 
-#check @flatteningLinear
-#check @flatteningLinear_apply
 
 /-- A rank-≤ r tensor has flattening rank ≤ r: the flattening factors as
 an `a × r` times `r × (b*c)` matrix product, so its rank is bounded by
@@ -158,13 +156,7 @@ example :
   refine ⟨hT, ?_, hT.rank_twoDiagonalLinear_le⟩
   rw [hmatrix, Matrix.rank_one, Fintype.card_fin]
 
-#check @twoDiagonalLinear
-#check @twoDiagonalLinear_apply
-#check @rank_twoDiagonalLinear_simple_le_two
-#check @RankLE.rank_twoDiagonalLinear_le
 
-#check @rank_flatteningLinear_simple_le_one
-#check @RankLE.rank_flatteningLinear_le
 
 /-! ## 2. The flattening of the matmul tensor has full rank -/
 

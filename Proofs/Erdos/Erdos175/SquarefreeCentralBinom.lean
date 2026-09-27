@@ -532,7 +532,5 @@ end Erdos175.A046098
 -- The bounded even branch no longer inherits any native computation axiom:
 
 -- The bounded odd residual and its odd-range corollary use only standard axioms:
-#check @Erdos175.A046098.not_squarefree_choose_half_of_odd_of_sum_digits_le_two
 
 -- The combined Noe-range theorem and the complete bounded classification:
-#check @Erdos175.A046098.squarefree_choose_half_iff

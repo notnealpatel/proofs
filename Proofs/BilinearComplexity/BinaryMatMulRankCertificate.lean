@@ -206,16 +206,6 @@ example : strassenStateEvaluationMatches = true := by decide
 #eval strassenState.card
 #eval strassenStateEvaluationMatches
 
-#check @BilinearComplexity.seven_le_rank_matMulTensor_zmod
-#check @rankLE_stateEvaluation
-#check @strassenTerm_tensor_ne_zero
-#check @strassenTerm_injective
-#check @strassenState_card
-#check @strassenState_evaluation
-#check @strassenState_rankLE
-#check @strassen_rankLE_F2
-#check @rank_matMulTensor_F2_eq_seven
-#check @seven_le_card_of_stateEvaluation_eq_matMulTensor
 
 
 end BilinearComplexity.BinaryMatMulRankCertificate

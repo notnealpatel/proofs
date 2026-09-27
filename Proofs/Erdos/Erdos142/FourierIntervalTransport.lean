@@ -141,10 +141,6 @@ example :
     19 8 ({0, 2, 5} : Finset ℕ) (by decide) (by norm_num) (by norm_num)
       (1 : ZMod 19)
 
-#check @card_natCyclicImage_eq_card_of_lt
-#check @card_natCyclicImage_eq_card
-#check @stdAddChar_neg_natCast_mul_eq_exp
-#check @unnormalizedDFT_balanced_natCyclicImage_eq_interval_sum
 
 
 end Erdos142

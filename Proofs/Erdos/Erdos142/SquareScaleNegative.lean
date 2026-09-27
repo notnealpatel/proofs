@@ -303,8 +303,6 @@ example : (3 : ℕ) ≤ 3 ∧ (0 : ℝ) < 1 / 2 ∧
   · norm_num
   · nlinarith
 
-#check @Erdos142.frequently_rothLogDeficit_iterated_square_le
-#check @Erdos142.frequently_squareScaleDefect_lt_neg
 
 end
 end Erdos142

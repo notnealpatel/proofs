@@ -1238,6 +1238,5 @@ theorem pair_triple_span_drop {a b c : ℕ}
       (W 0) (W 1) (W 3) (W 4) (W 2) hperm (hnz 3) (hnz 4)
       (hne 3 4 (by decide)) hU₃₄.2.1 hU₃₄.1 hV₃₄.2.1 hV₃₄.1
 
-#check @pair_triple_span_drop
 
 end BilinearComplexity.PairTripleSpan

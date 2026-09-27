@@ -691,10 +691,6 @@ theorem recognizedMacro_sound (eU : Coord a ≃ₗ[F2] U)
       ⟨hApplicable', _⟩
     exact False.elim (hApplicable hApplicable')
 
-#check @recognizeMacroKeys
-#check @mem_recognizeMacroKeys_iff
-#check @recognizedMacro_sound
-#check @RecognizedMacro.certified
 
 
 end BilinearComplexity.BinaryContextualMacroRecognition

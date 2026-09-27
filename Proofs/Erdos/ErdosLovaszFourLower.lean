@@ -363,6 +363,5 @@ theorem nine_le_card {α : Type*} (F : Finset (Finset α))
   have hfinal := Finset.card_le_card hWsub
   omega
 
-#check @nine_le_card
 
 end ErdosLovaszFourLower

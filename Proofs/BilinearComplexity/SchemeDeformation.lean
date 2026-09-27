@@ -1022,42 +1022,6 @@ theorem nonzero :
 
 end TwoStepCoefficientOracle
 
-#check @TruncatedPolynomial
-#check @truncatedResidue
-#check @orderThreeScheme
-#check @orderThreeScheme_map_truncatedResidue
-#check @orderThreeFactor_expansion
-#check @sumTensor_orderThreeScheme
-#check @OrderThreeArc
-#check @OrderThreeArc.scheme
-#check @OrderThreeArc.scheme_map_truncatedResidue
-#check @OrderThreeArc.scheme_sumTensor
-#check @OrderThreeArc.scheme_valid
-#check @ValidOrderThreeArc
-#check @OrderThreeArc.withValidity
-#check @SemanticArcFixture.validArc
-#check @SemanticArcFixture.base_valid
-#check @SemanticArcFixture.truncated_valid
-#check @SemanticArcFixture.represented
-#check @SemanticArcFixture.first_coefficient_ne_zero
-#check @TwoStepCoefficientOracle.values
-#check @TwoStepCoefficientOracle.nonzero
-#check @OrderThreeArc.first_eq
-#check @OrderThreeArc.second_eq
-#check @OrderThreeArc.third_eq
-#check @OrderThreeArc.genuine_first_nonzero_mem_ker
-#check @sumTensor_perturb
-#check @sumTensor_perturbTwoStep
-#check @VariationMask.restrictedJacobian
-#check @VariationMask.no_correction_of_not_mem_range
-#check @OrderThreeArc.first_nonzero_mem_ker
-#check @obstructionClass_eq_zero_iff
-#check @restrictedObstructionClass_eq_zero_iff
-#check @OrderThreeArc.obstructionClass_first_eq_zero
-#check @no_unrestricted_secondOrderLift_of_obstruction_ne_zero
-#check @no_restricted_secondOrderLift_of_obstruction_ne_zero
-#check @no_restricted_secondOrderLift_of_not_mem_range
-#check @no_secondOrderLift_on_affine_family
 
 
 end Deformation

@@ -72,7 +72,5 @@ example (g : Fin 5 → Bool) :
   exact range_comp_inr_eq_of_range_inl_eq
     (finSumFinEquiv : Fin 2 ⊕ Fin 3 ≃ Fin 5) finSumFinEquiv g rfl
 
-#check @range_inr_eq_of_range_inl_eq
-#check @range_comp_inr_eq_of_range_inl_eq
 
 end Equiv

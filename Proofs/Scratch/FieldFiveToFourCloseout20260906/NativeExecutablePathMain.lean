@@ -361,17 +361,6 @@ example : sourceAtom ∈ sourceState ∧ leftAtom ∉ sourceState ∧ rightAtom 
 
 end Execution
 
-#check @ComputedState.singleton
-#check @ComputedState.union
-#check @reverseStep
-#check @append
-#check @snoc
-#check @reverse
-#check @stateTrace
-#check @edgeTrace
-#check @localEndpointTrace
-#check @Packet
-#check @heightBound_reverse
 
 end FieldNativeExecutablePath
 end BilinearComplexity

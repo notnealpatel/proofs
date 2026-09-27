@@ -404,16 +404,6 @@ example :
   · norm_num
   · norm_num [balancedIndicator, Complex.norm_real, Real.norm_eq_abs]
 
-#check @balancedIndicator
-#check @sum_balancedIndicator_eq_zero
-#check @sum_abs_balancedIndicator_le_card
-#check @exists_large_of_sum_eq_zero
-#check @exists_cell_sum_ge_of_correlation_with_error
-#check @exists_cell_sum_ge_of_correlation
-#check @sum_balancedIndicator_on_cell
-#check @exists_density_increment_of_correlation_with_error
-#check @exists_density_increment_of_correlation
-#check @exists_density_increment_quarter_of_correlation
 
 
 end Erdos142

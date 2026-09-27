@@ -350,7 +350,5 @@ example :
     start 1 1 (by decide)
   result.finish.card
 
-#check @boundedCandidates_complete
-#check @optimize
 
 end BilinearComplexity.FiniteBoundedSearch

@@ -289,11 +289,5 @@ def unitResult : NormalizedBinaryBoundedSearch.Result unitState 1 1 :=
 #eval result1.finish
 #eval (unitResult.finish.card, unitResult.path.length)
 
-#check @suppliedState
-#check @result0
-#check @result1
-#check @result1_card
-#check @result1_path_data
-#check @result1_evaluation
 
 end BilinearComplexity.NormalizedBinarySearchRegression

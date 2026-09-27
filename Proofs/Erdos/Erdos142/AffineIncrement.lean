@@ -161,6 +161,5 @@ example :
   · norm_num [Finset.sum_range_succ, balancedIndicator, Complex.norm_real,
       Real.norm_eq_abs]
 
-#check @exists_affine_density_increment_of_correlation
 
 end Erdos142

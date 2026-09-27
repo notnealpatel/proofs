@@ -339,6 +339,5 @@ example : (effectiveSpanCoordinates
   (effectiveSpanCoordinates
     ({![1, 0, 0], ![0, 1, 0], ![0, 0, 1]} : Finset (Coord 3))).r)
 
-#check @effectiveSpanCoordinates
 
 end BilinearComplexity.BinaryEffectiveSpanCoordinates

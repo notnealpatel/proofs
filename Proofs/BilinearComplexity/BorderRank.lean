@@ -176,18 +176,6 @@ theorem BorderRankLE.flattening_det_submatrix_eq_zero
   rw [(symbolicFlattening k a b c).eval_det_submatrix]
   exact det_submatrix_eq_zero_of_rank_le hS.rank_flatteningLinear_le ri ci
 
-#check @entries
-#check @rankLocus
-#check @mem_rankLocus
-#check @BorderRankLE
-#check @borderRankLE_iff
-#check @RankLE.borderRankLE
-#check @BorderRankLE.mono
-#check @SymbolicMatrixLift.eval_det_submatrix
-#check @SymbolicMatrixLift.det_submatrix_mem_vanishingIdeal
-#check @BorderRankLE.det_submatrix_eq_zero
-#check @symbolicFlattening
-#check @BorderRankLE.flattening_det_submatrix_eq_zero
 
 /-- Genuine determinantal regression: the all-ones `2 × 2 × 1` rank-one
 tensor satisfies both the generic symbolic-lift theorem and the specialized

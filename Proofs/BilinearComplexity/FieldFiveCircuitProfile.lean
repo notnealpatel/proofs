@@ -960,21 +960,6 @@ theorem factorRanks_eq_221 :
 
 end F3Fixture
 
-#check @vanishing_relation_iff_everyDeletionIndependent
-#check @minimalFiveProductCircuit_iff
-#check @EveryDeletionIndependent.linearIndependent_restrict
-#check @factorRank_sum_le_six
-#check @productFamilyRank_eq_four
-#check @productFamilyRank_le_factorRank_product
-#check @four_le_factorRank_product
-#check @one_le_familyRank
-#check @factorRank_profile
-#check @F3Fixture.factors_nonzero
-#check @F3Fixture.productFamily_eq_fixtureFamily
-#check @F3Fixture.isMinimalFiveProductCircuit
-#check @F3Fixture.signed_relation
-#check @F3Fixture.factorRank_sum_le_six
-#check @F3Fixture.factorRanks_eq_221
 
 
 end FieldFiveCircuitProfile

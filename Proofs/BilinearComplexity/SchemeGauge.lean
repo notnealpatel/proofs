@@ -1685,42 +1685,6 @@ theorem restrictedNormalClass_eq_zero (d : restrictedKernel scheme mask) :
 
 end FullBlockAuditFixture
 
-#check @termScalingDerivative
-#check @jacobian_termScalingDerivative
-#check @localTermScalingDerivative_injective
-#check @jacobian_infinitesimalSandwich
-#check @gaugeSpace_le_ker
-#check @GaugeNormalization
-#check @GaugeNormalization.normalClass_normalized
-#check @GaugeNormalization.normalized_eq_zero_of_supported_of_restrictedGauge_eq_top
-#check @restrictedGauge
-#check @restrictedNormalTangentModule
-#check @restrictedNormalClass_smul
-#check @not_mem_restrictedGauge_iff_restrictedNormalClass_ne_zero
-#check @not_mem_restrictedGauge_iff_ambientNormalClass_ne_zero
-#check @arcLeadingKernel
-#check @normalizedArcLeadingKernel
-#check @normalClass_normalizedArcLeadingKernel
-#check @normalizedArcLeadingKernel_eq_zero_of_supported_of_restrictedGauge_eq_top
-#check @no_supported_nonzero_normalizedLeading_arc_of_restrictedGauge_eq_top
-#check @no_normalizedLeading_arc_of_restrictedKernel_le_gauge
-#check @certified_restrictedGauge_eq_top_over_charTwo
-#check @CertifiedBridgeFixture.restrictedGauge_eq_top
-#check @CertifiedBridgeFixture.normalization
-#check @CertifiedBridgeFixture.reciprocalScalingArc
-#check @CertifiedBridgeFixture.reciprocalScalingArc_normalization_witness
-#check @CertifiedBridgeFixture.scalingRestrictedKernel_ne_zero
-#check @CertifiedBridgeFixture.normalization_preserves_scalingClass
-#check @CertifiedBridgeFixture.normalization_and_support_rejection
-#check @FullBlockScalingAudit
-#check @FullBlockScalingAudit.finrank_fullBlockScalingInKernel
-#check @FullBlockAuditFixture.audit
-#check @FullBlockAuditFixture.allowed_finrank
-#check @FullBlockAuditFixture.restrictedJacobian_range_finrank
-#check @binary_fullBlock_restrictedGauge_eq_top
-#check @FullBlockAuditFixture.restrictedGauge_eq_top
-#check @FullBlockAuditFixture.restrictedNormalClass_eq_zero
-#check @binary_fullBlock_restrictedNormalClass_eq_zero
 
 
 end Deformation

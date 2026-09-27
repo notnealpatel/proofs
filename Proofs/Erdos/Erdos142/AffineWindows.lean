@@ -509,24 +509,6 @@ example :
   · decide
   · decide
 
-#check @affineWindow
-#check @affineWindowValue
-#check @mem_affineWindow_iff
-#check @affineWindowValue_injOn
-#check @exists_ordered_threeAP_of_mem_threeAPEdges
-#check @ordered_threeAP_finset_injective
-#check @affineWindow_ordered_threeAP_transport
-#check @image_mem_threeAPEdges_of_mem_affineWindow
-#check @threeAPCount_affineWindow_le
-#check @card_affineWindow_le_rothNumberNat_add_threeAPCount
-#check @card_filter_base_affineWindow
-#check @sum_card_affineWindow_fixed_difference
-#check @sum_Icc_one_id
-#check @sum_affineWindow_base_count
-#check @sum_card_affineWindow
-#check @affineWindow_incidence_bound_of_threeAP_multiplicity
-#check @sum_threeAPCount_affineWindow_le
-#check @affineWindow_incidence_bound
 
 
 end Erdos142

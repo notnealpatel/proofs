@@ -194,11 +194,6 @@ example :
 
 end ThreeAPFree
 
-#check @sum_weightedLoad_eq
-#check @card_le_weighted_local_capacity
-#check @card_le_weighted_local_capacity_of_covered
-#check @threeAPFree_card_le_weighted_local_capacity
-#check @threeAPFree_card_le_weighted_local_capacity_of_covered
 
 
 end Erdos142

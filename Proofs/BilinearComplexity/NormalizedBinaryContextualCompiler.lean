@@ -566,14 +566,6 @@ example :
     (⟨.family411, (0 : Fin 1)⟩ : OrbitLabel) (∅ : State profile411)
     (Finset.disjoint_empty_left _)
 
-#check @orbitDistance
-#check @orbitDistance_two_or_three
-#check @orbitLabelForwardPath
-#check @orbitLabelReversePath
-#check @orbitLabelForwardPath_length
-#check @orbitLabelReversePath_length
-#check @orbitLabelForwardPath_altitude_le
-#check @orbitLabelReversePath_altitude_le
 
 
 end BilinearComplexity.NormalizedBinaryContextualCompiler

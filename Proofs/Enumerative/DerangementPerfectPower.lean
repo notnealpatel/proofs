@@ -611,29 +611,6 @@ example : IsPerfectPower (numDerangements 4) ↔ (4 : ℕ) = 4 :=
 
 /-! ## Signature audit -/
 
-#check @IsPerfectPower
-#check @four_le_of_isPerfectPower
-#check @IsRootBracket
-#check @not_isPerfectPower_of_isRootBracket
-#check @a000166Prefix
-#check @a000166RootBrackets
-#check @a000166RootBrackets_valid
-#check @not_isPerfectPower_of_mem_a000166RootBrackets
-#check @a000166Prefix_eq_append
-#check @nine_notMem_a000166RootBrackets_keys
-#check @isPerfectPower_iff_of_mem_a000166Prefix
-#check @numDerangements_eq_card_derangements
-#check @map_numDerangements_range_eq_a000166Prefix
-#check @numDerangements_mem_a000166Prefix
-#check @isPerfectPower_numDerangements_four
-#check @not_forall_not_isPerfectPower_numDerangements
-#check @not_isPerfectPower_numDerangements_of_lt_three
-#check @sun_isPerfectPower_numDerangements_iff_of_lt_24
-#check @numDerangements_succ_eq_mul_add_neg_one_pow
-#check @coprime_numDerangements_succ
-#check @sun_eq_four_of_isPerfectPower_numDerangements
-#check @sun_isPerfectPower_numDerangements_iff
-#check @sun_isPerfectPower_numDerangements_iff_all
 
 /-! ## Axiom audit
 

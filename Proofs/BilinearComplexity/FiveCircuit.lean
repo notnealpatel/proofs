@@ -84,7 +84,6 @@ theorem circuit_of_binaryCycle_card_five {value : α → V} {C : Scheme α}
       (fun _ ha _ hb => hInjective (by simpa using hWSubset ha) (by simpa using hWSubset hb))
       hWCycle
 
-#check @not_binaryCycle_of_nonempty_card_le_two
 
 /-- Two disjoint sides of cardinalities two and three with equal evaluation
 form a five-element circuit when all union values are nonzero and injective. -/
@@ -118,8 +117,6 @@ example :
     intro i j hij
     fin_cases i <;> fin_cases j <;> simp_all
 
-#check @circuit_of_binaryCycle_card_five
-#check @circuit_union_of_disjoint_card_two_card_three
 
 end BilinearComplexity.BinaryCircuit
 
@@ -140,6 +137,5 @@ theorem tensorEvaluation_circuit_union_of_disjoint_card_two_card_three
   · intro s _ t _ hst
     exact tensorEvaluation_injective hst
 
-#check @tensorEvaluation_circuit_union_of_disjoint_card_two_card_three
 
 end BilinearComplexity.NormalizedBinaryCarrier

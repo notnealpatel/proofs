@@ -948,9 +948,6 @@ of the normalized context and the normalized right endpoint. -/
     · exact ⟨Or.inl htC, htBox⟩
     · exact ⟨Or.inr htB, right_subset_localBox P htB⟩
 
-#check @allModeMove_normalizeLocalContext
-#check @normalizeLocalContext_union_left
-#check @normalizeLocalContext_union_right
 
 
 end BilinearComplexity.BinaryAmbientContextReflection

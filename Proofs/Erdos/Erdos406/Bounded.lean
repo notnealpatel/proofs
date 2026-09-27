@@ -43,4 +43,3 @@ example : 200 ≤ 200 ∧ ¬ ZeroOneBase3 (2 ^ 200) := by decide
 
 end Erdos406
 
-#check @Erdos406.zeroOneBase3_pow_two_iff_of_le_200

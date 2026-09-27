@@ -438,10 +438,6 @@ The subset is the sound `native_decide` detector: a use would appear as a
 per-declaration `*._native.native_decide.ax_*` axiom on this toolchain
 (`Lean.ofReduceBool` is never emitted, so grepping for it detects nothing). -/
 
-#check @gnu_prime_sq
-#check @groupDeficient_prime_sq
-#check @not_groupPerfect_prime_sq
-#check @not_groupAbundant_prime_sq
 
 
 end GroupCount

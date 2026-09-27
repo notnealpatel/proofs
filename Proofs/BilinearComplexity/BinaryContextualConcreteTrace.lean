@@ -398,14 +398,6 @@ example : (ContextualTrace.compileConcrete groundPrimitiveTrace221).length = 1 :
   collisionRoundtripTrace221.maxStateCard,
   (ContextualTrace.compileConcrete collisionRoundtripTrace221).altitude)
 
-#check @compileContextualJump
-#check @compileContextualJump_ambient_membership
-#check @compileContextualJump_outside
-#check @concreteEffectiveLocalCompiler
-#check @ContextualTrace.compileConcrete
-#check @ContextualTrace.compileConcrete_length
-#check @ContextualTrace.compileConcrete_length_le
-#check @ContextualTrace.compileConcrete_altitude_le
 
 
 end BilinearComplexity.BinaryContextualConcreteTrace

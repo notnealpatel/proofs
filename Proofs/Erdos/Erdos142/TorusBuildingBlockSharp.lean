@@ -335,11 +335,6 @@ example : 38 < 2 * ((9 / 4 : ℝ) * (69 / 8) + (37 / 8) / 144) :=
   torusSharp_coefficient_optimality (by norm_num) (by norm_num)
     (by rw [torusSharp_close_determinant]; norm_num) (by norm_num)
 
-#check @torusFSharp_threeAP
-#check @torusSharp_far_polynomial_kernel
-#check @torusSharp_close_polynomial_kernel
-#check @torusFSharp_le_block
-#check @torusSharp_coefficient_optimality
 
 
 end Erdos142

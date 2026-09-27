@@ -388,8 +388,6 @@ theorem nativeReplacement_split_of_val_add_eq (x y z : Atom k a b c)
     NativeReplacement (singletonState z) (pairState x y) :=
   .split (splitFormula_of_val_add_eq x y z h) hxy
 
-#check @splitFormula_of_val_add_eq
-#check @nativeReplacement_split_of_val_add_eq
 
 end FieldThreeProductCircuit
 end BilinearComplexity

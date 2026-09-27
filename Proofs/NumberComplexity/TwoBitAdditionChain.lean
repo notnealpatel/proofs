@@ -114,8 +114,5 @@ example : ¬binaryWeight 7 ≤ 2 := by decide
 example : (∃ a : ℕ, 5 = 2 ^ a) ∨ ∃ a b : ℕ, a < b ∧ 5 = 2 ^ a + 2 ^ b :=
   eq_two_pow_or_sum_of_binaryWeight_le_two (by decide) (by decide)
 
-#check @l_two_pow_add_two_pow
-#check @binaryWeight_two_pow_add_two_pow
-#check @eq_two_pow_or_sum_of_binaryWeight_le_two
 
 end NumberComplexity

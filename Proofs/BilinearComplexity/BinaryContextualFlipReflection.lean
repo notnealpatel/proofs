@@ -265,7 +265,6 @@ theorem allModeFlipCandidate_encode {p : Profile} {D E : State p}
       exact orientedMove_encode (p := ⟨v, u, w⟩) .bac hprimitive hD' hE'
         hcard hset hnodup occupied hoccupied
 
-#check @allModeFlipCandidate_encode
 
 
 end BilinearComplexity.BinaryContextualFlipReflection

@@ -504,9 +504,6 @@ private theorem groundCompilation221_reverse_length :
   groundCompilation221.reverse.vertices.map Finset.card,
   groundCompilation221.reverse.length)
 
-#check @compileContextualBinaryFiveCircuit
-#check @ContextualBinaryFiveCircuitCompilation.forward
-#check @ContextualBinaryFiveCircuitCompilation.reverse
 
 
 end BilinearComplexity.BinaryContextualFiveCircuitCompiler

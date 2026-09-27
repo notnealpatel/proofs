@@ -601,19 +601,6 @@ example :
     funext i
     fin_cases i <;> decide
 
-#check @sumTensor_update
-#check @sumTensor_update_of_mem_ker
-#check @add_self_eq_zero_f2_module
-#check @add_eq_add_iff_add_eq_add_f2
-#check @first_collision_feasible_iff_mem_range
-#check @second_collision_feasible_iff_mem_range
-#check @third_collision_feasible_iff_mem_range
-#check @update_retains_unchanged_unequal_factor
-#check @eq_one_of_ne_zero_f2
-#check @factors_eq_of_eval_eq_of_ne_zero
-#check @update_eval_injective
-#check @exists_shorter_exact_of_eval_eq_zero
-#check @collision_deformation_dichotomy
 
 
 end BinaryOneFactorDeformation

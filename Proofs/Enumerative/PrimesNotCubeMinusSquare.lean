@@ -657,32 +657,6 @@ example : ∃ p : ℕ, 2 < p ∧ p.Prime ∧ ¬ IsCubeMinusSquare p :=
 
 /-! ## Signature audit -/
 
-#check @IsCubeMinusSquare
-#check @IsPosCubeMinusSquare
-#check @isCubeMinusSquare_of_isPosCubeMinusSquare
-#check @isCubeMinusSquare_iff_isPosCubeMinusSquare_of_prime
-#check @primesNotCubeMinusSquare
-#check @mem_primesNotCubeMinusSquare_iff
-#check @mem_primesNotCubeMinusSquare_iff_pos
-#check @prime_of_mem_primesNotCubeMinusSquare
-#check @primesNotCubeMinusSquare_subset_setOf_prime
-#check @witnesses
-#check @witnesses_length
-#check @a161681PrefixBelow542
-#check @witnesses_map_fst
-#check @witnesses_spec
-#check @isPosCubeMinusSquare_of_mem_witnesses
-#check @isCubeMinusSquare_of_mem_witnesses
-#check @notMem_primesNotCubeMinusSquare_of_mem_witnesses
-#check @two_notMem_primesNotCubeMinusSquare
-#check @primesNotCubeMinusSquare_ssubset_setOf_prime
-#check @not_isCubeMinusSquare_three
-#check @not_isCubeMinusSquare_five
-#check @three_mem_primesNotCubeMinusSquare
-#check @five_mem_primesNotCubeMinusSquare
-#check @primesNotCubeMinusSquare_nonempty
-#check @primesNotCubeMinusSquare_infinite_iff
-#check @primesNotCubeMinusSquare_infinite
 
 /-! ## Axiom audit
 

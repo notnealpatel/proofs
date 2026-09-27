@@ -1718,21 +1718,6 @@ theorem zmod2_compositionBlocks_fixture :
       _ = (![1, 0, 1, 0, 1], ![1], ![1]) := rfl
 
 
-#check @zmod2_rankChange_fixture
-#check @zmod2_compositionBlocks_fixture
-#check @Certificate.output
-#check @Certificate.sumTensor_eq
-#check @Certificate.rankLE_resultRank
-#check @Certificate.valid_output
-#check @Certificate.removed_eq_image_transported
-#check @Certificate.composite
-#check @Certificate.composite_resultRank_eq_later_resultRank
-#check @Certificate.composite_output_term_cast_eq_later_output_term
-#check @Certificate.composite_output_cast_eq_later_output
-#check @Certificate.Composition.direct_sumTensor_eq
-#check @Certificate.Composition.direct_output_cast_eq_later_output
-#check @Certificate.Composition.sumTensor_eq
-#check @Certificate.transport
 
 
 end Replacement

@@ -214,11 +214,6 @@ example : ∃ e : Multiplicative (ZMod 2) ≃* Multiplicative (ZMod 2),
 
 end GroundTruth
 
-#check @factorization_mul_primes_right
-#check @sylow_card_eq_larger_prime
-#check @sylow_larger_prime_normal
-#check @subgroup_eq_of_isCyclic_card_eq
-#check @injective_hom_eq_comp_mulEquiv
 
 
 /-- If a finite group is a noncyclic internal semidirect product with a cyclic
@@ -485,20 +480,10 @@ example : gnu (2 * 3) = if 2 ∣ 3 - 1 then 2 else 1 :=
 
 end GroundTruth
 
-#check @exists_semidirectProduct_card_mul_primes_noncommutative
-#check @gnu_mul_primes_of_dvd
-#check @gnu_mul_primes
 
-#check @dvd_pred_of_card_eq_mul_primes_of_not_isCyclic
-#check @gnu_mul_primes_of_not_dvd
 
-#check @semidirect_action_injective_of_noncyclic_target
-#check @nonempty_mulEquiv_of_card_eq_mul_primes_of_not_isCyclic
 
-#check @semidirect_products_mulEquiv_of_injective
 
-#check @semidirect_action_injective_of_not_isCyclic
-#check @exists_pq_semidirect_decomposition
 
 
 end GroupCount

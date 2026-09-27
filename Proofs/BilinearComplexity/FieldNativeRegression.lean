@@ -792,8 +792,6 @@ example : runtimeCardTrace {atomQ} true = [4, 3, 3] := by decide
 #eval runtimeCardTrace ∅ true
 #eval runtimeCardTrace {atomQ} true
 
-#check @allContextForward
-#check @allContextReverse
 
 end FieldNativeRegression
 end BilinearComplexity

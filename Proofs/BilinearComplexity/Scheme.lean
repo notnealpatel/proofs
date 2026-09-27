@@ -418,15 +418,6 @@ example :
   · intro s t _hst
     exact Subsingleton.elim s t
 
-#check @Scheme.brent_iff_sumTensor_eq_matMulTensor
-#check @Scheme.brent_iff_sumTensor_eq_matrixMultiplicationSum
-#check @Scheme.Brent.rankLE
-#check @Scheme.sumTensor_map
-#check @Scheme.Brent.map
-#check @Scheme.Brent.map_rankLE
-#check @Scheme.ReplayableBrent.map
-#check @Scheme.ReplayableBrent.map_rankLE
-#check @Scheme.Valid.map_of_injective
 
 
 end BilinearComplexity

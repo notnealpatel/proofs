@@ -456,15 +456,6 @@ example :
       NormalizedBinaryReplay221.endpoint_evaluations.2
       designated_endpoint_hasExactFactorProfile).choice.family = .family221 := rfl
 
-#check @CanonicalProfileFamily.profile
-#check @ProfileOrientation.profile_eq
-#check @exactPair_profile_perm
-#check @exactPairProfileOrientation
-#check @ProfileOrientation.orientState_card
-#check @ProfileOrientation.orientState_disjoint
-#check @ProfileOrientation.orientState_evaluation
-#check @ProfileOrientation.orientState_union_exact
-#check @orientExactPair
 
 
 end BilinearComplexity.NormalizedBinaryProfileOrientation

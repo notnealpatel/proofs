@@ -249,14 +249,6 @@ example : ∃ S : Finset (Fin 4),
   exists_energyBin_41 (E := fun _ : Fin 4 => (0 : ℝ)) (k := 3) (e := 6) (q := 11) (R := 7)
     (by norm_num) (by norm_num) (fun _ => le_refl 0) (fun _ => by norm_num)
 
-#check @energyBin
-#check @mem_energyBin
-#check @energyBin_eq_filter_floor
-#check @exists_energyBin_card_le
-#check @binCount_mul_sq_le_2921
-#check @binCount_mul_sq_le_41
-#check @exists_energyBin_card_mul_le_41
-#check @exists_energyBin_41
 
 
 end Erdos142

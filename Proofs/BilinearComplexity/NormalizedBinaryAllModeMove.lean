@@ -336,18 +336,5 @@ theorem allModeMove_bca_nonempty :
   allModeMove_of_orientationMove
     (permuteMove .bca (.generatedFirstSplit forwardSplit))
 
-#check @AllModeMove
-#check @allModeMove_of_orientationMove
-#check @allModeMove_of_move
-#check @AllModeMove.preserves_evaluation
-#check @AllModeMove.provenance
-#check @AllModeMove.card_change
-#check @allModeMovePath_preserves_evaluation
-#check @orientationMovePathToAllModeMovePath
-#check @permuteAllModeMovePath
-#check @allModeForwardPath
-#check @allModeReversePath
-#check @allModeMove_identity_nonempty
-#check @allModeMove_bca_nonempty
 
 end BilinearComplexity.NormalizedBinaryAllModeMove

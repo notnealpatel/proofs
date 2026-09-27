@@ -185,13 +185,6 @@ example :
     (compileNormalized
       (exactRelationOfCertifiedReplayRow certified22201)).certificate.reverse_altitude_le⟩
 
-#check @concreteFamilyCoverageTables
-#check @compileNormalized
-#check @compileNormalizedCertificate
-#check @compileNormalized_witness_maps_endpoints
-#check @compileNormalized_principal_bounds
-#check @compileNormalized_path_confinement
-#check @compileNormalized_circuit
 
 
 end BilinearComplexity.NormalizedBinaryCoverage

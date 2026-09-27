@@ -125,13 +125,5 @@ def runBorrowingTraceRegression : IO Unit := do
     throw (IO.userError "automatic borrowing-context macro admission was empty")
   IO.println (reprStr data)
 
-#check @borrowingMacroTraces
-#check @borrowingTraceData
-#check @runBorrowingTraceRegression
-#check @result0_finish
-#check @comparisonPath_data
-#check @low_budget_macros_empty
-#check @result0_data
-#check @result1_card
 
 end BilinearComplexity.BinaryMacroBoundedSearch.Regression

@@ -313,14 +313,6 @@ theorem mapPath_preserves_evaluation {p q : Profile}
     stateEvaluation (mapState f E) = stateEvaluation (mapState f D) := by
   exact movePath_preserves_evaluation (mapPath f path)
 
-#check @FactorwiseAdditiveInjection
-#check @mapNonzeroVector
-#check @mapTerm
-#check @mapState
-#check @mapTerm_injective
-#check @mapPath
-#check @mapForwardPath
-#check @mapReversePath
 
 
 end BilinearComplexity.NormalizedBinaryMoveTransport

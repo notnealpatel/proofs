@@ -866,68 +866,6 @@ theorem a273929_subset_iff_hasNontrivialPoint :
 
 /-! ## Signature audit -/
 
-#check @congruentCurve
-#check @congruentCurve_a₁
-#check @congruentCurve_a₂
-#check @congruentCurve_a₃
-#check @congruentCurve_a₄
-#check @congruentCurve_a₆
-#check @congruentCurve_equation_iff
-#check @congruentCurve_Δ
-#check @congruentCurve_nonsingular
-#check @IsCongruentArea
-#check @HasNontrivialPoint
-#check @hasNontrivialPoint_iff
-#check @hasNontrivialPoint_iff_nonsingular
-#check @pos_of_isCongruentArea
-#check @not_isCongruentArea_zero
-#check @not_isCongruentArea_neg_one
-#check @tunnell_x_eq
-#check @tunnell_y_eq
-#check @hasNontrivialPoint_of_isCongruentArea
-#check @translate_equation
-#check @exists_gt_of_hasNontrivialPoint
-#check @isCongruentArea_of_hasNontrivialPoint
-#check @isCongruentArea_iff_hasNontrivialPoint
-#check @squarefree_iff_forall_mem_Icc
-#check @squarefree_six
-#check @not_squarefree_twelve
-#check @mem_residues_of_squarefree
-#check @IsCongruentNumber
-#check @IsPrimitiveCongruent
-#check @MemA273929
-#check @IsPrimitiveCongruentLow
-#check @isCongruentArea_of_isCongruentNumber
-#check @not_isCongruentNumber_zero
-#check @cast_pos_of_memA273929
-#check @a273929Prefix
-#check @a273929Prefix_length
-#check @memA273929_iff_bounded
-#check @filter_range_eq_a273929Prefix
-#check @mem_a273929Prefix_iff
-#check @memA273929_five
-#check @not_memA273929_four
-#check @isCongruentNumber_five
-#check @isCongruentNumber_six
-#check @isCongruentNumber_seven
-#check @isCongruentNumber_thirteen
-#check @isCongruentNumber_fourteen
-#check @isCongruentNumber_fifteen
-#check @isCongruentNumber_twentyOne
-#check @isPrimitiveCongruent_twentyOne
-#check @isPrimitiveCongruent_of_mem_first_six
-#check @curvePointSix
-#check @curvePointFive
-#check @curvePointSeven
-#check @hasNontrivialPoint_six
-#check @isPrimitiveCongruentLow_thirtyFour
-#check @isPrimitiveCongruentLow_fortyOne
-#check @isPrimitiveCongruentLow_twoHundredNineteen
-#check @mem_or_low_of_isPrimitiveCongruent
-#check @isPrimitiveCongruent_of_low
-#check @isPrimitiveCongruent_iff_of_congruent
-#check @a273929_subset_a006991
-#check @a273929_subset_iff_hasNontrivialPoint
 
 /-! ## Axiom audit
 

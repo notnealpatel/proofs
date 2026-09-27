@@ -282,11 +282,6 @@ theorem finiteDimensional_ambient_fiveCircuit_classification
   intro candidate hcandidate
   exact ambientInOrbit_label_unique hcandidate hmembership
 
-#check @coordinateCompiler_label
-#check @everyOrbitLabel_has_genuine_ambient_realization
-#check @all_thirteen_ambient_orbits_realized
-#check @row41101_genuine_compiler_joint_sharpness
-#check @finiteDimensional_ambient_fiveCircuit_classification
 
 
 end BilinearComplexity.BinaryFiveCircuitTheorem

@@ -146,10 +146,5 @@ example : spans5 2 1 2 0 0 0 = true ↔
   exact spans5_eq_true_iff_span_eq_top (by decide) (by decide) (by decide)
     (by decide) (by decide)
 
-#check @anyRange_eq_true_iff
-#check @spans5_eq_true_iff_span_eq_top
-#check @tensorOfMask_xor
-#check @flattenTensor_tensorOfMask
-#check @tensorOfMask_eq_zero_iff
 
 end BilinearComplexity.NormalizedBinaryCompactSupportSemantics

@@ -370,10 +370,6 @@ example :
         (natCyclicImage 19 ({0, 1, 3, 4} : Finset ℕ)) = 4 := by decide
   norm_num [hIcard, hAcard, hIcount, hAcount]
 
-#check @cyclicIndicator
-#check @cyclicBalancedIndicator
-#check @threeAPSum_cyclicIndicator
-#check @exists_nonzero_fourier_of_cyclic_deficit
 
 
 end Erdos142

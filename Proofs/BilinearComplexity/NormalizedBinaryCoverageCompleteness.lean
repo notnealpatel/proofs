@@ -59,9 +59,5 @@ theorem literalTargetSet222_eq_allExactRelations :
     rawActions222 packed222 exactCodes222
     rawTargets222_eq_serializedTenSplits exactCodes222_decodedSupport_iff
 
-#check @literalTargetSet221_eq_allExactRelations
-#check @literalTargetSet411_eq_allExactRelations
-#check @literalTargetSet321_eq_allExactRelations
-#check @literalTargetSet222_eq_allExactRelations
 
 end BilinearComplexity.NormalizedBinaryCoverageCompleteness

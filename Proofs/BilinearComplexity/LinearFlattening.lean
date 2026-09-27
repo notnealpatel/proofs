@@ -43,8 +43,6 @@ theorem matrix_rank_sum_le (s : Finset ι) (A : ι → Matrix rows cols k) :
       exact (matrix_rank_add_le (A i) (∑ j ∈ s, A j)).trans
         (Nat.add_le_add_left ih _)
 
-#check @matrix_rank_add_le
-#check @matrix_rank_sum_le
 
 end MatrixRank
 
@@ -119,10 +117,6 @@ theorem not_rankLE_of_mul_lt_of_submatrix_det_ne_zero
   exact (Nat.not_le_of_lt hrm)
     (le_mul_of_submatrix_det_ne_zero_of_rankLE F hsimple ri ci hdet hT)
 
-#check @rank_linearMap_le_mul_of_rankLE
-#check @le_rank_of_submatrix_det_ne_zero
-#check @le_mul_of_submatrix_det_ne_zero_of_rankLE
-#check @not_rankLE_of_mul_lt_of_submatrix_det_ne_zero
 
 end LinearBound
 

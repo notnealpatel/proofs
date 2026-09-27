@@ -475,14 +475,6 @@ example : 8 ^ 2 ≤
     2 * cyclicThreeAPCount 19 (natCyclicImage 19 (Finset.range 8)) := by
   exact sq_le_two_mul_cyclicThreeAPCount_range 19 8 (by norm_num) (by norm_num)
 
-#check @natCyclicImage
-#check @cyclicThreeAPCount
-#check @card_naturalThreeAPPairs
-#check @cyclicThreeAPCount_eq_card_naturalThreeAPPairs
-#check @cyclicThreeAPCount_natCyclicImage
-#check @card_naturalThreeAPPairs_range
-#check @sq_le_two_mul_card_naturalThreeAPPairs_range
-#check @sq_le_two_mul_cyclicThreeAPCount_range
 
 
 end Erdos142

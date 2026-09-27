@@ -543,16 +543,6 @@ theorem row22101_ambientCompilation_regression :
   · exact NormalizedBinaryFiveCircuitRows.row22101Certificate.disjoint
   · exact row22101_ambient_evaluation_eq
 
-#check @exactSpanCoordinateEmbedding
-#check @mapState_exactSpanCoordinateEmbedding
-#check @compileBinaryFiveCircuit
-#check @BinaryFiveCircuitCompilation.forward
-#check @BinaryFiveCircuitCompilation.reverse
-#check @BinaryFiveCircuitCompilation.forward_confined
-#check @BinaryFiveCircuitCompilation.reverse_confined
-#check @AmbientInOrbit
-#check @ambientInOrbit_label_unique
-#check @exists_ambientFiveCircuitConclusion
 
 
 end BilinearComplexity.BinaryFiveCircuitCompiler

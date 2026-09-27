@@ -638,19 +638,6 @@ example : fixtureCoordinates =
 
 end F3Profile221
 
-#check @splitFirst_eval
-#check @flipThird_eval
-#check @contextual_eval
-#check @splitReplacement
-#check @reductionReplacement
-#check @flipReplacement
-#check @pairTripleReplacement
-#check @F3Profile221.concreteReplacement
-#check @F3Profile221.contextual_fixture_satisfiable
-#check @F3Profile221.fixtureContext_nonempty
-#check @F3Profile221.relation_eq_smul_signed
-#check @F3Profile221.fixture_is_circuit
-#check @F3Profile221.two_three_eq
 
 end FieldContextual
 end BilinearComplexity

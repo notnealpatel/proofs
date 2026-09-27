@@ -969,18 +969,6 @@ theorem fixture_scan_execution :
 example : Candidate.Valid ⟨0, 2, .xz, 2, 1⟩ F3Fixture.first F3Fixture.second
     F3Fixture.third := scan_sound fixture_scan_execution
 
-#check @SameRay
-#check @sameRay_iff_exists_smul
-#check @HasSharedTwoRayPair
-#check @exists_shared_two_factor_rays
-#check @Candidate.Valid
-#check @scan_sound
-#check @scan_isSome
-#check @certifiedScan
-#check candidates_length
-#check scan_all_zero_eq_none
-#check scan_zero_dimensional_eq_none
-#check fixture_scan_execution
 
 
 end FieldTernaryFiveCircuitPair

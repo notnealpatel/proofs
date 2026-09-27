@@ -75,5 +75,3 @@ def main (args : List String) : IO Unit := do
 example : binaryStateJSON (∅ : State ⟨0, 0, 0⟩) = Lean.Json.arr #[] := by
   simp [binaryStateJSON]
 
-#check @binaryTermJSON
-#check @binaryStateJSON

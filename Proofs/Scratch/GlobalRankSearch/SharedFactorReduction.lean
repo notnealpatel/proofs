@@ -56,10 +56,6 @@ example :
     (fun _ : Fin 2 => fun _ : Fin 1 => (1 : ℚ))
     (fun s : Fin 2 => fun _ : Fin 1 => if s = 0 then 5 else 7) hdep
 
-#check @exists_shared_first_factor_reduction_certificate
-#check @rankLE_sum_shared_first_factor_of_not_linearIndependent
-#check @rankLE_sum_scalar_shared_first_factor_of_not_linearIndependent
-#check @rankLE_sum_shared_second_factor_of_not_linearIndependent
 
 
 end BilinearComplexity

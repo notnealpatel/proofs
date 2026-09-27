@@ -39,7 +39,6 @@ open ExtraspecialLattice
 
 
 -- the five downstream theorems, now witnessed rather than merely conditional
-#check @card_le_of_disjoint_center
 example {H : Subgroup D4} (hH : Disjoint H extraspecialD4.Z) :
     Nat.card H ≤ 2 ^ extraspecialD4.n :=
   card_le_of_disjoint_center extraspecialD4 hH

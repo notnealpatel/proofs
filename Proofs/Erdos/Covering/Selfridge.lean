@@ -85,10 +85,6 @@ theorem exists_primeMinusOne_coveringSystem_of_three :
   ⟨selfridgeSystem, isCoveringSystem_selfridgeSystem,
     moduliOfPrimeMinusOne_selfridgeSystem⟩
 
-#check @ModuliOfPrimeMinusOne
-#check @isCoveringSystem_selfridgeSystem
-#check @moduliOfPrimeMinusOne_selfridgeSystem
-#check @exists_primeMinusOne_coveringSystem_of_three
 
 
 end Erdos.Covering

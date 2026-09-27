@@ -157,14 +157,6 @@ example :
     m3_contractionProfile_of_exact u v w hdecomp F₁ F₂ F₃ hF₁ hF₂ hF₃
   exact ⟨u, v, w, hdecomp, hF₁, hF₂, hF₃, hprofile⟩
 
-#check @M3ContractionProfile
-#check @M3ContractionProfile.rank_F₁
-#check @M3ContractionProfile.rank_F₂
-#check @M3ContractionProfile.rank_F₃
-#check @M3ContractionProfile.modeOne_rankOne_active
-#check @M3ContractionProfile.modeTwo_rankTwo_budget
-#check @M3ContractionProfile.modeThree_rankThree_active
-#check @m3_contractionProfile_of_exact
 
 
 end BilinearComplexity

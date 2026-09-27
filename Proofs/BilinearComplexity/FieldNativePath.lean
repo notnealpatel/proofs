@@ -177,9 +177,6 @@ noncomputable def CarrierPath.complement {P D E : State k a b c}
         classical
         exact Finset.sdiff_subset)
 
-#check @StrictNativeStep.reverse
-#check @StrictNativeStep.complement
-#check @CarrierPath.complement
 
 end FieldNativePath
 end BilinearComplexity

@@ -226,10 +226,6 @@ example :
     · intro _hdense
       simpa using BilinearComplexity.rankLE_matMulTensor_one ℚ⟩
 
-#check @Scheme.ConnectivityConjecture
-#check @Scheme.DensityConjecture
-#check @Scheme.MatrixRankConjecture
-#check @Scheme.RankSearchConjecture
 
 
 end BilinearComplexity.FlipQuantum

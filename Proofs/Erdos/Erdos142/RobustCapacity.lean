@@ -214,12 +214,6 @@ example :
     norm_num [weightedThreeAPLoad, hesub]
   · exact hcovered
 
-#check @weightedThreeAPLoad
-#check @threeAPEdges_inter
-#check @sum_weighted_threeAPCount_eq
-#check @card_le_robust_weighted_local_capacity
-#check @card_le_robust_weighted_local_capacity_of_covered
-#check @lt_threeAPCount_of_robust_weighted_capacity_lt_card
 
 
 end Erdos142

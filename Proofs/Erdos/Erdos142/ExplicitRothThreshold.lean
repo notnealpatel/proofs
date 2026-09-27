@@ -144,10 +144,6 @@ example :
     (1 / 2) 4 {0, 2} (by norm_num) (by norm_num) (by norm_num) hA hfree (by norm_num)
   exact ⟨by norm_num, by norm_num, by norm_num, hA, hfree, by norm_num, hbound⟩
 
-#check @explicitRothThreshold
-#check @size_lt_explicitRothThreshold_of_threeAPFree
-#check @size_lt_explicitRothThreshold_of_mul_le_card
-#check @rothNumberNat_lt_mul_of_explicitRothThreshold_le
 
 
 end Erdos142

@@ -145,7 +145,6 @@ theorem G_le_tau (n : ℕ) (hn : 0 < n) : G n ≤ n.divisors.card := by
       exact_mod_cast (Finset.card_erase_le :
         (n.divisors.erase n).card ≤ n.divisors.card)
 
-#check @G_le_tau
 
 example : 0 < (12 : ℕ) ∧ 2 ∣ 12 ∧ 2 ≤ 2 := by norm_num
 
@@ -203,7 +202,6 @@ theorem tau_div_le_G (n m : ℕ) (hn : 0 < n) (hm : m ∣ n) (hm2 : 2 ≤ m) :
       positivity
     _ = G n := rfl
 
-#check @tau_div_le_G
 
 private lemma divisors_seven : (7 : ℕ).divisors = {1, 7} := by
   ext d
@@ -253,7 +251,6 @@ theorem G_even_bounds (n : ℕ) (hn : 0 < n) (heven : 2 ∣ n) :
     linarith
   · exact G_le_tau n hn
 
-#check @G_even_bounds
 
 
 end Erdos673

@@ -461,16 +461,6 @@ theorem pathFactorSpanConfined_permute {p : Profile} (o : Orientation)
   exact factorSpanConfined_permute o (h X hX)
 
 
-#check @orientationCompose
-#check @orientationInverse
-#check @permuteAllModeMove
-#check @permuteAllModePath
-#check @permuteAllModePath_vertices
-#check @permuteAllModePath_length
-#check @permuteAllModePath_altitude
-#check @permuteAllModePath_confined
-#check @factorSpanConfined_permute
-#check @pathFactorSpanConfined_permute
 
 end BilinearComplexity.NormalizedBinaryAllModePermutation
 
@@ -533,8 +523,6 @@ example {p : Profile} {A B : State p} (cert : FiveCircuitCertificate p A B) :
     cert.castProfile rfl = cert := by
   rfl
 
-#check @FiveCircuitCertificate.permute
-#check @FiveCircuitCertificate.castProfile
 
 end BilinearComplexity.NormalizedBinaryFiveCircuitCertificate
 
@@ -583,6 +571,5 @@ example :
   refine ⟨target, witness, rfl, ?_⟩
   exact ⟨witness.transportCertificate designatedReplay221Certificate⟩
 
-#check @ActionWitness.transportCertificate
 
 end BilinearComplexity.NormalizedBinaryFiniteAction

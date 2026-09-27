@@ -297,9 +297,5 @@ theorem transported_path_metrics :
   rw [h0, h1, h2]
   decide
 
-#check @mapTerm_injective
-#check @mapState_card
-#check @transportedForwardFlip
-#check @transported_path_metrics
 
 end BilinearComplexity.NormalizedBinaryTransport221Spike

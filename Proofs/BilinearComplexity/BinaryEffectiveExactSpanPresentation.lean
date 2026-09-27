@@ -189,6 +189,5 @@ example : effectiveRow22101Compilation.reverse.length ≤ 3 := by
   effectiveRow22101Compilation.reverse.vertices.map Finset.card,
   effectiveRow22101Compilation.reverse.length)
 
-#check @effectiveExactSpanPresentation
 
 end BilinearComplexity.BinaryEffectiveExactSpanPresentation

@@ -334,13 +334,6 @@ example :
       v t w u = true := by
   decide
 
-#check @fourary_eq_of_perm
-#check @thirdFlip4ABC_eq_of_perm
-#check @thirdFlip4ABC_of_perm
-#check @thirdFlip4Orientation_of_perm
-#check @thirdFlip4_of_perm
-#check @exists_mem_splits5_filters_of_card_eq_two
-#check @exists_mem_splits5_of_card_eq_two
 
 
 end BilinearComplexity.BinaryContextualExclusionEnumeration

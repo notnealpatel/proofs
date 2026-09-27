@@ -263,9 +263,6 @@ example :
   · norm_num
   · nlinarith [Real.pi_lt_four]
 
-#check @optimizedDensityStep_parameters
-#check @exists_optimized_density_step_of_threeAPFree
-#check @exists_optimized_density_step_of_density_floor
 
 
 end Erdos142

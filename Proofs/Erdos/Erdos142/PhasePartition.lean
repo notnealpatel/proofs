@@ -521,11 +521,6 @@ example :
   refine ⟨by omega, by omega, by omega, by decide, ?_⟩
   exact biUnion_phasePartition (by omega) (by omega) (by omega)
 
-#check @phasePartition
-#check @phasePartition_spec
-#check @norm_affine_sub_le
-#check @norm_sub_le_of_mem_phasePartition
-#check @norm_sub_le_of_mem_phasePartition_additiveCharacter
 
 
 end Erdos142

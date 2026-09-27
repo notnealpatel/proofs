@@ -895,37 +895,5 @@ theorem optimize_card_eq_primitive (D : State U V W) (k H : â„•) (hD : D.card â‰
       (optimize eU eV eW D k H hD).length_le
       (optimize eU eV eW D k H hD).altitude_le
 
-#check @CachedMacro.certified
-#check @admittedMacros_keys
-#check @exists_mem_admittedMacros_iff
-#check @Trace.cachedMacros_results
-#check @Trace.cached_macro_factorization
-#check @Candidate.cached_macro_factorization
-#check @ambientTermList_nodup
-#check @ambientTermList_toFinset
-#check @exists_mem_primitiveSuccessors_iff
-#check @Step.positive
-#check @macroSteps_complete
-#check @mem_macroSteps_iff
-#check @Candidate.root_path
-#check @Candidate.extend_length
-#check @mem_extensions_iff
-#check @boundedCandidates_sound
-#check @root_mem_boundedCandidates
-#check @Result.path_eq_trace
-#check @Result.macro_factorization
-#check @Result.card_le_original
-#check @optimize_card_eq_primitive
-#check @mem_endpointSets_iff
-#check @mem_rawKeyList_iff
-#check @mem_recognizedKeyList_iff
-#check @primitiveSuccessors_complete
-#check @Trace.macro_certificates
-#check @boundedCandidates_complete
-#check @Trace.macro_factorization
-#check @extensions_eq_unpruned
-#check @Result.vertex_card_le
-#check @Result.preserves_evaluation
-#check @optimize
 
 end BilinearComplexity.BinaryMacroBoundedSearch

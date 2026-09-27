@@ -306,18 +306,6 @@ theorem selectedRowInvariant_injective (family : CanonicalProfileFamily) :
       fin_cases i <;> fin_cases j
       all_goals first | rfl | (exfalso; revert hij; decide)
 
-#check @PairAdjacent
-#check @crossCount
-#check @relationInvariant
-#check @pairAdjacent_mapTerm_iff
-#check @crossCount_mapState
-#check @relationInvariant_map
-#check @pairAdjacent_permuteTerm_iff
-#check @crossCount_permuteState
-#check @relationInvariant_profileAction
-#check @relationInvariant_actionWitness
-#check @actualRows_eq
-#check @selectedRowInvariant_injective
 
 
 end BilinearComplexity.NormalizedBinaryOrbitInvariants

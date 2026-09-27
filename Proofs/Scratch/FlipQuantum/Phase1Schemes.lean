@@ -348,24 +348,6 @@ example (T : BilinearComplexity.Tensor ℚ 1 1 1) (S : Scheme ℚ 1 1 1 0) :
     ¬ S.GraphVertex T :=
   Scheme.not_graphVertex_zero T S
 
-#check @Scheme.rankLE_sumTensor
-#check @Scheme.Valid.rankLE
-#check @Scheme.valid_zero_iff
-#check @Scheme.not_valid_of_first_mode_empty
-#check @Scheme.not_valid_of_second_mode_empty
-#check @Scheme.not_valid_of_third_mode_empty
-#check @projectivelyEqual_of_eq
-#check @projectivelyEqual_refl
-#check @Scheme.sameTensors_refl
-#check @Scheme.RawElementaryFlip.first
-#check @Scheme.Reducible
-#check @Scheme.reachable_refl
-#check @Scheme.Reachable.trans
-#check @Scheme.Flip.rankLE
-#check @Scheme.not_rawElementaryFlip_zero
-#check @Scheme.not_elementaryFlip_zero
-#check @Scheme.not_graphVertex_zero
-#check @Scheme.not_reducible_zero
 
 
 end BilinearComplexity.FlipQuantum

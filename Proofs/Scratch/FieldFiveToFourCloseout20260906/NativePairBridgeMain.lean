@@ -659,13 +659,6 @@ open FieldTernaryFiveCircuitPair
 
 end Execution
 
-#check @PairGauge.sum
-#check @PairGauge.difference
-#check @SumPair.nativeReduction
-#check @DifferencePair.nativeSplit
-#check @contextualStrictStep
-#check @Path.append
-#check @Path.reverse
 
 end FieldNativePairBridge
 end BilinearComplexity

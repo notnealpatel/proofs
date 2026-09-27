@@ -1231,12 +1231,5 @@ example : BinaryAmbientMoves.AllModeMove
 
 example : (S0 ∆ S1).card = 3 := by decide
 
-#check @GeneratedFirstSplit.symmDiff_eq
-#check @SourceThirdFlip.symmDiff_eq
-#check @DirectedNarrowPairReduction.symmDiff_eq
-#check @Move.support_card
-#check @AllModeMove.support_card
-#check @AllModeMove.mem_iff_mem_of_not_mem_support
-#check @AllModeMove.target_eq_toggle_support
 
 end BilinearComplexity.BinaryAmbientMoveSupport

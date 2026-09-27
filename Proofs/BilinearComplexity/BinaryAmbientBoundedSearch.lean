@@ -164,10 +164,5 @@ example :
     S1 1 3 (by decide)
   (result.finish.card, result.path.length, result.path.altitude)
 
-#check @Result
-#check @Result.optimal
-#check @Result.preserves_evaluation
-#check @Result.card_le_original
-#check @optimize
 
 end BilinearComplexity.BinaryAmbientBoundedSearch

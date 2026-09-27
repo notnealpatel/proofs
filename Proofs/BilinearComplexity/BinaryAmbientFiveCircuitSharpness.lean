@@ -226,17 +226,6 @@ example : row41101AmbientReversePath.length = 3 ∧
   ⟨row41101AmbientReversePath_length,
     row41101AmbientReversePath_altitude_le_four⟩
 
-#check @movePath_mono_length
-#check @movePath_mono_altitude
-#check @row41101AmbientForwardPath
-#check @row41101AmbientReversePath
-#check @row41101AmbientForwardPath_length
-#check @row41101AmbientReversePath_length
-#check @row41101AmbientForwardPath_altitude_le_four
-#check @row41101AmbientReversePath_altitude_le_four
-#check @row41101_no_ambient_forward_path_length_le_two
-#check @row41101_no_ambient_reverse_path_length_le_two
-#check @row41101_intrinsic_ambient_exact_directed_length_three
 
 
 end BilinearComplexity.BinaryAmbientFiveCircuitSharpness

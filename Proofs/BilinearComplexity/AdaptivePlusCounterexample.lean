@@ -329,11 +329,6 @@ theorem directed_forward_interpretation_counterexample :
   exact ⟨source_isMatrixMultiplicationScheme, target_isMatrixMultiplicationScheme,
     representedTensor_source_eq_target, not_forwardReachable_source_target⟩
 
-#check @source_represents_matMul
-#check @target_represents_matMul
-#check @representedTensor_source_eq_target
-#check @not_forwardReachable_source_target
-#check @directed_forward_interpretation_counterexample
 
 end AdaptivePlusCounterexample
 end BilinearComplexity

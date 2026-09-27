@@ -449,7 +449,6 @@ theorem torusF_threeAP {ε : ℝ} (hε : 0 < ε) (hεle : ε ≤ 1 / 6)
       have hdist := unit_square_endpoint_distance_lt_two hxb hzb
       exact torus_far_polynomial_kernel hε hsumGap hgx hgz hgy hdist
 
-#check @torusF_threeAP
 
 /-! ### Product/slice transfer of the torus building block
 

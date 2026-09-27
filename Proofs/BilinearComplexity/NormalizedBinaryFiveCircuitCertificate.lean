@@ -385,23 +385,6 @@ theorem designatedReplay221Certificate_circuit :
     Circuit (@tensorEvaluation profile221) (S0 ∪ S2) :=
   designatedReplay221Certificate.circuit
 
-#check @firstFactorSpan
-#check @secondFactorSpan
-#check @thirdFactorSpan
-#check @FactorSpanConfined
-#check @PathFactorSpanConfined
-#check @HasExactFactorProfile
-#check @firstFactorSpan_mapState
-#check @secondFactorSpan_mapState
-#check @thirdFactorSpan_mapState
-#check @FactorSpanConfined.map
-#check @PathFactorSpanConfined.map
-#check @FiveCircuitCertificate
-#check @FiveCircuitCertificate.circuit
-#check @FiveCircuitCertificate.map
-#check @replay221ForwardABC
-#check @replay221ReverseABC
-#check @designatedReplay221Certificate
 
 
 end BilinearComplexity.NormalizedBinaryFiveCircuitCertificate

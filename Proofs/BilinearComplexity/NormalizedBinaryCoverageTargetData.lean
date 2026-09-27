@@ -249,8 +249,5 @@ theorem decodedSerializedTargets_serializedTenSplits_toFinset {p : Profile} {pac
                   ha, hb, hc, hd, he, semanticTenSplits]]
             exact semanticTenSplits_toFinset hn
 
-#check @decodedSerializedTargets_serializedTenSplits
-#check @semanticTenSplits_toFinset
-#check @decodedSerializedTargets_serializedTenSplits_toFinset
 
 end BilinearComplexity.NormalizedBinaryCoverageTargetData

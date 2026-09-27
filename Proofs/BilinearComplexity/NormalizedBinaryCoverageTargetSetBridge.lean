@@ -157,9 +157,5 @@ theorem decodedTargetSet_eq_allExactRelations_of_rawTargets_eq
       decodedTargets_eq_decodedSerializedTargets]
     exact hserialized
 
-#check @decodedTargets_eq_decodedSerializedTargets
-#check @mem_decodedSerializedTargets_flatMap_iff
-#check @decodedSupport?_isSome_of_mem_serializedTenSplits
-#check @decodedTargetSet_eq_allExactRelations_of_rawTargets_eq
 
 end BilinearComplexity.NormalizedBinaryCoverageTargetSetBridge

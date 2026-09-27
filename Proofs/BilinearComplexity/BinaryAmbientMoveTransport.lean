@@ -524,20 +524,5 @@ example (f : CoordinateEmbedding profile221 U V W) :
   rw [mapPath_length]
   simp only [MovePath.one, MovePath.length]
 
-#check @CoordinateEmbedding
-#check @mapNonzeroVector
-#check @mapTerm
-#check @mapState
-#check @mapTerm_injective
-#check @mapState_union
-#check @transportGeneratedFirstSplit
-#check @transportSourceThirdFlip
-#check @transportDirectedNarrowPairReduction
-#check @transportNormalizedAllModeMove
-#check @mapPath
-#check @mapPath_vertices
-#check @mapPath_length
-#check @mapPath_altitude
-#check @mapPath_pathVertex_iff
 
 end BilinearComplexity.BinaryAmbientMoveTransport

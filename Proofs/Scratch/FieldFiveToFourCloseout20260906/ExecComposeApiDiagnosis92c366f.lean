@@ -828,14 +828,6 @@ set_option pp.all true in
 #print requestStart
 #print ComputedState.union
 #print FieldRankOne.Atom.instDecidableEq
-#check @subset_transport
-#check @disjoint_transport
-#check @disjoint_right_transport
-#check @source_subset_initial
-#check @target_fresh_initial
-#check @FieldNativeExecutablePath.Packet
-#check @outerStep
-#check @outerStepTo
 
 end Executable
 end CertifiedFiveToFour

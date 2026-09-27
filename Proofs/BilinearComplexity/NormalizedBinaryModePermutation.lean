@@ -1024,20 +1024,5 @@ theorem permuted_designated_endpoint_exact_profile_221 (o : Orientation) :
       (And.intro hspans
         (And.intro (permuted_path_metrics o) (permuted_paths_confined o))))
 
-#check @permProfile
-#check @orientationMode
-#check @tensorEvaluation_permuteTerm
-#check @stateEvaluation_permuteState
-#check @OrientationGeneratedSplit
-#check @OrientationSourceFlip
-#check @OrientationNarrowReduction
-#check @OrientationMove.generatedSplit
-#check @OrientationMove.sourceThirdFlip
-#check @OrientationMove.directedNarrowReduction
-#check @OrientationMove
-#check @permuteMovePath
-#check @permuteForwardPath
-#check @permuteReversePath
-#check @permuted_designated_endpoint_exact_profile_221
 
 end BilinearComplexity.NormalizedBinaryModePermutation

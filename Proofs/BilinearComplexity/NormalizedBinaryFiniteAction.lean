@@ -578,20 +578,6 @@ theorem profile221Swap_endpoint_check_success :
 
 end Regression
 
-#check @BinarySquareMatrix
-#check @BinaryGeneralLinear
-#check @RawProfileAction.Valid
-#check @RawProfileAction.toProfileAction
-#check @ProfileAction.factorwiseInjection
-#check @ProfileAction.actTerm
-#check @ProfileAction.actState
-#check @ProfileAction.actEndpoints
-#check @RelationEndpoints
-#check @ActionWitness
-#check @RawProfileAction.check
-#check @checkActionWitness
-#check @checkActionWitness_isSome_iff
-#check @Regression.profile221SwapWitness
 
 
 end BilinearComplexity.NormalizedBinaryFiniteAction

@@ -494,14 +494,6 @@ theorem endpoint_evaluation {D E : AmbientState U V W}
 
 end ContextualTrace
 
-#check @ContextualFiveCircuitJump
-#check @MacroCompilation
-#check @EffectiveLocalCompiler
-#check @ContextualTrace.compile
-#check @ContextualTrace.compile_length
-#check @ContextualTrace.compile_length_le
-#check @ContextualTrace.compile_altitude_le
-#check @ContextualTrace.endpoint_evaluation
 
 
 end BilinearComplexity.BinaryContextualTrace

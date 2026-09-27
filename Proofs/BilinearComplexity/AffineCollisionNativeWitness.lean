@@ -201,7 +201,6 @@ theorem exists_strictNativeFlip :
   refine ⟨a, b, d, c, e, hbd, hec, C, hbne, hcne, hCcard, ?_⟩
   exact ⟨FieldNativePairBridge.contextualStrictStep native hendpoints hcontext⟩
 
-#check @exists_strictNativeFlip
 
 end AffineCollisionNativeWitness
 end BilinearComplexity

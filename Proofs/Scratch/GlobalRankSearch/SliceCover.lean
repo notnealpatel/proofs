@@ -74,9 +74,5 @@ example :
     ⟨fun _ _ => 1, fun _ _ => 1, fun _ _ => 1, by funext; simp⟩
   exact ⟨hrank, rankLE_iff_sliceCover.mp hrank⟩
 
-#check @modeOneSlice
-#check @rankOneMatrixVector
-#check @SliceCover
-#check @rankLE_iff_sliceCover
 
 end BilinearComplexity

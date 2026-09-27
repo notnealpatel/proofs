@@ -418,12 +418,6 @@ def NativeStep.reverse {D E : State k a b c} (h : NativeStep D E) :
   rcases h with ⟨source, target, native, source_subset, target_fresh, rfl⟩
   rfl
 
-#check @atom_surjective
-#check @SplitFormula.eval_eq
-#check @FlipFormula.eval_eq
-#check @FlipFormula.symm
-#check @NativeReplacement.symm
-#check @NativeReplacement.eval_eq
 
 end FieldNativeMoves
 end BilinearComplexity

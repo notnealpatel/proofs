@@ -512,14 +512,6 @@ theorem erdosRado_le_variant_fails :
 -- SIGNATURE AUDIT (the file declares `variable {n : ℕ}`)
 -- ════════════════════════════════════════════════════════════════════
 
-#check @isSunflowerWith_empty_of_pairwise_disjoint
-#check @IsSunflowerWith.image_insert
-#check @card_image_insert_of_forall_notMem
-#check @hasSunflower_succ_of_factorial_mul_pow_lt
-#check @erdos_rado_sunflower_same_card
-#check @not_hasSunflower_triangle
-#check @not_hasSunflower_of_mem_empty
-#check @erdosRado_le_variant_fails
 
 -- ════════════════════════════════════════════════════════════════════
 -- AXIOM AUDIT

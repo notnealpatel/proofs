@@ -107,10 +107,6 @@ example :
     (exists_third_factors_iff_modeThreeSlice_mem_span
       (fun _ _ _ => (30 : ℚ)) (fun _ _ => 2) (fun _ _ => 3)).mp hcomplete⟩
 
-#check @modeThreeSlice
-#check @fixedPairVector
-#check @exists_third_factors_iff_exists_modeThree_coefficients
-#check @exists_third_factors_iff_modeThreeSlice_mem_span
 
 
 end BilinearComplexity

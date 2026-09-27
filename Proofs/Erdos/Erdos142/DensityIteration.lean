@@ -167,6 +167,5 @@ theorem size_lt_explicit_threshold
   have hpositive : 0 < 1 / density s := one_div_pos.mpr (hdensity s).1
   linarith
 
-#check @size_lt_explicit_threshold
 
 end Erdos142

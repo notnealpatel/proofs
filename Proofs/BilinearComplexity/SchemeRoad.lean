@@ -391,15 +391,6 @@ example :
 
 end Fixtures
 
-#check @AlgebraicRoad
-#check @AlgebraicRoad.valid_at_iff_mem_regularLocus
-#check @AlgebraicRoad.target_sumTensor_eq_source
-#check @firstFlipRoad
-#check @FirstFactorReductionWitness
-#check @FirstFactorReductionWitness.road
-#check @FirstFactorReductionWitness.shorter_sumTensor_eq
-#check @FirstFactorReductionWitness.rankLE
-#check @first_nonzero_not_mem_allowed_of_restricted_ker_eq_bot
 
 
 end Road

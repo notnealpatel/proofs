@@ -530,25 +530,7 @@ example {p : Profile} (target : ExactRelation p) :
     ⟨(compileClassified target).certificate.forward⟩,
     ⟨(compileClassified target).certificate.reverse⟩⟩
 
-#check @everyOrbitLabel_realized
-#check @compileClassified_label_surjective
-#check @exactly_thirteen_orbitLabels
 
-#check @profileKey_perm
-#check @familyProfileKey_injective
-#check @profileOrientation_family_unique
-#check @orbitLabel_card
-#check @InOrbit
-#check @selectedInvariant_eq_of_inOrbit
-#check @family_eq_of_inOrbit
-#check @exists_orbitLabel
-#check @orbitLabel_unique
-#check @everyExactRelation_has_unique_orbitLabel
-#check @ClassifiedCompilation.certificate
-#check @compileClassified
-#check @orbitLabel22101
-#check @certified22101ExactRelation
-#check @certified22101_classified_regression
 
 
 end BilinearComplexity.NormalizedBinaryOrbitClassification

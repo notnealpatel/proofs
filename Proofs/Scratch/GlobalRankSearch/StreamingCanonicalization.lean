@@ -919,10 +919,6 @@ example :
   obtain ⟨p, hp, hexact⟩ := streamingCanonicalization hL
   exact ⟨p, by simpa [L] using hp, hend, hexact⟩
 
-#check @exists_streamingPath_coordinatePairAccumulator
-#check @StreamingStep.decompSum_eq
-#check @StreamingPath.decompSum_eq
-#check @streamingCanonicalization
 
 
 end BilinearComplexity

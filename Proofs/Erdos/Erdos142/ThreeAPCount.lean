@@ -179,9 +179,6 @@ example :
   exact ⟨hAU, card_le_addRothNumber_add_threeAPCount hAU,
     card_le_rothNumberNat_add_threeAPCount hAU⟩
 
-#check @exists_threeAPFree_subset_card_le_add_count
-#check @card_le_addRothNumber_add_threeAPCount
-#check @card_le_rothNumberNat_add_threeAPCount
 
 
 end Erdos142

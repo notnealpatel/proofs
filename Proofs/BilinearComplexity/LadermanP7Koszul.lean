@@ -177,11 +177,6 @@ theorem ladermanP7_certificate_nonvacuous :
     RankLE ladermanP7Tensor 6 ∧ ladermanP7Minor.det ≠ 0 :=
   ⟨ladermanP7_rankLE_six, ladermanP7Minor_det_ne_zero⟩
 
-#check @ladermanP7_rankLE_six
-#check @ladermanP7_not_rankLE_five
-#check @ladermanP7_borderRankLE_six
-#check @ladermanP7_not_borderRankLE_five
-#check @ladermanP7_certificate_nonvacuous
 
 
 end BilinearComplexity

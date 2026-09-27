@@ -371,8 +371,5 @@ example : l 12 ≤ 4 := by decide
 `sorry` and reports `sorryAx` by construction.  Everything below must report a
 subset of `{propext, Classical.choice, Quot.sound}`. -/
 
-#check @l_three
-#check @l_two_mul_eq_add_one_of_binaryWeight_le_two
-#check @slizkov_of_binaryWeight_le_two
 
 end NumberComplexity

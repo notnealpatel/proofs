@@ -532,21 +532,6 @@ example : normalizedLeft
       NormalizedBinaryFiveCircuitRows.row41101Start := by
   exact normalizedLeft_coordinateExactSpanPresentation row41101ExactRelation
 
-#check @coordinateIdentity
-#check @normalizeState_coordinateIdentity
-#check @coordinate_stateEvaluation_eq_iff_ambientStateEvaluation
-#check @coordinateCircuit_iff_ambientCircuit
-#check @coordinate_firstSpan_eq_firstFactorSpan
-#check @coordinate_secondSpan_eq_secondFactorSpan
-#check @coordinate_thirdSpan_eq_thirdFactorSpan
-#check @coordinateExactSpanPresentation
-#check @normalizedLeft_coordinateExactSpanPresentation
-#check @normalizedRight_coordinateExactSpanPresentation
-#check @normalizedExactRelation_coordinateExactSpanPresentation
-#check @exactRelationAbstractModel
-#check @row41101AbstractModel
-#check @row41101_abstract_model_and_intrinsic_sharpness
-#check @selectedCoordinatePresentation_normalizedEndpoints
 
 
 end BilinearComplexity.BinaryAmbientCircuitModels

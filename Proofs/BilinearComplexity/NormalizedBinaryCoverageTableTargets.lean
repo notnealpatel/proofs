@@ -440,11 +440,6 @@ example :
   intro target
   simp [RawCoverageAction.decodedTargets]
 
-#check @RawCoverageAction.mem_decodedTargets_iff
-#check @RawCoverageAction.mem_decodedTargetSet_iff
-#check @Shard000.mem_literalTargetSet_iff
-#check @Shard022.mem_literalTargetSet_iff
-#check @mem_literalTargetSet411_iff
 
 
 end BilinearComplexity.NormalizedBinaryCoverageTables

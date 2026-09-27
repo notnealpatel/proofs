@@ -327,10 +327,3 @@ end ProjectiveFirstFactorFiber
 end Scheme.Replacement
 end BilinearComplexity
 
-#check @BilinearComplexity.matrix_rank_smul_of_ne_zero
-#check @BilinearComplexity.matrix_rank_le_of_rankLE_common_first_factor
-#check @BilinearComplexity.Scheme.Replacement.ProjectiveFirstFactorFiber.rescale_complementaryMatrix_rank
-#check @BilinearComplexity.Scheme.Replacement.ProjectiveFirstFactorFiber.rescale_defect
-#check @BilinearComplexity.Scheme.Replacement.ProjectiveFirstFactorFiber.localTensor_apply
-#check @BilinearComplexity.Scheme.Replacement.ProjectiveFirstFactorFiber.defect_pos_of_subset
-#check @BilinearComplexity.Scheme.Replacement.ProjectiveFirstFactorFiber.defect_pos_iff_exists_shorter_rankLE

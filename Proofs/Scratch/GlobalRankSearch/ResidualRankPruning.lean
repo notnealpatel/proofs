@@ -38,7 +38,6 @@ theorem rankLE_length_of_isDecomp
       simp only [Fin.cases_zero, Fin.cases_succ]
       rw [congr_fun (congr_fun (congr_fun htail i) j) l]
 
-#check @rankLE_length_of_isDecomp
 
 end ListDecomposition
 
@@ -68,8 +67,6 @@ theorem rankLE_residual_of_isDecomp_append
     RankLE (residual T pre) suffix.length :=
   rankLE_length_of_isDecomp (isDecomp_residual_of_isDecomp_append hdecomp)
 
-#check @isDecomp_residual_of_isDecomp_append
-#check @rankLE_residual_of_isDecomp_append
 
 end ResidualDecomposition
 
@@ -123,9 +120,6 @@ theorem no_isDecomp_completion_of_mul_lt_rank_linearMap_residual
     Nat.mul_le_mul_right q hlength
   exact Nat.not_le_of_lt hviolation (hrank.trans hproduct)
 
-#check @rank_linearMap_residual_le_of_isDecomp_append
-#check @not_isDecomp_append_of_mul_lt_rank_linearMap_residual
-#check @no_isDecomp_completion_of_mul_lt_rank_linearMap_residual
 
 end ResidualFlattening
 

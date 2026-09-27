@@ -389,13 +389,6 @@ example : (fubini 0 % 4, fubini 1 % 4, fubini 2 % 4, fubini 3 % 4,
 
 /-! ## Signature audit -/
 
-#check @three_dvd_fubini_of_even
-#check @fubini_mod_four_eq_one_of_odd
-#check @fubini_mod_four_eq_one_of_prime
-#check @muljadi_fubini_prime_four_mul_add_one
-#check @fubini_three_prime
-#check @fubini_five_prime
-#check @fubini_seven_prime
 
 /-! ## Axiom audit -/
 

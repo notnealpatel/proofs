@@ -130,10 +130,6 @@ example :
       hAU 3 (by omega) (by decide),
     sub_mul_choose_le_threeAPCount_mul_choose hAU 3 (by omega) (by decide)⟩
 
-#check @threeAPEdges_subset_eq_filter
-#check @sum_threeAPCount_powersetCard
-#check @card_mul_choose_le_addRothNumber_mul_choose_add_threeAPCount_mul_choose
-#check @sub_mul_choose_le_threeAPCount_mul_choose
 
 
 end Erdos142

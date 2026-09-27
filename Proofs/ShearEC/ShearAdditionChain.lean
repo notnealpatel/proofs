@@ -401,7 +401,5 @@ example : minimumMonomialShears 1 = 0 := by
 example : minimumMonomialShears 2 = 1 := by
   rw [minimumMonomialShears_eq_l_all_with_empty_infimum_at_zero, l_two]
 
-#check @minimumMonomialShears_eq_l
-#check @minimumMonomialShears_eq_l_all_with_empty_infimum_at_zero
 
 end ShearEC.ShearAdditionChain

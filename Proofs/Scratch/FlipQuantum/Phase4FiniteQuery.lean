@@ -850,50 +850,6 @@ example :
 
 end FiniteModel
 
-#check @Quantum.State
-#check @Quantum.mass
-#check @Quantum.Normalized
-#check @Quantum.matrixAction
-#check @Quantum.Unitary
-#check @Quantum.Unitary.matrix
-#check @Quantum.Unitary.preserves_mass
-#check @Quantum.Unitary.apply
-#check @Quantum.matrixAction_add
-#check @Quantum.matrixAction_smul
-#check @Quantum.Unitary.mass_apply
-#check @Quantum.Unitary.normalized_apply
-#check @Quantum.identity
-#check @Quantum.identity_apply
-#check Quantum.hadamard
-#check @Quantum.hadamard_apply_zero
-#check @Quantum.hadamard_apply_one
-#check Quantum.hadamard_equal_superposition
-#check @Quantum.basisState
-#check @Quantum.basisState_normalized
-#check @Quantum.phaseMatrix
-#check @Quantum.matrixAction_phaseMatrix
-#check @Quantum.phaseOracle
-#check @Quantum.phaseOracle_apply
-#check @Quantum.QueryAlgorithm
-#check @Quantum.QueryAlgorithm.initial
-#check @Quantum.QueryAlgorithm.afterQuery
-#check @Quantum.QueryAlgorithm.queryCount
-#check @Quantum.QueryAlgorithm.run
-#check @Quantum.QueryAlgorithm.runCounted
-#check @Quantum.QueryAlgorithm.runCounted_fst
-#check @Quantum.QueryAlgorithm.runCounted_snd
-#check @Quantum.QueryAlgorithm.normalized_run
-#check @Quantum.bornWeight
-#check @Quantum.eventWeight
-#check @Quantum.QueryAlgorithm.successWeight
-#check @Quantum.QueryAlgorithm.successProbability
-#check @Quantum.sum_bornWeight_eq_mass
-#check @Quantum.bornWeight_nonneg
-#check @Quantum.eventWeight_nonneg
-#check @Quantum.eventWeight_le_mass
-#check @Quantum.QueryAlgorithm.successProbability_mem_unitInterval
-#check @Quantum.QueryAlgorithm.successWeight_ge_of_marked_weight
-#check @Scheme.MarksReducible
 
 
 end BilinearComplexity.FlipQuantum

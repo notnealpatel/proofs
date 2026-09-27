@@ -85,10 +85,6 @@ theorem maskVector_injective_of_lt {d m n : ℕ} (hm : m < 2 ^ d)
     have hnpow : n < 2 ^ i := lt_of_lt_of_le hn (Nat.pow_le_pow_right (by omega) hdi)
     rw [Nat.testBit_lt_two_pow hmpow, Nat.testBit_lt_two_pow hnpow]
 
-#check @maskVector_xor
-#check @vectorMask_lt_two_pow
-#check @maskVector_vectorMask
-#check @maskVector_injective_of_lt
 
 /-- The five semantic generators corresponding to five natural-number masks. -/
 def fiveMaskVectors (d x0 x1 x2 x3 x4 : ℕ) : Fin 5 → CoordinateVector d :=
@@ -157,10 +153,6 @@ theorem maskVector_selectedXor5 (d x0 x1 x2 x3 x4 selection : ℕ) :
     coefficientsOfSelection5, fiveMaskVectors, Fin.sum_univ_succ]
   simp [maskVector]
 
-#check @selectionOfCoefficients5_lt
-#check @coefficientsOfSelection5_selectionOfCoefficients5
-#check @selectionOfCoefficients5_coefficientsOfSelection5
-#check @maskVector_selectedXor5
 
 /-- A low-bit XOR selection of five `d`-bit masks is itself a `d`-bit mask. -/
 theorem selectedXor5_lt_two_pow {d x0 x1 x2 x3 x4 selection : ℕ}
@@ -264,14 +256,5 @@ example :
     (by decide) (by decide) (by decide)]
   decide
 
-#check @maskVector_eq_coordinateVectorOfMask
-#check @maskVector_xor
-#check @exists_maskVector_eq
-#check @maskVector_injective_of_lt
-#check @coefficientsOfSelection5_selectionOfCoefficients5
-#check @selectionOfCoefficients5_coefficientsOfSelection5
-#check @maskVector_selectedXor5
-#check @selectedXor5_lt_two_pow
-#check @span_five_maskVectors_eq_top_iff
 
 end BilinearComplexity.NormalizedBinaryCompactMaskSemantics

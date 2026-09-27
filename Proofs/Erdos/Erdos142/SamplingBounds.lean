@@ -229,11 +229,6 @@ example :
       1 hAU hdouble hpos
     decide
 
-#check @choose_mul_fallingFactorial_three
-#check @sub_mul_card_fallingFactorial_le_threeAPCount_mul_fallingFactorial
-#check @two_le_addRothNumber_of_two_le_card
-#check @card_cube_le_eight_mul_addRothNumber_sq_mul_threeAPCount
-#check @lt_threeAPCount_of_eight_mul_addRothNumber_sq_mul_lt_card_cube
 
 
 end Erdos142

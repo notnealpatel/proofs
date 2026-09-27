@@ -534,8 +534,5 @@ end BilinearComplexity.FiniteWeightedBoundedSearch.GroundModel
 
 namespace BilinearComplexity.FiniteWeightedBoundedSearch
 
-#check @boundedCandidates_sound
-#check @boundedCandidates_complete
-#check @optimize
 
 end BilinearComplexity.FiniteWeightedBoundedSearch

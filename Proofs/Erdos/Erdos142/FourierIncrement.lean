@@ -155,6 +155,5 @@ example :
     rw [hsum]
     norm_num
 
-#check @exists_affine_density_increment_of_fourier_correlation
 
 end Erdos142

@@ -8,9 +8,3 @@ set_option pp.all true in
 set_option pp.all true in
 #print BilinearComplexity.FieldTernaryFiveCircuitPair.Candidate.Valid
 
-#check @BilinearComplexity.FieldTernaryFiveCircuitPair.scan_sound
-#check @BilinearComplexity.FieldTernaryFiveCircuitPair.scan_isSome
-#check @BilinearComplexity.FieldTernaryFiveCircuitPair.certifiedScan
-#check @BilinearComplexity.FieldTernaryFiveCircuitPair.certifiedScanGauge
-#check @BilinearComplexity.FieldFiveToFour.certifiedFiveToFour
-#check @BilinearComplexity.FieldTernaryFiveCircuitPair.List.find?_some

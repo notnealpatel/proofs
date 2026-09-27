@@ -300,12 +300,6 @@ theorem mapped_designated_endpoint_exact_profile_221 {q : Profile}
   · exact mapped_endpoint_second_finrank f
   · exact mapped_endpoint_third_finrank f
 
-#check @mapState_union
-#check @mapped_endpoint_circuit
-#check @mapped_endpoint_first_span_eq_range
-#check @mapped_endpoint_second_span_eq_range
-#check @mapped_endpoint_third_span_eq_range
-#check @mapped_designated_endpoint_exact_profile_221
 
 
 end BilinearComplexity.NormalizedBinaryEndpointTransport

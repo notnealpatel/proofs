@@ -488,18 +488,6 @@ example {k : Type*} [Field k] :
       norm_num at hdim ⊢
       exact hdim
 
-#check @finrank_range_domRestrict_ker_dichotomy
-#check @finrank_range_mulLeftLinearMap
-#check @m3MatrixForm
-#check @m3DualMatrix_m3MatrixForm
-#check @m3DualMatrix_comp_matrixRightMul
-#check @m3DualMatrix_comp_mulLeftLinearMap
-#check @ker_matrixRightMul_le_ker_iff_m3DualMatrix_mem_range
-#check @ker_mulLeftLinearMap_le_ker_iff_m3DualMatrix_mem_range
-#check @m3_finrank_range_rightMul_domRestrict_ker_dichotomy
-#check @m3_finrank_range_rightMul_domRestrict_add_one_iff
-#check @m3_finrank_range_leftMul_domRestrict_ker_dichotomy
-#check @m3_finrank_range_leftMul_domRestrict_add_one_iff
 
 
 end BilinearComplexity

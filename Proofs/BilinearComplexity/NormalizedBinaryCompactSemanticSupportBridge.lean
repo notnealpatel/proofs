@@ -688,12 +688,6 @@ example : (⟨0, 1, 3, 7, 14⟩ : FiveCode).Valid packed411 := by decide
 example : (⟨0, 1, 5, 11, 20⟩ : FiveCode).Valid packed321 := by decide
 example : (⟨0, 1, 5, 17, 26⟩ : FiveCode).Valid packed222 := by decide
 
-#check @exactCodes221_decodedSupport_iff
-#check @exactCodes411_decodedSupport_iff
-#check @exactCodes321_decodedSupport_iff
-#check @exactCodes222_decodedSupport_iff
 
-#check @decodeFiveCodeWith_card
-#check @decodeFiveCodeWith_sorted
 
 end BilinearComplexity.NormalizedBinaryCompactSemanticSupportBridge

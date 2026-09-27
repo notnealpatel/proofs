@@ -745,21 +745,6 @@ open FieldTernaryFiveCircuitPair
 
 end Execution
 
-#check @FactorTriple.atom
-#check @factorTripleAt
-#check @candidateGauge
-#check @certifiedScanGauge
-#check @PairGauge.varyingNonproportional_of_atom
-#check @PairGauge.varyingNonproportional_of_linearIndependent
-#check @PairGauge.sum
-#check @PairGauge.difference
-#check @SumPair.nativeReduction
-#check @DifferencePair.nativeSplit
-#check @contextualStrictStep
-#check @Path.append
-#check @Path.HeightBound.append
-#check @Path.HeightBound.reverse
-#check @Path.reverse
 
 end FieldNativePairBridge
 end BilinearComplexity

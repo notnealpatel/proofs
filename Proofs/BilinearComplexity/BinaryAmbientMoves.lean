@@ -362,11 +362,5 @@ example : AllModeMove (U := CoordinateVector 2) (V := CoordinateVector 2)
     (W := CoordinateVector 1) S0 S1 :=
   .abc (.generatedFirstSplit (Coordinate.generatedFirstSplit_iff.mpr forwardSplit))
 
-#check @GeneratedFirstSplit
-#check @SourceThirdFlip
-#check @DirectedNarrowPairReduction
-#check @Move
-#check @AllModeMove
-#check @Coordinate.allModeMove_iff_normalized
 
 end BilinearComplexity.BinaryAmbientMoves

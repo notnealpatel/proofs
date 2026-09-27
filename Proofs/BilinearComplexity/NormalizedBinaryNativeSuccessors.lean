@@ -426,16 +426,6 @@ example : S1 ∈ successors S0 := by
 
 #eval (successors S0).length
 
-#check @allSourceMoveData
-#check @allFixedMoveData
-#check @fixedMoveData_complete
-#check @successors
-#check @successors_sound
-#check @successors_complete
-#check @mem_successors_iff
-#check @mem_successors_iff_ambient
-#check @certifiedSuccessors
-#check @exists_mem_certifiedSuccessors_iff
 
 
 end BilinearComplexity.NormalizedBinaryNativeSuccessors

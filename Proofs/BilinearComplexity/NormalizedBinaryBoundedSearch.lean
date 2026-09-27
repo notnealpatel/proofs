@@ -64,9 +64,5 @@ example :
   let D : State p := ∅
   (optimize D 0 0 (by decide)).finish.card
 
-#check @NormalizedBinaryNativeSuccessors.certifiedSuccessors
-#check @NormalizedBinaryNativeSuccessors.exists_mem_certifiedSuccessors_iff
-#check @optimize
-#check @Result.preserves_evaluation
 
 end BilinearComplexity.NormalizedBinaryBoundedSearch

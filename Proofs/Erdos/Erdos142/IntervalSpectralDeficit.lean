@@ -238,10 +238,6 @@ example :
   refine ⟨by decide, by decide, (threeAPCount_eq_zero_iff _).mp (by decide), ?_⟩
   norm_num
 
-#check @intervalAPDeficit
-#check @exists_large_balanced_correlation_of_intervalAPDeficit_pos
-#check @exists_large_balanced_correlation_of_threeAPFree
-#check @exists_affine_density_increment_of_threeAPFree
 
 
 end Erdos142

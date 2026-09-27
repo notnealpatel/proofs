@@ -141,13 +141,6 @@ theorem BorderRankLE.factorwise {k : Type*} [Field k]
       (BilinearComplexity.contract₂ M₂ (BilinearComplexity.contract₁ M₁ T))) r :=
   ((hT.contract₁ M₁).contract₂ M₂).contract₃ M₃
 
-#check @compPolynomialMap
-#check @BorderRankLE.comp
-#check @contract₁PolynomialMap
-#check @BorderRankLE.contract₁
-#check @BorderRankLE.contract₂
-#check @BorderRankLE.contract₃
-#check @BorderRankLE.factorwise
 
 /-- Non-vacuity audit for every preservation adapter. A nonconstant
 rank-one `2 × 2 × 2` tensor is pulled back to a proper `2 × 1 × 2`

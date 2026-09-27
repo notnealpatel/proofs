@@ -239,8 +239,6 @@ example :
   exact ⟨hAN, by omega, by omega, by omega,
     affineWindow_sharp_supersaturation _ hAN⟩
 
-#check @sum_threeAPCount_affineWindow_le_gapMultiplicity
-#check @affineWindow_sharp_supersaturation
 
 
 end Erdos142

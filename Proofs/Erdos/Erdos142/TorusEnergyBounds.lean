@@ -108,8 +108,5 @@ theorem torusF_le_inv {ε : ℝ} (hε : 0 < ε) (hεle : ε ≤ 1 / 6) {p : ℝ 
   rw [inv_pow]
   exact h
 
-#check @torusF_nonneg
-#check @torusF_le
-#check @torusF_sum_le
 
 end Erdos142

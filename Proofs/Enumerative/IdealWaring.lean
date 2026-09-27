@@ -688,42 +688,6 @@ example : idealWaring 0 = 0 ∧ waringG 0 = 0 := ⟨by decide, waringG_zero⟩
 
 /-! ## Signature audit -/
 
-#check @IsSumOfNthPowers
-#check @IsSumOfPosNthPowers
-#check @IsSumOfNthPowers.mono
-#check @isSumOfNthPowers_iff_isSumOfPosNthPowers
-#check @WaringAdmissible
-#check @WaringAdmissible.mono
-#check @waringAdmissible_one_one
-#check @waringAdmissible_two_four
-#check @not_waringAdmissible_zero
-#check @waringG
-#check @waringG_le
-#check @waringAdmissible_waringG
-#check @waringAdmissible_iff_waringG_le
-#check @waringG_zero
-#check @idealWaring
-#check @idealWaring_terms
-#check @three_pow_div_two_pow_eq_floor
-#check @idealWaring_eq_floor
-#check @idealWaring_add_two
-#check @two_pow_add_le_of_isSumOfNthPowers
-#check @idealWaring_le_of_waringAdmissible
-#check @idealWaring_le_waringG
-#check @not_isSumOfNthPowers_seven
-#check @isSumOfNthPowers_seven
-#check @not_isSumOfNthPowers_twentyThree
-#check @isSumOfNthPowers_twentyThree
-#check @not_isSumOfNthPowers_seventyNine
-#check @isSumOfNthPowers_seventyNine
-#check @not_waringAdmissible_two_three
-#check @waringG_one
-#check @waringG_two
-#check @WaringTight
-#check @two_pow_mul_div_add_mod
-#check @waringTight_of_mem_range
-#check @waringAdmissible_idealWaring
-#check @waringG_eq_idealWaring
 
 /-! ## Axiom audit
 

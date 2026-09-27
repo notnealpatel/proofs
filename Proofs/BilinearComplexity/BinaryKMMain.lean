@@ -18,4 +18,3 @@ example : main = (do
     IO.println (Json.compress (toJson case3Packet))
     IO.println (Json.compress (toJson case4Packet))) := rfl
 
-#check @main

@@ -275,14 +275,6 @@ example : Nonempty (Carrier (Profile.homogeneous 3)) := by
   rw [card_homogeneous_three]
   omega
 
-#check @Profile.homogeneous
-#check @Carrier
-#check @tensorEvaluation
-#check @tensorEvaluation_ne_zero
-#check @tensorEvaluation_injective
-#check @card_nonzeroVector_add_one
-#check @card_carrier
-#check @card_homogeneous
 
 
 end BilinearComplexity.NormalizedBinaryCarrier

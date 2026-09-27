@@ -574,33 +574,6 @@ example :
       simp [functionalSupport, functionalInactive, packedFunctional]
 
 
-#check @packedFunctional
-#check @singletonFlatten
-#check @singletonFlatten_triad
-#check @singletonFlatten_rank_le
-#check @matMulContractOne
-#check @matMulContractOne_apply
-#check @exists_outer_decomposition
-#check @matMulContractOne_rank_le
-#check @matMulContractOne_flatten_rank
-#check @matMulContractOne_rank
-#check @repeatedBlock
-#check @repeatedBlock_mulVec
-#check @repeatedBlock_rank
-#check @functionalSupport
-#check @mem_functionalSupport_iff
-#check @rankLE_matMulContractOne_support
-#check @functionalInactive
-#check @functionalSupport_card_add_inactive
-#check @modeOne_mul_rank_le_card_functionalSupport
-#check @modeOne_heavy_hyperplane
-#check @modeTwo_mul_rank_le_card_functionalSupport
-#check @modeTwo_heavy_hyperplane
-#check @modeThree_mul_rank_le_card_functionalSupport
-#check @modeThree_heavy_hyperplane
-#check @triad_linearIndependent_of_rank_eq
-#check @four_le_card_modeTwo_identity_functionalSupport
-#check @nine_le_card_modeThree_identity_functionalSupport
 
 
 end BilinearComplexity

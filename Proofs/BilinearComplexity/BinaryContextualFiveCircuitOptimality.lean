@@ -606,12 +606,6 @@ example (path : MovePath BinaryAmbientMoves.AllModeMove
   optimalityGroundCompilation221.reverse.vertices.map Finset.card,
   optimalityGroundCompilation221.reverse.length)
 
-#check @forward_path_length_ge
-#check @reverse_path_length_ge
-#check @forward_shortest
-#check @reverse_shortest
-#check @certified_optimality
-#check @orbitDistance_compileContextualBinaryFiveCircuit_eq
 
 
 end BilinearComplexity.BinaryContextualFiveCircuitCompiler.ContextualBinaryFiveCircuitCompilation

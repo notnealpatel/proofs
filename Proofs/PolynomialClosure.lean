@@ -86,13 +86,6 @@ theorem Map.mapsTo_closure {k : Type*} [Field k] {ι κ : Type*}
     rfl]
   exact hzero
 
-#check @closure
-#check @mem_closure_iff
-#check @subset_closure
-#check @closure_mono
-#check @Map.eval
-#check @Map.eval_apply
-#check @Map.mapsTo_closure
 
 /-- The closure API is jointly satisfiable even in a positive-dimensional
 space: the identity polynomial map carries the singleton `{0}` into itself. -/

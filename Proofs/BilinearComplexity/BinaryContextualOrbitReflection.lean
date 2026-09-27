@@ -363,14 +363,6 @@ theorem classifiedContextPath_length_lower_bound {p : Profile}
   rw [reflectClassifiedContextPath_length] at hbound
   exact hbound
 
-#check @reflectActionAllModeMove
-#check @pullbackPath
-#check @pullbackPath_length
-#check @pullbackPath_altitude
-#check @reflectClassifiedContextPath
-#check @reflectClassifiedContextPath_length
-#check @reflectClassifiedContextPath_altitude
-#check @classifiedContextPath_length_lower_bound
 
 
 end BilinearComplexity.BinaryContextualOrbitReflection

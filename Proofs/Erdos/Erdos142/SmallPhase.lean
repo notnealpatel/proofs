@@ -77,9 +77,6 @@ example :
         2 * Real.pi / (4 : ℝ) := by
   exact exists_small_phase_step (1 / 2 : ℝ) (by norm_num) (by norm_num)
 
-#check @Real.exists_nat_abs_mul_sub_round_le
-#check @exists_nat_abs_mul_sub_int_le
-#check @exists_small_phase_step
 
 
 end Erdos142

@@ -1103,29 +1103,6 @@ example {K : Type*} [Field K] [CharP K 2] :
     (K := K) binaryGaugeComplementDecomposition binaryGaugeMatrix
     (by decide) binaryComplementCertificate
 
-#check @rank_eq_of_checkEliminationTrace_eq_true
-#check @mem_ker_of_checkKernelVector_eq_true
-#check @no_solution_of_checkInconsistencyVector_eq_true
-#check @checkLinearSystemAuditWitness
-#check @linearSystemAuditWitness_sound
-#check @binaryRankOneExternalAuditWitness_rejects
-#check @EliminationCertificate.matrix_rank_eq
-#check @EliminationCertificate.linearMap_rank_eq
-#check @EliminationCertificate.ker_eq_range
-#check @EliminationCertificate.finrank_ker_eq
-#check @InconsistencyCertificate.no_solution
-#check @InconsistencyCertificate.map
-#check @InconsistencyCertificate.mapZModTwo
-#check @InconsistentLinearSystemCertificate.matrix_rank_eq
-#check @InconsistentLinearSystemCertificate.ker_eq_range
-#check @InconsistentLinearSystemCertificate.finrank_ker_eq
-#check @InconsistentLinearSystemCertificate.no_solution
-#check @matrix_rank_map_algebraMap
-#check @matrix_rank_map_zmod_two
-#check @linearMap_rank_map_zmod_two
-#check @certified_support_noKernel_over_charTwo
-#check @certified_complement_noKernel_over_charTwo
-#check @certified_kernel_eq_mappedGauge_over_charTwo
 
 
 end BilinearComplexity

@@ -647,23 +647,6 @@ theorem rankLE_m3_seventeen_structural_dichotomy {k : Type*} [Field k]
         b hb0 hbunit
     exact Or.inr ⟨hbunit, hbound, hrange⟩
 
-#check @m3ActiveSupport
-#check @m3InactiveRestrictionSpan
-#check @m3Equiv
-#check @m3ToVec
-#check @m3Output
-#check @m3Form
-#check @rankLE_matMulTensor_three_to_bilinear
-#check @matrix_isUnit_of_rightIdeal_le_leftIdeal
-#check @m3_first_forms_span_top
-#check @m3_exists_nine_independent_first_forms
-#check @m3_active_output_mem_range
-#check @m3_range_le_span_active_outputs
-#check @m3_unit_active_rigidity
-#check @m3_active_linearIndependent_of_basis_interface
-#check @m3_active_card_add_inactive_subfamily_add_nine_le
-#check @m3_active_card_add_finrank_inactive_add_nine_le
-#check @rankLE_m3_seventeen_structural_dichotomy
 
 
 end BilinearComplexity

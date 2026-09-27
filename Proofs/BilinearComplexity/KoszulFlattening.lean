@@ -185,12 +185,6 @@ theorem koszul_not_rankLE_of_mul_lt_of_minor_ne_zero {k : Type*} [Field k]
   not_rankLE_of_mul_lt_of_submatrix_det_ne_zero (koszulLinear k a b c)
     koszul_rank_simple_le ri ci hdet hrm
 
-#check @koszulMatrix_apply
-#check @koszulLinear_apply
-#check @koszul_rank_simple_le
-#check @koszul_rank_le_mul_of_rankLE
-#check @koszul_le_mul_of_minor_ne_zero_of_rankLE
-#check @koszul_not_rankLE_of_mul_lt_of_minor_ne_zero
 
 /-! Coordinate, sign, characteristic, and degeneracy audits. -/
 

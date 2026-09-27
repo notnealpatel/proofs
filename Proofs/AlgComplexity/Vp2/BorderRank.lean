@@ -286,18 +286,6 @@ theorem BorderRankLE.eval_det_genericFlattening_submatrix_eq_zero {k : Type*} [F
     MvPolynomial.eval (entries T) ((genericFlattening k n).submatrix ri ci).det = 0 :=
   borderRankLE_iff.mp h _ (det_genericFlattening_submatrix_mem_vanishingIdeal ri ci)
 
-#check @mem_rankLocus
-#check @RankLE.mono
-#check @borderRankLE_iff
-#check @RankLE.borderRankLE
-#check @BorderRankLE.mono
-#check @RankLE.rank_flattening_le
-#check @det_submatrix_eq_zero_of_rank_le
-#check @det_genericFlattening_submatrix_eq_rename
-#check @det_genericFlattening_submatrix_ne_zero
-#check @eval_det_genericFlattening_submatrix
-#check @det_genericFlattening_submatrix_mem_vanishingIdeal
-#check @BorderRankLE.eval_det_genericFlattening_submatrix_eq_zero
 
 
 end Vp2

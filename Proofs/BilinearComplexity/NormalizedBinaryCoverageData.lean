@@ -527,14 +527,6 @@ end Entry
 
 end RawCoverageAction
 
-#check @RowSource
-#check @selectedRowSources221
-#check @SerializedTermMasks.decode?
-#check @SerializedEndpoints.decode?
-#check @RawCoverageAction
-#check @RawCoverageAction.check
-#check @RawCoverageAction.Entry
-#check @RawCoverageAction.Entry.witness
 
 
 end BilinearComplexity.NormalizedBinaryCoverageData

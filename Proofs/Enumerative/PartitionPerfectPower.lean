@@ -406,23 +406,6 @@ example : ¬ IsPerfectPower (partitionNumber 1) :=
 
 /-! ## Signature audit -/
 
-#check @IsPerfectPower
-#check @four_le_of_isPerfectPower
-#check @isPerfectPower_iff_bounded
-#check @a000041Prefix
-#check @pow_notMem_a000041Prefix
-#check @not_isPerfectPower_of_mem_a000041Prefix
-#check @partitionNumber
-#check @partitionNumber_eq_card
-#check @partitionNumber_zero
-#check @partitionNumber_one
-#check @partitionNumber_pos
-#check @partitionNumber_le_succ
-#check @monotone_partitionNumber
-#check @sun_partitionNumber_not_isPerfectPower
-#check @not_isPerfectPower_partitionNumber_of_mem_a000041Prefix
-#check @sun_partitionNumber_zero
-#check @sun_partitionNumber_one
 
 /-! ## Axiom audit
 

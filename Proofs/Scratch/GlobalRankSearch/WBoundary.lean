@@ -286,20 +286,6 @@ example :
   ⟨wTensor_rankLE_three, wTensor_not_rankLE_two, wDegeneration_zero,
     fun _ ht => wDegeneration_rankLE_two ht, wTensor_borderRankLE_two⟩
 
-#check @wE0
-#check @wE1
-#check @wTensor
-#check @wDegeneration
-#check @wDegenerationPolynomial
-#check @wDegeneration_zero
-#check @wDegenerationPolynomial_eval
-#check @rankOne_in_wSlicePlane_offDiagonal_eq_zero
-#check @wTensor_rankLE_three
-#check @wTensor_not_rankLE_two
-#check @wTensor_rank_eq_three
-#check @wDegeneration_one_ne_wTensor
-#check @wDegeneration_rankLE_two
-#check @wTensor_borderRankLE_two
 
 
 end BilinearComplexity

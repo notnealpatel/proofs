@@ -478,19 +478,6 @@ example : unnormalizedDFT 3 (fun _ => 1) 0 = 3 := by
   simp only [sum_const, card_univ, ZMod.card, nsmul_eq_mul]
   norm_num
 
-#check @unnormalizedDFT
-#check @threeAPSum
-#check @threeAPSum_eq_fourier
-#check @sum_unnormalizedDFT_zero
-#check @sum_conj_unnormalizedDFT_mul
-#check @sum_sq_norm_unnormalizedDFT
-#check @sum_sq_norm_unnormalizedDFT_neg_two
-#check @norm_threeAPSum_le_of_fourier_bound
-#check @norm_threeAPSum_le_sqrt_of_fourier_bound
-#check @norm_threeAPSum_le_spatial_of_first_fourier_bound
-#check @norm_threeAPSum_le_spatial_of_middle_fourier_bound
-#check @norm_threeAPSum_le_spatial_of_last_fourier_bound
-#check @threeAPSum_sub_threeAPSum
 
 
 end Erdos142

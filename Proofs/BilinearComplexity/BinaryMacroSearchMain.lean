@@ -268,16 +268,6 @@ example : NormalizedBinarySearchRegression.suppliedState.card ≤ 3 ∧
 example : Nonempty (Carrier profile221) := ⟨NormalizedBinaryReplay221.E11⟩
 example : Nonempty (Fin 2) ∧ Nonempty (Fin 1) := ⟨⟨0⟩, ⟨0⟩⟩
 
-#check @canonicalReplayState
-#check @canonicalReplayState_eq
-#check @edgeReplay_eq_direct
-#check @macroFields
-#check @candidateFields
-#check @BinaryMacroBoundedSearch.Candidate.cached_macro_factorization
-#check @BinaryMacroBoundedSearch.Trace.cachedMacros_results
-#check @BinaryMacroBoundedSearch.Trace.cached_macro_factorization
-#check @BinaryMacroBoundedSearch.Result.macro_factorization
-#check @BinaryMacroBoundedSearch.optimize_card_eq_primitive
 
 end BilinearComplexity.BinaryMacroSearchMain
 
@@ -299,4 +289,3 @@ def main (args : List String) : IO Unit := do
 example : main [] =
     throw (IO.userError "usage: binary-macro-search (primitive|macro|activated) k H") := rfl
 
-#check @main

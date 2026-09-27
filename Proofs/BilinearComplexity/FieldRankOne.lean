@@ -449,14 +449,6 @@ example :
     (Atom.ofRep oneRep).val 0 0 0 = 2 := by
   decide
 
-#check @Rep.rescale_eval
-#check @stateEval_schemePresentation
-#check @stateScheme_valid
-#check @LinearTransport.stateEval_mapState
-#check @BinaryCorrespondence.atomEquiv
-#check @BinaryCorrespondence.stateEquiv
-#check @BinaryCorrespondence.stateEquiv_card
-#check @BinaryCorrespondence.stateEquiv_eval
 
 end FieldRankOne
 end BilinearComplexity

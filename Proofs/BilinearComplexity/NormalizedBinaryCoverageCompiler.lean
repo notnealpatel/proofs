@@ -341,18 +341,6 @@ example (tables : FamilyCoverageTables) :
       NormalizedBinaryFiveCircuitCertificate.designated_endpoint_hasExactFactorProfile⟩
   exact ⟨rfl, rfl, ⟨(compileWithCoverage tables target).certificate⟩⟩
 
-#check @entryTargetSet_eq_decodedTargetSet
-#check @locateEntry
-#check @locateEntry_head
-#check @castActionWitnessTarget
-#check @CanonicalCompilation.witness
-#check @CanonicalCompilation.certificate
-#check @compileCanonical
-#check @unorientCertificate
-#check @CompilationResult.witness
-#check @CompilationResult.orientedCertificate
-#check @CompilationResult.certificate
-#check @compileWithCoverage
 
 
 end BilinearComplexity.NormalizedBinaryCoverage

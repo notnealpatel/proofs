@@ -445,8 +445,5 @@ example :
     S ∆ T = Z ∧ Z.card = 5 ∧ S.card = 3 ∧ T.card = 4 := by
   decide
 
-#check @two_support_localization
-#check @endpoint_support_localization
-#check @factors_mem_endpoint_spans_of_support_erase_subset
 
 end BilinearComplexity.BinaryAmbientContextOptimality

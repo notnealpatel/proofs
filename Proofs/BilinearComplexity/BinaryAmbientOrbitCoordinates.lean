@@ -258,15 +258,6 @@ theorem compileClassified_label_normalizeState_eq
   · exact (compileClassified ⟨_, hold⟩).membership
   · exact (compileClassified ⟨_, hnew⟩).membership
 
-#check @coordinateChangeInjection
-#check @mapTerm_normalizeTerm
-#check @mapState_normalizeState
-#check @relationInvariant_normalizeState_independent
-#check @coordinateDimension_eq
-#check @coordinateProfile_eq
-#check @inOrbit_family_eq_of_sameProfile
-#check @inOrbit_label_eq_of_normalizeState
-#check @compileClassified_label_normalizeState_eq
 
 
 end BilinearComplexity.BinaryAmbientOrbitCoordinates

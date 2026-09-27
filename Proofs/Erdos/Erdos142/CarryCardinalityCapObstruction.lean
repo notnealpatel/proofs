@@ -593,10 +593,6 @@ the associated difference graph is exactly the diagonal. -/
 example : carryGraph 3 ({(0 : ZMod 3)} : Finset (ZMod 3)) = {(0, 0), (1, 1), (2, 2)} := by
   decide
 
-#check @exists_carryCardinalityCap
-#check @scalarTriple_nontrivial_threeAP
-#check @exists_zmod_free_with_zero
-#check @exists_halfSlice
 
 
 end Erdos142

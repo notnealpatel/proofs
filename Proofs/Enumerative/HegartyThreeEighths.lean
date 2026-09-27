@@ -776,7 +776,5 @@ example : ((Finset.range 0).filter (fun e => e % 2 = 0)).card ≤ (0 + 1) / 2 :=
 /-- The bound is nonvacuous at the OEIS boundary term `a 0 = 1`. -/
 example : 3 * (0 + 1) ≤ 8 * a 0 := hegarty_three_eighths 0
 
-#check @card_filter_range_mod_two_eq_le
-#check @hegarty_three_eighths
 
 end A094870

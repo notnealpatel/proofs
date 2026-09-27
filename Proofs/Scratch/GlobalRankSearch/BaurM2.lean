@@ -747,22 +747,6 @@ example : ∃ (α β : Fin 8 → Matrix (Fin 2) (Fin 2) ℚ →ₗ[ℚ] ℚ)
     ∀ A B i l, (A * B) i l = ∑ s, α s A * β s B * C s i l := by
   exact rankLE_matMulTensor_two_to_bilinear (rankLE_matMulTensor ℚ 2 2 2)
 
-#check @m2OfVec
-#check @m2ToVec
-#check @m2Output
-#check @m2Form
-#check @rankLE_matMulTensor_two_to_bilinear
-#check @exists_ne_zero_in_common_kernel
-#check @linearIndependent_evaluation_surjective
-#check @exists_indexed_linearIndependent_of_le_finrank_span
-#check @finrank_span_range_le_card
-#check @exists_three_independent_first_forms
-#check @m2_isUnit_of_rightIdeal_le_leftIdeal
-#check @two_le_finrank_range_m2RightMul
-#check @baur_m2_final_pivot_impossible
-#check @six_product_m2_impossible
-#check @not_rankLE_matMulTensor_two_six
-#check @seven_le_rank_matMulTensor_field
 
 
 end BilinearComplexity

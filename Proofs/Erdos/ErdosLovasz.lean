@@ -864,13 +864,6 @@ example :
     IsTransversal ({{0, 1, 2, 3}} : Finset (Finset (Fin 4))) {0} ∧
     ({{0, 1, 2, 3}} : Finset (Finset (Fin 4))).card < 9 := by decide
 
-#check @witnessFour_isTransversal
-#check @witnessFour_no_small_transversal
-#check @coveringNumber_witnessFour
-#check @isErdosLovaszFamily_witnessFour
-#check @erdosLovaszNum_four_le
-#check @IsErdosLovaszFamily.nine_le_card
-#check @tripathi_nine_le_erdosLovaszNum_four
 
 -- ════════════════════════════════════════════════════════════════════
 -- §6 LITERATURE STATEMENTS (g(4) PROVED; OTHER STATEMENTS ARCHIVED)
@@ -922,7 +915,6 @@ statement are preserved; its closure contains no archived lower bound. -/
 theorem tripathi_erdosLovaszNum_four : erdosLovaszNum 4 = 9 :=
   le_antisymm erdosLovaszNum_four_le tripathi_nine_le_erdosLovaszNum_four
 
-#check @tripathi_erdosLovaszNum_four
 
 /-- **[Ba21]** (literature, INTENDED SORRY): `g(5) = 13` (OEIS A391599,
 a(5) = 13), with exactly three non-isomorphic extremal examples

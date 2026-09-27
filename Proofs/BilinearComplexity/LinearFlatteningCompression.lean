@@ -41,8 +41,6 @@ theorem le_mul_of_comp_submatrix_det_ne_zero_of_rankLE
     (hT : RankLE T r) : m ≤ r * q :=
   le_mul_of_submatrix_det_ne_zero_of_rankLE F hsimple ri ci hdet (hT.comp f g e)
 
-#check @le_mul_of_contract₁_submatrix_det_ne_zero_of_rankLE
-#check @le_mul_of_comp_submatrix_det_ne_zero_of_rankLE
 
 end CompressionCertificates
 

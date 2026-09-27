@@ -1160,25 +1160,6 @@ example :
   refine ⟨by omega, by omega, by omega, by omega, ?_⟩
   exact three_positive_sum_five (by omega) (by omega) (by omega) (by omega)
 
-#check @twoModeCancellation_finrank_le
-#check @twoModeCancellation_finset_finrank_le
-#check @twoModeEqualDisjointSums_finrank_le
-#check @finrank_sup_add_one_le_of_common_nonzero
-#check @cancellationWithSingleton_finrank_le
-#check @f2_finrank_two_range_profile
-#check @threeFiberSums_eq
-#check @matrixSum_ne_zero_of_minimal_constant_fiber
-#check @fiber_nonempty_of_matrixSum_ne_zero
-#check @three_one_one_finrank_le_four
-#check @two_two_one_finrank_le_four
-#check @three_positive_sum_five
-#check @finrank_span_range_le_two_of_tail_mem_pair_span
-#check @selectedMode_finrank_one_profile_le_six
-#check @three_one_one_finset_finrank_le_four
-#check @two_two_one_finset_finrank_le_four
-#check @selectedMode_finrank_two_complementary_le_four
-#check @selectedMode_profile_finrank_le_six
-#check @pair_triple_profile_finrank_le_six
 
 
 end BilinearComplexity.ProfileInequalityExperiment

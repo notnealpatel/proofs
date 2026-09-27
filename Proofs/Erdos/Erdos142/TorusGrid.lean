@@ -241,6 +241,5 @@ theorem torusGrid_threeAP_energy_addadd {ε : ℝ} (hε : 0 < ε)
       torusF ε (torusLift q X) + torusF ε (torusLift q Z) :=
   torusGrid_threeAP_energy hε hεle hX hY hZ (by rw [two_smul]; exact hAP)
 
-#check @torusGrid_threeAP_energy
 
 end Erdos142

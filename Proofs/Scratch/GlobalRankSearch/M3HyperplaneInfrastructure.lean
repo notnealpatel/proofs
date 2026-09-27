@@ -698,36 +698,6 @@ example :
   · rw [m3DualMatrix_m3RankThreeForm, Matrix.rank_diagonal]
     decide
 
-#check @m3DualMatrix
-#check @m3DualMatrix_m3Form
-#check @m3DualMatrix_eq_zero_iff
-#check @m3RankOneForm
-#check @m3RankTwoForm
-#check @m3RankThreeForm
-#check @m3DualMatrix_m3RankOneForm
-#check @m3DualMatrix_m3RankTwoForm
-#check @m3DualMatrix_m3RankThreeForm
-#check @m3LeftRightForm
-#check @m3LeftRightForm_apply
-#check @apply_eq_sum_m3DualMatrix_mul
-#check @m3DualMatrix_m3LeftRightForm
-#check @m3DualMatrix_injective
-#check @m3DualMatrix_rank_m3LeftRightForm
-#check @matrix_fin_three_rank_one_normal_form
-#check @matrix_fin_three_rank_two_normal_form
-#check @matrix_fin_three_rank_three_normal_form
-#check @m3RankOneForm_eq_leftRight_of_rank_eq_one
-#check @m3RankTwoForm_eq_leftRight_of_rank_eq_two
-#check @m3RankThreeForm_eq_leftRight_of_rank_eq_three
-#check @M3HyperplaneRankLE
-#check @M3HyperplaneRankLE.twentySeven
-#check @M3HyperplaneRankLE.of_leftRight
-#check @M3HyperplaneRankLE.rankOneRepresentative_of_rank_eq_one
-#check @M3HyperplaneRankLE.rankTwoRepresentative_of_rank_eq_two
-#check @M3HyperplaneRankLE.rankThreeRepresentative_of_rank_eq_three
-#check @m3_exists_hyperplane_rankLE_of_rankLE_succ
-#check @m3DualMatrix_rank_eq_one_or_two_or_three_of_ne_zero
-#check @m3_exists_representative_leftRight_of_ne_zero
 
 
 end BilinearComplexity

@@ -201,14 +201,6 @@ example :
     simpa only [hcard] using rankLE_contract₁_card_active T u v w hdecomp M
   exact ⟨hactive, hcontract, hRankLE, rank_le_of_rankLE hRankLE⟩
 
-#check @contractionActiveIndices
-#check @mem_contractionActiveIndices_iff
-#check @rankLE_contract₁_card_active
-#check @rank_contract₁_le_card_active
-#check @rankLE_contract₂_card_active
-#check @rank_contract₂_le_card_active
-#check @rankLE_contract₃_card_active
-#check @rank_contract₃_le_card_active
 
 
 end BilinearComplexity

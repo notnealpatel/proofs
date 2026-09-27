@@ -130,13 +130,6 @@ example :
     mul_card_le_card_mul_rothNumberNat_of_threeAPFree
       ({0, 1} : Finset (ZMod 3)) 3 1 hfree⟩
 
-#check @affinePreimage
-#check @mem_affinePreimage
-#check @card_affinePreimage
-#check @sum_ite_add_right_eq_card
-#check @sum_card_affinePreimage
-#check @mul_card_le_card_mul_of_affinePreimage_card_le
-#check @mul_card_le_card_mul_rothNumberNat_of_threeAPFree
 
 
 end Erdos142

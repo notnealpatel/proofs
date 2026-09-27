@@ -272,16 +272,5 @@ example : (sortedFiveCode (Finset.univ : Finset (Fin 5)) (by decide)).toList.toF
   rw [sortedFiveCode_toFinset]
   decide
 
-#check @decode221_bijective
-#check @decode411_bijective
-#check @decode321_bijective
-#check @decode222_bijective
-#check @tensorMask221_spec
-#check @tensorMask411_spec
-#check @tensorMask321_spec
-#check @tensorMask222_spec
-#check @mem_iff_of_exactTableCheck
-#check @sortedFiveCode_valid
-#check @sortedFiveCode_toFinset
 
 end BilinearComplexity.NormalizedBinaryCompactEnumerationBridge

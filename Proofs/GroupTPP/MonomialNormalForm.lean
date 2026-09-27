@@ -474,24 +474,6 @@ example :
     (fun _ _ => one_ne_zero) (fun _ _ => one_ne_zero) (fun _ _ => one_ne_zero)
     (fun _ _ _ => by norm_num) () () ()
 
-#check @IndexedTPP
-#check @indexedTPP_iff_image_tpp_and_injective
-#check @diagonal_group_normal_form_a
-#check @diagonal_group_normal_form_b
-#check @diagonal_group_normal_form
-#check @normal_form_collision_iff_quotient
-#check @normal_form_no_cancellation_iff_indexedTPP
-#check @IndexedTPP.injective_s
-#check @IndexedTPP.injective_t
-#check @IndexedTPP.injective_u
-#check @IndexedTPP.injective_st
-#check @IndexedTPP.injective_tu
-#check @IndexedTPP.injective_us
-#check @IsMonomialRealizationGen.exists_normal_form_indexedTPP
-#check @indexedTPP_monomialRealizationGen
-#check @exists_monomialRealizationGen_iff_exists_indexedTPP
-#check @diagonal_coeff_unit_normal_form
-#check @diagonal_coeff_normal_form
 
 
 end GroupTPP.MonomialNormalForm

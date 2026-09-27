@@ -809,9 +809,6 @@ example : ¬ IsLeast {j : ℕ | Reachable 6 j} 5 := by
   revert hk
   decide
 
-#check @rebert_conjecture
-#check @existsUnique_shortest_decisionWord
-#check @rebert_conjecture_iInf
 
 
 end NumberComplexity

@@ -1060,37 +1060,6 @@ theorem target_replayableBrent : target.ReplayableBrent :=
 
 end AsymmetricReplay
 
-#check @sandwich
-#check @matrixEntry_sandwich_first
-#check @matrixEntry_sandwich_second
-#check @matrixEntry_sandwich_third
-#check @Brent.sandwich
-#check @Brent.orientMatrix
-#check @Brent.replay
-#check @ReplayableBrent.sandwich
-#check @ReplayableBrent.orientMatrix
-#check @ReplayableBrent.replay
-#check @ReplayWitness.target_eq_replay
-#check @ReplayWitness.brent
-#check @ReplayWitness.replayableBrent
-#check @replayWitness
-#check @ActionEquivalent.brent
-#check @ActionEquivalent.replayableBrent
-#check @Sandwich.tensorIsotropy
-#check @OrderedStabilizer.representedEquivalent
-#check @AsymmetricReplay.orientation_eq_bac_and_dims
-#check @AsymmetricReplay.source_first_ne_second
-#check @AsymmetricReplay.source_term_evals_eq_standard
-#check @AsymmetricReplay.permutation_ne_refl
-#check @AsymmetricReplay.sandwichData_P_ne_one
-#check @AsymmetricReplay.gauges_zero_ne_one
-#check @AsymmetricReplay.mapped_first
-#check @AsymmetricReplay.mapped_second
-#check @AsymmetricReplay.mapped_third
-#check @AsymmetricReplay.target_eq_replay
-#check @AsymmetricReplay.bcaData
-#check @AsymmetricReplay.target_ne_replay_bca
-#check @AsymmetricReplay.target_replayableBrent
 
 end Action
 end Scheme
