@@ -79,6 +79,183 @@ The canonical problem statement was also checked with the local `erdos`
 corpus: problem 142 asks for an asymptotic formula for $r_k(N)$ and remains far
 out of reach even for $k=3$.
 
+## 2026-09-27 restart and coalesced handoffs
+
+The current campaign restarted from accepted revision
+`2a98a02afeedb182fd48a60c69685d17e217b001`.  Four predecessor handoffs were
+coalesced: the primary campaign state, the primary-source/literature audit,
+the finite reflection and half-digit lane, and the conditional quantitative
+square-defect lane.  They agree that no eventual P inequality, proof of
+$D(N)\to0$, positive square-defect excursion theorem, two-sided oscillation,
+or asymptotic formula has been obtained.
+
+**Kernel checked and accepted after the older ledger frontier.**  Revision
+`ff87c9506a1e1129f0fa1d02dc8ba7d806cab1bf` adds
+`Proofs/Erdos/Erdos142/HalfDigitRelationCap.lean`.  If
+$H=\lceil N/2\rceil$, $B\subset[0,H)$ and $C\subset[0,N)$ are 3-AP-free,
+then the scalar base-$N$ image of every relation $G\subset B\times C$ is
+3-AP-free.  In particular,
+$$
+r(N^2)\ge r(H)r(N)\ge \tfrac12r(N)^2.
+$$
+The theorem permits arbitrary unequal fibers and graph correlations at this
+half-digit scale.  It is a required stress test for any proposed fiber,
+entropy, or collision inequality, not an upper asymptotic estimate.
+
+**Kernel checked and accepted at restart.**  Revision
+`d1c937ef2a05582745959eb3d8715463efa8a18d` restores the finite-reflection
+module and proves the universal estimates
+$$
+M\ge\left\lfloor\frac{(m-1)^2}{4}\right\rfloor,
+\qquad \nu(c)\le m-1,
+\qquad E\le(m-1)M.
+$$
+The exact module and full `Erdos` umbrella build succeeded.  Mathematical,
+vacuity, and foundations reviews were clean, and the public endpoints use
+only `propext`, `Classical.choice`, and `Quot.sound`.  These estimates close
+the sufficient second-moment route only when
+$$
+N^{2/3}(m-1)(m-N)^2
+ \le \left\lfloor\frac{(m-1)^2}{4}\right\rfloor r(N)^{8/3},
+$$
+roughly $m\lesssim N^2(r(N)/N)^{8/3}$, rather than the desired exponent
+$4/3$.  The archived source-audit document and conditional
+`SquareScaleQuantitativeRate` candidate
+`1de5c75987ad4f72f63682b3439ef1f5556b4cf7` were also reviewed
+substantially but not adopted.  Neither supplies the missing structural
+estimate; the latter only formalizes a conditional transfer from a
+caller-supplied Raghavan-shaped lower envelope.
+
+**Active research ownership.**  Three independent peers now own disjoint
+lanes: proof or falsification of the reflection candidates (C)/(O); a new
+global unequal-fiber inequality retaining all carries $-1,0,1$; and an exact
+primary-source search for a Bohr-to-interval averaging or genuinely two-scale
+density-increment theorem.  The coordinating lane is recovering only finite
+infrastructure that directly supports those investigations and will not
+count conditional bookkeeping or finite computation as a solution.
+
+**Peer-derived carry checkpoint; not kernel checked.**  Put $Q=4N$,
+$e_Q(u)=\exp(2\pi i u/Q)$, and
+$$
+\phi_y(x)=\mathbf 1_A(x+Ny),\qquad
+\widehat\phi_y(r)=\sum_{x=0}^{N-1}\phi_y(x)e_Q(-rx),
+$$
+with $\phi_y=0$ for $y\notin[0,N)$.  For the convention in which the low
+and high residuals are respectively $tN$ and $-t$, define
+$$
+\gamma_t(y,q)=\mathbf 1_{[0,N)}(y-q)
+ \mathbf 1_{[0,N)}(y+q-t)
+$$
+and
+$$
+F_r=\frac1Q\sum_{t=-1}^1\sum_{y,q}
+ e_Q(tNr)\gamma_t(y,q)
+ \widehat\phi_{y-q}(r)\widehat\phi_y(-2r)
+ \widehat\phi_{y+q-t}(r).
+$$
+The positive phase here results from replacing the orthogonality variable by
+its negative; before that replacement the phase is $e_Q(-tNr)$ and all three
+Fourier frequencies have the opposite signs.  With the displayed convention,
+the exact scalar 3-AP count is $\sum_{r\bmod Q}F_r$.  Thus the three carries
+$t=-1,0,1$, middle frequency $-2r$, and factor $(4N)^{-1}$ are retained
+without the aliasing in a naive modulus-$N$ formula.  This is only an
+identity, not a nonlinear estimate.
+
+The universal phase-blind proposal, writing $M_0=F_0$ and
+$S=\sum_{r\ne0}|F_r|$,
+$$
+S\le M_0+|A|-\frac{|A|^3}{N^{4/3}r(N)^{8/3}},
+$$
+is false.  For base $N=3$ and the accepted half-digit cap
+$A=\{0,3\}\subset[0,9)$, exact calculation in
+$\mathbb Q(\zeta_{12})$ from the displayed formula gives
+$$
+F_r=\begin{cases}
+1/2,&r\equiv0\pmod4,\\
+1/6,&r\equiv1\pmod4,\\
+-1/6,&r\equiv2\pmod4,\\
+1/6,&r\equiv3\pmod4,
+\end{cases}
+$$
+so $M_0=1/2$, $S=5/2$, and $\sum_rF_r=2=|A|$.  Since $r(3)=2$, the
+proposed right side is strictly below $5/2$.  This refutes the universal
+phase-blind bound, not a version restricted to the high-cardinality regime,
+and it does not refute the desired square gain.  Any viable Fourier estimate
+must retain phases, coupled unequal fibers, or additional incidence
+information.
+
+For a full half-digit product $A=B+NC$, where
+$B\subset[0,\lceil N/2\rceil)$ and $C\subset[0,N)$ are scalar caps, define
+for $0\le x<N$ and every integer $t$
+$$
+L_x^+=\#\{(b,b')\in B^2:2b-b'=x\},\qquad
+L_x^-=\#\{(b,b')\in B^2:2b-b'=x-N\},
+$$
+$$
+H_t=\#\{(c,c')\in C^2:2c-c'=t\}.
+$$
+For $0\le h<N$, the peer-derived exact two-carry factorization is
+$$
+\nu(x+Nh)=L_x^+H_h+L_x^-H_{h+1}
+ -\mathbf 1_B(x)\mathbf 1_C(h),
+$$
+where $\nu$ counts ordered nontrivial global representations.  The half-digit
+condition eliminates a positive low-digit carry, and the subtraction removes
+exactly the simultaneous diagonal.  This yields exact formulas for $M$, $E$,
+and $S$.  For arbitrary relations $G\subseteq B\times C$, however, the
+factors become correlated edge-pair counts; controlling that correlation is
+the unresolved estimate.  Exhaustive product checks through $N=35$ found no
+violation of (O), but this finite computation is evidence only.
+
+A separate active target is the following exact entropy conjecture.  If
+$A\subset[0,N^2)$ is scalar-3AP-free with
+$|A|\ge N^{2/3}r(N)^{4/3}$ and $(X,Y)$ is its uniform base-$N$ digit pair,
+put $d_X=\log N-H(X)$ and $d_Y=\log N-H(Y)$.  The target is an absolute
+constant $K$ such that
+$$
+I(X;Y)\le d_X+d_Y+K.
+$$
+Each row and column fiber is a scalar cap, so
+$H(X\mid Y),H(Y\mid X)\le\log r(N)$ and hence
+$d_X+I,d_Y+I\ge\lambda(N)$.  Together with the conjectured inequality these
+fiber bounds would give
+$$
+\log\frac{N^2}{|A|}=d_X+d_Y+I
+ \ge \frac43\lambda(N)-\frac K3,
+$$
+and therefore the desired $\eta=1/3$ square gain up to the constant
+$e^{K/3}$.  The conjecture is distinct from the already-refuted
+lower-threshold conjecture at $N\sqrt{r(N)}$.  The accepted half-digit
+arbitrary-relation construction is only a qualitative stress test: its
+full-product cardinality is at most $r(N)^2$, smaller than the new threshold
+by the factor $(N/r(N))^{2/3}$.
+
+**New route-specific stopping evidence.**  Let $N\ge3$, let $P>2N$ be
+prime, and view the rank-one interval Bohr set
+$B=\{0,\ldots,N\}\subset\mathbb Z_P$.  Its only contained nonconstant
+unit-step $N$-term interval copies, up to orientation, are
+$\{0,\ldots,N-1\}$ and $\{1,\ldots,N\}$.  Every interior point belongs to
+both, so every mixture of their normalized counting measures assigns it mass
+$1/N$, rather than the uniform Bohr-set mass $1/(N+1)$.  Thus no such mixture
+has a uniform one-point marginal.  This refutes averaging over this generic
+family from rank, radius, size, and containment alone.  It does not rule out
+other affine-copy measures or a source-specific theorem exploiting the
+Fourier support produced by a Roth iteration, and it does not settle
+Erdős 142.
+
+Within the bounded sources examined in the source audit, no substitute was
+identified.  Green's 2025 Oxford notes, Proposition 1.2, retain only a fifth
+power of the interval length.  Tao, *Arithmetic Progressions and the Primes*,
+Proposition 2.3 and Lemma 2.10, gives an analogous square-root-scale route.
+Bloom--Sisask, arXiv:2309.02353, Proposition `prop-it`, supplies one later
+high-rank Bohr increment with polylogarithmic rank and measure losses, not a
+density-preserving family of length-$N$ affine copies.  Its intermediate
+progression extraction (`lem-bohrap`, used toward `th-3A`) places a
+progression in a sumset such as $3A$; this is not a claim that the paper fails
+to prove its Roth theorem for $A$.  These are applicability barriers for the
+proposed two-scale proof, not evidence that no stronger source-specific
+argument exists.
+
 ## Recovery lane
 
 ### Square-scale negative theorem
