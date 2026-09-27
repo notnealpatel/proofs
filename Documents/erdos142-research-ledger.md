@@ -620,16 +620,15 @@ $o(\delta_j)$.  This refutes the precise spectral claim, not `RAI(K)`:
 rank-one density increments can arise by mechanisms not detected by one such
 coefficient.
 
-The random-affine route itself is now closed as an RAI counterexample.  Every
-set in that construction remains inside the proper cyclic progression
-$u[0,\lfloor p/3\rfloor)+v$, of length about $p/3$, where its density is
-exactly $(p/\lfloor p/3\rfloor)\delta\ge3\delta$.  For every fixed $K$ this
-carrier is eventually longer than $\delta^Kp/2$.  Affine randomization and
-random thinning cannot remove it.  In standard integer representatives the
-cyclic carrier may wrap into many ordinary pieces, so this is directly a
-cyclic structural obstruction; the coefficient estimates still do not give
-the simultaneous ordinary-AP flatness needed to refute integer `RAI(K)`.
-No globally spread scalar cap with that stronger property was constructed.
+The unconditioned random-affine route cannot by itself be an RAI
+counterexample.  Every set in that construction remains inside the proper
+cyclic progression $u[0,\lfloor p/3\rfloor)+v$, of length about $p/3$, where
+its density is exactly $(p/\lfloor p/3\rfloor)\delta\ge3\delta$.  For every
+fixed $K$ this carrier is eventually longer than $\delta^Kp/2$.  In standard
+integer representatives the cyclic carrier may wrap into many ordinary
+pieces, so this is directly a cyclic structural obstruction.  The
+carrier-dependent direction argument below is what permits selection of one
+multiplier that is flat on all relevant ordinary APs.
 
 A further fourth-moment shortcut fails in its uniform form.  If
 $H=\lfloor p/7\rfloor$, $C\subseteq[0,H)$ is a Behrend cap of density
@@ -653,9 +652,9 @@ $$
 $$
 which exceeds $(\delta\ell)^2$ by at least
 $(55/2^{20})\delta^{2K+3}p\to\infty$.  This closes the unconditioned
-fourth-moment strategy, not ordinary `RAI(K)`: the rare aligned images
-actually have the required increment.  A simultaneous-flatness construction
-or a tail estimate conditioned away from aligned directions remains open.
+fourth-moment strategy: the rare aligned images actually have the required
+increment.  The residual argument below instead selects a multiplier outside
+all empirically base-dense directions and then applies fixed-size thinning.
 
 ### Ordinary-direction refinement of the critical-scale obstruction
 
@@ -710,23 +709,96 @@ $9\delta/8$ on an ordinary critical block, that block is itself the RAI
 increment, has length $\ell\ge\delta^Kp/2$, and is proper in the asymptotic
 regime.  A wrapped cyclic carrier is
 not automatically an ordinary AP, so it proves neither the ordinary theorem
-nor its negation.  After excluding $U_{\mathrm{al}}$, the required
-simultaneous tail/correlation lemma over translations, target positions, and
-$1\le d\le D$ remains open.  The unconditioned fourth-moment failure remains
-valid because it includes the aligned terms.  This refinement therefore does
-not prove or disprove ordinary `RAI(K)`, Erdős 142, or the residual lemma.
+nor its negation.  After the coarse carrier quarantine, define the actual residual bad set from
+the cap $C_0$ of density $\rho$.  For each length $t$ in a fixed
+multiplicative net of $[r,2r]$, where
+$r=\lceil\delta^Kp/2\rceil$, let $W_t$ consist of directions $w$ for which
+some modular $t$-window contains at least $(33/32)\rho t$ points of $C_0$.
+The exact affine variance is
 
-The exact full statement survives, but is not proved by, the required stress
-tests.  A carry-free digit product $B+(2N-1)B$ lies in its density range;
-its obvious coordinate increments have length only $N$, whereas `RAI(K)`
-requires $N^{2-o(1)}$, and arbitrary long scalar directions remain
-uncontrolled.  The kernel-checked half-digit relation is not scalar-free
-because it contains $0,N+1,2(N+1)$, so it does not refute `RAI(K)`; it does
-rule out deriving it from row/column caps alone.  Green's rank-one increment
-has length $L^{1/5}$ and additive gain $\delta^2/112$, and the audited
-Bohr/GAP outputs do not supply the fixed-factor, fixed-power rank-one
-conclusion.  These are precise applicability barriers, not counterexamples
-to `RAI(K)`.
+$$
+\mathbb E_{w\ne0,x}
+ (|C_0\cap(x+w[0,t))|-\rho t)^2
+ =t\rho(1-\rho)\frac{p-t}{p-1}.
+$$
+
+One dense witness remains above $(1+1/64)\rho t$ through
+$\gg\rho t$ consecutive shifts, since a shift changes the count by at most
+one.  Summing their squared deviations proves
+
+$$
+|W_t|\ll\frac{p^2}{\rho^2t^2},
+\qquad
+|W|\ll\rho^{-2}\delta^{-2K}.
+$$
+
+The length net, with thresholds $33/32<35/32<9/8$, implies that every
+window of every length in $[r,2r]$ and every direction outside $W$ has base
+density less than $(35/32)\rho$.
+
+All relevant positive ordinary differences satisfy $d\le D\ll\delta^{-K}$.
+The multiplier set
+
+$$
+\mathcal U=\{dw^{-1}:1\le d\le D,\ w\in W\}
+$$
+
+has size $O(\rho^{-2}\delta^{-3K})$.  When this is $o(p)$, choose
+$u\notin\mathcal U$.  Retain a uniform fixed-size $m=\delta p$ subset
+$C\subseteq C_0$.  For each target AP $P$ of length $s\in[r,2r]$,
+$|uC\cap P|$ is hypergeometric with mean below $(35/32)\delta s$; hence
+
+$$
+\Pr(|uC\cap P|\ge(9/8)\delta s)\le e^{-c\delta s}.
+$$
+
+There are $O(p^2)$ such ordinary APs.  Therefore a simultaneous-flat subset
+exists provided
+
+$$
+p\delta^{K+1}\gg\log p,
+\qquad
+\rho^{-2}\delta^{-3K}=o(p).
+$$
+
+Longer APs are partitioned into consecutive blocks with lengths in
+$[r,2r]$.  Thus the resulting standard representative of $uC$ has density
+less than $9\delta/8$ on every ordinary AP of length at least $r$.
+In terms of $\theta=\delta/\rho$, the two conditions are
+
+$$
+p(\theta\rho)^{K+1}\gg\log p,
+\qquad
+\theta^{-3K}\rho^{-(3K+2)}=o(p).
+$$
+
+For $\rho=p^{-b+o(1)}$ and $\delta=p^{-a+o(1)}$, the sufficient exponent
+regime is $a(K+1)<1$, $2b+3Ka<1$, and $a\ge b$.  In particular it holds at
+Behrend scale, where both densities are $p^{-o(1)}$.
+
+This refutes ordinary `RAI(K)` for every fixed $K$.  Given large $N$, take a
+prime $p\in[N^2,2N^2]$, an interval-supported modular Behrend cap $C_0$, and
+
+$$
+\delta=p^{-1}\left\lfloor\frac p2
+             \min\{\rho,(r_3(N)/N)^2\}\right\rfloor.
+$$
+
+Both $\rho$ and $\delta$ are $p^{-o(1)}$.  The affine-flat thinning theorem
+produces an ordinary 3-AP-free $A\subseteq[0,p)$ with no required increment,
+while $\delta\le\beta^2/2\le9\beta/8$ and
+$p\ge16N/\beta$ eventually.  This disproves the auxiliary rank-one
+hypothesis, not Erdős 142.  It also does not contradict the aligned
+sliding-window calculation: those rare images do have the asserted density
+increment, while the selected multiplier avoids every residual base-dense
+direction relevant to an ordinary target.
+
+The earlier stress tests remain informative but are no longer needed to
+decide RAI.  The carry-free digit product has only short obvious coordinate
+increments; the half-digit relation is not scalar-free; Green's rank-one
+increment is too short; and the audited Bohr/GAP outputs do not imply the
+fixed-factor, fixed-power statement.  These remain precise barriers to
+those proposed proof routes.
 
 ## Dead ends and guardrails
 
@@ -761,17 +833,13 @@ to `RAI(K)`.
 
 ## Next decisions
 
-1. Prove or refute the exact `RAI(K)` statement in
-   [`erdos142-relative-rank-one-checkpoint.md`](erdos142-relative-rank-one-checkpoint.md).
-   First test whether affine-randomized Behrend caps admit a useful tail
-   estimate after conditioning away the aligned directions; the
-   unconditioned fourth moment now fails even at the critical length
-   $|P|=\lceil\delta^Kp/2\rceil$.
-   The other unresolved stress case is the carry-free product
-   $B+(2N-1)B$: control every scalar AP of length
-   $\gg\beta^{2K}N^2$, not only coordinate fibers.  Any proof must use
-   scalar carry information; the accepted half-digit relation rules out a
-   row/column-cap relaxation.
+1. Treat fixed-power rank-one amplification as refuted: the affine-flat
+   thinning counterfamily disproves `RAI(K)` for every fixed $K$.  Any
+   replacement sufficient hypothesis must exclude these selected affine
+   images without assuming the false universal bounded-denominator Fourier
+   coefficient statement.  The conditional implication from `RAI(K)` to the
+   square-scale estimate remains logically correct but cannot be used as an
+   available theorem.
 2. Sharpen the negative-defect distribution: the strict-negative set now has
    lower tower-index density at least $1/2$ (every fixed $\delta<1/2$ is
    eventually attained). Investigate exact density or endpoint magnitude,
