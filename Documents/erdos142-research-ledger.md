@@ -224,6 +224,16 @@ See [`erdos142-carry-cardinality-obstruction.md`](erdos142-carry-cardinality-obs
 for the proof sketch and the closed computational lead. Evidence labels and
 scope are preserved there as well.
 
+### Reflection-shadow route
+
+**Kernel checked.** At accepted revision `66eca70dc75c548dcf27862d0f8c8bcc5e436f67`, `Proofs/Erdos/Erdos142/ReflectionShadow.lean`, imported by `Proofs/Erdos.lean`, defines the integer `reflectionShadow` and `differenceSources`. It proves that a finite ordinary 3AP-free `A⊂ℤ` is disjoint from its nontrivial reflection shadow, and that `2·|{x∈A:x+d∈A}|≤|A|` for every nonzero `d`. Focused and full builds succeeded (8814 jobs); the public endpoints use only `[propext, Classical.choice, Quot.sound]`. Independent mathematical review was clean. A vacuity audit found no semantic/trust issue; additional scratch cardinality probes did not complete and are not integrated.
+
+**Informal finite mathematics, independently audited but not Lean formalized.** For scalar-free `A⊂[0,N²)` with `m=|A|`, the target-wise union of valid carry cases is exactly the in-range nontrivial reflection shadow `S(A)`, so `|S(A)|≤N²−m`; median reflection gives `|S(A)|≥floor((m−1)/2)`. With in-range representation multiplicities `ν(c)=#{(a,b)∈A²:a≠b:2a−b=c}`, `M=Σν`, `E=Σν²`, and `r_A(d)=|{x∈A:x+d∈A}|`, the informal collision count gives `E≤M+Σ_{d≠0}r_A(d)r_A(2d)≤Σ_d r_A(d)r_A(2d)`. The formal fixed-difference theorem is exactly `r_A(d)≤floor(m/2)` for `d≠0`, but using it naively is far too weak. The formal module does **not** contain the carry-union identity, median bound, mass/energy identities, or candidate below.
+
+**Exploratory/conjectural.** The candidate `|S(A)|³ r(N)^8 ≥ N²(m−N)^6` for `m>N` is unproved and would imply `r(N²)≤N+N^(2/3)r(N)^(4/3)≤2N^(2/3)r(N)^(4/3)` eventually, a P-shaped gain with `η=1/3`; this would be an intermediate estimate, not an asymptotic formula. It is checked informally for `N=3`, eventual fixed-linear `m≤KN` regimes, and short ternary Cartesian products; exhaustive `N≤6` and structured searches are computation only. A sufficient second-moment overlap bound `E≤M²r(N)^(8/3)/(N^(2/3)(m−N)²)` remains unproved and undisproved. The fixed-difference matching argument does not bound fixed-target multiplicity: `{1,2,4,8}⊂[9]` has `ν(0)=3`. A capped-at-2 moment variant is also unproved and at most within factor `9/8` of the desired support bound, not an independent breakthrough. See [`erdos142-reflection-shadow-route.md`](erdos142-reflection-shadow-route.md) for definitions, exact status, and derivations.
+
+**Conditional significance only:** if an eventual P bound with `η=1/3` and fixed constant held, its iteration would give `λ(M^{2^k})≳_M(4/3)^k` on a sufficiently large fixed square tower, equivalently a tower lower bound of logarithmic exponent `log₂(4/3)≈0.415`. This is not an all-scale interpolation or a solution of Erdős 142. The carry-sensitive route complements, but does not remove, the relaxation obstruction in [`erdos142-carry-cardinality-obstruction.md`](erdos142-carry-cardinality-obstruction.md); the comparison with the square-defect threshold is recorded in [`erdos142-negative-defect-density.md`](erdos142-negative-defect-density.md). No global novelty claim is made.
+
 ## Dead ends and guardrails
 
 - Exhaustive and sampled tests suggested a target-wise union-reflection
@@ -263,9 +273,11 @@ scope are preserved there as well.
    overlap with the positive-density P-shaped good scales, and gap control.
    The original $\beta$-curve endpoint remains excluded; no cardinal bound at
    $\delta=1/2$, no bounded gaps, and no common set across $\beta$ is known.
-2. Develop carry-sensitive global aggregation that retains reflected-digit
-   locations, especially an unequal-fiber inequality or Bohr-to-interval
-   density averaging, with Cartesian sub-products as a mandatory stress test.
+2. Develop carry-sensitive global aggregation retaining reflected-digit
+   locations. The reflection-shadow candidate and its open second-moment overlap
+   estimate are recorded in
+   [`erdos142-reflection-shadow-route.md`](erdos142-reflection-shadow-route.md);
+   keep unequal-fiber aggregation and Cartesian sub-products as stress tests.
    Any P-shaped exponent target must satisfy $\eta\le\sqrt2-1$.
 3. Keep the entropy route closed unless a replacement inequality either
    excludes sub-products or applies only within an $\exp(O(\lambda))$ factor
