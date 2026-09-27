@@ -415,6 +415,78 @@ certification.
 requests external evaluation of the reflection-shadow route and cubic
 candidate; it is not a novelty certification.
 
+### Exact relative rank-one checkpoint
+
+**Conjectural missing lemma, with a proved special case and conditional
+consequence.**  The statement `RAI(K)` asks for one fixed integer $K\ge1$: whenever
+$\beta=r(N)/N$, a proper AP has length at least $16N/\beta$, and a
+3-AP-free subset has relative density $0<\delta\le(9/8)\beta$, there is a
+proper sub-AP retaining at least $\delta^K/2$ of the length and increasing
+the density by a factor $9/8$.  This theorem is not proved.
+
+If the accepted Behrend lower bound is written
+$\log(1/\beta)\le B\sqrt{\log N}$, then `RAI(K)` implies the eventual bound
+
+$$
+r(N^2)\le2N^{1-\eta}r(N)^{1+\eta},
+\qquad
+\eta=\min\left\{\sqrt2-1,
+ \frac{\log(9/8)}{4KB^2}\right\}>0.
+$$
+
+The complete iteration is recorded in
+[`erdos142-relative-rank-one-checkpoint.md`](erdos142-relative-rank-one-checkpoint.md).
+There are at most
+$\lfloor\eta\log(1/\beta)/\log(9/8)\rfloor+2$ increments.  The cumulative
+length remains at least $N^{2-\sqrt2/4-o(1)}$, hence at least
+$16N/\beta$.  At the terminal density $>(9/8)\beta$, partitioning the
+proper AP parameter interval into $N$-blocks gives the contradictory upper
+bound $(17/16)\beta$.
+
+The exact rank-one Fourier special case is proved in the checkpoint.  If the
+balanced indicator on the AP parameter interval has a rational Fourier
+coefficient of magnitude at least $\delta/4$ and coprime period
+$d\le\delta^{-K}$, splitting into residue classes modulo $d$ gives a class
+with density at least $9\delta/8$ and length at least
+$\delta^K L/2$.  This is the complete `RAI(K)` conclusion with its exact
+constants.
+
+**The corresponding universal spectral input is false.**  The checkpoint
+constructs a deterministic computable diagonal family of scalar 3-AP-free
+$A_j\subseteq[0,p_j)$, where $p_j\asymp N_j^2$, whose densities satisfy
+$0<\delta_j\le\beta_j^2\le(9/8)\beta_j$ and
+$p_j\ge16N_j/\beta_j$, but every reduced rational coefficient with
+$d\le\delta_j^{-j}$ has magnitude less than $\delta_j/j$.  The proof starts
+with a modular Behrend set, takes a fixed-size subset, and uses the exact
+second moment under the 2-transitive affine group plus a union bound.  For
+each fixed $K$, eventually all $d\le\delta_j^{-K}$ coefficients are
+$o(\delta_j)$.  This refutes the precise spectral claim, not `RAI(K)`:
+rank-one density increments can arise by mechanisms not detected by one such
+coefficient.
+
+The random-affine route itself is now closed as an RAI counterexample.  Every
+set in that construction remains inside the proper cyclic progression
+$u[0,\lfloor p/3\rfloor)+v$, of length about $p/3$, where its density is
+exactly $(p/\lfloor p/3\rfloor)\delta\ge3\delta$.  For every fixed $K$ this
+carrier is eventually longer than $\delta^Kp/2$.  Affine randomization and
+random thinning cannot remove it.  In standard integer representatives the
+cyclic carrier may wrap into many ordinary pieces, so this is directly a
+cyclic structural obstruction; the coefficient estimates still do not give
+the simultaneous ordinary-AP flatness needed to refute integer `RAI(K)`.
+No globally spread scalar cap with that stronger property was constructed.
+
+The exact full statement survives, but is not proved by, the required stress
+tests.  A carry-free digit product $B+(2N-1)B$ lies in its density range;
+its obvious coordinate increments have length only $N$, whereas `RAI(K)`
+requires $N^{2-o(1)}$, and arbitrary long scalar directions remain
+uncontrolled.  The kernel-checked half-digit relation is not scalar-free
+because it contains $0,N+1,2(N+1)$, so it does not refute `RAI(K)`; it does
+rule out deriving it from row/column caps alone.  Green's rank-one increment
+has length $L^{1/5}$ and additive gain $\delta^2/112$, and the audited
+Bohr/GAP outputs do not supply the fixed-factor, fixed-power rank-one
+conclusion.  These are precise applicability barriers, not counterexamples
+to `RAI(K)`.
+
 ## Dead ends and guardrails
 
 - Exhaustive and sampled tests suggested a target-wise union-reflection
@@ -448,19 +520,26 @@ candidate; it is not a novelty certification.
 
 ## Next decisions
 
-1. Sharpen the negative-defect distribution: the strict-negative set now has
+1. Prove or refute the exact `RAI(K)` statement in
+   [`erdos142-relative-rank-one-checkpoint.md`](erdos142-relative-rank-one-checkpoint.md).
+   The first unresolved stress case is the carry-free product
+   $B+(2N-1)B$: control every scalar AP of length
+   $\gg\beta^{2K}N^2$, not only coordinate fibers.  Any proof must use
+   scalar carry information; the accepted half-digit relation rules out a
+   row/column-cap relaxation.
+2. Sharpen the negative-defect distribution: the strict-negative set now has
    lower tower-index density at least $1/2$ (every fixed $\delta<1/2$ is
    eventually attained). Investigate exact density or endpoint magnitude,
    overlap with the positive-density P-shaped good scales, and gap control.
    The original $\beta$-curve endpoint remains excluded; no cardinal bound at
    $\delta=1/2$, no bounded gaps, and no common set across $\beta$ is known.
-2. Develop carry-sensitive global aggregation retaining reflected-digit
+3. Develop carry-sensitive global aggregation retaining reflected-digit
    locations. The reflection-shadow candidate and its open second-moment overlap
    estimate are recorded in
    [`erdos142-reflection-shadow-route.md`](erdos142-reflection-shadow-route.md);
    keep unequal-fiber aggregation and Cartesian sub-products as stress tests.
    Any P-shaped exponent target must satisfy $\eta\le\sqrt2-1$.
-3. Keep the entropy route closed unless a replacement inequality either
+4. Keep the entropy route closed unless a replacement inequality either
    excludes sub-products or applies only within an $\exp(O(\lambda))$ factor
    of the row-cap maximum.
 
