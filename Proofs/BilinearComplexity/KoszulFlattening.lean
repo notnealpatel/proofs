@@ -233,11 +233,5 @@ example : ¬ RankLE certificateTensor 0 := by
   · norm_num [certificateTensor]
   · decide
 
-#print axioms koszulMatrix_apply
-#print axioms koszulLinear_apply
-#print axioms koszul_rank_simple_le
-#print axioms koszul_rank_le_mul_of_rankLE
-#print axioms koszul_le_mul_of_minor_ne_zero_of_rankLE
-#print axioms koszul_not_rankLE_of_mul_lt_of_minor_ne_zero
 
 end BilinearComplexity

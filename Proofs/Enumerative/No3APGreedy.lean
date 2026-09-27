@@ -1127,18 +1127,3 @@ end A092482
 
 /-! ## Axiom audit -/
 
-#print axioms A092482.greedySeq_eq_closedForm
-#print axioms A092482.greedySeq_apply
-#print axioms A092482.greedySeq_add_two
-#print axioms A092482.greedySeq_ground
-#print axioms A092482.noThreeAPExceptSeed_Vset
-#print axioms A092482.exists_blocking
-#print axioms A092482.q_covering
-#print axioms A092482.range_greedySeq
-#print axioms A092482.prefixSet_two
-#print axioms A092482.two_mul_binToTernary_eq_sum
-#print axioms A092482.noThreeAPExceptSeed_range_greedySeq
-#print axioms A092482.exists_greedySeq_eq_iff
-#print axioms A092482.greedySeq_ne_stanleyGreedy
-#print axioms A092482.greedySeq_defect
-#print axioms A092482.not_threeAPFree_seed

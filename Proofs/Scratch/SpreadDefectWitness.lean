@@ -178,23 +178,5 @@ example :
 
 -- ── Axiom audit: every §4 theory declaration must be std-3 ──────────
 
-#print axioms block_slot_inj
-#print axioms productVertex_eq_iff
-#print axioms mem_productSet
-#print axioms productSet_card
-#print axioms productSet_injective
-#print axioms mem_productFamily
-#print axioms productFamily_card
-#print axioms productFamily_uniform
-#print axioms productFamily_nonempty
-#print axioms productFamily_isRSpread
-#print axioms productFamily_not_isRSpread
-#print axioms productFamily_sunflowerNumber_le
-#print axioms productFamily_hasSunflower
-#print axioms productFamily_sunflowerNumber
-#print axioms pow_two_mul_pred_lt_two_pow
-#print axioms IsFullShiftOf.hasSunflower_of_isRSpread
-#print axioms spread_defect_unbounded
-#print axioms spread_defect_bridge_false
 
 end SpreadDefectWitness

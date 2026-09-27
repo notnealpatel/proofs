@@ -230,8 +230,3 @@ end
 end Erdos142
 
 -- Axiom audit for the load-bearing declarations.
-#print axioms Erdos142.rothLogDeficit_le_add_log_two
-#print axioms Erdos142.rothLogDeficit_two_mul_mul_le
-#print axioms Erdos142.criticalContraction_upper
-#print axioms Erdos142.criticalContraction_lower
-#print axioms Erdos142.criticalContractionTransfer

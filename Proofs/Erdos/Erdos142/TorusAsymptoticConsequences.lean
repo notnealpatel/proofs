@@ -76,6 +76,3 @@ theorem exists_mul_lt_rothNumberNat (C : ℝ) (hC : 0 < C) :
 end Erdos142
 
 -- Axiom audit for the load-bearing declarations.
-#print axioms Erdos142.tendsto_rothLogDeficit_div_log_zero
-#print axioms Erdos142.rothProductDefect_unbounded
-#print axioms Erdos142.exists_mul_lt_rothNumberNat

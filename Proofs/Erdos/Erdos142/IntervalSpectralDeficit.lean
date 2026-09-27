@@ -243,8 +243,5 @@ example :
 #check @exists_large_balanced_correlation_of_threeAPFree
 #check @exists_affine_density_increment_of_threeAPFree
 
-#print axioms exists_large_balanced_correlation_of_intervalAPDeficit_pos
-#print axioms exists_large_balanced_correlation_of_threeAPFree
-#print axioms exists_affine_density_increment_of_threeAPFree
 
 end Erdos142

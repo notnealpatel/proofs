@@ -536,8 +536,5 @@ end RawCoverageAction
 #check @RawCoverageAction.Entry
 #check @RawCoverageAction.Entry.witness
 
-#print axioms SerializedTermMasks.decode?_eq_some_of_valid
-#print axioms RawCoverageAction.check_sound
-#print axioms RawCoverageAction.Entry.target_decodes
 
 end BilinearComplexity.NormalizedBinaryCoverageData

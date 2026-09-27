@@ -242,10 +242,5 @@ theorem torusGrid_threeAP_energy_addadd {ε : ℝ} (hε : 0 < ε)
   torusGrid_threeAP_energy hε hεle hX hY hZ (by rw [two_smul]; exact hAP)
 
 #check @torusGrid_threeAP_energy
-#print axioms torusGrid_threeAP_energy
-#print axioms torusGridSet_threeAP_energy
-#print axioms torusLift_wrap
-#print axioms val_add_wrap
-#print axioms cyclicLift_add_wrap
 
 end Erdos142

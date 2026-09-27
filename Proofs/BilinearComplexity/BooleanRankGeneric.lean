@@ -617,38 +617,5 @@ example : fullRowRankFraction 1 = 1 / 2 := by
 
 /-! ## Axiom audit (every named declaration; all are sorry-free) -/
 
-#print axioms RowLE
-#print axioms instDecidableRowLE
-#print axioms instDecidableBoolRowRankLE
-#print axioms rowsSum
-#print axioms rowsSum_singleton
-#print axioms rowLE_rowsSum
-#print axioms rowSpan
-#print axioms mem_rowSpan_self
-#print axioms BoolRowRankLE
-#print axioms BoolRowRankLE.mono
-#print axioms boolRowRankLE_rows
-#print axioms exists_boolRowRankLE
-#print axioms boolRowRank
-#print axioms boolRowRankLE_boolRowRank
-#print axioms boolRowRank_le_of_boolRowRankLE
-#print axioms boolRowRank_le_iff
-#print axioms boolRowRank_eq_iff
-#print axioms boolRowRank_le_rows
-#print axioms boolRankLE_card_of_rowSpan_eq
-#print axioms boolRank_le_boolRowRank
-#print axioms boolRowRank_eq_of_antichain
-#print axioms boolRowRank_boolId
-#print axioms card_filter_rowLE_le
-#print axioms card_dominatedRowLE_le
-#print axioms boolRowRank_eq_of_not_exists_rowLE
-#print axioms card_boolMatrix
-#print axioms fullRowRankCount
-#print axioms fullRowRankCount_eq_card_filter_not
-#print axioms two_pow_le_fullRowRankCount_add
-#print axioms fullRowRankFraction
-#print axioms fullRowRankFraction_le_one
-#print axioms one_sub_le_fullRowRankFraction
-#print axioms fullRowRankFraction_tendsto_one
 
 end BilinearComplexity

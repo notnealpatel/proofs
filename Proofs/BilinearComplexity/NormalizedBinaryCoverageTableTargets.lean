@@ -446,10 +446,5 @@ example :
 #check @Shard022.mem_literalTargetSet_iff
 #check @mem_literalTargetSet411_iff
 
-#print axioms RawCoverageAction.mem_decodedTargets_iff
-#print axioms RawCoverageAction.mem_decodedTargetSet_iff
-#print axioms Shard000.mem_literalTargetSet_iff
-#print axioms Shard022.mem_literalTargetSet_iff
-#print axioms mem_literalTargetSet411_iff
 
 end BilinearComplexity.NormalizedBinaryCoverageTables

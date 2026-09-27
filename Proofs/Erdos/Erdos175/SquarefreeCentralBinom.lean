@@ -528,30 +528,11 @@ end Erdos175.A046098
 -- ════════════════════════════════════════════════════════════════════
 
 -- All results below use only the standard logical axioms:
-#print axioms Erdos175.A046098.centralBinom_succ_eq_two_mul_choose
-#print axioms Erdos175.A046098.choose_half_eq_centralBinom_of_even
-#print axioms Erdos175.A046098.two_mul_choose_half_of_odd
-#print axioms Erdos175.A046098.padicValNat_two_choose_half_of_odd
-#print axioms Erdos175.A046098.not_squarefree_choose_half_of_odd_of_three_le_sum_digits
-#print axioms Erdos175.A046098.squarefree_list_prod
-#print axioms Erdos175.A046098.squarefree_of_eq_list_prod
-#print axioms Erdos175.A046098.terms_squarefree
 
 -- The bounded even branch no longer inherits any native computation axiom:
-#print axioms Erdos175.A046098.squarefree_choose_half_iff_of_even
-#print axioms Erdos175.A046098.not_squarefree_choose_half_of_even
-#print axioms Erdos175.A046098.squarefree_choose_71_and_not_choose_72
 
 -- The bounded odd residual and its odd-range corollary use only standard axioms:
 #check @Erdos175.A046098.not_squarefree_choose_half_of_odd_of_sum_digits_le_two
-#print axioms Erdos175.A046098.not_squarefree_choose_half_of_odd_of_sum_digits_le_two
-#print axioms Erdos175.A046098.not_squarefree_choose_half_of_odd
 
 -- The combined Noe-range theorem and the complete bounded classification:
-#print axioms Erdos175.A046098.noe_not_squarefree_choose_half
 #check @Erdos175.A046098.squarefree_choose_half_iff
-#print axioms Erdos175.A046098.not_squarefree_choose_half_of_odd_of_oddCarryCertificate
-#print axioms Erdos175.A046098.squarefree_choose_half_iff_of_lt_seventy_two
-#print axioms Erdos175.A046098.squarefree_choose_half_iff
-#print axioms Erdos175.A046098.Residual.witness_digitSum_certificate
-#print axioms Erdos175.A046098.Residual.small_odd_certificate

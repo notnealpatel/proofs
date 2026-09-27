@@ -378,29 +378,3 @@ also the sound `native_decide` detector on this toolchain: a use would
 surface as a per-declaration `*._native.native_decide.ax_*` axiom. There
 is no `native_decide` in this file. -/
 
-#print axioms Erdos.Covering.erdosRow
-#print axioms Erdos.Covering.erdosRowList
-#print axioms Erdos.Covering.mem_erdosRowList
-#print axioms Erdos.Covering.erdosRow_injOn
-#print axioms Erdos.Covering.nodup_erdosRowList
-#print axioms Erdos.Covering.forall_prime_erdosRow_iff
-#print axioms Erdos.Covering.forall_prime_erdosRowList_iff
-#print axioms Erdos.Covering.forall_prime_erdosRow_iff_isAllPrimeMinusPow
-#print axioms Erdos.Covering.forall_prime_erdosRowList_iff_isAllPrimeMinusPow
-#print axioms Erdos.Covering.image_two_mul_add_one_eq
-#print axioms Erdos.Covering.mem_a089654_index_iff
-#print axioms Erdos.Covering.filter_odd_a039669
-#print axioms Erdos.Covering.filter_even_a039669
-#print axioms Erdos.Covering.forall_prime_erdosRowList_3
-#print axioms Erdos.Covering.forall_prime_erdosRowList_7
-#print axioms Erdos.Covering.forall_prime_erdosRowList_10
-#print axioms Erdos.Covering.forall_prime_erdosRowList_22
-#print axioms Erdos.Covering.forall_prime_erdosRowList_37
-#print axioms Erdos.Covering.forall_prime_erdosRowList_52
-#print axioms Erdos.Covering.not_forall_prime_erdosRowList_1
-#print axioms Erdos.Covering.not_forall_prime_erdosRowList_2
-#print axioms Erdos.Covering.not_forall_prime_erdosRowList_11
-#print axioms Erdos.Covering.mem_of_forall_prime_erdosRowList_of_le
-#print axioms Erdos.Covering.setOf_forall_prime_erdosRowList_le
-#print axioms Erdos.Covering.erdos_a089654
-#print axioms Erdos.Covering.setOf_forall_prime_erdosRowList_of_erdos_1142

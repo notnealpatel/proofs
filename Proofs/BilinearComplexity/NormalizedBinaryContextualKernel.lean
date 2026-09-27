@@ -347,9 +347,5 @@ def ContextualDecisionTree.toMovePath {q : Profile}
   rw [ContextualDecisionTree.toMovePath, run?_path_length,
     tree.selectMoves_length]
 
-#print axioms SourceMoveData.step?_union_of_disjoint
-#print axioms ContextualPathTemplate.run_context
-#print axioms ContextualDecisionTree.selectMoves_run?
-#print axioms ContextualDecisionTree.toMovePath_length
 
 end BilinearComplexity.NormalizedBinaryContextualKernel

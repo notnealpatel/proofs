@@ -982,14 +982,6 @@ example : Candidate.Valid ⟨0, 2, .xz, 2, 1⟩ F3Fixture.first F3Fixture.second
 #check scan_zero_dimensional_eq_none
 #check fixture_scan_execution
 
-#print axioms sameRay_iff_exists_smul
-#print axioms exists_shared_two_factor_rays
-#print axioms scan_sound
-#print axioms scan_isSome
-#print axioms candidates_length
-#print axioms scan_all_zero_eq_none
-#print axioms scan_zero_dimensional_eq_none
-#print axioms fixture_scan_execution
 
 end FieldTernaryFiveCircuitPair
 end BilinearComplexity

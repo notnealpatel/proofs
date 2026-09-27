@@ -924,9 +924,5 @@ example :
 #check @StreamingPath.decompSum_eq
 #check @streamingCanonicalization
 
-#print axioms exists_streamingPath_coordinatePairAccumulator
-#print axioms StreamingStep.decompSum_eq
-#print axioms StreamingPath.decompSum_eq
-#print axioms streamingCanonicalization
 
 end BilinearComplexity

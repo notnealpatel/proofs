@@ -372,12 +372,6 @@ end Execution
 #check @localEndpointTrace
 #check @Packet
 #check @heightBound_reverse
-#print axioms reverseStep
-#print axioms append
-#print axioms reverse
-#print axioms stateTrace
-#print axioms Execution.packet
-#print axioms heightBound_reverse
 
 end FieldNativeExecutablePath
 end BilinearComplexity

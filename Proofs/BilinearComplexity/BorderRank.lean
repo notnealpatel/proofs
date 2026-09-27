@@ -270,14 +270,5 @@ unique tensor has ordinary and polynomial-closure border rank zero. -/
 example : BorderRankLE (0 : Tensor ℚ 0 2 1) 0 :=
   (rankLE_zero_iff.mpr rfl).borderRankLE
 
-#print axioms mem_rankLocus
-#print axioms borderRankLE_iff
-#print axioms RankLE.borderRankLE
-#print axioms BorderRankLE.mono
-#print axioms SymbolicMatrixLift.eval_det_submatrix
-#print axioms det_submatrix_eq_zero_of_rank_le
-#print axioms SymbolicMatrixLift.det_submatrix_mem_vanishingIdeal
-#print axioms BorderRankLE.det_submatrix_eq_zero
-#print axioms BorderRankLE.flattening_det_submatrix_eq_zero
 
 end BilinearComplexity

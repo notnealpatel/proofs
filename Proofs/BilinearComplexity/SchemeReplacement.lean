@@ -1734,20 +1734,6 @@ theorem zmod2_compositionBlocks_fixture :
 #check @Certificate.Composition.sumTensor_eq
 #check @Certificate.transport
 
-#print axioms zmod2_rankChange_fixture
-#print axioms zmod2_compositionBlocks_fixture
-#print axioms Certificate.sumTensor_eq
-#print axioms Certificate.rankLE_resultRank
-#print axioms Certificate.valid_output
-#print axioms Certificate.removed_eq_image_transported
-#print axioms Certificate.composite
-#print axioms Certificate.composite_resultRank_eq_later_resultRank
-#print axioms Certificate.composite_output_term_cast_eq_later_output_term
-#print axioms Certificate.composite_output_cast_eq_later_output
-#print axioms Certificate.Composition.direct_sumTensor_eq
-#print axioms Certificate.Composition.direct_output_cast_eq_later_output
-#print axioms Certificate.Composition.sumTensor_eq
-#print axioms Certificate.transport
 
 end Replacement
 end Scheme

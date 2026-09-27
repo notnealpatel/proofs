@@ -194,9 +194,5 @@ example : 0 < b 6 14 := by
   rw [b, rho] at h ⊢
   norm_num at h ⊢
 
-#print axioms q_sq_mul_b_le_torusGrid_card
-#print axioms finiteTorusCensusTransfer
-#print axioms rothNumberNat_lower_bound_of_finiteTorusCensus
-#print axioms b_nonneg_of_six_le_and_fourteen_le
 
 end Erdos142

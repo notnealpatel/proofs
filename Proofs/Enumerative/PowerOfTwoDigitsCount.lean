@@ -647,29 +647,3 @@ example : 2 * (19 : ℝ) ^ Real.logb 3 2 ≤ 38 := by
 
 end Erdos406
 
-#print axioms Erdos406.two_pow_two_mul_three_pow
-#print axioms Erdos406.two_pow_two_mul_three_pow_mod
-#print axioms Erdos406.base3ZeroOne_two_pow_iff_forall_sieveAt
-#print axioms Erdos406.sieveAt_of_base3ZeroOne
-#print axioms Erdos406.sieveAt_of_le
-#print axioms Erdos406.digit_eq_digit_of_mod_pow_eq
-#print axioms Erdos406.sieveAt_iff_of_two_pow_mod_eq
-#print axioms Erdos406.sieveAt_mod_period
-#print axioms Erdos406.mem_sieveClasses
-#print axioms Erdos406.sieveClasses_zero
-#print axioms Erdos406.sieveClasses_one
-#print axioms Erdos406.sieveClasses_two
-#print axioms Erdos406.sieveClasses_three
-#print axioms Erdos406.mod_mem_sieveClasses_of_sieveAt
-#print axioms Erdos406.mod_mem_sieveClasses_of_mem_erdos406Set
-#print axioms Erdos406.pow_one_add_modEq
-#print axioms Erdos406.lift_digit_eq
-#print axioms Erdos406.card_filter_digit_eq_two
-#print axioms Erdos406.sieveAt_succ_iff
-#print axioms Erdos406.card_fiber_sieveClasses_succ
-#print axioms Erdos406.card_sieveClasses_succ
-#print axioms Erdos406.card_sieveClasses
-#print axioms Erdos406.card_range_filter_mod_le
-#print axioms Erdos406.card_erdos406_filter_le
-#print axioms Erdos406.card_erdos406_filter_le_log
-#print axioms Erdos406.card_erdos406_filter_le_rpow

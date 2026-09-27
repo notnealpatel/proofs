@@ -273,10 +273,5 @@ example :
 #check @maskVector_selectedXor5
 #check @selectedXor5_lt_two_pow
 #check @span_five_maskVectors_eq_top_iff
-#print axioms maskVector_xor
-#print axioms exists_maskVector_eq
-#print axioms maskVector_injective_of_lt
-#print axioms coefficientsOfSelection5_selectionOfCoefficients5
-#print axioms span_five_maskVectors_eq_top_iff
 
 end BilinearComplexity.NormalizedBinaryCompactMaskSemantics

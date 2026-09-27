@@ -796,30 +796,5 @@ example : complexity (2 ^ 0 * 3 ^ 0) = 1 ∧ complexity (2 ^ 0 * 3 ^ 0) ≠ 2 * 
 
 /-! ## 7. Axiom audit (sorry-free declarations only) -/
 
-#print axioms Expr.twoPowSucc
-#print axioms Expr.eval_twoPowSucc
-#print axioms Expr.cost_twoPowSucc
-#print axioms complexity_two_pow_le
-#print axioms add_pow_three_le_three_pow_add
-#print axioms add_pow_three_guard_necessary
-#print axioms Expr.pow_three_eval_le_three_pow_cost
-#print axioms pow_three_le_three_pow_complexity
-#print axioms three_mul_logb_three_le_complexity
-#print axioms Expr.threePowSucc
-#print axioms Expr.eval_threePowSucc
-#print axioms Expr.cost_threePowSucc
-#print axioms complexity_three_pow
-#print axioms Expr.two_mul_eval_le_two_pow_cost
-#print axioms two_mul_le_two_pow_complexity
-#print axioms log_two_add_one_le_complexity
-#print axioms add_one_le_complexity_two_pow
-#print axioms log_two_bound_lt_two_mul
-#print axioms two_mul_le_complexity_two_pow
-#print axioms complexity_two_pow_of_le_nine
-#print axioms cube_bound_insufficient_at_ten
-#print axioms complexity_two_pow_mul_three_pow_le
-#print axioms two_mul_add_three_mul_le_complexity_two_pow_mul_three_pow
-#print axioms complexity_two_pow_mul_three_pow
-#print axioms complexity_two_pow_eq_iff_two_mul_le
 
 end NumberComplexity

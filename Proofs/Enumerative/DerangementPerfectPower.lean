@@ -642,28 +642,5 @@ downstream of the single intended `sorry` — `sun_eq_four_of_isPerfectPower_num
 `sun_isPerfectPower_numDerangements_iff`, `sun_isPerfectPower_numDerangements_iff_all` — which
 also report `sorryAx`. -/
 
-#print axioms four_le_of_isPerfectPower
-#print axioms not_isPerfectPower_of_isRootBracket
-#print axioms a000166Prefix_length
-#print axioms a000166RootBrackets_length
-#print axioms a000166RootBrackets_valid
-#print axioms not_isPerfectPower_of_mem_a000166RootBrackets
-#print axioms a000166Prefix_eq_append
-#print axioms nine_notMem_a000166RootBrackets_keys
-#print axioms isPerfectPower_iff_of_mem_a000166Prefix
-#print axioms numDerangements_eq_card_derangements
-#print axioms map_numDerangements_range_eq_a000166Prefix
-#print axioms numDerangements_mem_a000166Prefix
-#print axioms numDerangements_eq_nine_iff_of_lt_24
-#print axioms isPerfectPower_numDerangements_four
-#print axioms not_forall_not_isPerfectPower_numDerangements
-#print axioms numDerangements_lt_four_of_lt_three
-#print axioms not_isPerfectPower_numDerangements_of_lt_three
-#print axioms sun_isPerfectPower_numDerangements_iff_of_lt_24
-#print axioms numDerangements_succ_eq_mul_add_neg_one_pow
-#print axioms coprime_numDerangements_succ
-#print axioms sun_eq_four_of_isPerfectPower_numDerangements
-#print axioms sun_isPerfectPower_numDerangements_iff
-#print axioms sun_isPerfectPower_numDerangements_iff_all
 
 end A000166

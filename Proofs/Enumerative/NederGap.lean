@@ -249,15 +249,3 @@ Neither reaches anything here; every declaration below reports exactly
 `[propext, Classical.choice, Quot.sound]`, with no `sorryAx`.  No `native_decide` is used:
 every decision procedure invoked here is kernel `decide`. -/
 
-#print axioms isZumkeller_of_mod_eighteen
-#print axioms exists_add_mod_eighteen_eq_six_or_twelve
-#print axioms exists_isZumkeller_mem_Ico
-#print axioms exists_isZumkeller_lt_le_add_twelve
-#print axioms le_add_twelve_of_forall_not_isZumkeller
-#print axioms isZumkeller_nth
-#print axioms nth_isZumkeller_lt_succ
-#print axioms nth_isZumkeller_succ_le_add_twelve
-#print axioms isZumkeller_282
-#print axioms isZumkeller_294
-#print axioms not_isZumkeller_288
-#print axioms forall_not_isZumkeller_between_282_294

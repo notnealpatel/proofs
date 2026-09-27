@@ -368,6 +368,5 @@ example : AllModeMove (U := CoordinateVector 2) (V := CoordinateVector 2)
 #check @Move
 #check @AllModeMove
 #check @Coordinate.allModeMove_iff_normalized
-#print axioms Coordinate.allModeMove_iff_normalized
 
 end BilinearComplexity.BinaryAmbientMoves

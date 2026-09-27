@@ -337,16 +337,5 @@ example : 0 < b 18 65 ∧ 1 ≤ Real.log (1 / b 18 65) ∧
     (by norm_num) (by norm_num) (by norm_num) (by norm_num)
     (by norm_num) (by norm_num)
 
-#print axioms torusLeadingConstant_pos
-#print axioms torusLeadingConstant_sq
-#print axioms torusLeadingConstant_le
-#print axioms torusEta_pos
-#print axioms torusEta_le_one
-#print axioms two_mul_sqrt_log_add_torusEta
-#print axioms rho_ge_two_ninths
-#print axioms rho_le_seven_twentyfourths
-#print axioms rho_pos
-#print axioms inv_rho_le_mul
-#print axioms census_log_bounds
 
 end Erdos142

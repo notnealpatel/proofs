@@ -404,13 +404,3 @@ example : ¬ (2 ∣ Nat.centralBinom 0) ∧ (2 ∣ Nat.centralBinom 1) ∧
 
 end Erdos175
 
-#print axioms Erdos175.forall_div_pow_mod_iff_forall_mem_digits
-#print axioms Erdos175.carry_eq_true_iff
-#print axioms Erdos175.carry_eq_false_iff
-#print axioms Erdos175.carry_eq_false_of_add_lt
-#print axioms Erdos175.forall_carry_eq_false_iff
-#print axioms Erdos175.padicValNat_choose_add_eq_card_carries
-#print axioms Erdos175.exists_carry_iff_exists_mem_Ico
-#print axioms Erdos175.prime_dvd_choose_add_iff_exists_carry
-#print axioms Erdos175.prime_not_dvd_choose_add_iff_digitwise
-#print axioms Erdos175.prime_not_dvd_centralBinom_iff_digits

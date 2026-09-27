@@ -630,25 +630,5 @@ example : ¬ Nat.Prime (18814027 - 2 ^ 24) := by norm_num  -- 2036811 = 3·7·23
 -- §10 AXIOM AUDIT
 -- ════════════════════════════════════════════════════════════════════
 
-#print axioms erdosSystem1950
-#print axioms isCoveringSystem_erdosSystem1950
-#print axioms erdosPrimes1950
-#print axioms orderOf_two_zmod_three
-#print axioms orderOf_two_zmod_seven
-#print axioms orderOf_two_zmod_five
-#print axioms orderOf_two_zmod_seventeen
-#print axioms orderOf_two_zmod_thirteen
-#print axioms orderOf_two_zmod_241
-#print axioms two_pow_modEq_one_of_pow_eq_one
-#print axioms erdosModulus1950
-#print axioms erdosResidue1950
-#print axioms dvd_sub_two_pow_of_modEq
-#print axioms erdosSystem1950_covers_nat
-#print axioms exists_mem_erdosPrimes1950_dvd
-#print axioms not_prime_sub_two_pow
-#print axioms not_prime_sub_two
-#print axioms exists_gt_odd_not_prime_sub_two_pow_of_lt
-#print axioms erdos_1950
-#print axioms erdos_1950_not_two_pow_add_prime
 
 end Erdos.Covering

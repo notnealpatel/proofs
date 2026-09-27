@@ -299,17 +299,5 @@ theorem BorderRankLE.eval_det_genericFlattening_submatrix_eq_zero {k : Type*} [F
 #check @det_genericFlattening_submatrix_mem_vanishingIdeal
 #check @BorderRankLE.eval_det_genericFlattening_submatrix_eq_zero
 
-#print axioms mem_rankLocus
-#print axioms RankLE.mono
-#print axioms borderRankLE_iff
-#print axioms RankLE.borderRankLE
-#print axioms BorderRankLE.mono
-#print axioms RankLE.rank_flattening_le
-#print axioms det_submatrix_eq_zero_of_rank_le
-#print axioms det_genericFlattening_submatrix_eq_rename
-#print axioms det_genericFlattening_submatrix_ne_zero
-#print axioms eval_det_genericFlattening_submatrix
-#print axioms det_genericFlattening_submatrix_mem_vanishingIdeal
-#print axioms BorderRankLE.eval_det_genericFlattening_submatrix_eq_zero
 
 end Vp2

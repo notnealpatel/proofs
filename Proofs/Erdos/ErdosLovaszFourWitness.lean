@@ -41,7 +41,3 @@ example : Nonempty (Fin 11) := ⟨0⟩
 #check @witnessFour_uniform
 #check @witnessFour_intersecting
 #check @witnessFour_triples
-#print axioms witnessFour_card
-#print axioms witnessFour_uniform
-#print axioms witnessFour_intersecting
-#print axioms witnessFour_triples

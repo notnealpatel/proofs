@@ -169,7 +169,3 @@ end
 end Erdos142
 
 -- Axiom audit for the load-bearing declarations.
-#print axioms Erdos142.tendsto_div_log_of_eventually_le_const_div_sqrt_log
-#print axioms Erdos142.tendsto_rothLogDeficit_div_log_of_eventually_lower
-#print axioms Erdos142.rothProductDefect_unbounded_of_eventually_lower
-#print axioms Erdos142.exists_mul_lt_rothNumberNat_of_eventually_lower

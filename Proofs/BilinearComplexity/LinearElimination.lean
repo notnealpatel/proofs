@@ -1127,26 +1127,5 @@ example {K : Type*} [Field K] [CharP K 2] :
 #check @certified_complement_noKernel_over_charTwo
 #check @certified_kernel_eq_mappedGauge_over_charTwo
 
-#print axioms rank_eq_of_checkEliminationTrace_eq_true
-#print axioms mem_ker_of_checkKernelVector_eq_true
-#print axioms no_solution_of_checkInconsistencyVector_eq_true
-#print axioms linearSystemAuditWitness_sound
-#print axioms binaryRankOneExternalAuditWitness_rejects
-#print axioms EliminationCertificate.matrix_rank_eq
-#print axioms EliminationCertificate.linearMap_rank_eq
-#print axioms EliminationCertificate.ker_eq_range
-#print axioms EliminationCertificate.finrank_ker_eq
-#print axioms InconsistencyCertificate.no_solution
-#print axioms InconsistencyCertificate.mapZModTwo
-#print axioms InconsistentLinearSystemCertificate.matrix_rank_eq
-#print axioms InconsistentLinearSystemCertificate.ker_eq_range
-#print axioms InconsistentLinearSystemCertificate.finrank_ker_eq
-#print axioms InconsistentLinearSystemCertificate.no_solution
-#print axioms matrix_rank_map_algebraMap
-#print axioms matrix_rank_map_zmod_two
-#print axioms linearMap_rank_map_zmod_two
-#print axioms certified_support_noKernel_over_charTwo
-#print axioms certified_complement_noKernel_over_charTwo
-#print axioms certified_kernel_eq_mappedGauge_over_charTwo
 
 end BilinearComplexity

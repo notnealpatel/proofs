@@ -310,14 +310,5 @@ example : ∃ n : ℕ, 1 < n ∧ (quasilog n : ℝ) ≤ 2.5 * Real.log n := by
 
 /-! ## Axiom audit (sorry-free declarations only) -/
 
-#print axioms quasilog
-#print axioms quasilog_zero
-#print axioms quasilog_one
-#print axioms quasilog_of_prime
-#print axioms quasilog_of_not_prime
-#print axioms quasilog_eq_minFac_add_div
-#print axioms quasilog_mul
-#print axioms le_two_pow_quasilog
-#print axioms log_two_le_quasilog
 
 end NumberComplexity

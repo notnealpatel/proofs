@@ -312,11 +312,5 @@ example : Real.exp (-(Real.log 64) / ((1 : ℕ) : ℝ)) / (660 * ((1 : ℕ) : �
       (41 * ((1 : ℕ) : ℝ) * (6 : ℝ) ^ 2 * (64 : ℝ) ^ 2 + (torusRadius 64 64 1 : ℝ) ^ 2) :=
   torusRadius_ratio_lower (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 
-#print axioms one_le_torusRadius
-#print axioms scale_div_four_le_torusRadius
-#print axioms two_mul_torusRadius_le
-#print axioms torusRadius_scale_lt
-#print axioms torusRadius_spec
-#print axioms torusRadius_ratio_lower
 
 end Erdos142

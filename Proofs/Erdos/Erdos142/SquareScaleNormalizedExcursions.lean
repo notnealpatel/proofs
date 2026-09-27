@@ -236,9 +236,6 @@ theorem frequently_normalizedSquareScaleDefect_le_of_frequently_normalizedDefici
 
 /-! ## Axiom audit -/
 
-#print axioms Erdos142.frequently_shift_sub_le_neg_of_frequently_le
-#print axioms Erdos142.squareScaleDefect_div_sqrt_log_iterated_square_eq
-#print axioms Erdos142.frequently_normalizedSquareScaleDefect_le_of_frequently_normalizedDeficit_le
 
 end
 

@@ -324,9 +324,5 @@ theorem reverse_path_length_ge_of_normalized_context_lower
 #check @forward_path_length_ge_of_normalized_context_lower
 #check @reverse_path_length_ge_of_normalized_context_lower
 
-#print axioms short_forward_path_reflects_two_edges
-#print axioms short_reverse_path_reflects_two_edges
-#print axioms forward_path_length_ge_of_normalized_context_lower
-#print axioms reverse_path_length_ge_of_normalized_context_lower
 
 end BilinearComplexity.BinaryAmbientContextDistance

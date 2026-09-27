@@ -507,31 +507,6 @@ theorem not_isA171641_945 : ¬ IsA171641 945 := fun h => h.2.2.2 isZumkeller_945
 
 /-! ## Axiom audit -/
 
-#print axioms sum_divisors_945
-#print axioms sum_divisors_11025
-#print axioms sum_divisors_738
-#print axioms Nat.abundant_iff_two_mul_lt_sum_divisors
-#print axioms isA174865_iff
-#print axioms isA174865_945
-#print axioms odd_abundant_11025
-#print axioms not_isA174865_11025
-#print axioms IsZumkeller.two_mul_le_sum_divisors
-#print axioms Nat.Perfect.isZumkeller
-#print axioms noeOddZumkeller_iff_forward_and_converse
-#print axioms noeOddZumkellerForward_iff_not_exists_odd_perfect
-#print axioms NoeOddZumkeller.not_exists_odd_perfect
-#print axioms isOddNonDeficientEvenSigma_of_odd_isZumkeller
-#print axioms noeOddZumkellerRepaired_iff_converse
-#print axioms IsA174865.isOddNonDeficientEvenSigma
-#print axioms isA174865_iff_isOddNonDeficientEvenSigma_of_not_perfect
-#print axioms NoeOddZumkeller.repaired
-#print axioms noeOddZumkeller_iff_repaired_of_not_exists_odd_perfect
-#print axioms isA171641_738
-#print axioms noeOddZumkellerRepaired_iff_forall_isA171641_not_odd
-#print axioms isZumkeller_945
-#print axioms noeOddZumkeller_945
-#print axioms not_perfect_945
-#print axioms not_isA171641_945
 
 -- The conjecture statements themselves, printed so a reader can audit the
 -- elaborated forms rather than the sugar.

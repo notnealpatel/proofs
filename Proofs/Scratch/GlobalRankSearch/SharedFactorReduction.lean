@@ -61,9 +61,5 @@ example :
 #check @rankLE_sum_scalar_shared_first_factor_of_not_linearIndependent
 #check @rankLE_sum_shared_second_factor_of_not_linearIndependent
 
-#print axioms exists_shared_first_factor_reduction_certificate
-#print axioms rankLE_sum_shared_first_factor_of_not_linearIndependent
-#print axioms rankLE_sum_scalar_shared_first_factor_of_not_linearIndependent
-#print axioms rankLE_sum_shared_second_factor_of_not_linearIndependent
 
 end BilinearComplexity

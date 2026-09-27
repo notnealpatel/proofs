@@ -591,17 +591,5 @@ example : (2 ∣ 4) ∧ ¬ (8 ∣ Nat.choose 9 4) ∧ (7 ∣ Nat.choose 9 4) ∧
 
 /-! ## Axiom audit -/
 
-#print axioms Erdos1063.badSet_eq_singleton_mod
-#print axioms Erdos1063.badIndex_eq_mod
-#print axioms Erdos1063.badIndex_max_factorization
-#print axioms Erdos1063.badIndex_factorization_add_le
-#print axioms Erdos1063.factorization_choose_add_le_of_max
-#print axioms Erdos1063.factorization_choose_eq_card_carries
-#print axioms Erdos1063.pow_carry_card_dvd_sub_badIndex
-#print axioms Erdos1063.pow_factorization_add_log_dvd_sub_badIndex
-#print axioms Erdos1063.prod_pow_dvd_sub_badIndex
-#print axioms Erdos1063.nk_mem
-#print axioms Erdos1063.nk_lower_bound
-#print axioms Erdos1063.nk_lower_bound_max
 
 end Erdos1063

@@ -1011,11 +1011,5 @@ These are diagnostics, not proofs, and contribute no axioms. -/
 #eval (List.range 12).map (seedGreedy 1 7)
 #eval (List.range 12).map (seedGreedy 1 28)
 
-#print axioms a93678_closedForm
-#print axioms a93679_closedForm
-#print axioms a93680_closedForm
-#print axioms a93681_closedForm
-#print axioms a93681_eq_blockEnum
-#print axioms a93681_ground
 
 end A093682

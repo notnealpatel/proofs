@@ -200,10 +200,5 @@ end ThreeAPFree
 #check @threeAPFree_card_le_weighted_local_capacity
 #check @threeAPFree_card_le_weighted_local_capacity_of_covered
 
-#print axioms sum_weightedLoad_eq
-#print axioms card_le_weighted_local_capacity
-#print axioms card_le_weighted_local_capacity_of_covered
-#print axioms threeAPFree_card_le_weighted_local_capacity
-#print axioms threeAPFree_card_le_weighted_local_capacity_of_covered
 
 end Erdos142

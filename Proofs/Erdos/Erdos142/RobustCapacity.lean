@@ -221,10 +221,5 @@ example :
 #check @card_le_robust_weighted_local_capacity_of_covered
 #check @lt_threeAPCount_of_robust_weighted_capacity_lt_card
 
-#print axioms threeAPEdges_inter
-#print axioms sum_weighted_threeAPCount_eq
-#print axioms card_le_robust_weighted_local_capacity
-#print axioms card_le_robust_weighted_local_capacity_of_covered
-#print axioms lt_threeAPCount_of_robust_weighted_capacity_lt_card
 
 end Erdos142

@@ -221,11 +221,5 @@ example :
 #check @finrank_range_matrixRightMul_le_six_of_not_isUnit
 #check @finrank_range_matrixRightMul_eq_three_or_six_of_ne_zero_of_not_isUnit
 
-#print axioms matrixRightMul_apply
-#print axioms rangeMatrixRightMulEquivRows
-#print axioms finrank_range_matrixRightMul
-#print axioms rank_le_two_of_not_isUnit_fin3
-#print axioms finrank_range_matrixRightMul_le_six_of_not_isUnit
-#print axioms finrank_range_matrixRightMul_eq_three_or_six_of_ne_zero_of_not_isUnit
 
 end BilinearComplexity

@@ -196,16 +196,3 @@ example : Nat.IsMultiperfect 1 ∧ (1 : ℕ).Practical ∧ ¬ IsZumkeller 1 := b
 
 /-! ## Axiom audit -/
 
-#print axioms Nat.Perfect.isZumkeller
-#print axioms Nat.IsMultiperfect.two_dvd_sum_divisors
-#print axioms Nat.IsMultiperfect.isZumkeller_of_practical
-#print axioms Nat.isZumkeller_of_isMultiperfect_of_coleman
-#print axioms zumkeller_instance_6
-#print axioms zumkeller_instance_28
-#print axioms zumkeller_instance_120
-#print axioms zumkeller_instance_496
-#print axioms zumkeller_instance_672
-#print axioms zumkeller_instance_8128
-#print axioms zumkeller_instance_30240
-#print axioms zumkeller_instance_32760
-#print axioms zumkeller_instance_523776

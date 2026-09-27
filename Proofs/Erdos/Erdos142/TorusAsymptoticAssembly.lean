@@ -175,7 +175,5 @@ example : (64 : ℝ) * Real.exp (-(1000000 * Real.sqrt (Real.log 64))) ≤
     simp only [Nat.cast_one, one_mul, div_one]
     linarith [hlog1b, hlog64, hlog23760, hRHS]
 
-#print axioms torusLowerBoundRaw
-#print axioms rothNumberNat_lower_bound_of_budget
 
 end Erdos142

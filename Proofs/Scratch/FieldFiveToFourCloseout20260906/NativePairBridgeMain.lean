@@ -666,10 +666,6 @@ end Execution
 #check @contextualStrictStep
 #check @Path.append
 #check @Path.reverse
-#print axioms PairGauge.sum
-#print axioms PairGauge.difference
-#print axioms contextualStrictStep
-#print axioms Path.reverse
 
 end FieldNativePairBridge
 end BilinearComplexity

@@ -193,11 +193,5 @@ example :
 #check @compileNormalized_path_confinement
 #check @compileNormalized_circuit
 
-#print axioms concreteFamilyCoverageTables
-#print axioms compileNormalized
-#print axioms compileNormalizedCertificate
-#print axioms compileNormalized_principal_bounds
-#print axioms compileNormalized_path_confinement
-#print axioms compileNormalized_circuit
 
 end BilinearComplexity.NormalizedBinaryCoverage

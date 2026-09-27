@@ -238,12 +238,5 @@ example : row41101AmbientReversePath.length = 3 ∧
 #check @row41101_no_ambient_reverse_path_length_le_two
 #check @row41101_intrinsic_ambient_exact_directed_length_three
 
-#print axioms row41101AmbientForwardPath_length
-#print axioms row41101AmbientReversePath_length
-#print axioms row41101AmbientForwardPath_altitude_le_four
-#print axioms row41101AmbientReversePath_altitude_le_four
-#print axioms row41101_no_ambient_forward_path_length_le_two
-#print axioms row41101_no_ambient_reverse_path_length_le_two
-#print axioms row41101_intrinsic_ambient_exact_directed_length_three
 
 end BilinearComplexity.BinaryAmbientFiveCircuitSharpness

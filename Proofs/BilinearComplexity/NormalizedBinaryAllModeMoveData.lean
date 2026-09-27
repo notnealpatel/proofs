@@ -597,11 +597,5 @@ example : SourceMoveData.target (.split E11 E21 E31) S0 = S1 := by decide
 #check @ReplayRow.toPaths
 #check @run_forwardMoveData221
 #check @run_reverseMoveData221
-#print axioms FixedMoveData.step?_sound
-#print axioms run?_path
-#print axioms ReplayRow.passes_sound
-#print axioms run_forwardMoveData221
-#print axioms run_reverseMoveData221
-#print axioms moveData221_regression
 
 end BilinearComplexity.NormalizedBinaryAllModeMoveData

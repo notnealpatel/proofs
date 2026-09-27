@@ -120,8 +120,6 @@ example :
 
 #check @circuit_of_binaryCycle_card_five
 #check @circuit_union_of_disjoint_card_two_card_three
-#print axioms circuit_of_binaryCycle_card_five
-#print axioms circuit_union_of_disjoint_card_two_card_three
 
 end BilinearComplexity.BinaryCircuit
 
@@ -143,6 +141,5 @@ theorem tensorEvaluation_circuit_union_of_disjoint_card_two_card_three
     exact tensorEvaluation_injective hst
 
 #check @tensorEvaluation_circuit_union_of_disjoint_card_two_card_three
-#print axioms tensorEvaluation_circuit_union_of_disjoint_card_two_card_three
 
 end BilinearComplexity.NormalizedBinaryCarrier

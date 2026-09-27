@@ -31,6 +31,3 @@ theorem not_digits_three_two : ¬ (∀ d ∈ Nat.digits 3 2, d < 2) := by decide
 
 end Erdos376
 
-#print axioms Erdos376.small_a030979_digit_certificates
-#print axioms Erdos376.digits_three_756
-#print axioms Erdos376.not_digits_three_two

@@ -401,13 +401,6 @@ end Fixtures
 #check @FirstFactorReductionWitness.rankLE
 #check @first_nonzero_not_mem_allowed_of_restricted_ker_eq_bot
 
-#print axioms AlgebraicRoad.valid_at_iff_mem_regularLocus
-#print axioms AlgebraicRoad.target_sumTensor_eq_source
-#print axioms firstFlipRoad
-#print axioms FirstFactorReductionWitness.sumTensor_family
-#print axioms FirstFactorReductionWitness.shorter_sumTensor_eq
-#print axioms FirstFactorReductionWitness.rankLE
-#print axioms first_nonzero_not_mem_allowed_of_restricted_ker_eq_bot
 
 end Road
 end Scheme

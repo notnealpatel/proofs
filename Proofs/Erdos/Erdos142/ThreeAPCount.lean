@@ -183,8 +183,5 @@ example :
 #check @card_le_addRothNumber_add_threeAPCount
 #check @card_le_rothNumberNat_add_threeAPCount
 
-#print axioms exists_threeAPFree_subset_card_le_add_count
-#print axioms card_le_addRothNumber_add_threeAPCount
-#print axioms card_le_rothNumberNat_add_threeAPCount
 
 end Erdos142

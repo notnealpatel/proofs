@@ -372,9 +372,5 @@ theorem classifiedContextPath_length_lower_bound {p : Profile}
 #check @reflectClassifiedContextPath_altitude
 #check @classifiedContextPath_length_lower_bound
 
-#print axioms reflectActionAllModeMove
-#print axioms pullbackPath_length
-#print axioms reflectClassifiedContextPath_length
-#print axioms classifiedContextPath_length_lower_bound
 
 end BilinearComplexity.BinaryContextualOrbitReflection

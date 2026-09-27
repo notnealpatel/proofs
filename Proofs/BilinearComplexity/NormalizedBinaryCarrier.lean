@@ -284,9 +284,5 @@ example : Nonempty (Carrier (Profile.homogeneous 3)) := by
 #check @card_carrier
 #check @card_homogeneous
 
-#print axioms tensorEvaluation_ne_zero
-#print axioms tensorEvaluation_injective
-#print axioms card_carrier
-#print axioms card_homogeneous_three
 
 end BilinearComplexity.NormalizedBinaryCarrier

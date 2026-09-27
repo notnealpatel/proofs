@@ -442,29 +442,6 @@ per-declaration `*._native.native_decide.ax_*` axiom on this toolchain
 #check @groupDeficient_prime_sq
 #check @not_groupPerfect_prime_sq
 #check @not_groupAbundant_prime_sq
-#print axioms gnu_prime_sq
-#print axioms groupDeficient_prime_sq
-#print axioms not_groupPerfect_prime_sq
-#print axioms not_groupAbundant_prime_sq
 
-#print axioms GroupDeficient
-#print axioms GroupPerfect
-#print axioms GroupAbundant
-#print axioms instDecidablePredGroupDeficient
-#print axioms instDecidablePredGroupPerfect
-#print axioms instDecidablePredGroupAbundant
-#print axioms groupPerfect_one
-#print axioms groupPerfect_zero
-#print axioms groupDeficient_of_prime
-#print axioms groupDeficient_four
-#print axioms infinite_setOf_groupDeficient
-#print axioms not_groupPerfect_of_groupDeficient
-#print axioms not_groupAbundant_of_groupDeficient
-#print axioms groupAbundantCount
-#print axioms groupAbundantCount_eq_card_filter_groupAbundant
-#print axioms groupAbundantCount_le
-#print axioms groupAbundantCount_six
-#print axioms not_groupPerfect_of_two_le
-#print axioms groupAbundant_density_zero
 
 end GroupCount

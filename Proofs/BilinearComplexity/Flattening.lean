@@ -317,11 +317,5 @@ example :
   exact rank_linearMap_le_mul_of_rankLE flatteningLinear
     rank_flatteningLinear_simple_le_one hT
 
-#print axioms flatteningLinear_apply
-#print axioms rank_flatteningLinear_simple_le_one
-#print axioms RankLE.rank_flatteningLinear_le
-#print axioms twoDiagonalLinear_apply
-#print axioms rank_twoDiagonalLinear_simple_le_two
-#print axioms RankLE.rank_twoDiagonalLinear_le
 
 end BilinearComplexity

@@ -273,20 +273,5 @@ example (ε : ℝ) (q : ℕ) [NeZero q] : (torusGridProduct ε q 0).card = 1 := 
   rw [card_torusGridProduct]
   simp
 
-#print axioms blockPair
-#print axioms blockPair_zero
-#print axioms blockPair_neg
-#print axioms blockPair_add
-#print axioms blockPair_nsmul
-#print axioms flatBlockEquiv
-#print axioms mem_torusGridProduct
-#print axioms mem_torusGridProduct_iff
-#print axioms card_torusGridProduct
-#print axioms torusProductEnergy_nonneg
-#print axioms torusProductEnergy_le
-#print axioms torusProductEnergy_nonneg_inv
-#print axioms torusProductEnergy_le_inv
-#print axioms torusProductPointEnergy_nonneg_inv
-#print axioms torusProductPointEnergy_le_inv
 
 end Erdos142

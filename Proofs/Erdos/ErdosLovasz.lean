@@ -1287,78 +1287,20 @@ no `@[implemented_by]`/`@[extern]`/`@[csimp]`, no declared `axiom`. -/
 section AxiomAudit
 
 -- §1 the family predicate.
-#print axioms IsErdosLovaszFamily
-#print axioms instDecidableIsErdosLovaszFamily
-#print axioms isErdosLovaszFamily_iff
-#print axioms IsErdosLovaszFamily.empty_notMem
-#print axioms not_isErdosLovaszFamily_of_empty_mem
-#print axioms IsErdosLovaszFamily.nonempty
 
 -- §2 the τ bridge.
-#print axioms coveringNumber_le_card_family
-#print axioms IsErdosLovaszFamily.le_coveringNumber
-#print axioms IsErdosLovaszFamily.coveringNumber_le
-#print axioms IsErdosLovaszFamily.coveringNumber_eq
-#print axioms isErdosLovaszFamily_of_coveringNumber_eq
-#print axioms coveringNumber_add_one_le_card
-#print axioms IsErdosLovaszFamily.le_card
-#print axioms IsErdosLovaszFamily.succ_le_card
 
 -- §3 transfer and the existence witness.
-#print axioms IsErdosLovaszFamily.map
-#print axioms isErdosLovaszFamily_powersetCard
 
 -- §4 the counting lower bound.
-#print axioms sum_card_filter_notMem_eq_sum_card_sdiff
-#print axioms IsErdosLovaszFamily.three_le_card_filter_notMem
-#print axioms IsErdosLovaszFamily.six_le_card
 
 -- §5 g(n) and its proved values.
-#print axioms erdosLovaszCards
-#print axioms erdosLovaszNum
-#print axioms erdosLovaszCards_nonempty
-#print axioms erdosLovaszNum_mem
-#print axioms erdosLovaszNum_zero
-#print axioms le_erdosLovaszNum
-#print axioms zero_lt_erdosLovaszNum
-#print axioms succ_le_erdosLovaszNum
-#print axioms erdosLovaszNum_le_choose
-#print axioms erdosLovaszNum_one
-#print axioms erdosLovaszNum_two
-#print axioms witnessThree
-#print axioms isErdosLovaszFamily_witnessThree
-#print axioms erdosLovaszNum_three_le
-#print axioms tripathi_six_le_erdosLovaszNum_three
-#print axioms tripathi_erdosLovaszNum_three
-#print axioms witnessFour_isTransversal
-#print axioms witnessFour_no_small_transversal
-#print axioms coveringNumber_witnessFour
-#print axioms isErdosLovaszFamily_witnessFour
-#print axioms erdosLovaszNum_four_le
-#print axioms IsErdosLovaszFamily.nine_le_card
-#print axioms tripathi_nine_le_erdosLovaszNum_four
 
 -- §6: the archived Tier 2 statements report `sorryAx`; the proved
 -- `tripathi_erdosLovaszNum_four` is Tier 1 and must not report it.
-#print axioms erdos_lovasz_lower_bound
-#print axioms kahn_erdosLovaszNum_le_linear
-#print axioms sivashankar_three_mul_sub_four
-#print axioms sivashankar_asymptotic_lower_bound
-#print axioms tripathi_erdosLovaszNum_four
-#print axioms barat_erdosLovaszNum_five
-#print axioms barat_erdosLovaszNum_six_le
 
 -- §7 consequences. The two TIER 3 entries (`sivashankar_lower_bound_61_20`,
 -- `kahn_erdosLovaszNum_isBigO`) inherit `sorryAx` from §6 by design; the
 -- hypothesis-form derivations beside them do not.
-#print axioms sivashankarConst_bounds
-#print axioms lower_bound_61_20_of_asymptotic
-#print axioms sivashankar_lower_bound_61_20
-#print axioms isBigO_of_forall_le_linear
-#print axioms kahn_erdosLovaszNum_isBigO
-#print axioms one_le_of_forall_le_linear
-#print axioms thirteen_le_erdosLovaszNum_six_of_erdos_lovasz
-#print axioms ThreeMulAddBigO
-#print axioms not_threeMulAddBigO_of_asymptotic_lower_bound
 
 end AxiomAudit

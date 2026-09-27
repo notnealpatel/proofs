@@ -202,7 +202,6 @@ theorem exists_strictNativeFlip :
   exact ⟨FieldNativePairBridge.contextualStrictStep native hendpoints hcontext⟩
 
 #check @exists_strictNativeFlip
-#print axioms exists_strictNativeFlip
 
 end AffineCollisionNativeWitness
 end BilinearComplexity

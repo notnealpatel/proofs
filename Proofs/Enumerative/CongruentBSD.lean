@@ -934,54 +934,5 @@ theorem a273929_subset_iff_hasNontrivialPoint :
 Everything below is `{propext, Classical.choice, Quot.sound}` except
 `a273929_subset_a006991`, the single intended `sorry`, which also reports `sorryAx`. -/
 
-#print axioms congruentCurve_equation_iff
-#print axioms congruentCurve_Δ
-#print axioms congruentCurve_nonsingular
-#print axioms hasNontrivialPoint_iff
-#print axioms hasNontrivialPoint_iff_nonsingular
-#print axioms pos_of_isCongruentArea
-#print axioms not_isCongruentArea_zero
-#print axioms not_isCongruentArea_neg_one
-#print axioms tunnell_x_eq
-#print axioms tunnell_y_eq
-#print axioms hasNontrivialPoint_of_isCongruentArea
-#print axioms translate_equation
-#print axioms exists_gt_of_hasNontrivialPoint
-#print axioms isCongruentArea_of_hasNontrivialPoint
-#print axioms isCongruentArea_iff_hasNontrivialPoint
-#print axioms squarefree_iff_forall_mem_Icc
-#print axioms squarefree_six
-#print axioms not_squarefree_twelve
-#print axioms mem_residues_of_squarefree
-#print axioms isCongruentArea_of_isCongruentNumber
-#print axioms not_isCongruentNumber_zero
-#print axioms cast_pos_of_memA273929
-#print axioms a273929Prefix_length
-#print axioms memA273929_iff_bounded
-#print axioms filter_range_eq_a273929Prefix
-#print axioms mem_a273929Prefix_iff
-#print axioms memA273929_five
-#print axioms not_memA273929_four
-#print axioms isCongruentNumber_five
-#print axioms isCongruentNumber_six
-#print axioms isCongruentNumber_seven
-#print axioms isCongruentNumber_thirteen
-#print axioms isCongruentNumber_fourteen
-#print axioms isCongruentNumber_fifteen
-#print axioms isCongruentNumber_twentyOne
-#print axioms isPrimitiveCongruent_twentyOne
-#print axioms isPrimitiveCongruent_of_mem_first_six
-#print axioms curvePointSix
-#print axioms curvePointFive
-#print axioms curvePointSeven
-#print axioms hasNontrivialPoint_six
-#print axioms isPrimitiveCongruentLow_thirtyFour
-#print axioms isPrimitiveCongruentLow_fortyOne
-#print axioms isPrimitiveCongruentLow_twoHundredNineteen
-#print axioms mem_or_low_of_isPrimitiveCongruent
-#print axioms isPrimitiveCongruent_of_low
-#print axioms isPrimitiveCongruent_iff_of_congruent
-#print axioms a273929_subset_iff_hasNontrivialPoint
-#print axioms a273929_subset_a006991
 
 end A273929

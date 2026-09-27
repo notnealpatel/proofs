@@ -133,8 +133,5 @@ def runBorrowingTraceRegression : IO Unit := do
 #check @low_budget_macros_empty
 #check @result0_data
 #check @result1_card
-#print axioms result0_data
-#print axioms result1_card
-#print axioms borrowingMacroTraces
 
 end BilinearComplexity.BinaryMacroBoundedSearch.Regression

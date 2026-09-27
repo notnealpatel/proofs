@@ -18,11 +18,3 @@ open BilinearComplexity.FieldCircuitContraction
 #check @minimalFive_properSubfamily
 #check @SignedMinimalFour.pair_linearIndependent
 
-#print axioms ContractionData.residual_relation
-#print axioms ContractionData.q_ne_zero
-#print axioms ContractionData.q_not_proportional
-#print axioms ContractionData.residual_isMinimalFourCircuit
-#print axioms ContractionData.signedMinimalFour
-#print axioms ContractionData.result
-#print axioms minimalFive_vanishingRelation
-#print axioms minimalFive_properSubfamily

@@ -399,13 +399,5 @@ example : (fubini 0 % 4, fubini 1 % 4, fubini 2 % 4, fubini 3 % 4,
 
 /-! ## Axiom audit -/
 
-#print axioms fubini_zmod3
-#print axioms three_dvd_fubini_of_even
-#print axioms fubini_mod_four_eq_one_of_odd
-#print axioms fubini_mod_four_eq_one_of_prime
-#print axioms muljadi_fubini_prime_four_mul_add_one
-#print axioms fubini_three_prime
-#print axioms fubini_five_prime
-#print axioms fubini_seven_prime
 
 end A000670

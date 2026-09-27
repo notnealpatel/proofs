@@ -466,8 +466,5 @@ example :
 #check @ProfileOrientation.orientState_union_exact
 #check @orientExactPair
 
-#print axioms exactPair_profile_perm
-#print axioms ProfileOrientation.orientState_union_exact
-#print axioms orientExactPair
 
 end BilinearComplexity.NormalizedBinaryProfileOrientation

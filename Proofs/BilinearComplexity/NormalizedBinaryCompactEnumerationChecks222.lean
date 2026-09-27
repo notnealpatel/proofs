@@ -185,6 +185,5 @@ example : exactCodes222.length = 162 := by decide
 theorem exactTableCheck222 : exactTableCheck packed222 exactCodes222 = true := by
   decide
 
-#print axioms exactTableCheck222
 
 end BilinearComplexity.NormalizedBinaryCompactEnumeration

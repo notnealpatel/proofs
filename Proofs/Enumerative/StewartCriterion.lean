@@ -675,23 +675,3 @@ subset check is the sound `native_decide` detector on this toolchain: a use woul
 surface as a per-declaration `*._native.native_decide.ax_*` axiom.  There is no
 `native_decide` in this file. -/
 
-#print axioms Nat.stewartPrefix
-#print axioms Nat.stewartPrefix_pos
-#print axioms Nat.stewartPrefix_ne_zero
-#print axioms Nat.factorization_stewartPrefix
-#print axioms Nat.primeFactors_stewartPrefix
-#print axioms Nat.lt_of_mem_primeFactors_stewartPrefix
-#print axioms Nat.stewartPrefix_dvd
-#print axioms Nat.dvd_stewartPrefix
-#print axioms Nat.stewartPrefix_congr
-#print axioms Nat.stewartPrefix_eq_self
-#print axioms Nat.stewartPrefix_eq_one_of_forall_le
-#print axioms Nat.stewartPrefix_mul_prime_pow_of_le
-#print axioms Nat.stewartPrefix_mul_prime_pow
-#print axioms Nat.Practical.le_one_add_sum_divisors_stewartPrefix
-#print axioms Nat.practical_of_forall_le_one_add_sum_divisors_stewartPrefix
-#print axioms Nat.practical_iff_stewart
-#print axioms Nat.practical_iff_two_dvd_and_stewart
-#print axioms Nat.Practical.minFac_eq_two
-#print axioms Nat.practical_mul_prime_pow_iff
-#print axioms Nat.forall_mem_primeFactors_lt_of_lt

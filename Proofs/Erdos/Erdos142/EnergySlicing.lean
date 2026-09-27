@@ -258,11 +258,5 @@ example : ∃ S : Finset (Fin 4),
 #check @exists_energyBin_card_mul_le_41
 #check @exists_energyBin_41
 
-#print axioms energyBin_eq_filter_floor
-#print axioms exists_energyBin_card_le
-#print axioms binCount_mul_sq_le_2921
-#print axioms binCount_mul_sq_le_41
-#print axioms exists_energyBin_card_mul_le_41
-#print axioms exists_energyBin_41
 
 end Erdos142

@@ -403,15 +403,5 @@ theorem designatedReplay221Certificate_circuit :
 #check @replay221ReverseABC
 #check @designatedReplay221Certificate
 
-#print axioms firstFactorSpan_mapState
-#print axioms secondFactorSpan_mapState
-#print axioms thirdFactorSpan_mapState
-#print axioms FactorSpanConfined.map
-#print axioms PathFactorSpanConfined.map
-#print axioms FiveCircuitCertificate.circuit
-#print axioms FiveCircuitCertificate.map
-#print axioms designated_endpoint_hasExactFactorProfile
-#print axioms designatedReplay221Certificate
-#print axioms designatedReplay221Certificate_circuit
 
 end BilinearComplexity.NormalizedBinaryFiveCircuitCertificate

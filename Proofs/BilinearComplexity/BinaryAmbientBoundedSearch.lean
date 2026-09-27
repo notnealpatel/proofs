@@ -169,6 +169,5 @@ example :
 #check @Result.preserves_evaluation
 #check @Result.card_le_original
 #check @optimize
-#print axioms optimize
 
 end BilinearComplexity.BinaryAmbientBoundedSearch

@@ -560,13 +560,3 @@ surface as a per-declaration `*._native.native_decide.ax_*` axiom.  There is no
 `sorry` of `Enumerative.Practical` (`Nat.coleman_multiperfect_practical`), which would
 surface as `sorryAx`. -/
 
-#print axioms Nat.Practical.mul_of_le_one_add_sum_divisors
-#print axioms Nat.Practical.mul_of_le_two_mul
-#print axioms Nat.one_add_sum_divisors_two_pow
-#print axioms Nat.practical_two_mul_three_pow
-#print axioms Nat.two_mul_one_add_sum_divisors_two_mul_three_pow
-#print axioms Nat.exists_practical_add_practical_of_window
-#print axioms Nat.exists_three_pow_bracket
-#print axioms Nat.exists_pow_window
-#print axioms Nat.even_eq_practical_add_practical
-#print axioms Nat.melfi_thm_6

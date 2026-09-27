@@ -29,6 +29,5 @@ theorem rawTargets221_eq_serializedTenSplits :
       exactCodes221.flatMap (serializedTenSplits packed221) := by
   decide
 
-#print axioms rawTargets221_eq_serializedTenSplits
 
 end BilinearComplexity.NormalizedBinaryCoveragePrimitiveTargetChecks

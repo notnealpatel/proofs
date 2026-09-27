@@ -527,8 +527,5 @@ example :
 #check @norm_sub_le_of_mem_phasePartition
 #check @norm_sub_le_of_mem_phasePartition_additiveCharacter
 
-#print axioms phasePartition_spec
-#print axioms norm_sub_le_of_mem_phasePartition
-#print axioms norm_sub_le_of_mem_phasePartition_additiveCharacter
 
 end Erdos142

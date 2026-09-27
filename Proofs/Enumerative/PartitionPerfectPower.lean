@@ -430,22 +430,5 @@ Everything below is `{propext, Classical.choice, Quot.sound}` except
 `sun_partitionNumber_not_isPerfectPower`, the single intended `sorry`, which also
 reports `sorryAx`. -/
 
-#print axioms four_le_of_isPerfectPower
-#print axioms isPerfectPower_iff_bounded
-#print axioms a000041Prefix_length
-#print axioms a000041Prefix_lt
-#print axioms pow_notMem_a000041Prefix
-#print axioms not_isPerfectPower_of_mem_a000041Prefix
-#print axioms partitionNumber_eq_card
-#print axioms partitionNumber_zero
-#print axioms partitionNumber_one
-#print axioms consOne_injective
-#print axioms partitionNumber_pos
-#print axioms partitionNumber_le_succ
-#print axioms monotone_partitionNumber
-#print axioms not_isPerfectPower_partitionNumber_of_mem_a000041Prefix
-#print axioms sun_partitionNumber_zero
-#print axioms sun_partitionNumber_one
-#print axioms sun_partitionNumber_not_isPerfectPower
 
 end A000041

@@ -236,13 +236,6 @@ example : upstreamIsPractical 6 := (practical_iff_upstream (by norm_num)).mp (by
 
 /-! ## Axiom audit -/
 
-#print axioms Nat.Practical.isZumkeller
-#print axioms Nat.Practical.isZumkeller_iff_two_dvd_sum_divisors
-#print axioms infinite_setOf_isZumkeller
-#print axioms nth_isZumkeller_zero
-#print axioms nth_isZumkeller_one
-#print axioms ianakievSigmaHalfAt_zero
-#print axioms practical_iff_upstream
 
 -- The conjecture statement itself, printed so a reader can audit the elaborated form
 -- rather than the sugar.

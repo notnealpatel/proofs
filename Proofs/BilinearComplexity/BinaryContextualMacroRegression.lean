@@ -62,8 +62,5 @@ theorem one_step_budget_rejected :
 #eval reverseResult.map fun r =>
   (decide (r.context = contextC), r.path.vertices.map Finset.card, r.path.length, r.path.altitude)
 
-#print axioms one_step_budget_rejected
-#print axioms forwardResult
-#print axioms reverseResult
 
 end BilinearComplexity.BinaryContextualMacroRecognition.Regression

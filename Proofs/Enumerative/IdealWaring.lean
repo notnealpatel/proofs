@@ -731,36 +731,5 @@ Everything is `{propext, Classical.choice, Quot.sound}` or a subset of it, excep
 `waringAdmissible_idealWaring` — the single intended `sorry` — and
 `waringG_eq_idealWaring`, which is assembled from it. -/
 
-#print axioms IsSumOfNthPowers.mono
-#print axioms isSumOfNthPowers_iff_isSumOfPosNthPowers
-#print axioms WaringAdmissible.mono
-#print axioms waringAdmissible_one_one
-#print axioms waringAdmissible_two_four
-#print axioms not_waringAdmissible_zero
-#print axioms waringG_le
-#print axioms waringAdmissible_waringG
-#print axioms waringAdmissible_iff_waringG_le
-#print axioms waringG_zero
-#print axioms idealWaring_terms
-#print axioms three_pow_div_two_pow_eq_floor
-#print axioms idealWaring_eq_floor
-#print axioms idealWaring_add_two
-#print axioms count_two_mul_add_count_one
-#print axioms two_pow_add_le_of_isSumOfNthPowers
-#print axioms idealWaring_le_of_waringAdmissible
-#print axioms idealWaring_le_waringG
-#print axioms not_isSumOfNthPowers_seven
-#print axioms isSumOfNthPowers_seven
-#print axioms not_isSumOfNthPowers_twentyThree
-#print axioms isSumOfNthPowers_twentyThree
-#print axioms not_isSumOfNthPowers_seventyNine
-#print axioms isSumOfNthPowers_seventyNine
-#print axioms not_waringAdmissible_two_three
-#print axioms waringG_one
-#print axioms waringG_two
-#print axioms two_pow_mul_div_add_mod
-#print axioms waringTight_of_mem_range
-#print axioms waringAdmissible_idealWaring
-#print axioms waringG_eq_idealWaring
 
 end A002804

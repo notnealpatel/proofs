@@ -222,7 +222,3 @@ end
 end Erdos142
 
 -- Axiom audit for every public declaration.
-#print axioms Erdos142.one_le_rothNumberNat_odd_scale_ratio
-#print axioms Erdos142.pos_of_tendsto_rothNumberNat_odd_scale_ratio
-#print axioms Erdos142.eq_odd_scale_of_tendsto_rothNumberNat_ratio
-#print axioms Erdos142.not_tendsto_rothNumberNat_ratio_of_ne_odd_scale

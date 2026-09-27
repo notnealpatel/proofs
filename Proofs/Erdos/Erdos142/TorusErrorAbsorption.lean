@@ -152,8 +152,5 @@ example : (64 : ℝ) + Real.log 65536 / 2 ≤ ((1 : ℝ) / 2) * Real.sqrt 65536 
   torusErrorAbsorption (δ := 1) (K := 64) (L := 65536)
     (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 
-#print axioms log_le_four_mul_sqrt_sqrt
-#print axioms eighth_div_delta_le_sqrt_sqrt
-#print axioms torusErrorAbsorption
 
 end Erdos142

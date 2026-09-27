@@ -622,49 +622,5 @@ the archived statement, and it is the only `sorry` here.  Nothing else consumes 
 `PyberConjecture.lowerBound`, `.upperBound` and `.of_roneyDougalTracey` take the statement as
 a *hypothesis*, so they stay `sorryAx`-free.  There is no `native_decide` in this file. -/
 
-#print axioms numSubgroupsSymm
-#print axioms numSubgroupsSymm_pos
-#print axioms numSubgroupsSymm_of_le_one
-#print axioms card_subgroup_of_card_eq_two
-#print axioms numSubgroupsSymm_zero
-#print axioms numSubgroupsSymm_one
-#print axioms numSubgroupsSymm_two
-#print axioms numSubgroupsSymm_mono
-#print axioms pyberC
-#print axioms pyberD
-#print axioms pyberC_pow_sixteen
-#print axioms pyberD_pow_six
-#print axioms pyberC_pos
-#print axioms pyberD_pos
-#print axioms one_lt_pyberC
-#print axioms one_lt_pyberD
-#print axioms pyberC_lt_pyberD
-#print axioms GrowsAtLeastPow
-#print axioms GrowsAtMostPow
-#print axioms GrowsLikePow
-#print axioms GrowsLikePow.growsAtLeastPow
-#print axioms GrowsLikePow.growsAtMostPow
-#print axioms GrowsAtMostPow.mono_base
-#print axioms growsLikePow_iff_isLittleO_log
-#print axioms PyberLowerBound
-#print axioms PyberUpperBound
-#print axioms PyberConjecture
-#print axioms log_pyberC
-#print axioms pyberConjecture_iff_isLittleO_log
-#print axioms pyber_conjecture
-#print axioms PyberConjecture.lowerBound
-#print axioms PyberConjecture.upperBound
-#print axioms isLittleO_mul_sqrt_sq
-#print axioms log_le_two_mul_sqrt
-#print axioms logb_le_four_mul_sqrt
-#print axioms RoneyDougalTraceyShape
-#print axioms RoneyDougalTraceyBound
-#print axioms exists_roneyDougalTraceyShape
-#print axioms isLittleO_log_of_roneyDougalTraceyShape
-#print axioms PyberConjecture.of_roneyDougalTracey
-#print axioms growsLikePow_rpow_sq
-#print axioms exists_model_of_pyber_shape
-#print axioms not_growsAtLeastPow_const
-#print axioms growsLikePow_unique_base
 
 end GroupCount

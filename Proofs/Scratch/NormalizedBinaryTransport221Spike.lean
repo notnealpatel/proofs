@@ -301,9 +301,5 @@ theorem transported_path_metrics :
 #check @mapState_card
 #check @transportedForwardFlip
 #check @transported_path_metrics
-#print axioms mapTerm_injective
-#print axioms mapState_card
-#print axioms transportedForwardFlip
-#print axioms transported_path_metrics
 
 end BilinearComplexity.NormalizedBinaryTransport221Spike

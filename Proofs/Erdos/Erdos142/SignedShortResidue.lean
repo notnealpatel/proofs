@@ -212,15 +212,5 @@ example : (shortBox 1 2 2).card = 1 := by
   rw [card_shortBox, card_shortSignedSet (by norm_num) (by norm_num)]
   norm_num
 
-#print axioms mem_shortSignedSet
-#print axioms zero_mem_shortSignedSet
-#print axioms neg_mem_shortSignedSet
-#print axioms card_shortSignedSet
-#print axioms card_shortSignedSet_le
-#print axioms shortSignedSet_val
-#print axioms shortSignedSet_sub_val
-#print axioms card_shortBox
-#print axioms card_shortBox_le
-#print axioms card_shortBox_two_k_le
 
 end Erdos142

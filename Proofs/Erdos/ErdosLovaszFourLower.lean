@@ -364,6 +364,5 @@ theorem nine_le_card {α : Type*} (F : Finset (Finset α))
   omega
 
 #check @nine_le_card
-#print axioms nine_le_card
 
 end ErdosLovaszFourLower

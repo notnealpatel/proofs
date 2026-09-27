@@ -190,10 +190,5 @@ example :
     (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num)
   simpa using h
 
-#print axioms nsmul_sub_nsmul
-#print axioms threeAPFree_affinePreimage
-#print axioms card_mul_le_card_mul_rothNumberNat_torusProductSlice
-#print axioms exists_torusProductSlice_certificate
-#print axioms finiteTorusTransfer
 
 end Erdos142

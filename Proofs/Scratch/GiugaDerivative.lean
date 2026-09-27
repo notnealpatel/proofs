@@ -426,9 +426,5 @@ Expected: the sorry-free layer reports at most
 `ad_eq_succ_of_isGiuga` additionally report `sorryAx` — they carry the
 archived open half by design. -/
 
-#print axioms isGiuga_of_ad_eq_succ
-#print axioms ad_mul_coprime
-#print axioms isGiuga_30
-#print axioms lava_conjecture
 
 end GiugaDerivative

@@ -168,6 +168,3 @@ end
 end Erdos142
 
 -- Axiom audit for the load-bearing declarations.
-#print axioms Erdos142.fixed_right_rothProductDefect_threshold_unbounded
-#print axioms Erdos142.exists_fixed_right_frequently_rothProductDefect_gt
-#print axioms Erdos142.exists_fixed_right_frequently_mul_lt_rothNumberNat

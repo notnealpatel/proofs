@@ -111,10 +111,6 @@ theorem coverageEntries222_raws : coverageEntries222.map RawCoverageAction.Entry
 def literalTargetSet222 : Finset (RelationEndpoints profile222) :=
   RawCoverageAction.decodedTargetSet rawActions222
 
-#print axioms coverageEntries221_raws
-#print axioms coverageEntries411_raws
-#print axioms coverageEntries321_raws
-#print axioms coverageEntries222_raws
 
 example : sourceSHA256 = "bdb8a983a8cad61c375811e21a5cdb831dac77ceb70e4b9eb832d26df727f0bf" := rfl
 

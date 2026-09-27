@@ -1059,34 +1059,6 @@ end TwoStepCoefficientOracle
 #check @no_restricted_secondOrderLift_of_not_mem_range
 #check @no_secondOrderLift_on_affine_family
 
-#print axioms truncatedPolynomial_coefficients_eq_zero
-#print axioms orderThreeScheme_map_truncatedResidue
-#print axioms orderThreeFactor_expansion
-#print axioms sumTensor_orderThreeScheme
-#print axioms OrderThreeArc.scheme_map_truncatedResidue
-#print axioms OrderThreeArc.scheme_sumTensor
-#print axioms OrderThreeArc.scheme_valid
-#print axioms SemanticArcFixture.base_valid
-#print axioms SemanticArcFixture.truncated_valid
-#print axioms SemanticArcFixture.represented
-#print axioms SemanticArcFixture.first_coefficient_ne_zero
-#print axioms TwoStepCoefficientOracle.values
-#print axioms TwoStepCoefficientOracle.nonzero
-#print axioms OrderThreeArc.first_eq
-#print axioms OrderThreeArc.second_eq
-#print axioms OrderThreeArc.third_eq
-#print axioms OrderThreeArc.genuine_first_nonzero_mem_ker
-#print axioms sumTensor_perturb
-#print axioms sumTensor_perturbTwoStep
-#print axioms VariationMask.no_correction_of_not_mem_range
-#print axioms OrderThreeArc.first_nonzero_mem_ker
-#print axioms obstructionClass_eq_zero_iff
-#print axioms restrictedObstructionClass_eq_zero_iff
-#print axioms OrderThreeArc.obstructionClass_first_eq_zero
-#print axioms no_unrestricted_secondOrderLift_of_obstruction_ne_zero
-#print axioms no_restricted_secondOrderLift_of_obstruction_ne_zero
-#print axioms no_restricted_secondOrderLift_of_not_mem_range
-#print axioms no_secondOrderLift_on_affine_family
 
 end Deformation
 end Scheme

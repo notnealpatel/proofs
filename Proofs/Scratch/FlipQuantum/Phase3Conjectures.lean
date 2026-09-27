@@ -231,9 +231,5 @@ example :
 #check @Scheme.MatrixRankConjecture
 #check @Scheme.RankSearchConjecture
 
-#print axioms Scheme.ConnectivityConjecture
-#print axioms Scheme.DensityConjecture
-#print axioms Scheme.MatrixRankConjecture
-#print axioms Scheme.RankSearchConjecture
 
 end BilinearComplexity.FlipQuantum

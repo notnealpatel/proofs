@@ -428,12 +428,5 @@ example :
 #check @Scheme.ReplayableBrent.map_rankLE
 #check @Scheme.Valid.map_of_injective
 
-#print axioms Scheme.brent_iff_sumTensor_eq_matMulTensor
-#print axioms Scheme.Brent.rankLE
-#print axioms Scheme.sumTensor_map
-#print axioms Scheme.Brent.map
-#print axioms Scheme.ReplayableBrent.map
-#print axioms Scheme.ReplayableBrent.map_rankLE
-#print axioms Scheme.Valid.map_of_injective
 
 end BilinearComplexity

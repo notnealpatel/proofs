@@ -235,10 +235,5 @@ example :
 #check @card_cube_le_eight_mul_addRothNumber_sq_mul_threeAPCount
 #check @lt_threeAPCount_of_eight_mul_addRothNumber_sq_mul_lt_card_cube
 
-#print axioms choose_mul_fallingFactorial_three
-#print axioms sub_mul_card_fallingFactorial_le_threeAPCount_mul_fallingFactorial
-#print axioms two_le_addRothNumber_of_two_le_card
-#print axioms card_cube_le_eight_mul_addRothNumber_sq_mul_threeAPCount
-#print axioms lt_threeAPCount_of_eight_mul_addRothNumber_sq_mul_lt_card_cube
 
 end Erdos142

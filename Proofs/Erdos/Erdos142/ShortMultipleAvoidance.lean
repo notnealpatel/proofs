@@ -246,12 +246,5 @@ example : ∃ b : Fin 2 → ZMod 5,
   · rw [Finset.card_singleton]
     norm_num
 
-#print axioms Erdos142.card_biUnion_shortMultiplePreimage_le
-#print axioms Erdos142.exists_smul_notMem_of_card_mul_lt
-#print axioms Erdos142.ShortMultipleBox.exists_avoiding
-#print axioms Erdos142.injOn_translate_of_avoiding
-#print axioms Erdos142.card_image_range_translate_of_avoiding
-#print axioms Erdos142.exists_smul_notMem_of_box
-#print axioms Erdos142.ShortMultipleBox.exists_avoiding_and_injOn
 
 end Erdos142

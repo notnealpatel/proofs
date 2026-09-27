@@ -508,16 +508,5 @@ private theorem groundCompilation221_reverse_length :
 #check @ContextualBinaryFiveCircuitCompilation.forward
 #check @ContextualBinaryFiveCircuitCompilation.reverse
 
-#print axioms groundCompilation221_forward_length
-#print axioms groundCompilation221_reverse_length
-#print axioms compileContextualBinaryFiveCircuit
-#print axioms ContextualBinaryFiveCircuitCompilation.ambient_membership
-#print axioms ContextualBinaryFiveCircuitCompilation.forward_length
-#print axioms ContextualBinaryFiveCircuitCompilation.reverse_length
-#print axioms ContextualBinaryFiveCircuitCompilation.forward_altitude_le
-#print axioms ContextualBinaryFiveCircuitCompilation.reverse_altitude_le
-#print axioms ContextualBinaryFiveCircuitCompilation.forward_outside
-#print axioms ContextualBinaryFiveCircuitCompilation.reverse_outside
-#print axioms ContextualBinaryFiveCircuitCompilation.distance_two_or_three
 
 end BilinearComplexity.BinaryContextualFiveCircuitCompiler

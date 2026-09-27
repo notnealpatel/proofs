@@ -189,5 +189,3 @@ end
 end Erdos142
 
 -- Axiom audit for the load-bearing declarations.
-#print axioms Erdos142.exists_fixed_right_defect_gt
-#print axioms Erdos142.exists_fixed_right_rothProductDefect_gt

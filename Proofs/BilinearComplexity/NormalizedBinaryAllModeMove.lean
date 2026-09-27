@@ -349,11 +349,5 @@ theorem allModeMove_bca_nonempty :
 #check @allModeReversePath
 #check @allModeMove_identity_nonempty
 #check @allModeMove_bca_nonempty
-#print axioms AllModeMove.preserves_evaluation
-#print axioms AllModeMove.card_change
-#print axioms allModeMovePath_preserves_evaluation
-#print axioms permuteAllModeMovePath_confined
-#print axioms allMode_paths_confined
-#print axioms allModeMove_bca_nonempty
 
 end BilinearComplexity.NormalizedBinaryAllModeMove

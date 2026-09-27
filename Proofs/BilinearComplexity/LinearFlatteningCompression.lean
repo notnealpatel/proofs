@@ -109,7 +109,5 @@ example :
       (fun _ : Fin 2 => (0 : Fin 2)) id id
       (fun _ : Fin 1 => (0 : Fin 2)) (fun x : Fin 1 => (x, x)) hdet hT
 
-#print axioms le_mul_of_contract₁_submatrix_det_ne_zero_of_rankLE
-#print axioms le_mul_of_comp_submatrix_det_ne_zero_of_rankLE
 
 end BilinearComplexity

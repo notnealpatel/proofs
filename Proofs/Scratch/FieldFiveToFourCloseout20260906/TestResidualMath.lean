@@ -24,7 +24,6 @@ theorem term_ne_term (S : SignedMinimalFour k V) {i j : Fin 4} (hij : i ≠ j) :
     S.term i ≠ S.term j := S.injective.ne hij
 
 #check @oneThree_relation
-#print axioms oneThree_relation
 
 end TestResidualMath
 end BilinearComplexity

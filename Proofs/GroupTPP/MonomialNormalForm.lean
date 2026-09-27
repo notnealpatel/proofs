@@ -493,22 +493,5 @@ example :
 #check @diagonal_coeff_unit_normal_form
 #check @diagonal_coeff_normal_form
 
-#print axioms indexedTPP_iff_image_tpp_and_injective
-#print axioms diagonal_group_normal_form_a
-#print axioms diagonal_group_normal_form_b
-#print axioms diagonal_group_normal_form
-#print axioms normal_form_collision_iff_quotient
-#print axioms normal_form_no_cancellation_iff_indexedTPP
-#print axioms IndexedTPP.injective_s
-#print axioms IndexedTPP.injective_t
-#print axioms IndexedTPP.injective_u
-#print axioms IndexedTPP.injective_st
-#print axioms IndexedTPP.injective_tu
-#print axioms IndexedTPP.injective_us
-#print axioms IsMonomialRealizationGen.exists_normal_form_indexedTPP
-#print axioms indexedTPP_monomialRealizationGen
-#print axioms exists_monomialRealizationGen_iff_exists_indexedTPP
-#print axioms diagonal_coeff_unit_normal_form
-#print axioms diagonal_coeff_normal_form
 
 end GroupTPP.MonomialNormalForm

@@ -537,25 +537,5 @@ example : ∃ c : ℝ, 0.006 < c ∧ c < 0.01 := ⟨0.008, by norm_num, by norm_
 
 /-! ## Axiom audit (sorry-free declarations only) -/
 
-#print axioms factorChain
-#print axioms mem_factorChain
-#print axioms isAddChain_factorChain
-#print axioms head?_factorChain
-#print axioms length_factorChain_add_one
-#print axioms l_mul_le
-#print axioms l_add_one_le
-#print axioms l_le_quasilog
-#print axioms log_two_le_l_le_quasilog
-#print axioms gap
-#print axioms gap_eq_sub
-#print axioms gap_nonneg
-#print axioms gap_23_eq_one
-#print axioms gap_33_eq_one
-#print axioms l_lt_quasilog_23
-#print axioms gapSum
-#print axioms gapSum_nonneg
-#print axioms one_le_gapSum
-#print axioms gapSum_mul_log_div_sq_nonneg
-#print axioms eventually_log_pos_and_sq_pos
 
 end NumberComplexity

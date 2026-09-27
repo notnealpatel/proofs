@@ -149,8 +149,5 @@ example :
 #check @size_lt_explicitRothThreshold_of_mul_le_card
 #check @rothNumberNat_lt_mul_of_explicitRothThreshold_le
 
-#print axioms size_lt_explicitRothThreshold_of_threeAPFree
-#print axioms size_lt_explicitRothThreshold_of_mul_le_card
-#print axioms rothNumberNat_lt_mul_of_explicitRothThreshold_le
 
 end Erdos142

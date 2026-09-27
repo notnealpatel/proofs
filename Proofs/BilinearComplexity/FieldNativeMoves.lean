@@ -424,8 +424,6 @@ def NativeStep.reverse {D E : State k a b c} (h : NativeStep D E) :
 #check @FlipFormula.symm
 #check @NativeReplacement.symm
 #check @NativeReplacement.eval_eq
-#print axioms FlipFormula.symm
-#print axioms NativeReplacement.eval_eq
 
 end FieldNativeMoves
 end BilinearComplexity

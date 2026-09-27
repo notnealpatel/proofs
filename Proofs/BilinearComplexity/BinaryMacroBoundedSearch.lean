@@ -901,12 +901,6 @@ theorem optimize_card_eq_primitive (D : State U V W) (k H : â„•) (hD : D.card â‰
 #check @Trace.cachedMacros_results
 #check @Trace.cached_macro_factorization
 #check @Candidate.cached_macro_factorization
-#print axioms CachedMacro.certified
-#print axioms admittedMacros_keys
-#print axioms exists_mem_admittedMacros_iff
-#print axioms Trace.cachedMacros_results
-#print axioms Trace.cached_macro_factorization
-#print axioms Candidate.cached_macro_factorization
 #check @ambientTermList_nodup
 #check @ambientTermList_toFinset
 #check @exists_mem_primitiveSuccessors_iff
@@ -930,16 +924,8 @@ theorem optimize_card_eq_primitive (D : State U V W) (k H : â„•) (hD : D.card â‰
 #check @boundedCandidates_complete
 #check @Trace.macro_factorization
 #check @extensions_eq_unpruned
-#print axioms extensions_eq_unpruned
 #check @Result.vertex_card_le
 #check @Result.preserves_evaluation
 #check @optimize
-#print axioms Result.macro_factorization
-#print axioms Trace.macro_factorization
-#print axioms Result.vertex_card_le
-#print axioms Result.preserves_evaluation
-#print axioms optimize
-#print axioms optimize_card_eq_primitive
-#print axioms Trace.macro_certificates
 
 end BilinearComplexity.BinaryMacroBoundedSearch

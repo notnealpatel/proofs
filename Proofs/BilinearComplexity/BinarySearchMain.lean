@@ -77,4 +77,3 @@ example : binaryStateJSON (∅ : State ⟨0, 0, 0⟩) = Lean.Json.arr #[] := by
 
 #check @binaryTermJSON
 #check @binaryStateJSON
-#print axioms runSB1

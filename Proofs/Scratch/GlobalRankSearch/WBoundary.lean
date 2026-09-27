@@ -301,14 +301,5 @@ example :
 #check @wDegeneration_rankLE_two
 #check @wTensor_borderRankLE_two
 
-#print axioms wDegeneration_zero
-#print axioms wDegenerationPolynomial_eval
-#print axioms rankOne_in_wSlicePlane_offDiagonal_eq_zero
-#print axioms wTensor_rankLE_three
-#print axioms wTensor_not_rankLE_two
-#print axioms wTensor_rank_eq_three
-#print axioms wDegeneration_one_ne_wTensor
-#print axioms wDegeneration_rankLE_two
-#print axioms wTensor_borderRankLE_two
 
 end BilinearComplexity

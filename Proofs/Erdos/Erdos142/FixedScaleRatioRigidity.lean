@@ -330,7 +330,3 @@ end
 end Erdos142
 
 -- Axiom audit for every public declaration.
-#print axioms Erdos142.eq_scale_of_tendsto_rothNumberNat_mul_ratio
-#print axioms Erdos142.eq_scale_of_asymptotic_comparison
-#print axioms Erdos142.not_tendsto_rothNumberNat_mul_ratio_of_ne_scale
-#print axioms Erdos142.not_exists_asymptotic_comparison_of_ne_scale

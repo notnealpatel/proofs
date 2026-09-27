@@ -193,11 +193,5 @@ example :
 
 end JointSatisfiability
 
-#print axioms isDecomp_residual_of_isDecomp_append
-#print axioms rankLE_length_of_isDecomp
-#print axioms rankLE_residual_of_isDecomp_append
-#print axioms rank_linearMap_residual_le_of_isDecomp_append
-#print axioms not_isDecomp_append_of_mul_lt_rank_linearMap_residual
-#print axioms no_isDecomp_completion_of_mul_lt_rank_linearMap_residual
 
 end BilinearComplexity

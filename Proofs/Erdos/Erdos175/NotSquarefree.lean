@@ -339,7 +339,3 @@ theorem squarefree_centralBinom_iff {n : ℕ} (hle : n ≤ 2 ^ 30) :
 end Erdos175
 
 #check @Erdos175.witness_cert
-#print axioms Erdos175.witness_cert
-#print axioms Erdos175.not_squarefree_centralBinom_two_pow
-#print axioms Erdos175.not_squarefree_centralBinom
-#print axioms Erdos175.squarefree_centralBinom_iff

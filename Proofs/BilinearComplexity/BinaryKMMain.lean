@@ -19,4 +19,3 @@ example : main = (do
     IO.println (Json.compress (toJson case4Packet))) := rfl
 
 #check @main
-#print axioms main

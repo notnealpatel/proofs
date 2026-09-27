@@ -617,18 +617,6 @@ example : ∃ β : ℝ, 0 < β ∧ β < 2 - Real.sqrt 2 ∧
 
 /-! ## Axiom audit -/
 
-#print axioms Erdos142.negRatioCount_succ
-#print axioms Erdos142.geometric_lower_of_card_negRatio
-#print axioms Erdos142.eventually_card_negRatio_ge_of_geometric_upper
-#print axioms Erdos142.rothNumberNat_lt_self_of_three_le
-#print axioms Erdos142.rothLogDeficit_pos_of_three_le
-#print axioms Erdos142.rothLogDeficit_iterated_square_mono
-#print axioms Erdos142.eventually_card_squareScaleDefect_le_neg_mul_rothLogDeficit
-#print axioms Erdos142.eventually_card_squareScaleDefect_le_neg_const
-#print axioms Erdos142.exists_beta_density_gt_of_lt_half
-#print axioms Erdos142.rothLogDeficit_iterated_square_pos
-#print axioms Erdos142.eventually_card_squareScaleDefect_neg
-#print axioms Erdos142.eventually_card_squareScaleDefect_nonpos
 
 end
 

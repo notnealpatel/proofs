@@ -651,12 +651,6 @@ end F3Profile221
 #check @F3Profile221.relation_eq_smul_signed
 #check @F3Profile221.fixture_is_circuit
 #check @F3Profile221.two_three_eq
-#print axioms contextual_eval_trans
-#print axioms F3Profile221.concreteReplacement
-#print axioms F3Profile221.contextual_fixture_satisfiable
-#print axioms F3Profile221.relation_eq_smul_signed
-#print axioms F3Profile221.fixture_is_circuit
-#print axioms F3Profile221.nonzero_and_pairwise_distinct
 
 end FieldContextual
 end BilinearComplexity

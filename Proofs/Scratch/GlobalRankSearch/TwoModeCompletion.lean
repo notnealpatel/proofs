@@ -112,7 +112,5 @@ example :
 #check @exists_third_factors_iff_exists_modeThree_coefficients
 #check @exists_third_factors_iff_modeThreeSlice_mem_span
 
-#print axioms exists_third_factors_iff_exists_modeThree_coefficients
-#print axioms exists_third_factors_iff_modeThreeSlice_mem_span
 
 end BilinearComplexity

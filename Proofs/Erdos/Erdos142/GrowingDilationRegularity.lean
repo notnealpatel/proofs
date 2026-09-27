@@ -332,7 +332,3 @@ end
 end Erdos142
 
 -- Axiom audit for the public declarations of this module.
-#print axioms Erdos142.tendsto_log_div_log_mul_zero
-#print axioms Erdos142.eventually_normalizedDeficit_growing_mul_sub_bounds
-#print axioms Erdos142.tendsto_normalizedDeficit_rothNumberNat_growing_mul_sub
-#print axioms Erdos142.tendsto_normalizedDeficit_rothNumberNat_growing_mul_sub_comm

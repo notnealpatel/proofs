@@ -2031,35 +2031,6 @@ example : ((1 + 0) * (1 + 0) : ZMod 2) = 1 := by
 #check @BinaryFiveMaskRatFunc.nontrivial_replacement_certificate
 #check @BinaryFiveMaskRatFunc.sameMasks_nontrivial_replacement_fixture
 
-#print axioms torus_iff_scalarCancellation
-#print axioms eq_field_inv_iff
-#print axioms solutionEquivUnits
-#print axioms ThreeCircuit.map
-#print axioms triad_map_ne_zero
-#print axioms FiveFactorData.exact_expansion
-#print axioms Witness.normalized_certificate
-#print axioms Witness.exact_family
-#print axioms BinaryFiveMask.genuine_minimality
-#print axioms BinaryFiveMask.sourceTerms_eval_ne_zero
-#print axioms BinaryFiveMask.exact_family
-#print axioms LocalReplay.binaryCertificate_fixture
-#print axioms LocalReplay.symmetryCertificate
-#print axioms BinaryFiveMaskRatFunc.sameMasks_nontrivial_replacement_fixture
-#print axioms ActionTransport.Evidence.map
-#print axioms ActionTransport.matrixSandwichEquiv
-#print axioms ActionTransport.SchemeWitness.sandwich
-#print axioms ActionTransport.SchemeWitness.orientMatrix
-#print axioms ActionTransport.binary_allSix_inhabited
-#print axioms ActionTransport.target_nonempty_of_linearEquiv
-#print axioms ActionTransport.PhysicalReplay.physicalSourceScheme_term_eq
-#print axioms ActionTransport.PhysicalReplay.physicalSourceScheme_term_eval_ne_zero
-#print axioms ActionTransport.PhysicalReplay.physicalSourceScheme_eq_reorder
-#print axioms ActionTransport.PhysicalReplay.physicalFamilyScheme_sumTensor_eq
-#print axioms ActionTransport.PhysicalReplay.certificate
-#print axioms ActionTransport.PhysicalReplay.certificate_output_sumTensor_eq
-#print axioms ActionTransport.PhysicalReplay.binary_allSix_certificates
-#print axioms ActionTransport.PhysicalReplay.binary_allSix_physical_sumTensor
-#print axioms ActionTransport.PhysicalReplay.binary_allSix_physical_supported
 
 end PairedCircuit
 end Scheme

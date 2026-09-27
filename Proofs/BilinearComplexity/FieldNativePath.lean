@@ -180,8 +180,6 @@ noncomputable def CarrierPath.complement {P D E : State k a b c}
 #check @StrictNativeStep.reverse
 #check @StrictNativeStep.complement
 #check @CarrierPath.complement
-#print axioms StrictNativeStep.complement
-#print axioms CarrierPath.complement
 
 end FieldNativePath
 end BilinearComplexity

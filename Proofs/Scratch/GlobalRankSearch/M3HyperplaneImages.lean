@@ -501,16 +501,5 @@ example {k : Type*} [Field k] :
 #check @m3_finrank_range_leftMul_domRestrict_ker_dichotomy
 #check @m3_finrank_range_leftMul_domRestrict_add_one_iff
 
-#print axioms finrank_range_domRestrict_ker_dichotomy
-#print axioms finrank_range_mulLeftLinearMap
-#print axioms m3DualMatrix_m3MatrixForm
-#print axioms m3DualMatrix_comp_matrixRightMul
-#print axioms m3DualMatrix_comp_mulLeftLinearMap
-#print axioms ker_matrixRightMul_le_ker_iff_m3DualMatrix_mem_range
-#print axioms ker_mulLeftLinearMap_le_ker_iff_m3DualMatrix_mem_range
-#print axioms m3_finrank_range_rightMul_domRestrict_ker_dichotomy
-#print axioms m3_finrank_range_rightMul_domRestrict_add_one_iff
-#print axioms m3_finrank_range_leftMul_domRestrict_ker_dichotomy
-#print axioms m3_finrank_range_leftMul_domRestrict_add_one_iff
 
 end BilinearComplexity

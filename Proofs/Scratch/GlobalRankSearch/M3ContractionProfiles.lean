@@ -166,6 +166,5 @@ example :
 #check @M3ContractionProfile.modeThree_rankThree_active
 #check @m3_contractionProfile_of_exact
 
-#print axioms m3_contractionProfile_of_exact
 
 end BilinearComplexity

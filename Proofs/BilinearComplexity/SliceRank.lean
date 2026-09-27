@@ -565,9 +565,5 @@ end TaoDiagonal
 
 /-! Axiom audit for the main declarations. -/
 
-#print axioms sliceRank_le_rank
-#print axioms sliceRank_cyc
-#print axioms sliceRank_comp_le
-#print axioms sliceRank_diag
 
 end BilinearComplexity

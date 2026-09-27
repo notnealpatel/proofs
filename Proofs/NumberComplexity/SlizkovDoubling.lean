@@ -374,22 +374,5 @@ subset of `{propext, Classical.choice, Quot.sound}`. -/
 #check @l_three
 #check @l_two_mul_eq_add_one_of_binaryWeight_le_two
 #check @slizkov_of_binaryWeight_le_two
-#print axioms l_two_mul_eq_add_one_of_binaryWeight_le_two
-#print axioms slizkov_of_binaryWeight_le_two
-#print axioms l_two_mul_le_of_pos
-#print axioms l_two_mul_two_pow
-#print axioms log_two_add_one_le_l_two_mul
-#print axioms l_three
-#print axioms l_four
-#print axioms l_five
-#print axioms l_six
-#print axioms l_seven
-#print axioms l_eight
-#print axioms l_ten
-#print axioms l_twelve
-#print axioms l_fourteen
-#print axioms l_two_mul_eq_add_one_of_le_seven
-#print axioms slizkov_of_le_seven
-#print axioms slizkov_witness_iff
 
 end NumberComplexity

@@ -575,11 +575,5 @@ example :
 #check @orbitLabelForwardPath_altitude_le
 #check @orbitLabelReversePath_altitude_le
 
-#print axioms orbitDistance_two_or_three
-#print axioms allModeMovePath_altitude_le_add_one
-#print axioms orbitLabelForwardPath_length
-#print axioms orbitLabelReversePath_length
-#print axioms orbitLabelForwardPath_altitude_le
-#print axioms orbitLabelReversePath_altitude_le
 
 end BilinearComplexity.NormalizedBinaryContextualCompiler

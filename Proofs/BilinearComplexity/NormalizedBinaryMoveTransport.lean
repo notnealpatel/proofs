@@ -322,9 +322,5 @@ theorem mapPath_preserves_evaluation {p q : Profile}
 #check @mapForwardPath
 #check @mapReversePath
 
-#print axioms mapTerm_injective
-#print axioms transportMove
-#print axioms mapPath_vertices
-#print axioms mapPath_preserves_evaluation
 
 end BilinearComplexity.NormalizedBinaryMoveTransport

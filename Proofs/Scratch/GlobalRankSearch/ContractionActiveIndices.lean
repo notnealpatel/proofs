@@ -210,12 +210,5 @@ example :
 #check @rankLE_contract₃_card_active
 #check @rank_contract₃_le_card_active
 
-#print axioms mem_contractionActiveIndices_iff
-#print axioms rankLE_contract₁_card_active
-#print axioms rank_contract₁_le_card_active
-#print axioms rankLE_contract₂_card_active
-#print axioms rank_contract₂_le_card_active
-#print axioms rankLE_contract₃_card_active
-#print axioms rank_contract₃_le_card_active
 
 end BilinearComplexity

@@ -602,17 +602,5 @@ example :
 #check @four_le_card_modeTwo_identity_functionalSupport
 #check @nine_le_card_modeThree_identity_functionalSupport
 
-#print axioms matMulContractOne_rank
-#print axioms mem_functionalSupport_iff
-#print axioms rankLE_matMulContractOne_support
-#print axioms modeOne_mul_rank_le_card_functionalSupport
-#print axioms modeTwo_mul_rank_le_card_functionalSupport
-#print axioms modeThree_mul_rank_le_card_functionalSupport
-#print axioms modeOne_heavy_hyperplane
-#print axioms modeTwo_heavy_hyperplane
-#print axioms modeThree_heavy_hyperplane
-#print axioms triad_linearIndependent_of_rank_eq
-#print axioms four_le_card_modeTwo_identity_functionalSupport
-#print axioms nine_le_card_modeThree_identity_functionalSupport
 
 end BilinearComplexity

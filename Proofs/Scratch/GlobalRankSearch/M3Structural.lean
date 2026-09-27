@@ -665,16 +665,5 @@ theorem rankLE_m3_seventeen_structural_dichotomy {k : Type*} [Field k]
 #check @m3_active_card_add_finrank_inactive_add_nine_le
 #check @rankLE_m3_seventeen_structural_dichotomy
 
-#print axioms rankLE_matMulTensor_three_to_bilinear
-#print axioms matrix_isUnit_of_rightIdeal_le_leftIdeal
-#print axioms m3_first_forms_span_top
-#print axioms m3_exists_nine_independent_first_forms
-#print axioms m3_active_output_mem_range
-#print axioms m3_range_le_span_active_outputs
-#print axioms m3_unit_active_rigidity
-#print axioms m3_active_linearIndependent_of_basis_interface
-#print axioms m3_active_card_add_inactive_subfamily_add_nine_le
-#print axioms m3_active_card_add_finrank_inactive_add_nine_le
-#print axioms rankLE_m3_seventeen_structural_dichotomy
 
 end BilinearComplexity

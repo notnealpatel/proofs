@@ -89,8 +89,3 @@ theorem eventually_three_dvd_choose_of_finite
 
 end Erdos406
 
-#print axioms Erdos406.known_witnesses
-#print axioms Erdos406.small_nonexamples
-#print axioms Erdos406.three_not_dvd_centralBinom_iff_zeroOneBase3
-#print axioms Erdos406.eventually_three_dvd_centralBinom_of_finite
-#print axioms Erdos406.eventually_three_dvd_choose_of_finite

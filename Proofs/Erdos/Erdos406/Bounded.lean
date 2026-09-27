@@ -44,5 +44,3 @@ example : 200 ≤ 200 ∧ ¬ ZeroOneBase3 (2 ^ 200) := by decide
 end Erdos406
 
 #check @Erdos406.zeroOneBase3_pow_two_iff_of_le_200
-#print axioms Erdos406.zeroOneBase3_pow_two_iff_of_le_200
-#print axioms Erdos406.exceptional_exponents_inter_Iic_200

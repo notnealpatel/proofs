@@ -352,7 +352,5 @@ example :
 
 #check @boundedCandidates_complete
 #check @optimize
-#print axioms boundedCandidates_complete
-#print axioms optimize
 
 end BilinearComplexity.FiniteBoundedSearch

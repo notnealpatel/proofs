@@ -495,32 +495,3 @@ end GroupCount
 
 /-! ## Axiom audit -/
 
-#print axioms GroupCount.instDecidableCommute
-#print axioms GroupCount.commTripleCount_eq_fintypeCard
-#print axioms GroupCount.card_commutingPair
-#print axioms GroupCount.commutingTripleEquivSigmaCentralizer
-#print axioms GroupCount.commTripleCount_eq_sum_centralizer
-#print axioms GroupCount.coe_conjAct_smul_commutingPair
-#print axioms GroupCount.commute_conjAct_smul
-#print axioms GroupCount.instMulActionConjActCommutingPair
-#print axioms GroupCount.conjAct_smul_eq_self_iff
-#print axioms GroupCount.mem_fixedBy_commutingPair
-#print axioms GroupCount.commutingTripleEquivSigmaFixedBy
-#print axioms GroupCount.fixedByEquivCommutingPairCentralizer
-#print axioms GroupCount.card_fixedBy_commutingPair
-#print axioms GroupCount.commTripleCount_eq_card_orbits_mul_card
-#print axioms GroupCount.card_dvd_commTripleCount
-#print axioms GroupCount.card_perm_fin
-#print axioms GroupCount.factorial_dvd_A072169
-#print axioms GroupCount.A072169_eq_factorial_mul
-#print axioms GroupCount.A061256_eq_card_orbits
-#print axioms GroupCount.A072169_zero
-#print axioms GroupCount.A072169_one
-#print axioms GroupCount.A072169_two
-#print axioms GroupCount.A072169_three
-#print axioms GroupCount.A072169_four
-#print axioms GroupCount.A061256_zero
-#print axioms GroupCount.A061256_one
-#print axioms GroupCount.A061256_two
-#print axioms GroupCount.A061256_three
-#print axioms GroupCount.A061256_four

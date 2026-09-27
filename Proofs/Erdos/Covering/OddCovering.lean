@@ -789,34 +789,6 @@ sound `native_decide` detector on this toolchain: a use would surface as
 a per-declaration `*._native.native_decide.ax_*` axiom.  This file
 contains no `native_decide`. -/
 
-#print axioms erdos_7
 
-#print axioms IsOddCoveringSystem
-#print axioms IsOddCoveringSystem.three_le_mod
-#print axioms OddCoveringExists
-#print axioms isOddCoveringSystem_iff
-#print axioms oddCandidate
-#print axioms not_isOddCoveringSystem_oddCandidate
-#print axioms not_isOddCoveringSystem_erdosSystem
-#print axioms natResidue
-#print axioms natResidue_snd
-#print axioms covers_image_sub_mod
-#print axioms isCoveringSystem_image_natResidue
-#print axioms oddCoveringExists_of_int_residues
-#print axioms card_filter_range_mod_le
-#print axioms two_mul_lcm_le_sum_divisors
-#print axioms odd_lcm_of_odd_mod
-#print axioms no_odd_abundant_range
-#print axioms no_odd_abundant_lt_945
-#print axioms le_of_odd_of_two_mul_le_sum_divisors
-#print axioms nine_hundred_forty_five_le_lcm
-#print axioms BBMSTNoOddSquarefreeCovering
-#print axioms HoughNielsenTwoOrThreeDvd
-#print axioms BBMSTLcmNineOrFifteen
-#print axioms SelfridgeAntichainReduction
-#print axioms exists_three_dvd_of_houghNielsen
-#print axioms exists_not_squarefree_of_bbmst
-#print axioms three_dvd_lcm_of_bbmstLcm
-#print axioms intSystem
 
 end Erdos.Covering

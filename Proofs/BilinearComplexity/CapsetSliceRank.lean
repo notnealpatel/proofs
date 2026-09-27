@@ -1082,11 +1082,5 @@ end ErdosRadoBridge
 file's single intended sorry (archived open conjecture, § 3) and reports
 `sorryAx`; everything else stays within the base axioms. -/
 
-#print axioms sunflowerFreeWeight_le_capsetNumber
-#print axioms peebles_conjecture
-#print axioms sliceRank_lineTensor
-#print axioms sliceRankLE_lineTensor_clp
-#print axioms croot_lev_pach_sliceRank_lineTensor
-#print axioms ellenberg_gijswijt
 
 end BilinearComplexity

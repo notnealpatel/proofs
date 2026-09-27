@@ -675,35 +675,5 @@ example : (5 : ℕ) ∣ 4 * 14 ^ 2 + 1 := by decide  -- n ≡ 0 (mod 2)
 -- §7 AXIOM AUDIT
 -- ════════════════════════════════════════════════════════════════════
 
-#print axioms IsSierpinskiNumber
-#print axioms sierpinskiCert78557
-#print axioms fixedDivisors_sierpinskiCert78557
-#print axioms prime_of_mem_fixedDivisors_sierpinskiCert78557
-#print axioms isCoveringSystem_sierpinskiCert78557
-#print axioms isFixedDivisorSystem_sierpinskiCert78557
-#print axioms isSierpinskiNumber_of_isFixedDivisorSystem
-#print axioms isSierpinskiNumber_78557
-#print axioms sierpinskiModulus
-#print axioms isFixedDivisorSystem_sierpinski_add_mul
-#print axioms isSierpinskiNumber_add_mul
-#print axioms exists_lt_isSierpinskiNumber
-#print axioms infinite_setOf_isSierpinskiNumber
-#print axioms IsSierpinskiNumberBase
-#print axioms isCoprime_intCast_add_one
-#print axioms isSierpinskiNumberBase_of_isFixedDivisorSystemBase
-#print axioms isSierpinskiNumber_iff_base_two
-#print axioms isSierpinskiNumberBase_two_78557
-#print axioms sierpinskiCertBase14_4
-#print axioms fixedDivisors_sierpinskiCertBase14_4
-#print axioms prime_of_mem_fixedDivisors_sierpinskiCertBase14_4
-#print axioms not_isCoveringSystem_sierpinskiCertBase14_4
-#print axioms isFixedDivisorSystemBase_sierpinskiCertBase14_4
-#print axioms isSierpinskiNumberBase_fourteen_four
-#print axioms not_composite_four_mul_fourteen_pow_zero_add_one
-#print axioms sierpinskiModulusBase14
-#print axioms isFixedDivisorSystemBase_sierpinski_base14_add_mul
-#print axioms isSierpinskiNumberBase_fourteen_add_mul
-#print axioms exists_lt_isSierpinskiNumberBase_fourteen
-#print axioms infinite_setOf_isSierpinskiNumberBase_fourteen
 
 end Erdos.Covering

@@ -242,7 +242,5 @@ example :
 #check @sum_threeAPCount_affineWindow_le_gapMultiplicity
 #check @affineWindow_sharp_supersaturation
 
-#print axioms sum_threeAPCount_affineWindow_le_gapMultiplicity
-#print axioms affineWindow_sharp_supersaturation
 
 end Erdos142

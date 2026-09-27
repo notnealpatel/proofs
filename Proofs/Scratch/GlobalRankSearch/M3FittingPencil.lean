@@ -140,9 +140,5 @@ example :
 #check @m3_repeatedBlock_rank
 #check @m3_repeatedBlock_det
 
-#print axioms m3LinearMap_apply_eq_sum_functionalVec_mul
-#print axioms M3HyperplaneRankLE.exists_fittingPencil_factorization
-#print axioms m3_repeatedBlock_rank
-#print axioms m3_repeatedBlock_det
 
 end BilinearComplexity

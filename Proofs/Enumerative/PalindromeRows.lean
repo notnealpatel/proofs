@@ -241,8 +241,6 @@ example (k : ℕ) : ¬ (1 ≤ k ∧ k < 2 ^ 0) := by
 example : T 0 0 = 1 ∧ T 0 1 = 0 := by decide
 example : T 1 2 = 0 := T_eq_zero_of_lt (by norm_num)
 
-#print axioms T_symm_of_two_pow
-#print axioms T_two_pow_self_eq_zero
 #check @T_symm_of_two_pow
 
 end A267632

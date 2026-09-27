@@ -161,11 +161,5 @@ example (r q : ℕ) : ¬ r * q < 0 := Nat.not_lt_zero _
 
 end EdgeAudits
 
-#print axioms matrix_rank_add_le
-#print axioms matrix_rank_sum_le
-#print axioms rank_linearMap_le_mul_of_rankLE
-#print axioms le_rank_of_submatrix_det_ne_zero
-#print axioms le_mul_of_submatrix_det_ne_zero_of_rankLE
-#print axioms not_rankLE_of_mul_lt_of_submatrix_det_ne_zero
 
 end BilinearComplexity

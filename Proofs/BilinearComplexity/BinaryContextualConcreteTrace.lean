@@ -407,11 +407,5 @@ example : (ContextualTrace.compileConcrete groundPrimitiveTrace221).length = 1 :
 #check @ContextualTrace.compileConcrete_length_le
 #check @ContextualTrace.compileConcrete_altitude_le
 
-#print axioms compileContextualJump
-#print axioms compileContextualJump_ambient_membership
-#print axioms compileContextualJump_outside
-#print axioms ContextualTrace.compileConcrete_length
-#print axioms ContextualTrace.compileConcrete_length_le
-#print axioms ContextualTrace.compileConcrete_altitude_le
 
 end BilinearComplexity.BinaryContextualConcreteTrace

@@ -813,9 +813,5 @@ example : ¬ IsLeast {j : ℕ | Reachable 6 j} 5 := by
 #check @existsUnique_shortest_decisionWord
 #check @rebert_conjecture_iInf
 
-#print axioms rebert_conjecture
-#print axioms existsUnique_shortest_decisionWord
-#print axioms rebert_conjecture_iInf
-#print axioms nonempty_reachable
 
 end NumberComplexity

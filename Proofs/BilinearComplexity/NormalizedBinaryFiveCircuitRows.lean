@@ -4103,20 +4103,5 @@ theorem selectedReplayRows_profiles :
 #check @replayRow_toFiveCircuitCertificate
 #check @CertifiedReplayRow
 #check @selectedReplayRows
-#print axioms allModeMovePath_altitude_le_four
-#print axioms replayRow_toFiveCircuitCertificate
-#print axioms row22101Certificate
-#print axioms row22102Certificate
-#print axioms row22103Certificate
-#print axioms row41101Certificate
-#print axioms row32101Certificate
-#print axioms row32102Certificate
-#print axioms row32103Certificate
-#print axioms row32104Certificate
-#print axioms row32105Certificate
-#print axioms row32106Certificate
-#print axioms row22201Certificate
-#print axioms row22202Certificate
-#print axioms row22203Certificate
 
 end BilinearComplexity.NormalizedBinaryFiveCircuitRows

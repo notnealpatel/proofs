@@ -1091,32 +1091,6 @@ end AsymmetricReplay
 #check @AsymmetricReplay.bcaData
 #check @AsymmetricReplay.target_ne_replay_bca
 #check @AsymmetricReplay.target_replayableBrent
-#print axioms Brent.sandwich
-#print axioms Brent.orientMatrix
-#print axioms Brent.replay
-#print axioms ReplayableBrent.sandwich
-#print axioms ReplayableBrent.orientMatrix
-#print axioms ReplayableBrent.replay
-#print axioms ReplayWitness.target_eq_replay
-#print axioms ReplayWitness.brent
-#print axioms ReplayWitness.replayableBrent
-#print axioms replayWitness
-#print axioms ActionEquivalent.brent
-#print axioms ActionEquivalent.replayableBrent
-#print axioms Sandwich.tensorIsotropy
-#print axioms AsymmetricReplay.orientation_eq_bac_and_dims
-#print axioms AsymmetricReplay.source_first_ne_second
-#print axioms AsymmetricReplay.source_term_evals_eq_standard
-#print axioms AsymmetricReplay.permutation_ne_refl
-#print axioms AsymmetricReplay.sandwichData_P_ne_one
-#print axioms AsymmetricReplay.gauges_zero_ne_one
-#print axioms AsymmetricReplay.mapped_first
-#print axioms AsymmetricReplay.mapped_second
-#print axioms AsymmetricReplay.mapped_third
-#print axioms AsymmetricReplay.target_eq_replay
-#print axioms AsymmetricReplay.target_ne_replay_bca
-#print axioms AsymmetricReplay.source_replayableBrent
-#print axioms AsymmetricReplay.target_replayableBrent
 
 end Action
 end Scheme

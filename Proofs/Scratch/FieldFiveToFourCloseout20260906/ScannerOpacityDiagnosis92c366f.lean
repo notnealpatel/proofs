@@ -7,7 +7,6 @@ set_option pp.all true in
 #print BilinearComplexity.FieldTernaryFiveCircuitPair.certifiedScan
 set_option pp.all true in
 #print BilinearComplexity.FieldTernaryFiveCircuitPair.Candidate.Valid
-#print axioms BilinearComplexity.FieldTernaryFiveCircuitPair.scan
 
 #check @BilinearComplexity.FieldTernaryFiveCircuitPair.scan_sound
 #check @BilinearComplexity.FieldTernaryFiveCircuitPair.scan_isSome

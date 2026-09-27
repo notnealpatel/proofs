@@ -531,16 +531,5 @@ example :
 #check @normalizePath_denormalizePath_vertices
 #check @denormalizePath_normalizePath_vertices
 
-#print axioms allModeMove_iff_normalized
-#print axioms normalizePath
-#print axioms denormalizePath
-#print axioms normalizePath_vertices
-#print axioms denormalizePath_vertices
-#print axioms normalizePath_length
-#print axioms normalizePath_altitude
-#print axioms denormalizePath_length
-#print axioms denormalizePath_altitude
-#print axioms normalizePath_denormalizePath_vertices
-#print axioms denormalizePath_normalizePath_vertices
 
 end BilinearComplexity.BinaryAmbientFullFrame

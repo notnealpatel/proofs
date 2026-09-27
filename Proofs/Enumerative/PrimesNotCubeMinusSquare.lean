@@ -690,28 +690,5 @@ Everything below is `{propext, Classical.choice, Quot.sound}` except
 `primesNotCubeMinusSquare_infinite`, the single intended `sorry`, which also
 reports `sorryAx`. -/
 
-#print axioms isCubeMinusSquare_of_isPosCubeMinusSquare
-#print axioms isCubeMinusSquare_iff_isPosCubeMinusSquare_of_prime
-#print axioms mem_primesNotCubeMinusSquare_iff
-#print axioms mem_primesNotCubeMinusSquare_iff_pos
-#print axioms prime_of_mem_primesNotCubeMinusSquare
-#print axioms primesNotCubeMinusSquare_subset_setOf_prime
-#print axioms witnesses_length
-#print axioms witnesses_map_fst
-#print axioms witnesses_spec
-#print axioms isPosCubeMinusSquare_of_mem_witnesses
-#print axioms isCubeMinusSquare_of_mem_witnesses
-#print axioms notMem_primesNotCubeMinusSquare_of_mem_witnesses
-#print axioms two_notMem_primesNotCubeMinusSquare
-#print axioms primesNotCubeMinusSquare_ssubset_setOf_prime
-#print axioms not_dvd_sq_add_one_of_emod_four_eq_three
-#print axioms false_of_dvd_four_mul_sq_add_one
-#print axioms not_isCubeMinusSquare_three
-#print axioms not_isCubeMinusSquare_five
-#print axioms three_mem_primesNotCubeMinusSquare
-#print axioms five_mem_primesNotCubeMinusSquare
-#print axioms primesNotCubeMinusSquare_nonempty
-#print axioms primesNotCubeMinusSquare_infinite_iff
-#print axioms primesNotCubeMinusSquare_infinite
 
 end A161682

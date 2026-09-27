@@ -615,33 +615,6 @@ example :
 #check @exists_shorter_exact_of_eval_eq_zero
 #check @collision_deformation_dichotomy
 
-#print axioms ModeChoice
-#print axioms firstChange
-#print axioms secondChange
-#print axioms thirdChange
-#print axioms update
-#print axioms evaluationDifference
-#print axioms sumTensor_update
-#print axioms sumTensor_update_of_mem_ker
-#print axioms firstCoordinate
-#print axioms secondCoordinate
-#print axioms thirdCoordinate
-#print axioms firstKernelDifference
-#print axioms secondKernelDifference
-#print axioms thirdKernelDifference
-#print axioms add_self_eq_zero_f2_module
-#print axioms add_eq_add_iff_add_eq_add_f2
-#print axioms first_collision_feasible_iff_mem_range
-#print axioms second_collision_feasible_iff_mem_range
-#print axioms third_collision_feasible_iff_mem_range
-#print axioms FactorwiseSeparated
-#print axioms update_retains_unchanged_unequal_factor
-#print axioms eq_one_of_ne_zero_f2
-#print axioms factors_eq_of_eval_eq_of_ne_zero
-#print axioms update_eval_injective
-#print axioms FactorCollision
-#print axioms exists_shorter_exact_of_eval_eq_zero
-#print axioms collision_deformation_dichotomy
 
 end BinaryOneFactorDeformation
 end Scheme

@@ -135,9 +135,5 @@ example :
 #check @card_mul_choose_le_addRothNumber_mul_choose_add_threeAPCount_mul_choose
 #check @sub_mul_choose_le_threeAPCount_mul_choose
 
-#print axioms threeAPEdges_subset_eq_filter
-#print axioms sum_threeAPCount_powersetCard
-#print axioms card_mul_choose_le_addRothNumber_mul_choose_add_threeAPCount_mul_choose
-#print axioms sub_mul_choose_le_threeAPCount_mul_choose
 
 end Erdos142

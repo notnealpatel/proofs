@@ -288,9 +288,5 @@ theorem finiteDimensional_ambient_fiveCircuit_classification
 #check @row41101_genuine_compiler_joint_sharpness
 #check @finiteDimensional_ambient_fiveCircuit_classification
 
-#print axioms coordinateCompiler_label
-#print axioms all_thirteen_ambient_orbits_realized
-#print axioms row41101_genuine_compiler_joint_sharpness
-#print axioms finiteDimensional_ambient_fiveCircuit_classification
 
 end BilinearComplexity.BinaryFiveCircuitTheorem

@@ -52,6 +52,5 @@ theorem singletons9_hasSunflower : HasSunflower singletons9 2 :=
   IsFullyCompressed.hasSunflower (by norm_num : 1 ≤ 2)
     singletons9_compressed singletons9_uniform singletons9_threshold
 
-#print axioms singletons9_hasSunflower
 
 end SunflowerExample

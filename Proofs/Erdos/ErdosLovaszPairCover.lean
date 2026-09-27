@@ -154,8 +154,3 @@ example : 2 * 2 - 1 = erdosLovaszNum 2 := by rw [erdosLovaszNum_two]
 #check @IsErdosLovaszFamily.two_mul_sub_one_le_card
 #check @two_mul_sub_one_le_erdosLovaszNum
 
-#print axioms exists_isTransversal_two_mul_card_le
-#print axioms two_mul_coveringNumber_le_card_add_one
-#print axioms IsErdosLovaszFamily.two_mul_le_card_add_one
-#print axioms IsErdosLovaszFamily.two_mul_sub_one_le_card
-#print axioms two_mul_sub_one_le_erdosLovaszNum

@@ -36,7 +36,6 @@ private theorem sum_eq_of_eq_off_two {ι M : Type*} [Fintype ι] [DecidableEq ι
     _ = (∑ x ∈ (Finset.univ.erase i).erase j, g x) + g j + g i := by rw [hrest]
 
 #check @sum_eq_of_eq_off_two
-#print axioms sum_eq_of_eq_off_two
 
 /-- A raw first-mode shear preserves the represented tensor when its two first
  factors are literally equal. -/
@@ -505,18 +504,5 @@ example :
 #check @Scheme.RawElementaryFlip.symm
 #check @Scheme.ElementaryFlip.symm
 
-#print axioms Scheme.sumTensor_flipFirst
-#print axioms Scheme.sumTensor_flipSecond
-#print axioms Scheme.sumTensor_flipThird
-#print axioms Scheme.SameTensors.sumTensor_eq
-#print axioms Scheme.RawElementaryFlip.sumTensor_eq
-#print axioms Scheme.ElementaryFlip.sumTensor_eq
-#print axioms Scheme.flipFirst_neg
-#print axioms Scheme.flipSecond_neg
-#print axioms Scheme.flipThird_neg
-#print axioms Scheme.rankLE_sum_of_reducibleFamily_first_second
-#print axioms Scheme.Reducible.rankLE_pred
-#print axioms Scheme.RawElementaryFlip.symm
-#print axioms Scheme.ElementaryFlip.symm
 
 end BilinearComplexity.FlipQuantum

@@ -220,11 +220,6 @@ end GroundTruth
 #check @subgroup_eq_of_isCyclic_card_eq
 #check @injective_hom_eq_comp_mulEquiv
 
-#print axioms factorization_mul_primes_right
-#print axioms sylow_card_eq_larger_prime
-#print axioms sylow_larger_prime_normal
-#print axioms subgroup_eq_of_isCyclic_card_eq
-#print axioms injective_hom_eq_comp_mulEquiv
 
 /-- If a finite group is a noncyclic internal semidirect product with a cyclic
 normal factor and a cyclic prime-order complement, then its conjugation action is
@@ -493,27 +488,17 @@ end GroundTruth
 #check @exists_semidirectProduct_card_mul_primes_noncommutative
 #check @gnu_mul_primes_of_dvd
 #check @gnu_mul_primes
-#print axioms exists_semidirectProduct_card_mul_primes_noncommutative
-#print axioms gnu_mul_primes_of_dvd
-#print axioms gnu_mul_primes
 
 #check @dvd_pred_of_card_eq_mul_primes_of_not_isCyclic
 #check @gnu_mul_primes_of_not_dvd
-#print axioms dvd_pred_of_card_eq_mul_primes_of_not_isCyclic
-#print axioms gnu_mul_primes_of_not_dvd
 
 #check @semidirect_action_injective_of_noncyclic_target
 #check @nonempty_mulEquiv_of_card_eq_mul_primes_of_not_isCyclic
-#print axioms semidirect_action_injective_of_noncyclic_target
-#print axioms nonempty_mulEquiv_of_card_eq_mul_primes_of_not_isCyclic
 
 #check @semidirect_products_mulEquiv_of_injective
-#print axioms semidirect_products_mulEquiv_of_injective
 
 #check @semidirect_action_injective_of_not_isCyclic
 #check @exists_pq_semidirect_decomposition
 
-#print axioms semidirect_action_injective_of_not_isCyclic
-#print axioms exists_pq_semidirect_decomposition
 
 end GroupCount

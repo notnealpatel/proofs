@@ -403,15 +403,5 @@ example : minimumMonomialShears 2 = 1 := by
 
 #check @minimumMonomialShears_eq_l
 #check @minimumMonomialShears_eq_l_all_with_empty_infimum_at_zero
-#print axioms MonomialShearProgram.isAddChain
-#print axioms MonomialShearProgram.shearCount_eq_chainSteps
-#print axioms nonempty_monomialShearProgram_of_isAddChain
-#print axioms nonempty_monomialShearProgram_iff_isAddChain
-#print axioms gate_shear_zero_target_pow
-#print axioms MonomialShearProgram.shearCount_circuit
-#print axioms MonomialShearProgram.run_circuit_eq_pow
-#print axioms exists_optimal_shear_circuit_realization
-#print axioms minimumMonomialShears_eq_l
-#print axioms minimumMonomialShears_eq_l_all_with_empty_infimum_at_zero
 
 end ShearEC.ShearAdditionChain

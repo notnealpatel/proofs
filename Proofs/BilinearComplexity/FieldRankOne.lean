@@ -457,10 +457,6 @@ example :
 #check @BinaryCorrespondence.stateEquiv
 #check @BinaryCorrespondence.stateEquiv_card
 #check @BinaryCorrespondence.stateEquiv_eval
-#print axioms Rep.rescale_eval
-#print axioms stateScheme_valid
-#print axioms LinearTransport.stateEval_mapState
-#print axioms BinaryCorrespondence.stateEquiv_eval
 
 end FieldRankOne
 end BilinearComplexity

@@ -217,15 +217,5 @@ example : strassenStateEvaluationMatches = true := by decide
 #check @rank_matMulTensor_F2_eq_seven
 #check @seven_le_card_of_stateEvaluation_eq_matMulTensor
 
-#print axioms BilinearComplexity.seven_le_rank_matMulTensor_zmod
-#print axioms rankLE_stateEvaluation
-#print axioms strassenTerm_tensor_ne_zero
-#print axioms strassenTerm_injective
-#print axioms strassenState_card
-#print axioms strassenState_evaluation
-#print axioms strassenState_rankLE
-#print axioms strassen_rankLE_F2
-#print axioms rank_matMulTensor_F2_eq_seven
-#print axioms seven_le_card_of_stateEvaluation_eq_matMulTensor
 
 end BilinearComplexity.BinaryMatMulRankCertificate

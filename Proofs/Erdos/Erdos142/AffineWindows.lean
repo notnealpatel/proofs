@@ -528,16 +528,5 @@ example :
 #check @sum_threeAPCount_affineWindow_le
 #check @affineWindow_incidence_bound
 
-#print axioms exists_ordered_threeAP_of_mem_threeAPEdges
-#print axioms affineWindow_ordered_threeAP_transport
-#print axioms image_mem_threeAPEdges_of_mem_affineWindow
-#print axioms threeAPCount_affineWindow_le
-#print axioms card_filter_base_affineWindow
-#print axioms sum_card_affineWindow_fixed_difference
-#print axioms sum_affineWindow_base_count
-#print axioms sum_card_affineWindow
-#print axioms affineWindow_incidence_bound_of_threeAP_multiplicity
-#print axioms sum_threeAPCount_affineWindow_le
-#print axioms affineWindow_incidence_bound
 
 end Erdos142

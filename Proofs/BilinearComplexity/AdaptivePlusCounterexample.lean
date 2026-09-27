@@ -334,7 +334,6 @@ theorem directed_forward_interpretation_counterexample :
 #check @representedTensor_source_eq_target
 #check @not_forwardReachable_source_target
 #check @directed_forward_interpretation_counterexample
-#print axioms directed_forward_interpretation_counterexample
 
 end AdaptivePlusCounterexample
 end BilinearComplexity

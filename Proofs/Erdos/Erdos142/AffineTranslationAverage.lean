@@ -138,8 +138,5 @@ example :
 #check @mul_card_le_card_mul_of_affinePreimage_card_le
 #check @mul_card_le_card_mul_rothNumberNat_of_threeAPFree
 
-#print axioms sum_card_affinePreimage
-#print axioms mul_card_le_card_mul_of_affinePreimage_card_le
-#print axioms mul_card_le_card_mul_rothNumberNat_of_threeAPFree
 
 end Erdos142

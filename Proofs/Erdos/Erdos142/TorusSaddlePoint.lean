@@ -199,14 +199,5 @@ example : ((2 : ℕ) : ℝ) * 1 + 4 / ((2 : ℕ) : ℝ) ≤ 2 * Real.sqrt (1 * 4
       rw [h4]
       norm_num) (by norm_num) (by norm_num)).2.2
 
-#print axioms one_le_natCeil
-#print axioms natCeil_le_two_mul
-#print axioms natCeil_add_sq_div_le
-#print axioms two_le_sqrt_div
-#print axioms one_le_saddleK
-#print axioms saddleK_le_two_mul_sqrt
-#print axioms saddleK_saddle_le
-#print axioms saddleK_spec
-#print axioms saddle_spec_of_eq
 
 end Erdos142

@@ -512,5 +512,3 @@ theorem transportSelectedContextPath_vertex_card
 
 end BilinearComplexity.BinaryContextualOrbitTransport
 
-#print axioms BilinearComplexity.BinaryContextualOrbitTransport.actState_pullbackState
-#print axioms BilinearComplexity.BinaryContextualOrbitTransport.transportSelectedContextPath_vertex_card

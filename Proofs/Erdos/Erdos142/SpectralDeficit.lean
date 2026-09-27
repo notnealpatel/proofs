@@ -375,9 +375,5 @@ example :
 #check @threeAPSum_cyclicIndicator
 #check @exists_nonzero_fourier_of_cyclic_deficit
 
-#print axioms sum_cyclicIndicator
-#print axioms sum_sq_norm_cyclicIndicator
-#print axioms threeAPSum_cyclicIndicator
-#print axioms exists_nonzero_fourier_of_cyclic_deficit
 
 end Erdos142

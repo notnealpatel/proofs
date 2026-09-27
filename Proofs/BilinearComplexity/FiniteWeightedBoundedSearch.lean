@@ -537,9 +537,5 @@ namespace BilinearComplexity.FiniteWeightedBoundedSearch
 #check @boundedCandidates_sound
 #check @boundedCandidates_complete
 #check @optimize
-#print axioms boundedCandidates_sound
-#print axioms boundedCandidates_complete
-#print axioms optimize
-#print axioms GroundModel.successors_complete
 
 end BilinearComplexity.FiniteWeightedBoundedSearch

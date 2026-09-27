@@ -503,12 +503,5 @@ end ContextualTrace
 #check @ContextualTrace.compile_altitude_le
 #check @ContextualTrace.endpoint_evaluation
 
-#print axioms ContextualFiveCircuitJump.preserves_evaluation
-#print axioms MacroCompilation.altitude_le_boundaryMax_add_one
-#print axioms ContextualTrace.compile_length
-#print axioms ContextualTrace.macroDistanceSum_le_three_mul_macroCount
-#print axioms ContextualTrace.compile_length_le
-#print axioms ContextualTrace.compile_altitude_le
-#print axioms ContextualTrace.endpoint_evaluation
 
 end BilinearComplexity.BinaryContextualTrace

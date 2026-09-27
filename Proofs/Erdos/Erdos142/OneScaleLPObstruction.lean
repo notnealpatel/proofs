@@ -157,7 +157,3 @@ example : (3 : ℝ) * ((rothNumberNat 3 : ℝ) / (2 * (3 : ℝ))) ≤ (rothNumbe
 end Erdos142
 
 -- Axiom audit for the load-bearing declarations.
-#print axioms Erdos142.mul_rothNumberNat_le_two_mul_mul
-#print axioms Erdos142.real_mul_rothNumberNat_div_le
-#print axioms Erdos142.rothNumberNat_two
-#print axioms Erdos142.rothNumberNat_three

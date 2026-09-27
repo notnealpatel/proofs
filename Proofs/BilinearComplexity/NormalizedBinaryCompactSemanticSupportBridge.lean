@@ -692,18 +692,8 @@ example : (⟨0, 1, 5, 17, 26⟩ : FiveCode).Valid packed222 := by decide
 #check @exactCodes411_decodedSupport_iff
 #check @exactCodes321_decodedSupport_iff
 #check @exactCodes222_decodedSupport_iff
-#print axioms exactCodes221_decodedSupport_iff
-#print axioms exactCodes411_decodedSupport_iff
-#print axioms exactCodes321_decodedSupport_iff
-#print axioms exactCodes222_decodedSupport_iff
-#print axioms decodedExactSupports221_eq_allExactSupports
-#print axioms decodedExactSupports411_eq_allExactSupports
-#print axioms decodedExactSupports321_eq_allExactSupports
-#print axioms decodedExactSupports222_eq_allExactSupports
 
 #check @decodeFiveCodeWith_card
 #check @decodeFiveCodeWith_sorted
-#print axioms decodeFiveCodeWith_card
-#print axioms decodeFiveCodeWith_sorted
 
 end BilinearComplexity.NormalizedBinaryCompactSemanticSupportBridge

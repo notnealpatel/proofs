@@ -484,9 +484,5 @@ example : 8 ^ 2 ≤
 #check @sq_le_two_mul_card_naturalThreeAPPairs_range
 #check @sq_le_two_mul_cyclicThreeAPCount_range
 
-#print axioms card_naturalThreeAPPairs
-#print axioms cyclicThreeAPCount_natCyclicImage
-#print axioms card_naturalThreeAPPairs_range
-#print axioms sq_le_two_mul_cyclicThreeAPCount_range
 
 end Erdos142

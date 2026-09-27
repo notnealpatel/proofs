@@ -267,8 +267,5 @@ example :
 #check @exists_optimized_density_step_of_threeAPFree
 #check @exists_optimized_density_step_of_density_floor
 
-#print axioms optimizedDensityStep_parameters
-#print axioms exists_optimized_density_step_of_threeAPFree
-#print axioms exists_optimized_density_step_of_density_floor
 
 end Erdos142

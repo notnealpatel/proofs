@@ -614,23 +614,3 @@ example : ¬ Base7TwoFour (18 ^ 5) :=
 
 end Erdos406
 
-#print axioms Erdos406.two_pow_odd_mod_three
-#print axioms Erdos406.two_pow_zmod_eq_one_iff
-#print axioms Erdos406.orderOf_two_zmod_three_pow
-#print axioms Erdos406.two_pow_mod_eq_one_iff
-#print axioms Erdos406.sieveAt_iff_mod_mem_sieveClasses
-#print axioms Erdos406.sieveAt_of_mem_sieveClasses_of_modEq
-#print axioms Erdos406.sieveAt_zero
-#print axioms Erdos406.zero_mem_sieveClasses
-#print axioms Erdos406.setOf_sieveAt_infinite
-#print axioms Erdos406.card_range_mul_filter_sieveAt
-#print axioms Erdos406.exists_two_pow_mod_eq_of_not_dvd
-#print axioms Erdos406.exists_two_pow_mod_eq
-#print axioms Erdos406.exists_two_pow_mod_eq_of_base3ZeroOne
-#print axioms Erdos406.pow_mod_eq_of_pow_mod_one
-#print axioms Erdos406.digit_eq_digit_of_mod_pow_eq_base
-#print axioms Erdos406.div_pow_mod_mem_digits
-#print axioms Erdos406.digits_seven_eighteen_pow
-#print axioms Erdos406.eighteen_wieferich_window
-#print axioms Erdos406.not_base7TwoFour_eighteen_pow_of_three_le
-#print axioms Erdos406.base7TwoFour_eighteen_pow_iff

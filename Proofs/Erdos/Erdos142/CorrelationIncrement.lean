@@ -415,14 +415,5 @@ example :
 #check @exists_density_increment_of_correlation
 #check @exists_density_increment_quarter_of_correlation
 
-#print axioms sum_balancedIndicator_eq_zero
-#print axioms sum_abs_balancedIndicator_le_card
-#print axioms exists_large_of_sum_eq_zero
-#print axioms exists_cell_sum_ge_of_correlation_with_error
-#print axioms exists_cell_sum_ge_of_correlation
-#print axioms sum_balancedIndicator_on_cell
-#print axioms exists_density_increment_of_correlation_with_error
-#print axioms exists_density_increment_of_correlation
-#print axioms exists_density_increment_quarter_of_correlation
 
 end Erdos142

@@ -186,6 +186,3 @@ end
 end Erdos142
 
 -- Axiom audit for the load-bearing declarations.
-#print axioms Erdos142.tendsto_rothNumberNat_div_nat_zero
-#print axioms Erdos142.tendsto_log_rothNumberNat_div_log_one
-#print axioms Erdos142.not_tendsto_rothNumberNat_div_rpow

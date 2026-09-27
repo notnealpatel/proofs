@@ -63,9 +63,5 @@ theorem literalTargetSet222_eq_allExactRelations :
 #check @literalTargetSet411_eq_allExactRelations
 #check @literalTargetSet321_eq_allExactRelations
 #check @literalTargetSet222_eq_allExactRelations
-#print axioms literalTargetSet221_eq_allExactRelations
-#print axioms literalTargetSet411_eq_allExactRelations
-#print axioms literalTargetSet321_eq_allExactRelations
-#print axioms literalTargetSet222_eq_allExactRelations
 
 end BilinearComplexity.NormalizedBinaryCoverageCompleteness

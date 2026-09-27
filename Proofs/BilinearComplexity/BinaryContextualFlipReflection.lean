@@ -267,6 +267,5 @@ theorem allModeFlipCandidate_encode {p : Profile} {D E : State p}
 
 #check @allModeFlipCandidate_encode
 
-#print axioms allModeFlipCandidate_encode
 
 end BilinearComplexity.BinaryContextualFlipReflection

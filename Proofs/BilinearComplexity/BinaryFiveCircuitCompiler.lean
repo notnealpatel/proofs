@@ -554,11 +554,5 @@ theorem row22101_ambientCompilation_regression :
 #check @ambientInOrbit_label_unique
 #check @exists_ambientFiveCircuitConclusion
 
-#print axioms compileBinaryFiveCircuit
-#print axioms BinaryFiveCircuitCompilation.forward
-#print axioms BinaryFiveCircuitCompilation.forward_confined
-#print axioms ambientInOrbit_label_unique
-#print axioms exists_ambientFiveCircuitConclusion
-#print axioms row22101_ambientCompilation_regression
 
 end BilinearComplexity.BinaryFiveCircuitCompiler

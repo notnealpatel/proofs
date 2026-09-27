@@ -299,14 +299,5 @@ example :
   · exact hN₂
   · exact hN₃
 
-#print axioms compPolynomialMap_eval_entries
-#print axioms BorderRankLE.comp
-#print axioms contract₁PolynomialMap_eval_entries
-#print axioms BorderRankLE.contract₁
-#print axioms contract₂PolynomialMap_eval_entries
-#print axioms BorderRankLE.contract₂
-#print axioms contract₃PolynomialMap_eval_entries
-#print axioms BorderRankLE.contract₃
-#print axioms BorderRankLE.factorwise
 
 end BilinearComplexity

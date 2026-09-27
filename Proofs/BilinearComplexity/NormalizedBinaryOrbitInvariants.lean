@@ -319,10 +319,5 @@ theorem selectedRowInvariant_injective (family : CanonicalProfileFamily) :
 #check @actualRows_eq
 #check @selectedRowInvariant_injective
 
-#print axioms crossCount_mapState
-#print axioms crossCount_permuteState
-#print axioms relationInvariant_profileAction
-#print axioms actualRows_eq
-#print axioms selectedRowInvariant_injective
 
 end BilinearComplexity.NormalizedBinaryOrbitInvariants

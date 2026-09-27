@@ -271,23 +271,13 @@ example : Nonempty (Fin 2) ∧ Nonempty (Fin 1) := ⟨⟨0⟩, ⟨0⟩⟩
 #check @canonicalReplayState
 #check @canonicalReplayState_eq
 #check @edgeReplay_eq_direct
-#print axioms canonicalReplayState_eq
-#print axioms edgeReplay_eq_direct
 #check @macroFields
 #check @candidateFields
 #check @BinaryMacroBoundedSearch.Candidate.cached_macro_factorization
-#print axioms BinaryMacroBoundedSearch.Candidate.cached_macro_factorization
 #check @BinaryMacroBoundedSearch.Trace.cachedMacros_results
 #check @BinaryMacroBoundedSearch.Trace.cached_macro_factorization
-#print axioms BinaryMacroBoundedSearch.Trace.cachedMacros_results
-#print axioms BinaryMacroBoundedSearch.Trace.cached_macro_factorization
 #check @BinaryMacroBoundedSearch.Result.macro_factorization
 #check @BinaryMacroBoundedSearch.optimize_card_eq_primitive
-#print axioms runPrimitive
-#print axioms runMacro
-#print axioms runActivated
-#print axioms BinaryMacroBoundedSearch.Result.macro_factorization
-#print axioms BinaryMacroBoundedSearch.optimize_card_eq_primitive
 
 end BilinearComplexity.BinaryMacroSearchMain
 
@@ -310,4 +300,3 @@ example : main [] =
     throw (IO.userError "usage: binary-macro-search (primitive|macro|activated) k H") := rfl
 
 #check @main
-#print axioms main

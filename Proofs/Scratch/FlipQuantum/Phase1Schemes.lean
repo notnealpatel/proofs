@@ -367,21 +367,5 @@ example (T : BilinearComplexity.Tensor ℚ 1 1 1) (S : Scheme ℚ 1 1 1 0) :
 #check @Scheme.not_graphVertex_zero
 #check @Scheme.not_reducible_zero
 
-#print axioms Scheme.rankLE_sumTensor
-#print axioms Scheme.Valid.rankLE
-#print axioms Scheme.valid_zero_iff
-#print axioms Scheme.not_valid_of_first_mode_empty
-#print axioms Scheme.not_valid_of_second_mode_empty
-#print axioms Scheme.not_valid_of_third_mode_empty
-#print axioms projectivelyEqual_of_eq
-#print axioms projectivelyEqual_refl
-#print axioms Scheme.sameTensors_refl
-#print axioms Scheme.reachable_refl
-#print axioms Scheme.Reachable.trans
-#print axioms Scheme.Flip.rankLE
-#print axioms Scheme.not_rawElementaryFlip_zero
-#print axioms Scheme.not_elementaryFlip_zero
-#print axioms Scheme.not_graphVertex_zero
-#print axioms Scheme.not_reducible_zero
 
 end BilinearComplexity.FlipQuantum

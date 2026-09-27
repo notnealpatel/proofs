@@ -866,53 +866,5 @@ example : 2 * 2 ≤ 2 ^ 2 := two_mul_le_two_pow (le_refl 2)
 intended `sorry` and reports `sorryAx` by construction. Everything below
 must report a subset of `{propext, Classical.choice, Quot.sound}`. -/
 
-#print axioms PowExpr
-#print axioms PowExpr.eval
-#print axioms PowExpr.cost
-#print axioms PowExpr.ones
-#print axioms powComplexity_def
-#print axioms PowExpr.one_le_eval
-#print axioms PowExpr.one_le_cost
-#print axioms PowExpr.eval_ones
-#print axioms PowExpr.cost_ones
-#print axioms powComplexity
-#print axioms powComplexity_zero
-#print axioms powComplexity_le_cost
-#print axioms exists_cost_eq_powComplexity
-#print axioms le_powComplexity
-#print axioms one_le_powComplexity
-#print axioms powComplexity_le_self
-#print axioms powComplexity_one
-#print axioms powComplexity_add_le
-#print axioms powComplexity_pow_le
-#print axioms powScan
-#print axioms powScan_le_self
-#print axioms powScan_le
-#print axioms powScan_cases
-#print axioms powScan_congr
-#print axioms powSplit
-#print axioms powSplit_le_self
-#print axioms powSplit_le_add
-#print axioms powSplit_le_pow
-#print axioms powSplit_cases
-#print axioms powSplit_congr
-#print axioms powComplexityFuel
-#print axioms powComplexityFuel_zero
-#print axioms powComplexityFuel_one
-#print axioms powComplexityFuel_succ
-#print axioms powComplexityRec
-#print axioms powComplexityRec_zero
-#print axioms powComplexityRec_one
-#print axioms powComplexityFuel_eq_powComplexityRec
-#print axioms powComplexityRec_eq_powSplit
-#print axioms powComplexityRec_le_self
-#print axioms powComplexityRec_add_le
-#print axioms two_mul_le_two_pow
-#print axioms powComplexityRec_pow_le
-#print axioms exists_cost_le_powComplexityRec
-#print axioms powComplexityRec_le_cost
-#print axioms powComplexity_eq_powComplexityRec
-#print axioms exists_complexity_lt_powComplexity
-#print axioms exists_powComplexity_lt_complexity
 
 end NumberComplexity

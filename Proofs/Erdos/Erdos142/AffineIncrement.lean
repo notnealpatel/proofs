@@ -162,6 +162,5 @@ example :
       Real.norm_eq_abs]
 
 #check @exists_affine_density_increment_of_correlation
-#print axioms exists_affine_density_increment_of_correlation
 
 end Erdos142

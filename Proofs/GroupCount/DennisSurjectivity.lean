@@ -239,13 +239,5 @@ end GroundTruth
 `*._native.native_decide.ax_*` axiom on this toolchain (`Lean.ofReduceBool` is
 never emitted, so grepping for it detects nothing). -/
 
-#print axioms one_le_of_one_le_gnu
-#print axioms dennis_gnu_surjective
-#print axioms exists_gnu_eq_one
-#print axioms exists_gnu_eq_two
-#print axioms moa_one
-#print axioms moa_two
-#print axioms isLeast_gnu_eq_one
-#print axioms isLeast_gnu_eq_two
 
 end GroupCount

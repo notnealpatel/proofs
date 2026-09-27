@@ -525,11 +525,3 @@ theorem erdosRado_le_variant_fails :
 -- AXIOM AUDIT
 -- ════════════════════════════════════════════════════════════════════
 
-#print axioms isSunflowerWith_empty_of_pairwise_disjoint
-#print axioms IsSunflowerWith.image_insert
-#print axioms card_image_insert_of_forall_notMem
-#print axioms hasSunflower_succ_of_factorial_mul_pow_lt
-#print axioms erdos_rado_sunflower_same_card
-#print axioms not_hasSunflower_triangle
-#print axioms not_hasSunflower_of_mem_empty
-#print axioms erdosRado_le_variant_fails

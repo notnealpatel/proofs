@@ -262,9 +262,5 @@ example : ExactRelation profile221 :=
 #check @stateEvaluation_union_eq_zero_iff
 #check @mem_relationsOnSupport_iff
 #check @mem_allExactRelations_iff
-#print axioms stateEvaluation_union_eq_zero_iff
-#print axioms mem_allExactSupports_iff
-#print axioms mem_allExactRelations_iff
-#print axioms IsExactRelation.circuit
 
 end BilinearComplexity.NormalizedBinaryRelationEnumeration

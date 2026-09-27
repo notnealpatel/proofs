@@ -729,29 +729,5 @@ example :
 #check @m3DualMatrix_rank_eq_one_or_two_or_three_of_ne_zero
 #check @m3_exists_representative_leftRight_of_ne_zero
 
-#print axioms m3DualMatrix_m3Form
-#print axioms m3DualMatrix_eq_zero_iff
-#print axioms m3DualMatrix_m3RankOneForm
-#print axioms m3DualMatrix_m3RankTwoForm
-#print axioms m3DualMatrix_m3RankThreeForm
-#print axioms m3LeftRightForm_apply
-#print axioms apply_eq_sum_m3DualMatrix_mul
-#print axioms m3DualMatrix_m3LeftRightForm
-#print axioms m3DualMatrix_injective
-#print axioms m3DualMatrix_rank_m3LeftRightForm
-#print axioms matrix_fin_three_rank_one_normal_form
-#print axioms matrix_fin_three_rank_two_normal_form
-#print axioms matrix_fin_three_rank_three_normal_form
-#print axioms m3RankOneForm_eq_leftRight_of_rank_eq_one
-#print axioms m3RankTwoForm_eq_leftRight_of_rank_eq_two
-#print axioms m3RankThreeForm_eq_leftRight_of_rank_eq_three
-#print axioms M3HyperplaneRankLE.twentySeven
-#print axioms M3HyperplaneRankLE.of_leftRight
-#print axioms M3HyperplaneRankLE.rankOneRepresentative_of_rank_eq_one
-#print axioms M3HyperplaneRankLE.rankTwoRepresentative_of_rank_eq_two
-#print axioms M3HyperplaneRankLE.rankThreeRepresentative_of_rank_eq_three
-#print axioms m3_exists_hyperplane_rankLE_of_rankLE_succ
-#print axioms m3DualMatrix_rank_eq_one_or_two_or_three_of_ne_zero
-#print axioms m3_exists_representative_leftRight_of_ne_zero
 
 end BilinearComplexity

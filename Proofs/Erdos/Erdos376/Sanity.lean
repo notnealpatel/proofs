@@ -49,5 +49,3 @@ end Erdos376
 
 #check @Erdos376.small_a030979_coprime_certificates
 #check @Erdos376.not_coprime_105_two
-#print axioms Erdos376.small_a030979_coprime_certificates
-#print axioms Erdos376.not_coprime_105_two

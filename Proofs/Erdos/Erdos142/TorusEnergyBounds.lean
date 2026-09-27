@@ -111,8 +111,5 @@ theorem torusF_le_inv {ε : ℝ} (hε : 0 < ε) (hεle : ε ≤ 1 / 6) {p : ℝ 
 #check @torusF_nonneg
 #check @torusF_le
 #check @torusF_sum_le
-#print axioms torusF_nonneg
-#print axioms torusF_le
-#print axioms torusF_sum_le
 
 end Erdos142

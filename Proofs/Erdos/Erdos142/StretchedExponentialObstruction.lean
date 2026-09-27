@@ -256,11 +256,3 @@ end
 end Erdos142
 
 -- Axiom audit for the public declarations of this module.
-#print axioms Erdos142.normalizedDeficit_rothNumberNat_eq
-#print axioms Erdos142.eventually_nonneg_and_le_rothLogDeficit_mul_sqrt_log
-#print axioms Erdos142.eventually_rothLogDeficit_nonneg
-#print axioms Erdos142.eventually_rothLogDeficit_le_mul_sqrt_log
-#print axioms Erdos142.tendsto_div_rpow_of_eventually_le_const_mul_sqrt_log
-#print axioms Erdos142.tendsto_rothLogDeficit_div_rpow_zero
-#print axioms Erdos142.not_tendsto_rothLogDeficit_div_rpow
-#print axioms Erdos142.le_torusLeadingConstant_of_tendsto_rothLogDeficit_div_sqrt

@@ -533,13 +533,6 @@ example {p : Profile} (target : ExactRelation p) :
 #check @everyOrbitLabel_realized
 #check @compileClassified_label_surjective
 #check @exactly_thirteen_orbitLabels
-#print axioms orbitLabelDecidableEq
-#print axioms selectedEndpoints_isExactRelation
-#print axioms compileClassified_selectedExactRelation_label
-#print axioms selectedExactRelation_inOrbit
-#print axioms everyOrbitLabel_realized
-#print axioms compileClassified_label_surjective
-#print axioms exactly_thirteen_orbitLabels
 
 #check @profileKey_perm
 #check @familyProfileKey_injective
@@ -557,13 +550,5 @@ example {p : Profile} (target : ExactRelation p) :
 #check @certified22101ExactRelation
 #check @certified22101_classified_regression
 
-#print axioms profileOrientation_family_unique
-#print axioms orbitLabel_card
-#print axioms selectedInvariant_eq_of_inOrbit
-#print axioms exists_orbitLabel
-#print axioms orbitLabel_unique
-#print axioms everyExactRelation_has_unique_orbitLabel
-#print axioms compileClassified
-#print axioms certified22101_classified_regression
 
 end BilinearComplexity.NormalizedBinaryOrbitClassification

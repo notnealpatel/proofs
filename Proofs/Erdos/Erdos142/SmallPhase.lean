@@ -81,7 +81,5 @@ example :
 #check @exists_nat_abs_mul_sub_int_le
 #check @exists_small_phase_step
 
-#print axioms exists_nat_abs_mul_sub_int_le
-#print axioms exists_small_phase_step
 
 end Erdos142

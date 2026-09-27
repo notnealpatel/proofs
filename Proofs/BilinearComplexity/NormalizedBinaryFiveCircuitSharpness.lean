@@ -328,11 +328,5 @@ theorem row41101_exact_directed_length_three :
 #check @row41101_certificate_nonempty
 #check @row41101_exact_directed_length_three
 
-#print axioms sourceThirdFlip_false_of_permProfile_eq_profile411
-#print axioms allModeMove_profile411_card_strict_change
-#print axioms row41101_no_forward_path_length_le_two
-#print axioms row41101_no_reverse_path_length_le_two
-#print axioms row41101_certificate_nonempty
-#print axioms row41101_exact_directed_length_three
 
 end BilinearComplexity.NormalizedBinaryFiveCircuitSharpness

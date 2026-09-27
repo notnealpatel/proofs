@@ -146,9 +146,5 @@ example :
 #check @stdAddChar_neg_natCast_mul_eq_exp
 #check @unnormalizedDFT_balanced_natCyclicImage_eq_interval_sum
 
-#print axioms card_natCyclicImage_eq_card_of_lt
-#print axioms card_natCyclicImage_eq_card
-#print axioms stdAddChar_neg_natCast_mul_eq_exp
-#print axioms unnormalizedDFT_balanced_natCyclicImage_eq_interval_sum
 
 end Erdos142

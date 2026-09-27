@@ -341,10 +341,5 @@ example : 38 < 2 * ((9 / 4 : ℝ) * (69 / 8) + (37 / 8) / 144) :=
 #check @torusFSharp_le_block
 #check @torusSharp_coefficient_optimality
 
-#print axioms torusFSharp_threeAP
-#print axioms torusFSharp_nonneg
-#print axioms torusFSharp_pos
-#print axioms torusFSharp_le_block
-#print axioms torusSharp_coefficient_optimality
 
 end Erdos142

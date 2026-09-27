@@ -539,9 +539,5 @@ example (f : CoordinateEmbedding profile221 U V W) :
 #check @mapPath_length
 #check @mapPath_altitude
 #check @mapPath_pathVertex_iff
-#print axioms mapTerm_injective
-#print axioms transportNormalizedAllModeMove
-#print axioms mapPath_vertices
-#print axioms mapPath_pathVertex_iff
 
 end BilinearComplexity.BinaryAmbientMoveTransport

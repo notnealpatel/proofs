@@ -492,16 +492,5 @@ example : unnormalizedDFT 3 (fun _ => 1) 0 = 3 := by
 #check @norm_threeAPSum_le_spatial_of_last_fourier_bound
 #check @threeAPSum_sub_threeAPSum
 
-#print axioms sum_unnormalizedDFT_zero
-#print axioms sum_conj_unnormalizedDFT_mul
-#print axioms sum_sq_norm_unnormalizedDFT
-#print axioms sum_sq_norm_unnormalizedDFT_neg_two
-#print axioms threeAPSum_eq_fourier
-#print axioms norm_threeAPSum_le_of_fourier_bound
-#print axioms norm_threeAPSum_le_sqrt_of_fourier_bound
-#print axioms norm_threeAPSum_le_spatial_of_first_fourier_bound
-#print axioms norm_threeAPSum_le_spatial_of_middle_fourier_bound
-#print axioms norm_threeAPSum_le_spatial_of_last_fourier_bound
-#print axioms threeAPSum_sub_threeAPSum
 
 end Erdos142

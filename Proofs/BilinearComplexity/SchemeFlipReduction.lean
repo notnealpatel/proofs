@@ -1356,64 +1356,6 @@ example :
 #check NonadjacentAmbientCertificate.forward_inverse_local_equalities
 #check NonadjacentAmbientCertificate.forward_inverse_sumTensor_eq
 
-#print axioms selectedTensor_pairScheme_univ
-#print axioms selectedTensor_pairSlots
-#print axioms sumTensor_two
-#print axioms insertedTensor_pair
-#print axioms firstFlipCertificate
-#print axioms secondFlipCertificate
-#print axioms thirdFlipCertificate
-#print axioms inverseFirstFlipCertificate
-#print axioms inverseSecondFlipCertificate
-#print axioms inverseThirdFlipCertificate
-#print axioms firstFlip_output_sumTensor
-#print axioms secondFlip_output_sumTensor
-#print axioms thirdFlip_output_sumTensor
-#print axioms inverseFirstFlip_output_sumTensor
-#print axioms inverseSecondFlip_output_sumTensor
-#print axioms inverseThirdFlip_output_sumTensor
-#print axioms eval_refactor
-#print axioms ProjectiveRefactorization.sameTensors
-#print axioms SameTensors.sumTensor_eq
-#print axioms TriadData.factors_ne_zero_of_eval_ne_zero
-#print axioms sumTensor_flipPair
-#print axioms repeatedNonzeroFactor_of_sumTensor_flipPair_eq
-#print axioms NontrivialOrdinaryTwoTermFlip.repeated
-#print axioms flipPair_neg
-#print axioms NontrivialOrdinaryTwoTermFlip.symm
-#print axioms ProjectiveOrdinaryTwoTermFlip.sumTensor_eq
-#print axioms ProjectiveOrdinaryTwoTermFlip.symm
-#print axioms ProjectiveOrdinaryTwoTermFlip.forwardCertificateAt
-#print axioms ProjectiveOrdinaryTwoTermFlip.inverseCertificateAt
-#print axioms ProjectiveOrdinaryTwoTermFlip.forwardCertificateAt_removed
-#print axioms ProjectiveOrdinaryTwoTermFlip.forwardCertificateAt_inserted
-#print axioms ProjectiveOrdinaryTwoTermFlip.inverseCertificateAt_removed
-#print axioms ProjectiveOrdinaryTwoTermFlip.inverseCertificateAt_inserted
-#print axioms ProjectiveOrdinaryTwoTermFlip.forwardCertificateAt_local_eq
-#print axioms ProjectiveOrdinaryTwoTermFlip.inverseCertificateAt_local_eq
-#print axioms ProjectiveOrdinaryTwoTermFlip.forwardCertificateAt_sumTensor_eq
-#print axioms ProjectiveOrdinaryTwoTermFlip.inverseCertificateAt_sumTensor_eq
-#print axioms rankLE_sum_of_spansOneDimensional_of_not_linearIndependent
-#print axioms rankLE_sum_of_oneDimensional_factor_of_dependent_other
-#print axioms rankLE_sum_scalar_shared_first_of_not_linearIndependent
-#print axioms projectivelyEqual_iff_eq_f2
-#print axioms mem_repeatedFactorIndexF2_iff
-#print axioms ordinaryTwoTermFlip_has_repeated_projective_factor_f2
-#print axioms ordinaryTwoTermFlip_position_mem_index_f2
-#print axioms ProjectiveRefactorization.eq_f2
-#print axioms projectiveOrdinaryTwoTermFlip_has_repeated_projective_factor_f2
-#print axioms projectiveOrdinaryTwoTermFlip_position_mem_index_f2
-#print axioms NonadjacentAmbientCertificate.forward
-#print axioms NonadjacentAmbientCertificate.inverse
-#print axioms NonadjacentAmbientCertificate.forward_survivors
-#print axioms NonadjacentAmbientCertificate.inverse_survivors
-#print axioms NonadjacentAmbientCertificate.forward_untouched_survivors
-#print axioms NonadjacentAmbientCertificate.inverse_untouched_survivors
-#print axioms NonadjacentAmbientCertificate.resultRanks
-#print axioms NonadjacentAmbientCertificate.forward_endpoint_eq
-#print axioms NonadjacentAmbientCertificate.inverse_endpoint_eq
-#print axioms NonadjacentAmbientCertificate.forward_inverse_local_equalities
-#print axioms NonadjacentAmbientCertificate.forward_inverse_sumTensor_eq
 
 end FlipReduction
 end Scheme

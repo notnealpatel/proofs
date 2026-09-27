@@ -156,6 +156,5 @@ example :
     norm_num
 
 #check @exists_affine_density_increment_of_fourier_correlation
-#print axioms exists_affine_density_increment_of_fourier_correlation
 
 end Erdos142

@@ -269,10 +269,5 @@ example (D : ℕ → ℝ) (hD : Tendsto D atTop (𝓝 0)) :
 
 end
 
-#print axioms Erdos142.tendsto_nat_sq_atTop
-#print axioms Erdos142.normalizedDeficit_rothNumberNat_nonneg
-#print axioms Erdos142.eventually_le_normalizedDeficit_rothNumberNat
-#print axioms Erdos142.normalizedDeficit_sq_sub_roth
-#print axioms Erdos142.tendsto_normalizedDeficit_zero_iff_square_defect
 
 end Erdos142

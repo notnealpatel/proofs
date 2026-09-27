@@ -437,8 +437,5 @@ example : S1 ∈ successors S0 := by
 #check @certifiedSuccessors
 #check @exists_mem_certifiedSuccessors_iff
 
-#print axioms mem_successors_iff
-#print axioms mem_successors_iff_ambient
-#print axioms exists_mem_certifiedSuccessors_iff
 
 end BilinearComplexity.NormalizedBinaryNativeSuccessors

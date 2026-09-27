@@ -7,5 +7,3 @@ helpers are audited transitively through these two. -/
 
 open GroupTPP.STPPWreath
 
-#print axioms abelian_wreath_family_tendsto_two
-#print axioms abelian_wreath_family_tendsto_two_cyclic

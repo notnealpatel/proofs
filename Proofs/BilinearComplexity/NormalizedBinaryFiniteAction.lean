@@ -593,10 +593,5 @@ end Regression
 #check @checkActionWitness_isSome_iff
 #check @Regression.profile221SwapWitness
 
-#print axioms RawProfileAction.toProfileAction_first_coe
-#print axioms ProfileAction.actTerm_injective
-#print axioms ProfileAction.actState_card
-#print axioms checkActionWitness_isSome_iff
-#print axioms Regression.profile221Swap_endpoint_check_success
 
 end BilinearComplexity.NormalizedBinaryFiniteAction

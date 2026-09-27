@@ -696,14 +696,5 @@ theorem recognizedMacro_sound (eU : Coord a ≃ₗ[F2] U)
 #check @recognizedMacro_sound
 #check @RecognizedMacro.certified
 
-#print axioms forwardKeys_eq_image
-#print axioms reverseKeys_eq_image
-#print axioms rawKeys_eq_union
-#print axioms mem_recognizeMacroKeys_iff
-#print axioms mem_recognizeMacroKeys_forward_iff
-#print axioms mem_recognizeMacroKeys_reverse_iff
-#print axioms recognizeMacroKeys_eq_empty_of_lt_two
-#print axioms recognizedMacro_sound
-#print axioms RecognizedMacro.certified
 
 end BilinearComplexity.BinaryContextualMacroRecognition

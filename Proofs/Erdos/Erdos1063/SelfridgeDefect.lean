@@ -513,21 +513,5 @@ example : divisorDefect 2402 10 = 3 := by decide
 
 /-! ## Axiom audit -/
 
-#print axioms erdos_selfridge_defect_pos
-#print axioms erdos_selfridge_defect_pos_of_two_mul_le
-#print axioms divisorDefect_le_one_iff_eq_one
-#print axioms exists_factorization_choose_lt
-#print axioms nk_two
-#print axioms nk_three
-#print axioms nk_four
-#print axioms nk_five
-#print axioms nk_six
-#print axioms nk_seven
-#print axioms nk_eight
-#print axioms nk_nine
-#print axioms nk_ten
-#print axioms choose_factorial_self_eq
-#print axioms sub_dvd_choose_factorial_self
-#print axioms nk_le_factorial
 
 end Erdos1063

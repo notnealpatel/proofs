@@ -342,9 +342,5 @@ example :
 #check @exists_mem_splits5_filters_of_card_eq_two
 #check @exists_mem_splits5_of_card_eq_two
 
-#print axioms fourary_eq_of_perm
-#print axioms thirdFlip4ABC_of_perm
-#print axioms thirdFlip4_of_perm
-#print axioms exists_mem_splits5_of_card_eq_two
 
 end BilinearComplexity.BinaryContextualExclusionEnumeration

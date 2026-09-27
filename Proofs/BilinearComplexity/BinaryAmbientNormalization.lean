@@ -920,8 +920,5 @@ theorem row22101_normalizedExactRelation_regression :
     row22101Certificate.card_right row22101Certificate.disjoint
     row22101_ambient_evaluation_eq).property⟩
 
-#print axioms normalizedEndpoints_hasExactFactorProfile
-#print axioms normalizedExactRelation
-#print axioms row22101_normalizedExactRelation_regression
 
 end BilinearComplexity.BinaryAmbientNormalization

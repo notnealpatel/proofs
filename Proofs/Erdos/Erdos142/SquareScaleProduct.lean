@@ -312,14 +312,5 @@ example : ∀ᶠ N : ℕ in atTop,
 end
 
 -- Axiom audit for the load-bearing declarations.
-#print axioms Erdos142.rothNumberNat_mul_le_mul_rothNumberNat
-#print axioms Erdos142.rothNumberNat_mul_rothNumberNat_half_le
-#print axioms Erdos142.rothNumberNat_le_two_mul_rothNumberNat_half
-#print axioms Erdos142.rothNumberNat_mul_le_two_mul_rothNumberNat_mul
-#print axioms Erdos142.rothNumberNat_sq_le_two_mul_rothNumberNat_sq
-#print axioms Erdos142.log_squareScaleDefect_le_log_two
-#print axioms Erdos142.neg_rothLogDeficit_le_squareScaleDefect
-#print axioms Erdos142.squareScaleDefect_normalized_sandwich
-#print axioms Erdos142.eventually_squareScaleDefect_normalized_le
 
 end Erdos142

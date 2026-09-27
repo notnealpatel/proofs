@@ -64,14 +64,5 @@ example : IsRSpread 100 (linkAt {0, 1} familyP) := by
 example : ((familyP.card : ℚ)) ≤ 2 ^ 2 := by native_decide
 
 -- ── Axiom audit: every public SpreadDefect theorem must be std-3 ──
-#print axioms linkAt_empty
-#print axioms linkAt_nonempty_iff
-#print axioms linkAt_singleton_family
-#print axioms not_isRSpread_singleton
-#print axioms card_le_pow_of_forall_linkAt_not_isRSpread
-#print axioms forall_linkAt_not_isRSpread_pair
-#print axioms exists_isRSpread_linkAt_loop
-#print axioms hasSunflower_of_forall_linkAt_isRSpread
-#print axioms hasSunflower_of_forall_isRSpread_via_loop
 
 end SpreadDefectSanity

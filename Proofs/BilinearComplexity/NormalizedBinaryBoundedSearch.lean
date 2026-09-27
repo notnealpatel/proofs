@@ -68,7 +68,5 @@ example :
 #check @NormalizedBinaryNativeSuccessors.exists_mem_certifiedSuccessors_iff
 #check @optimize
 #check @Result.preserves_evaluation
-#print axioms optimize
-#print axioms Result.preserves_evaluation
 
 end BilinearComplexity.NormalizedBinaryBoundedSearch

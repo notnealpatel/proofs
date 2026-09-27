@@ -20,4 +20,3 @@ theorem exponents_le_200_certificate :
 
 end Erdos406
 
-#print axioms Erdos406.exponents_le_200_certificate

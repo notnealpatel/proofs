@@ -273,13 +273,5 @@ example (e : ℝ) (q R j : ℕ) [NeZero q] : (torusProductSlice e q 0 R j).card 
     funext j
     exact Fin.elim0 j
 
-#print axioms mem_torusProductSlice
-#print axioms torusProductSlice_eq_map_energyBin
-#print axioms card_torusProductSlice_eq_energyBin
-#print axioms card_torusProductPoint
-#print axioms exists_torusProductSlice_card_mul_le_41
-#print axioms torusProductSlice_separation_sq
-#print axioms sub_mem_shortBox_of_block_sq_lt
-#print axioms sub_mem_shortBox_of_torusProductSlice_AP
 
 end Erdos142

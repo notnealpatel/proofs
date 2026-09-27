@@ -533,28 +533,5 @@ example : ∀ m ∈ ({2, 3, 4, 5, 7} : Finset ℕ), complexityDropRec m = -1 := 
 are omitted: the first is the intended `sorry` and the other two are proved
 from it, so all three depend on `sorryAx` by design. -/
 
-#print axioms complexityDrop
-#print axioms complexityDrop_succ
-#print axioms complexityDrop_zero
-#print axioms complexityDrop_one
-#print axioms complexityDropRec
-#print axioms complexityDrop_eq_complexityDropRec
-#print axioms neg_one_le_complexityDrop
-#print axioms complexityDrop_two
-#print axioms complexityDrop_le
-#print axioms dropLevel
-#print axioms A244743
-#print axioms A244743_eq_zero_iff
-#print axioms mem_dropLevel_of
-#print axioms A244743_spec
-#print axioms A244743_eq_of
-#print axioms A244743_zero
-#print axioms A244743_one
-#print axioms A244743_two
-#print axioms defect
-#print axioms zero_le_defect
-#print axioms defect_three_pow
-#print axioms defect_one
-#print axioms three_mul_log_three_le_complexity
 
 end NumberComplexity

@@ -805,15 +805,6 @@ theorem exists_degenerate_setOf_dvd_ne_empty_and_ne_residueClass :
 
 -- The headline theorems, printed individually.
 
-#print axioms dvd_fib_iff_rankOfApparition_dvd
-#print axioms IsFibonacciLike.apply_add
-#print axioms IsFibonacciLike.forall_mod_eq_dvd
-#print axioms IsFibonacciLike.dvd_iff_mod_eq
-#print axioms IsFibonacciLike.setOf_dvd_eq_empty_or_residueClass
-#print axioms exists_isFibonacciLike_setOf_dvd_eq_empty
-#print axioms exists_isFibonacciLike_setOf_dvd_eq_residueClass
-#print axioms exists_not_prime_setOf_dvd_ne_empty_and_ne_residueClass
-#print axioms exists_degenerate_setOf_dvd_ne_empty_and_ne_residueClass
 
 /-
   A per-declaration `#print axioms` is a *report*, not a check: nothing

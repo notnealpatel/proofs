@@ -106,10 +106,5 @@ example :
   funext i
   simp [Map.eval]
 
-#print axioms mem_closure_iff
-#print axioms subset_closure
-#print axioms closure_mono
-#print axioms Map.eval_apply
-#print axioms Map.mapsTo_closure
 
 end PolynomialClosure

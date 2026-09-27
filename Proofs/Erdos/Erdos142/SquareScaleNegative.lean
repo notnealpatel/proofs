@@ -305,15 +305,6 @@ example : (3 : ℕ) ≤ 3 ∧ (0 : ℝ) < 1 / 2 ∧
 
 #check @Erdos142.frequently_rothLogDeficit_iterated_square_le
 #check @Erdos142.frequently_squareScaleDefect_lt_neg
-#print axioms Erdos142.frequently_le_geometric_of_eventually_upper
-#print axioms Erdos142.frequently_rothLogDeficit_iterated_square_le
-#print axioms Erdos142.tendsto_rothLogDeficit_atTop
-#print axioms Erdos142.frequently_rothLogDeficit_square_sub_two_lt
-#print axioms Erdos142.frequently_squareScaleDefect_lt_neg
-#print axioms Erdos142.frequently_rothNumberNat_square_ratio_gt
-#print axioms Erdos142.frequently_rothLogDeficit_square_le_negative_fraction
-#print axioms Erdos142.not_eventually_bounded_rothNumberNat_square_ratio
-#print axioms Erdos142.frequently_squareScaleDefect_iterated_square_le_negative_fraction
 
 end
 end Erdos142

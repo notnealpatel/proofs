@@ -976,21 +976,6 @@ end F3Fixture
 #check @F3Fixture.factorRank_sum_le_six
 #check @F3Fixture.factorRanks_eq_221
 
-#print axioms vanishing_relation_iff_everyDeletionIndependent
-#print axioms minimalFiveProductCircuit_iff
-#print axioms EveryDeletionIndependent.linearIndependent_restrict
-#print axioms factorRank_sum_le_six
-#print axioms productFamilyRank_eq_four
-#print axioms productFamilyRank_le_factorRank_product
-#print axioms four_le_factorRank_product
-#print axioms one_le_familyRank
-#print axioms factorRank_profile
-#print axioms F3Fixture.factors_nonzero
-#print axioms F3Fixture.productFamily_eq_fixtureFamily
-#print axioms F3Fixture.isMinimalFiveProductCircuit
-#print axioms F3Fixture.signed_relation
-#print axioms F3Fixture.factorRank_sum_le_six
-#print axioms F3Fixture.factorRanks_eq_221
 
 end FieldFiveCircuitProfile
 end BilinearComplexity

@@ -385,13 +385,3 @@ end
 end Erdos142
 
 -- Axiom audit for the load-bearing declarations.
-#print axioms Erdos142.rothNumberNat_one
-#print axioms Erdos142.one_le_rothNumberNat
-#print axioms Erdos142.rothLogDeficit_eq
-#print axioms Erdos142.rothProductDefect_nonneg
-#print axioms Erdos142.rothProductDefect_eq_rothLogDeficit
-#print axioms Erdos142.rothProductDefect_eq_log_div
-#print axioms Erdos142.rothLogDeficit_unbounded
-#print axioms Erdos142.unbounded_product_defect_of_tendsto
-#print axioms Erdos142.rothProductDefect_unbounded_of_tendsto
-#print axioms Erdos142.exists_mul_lt_rothNumberNat_of_pos

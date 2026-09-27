@@ -314,13 +314,3 @@ theorem rothNumberNat_halfDigit_mul_le_rothNumberNat_sq (N : ℕ) :
 end Erdos142
 
 -- Axiom audit for the public endpoints.
-#print axioms Erdos142.two_mul_halfDigit_le
-#print axioms Erdos142.halfDigit_le_self
-#print axioms Erdos142.abs_lowResidual_lt
-#print axioms Erdos142.dvd_lowResidual
-#print axioms Erdos142.scalarPair_injective_of_lt
-#print axioms Erdos142.scalarPair_image_threeAPFree
-#print axioms Erdos142.card_image_scalarPair
-#print axioms Erdos142.card_image_scalarPair_product
-#print axioms Erdos142.exists_threeAPFree_card_halfDigit_mul
-#print axioms Erdos142.rothNumberNat_halfDigit_mul_le_rothNumberNat_sq

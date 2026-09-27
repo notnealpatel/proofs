@@ -471,7 +471,6 @@ theorem pathFactorSpanConfined_permute {p : Profile} (o : Orientation)
 #check @permuteAllModePath_confined
 #check @factorSpanConfined_permute
 #check @pathFactorSpanConfined_permute
-#print axioms pathFactorSpanConfined_permute
 
 end BilinearComplexity.NormalizedBinaryAllModePermutation
 
@@ -536,8 +535,6 @@ example {p : Profile} {A B : State p} (cert : FiveCircuitCertificate p A B) :
 
 #check @FiveCircuitCertificate.permute
 #check @FiveCircuitCertificate.castProfile
-#print axioms FiveCircuitCertificate.permute
-#print axioms FiveCircuitCertificate.castProfile
 
 end BilinearComplexity.NormalizedBinaryFiveCircuitCertificate
 
@@ -587,6 +584,5 @@ example :
   exact ⟨witness.transportCertificate designatedReplay221Certificate⟩
 
 #check @ActionWitness.transportCertificate
-#print axioms ActionWitness.transportCertificate
 
 end BilinearComplexity.NormalizedBinaryFiniteAction

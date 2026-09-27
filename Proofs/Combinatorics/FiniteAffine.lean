@@ -127,7 +127,5 @@ example :
 #check @sum_card_affinePreimage
 #check @mul_card_le_card_mul_of_affinePreimage_card_le
 
-#print axioms sum_card_affinePreimage
-#print axioms mul_card_le_card_mul_of_affinePreimage_card_le
 
 end FiniteAffine

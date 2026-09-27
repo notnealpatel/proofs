@@ -197,11 +197,5 @@ example : ((1 : ZMod 5) - (0 : ZMod 5)) ∈ shortSignedSet 2 5 := by
   rw [cyclicLift, cyclicLift, h1, h0]
   norm_num
 
-#print axioms sub_mem_shortSignedSet_of_lift_dist_lt
-#print axioms sub_comm_mem_shortSignedSet_of_lift_dist_lt
-#print axioms sub_mem_shortSignedSet_of_lift_sq_lt
-#print axioms signedShortBox_exists_avoiding
-#print axioms signedShortBox_exists_avoiding_and_injOn
-#print axioms signedShortBox_translate_card
 
 end Erdos142

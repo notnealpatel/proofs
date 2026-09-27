@@ -764,15 +764,5 @@ example : ∃ (α β : Fin 8 → Matrix (Fin 2) (Fin 2) ℚ →ₗ[ℚ] ℚ)
 #check @not_rankLE_matMulTensor_two_six
 #check @seven_le_rank_matMulTensor_field
 
-#print axioms m2OfVec_toVec
-#print axioms m2ToVec_ofVec
-#print axioms m2RightMul_apply
-#print axioms m2_isUnit_of_rightIdeal_le_leftIdeal
-#print axioms two_le_finrank_range_m2RightMul
-#print axioms baur_m2_final_pivot_impossible
-#print axioms rankLE_matMulTensor_two_to_bilinear
-#print axioms six_product_m2_impossible
-#print axioms not_rankLE_matMulTensor_two_six
-#print axioms seven_le_rank_matMulTensor_field
 
 end BilinearComplexity

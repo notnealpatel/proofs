@@ -895,49 +895,5 @@ end FiniteModel
 #check @Quantum.QueryAlgorithm.successWeight_ge_of_marked_weight
 #check @Scheme.MarksReducible
 
-#print axioms Quantum.State
-#print axioms Quantum.mass
-#print axioms Quantum.Normalized
-#print axioms Quantum.matrixAction
-#print axioms Quantum.Unitary
-#print axioms Quantum.Unitary.matrix
-#print axioms Quantum.Unitary.preserves_mass
-#print axioms Quantum.Unitary.apply
-#print axioms Quantum.matrixAction_add
-#print axioms Quantum.matrixAction_smul
-#print axioms Quantum.Unitary.mass_apply
-#print axioms Quantum.Unitary.normalized_apply
-#print axioms Quantum.identity
-#print axioms Quantum.identity_apply
-#print axioms Quantum.hadamard
-#print axioms Quantum.hadamard_apply_zero
-#print axioms Quantum.hadamard_apply_one
-#print axioms Quantum.hadamard_equal_superposition
-#print axioms Quantum.basisState
-#print axioms Quantum.basisState_normalized
-#print axioms Quantum.phaseMatrix
-#print axioms Quantum.matrixAction_phaseMatrix
-#print axioms Quantum.phaseOracle
-#print axioms Quantum.phaseOracle_apply
-#print axioms Quantum.QueryAlgorithm
-#print axioms Quantum.QueryAlgorithm.initial
-#print axioms Quantum.QueryAlgorithm.afterQuery
-#print axioms Quantum.QueryAlgorithm.queryCount
-#print axioms Quantum.QueryAlgorithm.run
-#print axioms Quantum.QueryAlgorithm.runCounted
-#print axioms Quantum.QueryAlgorithm.runCounted_fst
-#print axioms Quantum.QueryAlgorithm.runCounted_snd
-#print axioms Quantum.QueryAlgorithm.normalized_run
-#print axioms Quantum.bornWeight
-#print axioms Quantum.eventWeight
-#print axioms Quantum.QueryAlgorithm.successWeight
-#print axioms Quantum.QueryAlgorithm.successProbability
-#print axioms Quantum.sum_bornWeight_eq_mass
-#print axioms Quantum.bornWeight_nonneg
-#print axioms Quantum.eventWeight_nonneg
-#print axioms Quantum.eventWeight_le_mass
-#print axioms Quantum.QueryAlgorithm.successProbability_mem_unitInterval
-#print axioms Quantum.QueryAlgorithm.successWeight_ge_of_marked_weight
-#print axioms Scheme.MarksReducible
 
 end BilinearComplexity.FlipQuantum

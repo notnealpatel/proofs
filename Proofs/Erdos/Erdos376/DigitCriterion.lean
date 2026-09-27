@@ -62,6 +62,3 @@ end Erdos376
 #check @Erdos175.prime_not_dvd_centralBinom_iff_digits
 #check @Erdos376.coprime_centralBinom_prime_iff_digits
 #check @Erdos376.coprime_105_iff_digits
-#print axioms Erdos175.prime_not_dvd_centralBinom_iff_digits
-#print axioms Erdos376.coprime_centralBinom_prime_iff_digits
-#print axioms Erdos376.coprime_105_iff_digits

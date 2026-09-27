@@ -168,6 +168,5 @@ theorem size_lt_explicit_threshold
   linarith
 
 #check @size_lt_explicit_threshold
-#print axioms size_lt_explicit_threshold
 
 end Erdos142

@@ -154,9 +154,5 @@ example : ∃ N : ℕ,
 
 end
 
-#print axioms Erdos142.eventually_normalizedDeficit_rothNumberNat_le_add
-#print axioms Erdos142.eventually_normalizedDeficit_rothNumberNat_le
-#print axioms Erdos142.eventually_nonneg_and_le_normalizedDeficit_rothNumberNat
-#print axioms Erdos142.eventually_normalizedDeficit_rothNumberNat_le_add_one
 
 end Erdos142

@@ -1039,11 +1039,5 @@ theorem permuted_designated_endpoint_exact_profile_221 (o : Orientation) :
 #check @permuteForwardPath
 #check @permuteReversePath
 #check @permuted_designated_endpoint_exact_profile_221
-#print axioms tensorEvaluation_permuteTerm
-#print axioms stateEvaluation_permuteState
-#print axioms permuteMove
-#print axioms permuteMovePath
-#print axioms permuted_endpoint_circuit
-#print axioms permuted_designated_endpoint_exact_profile_221
 
 end BilinearComplexity.NormalizedBinaryModePermutation

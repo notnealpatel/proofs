@@ -354,10 +354,5 @@ example (tables : FamilyCoverageTables) :
 #check @CompilationResult.certificate
 #check @compileWithCoverage
 
-#print axioms entryTargetSet_eq_decodedTargetSet
-#print axioms compileCanonical
-#print axioms unorientCertificate
-#print axioms CompilationResult.certificate
-#print axioms compileWithCoverage
 
 end BilinearComplexity.NormalizedBinaryCoverage

@@ -157,9 +157,3 @@ theorem rothNumberNat_mul_le_rothNumberNat_two_mul_mul (N M : ℕ) :
 end Erdos142
 
 -- Axiom audit for the load-bearing declarations.
-#print axioms Erdos142.digits_eq_of_add_mul_eq
-#print axioms Erdos142.scaleEnc_lt
-#print axioms Erdos142.scaleEnc_injOn
-#print axioms Erdos142.scaleEnc_threeAPFree
-#print axioms Erdos142.rothNumberNat_mul_le_rothNumberNat_sub
-#print axioms Erdos142.rothNumberNat_mul_le_rothNumberNat_two_mul_mul

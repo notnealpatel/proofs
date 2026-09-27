@@ -509,5 +509,3 @@ def compileOriginalContextReversePath {p : Profile}
 
 end BilinearComplexity.BinaryContextualNormalizedCompiler
 
-#print axioms BilinearComplexity.BinaryContextualNormalizedCompiler.compileOriginalContextForwardPath_length
-#print axioms BilinearComplexity.BinaryContextualNormalizedCompiler.compileOriginalContextReversePath_altitude

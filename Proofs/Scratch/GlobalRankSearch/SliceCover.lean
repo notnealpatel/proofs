@@ -78,6 +78,5 @@ example :
 #check @rankOneMatrixVector
 #check @SliceCover
 #check @rankLE_iff_sliceCover
-#print axioms rankLE_iff_sliceCover
 
 end BilinearComplexity

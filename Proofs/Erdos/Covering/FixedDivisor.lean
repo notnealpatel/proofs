@@ -900,37 +900,6 @@ example : IsFixedDivisorSystemBase 14 4 1 {(1, 2, 3), (0, 2, 5)} :=
 -- §8 AXIOM AUDIT
 -- ════════════════════════════════════════════════════════════════════
 
-#print axioms residueClasses
-#print axioms fixedDivisors
-#print axioms Composite
-#print axioms mem_residueClasses
-#print axioms mem_fixedDivisors
-#print axioms IsFixedDivisorSystem
-#print axioms IsFixedDivisorSystemBase
-#print axioms covers_residueClasses_iff_forall_range
-#print axioms isFixedDivisorSystem_iff
-#print axioms isFixedDivisorSystemBase_iff
-#print axioms isFixedDivisorSystem_iff_base_two
-#print axioms pow_intModEq_pow_mod
-#print axioms pow_intModEq_of_mod_eq
-#print axioms dvd_affine_pow_of_mod_eq
-#print axioms IsFixedDivisorSystemBase.exists_mem_fixedDivisors_dvd
-#print axioms IsFixedDivisorSystemBase.nonempty
-#print axioms IsFixedDivisorSystemBase.composite
-#print axioms IsFixedDivisorSystemBase.not_prime
-#print axioms IsFixedDivisorSystemBase.of_dvd_sub_const
-#print axioms IsFixedDivisorSystemBase.of_dvd_sub_coeff
-#print axioms IsFixedDivisorSystemBase.of_modEq_base
-#print axioms two_pow_intModEq_pow_mod
-#print axioms two_pow_intModEq_of_mod_eq
-#print axioms dvd_affine_two_pow_of_mod_eq
-#print axioms IsFixedDivisorSystem.exists_mem_fixedDivisors_dvd
-#print axioms IsFixedDivisorSystem.nonempty
-#print axioms IsFixedDivisorSystem.composite
-#print axioms IsFixedDivisorSystem.not_prime
-#print axioms IsFixedDivisorSystem.of_dvd_sub_const
-#print axioms IsFixedDivisorSystem.of_dvd_sub_coeff
-#print axioms intCast_dvd_sub_of_mod_eq
 
 end Erdos.Covering
 

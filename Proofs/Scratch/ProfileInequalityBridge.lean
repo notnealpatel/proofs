@@ -1180,24 +1180,5 @@ example :
 #check @selectedMode_profile_finrank_le_six
 #check @pair_triple_profile_finrank_le_six
 
-#print axioms twoModeCancellation_finrank_le
-#print axioms twoModeCancellation_finset_finrank_le
-#print axioms twoModeEqualDisjointSums_finrank_le
-#print axioms finrank_sup_add_one_le_of_common_nonzero
-#print axioms cancellationWithSingleton_finrank_le
-#print axioms f2_finrank_two_range_profile
-#print axioms threeFiberSums_eq
-#print axioms matrixSum_ne_zero_of_minimal_constant_fiber
-#print axioms fiber_nonempty_of_matrixSum_ne_zero
-#print axioms three_one_one_finrank_le_four
-#print axioms two_two_one_finrank_le_four
-#print axioms three_positive_sum_five
-#print axioms finrank_span_range_le_two_of_tail_mem_pair_span
-#print axioms selectedMode_finrank_one_profile_le_six
-#print axioms three_one_one_finset_finrank_le_four
-#print axioms two_two_one_finset_finrank_le_four
-#print axioms selectedMode_finrank_two_complementary_le_four
-#print axioms selectedMode_profile_finrank_le_six
-#print axioms pair_triple_profile_finrank_le_six
 
 end BilinearComplexity.ProfileInequalityExperiment

@@ -222,7 +222,5 @@ example : ∀ᶠ N : ℕ in Filter.atTop,
       (rothNumberNat N : ℝ) :=
   eventually_rothNumberNat_lower_bound 2 (by norm_num)
 
-#print axioms eventually_lower_bound_of_le_one
-#print axioms eventually_rothNumberNat_lower_bound
 
 end Erdos142

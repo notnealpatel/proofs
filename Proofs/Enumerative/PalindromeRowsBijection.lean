@@ -474,7 +474,5 @@ example : (zeroSumSubsets 4 0 (by decide)).card = 1 := by decide
 example : (zeroSumSubsets 4 4 (by decide)).card = 0 := by decide
 example : 0 < (2 : ℕ) ∧ 2 < 2 ^ 3 := by norm_num
 
-#print axioms complementTranslateEquiv
-#print axioms shifted_row_card_symm_two_pow
 
 end A267632.PalindromeBijection

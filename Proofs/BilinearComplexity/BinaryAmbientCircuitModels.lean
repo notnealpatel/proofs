@@ -548,10 +548,5 @@ example : normalizedLeft
 #check @row41101_abstract_model_and_intrinsic_sharpness
 #check @selectedCoordinatePresentation_normalizedEndpoints
 
-#print axioms coordinate_stateEvaluation_eq_iff_ambientStateEvaluation
-#print axioms coordinateCircuit_iff_ambientCircuit
-#print axioms normalizedExactRelation_coordinateExactSpanPresentation
-#print axioms row41101_abstract_model_and_intrinsic_sharpness
-#print axioms selectedCoordinatePresentation_normalizedEndpoints
 
 end BilinearComplexity.BinaryAmbientCircuitModels

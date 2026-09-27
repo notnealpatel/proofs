@@ -151,9 +151,5 @@ example : spans5 2 1 2 0 0 0 = true ↔
 #check @tensorOfMask_xor
 #check @flattenTensor_tensorOfMask
 #check @tensorOfMask_eq_zero_iff
-#print axioms spans5_eq_true_iff_span_eq_top
-#print axioms tensorOfMask_xor
-#print axioms flattenTensor_tensorOfMask
-#print axioms tensorOfMask_eq_zero_iff
 
 end BilinearComplexity.NormalizedBinaryCompactSupportSemantics

@@ -1230,56 +1230,5 @@ example : ∃ a ∈ [15, 12, 6, 3, 2, 1], ∃ b ∈ [15, 12, 6, 3, 2, 1],
 
 /-! ## Axiom audit -/
 
-#print axioms l
-#print axioms l_zero
-#print axioms l_one
-#print axioms l_two
-#print axioms l_two_pow
-#print axioms l_succ_le
-#print axioms l_eq_zero_iff
-#print axioms l_two_mul_le
-#print axioms le_two_pow_l
-#print axioms log_two_le_l
-#print axioms l_le_chainSteps
-#print axioms l_le_of_isAddChain
-#print axioms exists_chainSteps_eq_l
-#print axioms le_l
-#print axioms l_le_iff
-#print axioms decidableLLe
-#print axioms isAddChain_iff_addChainB
-#print axioms mem_chainsOfLength_iff
-#print axioms of_mem_chainsOfLength
-#print axioms IsAddChain.mem_chainsOfLength
-#print axioms IsAddChain.ne_nil
-#print axioms IsAddChain.one_le_of_mem
-#print axioms IsAddChain.one_mem
-#print axioms IsAddChain.getLast?_eq_one
-#print axioms IsAddChain.exists_head?_eq
-#print axioms IsAddChain.length_eq_chainSteps_add_one
-#print axioms IsAddChain.le_two_pow_chainSteps
-#print axioms AdditionChain.head_mem
-#print axioms lAsc
-#print axioms l_eq_lAsc
-#print axioms lAsc_zero
-#print axioms lAsc_eq_A003313_of_le_eight
-#print axioms lAsc_le_chainSteps
-#print axioms exists_chainSteps_eq_lAsc
-#print axioms nonempty_ascAdditionChain_of_ne_zero
-#print axioms instIsEmptyAscAdditionChainZero
-#print axioms isAscAddChain_iff
-#print axioms instDecidableIsAscAddChain
-#print axioms isAscAddChain_ascNormalize
-#print axioms chainSteps_ascNormalize_le
-#print axioms mem_ascNormalize
-#print axioms sortedLT_ascNormalize
-#print axioms length_ascNormalize_le
-#print axioms IsAscAddChain.ne_nil
-#print axioms IsAscAddChain.isAddChain_reverse_take
-#print axioms IsAscAddChain.isAddChain_reverse
-#print axioms IsAscAddChain.head?_reverse
-#print axioms IsAddChain.exists_lt_add_of_mem
-#print axioms chainSteps_reverse
-#print axioms head?_eq_of_sortedLT
-#print axioms getLast?_eq_of_sortedLT
 
 end NumberComplexity

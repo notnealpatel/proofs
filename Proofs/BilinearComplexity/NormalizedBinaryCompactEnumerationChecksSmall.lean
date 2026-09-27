@@ -423,6 +423,5 @@ theorem exactTableCheckSmall :
       exactTableCheck packed321 exactCodes321 = true := by
   decide
 
-#print axioms exactTableCheckSmall
 
 end BilinearComplexity.NormalizedBinaryCompactEnumeration

@@ -183,13 +183,5 @@ theorem ladermanP7_certificate_nonvacuous :
 #check @ladermanP7_not_borderRankLE_five
 #check @ladermanP7_certificate_nonvacuous
 
-#print axioms ladermanP7Minor_eq_data
-#print axioms ladermanP7Minor_mul_inverse
-#print axioms ladermanP7Minor_det_ne_zero
-#print axioms ladermanP7_rankLE_six
-#print axioms ladermanP7_not_rankLE_five
-#print axioms ladermanP7_borderRankLE_six
-#print axioms ladermanP7_not_borderRankLE_five
-#print axioms ladermanP7_certificate_nonvacuous
 
 end BilinearComplexity

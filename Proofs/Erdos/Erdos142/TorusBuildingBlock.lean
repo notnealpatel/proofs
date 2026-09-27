@@ -450,7 +450,6 @@ theorem torusF_threeAP {ε : ℝ} (hε : 0 < ε) (hεle : ε ≤ 1 / 6)
       exact torus_far_polynomial_kernel hε hsumGap hgx hgz hgy hdist
 
 #check @torusF_threeAP
-#print axioms torusF_threeAP
 
 /-! ### Product/slice transfer of the torus building block
 
@@ -607,9 +606,5 @@ theorem torusF_product_slice_separation {ε L Δ : ℝ} (hε : 0 < ε)
     have := (sq_lt_sq.mp h2')
     rwa [abs_of_pos hsqrtpos] at this
 
-#print axioms torusF_product_energy_le
-#print axioms torusF_product_slice_energy
-#print axioms torusF_product_slice_separation_sq
-#print axioms torusF_product_slice_separation
 
 end Erdos142

@@ -760,14 +760,6 @@ end Execution
 #check @Path.HeightBound.append
 #check @Path.HeightBound.reverse
 #check @Path.reverse
-#print axioms PairGauge.varyingNonproportional_of_atom
-#print axioms PairGauge.varyingNonproportional_of_linearIndependent
-#print axioms certifiedScanGauge
-#print axioms PairGauge.sum
-#print axioms PairGauge.difference
-#print axioms contextualStrictStep
-#print axioms Path.HeightBound.reverse
-#print axioms Path.reverse
 
 end FieldNativePairBridge
 end BilinearComplexity

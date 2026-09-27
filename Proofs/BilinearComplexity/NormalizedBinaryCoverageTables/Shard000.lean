@@ -843,6 +843,5 @@ theorem entries_rawActions : entries.map RawCoverageAction.Entry.raw = rawAction
 def literalTargetSet : Finset (RelationEndpoints profile221) :=
   RawCoverageAction.decodedTargetSet rawActions
 
-#print axioms allChecksSucceed
 
 end BilinearComplexity.NormalizedBinaryCoverageTables.Shard000

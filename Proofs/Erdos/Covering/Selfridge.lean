@@ -90,8 +90,5 @@ theorem exists_primeMinusOne_coveringSystem_of_three :
 #check @moduliOfPrimeMinusOne_selfridgeSystem
 #check @exists_primeMinusOne_coveringSystem_of_three
 
-#print axioms isCoveringSystem_selfridgeSystem
-#print axioms moduliOfPrimeMinusOne_selfridgeSystem
-#print axioms exists_primeMinusOne_coveringSystem_of_three
 
 end Erdos.Covering

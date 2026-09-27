@@ -295,16 +295,5 @@ def unitResult : NormalizedBinaryBoundedSearch.Result unitState 1 1 :=
 #check @result1_card
 #check @result1_path_data
 #check @result1_evaluation
-#print axioms suppliedState_evaluation
-#print axioms suppliedReduction
-#print axioms result0_finish
-#print axioms result1_card
-#print axioms result1_path_data
-#print axioms result1_evaluation
-#print axioms duplicateOutputSplitData_rejected
-#print axioms occupiedFreshSplit_nonzero
-#print axioms occupiedFreshSplit_structural_guards
-#print axioms occupiedFreshSplit_collision
-#print axioms occupiedFreshSplitData_rejected
 
 end BilinearComplexity.NormalizedBinarySearchRegression

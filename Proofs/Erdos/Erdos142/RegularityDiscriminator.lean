@@ -412,10 +412,3 @@ theorem tendsto_normalizedDeficit_zero_of_product_defect
 
 end Erdos142
 
-#print axioms Erdos142.one_lt_sqrt_two
-#print axioms Erdos142.geom_sum_inv_le
-#print axioms Erdos142.tendsto_zero_of_sqrt_two_recurrence
-#print axioms Erdos142.normalizedDeficit_sq_sub
-#print axioms Erdos142.tendsto_normalizedDeficit_zero_of_recurrence
-#print axioms Erdos142.tendsto_normalizedDeficit_zero_of_product_defect
-#print axioms Erdos142.tendsto_zero_of_dyadic_and_slowVariation

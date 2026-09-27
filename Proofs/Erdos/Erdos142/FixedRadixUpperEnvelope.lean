@@ -258,9 +258,3 @@ end
 end Erdos142
 
 -- Axiom audit for the load-bearing declarations.
-#print axioms Erdos142.rothNumberNat_mul_le
-#print axioms Erdos142.rothNumberNat_mul_le_comm
-#print axioms Erdos142.rothLogDeficit_mono_mul
-#print axioms Erdos142.rothProductDefect_le_rothLogDeficit_add_log
-#print axioms Erdos142.frequently_fixed_right_rothProductDefect_envelope
-#print axioms Erdos142.isLUB_rothProductDefect_positive_range

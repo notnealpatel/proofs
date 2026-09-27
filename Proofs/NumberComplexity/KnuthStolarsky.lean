@@ -521,24 +521,7 @@ Every declaration below is sorry-free and must report a subset of
 intended `sorry` and reports `sorryAx` by design; it is printed last so that the
 audit is explicit rather than silent. -/
 
-#print axioms binaryWeight
-#print axioms binaryWeight_two_pow
-#print axioms binaryWeight_ne_zero
-#print axioms eq_two_pow_of_l_le_log
-#print axioms log_add_one_le_l_of_binaryWeight_ne_one
-#print axioms knuth_stolarsky_iff_mul_two_pow_le
-#print axioms knuth_stolarsky_of_binaryWeight_le_two
-#print axioms l_three
-#print axioms log_three_mul_two_pow
-#print axioms binaryWeight_three_mul_two_pow
-#print axioms l_three_mul_two_pow
-#print axioms knuth_stolarsky_eq_three_mul_two_pow
-#print axioms knuth_stolarsky_of_le_sixteen
-#print axioms knuth_stolarsky_iff_lAsc
-#print axioms exists_knuth_stolarsky_witness
-#print axioms log_lt_knuth_stolarsky_bound_seven
 
 -- the intended `sorry`, audited explicitly:
-#print axioms knuth_stolarsky
 
 end NumberComplexity

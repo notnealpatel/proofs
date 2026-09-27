@@ -390,8 +390,6 @@ theorem nativeReplacement_split_of_val_add_eq (x y z : Atom k a b c)
 
 #check @splitFormula_of_val_add_eq
 #check @nativeReplacement_split_of_val_add_eq
-#print axioms splitFormula_of_val_add_eq
-#print axioms nativeReplacement_split_of_val_add_eq
 
 end FieldThreeProductCircuit
 end BilinearComplexity

@@ -117,8 +117,5 @@ example : (∃ a : ℕ, 5 = 2 ^ a) ∨ ∃ a b : ℕ, a < b ∧ 5 = 2 ^ a + 2 ^ 
 #check @l_two_pow_add_two_pow
 #check @binaryWeight_two_pow_add_two_pow
 #check @eq_two_pow_or_sum_of_binaryWeight_le_two
-#print axioms l_two_pow_add_two_pow
-#print axioms binaryWeight_two_pow_add_two_pow
-#print axioms eq_two_pow_or_sum_of_binaryWeight_le_two
 
 end NumberComplexity

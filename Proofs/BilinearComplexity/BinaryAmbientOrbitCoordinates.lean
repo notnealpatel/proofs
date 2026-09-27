@@ -268,10 +268,5 @@ theorem compileClassified_label_normalizeState_eq
 #check @inOrbit_label_eq_of_normalizeState
 #check @compileClassified_label_normalizeState_eq
 
-#print axioms mapState_normalizeState
-#print axioms relationInvariant_normalizeState_independent
-#print axioms coordinateDimension_eq
-#print axioms inOrbit_label_eq_of_normalizeState
-#print axioms compileClassified_label_normalizeState_eq
 
 end BilinearComplexity.BinaryAmbientOrbitCoordinates

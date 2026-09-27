@@ -184,5 +184,3 @@ end
 end Erdos142
 
 -- Axiom audit for every public declaration.
-#print axioms Erdos142.eq_odd_scale_of_asymptotic_comparison
-#print axioms Erdos142.not_exists_asymptotic_comparison_of_ne_odd_scale

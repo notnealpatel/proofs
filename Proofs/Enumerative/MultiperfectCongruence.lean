@@ -1064,52 +1064,11 @@ end Nat
 /-! ## Axiom audit -/
 
 -- A276086 layer.
-#print axioms Nat.primorialRest
-#print axioms Nat.primorialDigit
-#print axioms Nat.primorialBaseExp
-#print axioms Nat.primorialRest_eq_div_prod
-#print axioms Nat.primorialRest_lt
-#print axioms Nat.primorialRest_eq_zero_of_lt
-#print axioms Nat.primorialDigit_eq_zero_of_lt
-#print axioms Nat.primorialBaseExp_eq_prod_range
-#print axioms Nat.primorialBaseExp_pos
-#print axioms Nat.prod_nth_prime_dvd
-#print axioms Nat.prime_dvd_primorialBaseExp
 
 -- A003961 layer.
-#print axioms Nat.nextPrime
-#print axioms Nat.prime_nextPrime
-#print axioms Nat.lt_nextPrime
-#print axioms Nat.nextPrime_le
-#print axioms Nat.nextPrime_nth_prime
-#print axioms Nat.primeShift
-#print axioms Nat.primeShift_prime_pow
-#print axioms Nat.primeShift_mul
-#print axioms Nat.primeShift_nth_prime
-#print axioms Nat.primeShift_pos
 
 -- Predicates and the sufficient condition.
-#print axioms Nat.IsA351458
-#print axioms Nat.IsA349745
-#print axioms Nat.IsA323653
-#print axioms Nat.congruence_holds_vacuously_at_zero
-#print axioms Nat.gcd_mul_of_prime_not_dvd
-#print axioms Nat.isA351458_of_sum_divisors_eq_least_prime_not_dvd_mul
 
 -- The second term of A323653.
-#print axioms Nat.sum_divisors_459818240
-#print axioms Nat.sum_divisors_1379454720
-#print axioms Nat.isMultiperfect_459818240
-#print axioms Nat.isA323653_459818240
-#print axioms Nat.isA351458_459818240
-#print axioms Nat.primeShift_459818240
-#print axioms Nat.isA349745_459818240
 
 -- Archived conjectures and the reduction.
-#print axioms Nat.KarttunenConjecture3
-#print axioms Nat.KarttunenConjecture4
-#print axioms Nat.KarttunenConjecture1c
-#print axioms Nat.karttunen1c_at_459818240
-#print axioms Nat.karttunen3_forward_of_karttunen1c
-#print axioms Nat.karttunen3_nondegenerate
-#print axioms Nat.karttunen4_nondegenerate

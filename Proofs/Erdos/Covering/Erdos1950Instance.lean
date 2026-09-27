@@ -237,13 +237,5 @@ example : (residueClasses erdosCert1950).image Prod.snd = {2, 3, 4, 8, 12, 24} :
 -- §3 AXIOM AUDIT
 -- ════════════════════════════════════════════════════════════════════
 
-#print axioms erdosCert1950
-#print axioms residueClasses_erdosCert1950
-#print axioms fixedDivisors_erdosCert1950
-#print axioms isFixedDivisorSystem_erdosCert1950_residue
-#print axioms isFixedDivisorSystem_erdosCert1950
-#print axioms exists_mem_erdosPrimes1950_dvd_of_general
-#print axioms not_prime_sub_two_pow_of_general
-#print axioms dvd_sub_two_pow_of_modEq_of_general
 
 end Erdos.Covering

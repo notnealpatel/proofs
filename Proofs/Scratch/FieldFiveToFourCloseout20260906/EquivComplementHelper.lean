@@ -74,8 +74,5 @@ example (g : Fin 5 → Bool) :
 
 #check @range_inr_eq_of_range_inl_eq
 #check @range_comp_inr_eq_of_range_inl_eq
-#print axioms range_inr_eq_compl_range_inl
-#print axioms range_inr_eq_of_range_inl_eq
-#print axioms range_comp_inr_eq_of_range_inl_eq
 
 end Equiv

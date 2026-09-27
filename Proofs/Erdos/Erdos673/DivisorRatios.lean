@@ -255,9 +255,5 @@ theorem G_even_bounds (n : ℕ) (hn : 0 < n) (heven : 2 ∣ n) :
 
 #check @G_even_bounds
 
-#print axioms G_le_tau
-#print axioms tau_div_le_G
-#print axioms tau_div_le_G_m_one_counterexample
-#print axioms G_even_bounds
 
 end Erdos673

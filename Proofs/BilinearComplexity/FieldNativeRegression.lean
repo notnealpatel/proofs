@@ -794,10 +794,6 @@ example : runtimeCardTrace {atomQ} true = [4, 3, 3] := by decide
 
 #check @allContextForward
 #check @allContextReverse
-#print axioms allContextForward
-#print axioms allContextReverse
-#print axioms allContextForward_altitude
-#print axioms runtimePlan_length
 
 end FieldNativeRegression
 end BilinearComplexity

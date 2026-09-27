@@ -658,35 +658,3 @@ end A146968
 construction.  Every other declaration in the file — the full public surface is swept
 below — must report a subset of `{propext, Classical.choice, Quot.sound}`. -/
 
-#print axioms A146968.IsBrown
-#print axioms A146968.instDecidableIsBrown
-#print axioms A146968.isBrown_def
-#print axioms A146968.isBrown_four
-#print axioms A146968.isBrown_five
-#print axioms A146968.isBrown_seven
-#print axioms A146968.factorial_add_one_eq
-#print axioms A146968.not_isBrown_six
-#print axioms A146968.ne_zero_of_isBrown
-#print axioms A146968.isBrown_unique
-#print axioms A146968.isSquare_of_isBrown
-#print axioms A146968.exists_isBrown_of_isSquare
-#print axioms A146968.isBrown_succ_iff
-#print axioms A146968.exists_succ_of_isBrown
-#print axioms A146968.isBrown_iff_pronic
-#print axioms A146968.pronic_known
-#print axioms A146968.prime_dvd_or_dvd_of_isBrown
-#print axioms A146968.prime_dvd_xor_dvd_of_isBrown
-#print axioms A146968.primeFactors_pronic_eq
-#print axioms A146968.not_isSquare_of_lt_of_lt
-#print axioms A146968.eq_of_isSquare_factorial_add_one_of_le
-#print axioms A146968.pair_eq_of_isBrown_of_le
-#print axioms A146968.solutions
-#print axioms A146968.mem_solutions
-#print axioms A146968.BrocardConjecture
-#print axioms A146968.known_subset_solutions
-#print axioms A146968.brocardConjecture_iff_solutions
-#print axioms A146968.finite_solutions_of_brocardConjecture
-#print axioms A146968.indices_eq_of_brocardConjecture
-#print axioms A146968.values_eq_of_brocardConjecture
-#print axioms A146968.squares_eq_of_brocardConjecture
-#print axioms A146968.brocard

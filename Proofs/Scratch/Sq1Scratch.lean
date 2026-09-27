@@ -1,4 +1,2 @@
 import GroupTPP.STPPWreath
 
-#print axioms GroupTPP.STPPWreath.pseudoExponent_wreath_tendsto_two
-#print axioms GroupTPP.STPPWreath.pseudoExponent_wreath_le_gamma

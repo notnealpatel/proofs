@@ -307,6 +307,5 @@ theorem mapped_designated_endpoint_exact_profile_221 {q : Profile}
 #check @mapped_endpoint_third_span_eq_range
 #check @mapped_designated_endpoint_exact_profile_221
 
-#print axioms mapped_designated_endpoint_exact_profile_221
 
 end BilinearComplexity.NormalizedBinaryEndpointTransport

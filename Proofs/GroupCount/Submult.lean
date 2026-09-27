@@ -350,17 +350,5 @@ detector: a use would appear as a per-declaration `*._native.native_decide.ax_*`
 on this toolchain (`Lean.ofReduceBool` is never emitted, so grepping for it detects
 nothing).  There is no `native_decide` in this file. -/
 
-#print axioms snd_apply_mk_one_eq_one_of_coprime
-#print axioms nonempty_mulEquiv_fst_of_coprime
-#print axioms nonempty_mulEquiv_snd_of_coprime
-#print axioms GroupStructure.prod_iso_prod_iff_of_coprime
-#print axioms IsoClass.prod_injective_of_coprime
-#print axioms mul_gnu_le_gnu_of_coprime
-#print axioms alt3
-#print axioms not_iso_prod_cyclic_four_klein
-#print axioms c3sq
-#print axioms not_iso_cyclic_nine_c3sq
-#print axioms two_le_gnu_nine
-#print axioms four_le_gnu_thirtysix
 
 end GroupCount

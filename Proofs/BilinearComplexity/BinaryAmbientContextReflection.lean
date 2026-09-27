@@ -952,8 +952,5 @@ of the normalized context and the normalized right endpoint. -/
 #check @normalizeLocalContext_union_left
 #check @normalizeLocalContext_union_right
 
-#print axioms allModeMove_normalizeLocalContext
-#print axioms normalizeLocalContext_union_left
-#print axioms normalizeLocalContext_union_right
 
 end BilinearComplexity.BinaryAmbientContextReflection

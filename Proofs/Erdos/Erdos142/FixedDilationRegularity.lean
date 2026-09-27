@@ -376,13 +376,3 @@ end
 end Erdos142
 
 -- Axiom audit for the public declarations of this module.
-#print axioms Erdos142.rothLogDeficit_mul_sub_mem
-#print axioms Erdos142.rothLogDeficit_le_mul
-#print axioms Erdos142.rothLogDeficit_mul_sub_le_log
-#print axioms Erdos142.sqrt_sub_sqrt_eq_div
-#print axioms Erdos142.tendsto_const_div_sqrt_log_zero
-#print axioms Erdos142.tendsto_const_div_log_mul_zero
-#print axioms Erdos142.tendsto_rothLogDeficit_mul_sub_div_sqrt_zero
-#print axioms Erdos142.tendsto_rothLogDeficit_mul_sub_div_sqrt_zero_comm
-#print axioms Erdos142.tendsto_normalizedDeficit_rothNumberNat_mul_sub
-#print axioms Erdos142.tendsto_normalizedDeficit_rothNumberNat_mul_sub_comm

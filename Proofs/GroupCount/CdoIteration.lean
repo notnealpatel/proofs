@@ -459,25 +459,6 @@ per-declaration `*._native.native_decide.ax_*` axiom on this toolchain
 (`Lean.ofReduceBool` is never emitted, so grepping for it detects nothing).  This
 file contains no `native_decide`. -/
 
-#print axioms cdo_gnu_iteration
 
-#print axioms gnu_iterate_one_eq_one
-#print axioms gnu_iterate_zero_eq_zero
-#print axioms gnu_iterate_eq_one_of_le
-#print axioms exists_gnu_iterate_eq_one_iff_forall_le
-#print axioms exists_gnu_iterate_eq_one_gnu_iff
-#print axioms not_exists_gnu_iterate_zero_eq_one
-#print axioms exists_gnu_iterate_eq_one_of_gnu_eq_one
-#print axioms cdo_gnu_iteration_one
-#print axioms cdo_gnu_iteration_prime
-#print axioms gnu_iterate_two
-#print axioms gnu_iterate_two_four
-#print axioms cdo_gnu_iteration_four
-#print axioms multiplicative_zmod_prod_pow_eq_one
-#print axioms not_isCyclic_multiplicative_zmod_prod
-#print axioms nonempty_mulEquiv_multiplicative_zmod_prod
-#print axioms gnu_prime_sq
-#print axioms gnu_iterate_two_prime_sq
-#print axioms cdo_gnu_iteration_prime_sq
 
 end GroupCount

@@ -598,11 +598,5 @@ example : carryGraph 3 ({(0 : ZMod 3)} : Finset (ZMod 3)) = {(0, 0), (1, 1), (2,
 #check @exists_zmod_free_with_zero
 #check @exists_halfSlice
 
-#print axioms exists_carryCardinalityCap
-#print axioms scalarTriple_nontrivial_threeAP
-#print axioms exists_zmod_free_with_zero
-#print axioms exists_halfSlice
-#print axioms threeAPFree_image_natCast
-#print axioms two_mul_lt_rothNumberNat_one
 
 end Erdos142
