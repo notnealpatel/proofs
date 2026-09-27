@@ -25,6 +25,15 @@
   accepted EHPS envelope `eventually_rothLogDeficit_iterated_square_le`, and
   the exact tower recurrence `squareScaleDefect_eq_rothLogDeficit_sub`.
 
+  A second layer takes the endpoint `β ↓ 0` of the density curve.  The
+  standalone real lemma `exists_beta_density_gt_of_lt_half` converts any
+  `δ < 1/2` into an admissible `β ∈ (0, 2 - √2)` with
+  `δ < 1 - log (√2) / log (2 - β)`, using only continuity of `log` at `2`;
+  consequently `eventually_card_squareScaleDefect_neg` proves the endpoint
+  half-density statement `∀ᶠ K, δ * K ≤ #{k < K : squareScaleDefect (N k) < 0}`
+  for every `δ < 1/2`, and `eventually_card_squareScaleDefect_nonpos` is the
+  closed-predicate (`≤ 0`) corollary.
+
   No `sorry`, no `axiom`, no `native_decide`, no `unsafe`.  The axiom audit is
   at the end of the file.
 -/
@@ -395,6 +404,145 @@ theorem eventually_card_squareScaleDefect_le_neg_const
     exact_mod_cast hstep'
   linarith
 
+/-! ## The endpoint consequence: half-density of nonpositive defects -/
+
+/-- **Endpoint real lemma.**  For every real `δ < 1/2` there is an admissible
+slope `β` with `0 < β < 2 - √2` for which the EHPS density
+`δβ = 1 - log (√2) / log (2 - β)` already exceeds `δ`.
+
+The point is the limit `δβ → 1/2` as `β ↓ 0`, which holds because
+`2 - β → 2` and `log` is continuous at `2 ≠ 0`.  The proof makes the limit
+argument concrete: writing `c = log (√2) / (1 - δ)`, one has `c < log 2`
+exactly because `1 - δ > 1/2`, and continuity of `β ↦ log (2 - β)` at `0`
+furnishes a positive radius on which `c < log (2 - β)`; a `β` inside that
+radius and inside `(0, 2 - √2)` is then extracted.  No monotonicity or
+derivative argument is required, and no `liminf` API is used. -/
+theorem exists_beta_density_gt_of_lt_half (δ : ℝ) (hδ : δ < 1 / 2) :
+    ∃ β : ℝ, 0 < β ∧ β < 2 - Real.sqrt 2 ∧
+      δ < 1 - Real.log (Real.sqrt 2) / Real.log (2 - β) := by
+  have hlog2 : 0 < Real.log 2 := Real.log_pos (by norm_num)
+  have hlogsqrt2 : Real.log (Real.sqrt 2) = Real.log 2 / 2 :=
+    Real.log_sqrt (by norm_num)
+  have h1δ : (1 : ℝ) / 2 < 1 - δ := by linarith
+  have h1δpos : 0 < 1 - δ := by linarith
+  have hc_lt : Real.log (Real.sqrt 2) / (1 - δ) < Real.log 2 := by
+    rw [hlogsqrt2, div_lt_iff₀ h1δpos]
+    nlinarith [hlog2, h1δ]
+  have htend : Tendsto (fun β : ℝ => Real.log (2 - β)) (𝓝 0) (𝓝 (Real.log 2)) := by
+    have h2 : Tendsto (fun β : ℝ => 2 - β) (𝓝 0) (𝓝 2) := by
+      simpa using (tendsto_const_nhds.sub tendsto_id :
+        Tendsto (fun β : ℝ => (2 : ℝ) - β) (𝓝 0) (𝓝 (2 - 0)))
+    exact (Real.continuousAt_log (x := 2) (by norm_num)).tendsto.comp h2
+  have hev : ∀ᶠ β in 𝓝 (0 : ℝ),
+      Real.log (Real.sqrt 2) / (1 - δ) < Real.log (2 - β) :=
+    htend.eventually (isOpen_Ioi.mem_nhds hc_lt)
+  obtain ⟨ε, hεpos, hε⟩ := Metric.eventually_nhds_iff.mp hev
+  have hsqrt2lt2 : Real.sqrt 2 < 2 := (Real.sqrt_lt' (by norm_num)).2 (by norm_num)
+  have hsq1 : (1 : ℝ) < Real.sqrt 2 := Real.one_lt_sqrt_two
+  have hpos : 0 < (2 - Real.sqrt 2) / 2 := by linarith
+  refine ⟨min (ε / 2) ((2 - Real.sqrt 2) / 2), lt_min (by linarith) hpos, ?_, ?_⟩
+  · have hle : min (ε / 2) ((2 - Real.sqrt 2) / 2) ≤ (2 - Real.sqrt 2) / 2 :=
+      min_le_right _ _
+    linarith
+  · set β := min (ε / 2) ((2 - Real.sqrt 2) / 2) with hβdef
+    have hβltε : β < ε := by
+      have : β ≤ ε / 2 := min_le_left _ _
+      linarith
+    have hβ2 : β < 2 - Real.sqrt 2 := by
+      have : β ≤ (2 - Real.sqrt 2) / 2 := min_le_right _ _
+      linarith
+    have hdist : dist β 0 < ε := by
+      rw [Real.dist_eq, sub_zero,
+        abs_of_nonneg (le_of_lt (lt_min (by linarith) hpos))]
+      exact hβltε
+    have hlog := hε hdist
+    have harg1 : 1 < 2 - β := by linarith
+    have hlogpos : 0 < Real.log (2 - β) := Real.log_pos harg1
+    have hstep : Real.log (Real.sqrt 2) / Real.log (2 - β) < 1 - δ := by
+      rw [div_lt_iff₀ hlogpos]
+      have hh := (div_lt_iff₀ h1δpos).mp hlog
+      linarith
+    linarith
+
+/-- **Positivity of the log-deficit at every tower node.**  For `M ≥ 3` and
+all `k`, `0 < rothLogDeficit (M ^ (2 ^ k))`; this is the input
+`rothLogDeficit_pos_of_three_le` at the base together with tower monotonicity
+`rothLogDeficit_iterated_square_mono`. -/
+theorem rothLogDeficit_iterated_square_pos {M : ℕ} (hM : 3 ≤ M) (k : ℕ) :
+    0 < rothLogDeficit (M ^ (2 ^ k)) := by
+  have hM1 : 1 ≤ M := by omega
+  induction k with
+  | zero => simpa using rothLogDeficit_pos_of_three_le hM
+  | succ k ih => exact lt_of_lt_of_le ih (rothLogDeficit_iterated_square_mono M k hM1)
+
+/-- **Endpoint half-density theorem (strict version).**
+
+Fix `M ≥ 3` and write `N k = M ^ (2 ^ k)`, `X k = squareScaleDefect (N k)`.
+For every real `δ < 1/2` the strictly negative defect inequality `X k < 0`
+holds at least `δ * K` times among `k < K`, eventually in `K`:
+
+`∀ᶠ K, δ * K ≤ #{k < K : squareScaleDefect (N k) < 0}`.
+
+This is the endpoint of the EHPS density curve and is the strongest of the
+clean half-density statements, since `X k < 0` is strictly better than the
+approved nonpositive alternative.  The proof picks an admissible `β` with
+`0 < β < 2 - √2` and `δβ > δ` via `exists_beta_density_gt_of_lt_half` -- this
+is the essential step, and it guarantees no fixed sub-`1/2` density is
+being smuggled in -- and then uses the accepted counted theorem
+`eventually_card_squareScaleDefect_le_neg_mul_rothLogDeficit`, whose counted
+predicate `X k ≤ -β * rothLogDeficit (N k)` implies `X k < 0` because
+`β > 0` and every tower log-deficit is positive.  Only a monotone `card_le_card`
+vacuousness check separates the two filters.  Nothing is assumed about a density
+of the integers `N`. -/
+theorem eventually_card_squareScaleDefect_neg
+    (M : ℕ) (hM : 3 ≤ M) (δ : ℝ) (hδ : δ < 1 / 2) :
+    ∀ᶠ K : ℕ in atTop,
+      δ * (K : ℝ) ≤
+        (((Finset.range K).filter (fun k =>
+          squareScaleDefect (M ^ (2 ^ k)) < 0)).card : ℝ) := by
+  obtain ⟨β, hβ0, hβlt, hδβ⟩ := exists_beta_density_gt_of_lt_half δ hδ
+  have hmain : ∀ᶠ K : ℕ in atTop, δ * (K : ℝ) ≤
+      (((Finset.range K).filter (fun k =>
+        squareScaleDefect (M ^ (2 ^ k)) ≤
+          -β * rothLogDeficit (M ^ (2 ^ k)))).card : ℝ) :=
+    eventually_card_squareScaleDefect_le_neg_mul_rothLogDeficit M hM β hβ0 hβlt δ hδβ
+  filter_upwards [hmain] with K hK
+  have hle : ((Finset.range K).filter (fun k =>
+        squareScaleDefect (M ^ (2 ^ k)) ≤
+          -β * rothLogDeficit (M ^ (2 ^ k)))).card ≤
+      ((Finset.range K).filter (fun k =>
+        squareScaleDefect (M ^ (2 ^ k)) < 0)).card :=
+    Finset.card_le_card (fun k hk => by
+      rw [Finset.mem_filter] at hk
+      exact Finset.mem_filter.2 ⟨hk.1, by
+        nlinarith [mul_pos hβ0 (rothLogDeficit_iterated_square_pos hM k), hk.2]⟩)
+  exact le_trans hK (by exact_mod_cast hle)
+
+/-- **Endpoint half-density theorem (nonpositive version).**
+
+Under the same hypotheses, for every real `δ < 1/2`,
+`∀ᶠ K, δ * K ≤ #{k < K : squareScaleDefect (N k) ≤ 0}`.
+
+This is the external-free cardinal conclusion for the closed predicate: it
+follows from the strict theorem by the inclusion
+`{X < 0} ⊆ {X ≤ 0}` and needs no additional analytic input. -/
+theorem eventually_card_squareScaleDefect_nonpos
+    (M : ℕ) (hM : 3 ≤ M) (δ : ℝ) (hδ : δ < 1 / 2) :
+    ∀ᶠ K : ℕ in atTop,
+      δ * (K : ℝ) ≤
+        (((Finset.range K).filter (fun k =>
+          squareScaleDefect (M ^ (2 ^ k)) ≤ 0)).card : ℝ) := by
+  refine (eventually_card_squareScaleDefect_neg M hM δ hδ).mono ?_
+  intro K hK
+  have hle : ((Finset.range K).filter (fun k =>
+        squareScaleDefect (M ^ (2 ^ k)) < 0)).card ≤
+      ((Finset.range K).filter (fun k =>
+        squareScaleDefect (M ^ (2 ^ k)) ≤ 0)).card :=
+    Finset.card_le_card (fun k hk => by
+      rw [Finset.mem_filter] at hk
+      exact Finset.mem_filter.2 ⟨hk.1, le_of_lt hk.2⟩)
+  exact le_trans hK (by exact_mod_cast hle)
+
 /-! ## Non-vacuity and ground-truth checks -/
 
 /-- The admissible-`β` region is nonempty: `β = 1/2` satisfies
@@ -451,6 +599,22 @@ example : ∃ β : ℝ, 0 < β ∧ β < 2 - Real.sqrt 2 ∧
     rw [h2b]
     linarith
 
+/-- Non-vacuity with `δ > 0`: at `δ = 1/4` and every `M ≥ 3` the strict
+endpoint conclusion holds, so the half-density theorem is not a statement about
+the zero density. -/
+example (M : ℕ) (hM : 3 ≤ M) :
+    ∀ᶠ K : ℕ in atTop,
+      ((1 : ℝ) / 4) * (K : ℝ) ≤
+        (((Finset.range K).filter (fun k =>
+          squareScaleDefect (M ^ (2 ^ k)) < 0)).card : ℝ) :=
+  eventually_card_squareScaleDefect_neg M hM (1 / 4) (by norm_num)
+
+/-- The endpoint real lemma is non-vacuous at a concrete positive `δ`: for
+`δ = 1/3` there exists an admissible `β` whose EHPS density exceeds `1/3`. -/
+example : ∃ β : ℝ, 0 < β ∧ β < 2 - Real.sqrt 2 ∧
+    (1 / 3 : ℝ) < 1 - Real.log (Real.sqrt 2) / Real.log (2 - β) :=
+  exists_beta_density_gt_of_lt_half (1 / 3) (by norm_num)
+
 /-! ## Axiom audit -/
 
 #print axioms Erdos142.negRatioCount_succ
@@ -461,6 +625,10 @@ example : ∃ β : ℝ, 0 < β ∧ β < 2 - Real.sqrt 2 ∧
 #print axioms Erdos142.rothLogDeficit_iterated_square_mono
 #print axioms Erdos142.eventually_card_squareScaleDefect_le_neg_mul_rothLogDeficit
 #print axioms Erdos142.eventually_card_squareScaleDefect_le_neg_const
+#print axioms Erdos142.exists_beta_density_gt_of_lt_half
+#print axioms Erdos142.rothLogDeficit_iterated_square_pos
+#print axioms Erdos142.eventually_card_squareScaleDefect_neg
+#print axioms Erdos142.eventually_card_squareScaleDefect_nonpos
 
 end
 
