@@ -101,4 +101,5 @@ import Erdos.Erdos142.SquareScaleNegative
 import Erdos.Erdos142.SquareScaleNormalizedExcursions
 import Erdos.Erdos142.SquareScaleNegativeDensity
 import Erdos.Erdos142.CarryCardinalityCapObstruction
+import Erdos.Erdos142.HalfDigitRelationCap
 import Erdos.Erdos142.ReflectionShadow
