@@ -19,6 +19,19 @@ The exact public endpoints are `disjoint_reflectionShadow`, `two_mul_card_differ
 
 **Boundary of the formal result:** this module does not formalize any base-`N` carry-union identity, median-shadow bound, representation-mass or energy identity, or the candidate estimate below. It is a finite integer-set kernel, not an asymptotic statement about `r(N)`.
 
+**Kernel-checked ReflectionMultiplicityCap result.** At adopted revision
+`03698c3b0724a6591300cfab6bec371558e880f2`,
+`Proofs/Erdos/Erdos142/ReflectionMultiplicityCap.lean` proves that, for
+`A⊂[0,L)` scalar 3-AP-free, each in-range ordered reflection-target
+multiplicity `ν(c)` is the cardinality of an admissible center set. That
+center set is 3-AP-free inside an interval of length `ceil(L/2)`, and hence
+`ν(c)≤r(ceil(L/2))`. At `L=N²`, this gives
+`ν(c)≤ceil(N/2) r(N)`, together with the pointwise-to-energy bound
+`E≤r(ceil(L/2)) M`. Focused and full builds and the independent axiom audit
+passed, with only `propext`, `Classical.choice`, and `Quot.sound`; static
+semantic review was **CLEAN**, and nonvacuous endpoint examples were checked.
+This pointwise cap alone does not prove (O), (C), or Erdős 142.
+
 ## 2. Informal finite mathematics (independently audited; not Lean formalized)
 
 Use the convention `[0,N²)={0,1,…,N²−1}`. Let `A ⊆ [0,N²)` be scalar 3-AP-free and write `m=|A|`. Let
@@ -89,6 +102,73 @@ The precise structural obstacle is that fixed-difference edges form matchings, w
  A=\{1,2,4,8\}\subset[9]
 \]
 has three representations of target zero: `2·1−2=2·2−4=2·4−8=0`, so `ν(0)=3`. Thus the fixed-difference matching/source theorem does not bound fixed-target multiplicities. It supplies an exact local ingredient for the energy sum, but not the missing overlap estimate.
+
+### Independently reviewed counterfamily for an auxiliary support bound
+
+An independently reviewed informal counterfamily defeats the **auxiliary**
+shadow-support lower bound that would seek a uniform lower bound comparable to
+`min{b²,L}`. For `d=q≥4`, let `Q=4q`, take a largest sphere
+`X_d⊂{0,…,q−1}^d`, and base-`Q` encode it as `B_d⊂[0,L_d)`, where
+\[
+ L_d=1+(q-1)\frac{Q^d-1}{Q-1},
+ \qquad b_d=|B_d|\ge\frac{q^d}{d(q-1)^2+1}.
+\]
+Put `M_d=3L_d−1` and
+\[
+ P_d=\{2x-y:x,y\in B_d,\ x\ne y,\ 0\le2x-y<M_d\},
+ \qquad I_d=P_d\cap(M_d-1-P_d).
+\]
+Then `B_d` is scalar 3-AP-free and
+\[
+ b_d-1\le 2|P_d|-|I_d|\le 2(3q-2)^d.
+\]
+Writing `U_d=2|P_d|-|I_d|` and taking `q=d` gives
+\[
+ \frac{U_d}{b_d^2}\le 2d^6(3/d)^d,
+ \qquad
+ \frac{U_d}{L_d}\le \frac{8d}{d-1}(3/4)^d,
+\]
+both of which tend to zero. Thus no uniform lower bound comparable to
+`min{b_d²,L_d}` can prove (C). The ordered-multiplicity energy still has the
+lower bound
+\[
+ \sum_c\nu(c)^2\ge
+ \frac{\binom{b_d}{2}^2}{(3q-2)^d}.
+\]
+This does not refute (C), (O), or Erdős 142: the construction uses a separate
+cutoff `M_d` and omits the `r(N)` factor.
+
+### The settled q=d two-cluster stress test for (C)
+
+After taking `q=d` in the preceding construction, the same `B_d` also gives a
+settled two-cluster stress test, not a counterexample. Let
+\[
+ A=B_d\cup(T-1-B_d),
+ \qquad T=3L_d-1,
+ \qquad N=\lceil\sqrt T\rceil,
+ \qquad b=|B_d|,
+ \qquad m=2b.
+\]
+For all large `d`, `m>N`. Since `|S(A)|≥b-1≥b/2`, `b≤d^d`, and
+\[
+ N^6\ge T^3\ge27(d-1)^3(4d)^{3d-3},
+\]
+the candidate ratio satisfies
+\[
+ R=\frac{|S(A)|^3r(N)^8}{N^2(m-N)^6}
+ \ge\frac{27}{512}\left(\frac{d-1}{d}\right)^3
+ 64^{d-1}\left(\frac{r(N)}{N}\right)^8
+ =\exp\bigl(d\log64-O(\sqrt{d\log d})\bigr)\longrightarrow\infty.
+\]
+Here only the lower bound
+\[
+ r(N)/N\ge\exp(-C\sqrt{\log N})
+\]
+for the true extremal function is used. The constant is `1/512`, not
+`1/64`: the factors are `1/8` from `|S(A)|^3` and `1/64` from `m^6`.
+Thus this explicit family
+eventually satisfies (C) by a growing margin; it does not prove (C) for
+arbitrary sets.
 
 ## 5. Relationship to the wider route and stop conditions
 

@@ -475,9 +475,97 @@ high-mass candidate remains open.
 
 **Kernel checked.** At accepted revision `66eca70dc75c548dcf27862d0f8c8bcc5e436f67`, `Proofs/Erdos/Erdos142/ReflectionShadow.lean`, imported by `Proofs/Erdos.lean`, defines the integer `reflectionShadow` and `differenceSources`. It proves that a finite ordinary 3AP-free `A⊂ℤ` is disjoint from its nontrivial reflection shadow, and that `2·|{x∈A:x+d∈A}|≤|A|` for every nonzero `d`. Focused and full builds succeeded (8814 jobs); the public endpoints use only `[propext, Classical.choice, Quot.sound]`. Independent mathematical review was clean. A vacuity audit found no semantic/trust issue; additional scratch cardinality probes did not complete and are not integrated.
 
+**Kernel checked: ReflectionMultiplicityCap.** At adopted revision
+`03698c3b0724a6591300cfab6bec371558e880f2`,
+`Proofs/Erdos/Erdos142/ReflectionMultiplicityCap.lean` proves that, for
+`A⊂[0,L)` scalar 3-AP-free, every in-range ordered reflection-target
+multiplicity `ν(c)` equals the cardinality of an admissible center set. The
+center set is 3-AP-free inside an interval of length `ceil(L/2)`, so
+`ν(c)≤r_3(ceil(L/2))`. At `L=N²`, this gives
+`ν(c)≤ceil(N/2) r_3(N)`, and pointwise-to-energy summation gives
+`E≤r_3(ceil(L/2)) M`. Focused and full builds and an independent axiom audit
+passed with only `propext`, `Classical.choice`, and `Quot.sound`; static
+semantic review was **CLEAN**, with nonvacuous endpoint examples. This
+pointwise cap alone does not prove (O), (C), or Erdős 142.
+
 **Informal finite mathematics, independently audited but not Lean formalized.** For scalar-free `A⊂[0,N²)` with `m=|A|`, the target-wise union of valid carry cases is exactly the in-range nontrivial reflection shadow `S(A)`, so `|S(A)|≤N²−m`; median reflection gives `|S(A)|≥floor((m−1)/2)`. With in-range representation multiplicities `ν(c)=#{(a,b)∈A²:a≠b:2a−b=c}`, `M=Σν`, `E=Σν²`, and `r_A(d)=|{x∈A:x+d∈A}|`, the informal collision count gives `E≤M+Σ_{d≠0}r_A(d)r_A(2d)≤Σ_d r_A(d)r_A(2d)`. The formal fixed-difference theorem is exactly `r_A(d)≤floor(m/2)` for `d≠0`, but using it naively is far too weak. The formal module does **not** contain the carry-union identity, median bound, mass/energy identities, or candidate below.
 
 **Exploratory/conjectural.** The candidate `|S(A)|³ r(N)^8 ≥ N²(m−N)^6` for `m>N` is unproved and would imply `r(N²)≤N+N^(2/3)r(N)^(4/3)≤2N^(2/3)r(N)^(4/3)` eventually, a P-shaped gain with `η=1/3`; this would be an intermediate estimate, not an asymptotic formula. It is checked informally for `N=3`, eventual fixed-linear `m≤KN` regimes, and short ternary Cartesian products; exhaustive `N≤6` and structured searches are computation only. A sufficient second-moment overlap bound `E≤M²r(N)^(8/3)/(N^(2/3)(m−N)²)` remains unproved and undisproved. The fixed-difference matching argument does not bound fixed-target multiplicity: `{1,2,4,8}⊂[9]` has `ν(0)=3`. A capped-at-2 moment variant is also unproved and at most within factor `9/8` of the desired support bound, not an independent breakthrough. See [`erdos142-reflection-shadow-route.md`](erdos142-reflection-shadow-route.md) for definitions, exact status, and derivations.
+
+**Independently reviewed informal counterfamily.** An auxiliary
+shadow-support lower bound comparable to `min{b²,L}` is false. For `d=q≥4`,
+let `Q=4q`, take a largest sphere `X_d⊂{0,…,q−1}^d`, and base-`Q` encode it
+as `B_d⊂[0,L_d)`, where
+
+$$
+L_d=1+(q-1)\frac{Q^d-1}{Q-1},
+\qquad b_d=|B_d|\ge\frac{q^d}{d(q-1)^2+1}.
+$$
+
+Put `M_d=3L_d−1` and
+
+$$
+P_d=\{2x-y:x,y\in B_d,\ x\ne y,\ 0\le2x-y<M_d\},
+\qquad I_d=P_d\cap(M_d-1-P_d).
+$$
+
+Then `B_d` is scalar 3-AP-free and
+
+$$
+b_d-1\le2|P_d|-|I_d|\le2(3q-2)^d.
+$$
+
+Writing `U_d=2|P_d|-|I_d|` and taking `q=d` gives
+
+$$
+\frac{U_d}{b_d^2}\le2d^6(3/d)^d,
+\qquad
+\frac{U_d}{L_d}\le\frac{8d}{d-1}(3/4)^d,
+$$
+
+and both ratios tend to zero. Thus no uniform lower bound comparable to
+`min{b_d²,L_d}` can prove (C). The ordered multiplicity energy nevertheless
+has the lower bound
+
+$$
+\sum_c\nu(c)^2\ge\frac{\binom{b_d}{2}^2}{(3q-2)^d}.
+$$
+
+This does not refute (C), (O), or Erdős 142: the construction uses a separate
+cutoff `M_d` and omits the `r(N)` factor.
+
+**Settled q=d two-cluster stress test for (C).** After taking `q=d` in the
+preceding construction, the same `B_d` gives a settled two-cluster stress
+test, not a counterexample. Let
+
+$$
+A=B_d\cup(T-1-B_d),
+\qquad T=3L_d-1,
+\qquad N=\lceil\sqrt T\rceil,
+\qquad b=|B_d|,
+\qquad m=2b.
+$$
+
+For all large `d`, `m>N`. Using `|S(A)|≥b-1≥b/2`, `b≤d^d`, and
+
+$$
+N^6\ge T^3\ge27(d-1)^3(4d)^{3d-3},
+$$
+
+the candidate ratio is
+
+$$
+R=\frac{|S(A)|^3r(N)^8}{N^2(m-N)^6}
+\ge\frac{27}{512}\left(\frac{d-1}{d}\right)^3
+64^{d-1}\left(\frac{r(N)}{N}\right)^8
+=\exp\bigl(d\log64-O(\sqrt{d\log d})\bigr)\longrightarrow\infty.
+$$
+
+Here only the lower bound
+$r(N)/N\ge\exp(-C\sqrt{\log N})$ for the true `r(N)` is used. The constant
+is `1/512`, not `1/64`: `|S(A)|³` contributes `1/8`
+and `m^6` contributes `64`. Thus this explicit family eventually satisfies
+(C) by a growing margin; it does not prove (C) for arbitrary sets.
 
 **Conditional significance only:** if an eventual P bound with `η=1/3` and fixed constant held, its iteration would give `λ(M^{2^k})≳_M(4/3)^k` on a sufficiently large fixed square tower, equivalently a tower lower bound of logarithmic exponent `log₂(4/3)≈0.415`. This is not an all-scale interpolation or a solution of Erdős 142. The carry-sensitive route complements, but does not remove, the relaxation obstruction in [`erdos142-carry-cardinality-obstruction.md`](erdos142-carry-cardinality-obstruction.md); the comparison with the square-defect threshold is recorded in [`erdos142-negative-defect-density.md`](erdos142-negative-defect-density.md). No global novelty claim is made. Issue [#59](https://github.com/thatnealpatel/proofs/issues/59)
 requests external evaluation of the reflection-shadow route and cubic
