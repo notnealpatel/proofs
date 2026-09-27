@@ -222,7 +222,9 @@ asymptotic theorem about $r(N)$.
 
 See [`erdos142-carry-cardinality-obstruction.md`](erdos142-carry-cardinality-obstruction.md)
 for the proof sketch and the closed computational lead. Evidence labels and
-scope are preserved there as well.
+scope are preserved there as well. Issue [#58](https://github.com/thatnealpatel/proofs/issues/58)
+requests external evaluation of this obstruction; it is not a novelty
+certification.
 
 ### Reflection-shadow route
 
@@ -232,7 +234,9 @@ scope are preserved there as well.
 
 **Exploratory/conjectural.** The candidate `|S(A)|³ r(N)^8 ≥ N²(m−N)^6` for `m>N` is unproved and would imply `r(N²)≤N+N^(2/3)r(N)^(4/3)≤2N^(2/3)r(N)^(4/3)` eventually, a P-shaped gain with `η=1/3`; this would be an intermediate estimate, not an asymptotic formula. It is checked informally for `N=3`, eventual fixed-linear `m≤KN` regimes, and short ternary Cartesian products; exhaustive `N≤6` and structured searches are computation only. A sufficient second-moment overlap bound `E≤M²r(N)^(8/3)/(N^(2/3)(m−N)²)` remains unproved and undisproved. The fixed-difference matching argument does not bound fixed-target multiplicity: `{1,2,4,8}⊂[9]` has `ν(0)=3`. A capped-at-2 moment variant is also unproved and at most within factor `9/8` of the desired support bound, not an independent breakthrough. See [`erdos142-reflection-shadow-route.md`](erdos142-reflection-shadow-route.md) for definitions, exact status, and derivations.
 
-**Conditional significance only:** if an eventual P bound with `η=1/3` and fixed constant held, its iteration would give `λ(M^{2^k})≳_M(4/3)^k` on a sufficiently large fixed square tower, equivalently a tower lower bound of logarithmic exponent `log₂(4/3)≈0.415`. This is not an all-scale interpolation or a solution of Erdős 142. The carry-sensitive route complements, but does not remove, the relaxation obstruction in [`erdos142-carry-cardinality-obstruction.md`](erdos142-carry-cardinality-obstruction.md); the comparison with the square-defect threshold is recorded in [`erdos142-negative-defect-density.md`](erdos142-negative-defect-density.md). No global novelty claim is made.
+**Conditional significance only:** if an eventual P bound with `η=1/3` and fixed constant held, its iteration would give `λ(M^{2^k})≳_M(4/3)^k` on a sufficiently large fixed square tower, equivalently a tower lower bound of logarithmic exponent `log₂(4/3)≈0.415`. This is not an all-scale interpolation or a solution of Erdős 142. The carry-sensitive route complements, but does not remove, the relaxation obstruction in [`erdos142-carry-cardinality-obstruction.md`](erdos142-carry-cardinality-obstruction.md); the comparison with the square-defect threshold is recorded in [`erdos142-negative-defect-density.md`](erdos142-negative-defect-density.md). No global novelty claim is made. Issue [#59](https://github.com/thatnealpatel/proofs/issues/59)
+requests external evaluation of the reflection-shadow route and cubic
+candidate; it is not a novelty certification.
 
 ## Dead ends and guardrails
 
@@ -282,3 +286,12 @@ scope are preserved there as well.
 3. Keep the entropy route closed unless a replacement inequality either
    excludes sub-products or applies only within an $\exp(O(\lambda))$ factor
    of the row-cap maximum.
+
+## Current handoff
+
+See [`erdos142-research-handoff-2026-09-27.md`](erdos142-research-handoff-2026-09-27.md)
+for the self-contained frontier at accepted revision
+`596825af4c347bbb311da8a340bec333c45b2f9a`. Any new potential novelty claim
+must receive its own repository issue or an explicit scoped update to the
+matching existing issue before it is advertised; filed requests are external
+evaluation, not novelty certification.
