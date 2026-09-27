@@ -30,7 +30,11 @@
   grammar normalize to the former and the latter strands the statement outside the API.
 
 - You **MUST** treat a proof as complete only when the file compiles with no `sorry`, no errors,
-  and `#print axioms` reports a subset of `{propext, Classical.choice, Quot.sound}`.
+  and a separate audit reports only `{propext, Classical.choice, Quot.sound}`.
+- You **MUST NOT** leave `#print axioms` in a production module or any module imported by an
+  umbrella target. Cached informational output is replayed by every ordinary downstream build.
+  Put axiom prints in a temporary leaf audit module that imports the proof, run it explicitly,
+  and never import the audit back into production.
 - You **MUST NOT** declare `axiom`s.
 - You **MUST NOT** use `@[implemented_by]`, `@[extern]`, or `@[csimp]` in proof-bearing code; with
   `native_decide` they enter the trusted base, and `@[csimp]` axiom-dependencies do not surface in
@@ -38,11 +42,8 @@
 - You **MUST** prefer `decide` to `native_decide`; use `native_decide` only when kernel reduction
   is infeasible, and note the enlarged trust surface at the use site.
 - You **MUST** isolate expensive, stable proof-producing computations (`bv_decide`, large
-  `decide`, or heavily expanded finite checks) in their own Lean module before developing the
-  semantic bridge around them. Lean caches at module granularity, not theorem granularity.
-  Module.Name`, and put changing downstream proofs in a separate module that imports it. Iterate
-  with `lake build` on the downstream module so Lake reuses the unchanged dependency; repeatedly
-  running `lake env lean Path/To/Combined.lean` re-elaborates every theorem in that source file.
+  `decide`, or heavily expanded finite checks) in their own Lean module. Put changing semantic
+  bridges in a separate downstream module so edits do not repeatedly invalidate the computation.
 - You **MUST NOT** edit the frozen computation module merely to add downstream bridge lemmas;
   doing so invalidates its `.olean` and pays the expensive check again. A clean build still checks
   the computation once, so report and optimize that cold-build cost separately if it is excessive.

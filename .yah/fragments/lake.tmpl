@@ -1,0 +1,56 @@
+**Use Lake as a scalpel.** When your scope requires Lean
+elaboration, build the narrowest module that can answer the
+question. Prefer:
+
+```shell
+timeout 60s lake -q build +Module.Name
+```
+
+`-q` hides cached informational messages and progress while
+preserving warnings and errors. Drop it only when the messages
+are the evidence you need. Do not start with `lake build`, a
+library umbrella, or an entire research area when one module
+will do.
+
+**Trust the workspace boundary.** The harness gives every agent
+its own mutable project build cache and safely symlinks the
+partially unchanging parts of `.lake`. Do not add `flock`, copy
+build trees, point `LEAN_PATH` into another workspace, delete
+`.lake`, or manufacture another cache layout.
+
+**Bound every probe.** Begin with a short external timeout. A
+normal single-module check gets about 60 seconds; a known cold
+finite computation may justify about 300 seconds. Exit 124 is a
+timeout, not a proof failure. Inspect what was rebuilding before
+raising one bound, and never retry the unchanged command merely
+because it timed out.
+
+Use only the resources the check needs. For a one-file probe,
+start Lean with one thread and a deliberate memory ceiling, for
+example:
+
+```shell
+timeout 60s lake env lean -j 1 -M 4000 Proofs/Scratch/Probe.lean
+```
+
+`-M` is in megabytes. Raise it only after an observed allocation
+failure. If a Lake build does not need the whole host, constrain
+it to an available CPU set with `taskset`; choose the set from
+current machine state rather than blindly pinning every agent to
+CPU 0. Long checks belong in `tool_task`, not a blocked foreground
+shell.
+
+**Respect module caches.** Lean caches modules, not individual
+theorems. A large `decide`, `bv_decide`, or expanded finite check
+is paid again whenever its containing source module changes.
+Keep stable computation in a small dependency module and put
+changing semantic bridges downstream. A harmless edit to the
+computation module breaks that cache boundary and can make both
+the editor and the next build lag; do not restart competing
+builds while the bounded cold check is still running.
+
+Use `lake env lean` for disposable one-file probes and explicit
+audits. It re-elaborates that source file and is a poor edit-build
+loop for a large production module. Use the narrow Lake target
+above for normal incremental work so unchanged imports come from
+the workspace cache.
