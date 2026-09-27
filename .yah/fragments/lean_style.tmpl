@@ -39,8 +39,7 @@
   is infeasible, and note the enlarged trust surface at the use site.
 - You **MUST** isolate expensive, stable proof-producing computations (`bv_decide`, large
   `decide`, or heavily expanded finite checks) in their own Lean module before developing the
-  semantic bridge around them. Lean caches at module granularity, not theorem granularity: freeze
-  the expensive module, build its `.olean` once with `flock .lake/agent.lock lake build
+  semantic bridge around them. Lean caches at module granularity, not theorem granularity.
   Module.Name`, and put changing downstream proofs in a separate module that imports it. Iterate
   with `lake build` on the downstream module so Lake reuses the unchanged dependency; repeatedly
   running `lake env lean Path/To/Combined.lean` re-elaborates every theorem in that source file.
