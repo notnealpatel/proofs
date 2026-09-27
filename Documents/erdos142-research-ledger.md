@@ -571,7 +571,42 @@ and `m^6` contributes `64`. Thus this explicit family eventually satisfies
 requests external evaluation of the reflection-shadow route and cubic
 candidate; it is not a novelty certification.
 
-### Exact relative rank-one checkpoint
+### Incidence-biclique obstruction
+
+**Independently audited finite/prose route closure; not Lean formalized.** For
+scalar 3AP-free $A\subseteq[0,L)$, put
+$I_A=\{(c,d):0\le c<L,\ d\ne0,\ c+d,c+2d\in A\}$. Its row degree is
+exactly the reflection multiplicity
+$\nu_A(c)=\#\{(a,b)\in A^2:a\ne b,2a-b=c\}$, via
+$(a,b)=(c+d,c+2d)$. Its column degree is exactly
+$\#\{a\in A:a+d\in A,0\le a-d<L\}\le r_A(d)\le\lfloor m/2\rfloor$;
+the last bound is the disjointness of $X_d$ and $X_d+d$. For every nonempty
+biclique $C\times D\subseteq I_A$, both $C$ and $D$ are scalar 3AP-free and
+$((C-C)\setminus\{0\})\cap D=\varnothing$. The proofs and the precise
+scope are recorded in
+[`Programs/Erdos142/incidence-biclique-obstruction.md`](../Programs/Erdos142/incidence-biclique-obstruction.md).
+
+The exact digit construction uses $b=128$,
+$E_1=\{0,1,5,7,11,12,16,18,26,38,39,42,44,48,53,55,59,61\}$,
+$E_P=\{17,18,21,23\}$, and
+$E_2=E_P\cup2E_P=\{17,18,21,23,34,36,42,46\}$. Finite midpoint checks
+(computation evidence only) certify that $E_1,E_2$ are 3AP-free,
+$E_1,E_2\subset[0,64)$, $E_P\subset[1,32)$, and
+$E_P\cap2E_P=\varnothing$. The even-$E_1$/odd-$E_2$ digit cap $T_k$ has
+$|T_k|=144^k$ and lies in $[0,128^{2k})$ by the no-carry proof. The even
+$E_1$ digit set $C_k$ and odd $E_P$ digit set $P_k$ have sizes $18^k$ and
+$4^k$, and $C_k+P_k,C_k+2P_k\subseteq T_k$. Thus at
+$N=128^k$, $L=N^2$, and $m=144^k>N$, the incidence graph contains
+$K_{18^k,4^k}$.
+
+Consequently no fixed $K_{s_0,t_0}$-free property and no absolute-constant
+bound on $|C||D|$ can follow from cap structure, even when $m>N$.
+This does not refute bounds depending on $m,L$, candidate (C), candidate (O),
+or Erdős 142. The tempting union
+$(C_k+P_k)\cup(C_k+2P_k)$ has size $2\cdot72^k$ when disjoint, not
+$144^k$; for $k>1$ it is not the dense scalable family. Unsupported
+asymptotics for digit-set sizes are discarded.
+
 
 **Conjectural missing lemma, with a proved special case and conditional
 consequence.**  The statement `RAI(K)` asks for one fixed integer $K\ge1$: whenever
