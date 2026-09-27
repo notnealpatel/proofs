@@ -543,6 +543,21 @@ cyclic structural obstruction; the coefficient estimates still do not give
 the simultaneous ordinary-AP flatness needed to refute integer `RAI(K)`.
 No globally spread scalar cap with that stronger property was constructed.
 
+A further fourth-moment shortcut fails in its uniform form.  If
+$H=\lfloor p/7\rfloor$, $C\subseteq[0,H)$ is a Behrend cap of density
+$\delta=|C|/p$, $R=[0,2H)$, and
+$X_{u,v}=|(uC+v)\cap R|$, then the at least $p/7$ affine pairs with $u=1$
+and $0\le v\le H$ give
+$$
+\mathbb E_{u\ne0,v}|X_{u,v}-\delta|R||^4
+ \ge\frac{625}{7^5}\delta^4p^3.
+$$
+This exceeds a proposed $O((\delta|R|)^2)$ bound by an unbounded factor at
+Behrend density.  The witness is macroscopic, however: for the critical
+length $\ell=\delta^Kp/2$, $|R|\gg\ell$.  A scale-localized fourth-moment or
+tail estimate for $|P|\asymp\ell$ remains open, so this obstruction does not
+settle ordinary `RAI(K)`.
+
 The exact full statement survives, but is not proved by, the required stress
 tests.  A carry-free digit product $B+(2N-1)B$ lies in its density range;
 its obvious coordinate increments have length only $N$, whereas `RAI(K)`
@@ -590,7 +605,10 @@ to `RAI(K)`.
 
 1. Prove or refute the exact `RAI(K)` statement in
    [`erdos142-relative-rank-one-checkpoint.md`](erdos142-relative-rank-one-checkpoint.md).
-   The first unresolved stress case is the carry-free product
+   First test whether affine-randomized Behrend caps satisfy a usable tail
+   estimate for ordinary progressions at the critical length
+   $|P|\asymp\delta^Kp$; the macroscopic fourth moment is now known to fail.
+   The other unresolved stress case is the carry-free product
    $B+(2N-1)B$: control every scalar AP of length
    $\gg\beta^{2K}N^2$, not only coordinate fibers.  Any proof must use
    scalar carry information; the accepted half-digit relation rules out a

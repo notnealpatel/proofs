@@ -524,6 +524,41 @@ Consequently, this lane now has a sharp outcome:
    carrier; and
 3. neither fact decides full ordinary-integer `RAI(K)`.
 
+### A macroscopic fourth-moment shortcut also fails
+
+A proposed repair was to average ordinary-progression intersections over the
+affine group and use a fourth-moment union bound.  The required uniform
+estimate is false even for a modular cap.  Let $p$ be prime,
+$H=\lfloor p/7\rfloor$, and let $C\subseteq[0,H)$ be an ordinary Behrend
+cap, viewed in $\mathbb F_p$.  Since $2H-2<p$, it is also modularly
+3-AP-free.  Write $\delta=|C|/p$, put $R=[0,2H)$, and set
+$X_{u,v}=|(uC+v)\cap R|$.  For $u=1$ and every $0\le v\le H$,
+$C+v\subseteq R$, so
+$$
+|X_{1,v}-\delta|R||=\delta(p-2H)\ge\frac57\delta p.
+$$
+There are at least $p/7$ such affine pairs among $p(p-1)$ pairs.  Hence
+$$
+\mathbb E_{u\ne0,v}|X_{u,v}-\delta|R||^4
+ \ge \frac{625}{7^5}\delta^4p^3.
+$$
+On the other hand,
+$(\delta|R|)^2\le(4/49)\delta^2p^2$, so their ratio is at least
+$$
+\frac{625}{1372}\delta^2p,
+$$
+which tends to infinity at Behrend-scale density.  Modular 3-AP-freeness
+controls one three-point pattern, not the centered four-point affine-ratio
+correlations appearing in this fourth moment.
+
+This refutes a fourth-moment bound uniform over **all** long ordinary
+progressions.  It does not yet refute a scale-localized argument: for
+$\ell=\delta^Kp/2$, the witness $R$ is much longer than $\ell$, and a density
+increment on a long progression can potentially be reduced to blocks of
+length comparable to $\ell$.  Whether an adequate fourth-moment or tail bound
+holds uniformly for $|P|\asymp\ell$ remains open.  Thus neither the
+macroscopic heavy tail nor the cyclic carrier decides ordinary `RAI(K)`.
+
 ## Attempts to prove or refute (RAI)
 
 ### Existing density-increment inputs do not prove it
