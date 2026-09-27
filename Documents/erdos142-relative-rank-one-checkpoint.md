@@ -596,6 +596,107 @@ remains open is a simultaneous-flatness construction or a tail estimate
 after conditioning away the aligned directions.  Neither the critical-scale
 heavy tail nor the cyclic carrier decides ordinary `RAI(K)`.
 
+### A proved ordinary-direction refinement
+
+The critical-scale obstruction can be narrowed in the ordinary (non-wrapping)
+model.  Fix a prime $p$, a fixed $K$, and a density $\delta$ in the
+critical-scale construction, and put
+
+$$
+\ell=\left\lceil\frac{\delta^Kp}{2}\right\rceil.
+$$
+For sufficiently large $p$ in the Behrend regime,
+$\delta=\exp(-O(\sqrt{\log p}))$, so $\delta^Kp\to\infty$ and in
+particular $\ell\ge2$.  Let
+
+$$
+D=\left\lfloor\frac{p-1}{\ell-1}\right\rfloor.
+$$
+If
+$Q=\{a+jd:0\le j<L\}\subseteq[0,p)$ is an ordinary AP, with its
+orientation chosen so that $d\ge1$, and $L\ge\ell$, then
+
+$$
+1\le d\le\left\lfloor\frac{p-1}{L-1}\right\rfloor\le D.
+\tag{20}
+$$
+Indeed, $(L-1)d\le p-1$.  Thus one may replace a longer target by any
+consecutive critical block of $\ell$ terms for direction counting; this is
+the comparable critical-block reduction.  Moreover, once
+$\delta^Kp/2\ge2$,
+
+$$
+\ell-1\ge\frac{\delta^Kp}{4},
+\qquad D\le4\delta^{-K}.
+\tag{21}
+$$
+The endpoint $\ell=1$ is deliberately excluded: its denominator in $D$ is
+zero, and a one-point target has no direction information.  The argument
+below is only asserted for the sufficiently large range $\ell\ge2$.
+
+Here is the corresponding direction count for an interval carrier.  Let
+$[0,H)$ be a standard-representative interval in $\mathbb F_p$, with
+$H\asymp p$ and $1\le H\le p-1$, and write
+
+$$
+R=\left\lfloor\frac H\ell\right\rfloor,
+\qquad
+U_{\mathrm{al}}=
+\left\{u\in\mathbb F_p^\times:
+ \exists\,1\le d\le D\text{ with }
+ 0<|du^{-1}|_p\le R\right\}.
+\tag{22}
+$$
+Here $|z|_p$ is the least absolute value of a nonzero representative of
+$z\in\mathbb F_p$.  Since $\ell\ge2$, $R\le(p-1)/2$.  For each fixed
+$d$, multiplication by $d$ followed by inversion makes
+$u\mapsto du^{-1}$ a bijection of $\mathbb F_p^\times$, and exactly $2R$
+nonzero residues have least absolute value at most $R$.  Counting pairs
+$(d,u)$ therefore gives
+
+$$
+|U_{\mathrm{al}}|
+ \le\sum_{d=1}^D
+ \#\{u:0<|du^{-1}|_p\le R\}
+ \le 2D\left\lfloor\frac H\ell\right\rfloor.
+\tag{23}
+$$
+Using (21), $H=O(p)$, and
+$\ell\ge\delta^Kp/2$, this is
+
+$$
+|U_{\mathrm{al}}|=O(\delta^{-2K}),
+\qquad
+\frac{|U_{\mathrm{al}}|}{p-1}
+ =O\left(\frac{\delta^{-2K}}p\right)=o(1)
+\tag{24}
+$$
+for fixed $K$ at Behrend scale.  The last equality uses
+$\delta^{-2K}=\exp(O(\sqrt{\log p}))=p^{o(1)}$.
+
+This is a quarantine of carrier-aligned directions, not a counterexample.
+If $A_{u,v}=uC+v$ has a critical ordinary target block $Q$ with density at
+least $9\delta/8$, then $Q$ itself is the required RAI density increment:
+its length is $\ell\ge\delta^Kp/2$ and, in the asymptotic regime, $Q$ is
+proper.  In the non-wrapping carrier picture,
+pulling a critical block of difference $d$ back by $u^{-1}$ gives direction
+$du^{-1}$; the short-direction condition in (22) is the sufficient
+carrier-alignment scale.  In the fourth-moment example, the heavy windows
+are exactly of the former, increment-producing kind.  A wrapped cyclic
+carrier need not be an ordinary AP, so it cannot by itself prove ordinary
+RAI; neither can it serve as an ordinary-RAI counterexample.
+
+After conditioning on $u\notin U_{\mathrm{al}}$, one still needs a
+simultaneous tail/correlation estimate over all translations, target
+positions, and the remaining directions $1\le d\le D$.  No such residual
+lemma is proved here.  In particular, the small multiplier fraction in
+(24) does not by itself control the maximum over ordinary target APs.  This
+refinement narrows, but neither proves nor disproves ordinary `RAI(K)`,
+Erdős 142, or the residual simultaneous lemma.  The unconditioned
+fourth-moment failure displayed above remains valid, since it deliberately
+includes the aligned terms; those terms produce density increments rather
+than a disproof of the ordinary statement.
+
 ## Attempts to prove or refute (RAI)
 
 ### Existing density-increment inputs do not prove it

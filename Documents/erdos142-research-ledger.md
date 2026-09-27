@@ -569,6 +569,65 @@ fourth-moment strategy, not ordinary `RAI(K)`: the rare aligned images
 actually have the required increment.  A simultaneous-flatness construction
 or a tail estimate conditioned away from aligned directions remains open.
 
+### Ordinary-direction refinement of the critical-scale obstruction
+
+A proved direction count narrows this open tail problem.  For a prime $p$,
+fixed $K$, and
+
+$$
+\ell=\left\lceil\frac{\delta^Kp}{2}\right\rceil,
+\qquad
+D=\left\lfloor\frac{p-1}{\ell-1}\right\rfloor,
+$$
+
+any ordinary AP $\{a+jd:0\le j<L\}\subseteq[0,p)$ of length
+$L\ge\ell$, oriented with $d\ge1$, satisfies
+
+$$
+1\le d\le\left\lfloor\frac{p-1}{L-1}\right\rfloor\le D.
+$$
+
+Indeed $(L-1)d\le p-1$; a longer target may be reduced to a consecutive
+critical block of $\ell$ terms for direction bookkeeping.  When
+$\delta^Kp/2\ge2$, $\ell-1\ge\delta^Kp/4$, so
+$D\le4\delta^{-K}$.  The endpoint $\ell=1$ is excluded: the denominator
+$\ell-1$ vanishes and a one-point target has no direction information.  At
+Behrend scale and sufficiently large $p$, $\ell\ge2$ (in fact
+$\delta^Kp\to\infty$).
+
+For an interval carrier $[0,H)$ with $H\asymp p$ and $1\le H\le p-1$, set
+$R=\lfloor H/\ell\rfloor$ and
+
+$$
+U_{\mathrm{al}}=\{u\in\mathbb F_p^\times:
+ \exists\,1\le d\le D\text{ with }0<|du^{-1}|_p\le R\}.
+$$
+
+For each fixed $d$, $u\mapsto du^{-1}$ bijects $\mathbb F_p^\times$, and
+there are exactly $2R$ nonzero residues with least absolute residue at most
+$R$ (because $\ell\ge2$ gives $R\le(p-1)/2$).  Pair counting therefore
+proves
+
+$$
+|U_{\mathrm{al}}|\le2D\left\lfloor\frac H\ell\right\rfloor
+ =O(\delta^{-2K}),
+\qquad
+\frac{|U_{\mathrm{al}}|}{p-1}
+ =O\left(\frac{\delta^{-2K}}p\right)=o(1)
+$$
+
+for fixed $K$ at Behrend scale.  This is a direction-level quarantine, not
+an RAI counterexample: if a carrier-aligned image has density at least
+$9\delta/8$ on an ordinary critical block, that block is itself the RAI
+increment, has length $\ell\ge\delta^Kp/2$, and is proper in the asymptotic
+regime.  A wrapped cyclic carrier is
+not automatically an ordinary AP, so it proves neither the ordinary theorem
+nor its negation.  After excluding $U_{\mathrm{al}}$, the required
+simultaneous tail/correlation lemma over translations, target positions, and
+$1\le d\le D$ remains open.  The unconditioned fourth-moment failure remains
+valid because it includes the aligned terms.  This refinement therefore does
+not prove or disprove ordinary `RAI(K)`, Erdős 142, or the residual lemma.
+
 The exact full statement survives, but is not proved by, the required stress
 tests.  A carry-free digit product $B+(2N-1)B$ lies in its density range;
 its obvious coordinate increments have length only $N$, whereas `RAI(K)`
