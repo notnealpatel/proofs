@@ -191,20 +191,61 @@ desired P-shaped cardinality bound, which this family still satisfies.
 Independent mathematical review certified the ceiling, concentration,
 entropy calculation, asymptotic bookkeeping, and exact non-consequence.
 
+### Carry-cardinality obstruction
+
+**Kernel checked.** At revision
+`37a2ec6468a5a33ee7e3dd966ecc816d0971f46c`,
+`Proofs/Erdos/Erdos142/CarryCardinalityCapObstruction.lean`, imported by
+`Proofs/Erdos.lean`, proves the finite endpoint
+`Erdos142.exists_carryCardinalityCap`. Focused and full `Erdos` builds
+succeeded (8813 jobs); independent vacuity and foundations reviews were clean.
+The public endpoints use exactly `[propext, Classical.choice, Quot.sound]`,
+with no `sorryAx`.
+
+For each $N\ge3$, it constructs a bounded $G\subseteq[0,N)^2$ with every
+ordinary natural-number row and column fiber 3-AP-free; all in-range fibers
+have common size $b$, $2b\le N$, and
+$N\,r(N)\le2|G|$. It also contains $(0,0),(1,1),(2,2)$, so its base-$N$
+scalar image contains the nontrivial progression $0,N+1,2(N+1)$. The scalar
+encoding is injective on the bounded square, but the witness is deliberately
+not scalar-3-AP-free.
+
+The finite construction half-slices a maximum ordinary 3-AP-free subset of
+$[0,N)$, translates and (if needed) shrinks the dense piece into a short
+interval, embeds it as a modular cap $B\subseteq\mathbb Z/N\mathbb Z$, and
+translates $B$ to contain zero. The graph $x-y\in B$ has fibers that are
+translates/reflections of $B$, and has $N|B|$ edges. Thus this relaxation,
+using only ordinary row/column freeness and the pair-size cap, cannot imply a
+universal $o(Nr(N))$ cardinality upper bound, and alone cannot prove the
+P-shaped saving. This closes a proof method, not Erdős 142; it is not an
+asymptotic theorem about $r(N)$.
+
+See [`erdos142-carry-cardinality-obstruction.md`](erdos142-carry-cardinality-obstruction.md)
+for the proof sketch and the closed computational lead. Evidence labels and
+scope are preserved there as well.
+
 ## Dead ends and guardrails
 
-- The tentative inequality
-  $|A|\le N^{1/2}r(N)^{3/2}$ was rejected before dispatch.  It corresponds to
-  exponent $\eta=1/2>\sqrt2-1$ and conflicts with the square-tower negative
-  excursion mechanism.  Rephrasing the desired conclusion as a
-  carry-compatible fiber inequality supplies no new mechanism.
+- Exhaustive and sampled tests suggested a target-wise union-reflection
+  coverage inequality implying
+  $r(N^2)\le N+\sqrt N\,r(N)^{3/2}$. This is a dead exploratory lead, not a
+  live conjecture or accepted computation theorem. The accepted Behrend lower
+  bound absorbs $N$ eventually, yielding a P-shaped estimate with
+  $\eta=1/2>\sqrt2-1$. That eventual estimate would imply
+  $X(N)\ge-\tfrac12\lambda(N)-O(1)$, contradicted on fixed square towers by
+  the accepted negative square-defect theorem (choose
+  $\varepsilon<2-\sqrt2-\tfrac12$). Finite tests therefore cannot support
+  this inequality asymptotically. A viable positional/collision route must
+  retain reflected-digit locations and target $\eta\le\sqrt2-1$.
 - The universal mutual-information bound without a high-mass hypothesis is
   false for graph caps.
 - Pairwise fiber sizes or energies cannot force a local mixed midpoint count;
   translated-fiber examples kill that inference.
 - The one-scale edge/window LP has a uniform feasible point of order
   $Nr(N)$, so its dual cannot produce the required power saving.
-- Row and column degree constraints alone permit order $Nr(N)$.
+- **Kernel checked:** row/column ordinary freeness and the pair-size cap
+  alone permit cardinality at least $Nr(N)/2$; see the carry-cardinality
+  obstruction above. They cannot force a universal $o(Nr(N))$ bound.
 - Rank, radius, and measure of a generic Bohr set do not guarantee an
   interval-scale affine copy; one copy would not provide density averaging
   anyway.
@@ -222,9 +263,10 @@ entropy calculation, asymptotic bookkeeping, and exact non-consequence.
    overlap with the positive-density P-shaped good scales, and gap control.
    The original $\beta$-curve endpoint remains excluded; no cardinal bound at
    $\delta=1/2$, no bounded gaps, and no common set across $\beta$ is known.
-2. Develop carry-sensitive global aggregation, especially an unequal-fiber
-   inequality or Bohr-to-interval density averaging, with Cartesian
-   sub-products as a mandatory stress test.
+2. Develop carry-sensitive global aggregation that retains reflected-digit
+   locations, especially an unequal-fiber inequality or Bohr-to-interval
+   density averaging, with Cartesian sub-products as a mandatory stress test.
+   Any P-shaped exponent target must satisfy $\eta\le\sqrt2-1$.
 3. Keep the entropy route closed unless a replacement inequality either
    excludes sub-products or applies only within an $\exp(O(\lambda))$ factor
    of the row-cap maximum.
