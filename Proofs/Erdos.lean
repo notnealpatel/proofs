@@ -97,3 +97,4 @@ import Erdos.Erdos142.GrowingDilationRegularity
 import Erdos.Erdos142.PowerLawObstruction
 import Erdos.Erdos142.FixedScaleRatioRigidity
 import Erdos.Erdos142.CriticalContractionTransfer
+import Erdos.Erdos142.SquareScaleNegative
