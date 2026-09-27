@@ -403,6 +403,74 @@ scope are preserved there as well. Issue [#58](https://github.com/thatnealpatel/
 requests external evaluation of this obstruction; it is not a novelty
 certification.
 
+### Unequal-fiber carry Fourier lane
+
+**Accepted prose deduction plus exploratory computation.** The new note
+[`erdos142-unequal-fiber-fourier.md`](erdos142-unequal-fiber-fourier.md)
+records the exact $Q=4N$ low-digit carry identity for the scalar encoding
+$n=x+Ny$.  Orthogonality gives the ordered scalar count $T=\sum_r C_r$
+with all three carry modes, the hard boundary indicators, and no alias;
+$C_{Q-r}=\overline{C_r}$.  For a scalar cap, $T=m$,
+$M_0=C_0\ge m^3/(4N^3)$, and $R=m-M_0$, $S\ge|R|$.
+
+The phase-blind high-mass candidate
+$S\le M_0+m-m^3/K^2$ is open only for $N\ge3$ and
+$m\ge K$, where $K=N^{2/3}r_3(N)^{4/3}$, and would imply
+$r_3(N^2)\le\sqrt2N^{2/3}r_3(N)^{4/3}$, i.e. $\eta=1/3$.
+The unrestricted-in-$N$ wording has a degenerate finite obstruction at
+$N=1$: for $A=\{0\}$, $r_3(1)=K=m=1$, $C_r=1/4$ for all $r\bmod4$,
+$M_0=1/4$, $R=S=3/4$, while the candidate's right-hand side is $1/4$.
+This does not refute the eventual/asymptotic route.  At $N=2$,
+$r_3(2)=2$, $K=4$, and $r_3(4)=3$, so no cap reaches the high-mass domain.
+The nondegenerate $N=3$ half-digit/product/constant-graph example falsifies
+only the candidate with the high-mass condition removed: it is low mass.
+Arbitrary relations in the half-digit family satisfy $m\le K$; they do not
+refute the high-mass claim.
+The accepted prose spread/cancellation lemma gives large row and column
+projections, many heavy fibers, and $R/M_0=-1+o(1)$ from the accepted
+Behrend/EHPS lower input, but no phase-sensitive upper bound on $S$.
+Exact Sage/GLPK finite checks are exploratory computation only; $N=7 timed
+out.  A proof must account for the exact deficit $m^3/K^2$ from baseline
+$M_0+m$; in high mass this is at least $m$, with equality at $m=K$, and it
+need not put $S$ below $M_0$.  A disproof needs an actual high-mass scalar cap.
+No novelty claim or issue was filed.
+
+### High-cardinality relaxation obstruction for the unequal-fiber target
+
+**Exact finite computational certificate/evidence, not a general proof or Lean theorem.**
+The new script
+`Programs/Erdos142/verify_unequal_fiber_relaxation.sage` verifies the relation
+at $N=16$, $Q=64$, with $r_3(16)=8$ and
+$K=16^{2/3}8^{4/3}\approx101.5937$.  It uses
+$B=\{0,1,6,8,13,14\}$ and the six exceptional ordered pairs
+$(9,0),(10,1),(1,12),(2,13),(3,14),(4,15)$.  The resulting $G$ has
+$m=102$, both full projections, and every row and column is an ordinary
+3-AP-free set of size at most $8$.  The exact comparison
+$102^3=1,061,208>1,048,576=16^2\cdot8^4$ verifies $m>K$.
+
+The note gives a rigorous finite justification of $r_3(16)=8$: the
+16 possible three-element complements that hit all consecutive progressions
+in $[0,8)$ each miss a listed longer progression, so $r_3(8)=4$; parity
+rescaling gives the upper bound $8$ in $[0,16)$, and
+$\{0,1,3,4,9,10,12,13\}$ gives equality.  The relation is not a scalar cap,
+since $0,9,18\in A$, while the exact grouped calculation gives $T=1564$
+rather than $m$, $M_0=48183/32$, and the exact real-algebraic calculation
+places $S$ in
+$1508.87835005088420127094169298<S<1508.87835005088420127094169300$
+and the candidate right-hand side in
+$1504.90120266375311107163647228<M_0+m-m^3/K^2<
+1504.90120266375311107163647229$, a positive gap of approximately
+$3.97714738713109019930522069850$.
+
+This is a high-mass **relaxation** obstruction, not a scalar-cap
+counterexample.  It rules out deriving (*) from projection spread,
+heavy-fiber counts, degree bounds, Jensen's $M_0$ lower bound, or even
+ordinary 3-AP-freeness of every row and column.  The next condition must be
+mixed-fiber/carry exclusion entering distributionally: on scalar caps this
+is the exact condition $T=m$, but that signed identity alone is only
+$R=m-M_0$ and returns the prior tautology, not a new estimate.  The scalar-cap
+high-mass candidate remains open.
+
 ### Reflection-shadow route
 
 **Kernel checked.** At accepted revision `66eca70dc75c548dcf27862d0f8c8bcc5e436f67`, `Proofs/Erdos/Erdos142/ReflectionShadow.lean`, imported by `Proofs/Erdos.lean`, defines the integer `reflectionShadow` and `differenceSources`. It proves that a finite ordinary 3AP-free `A⊂ℤ` is disjoint from its nontrivial reflection shadow, and that `2·|{x∈A:x+d∈A}|≤|A|` for every nonzero `d`. Focused and full builds succeeded (8814 jobs); the public endpoints use only `[propext, Classical.choice, Quot.sound]`. Independent mathematical review was clean. A vacuity audit found no semantic/trust issue; additional scratch cardinality probes did not complete and are not integrated.
@@ -536,8 +604,17 @@ to `RAI(K)`.
 3. Develop carry-sensitive global aggregation retaining reflected-digit
    locations. The reflection-shadow candidate and its open second-moment overlap
    estimate are recorded in
-   [`erdos142-reflection-shadow-route.md`](erdos142-reflection-shadow-route.md);
-   keep unequal-fiber aggregation and Cartesian sub-products as stress tests.
+   [`erdos142-reflection-shadow-route.md`](erdos142-reflection-shadow-route.md).
+   The new unequal-fiber Fourier identity, open phase-blind high-mass
+   candidate, low-mass falsifier limitation, half-digit exclusion, and
+   spread/cancellation stopping evidence are recorded in
+   [`erdos142-unequal-fiber-fourier.md`](erdos142-unequal-fiber-fourier.md).
+   The new $N=16$ relaxation obstruction rules out deriving the target from
+   projection and one-dimensional fiber restrictions alone.  The precise
+   next condition is mixed-fiber/carry exclusion entering distributionally:
+   $T=m$ on scalar caps is necessary context, but the signed equality alone
+   is the prior tautology and is not a new estimate.
+   Keep unequal-fiber aggregation and Cartesian sub-products as stress tests.
    Any P-shaped exponent target must satisfy $\eta\le\sqrt2-1$.
 4. Keep the entropy route closed unless a replacement inequality either
    excludes sub-products or applies only within an $\exp(O(\lambda))$ factor

@@ -1,0 +1,562 @@
+# Unequal-fiber carry Fourier lane
+
+## Scope and status
+
+This note records an exact Fourier organization of the base-$N carry
+constraint for a scalar set.  It is a partial carry-sensitive calculation,
+not a proof of P, not an asymptotic solution of Erdős 142, and not a
+kernel-checked Lean artifact.  The scalar encoding throughout is
+
+$$
+ n=x+Ny,
+ \qquad 0\le x,y<N.
+$$
+
+Write $r_3(N)$ for the largest ordinary 3-AP-free subset of $[0,N)$ and
+call $A\subseteq[0,N^2)$ a scalar cap when it has no nontrivial ordered
+three-term arithmetic progression.  All finite computations mentioned below
+are exploratory evidence; the displayed root-of-unity identities and the
+finite inequalities are the mathematical arguments.
+
+## 1. The exact $Q=4N$ low-digit carry identity
+
+Fix $N\ge1$ and put $Q=4N$.  For $0\le y<N$, let
+
+$$
+ \phi_y:[0,N)\longrightarrow\{0,1\},
+ \qquad
+ \phi_y(x)=1_A(x+Ny).
+$$
+
+Extend the fibers by zero in both coordinates: $\phi_y(x)=0$ if either
+$x\notin[0,N)$ or $y\notin[0,N)$.  For $t\in\{-1,0,1\}$ and
+$y,q\in\mathbb Z$, set
+
+$$
+ \gamma_{N,t}(y,q)=
+ 1_{[0,N)}(y-q)1_{[0,N)}(y+q-t).
+$$
+
+Thus $\gamma$ is a hard integer boundary indicator, not a smooth cutoff.
+With
+
+$$
+ e_Q(u)=\exp(2\pi i u/Q),
+ \qquad
+ \widehat\phi_y(r)=\sum_x\phi_y(x)e_Q(-rx),
+$$
+where the sum may be taken over $\mathbb Z$ because of the zero extension,
+define, for $r\in\mathbb Z/Q\mathbb Z$,
+
+$$
+ C_r=\frac1Q\sum_{t=-1}^{1}e_Q(tNr)
+ \sum_{y=0}^{N-1}\sum_{q\in\mathbb Z}\gamma_{N,t}(y,q)
+ \widehat\phi_{y-q}(r)
+ \widehat\phi_y(-2r)
+ \widehat\phi_{y+q-t}(r).
+ \tag{1}
+$$
+
+The exact ordered scalar count is
+
+$$
+ T(A)=\sum_{r\bmod Q}C_r.
+ \tag{2}
+$$
+
+Here is the orthogonality proof.  In a summand of (1), write
+$y_0=y-q$, $y_1=y$, and $y_2=y+q-t$.  Expansion of the three DFTs gives
+the phase
+
+$$
+ e_Q\bigl(r(tN-x_0+2x_1-x_2)\bigr)
+ =e_Q\bigl(-r(x_0+x_2-2x_1-tN)\bigr).
+$$
+
+Summing over $r\bmod Q$ enforces
+
+$$
+ x_0+x_2-2x_1=tN.
+$$
+Indeed, if $L=x_0+x_2-2x_1$, then
+$|L-tN|\le3N-2<Q$, while orthogonality first says only that $Q$ divides
+$L-tN$; hence there is no alias and $L=tN$ exactly.  The corresponding
+high-digit residual is
+
+$$
+ y_0+y_2-2y_1=-t.
+$$
+
+The two factors in $\gamma_{N,t}$ impose the hard bounds on $y_0$ and $y_2$;
+the middle digit is already $0\le y<N$.  Conversely, every scalar ordered
+triple satisfying $n_0+n_2=2n_1$ has a unique $t\in\{-1,0,1\}$: its low-digit
+quantity $L$ is a multiple of $N$ and lies in
+$[-2N+2,2N-2]$.  The associated $q=y_1-y_0$ then gives exactly one term in
+(1).  This proves (2), including the boundary cases.
+
+The fibers are real-valued, so
+
+$$
+ C_{Q-r}=\overline{C_r},
+$$
+with residues understood modulo $Q$, and consequently $T(A)$ is real.  The
+sum in (2) includes the $m=|A|$ diagonal triples.  Thus the nontrivial
+ordered count is $T(A)-m$, and the unoriented count is $(T(A)-m)/2$.  In
+particular, for a scalar cap,
+
+$$
+ T(A)=m.
+ \tag{3}
+$$
+
+## 2. Zero mode, signed defect, and total variation
+
+Let
+
+$$
+ d_y=|A_y|=\sum_x\phi_y(x),
+ \qquad m=|A|=\sum_{y=0}^{N-1}d_y,
+$$
+
+where $d_y=0$ outside $[0,N)$.  At $r=0$, (1) is the exact formula
+
+$$
+ M_0:=C_0
+ =\frac1{4N}\sum_{t=-1}^{1}\sum_{y=0}^{N-1}
+   \sum_{q\in\mathbb Z}
+   \gamma_{N,t}(y,q)d_{y-q}d_y d_{y+q-t}.
+ \tag{4}
+$$
+
+The $(t,q)=(0,0)$ summands give
+
+$$
+ M_0\ge\frac1{4N}\sum_{y=0}^{N-1}d_y^3
+ \ge\frac{m^3}{4N^3},
+ \tag{5}
+$$
+
+where the second inequality is the power-mean inequality over the $N$
+rows.  Put
+
+$$
+ r=r_3(N),
+ \qquad K=N^{2/3}r^{4/3},
+ \qquad
+ R=\sum_{r'\ne0}C_{r'},
+ \qquad
+ S=\sum_{r'\ne0}|C_{r'}|,
+ \tag{6}
+$$
+
+where the $r'$ in (6) ranges over nonzero residues modulo $Q$.  For a scalar
+cap, (3) gives
+
+$$
+ R=m-M_0,
+ \qquad S\ge|R|.
+ \tag{7}
+$$
+
+## 3. The open high-mass candidate
+
+The phase-blind high-mass candidate is the following statement, proposed only
+when $N\ge3$, $A$ is scalar-free, and $m\ge K$:
+
+$$
+ \boxed{\quad S\le M_0+m-\frac{m^3}{K^2}.\quad}
+ \tag{*}
+$$
+
+It is open.  It has neither been proved nor refuted in the high-mass regime.
+The restriction $N\ge3$ is intentional: at $N=2$, $r_3(2)=2$ and $K=4$,
+while $r_3(4)=3$, so no scalar cap can meet $m\ge K$.  Nevertheless, its
+elementary consequence is useful.  From (7), always and
+without assuming $M_0\ge m$,
+
+$$
+ S\ge -R=M_0-m.
+$$
+
+Combining this with (*) gives
+
+$$
+ M_0-m\le M_0+m-\frac{m^3}{K^2},
+ \qquad\text{so}\qquad m\le\sqrt2K.
+ \tag{8}
+$$
+
+The low-mass alternative $m<K$ is already bounded by $K$.  Therefore (*) in
+the high-mass range would imply
+
+$$
+ r_3(N^2)\le\sqrt2\,N^{2/3}r_3(N)^{4/3},
+ \tag{9}
+$$
+
+which is the P-shaped exponent $\eta=1/3$.  This implication is
+conditional on the open candidate and is not an asymptotic result.
+
+The weakest signed condition obtained by replacing total variation with the
+one-sided estimate $S\ge-R$ is
+
+$$
+ R\ge -M_0-m+\frac{m^3}{K^2}.
+ \tag{10}
+$$
+
+For cap indicators this is exactly equivalent to $m\le\sqrt2K$, since
+$R=m-M_0$; no information about $M_0$ is needed.  Thus (10) is only a
+reformulation of the desired cardinality bound, not analytic progress.  The
+candidate (*) is strictly stronger: it controls the total variation of all
+nonzero grouped modes, whereas (10) controls only a signed sum and allows
+cancellation.
+
+The unrestricted-in-$N$ formulation is false at the degenerate endpoint
+$N=1$.  In this case $r_3(1)=K=m=1$ for $A=\{0\}\subseteq[0,1)$ and
+$Q=4$.  Directly from (1),
+
+$$
+ C_r=\frac14\quad(r\bmod4),
+ \qquad M_0=\frac14,
+ \qquad R=S=\frac34.
+$$
+
+The right-hand side of (*) is
+$M_0+m-m^3/K^2=\frac14$, so this is an exact high-mass counterexample to
+the unrestricted-in-$N$ wording.  It is a degenerate finite obstruction only;
+it does not refute the $N\ge3$ candidate or the eventual/asymptotic route.
+
+## 4. Finite counterexamples and their limitations
+
+### Nondegenerate $N=3$ low-mass obstruction
+
+There is an exact small counterexample if the high-mass condition is removed,
+even at $N=3$.  Take
+
+$$
+ N=3,\qquad Q=12,\qquad B=\{0\},\qquad C=\{0,1\},
+ \qquad G=B\times C,
+ \qquad A=\{0,3\}.
+$$
+
+This is a half-digit arbitrary relation, a product, and the graph of the
+constant map $C\to B$.  It has $m=2$.  If
+
+$$
+ H_s(C)=\#\{(c_0,c_1,c_2)\in C^3:c_0+c_2-2c_1=s\},
+$$
+
+then $H_s(C)=2$ for each $s=-1,0,1$.  Grouping all carry cases in (1),
+not taking the scalar DFT of $1_A$, gives the exact grouped spectrum
+
+$$
+ C_r=\frac16\left(1+2\cos\frac{\pi r}{2}\right).
+ \tag{11}
+$$
+
+Thus $C_r$ is $1/2$ for $r=0\pmod4$, $-1/6$ for $r=2\pmod4$, and $1/6$
+for odd $r$ (all residues are modulo $12$).  In particular,
+
+$$
+ M_0=\frac12,
+ \qquad R=\frac32,
+ \qquad S=\frac52=M_0+m.
+ \tag{12}
+$$
+
+Every positive defect in (*) therefore fails for this candidate without
+the high-mass condition.  An exact Sage cyclotomic computation reproduces
+(11)--(12), but that computation is evidence only; the displayed root-of-unity
+calculation is the proof.  This does **not** refute the high-mass candidate:
+here
+
+$$
+ r_3(3)=2,
+ \qquad K=3^{2/3}2^{4/3}>2.
+$$
+
+The distinction between the grouped $C_r$ in (1) and the scalar Fourier
+transform of $1_A$ is essential.  Also, each translate
+$\{s,s+3\}$ for $0\le s\le5$ has the same exact grouped spectrum.  Translations
+therefore do not repair the candidate without the high-mass condition.
+They likewise do not close the high-mass route.
+
+## 5. Why the half-digit family is not high mass
+
+Let $H=\lceil N/2\rceil$.  If $B,C\subseteq[0,H)$ are ordinary caps and
+$G\subseteq B\times C$ is an arbitrary indicator relation, then
+
+$$
+ m=|G|\le |B||C|\le r_3(H)^2\le r^2\le K.
+ \tag{13}
+$$
+
+The final inequality is $r\le N$; it is strict for $N\ge3$ because the full
+interval is not 3-AP-free.  Thus $m<K$ for $N\ge3$.  This excludes the
+accepted half-digit family from the high-mass regime, regardless of which
+indicator relation is chosen.  The argument is only about that indicator
+relation and its cardinality; it makes no false weighted $L^1$ assertion.
+Consequently this family cannot refute (*), even though its unrestricted
+Fourier behavior can be extremal.
+
+## 6. High-mass spread and cancellation lemma
+
+**Lemma (high-mass spread and cancellation, accepted prose deduction).**
+Let $A\subseteq[0,N^2)$ be a scalar cap, let $m=|A|$, and suppose
+$N\ge3$ and $m\ge K$.  Every row and every column of the scalar array is an
+ordinary 3-AP-free set, so all row and column degrees are at most
+$r=r_3(N)$.  If $Y$ and $X$ are respectively the occupied row and column
+projections, then
+
+$$
+ |Y|\ge\frac mr\ge N^{2/3}r^{1/3}>r,
+ \qquad
+ |X|\ge\frac mr\ge N^{2/3}r^{1/3}>r.
+ \tag{14}
+$$
+
+Therefore both projections contain ordinary nontrivial 3-APs.  This is a
+spread conclusion, not a scalar progression in $A$.
+
+For the quantitative fiber statement, call a row heavy when
+$d_y\ge m/(2N)$.  Rows that are not heavy have total degree strictly less
+than $m/2$, because there are at most $N$ rows and each has degree strictly
+less than $m/(2N)$.  Hence heavy rows carry strictly more than $m/2$ total
+mass.  Since each row has degree at most $r$, the number of heavy rows is
+strictly greater than $m/(2r)$ (equivalently, it is at least
+$\lfloor m/(2r)\rfloor+1$).  The identical argument for columns gives the
+same two statements in the other orientation.  Finally, (5) gives
+$M_0\ge m^3/(4N^3)$.
+
+There is also an asymptotic near-cancellation consequence.  Use the accepted
+Behrend/EHPS lower input, in its uniform form
+
+$$
+ r_3(N)\ge N\exp\bigl(-O(\sqrt{\log N})\bigr).
+ \tag{15}
+$$
+
+For any sequence with $m\ge K$, (5) gives
+
+$$
+ \frac{m}{M_0}
+ \le\frac{4N^3}{m^2}
+ \le\frac{4N^{5/3}}{r^{8/3}}=o(1).
+ \tag{16}
+$$
+
+Thus, using $R=m-M_0$ and $S\ge|R|$,
+
+$$
+ \frac{R}{M_0}=-1+o(1),
+ \qquad
+ S\ge(1-o(1))M_0.
+ \tag{17}
+$$
+
+The last asymptotic sentence (15)--(17) is an accepted prose deduction from
+the accepted lower input, not a Lean theorem.  The finite spread statements
+and (5) likewise do not prove (*): they give no phase-sensitive upper bound
+on $S$.
+
+## 7. Stress tests and computational status
+
+For a product $G=B\times C$, define
+
+$$
+ L_t(B)=\#\{(b_0,b_1,b_2)\in B^3:b_0+b_2-2b_1=tN\},
+$$
+
+$$
+ H_s(C)=\#\{(c_0,c_1,c_2)\in C^3:c_0+c_2-2c_1=s\}.
+$$
+
+The physical carry counts factor exactly as
+
+$$
+ T_t=L_t(B)H_{-t}(C).
+ \tag{18}
+$$
+
+Translations can redistribute mass among the carry cases, but the total
+identity (2) remains exact.  For the full box at $N=3$, the three counts are
+$(T_{-1},T_0,T_1)=(8,25,8)$, totaling the $41$ ordered progressions in
+$[0,8]$.
+
+Exact Sage exhaustive enumeration found no high-mass scalar caps for
+$N=2,3,4$: respectively,
+
+$$
+ r_3(4)=3<K=4,
+ \qquad r_3(9)=5<K\mathrel{\approx}5.24,
+ \qquad r_3(16)=8<K\mathrel{\approx}10.90.
+$$
+
+Exact-integer GLPK optimization gave
+
+$$
+ r_3(25)=10<K\mathrel{\approx}18.57,
+ \qquad r_3(36)=14<K\mathrel{\approx}20.97.
+$$
+
+These are finite computations, not proofs of (*) or evidence strong enough
+to settle it in general.  The $N=7$ computation timed out and was not
+retried unchanged.  In particular, the low-mass counterexample above does not
+close the high-mass route.
+
+## 8. A high-mass relaxation obstruction at $N=16$
+
+The following is an exact finite computational certificate/evidence for the
+relaxation in which only one-dimensional row and column restrictions are
+retained.  It is not a scalar-cap counterexample and is not a refutation of
+(*) on scalar caps.  Set
+
+$$
+ N=16,
+ \qquad Q=64,
+ \qquad r_3(16)=8,
+ \qquad K=16^{2/3}8^{4/3}\mathrel{\approx}101.5937.
+$$
+
+Let
+
+$$
+ B=\{0,1,6,8,13,14\}\subseteq\mathbb Z/16\mathbb Z,
+$$
+
+and let the ordered exceptional pairs be
+
+$$
+ E=\{(9,0),(10,1),(1,12),(2,13),(3,14),(4,15)\}.
+$$
+
+Define
+
+$$
+ G=\{(x,y)\in[0,16)^2:(x-y)\bmod16\in B\}\cup E,
+ \qquad
+ A=\{x+16y:(x,y)\in G\}.
+$$
+
+The two pieces of $G$ are disjoint, so $m=|A|=|G|=96+6=102$.  Moreover,
+
+$$
+ m^3=1{,}061{,}208>1{,}048{,}576=16^2\cdot8^4,
+$$
+
+which is the exact integer comparison $m>K$.  Every row and every column
+fiber is an ordinary integer 3-AP-free set of size at most $8$, and both
+projections are all $16$ digits.  Thus this relation satisfies strictly more
+than projection spread and cardinality bounds: it has the actual
+row/column capness and degree bound.
+
+Here is a short exact justification of the value $r_3(16)=8$ used above.
+The lower bound $r_3(8)\ge4$ is witnessed by
+$\{0,1,3,4\}$.  If a 5-element cap in $[0,8)$ existed, its 3-element
+complement $H$ would have to hit all six consecutive progressions
+$(i,i+1,i+2)$ for $i=0,\ldots,5$.
+The only 16 such $H$ are
+
+$$
+\begin{gathered}
+(0,2,5),(0,3,5),(0,3,6),(1,2,5),(1,3,5),(1,3,6),\\
+(1,4,5),(1,4,6),(1,4,7),(2,3,5),(2,3,6),(2,4,5),\\
+(2,4,6),(2,4,7),(2,5,6),(2,5,7).
+\end{gathered}
+$$
+
+They respectively miss a longer progression as follows: the six
+$H=(0,2,5),(0,3,5),(0,3,6),(2,3,5),(2,3,6),(2,5,6)$ miss
+$(1,4,7)$; the six
+$H=(1,2,5),(1,4,5),(1,4,7),(2,4,5),(2,4,7),(2,5,7)$ miss
+$(0,3,6)$; $H=(1,3,5),(1,3,6)$ miss $(0,2,4)$; $H=(1,4,6)$ misses
+$(3,5,7)$; and $H=(2,4,6)$ misses $(1,3,5)$.  Thus no 5-set cap
+exists in $[0,8)$.  Thus $r_3(8)=4$.  For a cap in $[0,16)$, its even
+and odd parts each rescale to a cap in $[0,8)$, so its size is at most $8$.
+The set
+
+$$
+\{0,1,3,4,9,10,12,13\}
+$$
+
+is a cap: each four-point block is $\{0,1,3,4\}$ up to translation, and a
+three-term progression cannot use points from both blocks because the gap is
+larger than the block diameter in either possible two-low/one-high or
+one-low/two-high arrangement.  Thus it proves $r_3(16)=8$.
+
+The relation $G$ is not a scalar cap: $0,9,18\in A$ and
+$0+18=2\cdot9$.  The exact ordered scalar triple count from (1), however,
+is
+
+$$
+ T=\sum_{r=0}^{63}C_r=1564,
+$$
+
+rather than $m$.  For the fixed grouped identity (1), exact evaluation gives
+
+$$
+ M_0=C_0=\frac{48183}{32}=1505.71875,
+$$
+
+and the real-algebraic total variation and candidate right-hand side satisfy
+
+$$
+\begin{aligned}
+1508.87835005088420127094169298&<S<
+1508.87835005088420127094169300,\\
+1504.90120266375311107163647228&<M_0+m-\frac{m^3}{K^2}<
+1504.90120266375311107163647229.
+\end{aligned}
+$$
+
+Consequently the positive gap is certified, with
+
+$$
+3.97714738713109019930522069849
+< S-\left(M_0+m-\frac{m^3}{K^2}\right)
+<3.97714738713109019930522069850,
+$$
+
+so this relation violates (*).
+The Sage certificate computes $S$ as an exact sum of algebraic square roots
+and computes $K^2=(16^4\cdot8^8)^{1/3}$ in the real algebraic field; it is
+finite computational evidence, not a general proof or a Lean theorem.
+
+This is precisely a high-mass **relaxation** counterexample.  It does not
+refute (*) for scalar caps.  It does show that projection spread, heavy-fiber
+counts, degree $\le r$, the Jensen lower bound for $M_0$, and even ordinary
+3-AP-freeness of every row and every column cannot prove (*).  A successful
+phase-sensitive or restriction estimate must use the mixed-fiber scalar
+condition $T=m$, equivalently exclude carry-coupled progressions such as
+$0,9,18$, rather than merely impose one-dimensional fiber restrictions.  The
+condition $T=m$ itself is not a new estimate: on scalar caps it is exactly the
+signed cancellation $R=m-M_0$, and using only that signed equality returns the
+prior tautology.  The still-needed ingredient is a nontrivial distributional
+consequence of mixed-fiber AP exclusion.
+
+## 9. Stopping evidence and next requirement
+
+The explicit $N=16$ relation rules out any proof of (*) based only on
+projection spread, heavy-fiber counts, degree bounds, Jensen's $M_0$ bound,
+or ordinary 3-AP-freeness of each row and column.  The scalar-cap
+high-mass candidate remains open: this relation is not a scalar-cap
+counterexample, and the required mixed-fiber/carry exclusion has not yet been
+converted into a distributional estimate.
+
+The current facts establish only projection spread and near-cancellation of
+the signed nonzero sum.  Pair-energy, row/column degree, and related
+phase-blind estimates remain insufficient.  A proof of (*) must establish the
+exact deficit $m^3/K^2$ from the baseline $M_0+m$; in the high-mass range
+$m\ge K$ this is at least $m$, with equality at $m=K$, and it need not put
+$S$ below $M_0$.  A disproof
+would require an actual high-mass scalar cap, either a finite exact example
+with the exact value of $r_3(N)$ or an infinite family.  Any successful
+phase-sensitive route must instead exploit a nontrivial distributional
+consequence of the mixed-fiber condition $T=m$, not the signed equality alone.
+
+This note makes no novelty claim, and no issue was filed.  Its status is
+therefore a precisely delimited open Fourier lane: the exact identity is
+established, the relaxation obstruction is certified computationally, the
+scalar-cap candidate is open, and neither the unrestricted examples nor the
+computations decide the high-mass scalar question.
