@@ -607,6 +607,24 @@ $(C_k+P_k)\cup(C_k+2P_k)$ has size $2\cdot72^k$ when disjoint, not
 $144^k$; for $k>1$ it is not the dense scalable family. Unsupported
 asymptotics for digit-set sizes are discarded.
 
+### Exact $b=128$ reflection transfer
+
+**Accepted prose deduction plus exact finite computation.** The adopted artifact
+[`reflection-transfer-b128.md`](../Programs/Erdos142/reflection-transfer-b128.md)
+received an independent exact review. It studies the alternating digit cap with
+$b=128$, $N=128^k$, and $m=144^k$. The exact borrow-transfer matrices have
+Perron roots $20736$ for mass and $81580$ for energy; their formulas give
+$$
+M\ge \frac45\,144^{2k},
+\qquad
+E\le81580^k.
+$$
+The true Roth bound from the $E_1$ digit product is
+$r_3(128^k)\ge18^k$, so these estimates verify candidate (O), with constant
+$1$, for every $k\ge1$. This rules out this specific dense tensor family as a
+counterexample to (O), but neither proves (O) for general scalar caps nor
+Erdős 142. The exact matrices and computations are audit evidence, not a
+general theorem.
 
 **Conjectural missing lemma, with a proved special case and conditional
 consequence.**  The statement `RAI(K)` asks for one fixed integer $K\ge1$: whenever
