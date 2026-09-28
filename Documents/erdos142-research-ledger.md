@@ -447,6 +447,52 @@ $M_0+m$; in high mass this is at least $m$, with equality at $m=K$, and it
 need not put $S$ below $M_0$.  A disproof needs an actual high-mass scalar cap.
 No novelty claim or issue was filed.
 
+### Cartesian-product stress test from maximum caps
+
+**Evidence: exact prose reduction independently audited, not Lean formalized.** Let
+$A\subseteq[0,N)$ be a maximum scalar cap, with
+$r=|A|=r_3(N)$ and $\alpha=r/N$, and define the ordered additive energy
+$$
+E(A)=\#\{(a,b,a',b')\in A^4:a+b=a'+b'\}.
+$$
+For $S=A\times A$, the note's coordinatewise transverse functional requires
+both coordinate pairings to be nonidentity, so the product identity gives
+$$
+E_\perp(S)=(E(A)-r^2)^2.
+$$
+This must be distinguished from the ordinary two-dimensional energy
+$E(S)=E(A)^2$.  A convention excluding only the globally diagonal difference
+$u=(0,0)$ would instead give $E(A)^2-r^4$ and would retain the axis terms
+$u_1=0$ or $u_2=0$; it is not the coordinatewise transverse functional.
+
+With $m=|S|=r^2$, TE on these products is exactly
+$$
+(E(A)-r^2)^2\le C\alpha^{1+\eta}r^6+Cr^5.
+$$
+Since $r=N^{1-o(1)}$ and $\alpha=N^{-o(1)}$, the ratio of the first term
+on the right to the second is $\alpha^{1+\eta}r=N^{1-o(1)}\to\infty$.
+Consequently, with constants uniform over all maximum caps and after an
+eventual threshold, TE restricted to this product subfamily is equivalent to
+$$
+E(A)-r^2\ll r^3\alpha^{(1+\eta)/2}
+$$
+for every maximum cap.  This necessary-and-sufficient equivalence is only for
+the product subfamily, not for arbitrary $S$.
+
+For the heuristic ansatz $E(A)-r^2\sim r^3\alpha^\sigma$, one must keep
+in mind that $\alpha\to0$: TE requires
+$\sigma\ge(1+\eta)/2$.  At $\eta=\sqrt2-1$, the threshold is
+$\sigma=1/\sqrt2$.  Larger $\sigma$ means smaller energy.  This exponent is
+not known.  The only conclusion is that this product stress test reduces to
+an open one-dimensional upper bound for the energy of every maximal-size cap;
+it supplies neither a TE proof nor a counterexample.
+
+The guardrails are that Cauchy gives only the lower bound
+$E(A)\ge r^4/|A+A|$, not the needed upper bound, and Behrend gives a lower
+bound on $\alpha$ without controlling the energy of every maximum cap.  The
+full reduction and its convention check are recorded in
+[`transverse-energy-TE.md`](../Programs/Erdos142/transverse-energy-TE.md).
+
 ### High-cardinality relaxation obstruction for the unequal-fiber target
 
 **Exact finite computational certificate/evidence, not a general proof or Lean theorem.**

@@ -203,6 +203,32 @@ For `|T| = 1` the right side is `0` and indeed `E⊥(S) = 0` (all differences ha
 coordinate `0`). *Proof.* `r_S(u) = r_A(u₁) r_T(u₂)`, `r_A(0)=|A|`, `r_T(0)=|T|`, so
 `E⊥(S) = Σ_{u₁,u₂≠0} r_A(u₁)² r_T(u₂)² = (E(A)−|A|²)(E(T)−|T|²)`. ∎
 
+**Maximum-cap Cartesian-product stress test.** **Evidence: exact prose reduction independently audited, not Lean formalized.** Take a maximum scalar cap `A ⊂ [N)`, put `r = |A| = r₃(N)` and `α = r/N`, and define its ordered additive energy by
+
+> `E(A) = #{(a,b,a',b') ∈ A⁴ : a+b = a'+b'}`.
+
+For `S = A × A`, the product identity in Proposition 4(a), specialized to `T = A`, gives for the note's coordinatewise transverse functional (both coordinate pairings nonidentity)
+
+> `E⊥(S) = (E(A) − r²)²`.
+
+This is not the ordinary two-dimensional energy: the full product has `E(S) = E(A)²`. Nor is it the convention that excludes only the globally diagonal difference `u=(0,0)`, which would give `E(A)² − r⁴` and would retain the axis terms with `u₁=0` or `u₂=0`. The coordinatewise transverse functional excludes both axes, as required here.
+
+With `m = |S| = r²`, TE therefore becomes exactly
+
+> `(E(A) − r²)² ≤ C α^(1+η) r⁶ + C r⁵`.
+
+Since `r = N^(1−o(1))`, while `α = r/N = N^(−o(1))`, the ratio of the first term on the right to the second is `α^(1+η)r = N^(1−o(1)) → ∞`. Thus, after an eventual threshold and with constants uniform over all maximum caps, TE restricted to this product subfamily is asymptotically equivalent to
+
+> `E(A) − r² ≪ r³ α^((1+η)/2)`
+
+for every maximum cap `A`. This necessary-and-sufficient reformulation is only for the product subfamily; it says nothing equivalent about arbitrary vector caps `S`.
+
+As a heuristic, not a known exponent or a claim about the energy of maximum caps, write
+`E(A) − r² ~ r³ α^σ`. Because `α → 0`, TE requires `σ ≥ (1+η)/2`; at `η = √2−1` the threshold is `σ = 1/√2`. Larger `σ` means smaller energy. The product stress test therefore reduces to an open one-dimensional upper bound for the energy of every maximal-size cap, and supplies neither a proof of TE nor a counterexample.
+
+Two guardrails are essential. Cauchy–Schwarz gives only the lower bound
+`E(A) ≥ r⁴/|A+A|`; it cannot prove the needed upper bound. Behrend gives a lower bound on `α`, but does not control the energy of every maximum cap.
+
 **The formula is *not* valid for arbitrary subsets.** Take `A = T = {0,1}` and the
 diagonal `S = {(0,0),(1,1)} ⊆ A×T`. Then `S` is a vector cap (a two-point set has no
 nontrivial 3-AP), `E⊥(S) = 2` (only the two differences `±(1,1)` occur, once each),
