@@ -106,3 +106,4 @@ import Erdos.Erdos142.ReflectionShadow
 import Erdos.Erdos142.ReflectionMassEnergy
 import Erdos.Erdos142.ReflectionMultiplicityCap
 import Erdos.Erdos142.ReflectionEnergyCriterion
+import Erdos.Erdos142.ReflectionFiberOverlap
