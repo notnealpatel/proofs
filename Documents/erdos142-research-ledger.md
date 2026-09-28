@@ -673,12 +673,14 @@ counterexample to (O), but neither proves (O) for general scalar caps nor
 Erdős 142. The exact matrices and computations are audit evidence, not a
 general theorem.
 
-**Conjectural missing lemma, with a proved special case and conditional
-consequence.**  The statement `RAI(K)` asks for one fixed integer $K\ge1$: whenever
+**Refuted auxiliary hypothesis, with a valid conditional consequence.**
+The statement `RAI(K)` asks for one fixed integer $K\ge1$: whenever
 $\beta=r(N)/N$, a proper AP has length at least $16N/\beta$, and a
 3-AP-free subset has relative density $0<\delta\le(9/8)\beta$, there is a
 proper sub-AP retaining at least $\delta^K/2$ of the length and increasing
-the density by a factor $9/8$.  This theorem is not proved.
+the density by a factor $9/8$.  The affine-flat thinning counterfamily below
+shows that this statement is false for every fixed $K$.  Its conditional
+consequence remains logically valid.
 
 If the accepted Behrend lower bound is written
 $\log(1/\beta)\le B\sqrt{\log N}$, then `RAI(K)` implies the eventual bound

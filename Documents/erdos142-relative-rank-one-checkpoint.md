@@ -2,11 +2,11 @@
 
 ## Status
 
-This note isolates one exact missing theorem for the analytic route to a
-fixed-power square estimate.  The theorem below is **conjectural**.  The
-argument after it proves that theorem would imply the desired estimate with
-an explicit fixed exponent.  It does not prove the theorem or Erdos problem
-142.
+This note analyzes one proposed theorem for the analytic route to a
+fixed-power square estimate.  The theorem below was initially conjectural;
+the conditional argument after it remains valid, but the affine-flat
+thinning theorem later in the note disproves it for every fixed $K$.  None
+of these results proves or disproves Erdős problem 142.
 
 Write
 
@@ -24,12 +24,12 @@ $$
 
 for $N\ge N_B$.  No unproved regularity of $r(N)$ is used below.
 
-## One exact missing theorem
+## One exact proposed theorem, now refuted
 
-**Relative affine increment $\operatorname{RAI}(K)$ (conjectural).**  There
-are a fixed integer $K\ge1$ and a threshold $N_0$ such that the following
-holds for every $N\ge N_0$.  Let $P$ be a proper integer arithmetic
-progression of length $L$ satisfying
+**Relative affine increment $\operatorname{RAI}(K)$.**  The proposed statement
+asserts that there are a fixed integer $K\ge1$ and a threshold $N_0$ such
+that the following holds for every $N\ge N_0$.  Let $P$ be a proper
+integer arithmetic progression of length $L$ satisfying
 
 $$
 L\ge \frac{16N}{\beta}.
@@ -703,7 +703,7 @@ r=\left\lceil\frac{\delta^Kp}{2}\right\rceil,
 q_1=\frac{33}{32},\quad q_b=\frac{35}{32},\quad q=\frac98.
 $$
 
-Assume
+Assume additionally $2r<p$ and
 
 $$
 p\delta^{K+1}\gg\log p,
@@ -711,8 +711,8 @@ p\delta^{K+1}\gg\log p,
 \rho^{-2}\delta^{-3K}=o(p).\tag{25}
 $$
 
-These conditions imply $r\to\infty$, $\rho r\to\infty$, and $2r<p$ in the
-regime used below.
+These conditions imply $r\to\infty$ and $\rho r\to\infty$.  The extra
+condition $2r<p$ holds in the Behrend application because $\delta\to0$.
 
 There is a fixed finite multiplicative net
 $\mathcal G\subseteq[r,2r]\cap\mathbb N$ with the following property: for
@@ -722,14 +722,20 @@ $$
 q_b s\ge q_1t.\tag{26}
 $$
 
-For example, start at $r$, increase successive integer lengths by a factor
-at most $34/33$ plus rounding, and end at $2r$.  The strict inequality
+For example, set $t_0=r$ and
 
 $$
-\frac{q_b}{34/33}>q_1
+t_{i+1}=\min\left\{2r,
+ \left\lceil\frac{34}{33}t_i\right\rceil\right\}
 $$
 
-absorbs the rounding for large $r$, and $|\mathcal G|=O(1)$.
+until $2r$ is reached.  Since
+
+$$
+\frac{34}{33}+\frac1r<\frac{35}{33}=\frac{q_b}{q_1}
+$$
+
+for large $r$, this gives (26), and $|\mathcal G|=O(1)$.
 
 For $t\in\mathcal G$, define
 
@@ -853,8 +859,9 @@ for every ordinary AP of length at least $r$.
 Fixed-size thinning preserves modular 3-AP-freeness.  We have therefore
 proved the following.
 
-> **Affine-flat thinning theorem.**  Under (25), every modular cap $C_0$ of
-> density $\rho$ has an $m$-point subset $C$ and a multiplier $u$ such that
+> **Affine-flat thinning theorem.**  Under (25) and $2r<p$, every modular
+> cap $C_0$ of density $\rho$ has an $m$-point subset $C$ and a multiplier
+> $u$ such that
 > the standard representatives of $uC$ have density less than $9\delta/8$
 > on every ordinary AP of length at least
 > $\lceil\delta^Kp/2\rceil$.
@@ -895,9 +902,11 @@ $$
 
 The Behrend lower bounds for both $C_0$ and $r_3(N)$ imply
 $\rho,\delta=p^{-o(1)}$.  Thus (25) holds for every fixed $K$.
-The theorem supplies a modular cap $C\subseteq C_0$ and a multiplier $u$
-whose standard representative $A=uC\subseteq[0,p)$ is ordinary
-3-AP-free and has no density increment of factor $9/8$ on any ordinary AP
+The theorem supplies a modular cap $C\subseteq C_0$ and a multiplier $u$.
+Its standard representative $A=uC\subseteq[0,p)$ is ordinary 3-AP-free:
+an ordinary midpoint relation among distinct representatives would give the
+same nontrivial relation modulo $p$.  Moreover, $A$ has no density increment
+of factor $9/8$ on any ordinary AP
 of length at least $\delta^Kp/2$.  Moreover,
 
 $$
@@ -1017,16 +1026,16 @@ required density with all long affine increments excluded has been proved.
 
 ## Bounded conclusion
 
-The source audit has been reduced to the single quantified statement (RAI).
-It survives the two required construction tests, but only in the precise
-sense that neither construction satisfies all hypotheses and disproves the
-conclusion.  The digit product exposes a real unresolved case: the obvious
-increments are shorter than the theorem requires by a factor
-$N^{1-o(1)}$.  The half-digit relation proves that scalar carry-freeness
-cannot be relaxed away.
+The proposed statement (RAI) is false for every fixed $K$: the affine-flat
+thinning theorem constructs interval-supported Behrend caps whose selected
+modular affine images have no qualifying ordinary-AP density increment.
+The earlier digit-product and half-digit tests remain useful diagnostics, but
+they are no longer the basis for the negative conclusion.  In the opposite
+direction, the unrandomized base-$Q$ sphere cap has an explicit dense
+top-digit interval above the RAI length cutoff, so it is not itself a
+counterexample.
 
-Accordingly, (RAI) remains an unproved, non-vacuous, source-specific missing
-lemma.  The complete calculation above shows that no further asymptotic
-regularity or generic Bohr-set claim would be needed after it: its fixed gain
-and fixed-power rank-one retention are exactly enough to reach a terminal
-progression of length at least $16N/\beta$ and prove (3).
+The conditional iteration from (RAI) to (3) remains correct, but its premise
+is unavailable.  The half-digit relation also continues to show that scalar
+carry-freeness cannot be replaced by row/column cap cardinalities.  None of
+these conclusions proves the square-scale estimate or decides Erdős 142.
