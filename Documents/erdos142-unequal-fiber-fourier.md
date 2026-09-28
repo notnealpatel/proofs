@@ -158,7 +158,121 @@ $$
  \tag{7}
 $$
 
-## 3. The open high-mass candidate
+## 3. Exact carry-defect measure and Fourier consequences
+
+For the remainder of this section, let $A$ be a scalar cap.  Expand the
+three Fourier sums in (1).  Call
+$(t,y,q,x_0,x_1,x_2)$ an **active expanded term** when
+$t\in\{-1,0,1\}$, $y\in[0,N)$, $q\in\mathbb Z$, and
+
+$$
+ \gamma_{N,t}(y,q)\phi_{y-q}(x_0)\phi_y(x_1)
+ \phi_{y+q-t}(x_2)=1.
+$$
+
+For such a term write
+$y_0=y-q$, $y_1=y$, $y_2=y+q-t$, and put
+
+$$
+ u_0=x_0+x_2-2x_1-tN.
+$$
+
+For $u\in\mathbb Z/Q\mathbb Z$, let
+
+$$
+ \mu(u)=\#\{\text{active expanded terms with }u_0\equiv u\pmod Q\}.
+$$
+
+The expanded form of (1) is therefore
+
+$$
+ C_r=\frac1Q\sum_{u\bmod Q}\mu(u)e_Q(-ru).
+$$
+
+Because an active term has $0\le x_i<N$,
+
+$$
+ |u_0|\le (2N-2)+N=3N-2<Q.
+$$
+
+If $u_0\equiv0\pmod Q$, this strict bound gives $u_0=0$.  The defining
+relations for the high digits give
+$y_0+y_2-2y_1=-t$, so $u_0=0$ makes
+
+$$
+ (x_0+Ny_0)+(x_2+Ny_2)=2(x_1+Ny_1).
+$$
+
+The scalar-cap condition forces this ordered progression to be diagonal.
+Uniqueness of the base-$N$ digits then gives $q=t=0$ and
+$(x_0,y_0)=(x_1,y_1)=(x_2,y_2)$.  Conversely, every element of $A$ gives
+exactly this diagonal active term.  Thus
+
+$$
+ \mu(0)=m.
+$$
+
+Define the zero-atom-removed defect measure by
+
+$$
+ \nu(u)=
+ \begin{cases}
+   \mu(u),&u\ne0,\\
+   0,&u=0,
+ \end{cases}
+ \qquad (u\in\mathbb Z/Q\mathbb Z).
+$$
+
+Distinct nonzero integer defects may alias modulo $Q$; this is harmless,
+because $\nu$ is defined after that grouping.  The strict bound above also
+ensures that no nonzero integer defect aliases into the zero atom.  We obtain
+the exact carry-defect formula
+
+$$
+ C_r-\frac mQ
+ =F_r
+ =\frac1Q\sum_{u\ne0}\nu(u)e_Q(-ru).
+$$
+
+Put $D=F_0=M_0-m/Q$.  Since $\nu\ge0$, the defect formula gives
+$D\ge0$ and $|F_r|\le D$.  The same positive-measure representation gives
+$|C_r|\le C_0=M_0$.  More precisely, the cyclic Toeplitz (equivalently,
+circulant) matrix
+
+$$
+ \bigl(F_{j-k}\bigr)_{j,k\in\mathbb Z/Q\mathbb Z}
+$$
+
+is positive semidefinite, since for every complex vector $(z_j)$,
+
+$$
+ \sum_{j,k}\overline{z_j}F_{j-k}z_k
+ =\frac1Q\sum_{u\ne0}\nu(u)
+   \left|\sum_k z_k e_Q(ku)\right|^2\ge0.
+$$
+
+Parseval and the zero atom's removal give
+
+$$
+ \sum_{r\bmod Q}|F_r|^2
+ =\frac1Q\sum_{u\ne0}\nu(u)^2.
+$$
+
+Also $\sum_{r\bmod Q}F_r=0$, so
+
+$$
+ \sum_{r\ne0}F_r=-D,
+ \qquad
+ \sum_{r\ne0}|F_r|^2\ge\frac{D^2}{Q-1}
+$$
+
+by Cauchy.  Equivalently, the defect collision energy on the right-hand
+side of Parseval is at least $QD^2/(Q-1)$.  This theorem advances the
+organization of the carry defects, but it does not prove the candidate (*):
+no useful upper bound for the defect collision energy
+$\sum_{u\ne0}\nu(u)^2$ is known.
+
+## 4. The open high-mass candidate
 
 The phase-blind high-mass candidate is the following statement, proposed only
 when $N\ge3$, $A$ is scalar-free, and $m\ge K$:
@@ -227,7 +341,7 @@ $M_0+m-m^3/K^2=\frac14$, so this is an exact high-mass counterexample to
 the unrestricted-in-$N$ wording.  It is a degenerate finite obstruction only;
 it does not refute the $N\ge3$ candidate or the eventual/asymptotic route.
 
-## 4. Finite counterexamples and their limitations
+## 5. Finite counterexamples and their limitations
 
 ### Nondegenerate $N=3$ low-mass obstruction
 
@@ -282,7 +396,7 @@ $\{s,s+3\}$ for $0\le s\le5$ has the same exact grouped spectrum.  Translations
 therefore do not repair the candidate without the high-mass condition.
 They likewise do not close the high-mass route.
 
-## 5. Why the half-digit family is not high mass
+## 6. Why the half-digit family is not high mass
 
 Let $H=\lceil N/2\rceil$.  If $B,C\subseteq[0,H)$ are ordinary caps and
 $G\subseteq B\times C$ is an arbitrary indicator relation, then
@@ -300,7 +414,7 @@ relation and its cardinality; it makes no false weighted $L^1$ assertion.
 Consequently this family cannot refute (*), even though its unrestricted
 Fourier behavior can be extremal.
 
-## 6. High-mass spread and cancellation lemma
+## 7. High-mass spread and cancellation lemma
 
 **Lemma (high-mass spread and cancellation, accepted prose deduction).**
 Let $A\subseteq[0,N^2)$ be a scalar cap, let $m=|A|$, and suppose
@@ -360,7 +474,7 @@ the accepted lower input, not a Lean theorem.  The finite spread statements
 and (5) likewise do not prove (*): they give no phase-sensitive upper bound
 on $S$.
 
-## 7. Stress tests and computational status
+## 8. Stress tests and computational status
 
 For a product $G=B\times C$, define
 
@@ -405,7 +519,7 @@ to settle it in general.  The $N=7$ computation timed out and was not
 retried unchanged.  In particular, the low-mass counterexample above does not
 close the high-mass route.
 
-## 8. A high-mass relaxation obstruction at $N=16$
+## 9. A high-mass relaxation obstruction at $N=16$
 
 The following is an exact finite computational certificate/evidence for the
 relaxation in which only one-dimensional row and column restrictions are
@@ -535,7 +649,7 @@ signed cancellation $R=m-M_0$, and using only that signed equality returns the
 prior tautology.  The still-needed ingredient is a nontrivial distributional
 consequence of mixed-fiber AP exclusion.
 
-## 9. Stopping evidence and next requirement
+## 10. Stopping evidence and next requirement
 
 The explicit $N=16$ relation rules out any proof of (*) based only on
 projection spread, heavy-fiber counts, degree bounds, Jensen's $M_0$ bound,

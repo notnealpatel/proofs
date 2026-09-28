@@ -161,6 +161,18 @@ $t=-1,0,1$, middle frequency $-2r$, and factor $(4N)^{-1}$ are retained
 without the aliasing in a naive modulus-$N$ formula.  This is only an
 identity, not a nonlinear estimate.
 
+**Evidence status: accepted prose deduction, independently reviewed.** The note
+now also defines the active-term defect measure $\mu$ by
+$u_0=x_0+x_2-2x_1-tN$.  The scalar-cap diagonal argument gives $\mu(0)=m$
+using $|u_0|<Q$; after removing that atom, $\nu$ satisfies
+$C_r-m/Q=Q^{-1}\sum_{u\ne0}\nu(u)e_Q(-ru)$.  Hence
+$D=F_0\ge0$, the Fourier Toeplitz matrix is PSD,
+$|F_r|\le D$, $|C_r|\le M_0$, Parseval identifies the defect collision
+energy, and Cauchy gives $\sum_{r\ne0}|F_r|^2\ge D^2/(Q-1)$.  Nonzero
+integer defects may alias harmlessly among nonzero residues.  This adds
+structure but no proof of (*), since no useful upper bound for the defect
+collision energy is known.
+
 The universal phase-blind proposal, writing $M_0=F_0$ and
 $S=\sum_{r\ne0}|F_r|$,
 $$
