@@ -1138,6 +1138,174 @@ Deleting the displayed diagonal is not a counterexample: other scalar
 progressions remain uncontrolled, and no scalar-3-AP-free subrelation of the
 required density with all long affine increments excluded has been proved.
 
+## Product-specific rank-two checkpoint
+
+The aligned-product route has a clean conditional formulation, but the needed
+rank-two increment is open.  This subsection records the weakest
+fiber-preserving version used by the iteration; it does not use fractional
+chromatic number or the fractional-independence edge LP.
+
+Let $\mathcal P_N$ be the 3-uniform relation on $[0,N)^2$ in which the two
+coordinates form simultaneous ordinary 3-APs with the same middle.
+A coordinate triple may be reflexive, but the three vector vertices are not
+all equal.  Write
+
+$$
+r=r_3(N),\qquad \beta=\frac rN,\qquad q=\frac98,
+\qquad h=\log q,\qquad \lambda=\log(1/\beta).
+$$
+
+If $n_i=Nx_i+y_i$, then a scalar midpoint relation has
+
+$$
+N(x_0+x_2-2x_1)+(y_0+y_2-2y_1)=0.
+$$
+
+Its carry modes are $(\Delta_x,\Delta_y)=(0,0),(1,-N),(-1,N)$.
+Thus a scalar 3-AP-free set maps to a $\mathcal P_N$-independent set, but the
+converse is false because $\mathcal P_N$ sees only the no-carry mode.  Hence
+
+$$
+r_3(N^2)\le \alpha(\mathcal P_N),
+$$
+
+not equality.  Every horizontal and vertical fiber of an independent set is
+an ordinary 3-AP-free subset of $[0,N)$ and therefore has at most $r$ points.
+
+For an ordinary progression
+
+$$
+J=\{a+jd:0\le j<M\}\subset[0,N),\qquad d>0,
+$$
+
+put $G(J)=[0,N)\times J$.  This is a contained proper rank-two GAP in
+$\mathbb Z^2$, with generators $(1,0)$ and $(0,d)$.  Cyclic progressions are
+not allowed.  The exact unresolved input is the following.
+
+**Product rank-two increment $\operatorname{PR2I}(\kappa,\gamma)$.**  Fix
+$\kappa>0$ and $\gamma>0$.  Uniformly for all sufficiently large $N$, every
+$\mathcal P_N$-independent $S$ and every such $J$ with $M\ge N^\gamma$ and
+
+$$
+\delta=\frac{|S\cap G(J)|}{NM}\in[\beta^{4/3},\beta]
+$$
+
+admit an ordinary subprogression $J'\subseteq J$ such that
+
+$$
+|J'|\ge\left\lceil\frac12\delta^\kappa M\right\rceil,
+\qquad
+\frac{|S\cap G(J')|}{N|J'|}\ge q\delta.\tag{39}
+$$
+
+The full first coordinate is deliberately retained.  It makes every
+$G(J')$ a disjoint union of ordinary full fibers and gives the exact terminal
+bound
+
+$$
+|S\cap G(J')|\le |J'|r,
+\qquad \operatorname{dens}_{G(J')}(S)\le\beta.\tag{40}
+$$
+
+This is an integral, product-specific assertion.  Equal row and column
+marginals can occur in large actual bipartite relations with no density
+increment, so fiber cardinalities alone do not imply (39).  A proof must use
+mixed aligned triples, with both coordinate differences nonzero.  In
+particular, neither fractional chromatic number nor the basic edge LP can
+supply (39); the latter already admits the uniform assignment $2/3$.
+
+### Conditional implication and complete width loss
+
+Assume the Behrend lower bound is written
+
+$$
+\lambda\le B\sqrt{\log N}
+$$
+
+for all sufficiently large $N$.  If
+
+$$
+\boxed{\ \gamma+\frac{7\kappa B^2}{18h}<1\ },\tag{41}
+$$
+
+then $\operatorname{PR2I}(\kappa,\gamma)$ implies
+
+$$
+\alpha(\mathcal P_N)
+ \le N^2\beta^{4/3}
+ =N^{2/3}r_3(N)^{4/3}.\tag{42}
+$$
+
+Indeed, suppose an independent $S$ has initial density
+$\delta_0>\beta^{4/3}$ and start with $J_0=[0,N)$, $M_0=N$.
+The fiber bound gives $\delta_0\le\beta$.  Apply (39) until a density exceeds
+$\beta$, and set
+
+$$
+t=\left\lceil\frac{\lambda}{3h}\right\rceil.
+$$
+
+If no earlier contradiction occurs, then
+
+$$
+\delta_i\ge q^i\delta_0>q^i\beta^{4/3},
+$$
+
+so $\delta_t>q^t\beta^{4/3}\ge\beta$, contradicting (40).  It remains only
+to verify that the width floor stays valid.  The retained widths satisfy
+
+$$
+M_t\ge N2^{-t}\prod_{i<t}\delta_i^\kappa,
+$$
+
+and therefore
+
+$$
+\begin{aligned}
+\log M_t
+&\ge \log N-t\log2
+ -\kappa\left(\frac43\lambda t-\frac h2t(t-1)\right)\\
+&=\log N-\frac{7\kappa}{18h}\lambda^2
+ -O_{\kappa,h}(\lambda)\\
+&\ge
+ \left(1-\frac{7\kappa B^2}{18h}\right)\log N
+ -O_{\kappa,h,B}(\sqrt{\log N}).\tag{43}
+\end{aligned}
+$$
+
+Nested containment gives $M_i\ge M_t$.  Condition (41) makes (43) exceed
+$\gamma\log N$ eventually, so every application is legal.  The coefficient
+$7/18$ includes the density growth $q^i$; replacing all intermediate
+densities by $\delta_0$ gives a needlessly weaker budget.  The sharper
+criterion replaces $B^2$ in (41) by
+
+$$
+\limsup_{N\to\infty}\frac{\lambda(N)^2}{\log N}.
+$$
+
+The strict inequality absorbs the $O(\lambda)$ and ceiling losses.  Combining
+(42) with $r_3(N^2)\le\alpha(\mathcal P_N)$ proves the requested scalar bound,
+in fact without the extra additive $N$.
+
+### Affine-flat test
+
+The established affine-thinned counterfamily does not refute (39).  Its
+density satisfies $\delta\le\beta^2/2<\beta^{4/3}$, so it lies below the
+premise window.  More generally, the proved affine flatness only controls
+ordinary scalar APs of length
+
+$$
+r_{\rm flat}\asymp\delta^Kp=p^{1-o(1)}.
+$$
+
+At $p\asymp N^2$ this is much larger than the $N\asymp\sqrt p$ fibers in a
+product slab, and a slab is rank-two rather than a single scalar AP.  No
+short-fiber or mixed-coordinate correlation estimate follows from that
+flatness theorem.  Thus rank two escapes the known counterexample, but only
+in the precise sense of non-refutation: (39) remains the sharply stated
+unresolved structural estimate, and no square-scale theorem follows without
+it.
+
 ## Bounded conclusion
 
 The proposed statement (RAI) is false for every fixed $K$: the affine-flat

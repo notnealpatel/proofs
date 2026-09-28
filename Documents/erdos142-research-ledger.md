@@ -1180,6 +1180,72 @@ checkpoint, not a proof of the missing inequality or of Erdős 142; the
 product-literature synthesis is cited only generically, with no novelty
 claim.
 
+### Audited fiber-preserving rank-two reduction
+
+**Conditional; the structural estimate is open.**  Put
+$\beta=r_3(N)/N$, $q=9/8$, $h=\log q$, and
+$\lambda=\log(1/\beta)$.  For an ordinary AP
+$J\subset[0,N)$ of length $M$, the slab
+$G(J)=[0,N)\times J$ is a contained proper rank-two GAP in $\mathbb Z^2$.
+The minimal fiber-preserving increment tested here is
+
+$$
+\begin{gathered}
+S\text{ independent in }P_N,\quad
+M\ge N^\gamma,\quad
+\delta=\frac{|S\cap G(J)|}{NM}\in[\beta^{4/3},\beta]\\
+\Longrightarrow\quad
+\exists J'\subseteq J:\quad
+|J'|\ge\left\lceil\frac12\delta^\kappa M\right\rceil,
+\qquad
+\operatorname{dens}_{G(J')}(S)\ge\frac98\delta .
+\end{gathered}\tag{PR2I}
+$$
+
+Here $J'$ is an ordinary sub-AP and $\kappa,\gamma>0$ are fixed.  Cyclic
+containment is insufficient.  Every full fiber has at most $r_3(N)$ points,
+so every slab has density at most $\beta$.
+
+Starting at density greater than $\beta^{4/3}$, (PR2I) needs at most
+
+$$
+t=\left\lceil\frac{\lambda}{3h}\right\rceil
+$$
+
+steps to contradict that fiber cap.  The exact transverse-width budget is
+
+$$
+\log M_t\ge
+\log N-\frac{7\kappa}{18h}\lambda^2-O_{\kappa,h}(\lambda).
+$$
+
+Thus, from $\lambda\le B\sqrt{\log N}$, the explicit sufficient condition
+
+$$
+\gamma+\frac{7\kappa B^2}{18h}<1
+$$
+
+makes every step legal and conditionally proves
+
+$$
+\alpha(P_N)\le N^{2/3}r_3(N)^{4/3},
+$$
+
+hence the scalar square bound without an additive $N$.  The factor $7/18$
+uses the intermediate gains $q^i$ rather than freezing the starting density.
+The scalar/product direction is only $r_3(N^2)\le\alpha(P_N)$: carry modes
+$(1,-N)$ and $(-1,N)$ prevent an equivalence.
+
+This is integral and product-specific.  Marginal cap sizes, fractional
+chromatic number, and the basic edge LP do not prove (PR2I); a proof must use
+mixed aligned triples with both coordinate differences nonzero.  The
+established affine-flat counterfamily also does not refute it: its density is
+at most $\beta^2/2<\beta^{4/3}$, and its long scalar-AP flatness threshold is
+$p^{1-o(1)}\gg N$ at $p\asymp N^2$.  It gives no estimate for these short
+fibers or their mixed correlations.  Rank two therefore escapes the known
+rank-one obstruction only as a precise unresolved possibility, not as a
+proved theorem.
+
 ## Dead ends and guardrails
 
 - Exhaustive and sampled tests suggested a target-wise union-reflection
