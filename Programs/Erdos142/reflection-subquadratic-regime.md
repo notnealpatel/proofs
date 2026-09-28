@@ -3,9 +3,11 @@
 > **Status.** This note records a route closure for a restricted size regime,
 > not a proof of the universal reflection estimate or of Erdős 142.  The
 > finite universal mass/energy bounds used below are **kernel checked** in the
-> existing Lean development.  The asymptotic consequence, the fixed-digit
-> corollary, and the two-cluster consequence are **accepted prose deductions**
-> pending this new review; none is formalized here.
+> existing Lean development.  The averaged fiber-overlap theorem below is an
+> **independently audited accepted prose theorem**; its Lean formalization is
+> in progress and is not claimed here.  The asymptotic consequence, the
+> fixed-digit corollary, and the two-cluster consequence are accepted prose
+> deductions using this theorem; none is claimed as a Lean theorem.
 
 ## Setup and the exact sufficient condition
 
@@ -66,38 +68,110 @@ $$
 Indeed, (SC) and $M\ge Q(m)$ give the preceding inequality, and then
 $E\le(m-1)M\le F_NM^2/(m-N)^2$.
 
+## Independently audited averaged fiber-overlap theorem
+
+Here are the exact conventions.  Let $A\subseteq[0,T)$ be a scalar
+3-AP-free set, let $m=|A|$, and, for every integer $c\in[0,T)$, put
+
+$$
+ X_c=\{a\in A:a\ne c,\ 2a-c\in A\},
+ \qquad n_c=|X_c|,
+ \qquad M=\sum_{0\le c<T}n_c,
+ \qquad E=\sum_{0\le c<T}n_c^2.
+$$
+
+For $c\ne d$, the map sending $a\in X_c\cap X_d$ to the ordered pair
+$(2a-d,2a-c)$ injects this intersection into the fixed nonzero-difference
+pairs in $A$.  Capness makes those pairs a matching, so
+$|X_c\cap X_d|\le\lfloor m/2\rfloor$ and therefore
+
+$$
+ n_c+n_d\le B,
+ \qquad B:=m+\left\lfloor\frac m2\right\rfloor.
+$$
+
+Also $n_c\le m-1$: if $c\in A$, capness makes $X_c$ empty; if
+$c\notin A$ and $X_c=A$, the finite set $A$ would be closed under
+$a\mapsto2a-c$, whose iterates $c+2^k(a-c)$ are unbounded unless $a=c$.
+The already audited mass lower bound is
+
+$$
+ M\ge u,
+ \qquad u:=\left\lfloor\frac{(m-1)^2}{4}\right\rfloor.
+$$
+
+Let $L=\max_c n_c$.  If $L\le B/2$, then
+$E\le(B/2)M$.  If $L>B/2$, isolate a fiber of size $L$ and use the
+pairwise bound on all other fibers:
+
+$$
+ E\le L^2+(B-L)(M-L)
+  =\frac{BM}{2}+\left(L-\frac B2\right)(2L-M).
+$$
+
+For $m\ge9$, $u\ge2(m-1)\ge2L$, so the final term is nonpositive.  Thus the
+independently audited averaged overlap estimate is
+
+$$
+ \boxed{\qquad E\le\frac B2M.\qquad}
+ \tag{AO}
+$$
+
+For $T=N^2$, these are exactly the note's reflection multiplicities
+$n_c=\nu(c)$.  Hence (AO) and $M\ge u$ give the exact sufficient condition
+from this averaged theorem
+
+$$
+ \boxed{\qquad
+ F_N\ge\frac{B(m-N)^2}{2u}
+ \qquad}
+ \tag{ASC}
+$$
+for (O), where $F_N=r_3(N)^{8/3}/N^{2/3}$.  This applies when
+$m>N\ge2$ and $m\ge9$.
+
+As a compact diagnostic, for
+$A_m=\{2^j:0\le j<m\}=\{1,2,4,\ldots,2^{m-1}\}\subset[0,2^m)$ (an ambient interval
+containing all nonnegative reflections),
+
+$$
+ M=\frac{(m-1)(m+2)}2,
+ \qquad
+ E=\frac{(m-1)(3m-2)}2.
+$$
+
+Here $n_0=m-1$, while every nonzero fiber is a singleton, so this example
+refutes no averaged bound.
+
 ## A convenient subquadratic regime
 
 For $N\ge2$ and $m>N$, one has
 
 $$
- 4Q(m)\ge(m-N)^2.
+ 4u\ge(m-N)^2.
  \tag{1}
 $$
 
-To see this, $m\ge3$.  If $m$ is odd, then
-$4Q(m)=(m-1)^2\ge(m-2)^2$; if $m$ is even, then
-$4Q(m)=m(m-2)\ge(m-2)^2$.  Since $N\ge2$,
-$0\le m-N\le m-2$, proving (1).
+Indeed $u=Q(m)$.  If $m$ is odd, then
+$4u=(m-1)^2$; if $m$ is even, then $4u=m(m-2)$.  In either case
+$4u\ge(m-2)^2\ge(m-N)^2$.
 
-Thus the convenient hypothesis
+The earlier pointwise criterion still gives the convenient hypothesis
+$m\le F_N/4$.  The averaged theorem improves this, for $m\ge9$, to
 
 $$
- m\le\frac{F_N}{4}
+ m\le\frac{F_N}{3}.
  \tag{2}
 $$
 
-already implies (SC): it gives $F_N\ge4m$, and hence
+Indeed $B\le3m/2$, so (1) gives
 
 $$
- F_NQ(m)
- \ge 4m\,\frac{(m-N)^2}{4}
- =m(m-N)^2
- \ge(m-1)(m-N)^2.
+ \frac{B(m-N)^2}{2u}\le2B\le3m\le F_N.
 $$
 
-This is only a convenient sufficient range; the sharper condition (SC) is
-the exact one obtained from the two universal bounds.
+Thus (2) implies (ASC).  This improves $F_N/4$ by only the constant factor
+$4/3$; it does not close the high-density range or solve Erdős 142.
 
 ## Behrend consequence
 
@@ -117,11 +191,11 @@ Set $C'=8C/3$ (or take any larger absolute constant).  For all large $N$,
 every scalar cap in the range
 
 $$
- N<m\le\frac14N^2\exp\!\bigl(-C'\sqrt{\log N}\bigr)
+ N<m\le\frac13N^2\exp\!\bigl(-C'\sqrt{\log N}\bigr)
  \tag{3}
 $$
 
-satisfies $m\le F_N/4$, and therefore satisfies (O) with constant $1$.
+satisfies $m\le F_N/3$, and therefore satisfies (O) with constant $1$.
 The range in (3) is nonempty for all sufficiently large $N$.
 
 ## Fixed-digit corollary
@@ -165,15 +239,15 @@ $$
  \longrightarrow0.
 $$
 
-Thus $m\le\frac14N^2\exp(-C'\sqrt{\log N})$ eventually, and (O) holds
+Thus $m\le\frac13N^2\exp(-C'\sqrt{\log N})$ eventually, and (O) holds
 with constant $1$ for every sufficiently large member of every fixed
 $(b,E_1,E_2)$ carry-free alternating digit family.  This excludes those
 fixed-parameter families as counterexamples to (O).  It does not address
 variable alphabets or variable digit sets, prove (O) for general scalar caps,
 or solve Erdős 142.
 
-The fixed-digit conclusion is an accepted prose deduction pending this new
-review, not a Lean theorem.
+The fixed-digit conclusion is an accepted prose deduction using the
+independently audited averaged theorem, not a Lean theorem.
 
 ## Optional sharper half-range check
 
@@ -193,13 +267,13 @@ $$
 $$
 
 The alternating fixed-digit family above is in this half-range, so these are
-sharper family-level checks.  They are not needed: the universal criterion
-(SC), and already its convenient consequence (2), suffices for the
+sharper family-level checks.  They are not needed: the averaged criterion
+(ASC), and already its convenient consequence (2), suffices for the
 fixed-digit conclusion.
 
 ## Previously recorded digit-sphere/two-cluster family
 
-The same universal criterion also closes the previously documented family-only
+The averaged criterion (ASC) also closes the previously documented family-only
 stress test.  Take $q=d$, $Q=4d$, let $B$ be the base-$Q$ encoding of a
 largest sphere in $\{0,\ldots,d-1\}^d$, and write
 
@@ -239,10 +313,10 @@ $$
  \longrightarrow0.
 $$
 
-Therefore $m\le F_N/4$ eventually, and the universal criterion proves (O),
-with constant $1$, for this stress family as well.  This is a family-only
-conclusion; it is not a statement about arbitrary variable-alphabet
-constructions, general (O), or Erdős 142.
+Therefore $m\le F_N/4$ eventually, and hence also $m\le F_N/3$; the
+averaged criterion (ASC) proves (O), with constant $1$, for this stress
+family as well.  This is a family-only conclusion; it is not a statement
+about arbitrary variable-alphabet constructions, general (O), or Erdős 142.
 
 ## Separate exact $b=128$ evidence
 

@@ -656,8 +656,8 @@ asymptotics for digit-set sizes are discarded.
 
 ### Reflection subquadratic regime
 
-**Kernel-checked inputs; accepted prose route closure pending this new review.**
-The finite universal bounds from the existing
+**Kernel-checked inputs; independently audited accepted prose theorem.**  The
+finite universal bounds from the existing
 `Proofs/Erdos/Erdos142/ReflectionMassEnergy.lean` development are
 $E\le(m-1)M$ and
 $Q(m):=\lfloor(m-1)^2/4\rfloor\le M$.  The new note
@@ -666,28 +666,70 @@ sets
 $$
 F_N=r_3(N)^{8/3}/N^{2/3}
 $$
-and records the exact sufficient condition
+and retains the earlier pointwise sufficient condition
 $$
 F_NQ(m)\ge(m-1)(m-N)^2
 $$
-for (O).  For $N\ge2$, $4Q(m)\ge(m-N)^2$, so the convenient condition
-$m\le F_N/4$ suffices.  Uniform Behrend gives, for a suitable absolute
-$C'$, constant-$1$ verification of (O) throughout
-$$
-N<m\le\frac14N^2\exp(-C'\sqrt{\log N})
-$$
-for all large $N$.
+for (O).
 
-The note gives the reviewed fixed-digit consequence: every fixed
-$(b,E_1,E_2)$ carry-free alternating digit family with
-$2\max(E_i)<b$ and $|E_1||E_2|>b$ is eventually in this regime, since
-$|E_1||E_2|<b^2$.  It also applies the same criterion to the previously
-recorded $q=d$, $Q=4d$ digit-sphere/two-cluster stress family, proving (O),
-not merely (C), there.  These are **accepted prose deductions pending this
-new review**, not Lean theorems.  The fixed-parameter conclusion does not
-cover variable alphabets or digit sets, and none of this proves general (O)
-or Erdős 142.  The exact $b=128$ transfer artifact below remains separate
-and is stronger for that one family because it verifies (O) for every $k$.
+The independently audited averaged fiber-overlap theorem uses the exact
+conventions: for scalar 3-AP-free $A\subseteq[0,T)$, $m=|A|$, and every
+integer $c\in[0,T)$,
+$$
+X_c=\{a\in A:a\ne c,\ 2a-c\in A\},\qquad n_c=|X_c|,
+\qquad M=\sum_{0\le c<T}n_c,\qquad E=\sum_{0\le c<T}n_c^2.
+$$
+For $c\ne d$, $X_c\cap X_d$ injects into fixed-nonzero-difference pairs in
+$A$; capness makes those pairs a matching.  Thus
+$|X_c\cap X_d|\le\lfloor m/2\rfloor$ and
+$n_c+n_d\le B:=m+\lfloor m/2\rfloor$.  Also $n_c\le m-1$: if $c\in A$
+then capness makes $X_c$ empty, while if $c\notin A$ and $X_c=A$, finite
+closure under $a\mapsto2a-c$ contradicts the unbounded iterates of any
+$a\ne c$.  With $u:=\lfloor(m-1)^2/4\rfloor\le M$ and
+$L=\max n_c$, the cases $L\le B/2$ and $L>B/2$ give, respectively,
+$E\le(B/2)M$ and
+$$
+E\le L^2+(B-L)(M-L)
+ =\frac{BM}{2}+\left(L-\frac B2\right)(2L-M).
+$$
+For $m\ge9$, $u\ge2(m-1)\ge2L$, so the last term is nonpositive.  Hence
+$$
+E\le\frac B2M.
+$$
+For $T=N^2$, these fibers are exactly the reflection multiplicities in the
+note.  The resulting exact sufficient condition from this averaged theorem
+is
+$$
+F_N\ge\frac{B(m-N)^2}{2u}.
+$$
+For $m>N\ge2$ and $m\ge9$, $4u\ge(m-N)^2$ and $B\le3m/2$, so the convenient
+condition $m\le F_N/3$ suffices.  This improves $F_N/4$ by only the constant
+factor $4/3$; it does not close the high-density range or solve Erdős 142.
+
+As a corrected compact diagnostic,
+$A_m=\{2^j:0\le j<m\}=\{1,2,4,\ldots,2^{m-1}\}\subset[0,2^m)$ has
+$$
+M=(m-1)(m+2)/2,\qquad E=(m-1)(3m-2)/2.
+$$
+One fiber has $n_0=m-1$ and every other nonzero fiber is a singleton, so it
+refutes no averaged bound.  The Lean formalization of the averaged theorem is
+in progress and is not claimed here.
+
+Uniform Behrend gives, for a suitable absolute $C'$, constant-$1$ verification
+of (O) throughout
+$$
+N<m\le\frac13N^2\exp(-C'\sqrt{\log N})
+$$
+for all large $N$.  The note gives the reviewed fixed-digit consequence:
+every fixed $(b,E_1,E_2)$ carry-free alternating digit family with
+$2\max(E_i)<b$ and $|E_1||E_2|>b$ is eventually in this improved regime,
+since $|E_1||E_2|<b^2$.  It also applies the averaged criterion to the
+previously recorded $q=d$, $Q=4d$ digit-sphere/two-cluster stress family,
+proving (O), not merely (C), there.  These are accepted prose deductions,
+not Lean theorems.  The fixed-parameter conclusion does not cover variable
+alphabets or digit sets, and none of this proves general (O) or Erdős 142.
+The exact $b=128$ transfer artifact below remains separate and is stronger
+for that one family because it verifies (O) for every $k$.
 
 ### Exact $b=128$ reflection transfer
 
