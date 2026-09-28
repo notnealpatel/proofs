@@ -548,6 +548,60 @@ pointwise cap alone does not prove (O), (C), or Erdős 142.
 
 **Informal finite mathematics, independently audited but not Lean formalized.** For scalar-free `A⊂[0,N²)` with `m=|A|`, the target-wise union of valid carry cases is exactly the in-range nontrivial reflection shadow `S(A)`, so `|S(A)|≤N²−m`; median reflection gives `|S(A)|≥floor((m−1)/2)`. With in-range representation multiplicities `ν(c)=#{(a,b)∈A²:a≠b:2a−b=c}`, `M=Σν`, `E=Σν²`, and `r_A(d)=|{x∈A:x+d∈A}|`, the informal collision count gives `E≤M+Σ_{d≠0}r_A(d)r_A(2d)≤Σ_d r_A(d)r_A(2d)`. The formal fixed-difference theorem is exactly `r_A(d)≤floor(m/2)` for `d≠0`, but using it naively is far too weak. The formal module does **not** contain the carry-union identity, median bound, mass/energy identities, or candidate below.
 
+### Popular-positive-difference shortcut: scalable obstruction
+
+**Reviewed prose deduction.** For $k\ge0$, define
+$$
+G=\{0,1,4,6,9,10,13,15\},\qquad
+H_k=\left\{\sum_{i<k}\varepsilon_i3^i:\varepsilon_i\in\{0,1\}\right\},
+\qquad A_k=G+32H_k.
+$$
+The representation $a=g+32h$ is unique: reducing modulo $32$ recovers
+$g\in[0,16)$, and the ternary digits recover $h$. Equivalently, the
+blocks $32h+G$ for $h\in H_k$ are disjoint; $|H_k|=2^k$, and
+$|A_k|=8\cdot2^k$.
+Both $G$ and $H_k$ are ordinary scalar 3-AP-free. For $G$, a direct check
+of the only possible positive steps $1\le d\le7$ finds no
+$g,g+d,g+2d\in G$. For $H_k$, an equality
+$h_0+h_2=2h_1$ has no ternary carries: at every digit
+$\varepsilon_{0,i}+\varepsilon_{2,i}=2\varepsilon_{1,i}$, so the three
+bits agree.
+
+If $x_j=g_j+32h_j\in A_k$ satisfy $x_0+x_2=2x_1$, then the scale-32
+defect
+$$
+\Delta=g_0+g_2-2g_1
+ =32(2h_1-h_0-h_2)
+$$
+lies in $[-30,30]$ and is divisible by $32$, hence is zero. The
+3-AP-freeness of $G$ and then of $H_k$ forces all three terms equal. Thus
+$A_k$ is ordinary scalar 3-AP-free (not merely cyclic).
+
+For $d=3,4,5$, a pair in different blocks has positive difference at least
+$32-15=17$, so all such pairs lie in one block. The base pairs are,
+respectively,
+$$
+(1,4),(6,9),(10,13);\qquad
+(0,4),(6,10),(9,13);\qquad
+(1,6),(4,9),(10,15).
+$$
+Consequently, with the ordinary positive-difference multiplicity
+$r_A(d)=\#\{x\in A:x,x+d\in A\}$,
+$$
+ r_{A_k}(3)=r_{A_k}(4)=r_{A_k}(5)=3\cdot2^k=\frac{3|A_k|}{8}.
+$$
+Define the ordinary popular-difference set
+$D_\tau(A)=\{d\in\mathbb Z_{>0}:r_A(d)\ge\tau\}$. For
+$m=|A_k|$, whenever $\tau\le3m/8$, it contains the ordinary 3-AP
+$\{3,4,5\}$. Hence any universal threshold $\tau(m)=o(m)$ eventually
+satisfies this inequality on the infinite sequence $m=8\cdot2^k$, so it
+cannot universally make popular positive differences 3-AP-free.
+This is a full-target ordinary difference count: it uses no cyclic reduction
+and no restriction to in-range reflection targets. It only closes the
+popular-difference shortcut; it is not an in-range reflection-energy
+counterexample and proves nothing positive or negative about Erdős 142. No
+literature or novelty claim is made.
+
 **Exploratory/conjectural.** The candidate `|S(A)|³ r(N)^8 ≥ N²(m−N)^6` for `m>N` is unproved and would imply `r(N²)≤N+N^(2/3)r(N)^(4/3)≤2N^(2/3)r(N)^(4/3)` eventually, a P-shaped gain with `η=1/3`; this would be an intermediate estimate, not an asymptotic formula. It is checked informally for `N=3`, eventual fixed-linear `m≤KN` regimes, and short ternary Cartesian products; exhaustive `N≤6` and structured searches are computation only. A sufficient second-moment overlap bound `E≤M²r(N)^(8/3)/(N^(2/3)(m−N)²)` remains unproved and undisproved. The fixed-difference matching argument does not bound fixed-target multiplicity: `{1,2,4,8}⊂[9]` has `ν(0)=3`. A capped-at-2 moment variant is also unproved and at most within factor `9/8` of the desired support bound, not an independent breakthrough. See [`erdos142-reflection-shadow-route.md`](erdos142-reflection-shadow-route.md) for definitions, exact status, and derivations.
 
 **Independently reviewed informal counterfamily.** An auxiliary
