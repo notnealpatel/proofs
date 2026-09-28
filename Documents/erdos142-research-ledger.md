@@ -1131,6 +1131,55 @@ increment is too short; and the audited Bohr/GAP outputs do not imply the
 fixed-factor, fixed-power statement.  These remain precise barriers to
 those proposed proof routes.
 
+### Exact aligned no-carry product checkpoint
+
+**Audited theory/literature checkpoint; open, not kernel checked.** Let $R_N$ be
+the ordered reflexive relation on $[0,N)$ given by
+$x_0+x_2=2x_1$, including constant triples.  Let $P_N$ have vertex set
+$[0,N)^2$ and an edge on three distinct pair-vectors
+$(x_i,y_i)$, $i=0,1,2$, exactly when both coordinate triples satisfy
+$R_N$ with the same middle ordering.  Thus $P_N$ is not a standard
+categorical, direct, or strong hypergraph product.
+
+The map
+$$
+\phi(x,y)=Nx+y
+$$
+maps every $P_N$ edge to a scalar 3-AP.  Scalar carries can only add scalar
+edges, so
+$$
+r_3(N^2)\le\alpha(P_N).
+$$
+Rows and columns are individually 3-AP-free, but this gives only
+$$
+\alpha(P_N)\le N r_3(N).
+$$
+The desired integral estimate
+$$
+\alpha(P_N)\le N^{2/3}r_3(N)^{4/3}
+$$
+would imply the square-scale target even without an additive $+N$ term; it is
+open.
+
+The fractional direction must not be reversed: $|V|\le\alpha\chi_f$ gives
+a lower bound on $\alpha$, not an upper bound.  Moreover, the standard
+fractional-independence edge LP has the feasible point $x_v=2/3$ for every
+vertex, and therefore
+$$
+\alpha_f(P_N)\ge\frac23N^2,
+$$
+whereas $N^{2/3}r_3(N)^{4/3}=o(N^2)$ by Roth.  An equivalent sufficient
+entropy target for uniform $(X,Y)$ on an independent
+$A\subseteq P_N$ is
+$$
+H(X,Y)\le\frac23\log N+\frac43\log r_3(N).
+$$
+The row/column entropy argument gives only
+$H(X,Y)\le\log N+\log r_3(N)$.  This is an audited theory/literature
+checkpoint, not a proof of the missing inequality or of Erdős 142; the
+product-literature synthesis is cited only generically, with no novelty
+claim.
+
 ## Dead ends and guardrails
 
 - Exhaustive and sampled tests suggested a target-wise union-reflection
