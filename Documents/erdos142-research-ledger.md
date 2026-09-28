@@ -534,6 +534,41 @@ $$
 This does not refute (C), (O), or Erdős 142: the construction uses a separate
 cutoff `M_d` and omits the `r(N)` factor.
 
+**Ordinary block obstruction for the unrandomized sphere cap.**  More
+generally, let $Q\ge5$, $2\le m<Q/2$, $L=Q^d$, and let
+
+$$
+B=\left\{\sum_{i=0}^{d-1}v_iQ^i:
+ 0\le v_i<m,\ \sum_i v_i^2=R\right\}
+$$
+
+be any nonempty base-$Q$ sphere cap.  Write $s=|B|$ and $\rho=s/L$.
+Fixing the first $d-1$ digits determines the remaining nonnegative digit at
+most uniquely, so $s\le m^{d-1}$ and in particular $\rho<1/Q$.
+Partition $[0,L)$ into its $Q$ consecutive top-digit blocks of length
+$\ell=Q^{d-1}$.  Only the first $m$ blocks meet $B$, and their intersection
+sizes sum to $s$.  Hence one ordinary interval $P$ of length $\ell$ obeys
+
+$$
+|B\cap P|\ge\frac{s}{m}
+ =\frac Qm\rho\ell
+ >2\rho\ell>\frac98\rho\ell.
+$$
+
+For every fixed $K\ge1$ this interval is above the RAI cutoff, because
+
+$$
+\frac{\rho^KL}{2}<\frac{L}{2Q}<\ell.
+$$
+
+Thus the standard sphere cap itself is not an ordinary-RAI counterexample,
+and a direct all-AP estimate from carry cells and sphere-line intersections
+cannot prove otherwise.  This obstruction is specifically ordinary: $P$ is
+a nonwrapping interval.  It does not obstruct first embedding the cap in a
+larger prime cyclic group and choosing a multiplier that spreads the top
+base-$Q$ blocks; any claim for that route still requires a uniform bound over
+all resulting ordinary APs.
+
 **Settled q=d two-cluster stress test for (C).** After taking `q=d` in the
 preceding construction, the same `B_d` gives a settled two-cluster stress
 test, not a counterexample. Let
