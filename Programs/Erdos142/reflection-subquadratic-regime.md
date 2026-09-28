@@ -3,10 +3,12 @@
 > **Status.** This note records a route closure for a restricted size regime,
 > not a proof of the universal reflection estimate or of Erdős 142.  The
 > finite universal mass/energy bounds used below are **kernel checked** in the
-> existing Lean development.  The averaged fiber-overlap theorem below is an
-> **independently audited accepted prose theorem**; its Lean formalization is
-> in progress and is not claimed here.  The asymptotic consequence, the
-> fixed-digit corollary, and the two-cluster consequence are accepted prose
+> existing Lean development.  The averaged fiber-overlap theorem is
+> **kernel-checked and campaign-accepted** at revision `212a2c2` (inherited from
+> `02f9ff2`), imported by `Proofs/Erdos.lean`; focused and full `Erdos` builds
+> passed, and its public endpoints audit to
+> `[propext, Classical.choice, Quot.sound]`.  The asymptotic consequence, the
+> fixed-digit corollary, and the two-cluster consequence remain accepted prose
 > deductions using this theorem; none is claimed as a Lean theorem.
 
 ## Setup and the exact sufficient condition

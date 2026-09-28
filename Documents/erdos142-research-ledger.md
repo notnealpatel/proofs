@@ -447,6 +447,42 @@ $M_0+m$; in high mass this is at least $m$, with equality at $m=K$, and it
 need not put $S$ below $M_0$.  A disproof needs an actual high-mass scalar cap.
 No novelty claim or issue was filed.
 
+**Mandatory row-pushforward audit (accepted prose, not Lean).** The independently
+audited scalar-realizability refinement isolates the mandatory $q=t=0$ block.
+For $B_y=\{x:x+Ny\in A\}$, it defines
+$\lambda_{y,x}=\sum_{a,c\in B_y}\delta_{a+c-2x}$ for each occupied midpoint.
+Scalar capness makes its zero atom exactly $\delta_0$, so the aggregate
+$\lambda=\sum_{y,x\in B_y}(\lambda_{y,x}-\delta_0)$ is nonnegative, has
+support in $[-2N+2,2N-2]\setminus\{0\}$ with no modulo-$Q$ alias, and has
+mass $T_3-m$.  The existing defect measure therefore splits as
+$\nu=\lambda+\eta$ with $|\eta|=QM_0-T_3$.  Writing
+$P_r=\sum_y\widehat\phi_y(r)^2\widehat\phi_y(-2r)$ gives
+$C_r=(P_r+\widehat\eta(r))/Q$ and the exact triangle inequality (B) in the
+Fourier note:
+$$
+S\le\frac{(Q-1)(QM_0-T_3)}Q+\frac1Q\sum_{r\ne0}|P_r|.
+$$
+This is an audited prose theorem, not a Lean artifact.  The ordinary-energy
+and cap-energy estimates give the valid upper bounds $S\le U_2$ and
+$S\le U_{\rm cap}$ recorded in the note.  In the high-mass range their exact
+subtractions from $\Theta=M_0+m-m^3/K^2$ are
+$$
+U_2-\Theta=(Q-2)(M_0-T_3/Q)+(A_2-T_3/Q)+(m^3/K^2-m),
+$$
+and
+$$
+U_{\rm cap}-\Theta=(Q-2)(M_0-T_3/Q)+(G-T_3/Q)+(m^3/K^2-m),
+$$
+with $U_2-\Theta\ge3A_2/4>0$ and
+$G-T_3/Q\ge(1/\sqrt2-1/4)A_2>0$.  This is a rigorous negative verdict on
+these two rowwise upper-bound routes: they remain above the target, so they
+cannot prove (*), but they are not counterexamples and do not show actual
+$S>\Theta$.  The exact (B) retains cancellation among the cross-row phases
+of $P_r$; the full identity also permits phase-sensitive coupling between
+$P_r$ and $\eta$ before absolute values are taken.  Mass, PSD, degree, and
+rowwise energy data lose that coupling.  Fixed-alphabet searches are closed
+and add no evidence to this lane.
+
 ### Cartesian-product stress test from maximum caps
 
 **Evidence: exact prose reduction independently audited, not Lean formalized.** Let
@@ -756,13 +792,22 @@ asymptotics for digit-set sizes are discarded.
 
 ### Reflection subquadratic regime
 
-**Kernel-checked inputs; independently audited accepted prose theorem.**  The
-finite universal bounds from the existing
-`Proofs/Erdos/Erdos142/ReflectionMassEnergy.lean` development are
-$E\le(m-1)M$ and
-$Q(m):=\lfloor(m-1)^2/4\rfloor\le M$.  The new note
-[`reflection-subquadratic-regime.md`](../Programs/Erdos142/reflection-subquadratic-regime.md)
-sets
+**Kernel-checked and campaign-accepted averaged-fiber theorem.** At accepted
+revision `212a2c2` (inherited from `02f9ff2`),
+`Proofs/Erdos/Erdos142/ReflectionFiberOverlap.lean` proves the pairwise
+fiber-overlap and averaged second-moment statements.  The relevant public
+endpoints are `reflectionMultiplicity_pair_le`,
+`two_mul_pred_card_le_reflectionMass`, and
+`two_mul_sum_sq_multiplicity_le`; the latter has the exact denominator-free
+form
+$$
+2\sum_{c\in[0,L)}\nu(c)^2
+ \le (m+\lfloor m/2\rfloor)M
+$$
+under $A\subseteq[0,L)$ scalar 3-AP-free and $m\ge9$.  Focused and full
+`Erdos` builds passed, and these public endpoints use only
+`[propext, Classical.choice, Quot.sound]`.  The following notation records
+its mathematical consequence:
 $$
 F_N=r_3(N)^{8/3}/N^{2/3}
 $$
@@ -812,8 +857,9 @@ $$
 M=(m-1)(m+2)/2,\qquad E=(m-1)(3m-2)/2.
 $$
 One fiber has $n_0=m-1$ and every other nonzero fiber is a singleton, so it
-refutes no averaged bound.  The Lean formalization of the averaged theorem is
-in progress and is not claimed here.
+refutes no averaged bound.  The averaged theorem is kernel checked and
+campaign-accepted; its subsequent Behrend and fixed-parameter transfers are
+accepted prose deductions, not Lean theorems.
 
 Uniform Behrend gives, for a suitable absolute $C'$, constant-$1$ verification
 of (O) throughout

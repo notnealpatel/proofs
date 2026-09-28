@@ -32,6 +32,57 @@ passed, with only `propext`, `Classical.choice`, and `Quot.sound`; static
 semantic review was **CLEAN**, and nonvacuous endpoint examples were checked.
 This pointwise cap alone does not prove (O), (C), or Erdős 142.
 
+**Kernel-checked ReflectionFiberOverlap result.** At accepted revision
+`212a2c2` (inherited from `02f9ff2`),
+`Proofs/Erdos/Erdos142/ReflectionFiberOverlap.lean` proves the averaged
+pairwise fiber-overlap theorem.  Its exact named endpoints include
+`two_mul_card_inter_centers_le`,
+`reflectionMultiplicity_pair_le`,
+`two_mul_pred_card_le_reflectionMass`,
+`two_mul_sum_sq_le_of_pairwise_sum_le`, and
+`two_mul_sum_sq_multiplicity_le`.  In particular, the public averaged endpoint
+has the exact signature
+```
+two_mul_sum_sq_multiplicity_le (A : Finset ℤ) (L : ℤ)
+    (hA : ∀ a ∈ A, 0 ≤ a ∧ a < L)
+    (hfree : ThreeAPFree (A : Set ℤ)) (hm : 9 ≤ A.card) :
+    2 * (∑ c ∈ Finset.Ico 0 L,
+        (reflectionMultiplicity A c) ^ 2)
+      ≤ (A.card + A.card / 2) * reflectionMass A L
+```
+The pairwise endpoint is
+```
+reflectionMultiplicity_pair_le (A : Finset ℤ) {c d : ℤ}
+    (hcd : c ≠ d) (hfree : ThreeAPFree (A : Set ℤ)) :
+    reflectionMultiplicity A c + reflectionMultiplicity A d
+      ≤ A.card + A.card / 2
+```
+and the mass input is
+```
+two_mul_pred_card_le_reflectionMass (A : Finset ℤ) (L : ℤ)
+    (hA : ∀ a ∈ A, 0 ≤ a ∧ a < L) (hm : 9 ≤ A.card) :
+    2 * (A.card - 1) ≤ reflectionMass A L
+```
+Writing $m=|A|$, $M=\mathrm{reflectionMass}(A,L)$, and
+$E=\sum_{c\in[0,L)}(\mathrm{reflectionMultiplicity}(A,c))^2$, the theorem gives
+for $m\ge9$ the accepted kernel-checked result
+\[
+ E\le \frac{m+\lfloor m/2\rfloor}{2}\,M.
+\]
+With
+\[
+ F_N=\frac{r(N)^{8/3}}{N^{2/3}},
+\]
+this expands the easy sufficient regime from $m\le F_N/4$ to
+$m\le F_N/3$ when $m>N\ge2$ and $m\ge9$.  Focused and full `Erdos`
+builds passed, and the public endpoints use only
+`[propext, Classical.choice, Quot.sound]`.  This theorem is now
+kernel-checked and campaign-accepted, not merely an audited prose result.
+It still gives no cross-row Fourier cancellation.
+
+**Closed search lane.** Fixed-alphabet searches are closed.  They are not
+being treated as evidence for (C), (O), or the Erdős 142 target; the remaining
+question is the general overlap estimate, not another fixed-alphabet search.
 ## 2. Informal finite mathematics (independently audited; not Lean formalized)
 
 Use the convention `[0,N²)={0,1,…,N²−1}`. Let `A ⊆ [0,N²)` be scalar 3-AP-free and write `m=|A|`. Let

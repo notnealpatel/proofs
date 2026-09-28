@@ -272,6 +272,297 @@ organization of the carry defects, but it does not prove the candidate (*):
 no useful upper bound for the defect collision energy
 $\sum_{u\ne0}\nu(u)^2$ is known.
 
+## 3A. Mandatory scalar-realizability row pushforward
+
+The carry expansion has a distinguished, mandatory block: the terms with
+$q=t=0$.  Keep $Q=4N$ and write the row fibers and their indicators as
+follows.  The following refinement is an independently audited prose
+calculation, not a Lean formalization.  Write
+
+$$
+ B_y=\{x\in[0,N):x+Ny\in A\},
+ \qquad
+ \phi_y=1_{B_y},
+ \qquad
+ d_y=|B_y|,
+ \qquad
+ m=\sum_y d_y,
+ \qquad
+ T_3=\sum_y d_y^3,
+ \qquad
+ A_2=\sum_y d_y^2.
+$$
+
+For self-containment, define the full visible defect counting measure on
+$\mathbb Z/Q\mathbb Z$ by
+
+$$
+ \mu(u)=\#\Bigl\{(t,y,q,x_0,x_1,x_2):
+ \begin{array}{l}
+ t\in\{-1,0,1\},\ y\in[0,N),\ q,x_0,x_1,x_2\in\mathbb Z,\\
+ \gamma_{N,t}(y,q)\phi_{y-q}(x_0)\phi_y(x_1)\phi_{y+q-t}(x_2)=1,\\
+ x_0+x_2-2x_1-tN\equiv u\pmod Q
+ \end{array}\Bigr\}.
+$$
+
+Write $u_0=x_0+x_2-2x_1-tN$ for a visible tuple.  Its zero-frequency
+Fourier expansion is
+
+$$
+ C_r=\frac1Q\widehat\mu(r),
+ \qquad
+ \widehat\mu(r)=\sum_{u\bmod Q}\mu(u)e_Q(-ru).
+$$
+
+The visible bounds give $|u_0|\le3N-2<Q$, so $u_0\equiv0\pmod Q$ implies
+$u_0=0$.  If $y_0=y-q$, $y_1=y$, and $y_2=y+q-t$, then
+$y_0+y_2-2y_1=-t$ and $u_0=0$ make the corresponding scalar triple a
+3-term progression.  Scalar capness forces it to be diagonal; uniqueness of
+base-$N$ digits then gives $q=t=0$ and
+$x_0=x_1=x_2$.  Conversely every element of $A$ supplies exactly one such
+visible diagonal tuple.  Hence
+
+$$
+ \mu(0)=m,\qquad |\mu|=QM_0.
+$$
+
+Define
+
+$$
+ \nu=\mu-m\delta_0.
+$$
+
+Then $\nu\ge0$, $\nu(0)=0$, and
+
+$$
+ C_r=\frac{m+\widehat\nu(r)}{Q},
+ \qquad |\nu|=QM_0-m.
+$$
+
+(The first identity is the displayed expansion of $C_r$ after removing the
+zero atom.)
+
+For an occupied
+midpoint $(x,y)$, so $x\in B_y$, define the integer defect measure
+
+$$
+ \lambda_{y,x}
+ =\sum_{a,c\in B_y}\delta_{a+c-2x}.
+$$
+
+Here $\delta_z$ denotes the unit point mass at $z$.  Its zero atom has mass
+exactly one.  Indeed, a pair with $a+c=2x$ gives the
+scalar progression
+$(a+Ny,x+Ny,c+Ny)$.  Scalar capness forces this progression to be diagonal,
+so $a=c=x$; the converse pair is present.  Therefore
+$\lambda_{y,x}-\delta_0\ge0$.
+
+Aggregate these row-pushforward defects as an integer measure by
+
+$$
+ \lambda=\sum_{y,x\in B_y}(\lambda_{y,x}-\delta_0).
+$$
+
+Thus $\lambda\ge0$.  Every defect $a+c-2x$ lies in
+$[-2N+2,2N-2]$, and the subtraction removes the zero atom.  The interval
+has diameter $4N-4<Q$, so its nonzero integer support embeds injectively in
+$\mathbb Z/Q\mathbb Z$ without alias.  Counting the mass at each occupied
+midpoint gives
+
+$$
+ |\lambda|=\sum_y d_y(d_y^2-1)=T_3-m.
+$$
+
+The $q=t=0$ nonzero block is exactly $\lambda$, so it is a submeasure of
+$\nu$.  Thus, after viewing $\lambda$ in $\mathbb Z/Q\mathbb Z$, there is an
+$\eta\ge0$ with
+
+$$
+ \nu=\lambda+\eta,
+ \qquad
+ |\eta|=(QM_0-m)-(T_3-m)=QM_0-T_3.
+$$
+
+The row-pushforward has exact transform
+
+$$
+ \widehat\lambda(r)
+ =\sum_y\widehat\phi_y(r)^2\widehat\phi_y(-2r)-m.
+$$
+
+Consequently, with
+
+$$
+ P_r=\sum_y\widehat\phi_y(r)^2\widehat\phi_y(-2r),
+$$
+
+and with $C_r=(m+\widehat\nu(r))/Q$ from the visible-measure expansion,
+
+$$
+ C_r=\frac{P_r+\widehat\eta(r)}{Q}.
+$$
+
+This gives the exact triangle estimate
+
+$$
+ S\le
+ \frac{(Q-1)(QM_0-T_3)}{Q}
+ +\frac1Q\sum_{r\ne0}|P_r|.
+ \tag{B}
+$$
+
+Indeed, $|\widehat\eta(r)|\le|\eta|$ for every $r$.  Thus (B) is the
+strongest immediate estimate from this decomposition when the cross-row
+phases in $P_r$ are retained but only the total mass of $\eta$ is used.
+
+There is a valid rowwise energy bound, but it does not recover the desired
+threshold.  For an ordinary integer set $B\subseteq[0,N)$, define
+
+$$
+ E_+(B)=|\{(a,b,c,d)\in B^4:a+b=c+d\}|.
+$$
+
+For $B=B_y$, the no-wraparound range
+$0\le a+b,c+d\le2N-2<Q$ gives
+
+$$
+ \sum_{r\bmod Q}|\widehat\phi_y(r)|^4=Q E_+(B_y).
+$$
+
+The map $r\mapsto-2r$ on $\mathbb Z/Q\mathbb Z$ is two-to-one onto the
+even residues.  Moreover, again without wraparound,
+
+$$
+ \sum_{s\text{ even}}|\widehat\phi_y(s)|^2
+ =2N d_y=\frac{Qd_y}{2},
+ \qquad
+ \sum_{r\bmod Q}|\widehat\phi_y(-2r)|^2=Qd_y.
+$$
+
+Here the first equality follows by writing $s=2k$, summing over
+$k\bmod 2N$, and observing that $|a-b|<N<2N$ makes $a-b\equiv0\pmod{2N}$
+iff $a=b$.  Cauchy--Schwarz therefore gives, with the factor two from the
+frequency map accounted for exactly,
+
+$$
+ \sum_{r\bmod Q}
+ |\widehat\phi_y(r)|^2|\widehat\phi_y(-2r)|
+ \le Q\sqrt{d_yE_+(B_y)}.
+$$
+
+Since $E_+(B_y)\le d_y^3$ (choose three entries; the fourth is determined
+if it exists), (B) implies the two valid bounds
+
+$$
+ U_E=\frac{(Q-1)(QM_0-T_3)}{Q}
+       +\sum_y\sqrt{d_yE_+(B_y)},
+ \qquad S\le U_E,
+$$
+
+$$
+ U_2=\frac{(Q-1)(QM_0-T_3)}{Q}+A_2,
+ \qquad S\le U_2.
+$$
+
+For the cap-specific sharpening, let $B$ be an ordinary cap of size $d$ and
+for $h>0$ put
+$r_B(h)=|B\cap(B-h)|$.  The fixed-$h$ edges form a matching: two adjacent
+edges would give the forbidden progression $z,z+h,z+2h$.  Hence
+$r_B(h)\le\lfloor d/2\rfloor$, while every unordered pair has one
+positive difference and therefore
+$\sum_{h>0}r_B(h)=\binom d2$.  The ordinary energy identity and this bound
+are
+
+$$
+ E_+(B)=d^2+2\sum_{h>0}r_B(h)^2
+ \le d^2+\lfloor d/2\rfloor d(d-1).
+$$
+
+Define
+
+$$
+ g(d)=d\sqrt{d+\lfloor d/2\rfloor(d-1)},
+ \qquad
+ U_{\rm cap}=\frac{(Q-1)(QM_0-T_3)}{Q}+\sum_y g(d_y).
+$$
+
+Then $S\le U_{\rm cap}$ is also valid.
+
+Every row $B_y$ of a scalar cap is an ordinary cap, so $d_y\le r=r_3(N)$.
+Here is the quantitative audit of what these bounds do in the candidate's
+high-mass range $N\ge3$, $m\ge K$.  With
+
+$$
+ \Theta=M_0+m-\frac{m^3}{K^2},
+ \qquad K=N^{2/3}r^{4/3},
+ \qquad r=r_3(N),
+$$
+
+we have
+
+$$
+ \frac{K}{r^2}=\left(\frac Nr\right)^{2/3}\ge1,
+ \qquad
+ \frac{m^3}{K^2}\ge m,
+ \qquad
+ M_0\ge\frac{T_3}{Q},
+ \qquad
+ T_3\le rA_2\le NA_2.
+$$
+
+The first inequality uses $r\le N$, the second uses $m\ge K$, the lower
+bound for $M_0$ is the $q=t=0$ contribution to (4), and the last one uses
+$d_y\le r\le N$.  Exact subtraction gives
+
+$$
+ U_2-\Theta
+ =(Q-2)\left(M_0-\frac{T_3}{Q}\right)
+  +\left(A_2-\frac{T_3}{Q}\right)
+  +\left(\frac{m^3}{K^2}-m\right),
+$$
+
+so, since $Q=4N$,
+
+$$
+ U_2-\Theta\ge\frac34A_2>0.
+$$
+
+Likewise, with $G=\sum_y g(d_y)$,
+
+$$
+ U_{\rm cap}-\Theta
+ =(Q-2)\left(M_0-\frac{T_3}{Q}\right)
+  +\left(G-\frac{T_3}{Q}\right)
+  +\left(\frac{m^3}{K^2}-m\right).
+$$
+
+For $d=0$ the claimed lower bound is immediate.  For $d\ge1$,
+$\lfloor d/2\rfloor\ge(d-1)/2$ and therefore
+$d+\lfloor d/2\rfloor(d-1)\ge(d^2+1)/2\ge d^2/2$.  Thus
+
+$$
+ g(d)\ge\frac{d^2}{\sqrt2}.
+$$
+
+Also $d_y^3/Q\le d_y^2/4$ for $d_y\le r\le N$.  Consequently
+
+$$
+ G-\frac{T_3}{Q}
+ \ge\left(\frac1{\sqrt2}-\frac14\right)A_2>0.
+$$
+
+These are upper bounds on $S$ that remain above $\Theta$: they cannot prove
+(*), but they are not counterexamples and do not show that the actual $S$ is
+larger than $\Theta$.  The exact bound (B) may still exploit cancellation
+among the cross-row phases in $P_r$.  In the full identity
+$C_r=(P_r+\widehat\eta(r))/Q$, a further phase-sensitive coupling between
+$P_r$ and $\eta$ is also available before taking absolute values.
+
+The missing scalar information is therefore phase-sensitive control of
+$\eta$ and its coupling to $P_r$, or a collision/$L^1$ estimate for the
+off-diagonal $(q,t)\ne(0,0)$ defect blocks.  Abstract PSD, mass, and degree
+constraints, as well as rowwise energy bounds, lose precisely this coupling.
+
 ## 4. The open high-mass candidate
 
 The phase-blind high-mass candidate is the following statement, proposed only
@@ -658,12 +949,14 @@ high-mass candidate remains open: this relation is not a scalar-cap
 counterexample, and the required mixed-fiber/carry exclusion has not yet been
 converted into a distributional estimate.
 
-The current facts establish only projection spread and near-cancellation of
-the signed nonzero sum.  Pair-energy, row/column degree, and related
-phase-blind estimates remain insufficient.  A proof of (*) must establish the
-exact deficit $m^3/K^2$ from the baseline $M_0+m$; in the high-mass range
-$m\ge K$ this is at least $m$, with equality at $m=K$, and it need not put
-$S$ below $M_0$.  A disproof
+The current facts include the exact visible-measure organization and the
+mandatory scalar-realizability split in §3A, as well as projection spread and
+near-cancellation of the signed nonzero sum.  Pair-energy, row/column degree,
+and related phase-blind estimates remain insufficient: the split yields only
+mass control for $\eta$, while the candidate needs the exact deficit
+$m^3/K^2$ from the baseline $M_0+m$.  In the high-mass range $m\ge K$ this
+is at least $m$, with equality at $m=K$, and it need not put $S$ below $M_0$.
+A disproof
 would require an actual high-mass scalar cap, either a finite exact example
 with the exact value of $r_3(N)$ or an infinite family.  Any successful
 phase-sensitive route must instead exploit a nontrivial distributional
