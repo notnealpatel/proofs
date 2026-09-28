@@ -1018,6 +1018,40 @@ sliding-window calculation: those rare images do have the asserted density
 increment, while the selected multiplier avoids every residual base-dense
 direction relevant to an ordinary target.
 
+**Independently audited variable-exponent strengthening.**  The proof is
+uniform in the exponent once its two displayed losses are retained.  For
+any integer-valued $K(N)\ge1$ satisfying
+$K(N)=o(\sqrt{\log N})$, the same choice of $p,\rho,\delta$ obeys
+
+$$
+\frac{p\delta^{K(N)+1}}{\log p}\longrightarrow\infty,
+\qquad
+\frac{\rho^{-2}\delta^{-3K(N)}}p\longrightarrow0.
+$$
+
+Indeed, with $\lambda=\log(1/\delta)$ and
+$\zeta=\log(1/\rho)$, the proved Behrend lower bounds give
+$\lambda,\zeta=O(\sqrt{\log N})$, while $\log p=2\log N+O(1)$.
+Thus $K(N)\lambda=o(\log N)$.  The exact direct criterion is
+
+$$
+\log p-(K(N)+1)\lambda-\log\log p\to+\infty,
+\qquad
+\log p-2\zeta-3K(N)\lambda\to+\infty.
+$$
+
+Also $\beta\to0$ gives
+$2\lceil\delta^{K(N)}p/2\rceil<p$ eventually.  Therefore, for each such
+function $K$, there is $N_0[K]$ such that a counterexample exists for every
+$N\ge N_0[K]$.  The threshold is pointwise in $K$: there is no common
+threshold for the whole little-$o$ class, whose functions can have
+arbitrarily late finite spikes.  If
+$L_0=\max\{C\sqrt2,2B\}$ is obtained from the carrier and Behrend bounds,
+then one threshold is uniform under the stronger envelope
+$K(N)\le c\sqrt{\log N}$ for any fixed $c<2/(3L_0)$.  The factor $3K$ in
+multiplier exclusion is the binding worst-case loss; the hypergeometric
+condition remains a separate requirement.
+
 The earlier stress tests remain informative but are no longer needed to
 decide RAI.  The carry-free digit product has only short obvious coordinate
 increments; the half-digit relation is not scalar-free; Green's rank-one

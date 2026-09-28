@@ -921,6 +921,73 @@ contradicts the conclusion of `RAI(K)`.  Hence:
 
 > **For every fixed integer $K\ge1$, ordinary `RAI(K)` is false.**
 
+The same calculation gives a scale-dependent strengthening.  Let
+$K:\mathbb N\to\mathbb Z_{\ge1}$ be any function satisfying
+
+$$
+K(N)=o(\!\sqrt{\log N}).\tag{36}
+$$
+
+The threshold below is allowed to depend on the whole function $K$.  With
+$p,\rho,m,\delta$ as in (35), put
+
+$$
+\lambda=\log(1/\delta),\qquad \zeta=\log(1/\rho).
+$$
+
+If $\beta\ge\exp(-B\sqrt{\log N})$ and
+$\rho\ge\exp(-C\sqrt{\log p})$, then the floor in (35) is harmless:
+$p\min\{\rho,\beta^2\}\to\infty$, and eventually
+
+$$
+\frac14\min\{\rho,\beta^2\}\le\delta
+ \le\frac12\min\{\rho,\beta^2\}.
+$$
+
+Consequently, for $L_0=\max\{C\sqrt2,2B\}$,
+
+$$
+\zeta=O(\sqrt{\log N}),\qquad
+\lambda\le L_0\sqrt{\log N}+O(1).\tag{37}
+$$
+
+The two quantitative hypotheses in (25) are exactly
+
+$$
+\begin{aligned}
+ \log p-(K(N)+1)\lambda-\log\log p&\longrightarrow+\infty,\\
+ \log p-2\zeta-3K(N)\lambda&\longrightarrow+\infty.
+\end{aligned}\tag{38}
+$$
+
+Since $\log p=2\log N+O(1)$, (36) and (37) make both left sides
+$2\log N-o(\log N)$.  Thus (38) holds along every sufficiently large
+integer scale, not merely on a subsequence.  Also $\beta\to0$ gives
+$\delta<1/2$ eventually, and for
+$r=\lceil\delta^{K(N)}p/2\rceil$,
+
+$$
+2r\le\delta^{K(N)}p+2\le\delta p+2<p.
+$$
+
+The Behrend lower bound gives $N\beta\to\infty$, so
+$p\ge N^2\ge16N/\beta$ eventually.  We have proved the independently
+audited strengthening:
+
+> **Variable-exponent counterfamily.**  For every integer-valued
+> $K(N)\ge1$ with $K(N)=o(\sqrt{\log N})$, there is a threshold $N_0[K]$
+> such that for every $N\ge N_0[K]$ there is an ordinary `RAI` counterexample
+> at an ambient length $p\in[N^2,2N^2]$, with exponent $K(N)$ and density
+> $0<\delta\le\beta^2/2$.  It is flat on every ordinary AP of length at
+> least $\lceil\delta^{K(N)}p/2\rceil$.
+
+There is no threshold uniform over the entire little-$o$ class: its members
+may have arbitrarily late finite spikes.  The direct, more general criterion
+is (38), together with $2r<p$.  In particular, one threshold is uniform for
+the envelope $K(N)\le c\sqrt{\log N}$ whenever
+$c<2/(3L_0)$; the multiplier-exclusion inequality, with its factor $3K$,
+is the binding worst-case requirement.
+
 This does not decide Erdős 142 or refute the previously proved conditional
 implication `RAI(K)` $\Rightarrow$ the eventual square-scale estimate; it
 shows that this proposed rank-one hypothesis cannot provide that route.
