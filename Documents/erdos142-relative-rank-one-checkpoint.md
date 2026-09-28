@@ -208,9 +208,9 @@ which contradicts the stopping condition and proves (3) conditionally.
 
 ## A proved nontrivial special case
 
-The full statement remains open, but its conclusion is provable when the
-rank-one Fourier obstruction has both a fixed-size coefficient and a
-fixed-power rational period.
+Before giving the counterfamily below, it is useful to record that the RAI
+conclusion does hold when the rank-one Fourier obstruction has both a
+fixed-size coefficient and a fixed-power rational period.
 
 **Rational rank-one proposition.**  Let $K\ge1$, let
 $P=\{a+vj:0\le j<L\}$ be a proper integer AP, and let $A\subseteq P$ have
@@ -591,10 +591,11 @@ Thus the unconditioned fourth-moment estimate fails even at the critical
 RAI length.  This still does not refute ordinary `RAI(K)`: the proof
 exhibits aligned images of probability $\Omega(\delta/p)$, while the entire
 $u=1$ orientation has probability $1/(p-1)=O(1/p)$, and every exhibited
-image actually has the asserted interval density increment.  What
-remains open is a simultaneous-flatness construction or a tail estimate
-after conditioning away the aligned directions.  Neither the critical-scale
-heavy tail nor the cyclic carrier decides ordinary `RAI(K)`.
+image actually has the asserted interval density increment.  At this stage
+the remaining issue is a simultaneous-flatness construction or a tail
+estimate after conditioning away the aligned directions.  The
+residual argument below supplies both by combining a variance bound for the
+set of base-dense directions with fixed-size random thinning.
 
 ### A proved ordinary-direction refinement
 
@@ -686,16 +687,239 @@ are exactly of the former, increment-producing kind.  A wrapped cyclic
 carrier need not be an ordinary AP, so it cannot by itself prove ordinary
 RAI; neither can it serve as an ordinary-RAI counterexample.
 
-After conditioning on $u\notin U_{\mathrm{al}}$, one still needs a
-simultaneous tail/correlation estimate over all translations, target
-positions, and the remaining directions $1\le d\le D$.  No such residual
-lemma is proved here.  In particular, the small multiplier fraction in
-(24) does not by itself control the maximum over ordinary target APs.  This
-refinement narrows, but neither proves nor disproves ordinary `RAI(K)`,
-Erdős 142, or the residual simultaneous lemma.  The unconditioned
-fourth-moment failure displayed above remains valid, since it deliberately
-includes the aligned terms; those terms produce density increments rather
-than a disproof of the ordinary statement.
+The residual lemma can in fact be closed after fixed-size random thinning.
+The useful bad-direction set depends on the actual carrier cap, rather than
+only on the short-direction set (22).
+
+#### Residual bad directions
+
+Let $C_0\subseteq\mathbb F_p$ be a modular 3-AP-free set of size
+$|C_0|=\rho p$.  Fix $0<\delta\le\rho$ with $m=\delta p\in\mathbb N$, and
+retain exactly $m$ points of $C_0$.  Put
+
+$$
+r=\left\lceil\frac{\delta^Kp}{2}\right\rceil,
+\qquad
+q_1=\frac{33}{32},\quad q_b=\frac{35}{32},\quad q=\frac98.
+$$
+
+Assume
+
+$$
+p\delta^{K+1}\gg\log p,
+\qquad
+\rho^{-2}\delta^{-3K}=o(p).\tag{25}
+$$
+
+These conditions imply $r\to\infty$, $\rho r\to\infty$, and $2r<p$ in the
+regime used below.
+
+There is a fixed finite multiplicative net
+$\mathcal G\subseteq[r,2r]\cap\mathbb N$ with the following property: for
+every integer $s\in[r,2r]$ there is $t\in\mathcal G$ such that $t\ge s$ and
+
+$$
+q_b s\ge q_1t.\tag{26}
+$$
+
+For example, start at $r$, increase successive integer lengths by a factor
+at most $34/33$ plus rounding, and end at $2r$.  The strict inequality
+
+$$
+\frac{q_b}{34/33}>q_1
+$$
+
+absorbs the rounding for large $r$, and $|\mathcal G|=O(1)$.
+
+For $t\in\mathcal G$, define
+
+$$
+X_{w,x,t}=|C_0\cap(x+w\{0,\ldots,t-1\})|
+$$
+
+and let
+
+$$
+W_t=\{w\in\mathbb F_p^\times:
+       X_{w,x,t}\ge q_1\rho t\text{ for some }x\in\mathbb F_p\}.
+$$
+
+Two-transitivity of the affine group gives the exact variance
+
+$$
+\mathbb E_{w\ne0,x}(X_{w,x,t}-\rho t)^2
+=t\rho(1-\rho)\frac{p-t}{p-1}.\tag{27}
+$$
+
+Write $\varepsilon=q_1-1=1/32$.  If $w\in W_t$ and $x$ is a witness, then
+shifting $x$ successively by $w$ changes the window count by at most one.
+For
+
+$$
+0\le j\le\left\lfloor\frac{\varepsilon\rho t}{2}\right\rfloor
+$$
+
+one therefore has
+
+$$
+X_{w,x+jw,t}-\rho t\ge\frac{\varepsilon\rho t}{2}.
+$$
+
+These starts are distinct.  Comparing their squared deviations with the
+total in (27) yields
+
+$$
+|W_t|\le
+\frac{8}{\varepsilon^3}\frac{p^2}{\rho^2t^2}.\tag{28}
+$$
+
+Consequently, for $W=\bigcup_{t\in\mathcal G}W_t$,
+
+$$
+|W|=O(\rho^{-2}\delta^{-2K}).\tag{29}
+$$
+
+The net makes this a uniform statement over all critical lengths.  If some
+$s\in[r,2r]$ and $x$ satisfied
+
+$$
+|C_0\cap(x+w\{0,\ldots,s-1\})|\ge q_b\rho s,
+$$
+
+extension to the $t$ supplied by (26) would put $w$ in $W_t$.  Hence every
+$w\notin W$ obeys the strict reverse inequality for every start and every
+$s\in[r,2r]$.
+
+#### Choosing the multiplier and thinning
+
+Let
+
+$$
+D=\left\lfloor\frac{p-1}{r-1}\right\rfloor=O(\delta^{-K})
+$$
+
+and exclude the multipliers
+
+$$
+\mathcal U=\{dw^{-1}:1\le d\le D,\ w\in W\}.
+$$
+
+Equations (25) and (29) give
+
+$$
+|\mathcal U|\le D|W|
+=O(\rho^{-2}\delta^{-3K})=o(p).\tag{30}
+$$
+
+Choose $u\in\mathbb F_p^\times\setminus\mathcal U$.  If an ordinary target
+AP has length $s\in[r,2r]$ and positive difference $d$, then $d\le D$ and
+its pullback under multiplication by $u$ is a modular window of direction
+$w=u^{-1}d\notin W$.  It therefore contains fewer than $q_b\rho s$ points
+of $C_0$.
+
+Now choose $C$ uniformly among the $m=\delta p$ element subsets of $C_0$.
+For each fixed target AP $P$ of length $s\in[r,2r]$, the random variable
+$|uC\cap P|$ is hypergeometric and has mean less than $q_b\delta s$.
+Monotonicity in the number of marked population points and the standard
+Chernoff bound for sampling without replacement give an absolute $c>0$
+such that
+
+$$
+\Pr\bigl(|uC\cap P|\ge q\delta s\bigr)
+\le\exp(-c\delta s).\tag{31}
+$$
+
+There are $O(p^2)$ ordinary APs with lengths in $[r,2r]$: for each of the
+at most $r+1$ lengths, there are at most $p$ starts and $O(p/r)$ possible
+differences.  By (25), the union of the events in (31) has probability
+
+$$
+O(p^2\exp(-c\delta r))=o(1).\tag{32}
+$$
+
+Thus some fixed $m$-subset $C\subseteq C_0$ satisfies
+
+$$
+|uC\cap P|<\frac98\delta|P|
+$$
+
+for every ordinary AP $P$ of length in $[r,2r]$.  Every ordinary AP of
+length $L\ge r$ can be partitioned into consecutive blocks whose lengths
+lie in $[r,2r]$: take $\lfloor L/r\rfloor$ blocks and distribute the
+remainder among them.  A density at least $9\delta/8$ on the whole AP would
+force that density on one block.  Hence the same strict upper bound holds
+for every ordinary AP of length at least $r$.
+
+Fixed-size thinning preserves modular 3-AP-freeness.  We have therefore
+proved the following.
+
+> **Affine-flat thinning theorem.**  Under (25), every modular cap $C_0$ of
+> density $\rho$ has an $m$-point subset $C$ and a multiplier $u$ such that
+> the standard representatives of $uC$ have density less than $9\delta/8$
+> on every ordinary AP of length at least
+> $\lceil\delta^Kp/2\rceil$.
+
+For power-law parameters $\rho=p^{-b+o(1)}$ and
+$\delta=p^{-a+o(1)}$, sufficient exponent conditions are
+
+$$
+a(K+1)<1,
+\qquad
+2b+3Ka<1,
+\qquad a\ge b.\tag{33}
+$$
+
+Equivalently, with thinning ratio $\theta=\delta/\rho$, (25) reads
+
+$$
+p(\theta\rho)^{K+1}\gg\log p,
+\qquad
+\theta^{-3K}\rho^{-(3K+2)}=o(p).\tag{34}
+$$
+
+In particular, all conditions hold when both $\rho$ and $\delta$ are
+$p^{-o(1)}$ and $K$ is fixed.
+
+#### Consequence for ordinary `RAI(K)`
+
+This produces a counterfamily to `RAI(K)`.  For each sufficiently large
+$N$, write $\beta=r_3(N)/N$ and choose a prime
+$p\in[N^2,2N^2]$.  Put an interval-supported Behrend cap $C_0$ in
+$\mathbb F_p$, with density
+$\rho\ge\exp(-C\sqrt{\log p})$, and choose
+
+$$
+m=\left\lfloor\frac p2\min\{\rho,\beta^2\}\right\rfloor,
+\qquad \delta=\frac mp.\tag{35}
+$$
+
+The Behrend lower bounds for both $C_0$ and $r_3(N)$ imply
+$\rho,\delta=p^{-o(1)}$.  Thus (25) holds for every fixed $K$.
+The theorem supplies a modular cap $C\subseteq C_0$ and a multiplier $u$
+whose standard representative $A=uC\subseteq[0,p)$ is ordinary
+3-AP-free and has no density increment of factor $9/8$ on any ordinary AP
+of length at least $\delta^Kp/2$.  Moreover,
+
+$$
+0<\delta\le\frac12\beta^2\le\frac98\beta,
+\qquad
+p\ge\frac{16N}{\beta}
+$$
+
+for all sufficiently large $N$; the second inequality follows from
+$N\beta=r_3(N)\to\infty$.  Taking the ambient progression to be $[0,p)$
+contradicts the conclusion of `RAI(K)`.  Hence:
+
+> **For every fixed integer $K\ge1$, ordinary `RAI(K)` is false.**
+
+This does not decide Erdős 142 or refute the previously proved conditional
+implication `RAI(K)` $\Rightarrow$ the eventual square-scale estimate; it
+shows that this proposed rank-one hypothesis cannot provide that route.
+The distinction between aligned and flat images is essential.  The same
+thinned cap $C$, before applying the selected multiplier, still has the
+sliding-window increments proved above for carrier-aligned translations.
+Those rare images satisfy the RAI conclusion; the multiplier chosen outside
+$\mathcal U$ produces the counterexample.
 
 ## Attempts to prove or refute (RAI)
 
