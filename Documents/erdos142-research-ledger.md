@@ -654,6 +654,41 @@ $(C_k+P_k)\cup(C_k+2P_k)$ has size $2\cdot72^k$ when disjoint, not
 $144^k$; for $k>1$ it is not the dense scalable family. Unsupported
 asymptotics for digit-set sizes are discarded.
 
+### Reflection subquadratic regime
+
+**Kernel-checked inputs; accepted prose route closure pending this new review.**
+The finite universal bounds from the existing
+`Proofs/Erdos/Erdos142/ReflectionMassEnergy.lean` development are
+$E\le(m-1)M$ and
+$Q(m):=\lfloor(m-1)^2/4\rfloor\le M$.  The new note
+[`reflection-subquadratic-regime.md`](../Programs/Erdos142/reflection-subquadratic-regime.md)
+sets
+$$
+F_N=r_3(N)^{8/3}/N^{2/3}
+$$
+and records the exact sufficient condition
+$$
+F_NQ(m)\ge(m-1)(m-N)^2
+$$
+for (O).  For $N\ge2$, $4Q(m)\ge(m-N)^2$, so the convenient condition
+$m\le F_N/4$ suffices.  Uniform Behrend gives, for a suitable absolute
+$C'$, constant-$1$ verification of (O) throughout
+$$
+N<m\le\frac14N^2\exp(-C'\sqrt{\log N})
+$$
+for all large $N$.
+
+The note gives the reviewed fixed-digit consequence: every fixed
+$(b,E_1,E_2)$ carry-free alternating digit family with
+$2\max(E_i)<b$ and $|E_1||E_2|>b$ is eventually in this regime, since
+$|E_1||E_2|<b^2$.  It also applies the same criterion to the previously
+recorded $q=d$, $Q=4d$ digit-sphere/two-cluster stress family, proving (O),
+not merely (C), there.  These are **accepted prose deductions pending this
+new review**, not Lean theorems.  The fixed-parameter conclusion does not
+cover variable alphabets or digit sets, and none of this proves general (O)
+or Erdős 142.  The exact $b=128$ transfer artifact below remains separate
+and is stronger for that one family because it verifies (O) for every $k$.
+
 ### Exact $b=128$ reflection transfer
 
 **Accepted prose deduction plus exact finite computation.** The adopted artifact
