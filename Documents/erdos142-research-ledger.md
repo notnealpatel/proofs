@@ -582,7 +582,70 @@ passed with only `propext`, `Classical.choice`, and `Quot.sound`; static
 semantic review was **CLEAN**, with nonvacuous endpoint examples. This
 pointwise cap alone does not prove (O), (C), or Erdős 142.
 
-**Informal finite mathematics, independently audited but not Lean formalized.** For scalar-free `A⊂[0,N²)` with `m=|A|`, the target-wise union of valid carry cases is exactly the in-range nontrivial reflection shadow `S(A)`, so `|S(A)|≤N²−m`; median reflection gives `|S(A)|≥floor((m−1)/2)`. With in-range representation multiplicities `ν(c)=#{(a,b)∈A²:a≠b:2a−b=c}`, `M=Σν`, `E=Σν²`, and `r_A(d)=|{x∈A:x+d∈A}|`, the informal collision count gives `E≤M+Σ_{d≠0}r_A(d)r_A(2d)≤Σ_d r_A(d)r_A(2d)`. The formal fixed-difference theorem is exactly `r_A(d)≤floor(m/2)` for `d≠0`, but using it naively is far too weak. The formal module does **not** contain the carry-union identity, median bound, mass/energy identities, or candidate below.
+**Informal finite mathematics, independently audited but not Lean formalized.** For scalar-free `A⊂[0,N²)` with `m=|A|`, the target-wise union of valid carry cases is exactly the in-range nontrivial reflection shadow `S(A)`, so `|S(A)|≤N²−m`; median reflection gives `|S(A)|≥floor((m−1)/2)`. With in-range representation multiplicities `ν(c)=#{(a,b)∈A²:a≠b:2a−b=c}`, $M=\sum_{c\in[0,N^2)}\nu(c)$, $E_{\mathrm{in}}=\sum_{c\in[0,N^2)}\nu(c)^2$, and `r_A(d)=|{x∈A:x+d∈A}|`, the audited collision count gives only
+$$
+E_{\mathrm{in}}\le M+\sum_{d\ne0}r_A(d)r_A(2d).
+$$
+The ordinary-energy checkpoint below identifies the sum with `D` and gives the safe consequence `E_in≤M+Λ(A)−m²`; it does not identify the in-range energy with the full mixed energy. The formal fixed-difference theorem is exactly `r_A(d)≤floor(m/2)` for `d≠0`, but using it naively is far too weak. The formal module does **not** contain the carry-union identity, median bound, mass/energy identities, or candidate below.
+
+### Generic ordinary-additive-energy supersaturation route: closed at the required $4/3$ exponent
+
+**Accepted prose deduction; route closed at the required exponent.** Let `A⊂ℤ` be a finite scalar ordinary 3-AP-free set of size `m`. In this checkpoint, `D` denotes the dyadic correlation below, not the ledger's earlier scale statistic `D(N)`. Define
+$$
+r_A(d)=\#\{(a,b)\in A^2:a-b=d\},\qquad
+\Lambda(A)=\sum_d r_A(d)^2,
+$$
+and the nonzero dyadic correlation and full mixed energy
+$$
+D=\sum_{d\ne0}r_A(d)r_A(2d),\qquad
+D_0=\sum_d r_A(d)r_A(2d)=D+m^2=E_+(A,2A).
+$$
+Here `E_+(A,2A)` is mixed energy between `A` and `2A`, **not** `E_+(A+2A)`. Since `2xy≤x²+y²` and `d↦2d` is injective on `ℤ`,
+$$
+D\le\Lambda(A)-m^2,\qquad D_0\le\Lambda(A).
+$$
+Thus the already-recorded reflection estimate is used only in the safe direction
+$$
+E_{\mathrm{in}}\le M+D\le M+\Lambda(A)-m^2;
+$$
+this does not conflate the full mixed energy with the in-range reflection energy.
+
+Pohoata--Roche-Newton, arXiv:1905.08457, Theorem 6.1, gives absolute constants `C,c>0` such that `Λ(A)≥δm³` implies at least
+$$
+\exp(-C\delta^{-c})m^2
+$$
+ordered 3-APs. A cap has only `m` trivial ordered progressions. Taking
+$$
+\delta=\left(\frac{2C}{\log m}\right)^{1/c}
+$$
+for large `m` would force at least `m^{3/2}` progressions, a contradiction. Hence, uniformly for ordinary caps,
+$$
+\Lambda(A)\ll (\log m)^{-1/c}m^3.
+$$
+This is an energy-to-progression supersaturation consequence, not a generic inverse theorem; the source does not give a numeric value of `c`.
+
+Quantitatively, put
+$$
+\alpha=\frac{r_3(N)}N,\qquad \lambda=\log(1/\alpha).
+$$
+Around the critical candidate size `m≈α^{4/3}N²`, the reflection criterion needs a normalized coefficient of order at most
+$$
+\alpha^{4/3}=\exp(-4\lambda/3),
+$$
+whereas the PRN deduction certifies only the polylogarithmic coefficient
+$$
+(\log m)^{-1/c}=\exp(-O(\log\log N)).
+$$
+Indeed, the candidate size gives
+$$
+\log m=2\log N-\frac43\lambda+O(1)\sim2\log N,
+$$
+where the final equivalence uses the Behrend bound $\lambda=O(\sqrt{\log N})$. Bloom--Sisask, arXiv:2309.02353, Theorem 1.1 gives
+$\lambda\gtrsim(\log N)^{1/9}$, so the required coefficient is at most
+$$
+\exp\bigl(-\Omega((\log N)^{1/9})\bigr),
+$$
+asymptotically much smaller than the available polylogarithmic coefficient. This is only a barrier to what this generic bound certifies: it neither proves that the actual dyadic or in-range energy is large nor refutes the reflection conjecture or Erdős 142. Reaching the missing scale through this route would require a polynomial-in-`δ` progression count, rather than `exp(−Cδ^{−c})`.
 
 ### Popular-positive-difference shortcut: scalable obstruction
 
