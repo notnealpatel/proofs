@@ -1182,29 +1182,36 @@ claim.
 
 ### Audited fiber-preserving rank-two reduction
 
-**Conditional; the structural estimate is open.**  Put
+**Conditional; the structural estimate is open and no square bound is
+established here.**  Put
 $\beta=r_3(N)/N$, $q=9/8$, $h=\log q$, and
 $\lambda=\log(1/\beta)$.  For an ordinary AP
 $J\subset[0,N)$ of length $M$, the slab
 $G(J)=[0,N)\times J$ is a contained proper rank-two GAP in $\mathbb Z^2$.
-The minimal fiber-preserving increment tested here is
+A scalar cap $A\subseteq[0,N^2)$ initializes this carrier exactly: the unique
+digit map $a=Nx+y$ gives a $P_N$-independent $S\subseteq[0,N)^2$, and
+$G([0,N))=[0,N)^2$ is the disjoint union of $N$ proper $N$-term coordinate
+rows.  No exceptional points occur.  The minimal fiber-preserving increment
+tested here fixes $\kappa,\gamma>0$, uses the explicit floor
+$\Phi(N,\delta)=N^\gamma$, and states
 
 $$
 \begin{gathered}
 S\text{ independent in }P_N,\quad
-M\ge N^\gamma,\quad
+M\ge\Phi(N,\delta)=N^\gamma,\quad
 \delta=\frac{|S\cap G(J)|}{NM}\in[\beta^{4/3},\beta]\\
 \Longrightarrow\quad
-\exists J'\subseteq J:\quad
-|J'|\ge\left\lceil\frac12\delta^\kappa M\right\rceil,
+\exists J'\subseteq J,\quad M'=|J'|\in\mathbb Z_{\ge1}:\quad
+M'\ge\left\lceil\frac12\delta^\kappa M\right\rceil,
 \qquad
 \operatorname{dens}_{G(J')}(S)\ge\frac98\delta .
 \end{gathered}\tag{PR2I}
 $$
 
-Here $J'$ is an ordinary sub-AP and $\kappa,\gamma>0$ are fixed.  Cyclic
-containment is insufficient.  Every full fiber has at most $r_3(N)$ points,
-so every slab has density at most $\beta$.
+Here $J'$ is an ordinary sub-AP and the conclusion is the exact slab
+$G(J')$, so its $M'$ disjoint proper $N$-term rows are preserved pointwise.
+Cyclic containment is insufficient.  Every full fiber has at most $r_3(N)$
+points, so every exact slab has density at most $\beta$.
 
 Starting at density greater than $\beta^{4/3}$, (PR2I) needs at most
 
@@ -1225,13 +1232,18 @@ $$
 \gamma+\frac{7\kappa B^2}{18h}<1
 $$
 
-makes every step legal and conditionally proves
+makes every step legal and, **if (PR2I were proved)**, would give
 
 $$
-\alpha(P_N)\le N^{2/3}r_3(N)^{4/3},
+\alpha(P_N)\le N^{2/3}r_3(N)^{4/3}.
 $$
 
-hence the scalar square bound without an additive $N$.  The factor $7/18$
+This is not a presently available bound.  The exact-row formulation has no
+exceptional $N$ points and hence no additive $+N$ loss.  If up to $N$
+exceptional points were allowed, the terminal cap would instead be
+$\beta+1/M'$; density merely greater than $\beta$ would not contradict it,
+so the same iteration would fail without an additional terminal margin.
+The factor $7/18$
 uses the intermediate gains $q^i$ rather than freezing the starting density.
 The scalar/product direction is only $r_3(N^2)\le\alpha(P_N)$: carry modes
 $(1,-N)$ and $(-1,N)$ prevent an equivalence.

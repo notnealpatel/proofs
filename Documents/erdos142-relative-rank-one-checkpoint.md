@@ -1172,6 +1172,20 @@ $$
 not equality.  Every horizontal and vertical fiber of an independent set is
 an ordinary 3-AP-free subset of $[0,N)$ and therefore has at most $r$ points.
 
+The initialization used below is exact.  If
+$A\subseteq[0,N^2)$ is scalar 3-AP-free, write each $a\in A$ uniquely as
+$a=Nx+y$ with $(x,y)\in[0,N)^2$ and let $S$ be the resulting digit image.
+The no-carry calculation above proves that $S$ is $\mathcal P_N$-independent.
+The initial carrier is exactly
+
+$$
+G([0,N))=[0,N)\times[0,N),
+$$
+
+a proper rank-two GAP in $\mathbb Z^2$.  It is the disjoint union of $N$
+full ordinary coordinate fibers, each with exactly $N$ vertices.  There is
+no exceptional set in this initialization.
+
 For an ordinary progression
 
 $$
@@ -1183,27 +1197,36 @@ $\mathbb Z^2$, with generators $(1,0)$ and $(0,d)$.  Cyclic progressions are
 not allowed.  The exact unresolved input is the following.
 
 **Product rank-two increment $\operatorname{PR2I}(\kappa,\gamma)$.**  Fix
-$\kappa>0$ and $\gamma>0$.  Uniformly for all sufficiently large $N$, every
-$\mathcal P_N$-independent $S$ and every such $J$ with $M\ge N^\gamma$ and
+$\kappa>0$ and $\gamma>0$, and define the explicit applicability floor
+
+$$
+\Phi(N,\delta)=N^\gamma.
+$$
+
+Uniformly for all sufficiently large $N$, every
+$\mathcal P_N$-independent $S$ and every such $J$ with
+$M\ge\Phi(N,\delta)$ and
 
 $$
 \delta=\frac{|S\cap G(J)|}{NM}\in[\beta^{4/3},\beta]
 $$
 
-admit an ordinary subprogression $J'\subseteq J$ such that
+admit an ordinary subprogression $J'\subseteq J$ of integer width
+$M'=|J'|\ge1$ such that
 
 $$
-|J'|\ge\left\lceil\frac12\delta^\kappa M\right\rceil,
+M'\ge\left\lceil\frac12\delta^\kappa M\right\rceil,
 \qquad
-\frac{|S\cap G(J')|}{N|J'|}\ge q\delta.\tag{39}
+\frac{|S\cap G(J')|}{NM'}\ge q\delta.\tag{39}
 $$
 
-The full first coordinate is deliberately retained.  It makes every
-$G(J')$ a disjoint union of ordinary full fibers and gives the exact terminal
-bound
+The full first coordinate is deliberately retained pointwise: the conclusion
+is the exact slab $G(J')$, not a slab plus or minus exceptional vertices.
+It makes every $G(J')$ a disjoint union of $M'$ ordinary full fibers and
+gives the exact terminal bound
 
 $$
-|S\cap G(J')|\le |J'|r,
+|S\cap G(J')|\le M'r,
 \qquad \operatorname{dens}_{G(J')}(S)\le\beta.\tag{40}
 $$
 
@@ -1214,7 +1237,10 @@ mixed aligned triples, with both coordinate differences nonzero.  In
 particular, neither fractional chromatic number nor the basic edge LP can
 supply (39); the latter already admits the uniform assignment $2/3$.
 
-### Conditional implication and complete width loss
+### Corrected conditional reduction and complete width loss
+
+The following is only a logical reduction under the unproved statement
+(PR2I), not an established implication from currently available theorems.
 
 Assume the Behrend lower bound is written
 
@@ -1283,9 +1309,17 @@ $$
 \limsup_{N\to\infty}\frac{\lambda(N)^2}{\log N}.
 $$
 
-The strict inequality absorbs the $O(\lambda)$ and ceiling losses.  Combining
-(42) with $r_3(N^2)\le\alpha(\mathcal P_N)$ proves the requested scalar bound,
-in fact without the extra additive $N$.
+The strict inequality absorbs the $O(\lambda)$ and ceiling losses.  The exact
+initialization above and the pointwise slab conclusion in (39) are essential.
+If instead up to $N$ exceptional points were retained, the terminal estimate
+would only be $\beta+1/M'$; merely reaching a density strictly above $\beta$
+would not be a contradiction.  This argument therefore supplies no
+exceptional-$N$ variant and incurs no additive $+N$ term.
+
+Under the explicit hypothesis (PR2I), combining
+(42) with $r_3(N^2)\le\alpha(\mathcal P_N)$ would give the requested scalar
+bound, in fact without the extra additive $N$.  Since (PR2I) is open, neither
+(42) nor the scalar bound is established here.
 
 ### Affine-flat test
 
