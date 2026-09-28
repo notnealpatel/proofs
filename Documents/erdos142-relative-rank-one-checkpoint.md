@@ -921,81 +921,128 @@ contradicts the conclusion of `RAI(K)`.  Hence:
 
 > **For every fixed integer $K\ge1$, ordinary `RAI(K)` is false.**
 
-The same calculation gives a scale-dependent strengthening.  Let
-$K:\mathbb N\to\mathbb Z_{\ge1}$ be any function satisfying
+## Scale-dependent extension (independently prose-audited; not Lean formalized)
+
+The fixed-$K$ affine-flat proof above is uniform once its two losses are
+kept, so it also gives the following externally specified scale-dependent
+statement.  This uses the proof and the (25) equations above, including the
+multiplier estimate (29)--(30) and the thinning estimate (31)--(32); the
+$[r,2r]$ block reduction there handles every longer ordinary AP.
+
+For each sufficiently large $N$, choose a prime
+$p\in[N^2,2N^2]$, put
+$\beta=r_3(N)/N$, and choose an interval-supported modular 3-AP-free
+carrier $C_0\subseteq\mathbb F_p$ of density
+$\rho=|C_0|/p$.  Set
 
 $$
-K(N)=o(\!\sqrt{\log N}).\tag{36}
+\alpha=\min\{\rho,\beta^2\},\qquad
+\delta=p^{-1}\left\lfloor\frac{p\alpha}{2}\right\rfloor,
+\qquad r_K=\left\lceil\frac{\delta^Kp}{2}\right\rceil.
 $$
 
-The threshold below is allowed to depend on the whole function $K$.  With
-$p,\rho,m,\delta$ as in (35), put
+Here $K=K(N)$ is an externally specified integer-valued function.  The
+existing affine-flat argument has absolute constants and is uniform in this
+parameter provided, eventually,
 
 $$
-\lambda=\log(1/\delta),\qquad \zeta=\log(1/\rho).
+\tag{E1}\rho^{-2}\delta^{-3K}=o(p),
 $$
 
-If $\beta\ge\exp(-B\sqrt{\log N})$ and
-$\rho\ge\exp(-C\sqrt{\log p})$, then the floor in (35) is harmless:
-$p\min\{\rho,\beta^2\}\to\infty$, and eventually
-
 $$
-\frac14\min\{\rho,\beta^2\}\le\delta
- \le\frac12\min\{\rho,\beta^2\}.
+\tag{E2}\frac{p\,\delta^{K+1}}{\log p}\longrightarrow\infty,
 $$
 
-Consequently, for $L_0=\max\{C\sqrt2,2B\}$,
+and
 
 $$
-\zeta=O(\sqrt{\log N}),\qquad
-\lambda\le L_0\sqrt{\log N}+O(1).\tag{37}
+\tag{E3}2\left\lceil\frac{\delta^Kp}{2}\right\rceil<p.
 $$
 
-The two quantitative hypotheses in (25) are exactly
+Under (E1)--(E3), an affine-thinned subset $C\subseteq C_0$ of size
+$\delta p$ and a multiplier $u\in\mathbb F_p^\times$ can be chosen so that
+the standard representative $A=uC\subseteq[0,p)$ is ordinary 3-AP-free and
 
 $$
-\begin{aligned}
- \log p-(K(N)+1)\lambda-\log\log p&\longrightarrow+\infty,\\
- \log p-2\zeta-3K(N)\lambda&\longrightarrow+\infty.
-\end{aligned}\tag{38}
+\frac{|A\cap Q|}{|Q|}<\frac98\delta
 $$
 
-Since $\log p=2\log N+O(1)$, (36) and (37) make both left sides
-$2\log N-o(\log N)$.  Thus (38) holds along every sufficiently large
-integer scale, not merely on a subsequence.  Also $\beta\to0$ gives
-$\delta<1/2$ eventually, and for
-$r=\lceil\delta^{K(N)}p/2\rceil$,
+for every ordinary AP $Q\subseteq[0,p)$ of length at least $r_K$.  All
+constants in the net, variance, Chernoff, and union-bound steps are absolute
+and independent of $N$ and $K$.  The already established block reduction from
+lengths in $[r_K,2r_K]$ to all longer APs is part of this statement.
+
+For the exact logarithmic bookkeeping, put
 
 $$
-2r\le\delta^{K(N)}p+2\le\delta p+2<p.
+T=\log p,\qquad \lambda=\log(1/\delta),\qquad
+\eta_0=\log(1/\rho).
 $$
 
-The Behrend lower bound gives $N\beta\to\infty$, so
-$p\ge N^2\ge16N/\beta$ eventually.  We have proved the independently
-audited strengthening:
+Then (E1) is exactly
 
-> **Variable-exponent counterfamily.**  For every integer-valued
-> $K(N)\ge1$ with $K(N)=o(\sqrt{\log N})$, there is a threshold $N_0[K]$
-> such that for every $N\ge N_0[K]$ there is an ordinary `RAI` counterexample
-> at an ambient length $p\in[N^2,2N^2]$, with exponent $K(N)$ and density
-> $0<\delta\le\beta^2/2$.  It is flat on every ordinary AP of length at
-> least $\lceil\delta^{K(N)}p/2\rceil$.
+$$
+2\eta_0+3K\lambda-T\longrightarrow-\infty.
+$$
 
-There is no threshold uniform over the entire little-$o$ class: its members
-may have arbitrarily late finite spikes.  The direct, more general criterion
-is (38), together with $2r<p$.  In particular, one threshold is uniform for
-the envelope $K(N)\le c\sqrt{\log N}$ whenever
-$c<2/(3L_0)$; the multiplier-exclusion inequality, with its factor $3K$,
-is the binding worst-case requirement.
+The condition $2\eta_0+3K\lambda=o(T)$ is a convenient sufficient
+condition for (E1), not an equivalent reformulation.  Likewise, (E2) is
+equivalent to
 
-This does not decide Erdős 142 or refute the previously proved conditional
-implication `RAI(K)` $\Rightarrow$ the eventual square-scale estimate; it
-shows that this proposed rank-one hypothesis cannot provide that route.
-The distinction between aligned and flat images is essential.  The same
-thinned cap $C$, before applying the selected multiplier, still has the
-sliding-window increments proved above for carrier-aligned translations.
-Those rare images satisfy the RAI conclusion; the multiplier chosen outside
-$\mathcal U$ produces the counterexample.
+$$
+T-(K+1)\lambda-\log T\longrightarrow+\infty,
+$$
+
+while (E3) is a separate integer inequality and has no logarithmic
+replacement here.
+
+The carrier and Behrend bounds may be taken with absolute constants
+$C,B>0$ as
+
+$$
+\rho\ge\exp(-C\sqrt T),\qquad
+\beta\ge\exp(-B\sqrt{\log N}).
+$$
+
+Since $p\asymp N^2$, one has $p\alpha\to\infty$ and hence the floor
+bounds
+
+$$
+\frac\alpha4\le\delta\le\frac\alpha2
+$$
+
+eventually.  In particular, $\lambda,\eta_0=O(\sqrt T)$.  Thus every
+externally specified integer-valued $K(N)\ge1$ eventually with
+$K(N)=o(\sqrt{\log N})$ satisfies (E1)--(E3): the convenient sufficient
+condition gives (E1), and the exact logarithmic form of (E2) is
+$T-o(T)\to+\infty$.  For (E3), use $\delta\to0$ and $K\ge1$ to get
+
+$$
+2r_K\le\delta^Kp+2\le\delta p+2<p
+$$
+
+eventually.  The parameter checks needed for the relative-rank-one setup are
+also immediate:
+
+$$
+\delta\le\frac12\beta^2\le\frac98\beta,
+\qquad
+p\ge N^2\ge\frac{16N}{\beta}
+$$
+
+eventually, since $N\beta=r_3(N)\to\infty$.
+
+If the externally specified exponent is only nonnegative, use
+$\overline K(N)=\max\{K(N),1\}$ in the construction.  For $\delta<1$,
+$\delta^{\overline K}\le\delta^K$, so flatness above the smaller
+threshold $\lceil\delta^{\overline K}p/2\rceil$ implies flatness above the
+$K$-threshold.  This device does not assert (E3) with $K=0$.
+
+**Evidence note.** The preceding extension is independently prose-audited and
+not Lean formalized.  It refutes the corresponding scale-dependent
+$\operatorname{RAI}(K(N))$ for every $K(N)=o(\sqrt{\log N})$ (with the
+nonnegative case handled by $\overline K$), but it does not refute Erdős
+142.
 
 ## Attempts to prove or refute (RAI)
 

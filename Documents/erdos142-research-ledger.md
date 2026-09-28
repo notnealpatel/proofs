@@ -1018,39 +1018,111 @@ sliding-window calculation: those rare images do have the asserted density
 increment, while the selected multiplier avoids every residual base-dense
 direction relevant to an ordinary target.
 
-**Independently audited variable-exponent strengthening.**  The proof is
-uniform in the exponent once its two displayed losses are retained.  For
-any integer-valued $K(N)\ge1$ satisfying
-$K(N)=o(\sqrt{\log N})$, the same choice of $p,\rho,\delta$ obeys
+### Scale-dependent affine-flat extension
+
+**Independently prose-audited; not Lean formalized.**  The fixed-$K$
+affine-flat proof in the checkpoint, especially equations (25), (29)--(32),
+is uniform in an externally specified exponent once its two losses are
+retained.  The existing $[r,2r]$ block reduction handles all longer APs.
+For each large $N$, choose a prime $p\in[N^2,2N^2]$, put
+$\beta=r_3(N)/N$, and choose an interval-supported modular 3-AP-free carrier
+$C_0\subseteq\mathbb F_p$ of density $\rho$.  For an externally specified
+integer-valued $K=K(N)$, set
 
 $$
-\frac{p\delta^{K(N)+1}}{\log p}\longrightarrow\infty,
+\alpha=\min\{\rho,\beta^2\},\qquad
+\delta=p^{-1}\left\lfloor\frac{p\alpha}{2}\right\rfloor,
+\qquad r_K=\left\lceil\frac{\delta^Kp}{2}\right\rceil.
+$$
+
+The affine-flat construction has absolute constants and is uniform in $K$
+provided eventually
+
+$$
+\tag{E1}\rho^{-2}\delta^{-3K}=o(p),
 \qquad
-\frac{\rho^{-2}\delta^{-3K(N)}}p\longrightarrow0.
-$$
-
-Indeed, with $\lambda=\log(1/\delta)$ and
-$\zeta=\log(1/\rho)$, the proved Behrend lower bounds give
-$\lambda,\zeta=O(\sqrt{\log N})$, while $\log p=2\log N+O(1)$.
-Thus $K(N)\lambda=o(\log N)$.  The exact direct criterion is
-
-$$
-\log p-(K(N)+1)\lambda-\log\log p\to+\infty,
+\tag{E2}\frac{p\delta^{K+1}}{\log p}\longrightarrow\infty,
 \qquad
-\log p-2\zeta-3K(N)\lambda\to+\infty.
+\tag{E3}2\left\lceil\frac{\delta^Kp}{2}\right\rceil<p.
 $$
 
-Also $\beta\to0$ gives
-$2\lceil\delta^{K(N)}p/2\rceil<p$ eventually.  Therefore, for each such
-function $K$, there is $N_0[K]$ such that a counterexample exists for every
-$N\ge N_0[K]$.  The threshold is pointwise in $K$: there is no common
-threshold for the whole little-$o$ class, whose functions can have
-arbitrarily late finite spikes.  If
-$L_0=\max\{C\sqrt2,2B\}$ is obtained from the carrier and Behrend bounds,
-then one threshold is uniform under the stronger envelope
-$K(N)\le c\sqrt{\log N}$ for any fixed $c<2/(3L_0)$.  The factor $3K$ in
-multiplier exclusion is the binding worst-case loss; the hypergeometric
-condition remains a separate requirement.
+Under (E1)--(E3), it supplies an affine-thinned $C\subseteq C_0$ with
+$|C|=\delta p$ and a multiplier $u$ such that the standard representatives
+$A=uC\subseteq[0,p)$ form an ordinary 3-AP-free set and satisfy
+
+$$
+\frac{|A\cap Q|}{|Q|}<\frac98\delta
+$$
+
+on every ordinary AP $Q\subseteq[0,p)$ of length at least $r_K$.  All
+constants in the direction net, variance, Chernoff bound, and union bound are
+absolute and independent of $N$ and $K$.
+
+For the exact log form, write
+
+$$
+T=\log p,\qquad \lambda=\log(1/\delta),\qquad
+\eta_0=\log(1/\rho).
+$$
+
+Then (E1) is exactly
+
+$$
+2\eta_0+3K\lambda-T\longrightarrow-\infty;
+$$
+
+$2\eta_0+3K\lambda=o(T)$ is only a convenient sufficient condition for
+(E1), not an equivalent one.  Condition (E2) is equivalent to
+
+$$
+T-(K+1)\lambda-\log T\longrightarrow+\infty,
+$$
+
+and (E3) is separate and is not replaced by a logarithmic condition.
+
+There are absolute $B,C>0$ for which the Behrend bounds give
+
+$$
+\rho\ge\exp(-C\sqrt T),\qquad
+\beta\ge\exp(-B\sqrt{\log N}).
+$$
+
+Since $p\asymp N^2$, $p\alpha\to\infty$, so eventually
+
+$$
+\frac\alpha4\le\delta\le\frac\alpha2.
+$$
+
+Consequently $\lambda,\eta_0=O(\sqrt T)$.  Every externally specified
+integer-valued $K(N)\ge1$ eventually with
+$K(N)=o(\sqrt{\log N})$ satisfies (E1)--(E3): the sufficient condition above
+gives (E1), while (E2)'s exact exponent is $T-o(T)\to+\infty$.  For (E3),
+$\delta\to0$ and $K\ge1$ give
+
+$$
+2r_K\le\delta^Kp+2\le\delta p+2<p
+$$
+
+eventually.  The setup also has the required checks
+
+$$
+\delta\le\frac12\beta^2\le\frac98\beta,
+\qquad
+p\ge N^2\ge\frac{16N}{\beta},
+$$
+
+eventually because $N\beta=r_3(N)\to\infty$.
+
+For a nonnegative externally specified exponent, use
+$\overline K(N)=\max\{K(N),1\}$.  Since $\delta^{\overline K}\le\delta^K$ when
+$\delta<1$, flatness above
+$\lceil\delta^{\overline K}p/2\rceil$ implies flatness above the $K$-threshold.
+This does not assert (E3) at $K=0$.
+
+**Evidence note.**  This extension refutes the corresponding scale-dependent
+`RAI(K(N))` for every $K(N)=o(\sqrt{\log N})$ (with the nonnegative case
+handled using $\overline K$).  It does not refute Erdős 142 and is not a Lean
+formalized result.
 
 The earlier stress tests remain informative but are no longer needed to
 decide RAI.  The carry-free digit product has only short obvious coordinate
