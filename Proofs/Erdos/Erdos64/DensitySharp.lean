@@ -32,6 +32,11 @@ SOURCE CLAIM BOUNDARY.  The numerical content formalized here is:
   the degree sum inside `G[L]` gives `2h + 6 ≤ ℓ` for `h ≥ 6`, one better than
   the `2h + 3` of `Density.lean`.
 
+* **(Target C′)** Target C is available without the restriction `h ≥ 6`, at the cost of an
+  explicit order hypothesis `n ≥ 24`: for `h ≤ 5` the vertex partition `ℓ + h = n` alone forces
+  `ℓ ≥ n - 5 ≥ 19 ≥ 2h + 6`.  The order bound is a *hypothesis*, not a claim of this file; the
+  external fact that counterexamples have order at least `24` is outside its scope.
+
 Nothing is assumed: `HasFourCycle` is an honest simple-cycle witness, the
 five-vertex facts are proved by double counting and by a degree case analysis,
 and the parity input is the degree-sum identity of the induced graph on `L`.
@@ -732,5 +737,26 @@ theorem two_mul_card_degreeGeFourFinset_add_six_le_card_degreeThreeFinset {G : S
   by_contra hcon
   push Not at hcon
   omega
+
+/-- **Target C, order-conditional form.** A minimal counterexample on `n ≥ 24` vertices satisfies
+`2h + 6 ≤ ℓ` with *no* restriction on `h = |H|`.  The case split is on `6 ≤ h`: above it the sharp
+bound `two_mul_card_degreeGeFourFinset_add_six_le_card_degreeThreeFinset` applies verbatim, and
+below it the vertex partition `ℓ + h = n` of `Density.lean` already suffices, because `n ≥ 24` and
+`h ≤ 5` force `ℓ = n - h ≥ 19 ≥ 2h + 6`.
+
+SCOPE.  The order hypothesis `24 ≤ Fintype.card V` is an explicit hypothesis, not a theorem of this
+file: it stands in for the external fact that a counterexample to the source conjecture has order at
+least `24`.  That external fact is neither formalized nor claimed here, so this statement carries no
+information about minimal counterexamples of order below `24`; each use site must supply the
+hypothesis itself. -/
+theorem two_mul_card_degreeGeFourFinset_add_six_le_card_degreeThreeFinset_of_card_verts_ge
+    {G : SimpleGraph V} [Fintype V] [DecidableEq V] [DecidableRel G.Adj]
+    (hmin : IsMinimalCounterexample G) (hcard : 24 ≤ Fintype.card V) :
+    2 * (degreeGeFourFinset G).card + 6 ≤ (degreeThreeFinset G).card := by
+  by_cases h6 : 6 ≤ (degreeGeFourFinset G).card
+  · exact two_mul_card_degreeGeFourFinset_add_six_le_card_degreeThreeFinset hmin h6
+  · have hsmall : (degreeGeFourFinset G).card ≤ 5 := by omega
+    have hpart := card_degreeThreeFinset_add_card_degreeGeFourFinset hmin
+    omega
 
 end Erdos64
