@@ -1,11 +1,11 @@
-# Cubic expanders: a class-specific cycle-length draft
+# Cubic expanders: a class-specific cycle-length theorem
 
 ## Status, conventions, and scope
 
-**Status.** This is a complete informal composition draft, awaiting an independent
-end-to-end review.  Its ingredients have been reviewed separately, but the
-composition below has not yet been checked as one proof.  In particular, this
-file is not a Lean formalization. Separate Lean modules formalize the finite
+**Status.** Independently reviewed informal proof. The complete composition
+received a mathematical PASS at review
+`b7e7684ad23c78e1ec69b728e19e20fee8ee36f4` and a foundations/provenance PASS at
+`7c228eae8a27bd8865008919e0edd9971c7db4e8`. This file is not a Lean formalization. Separate Lean modules formalize the finite
 variational cut kernel and a degree-free floor-to-ceil expansion conversion
 under the explicit order bound $4h+4\le hn$. The latter uses the sufficient
 uniform threshold $n\ge4+4/h$, not the sharper odd-order threshold below.
@@ -33,9 +33,9 @@ All graphs are finite and simple.  A cubic graph is $3$-regular, and
 3-vertex-connected has its usual meaning.  An induced cycle $C$ is
 **nonseparating** if $G-C$ is connected.
 
-The candidate theorem is the following restricted-class statement.
+The theorem is the following restricted-class statement.
 
-> **Theorem candidate.** For every fixed $0<h\le 1$, there are constants
+> **Theorem (informal).** For every fixed $0<h\le 1$, there are constants
 > $B_h>0$, $\rho_h>0$, and $n_0(h)$ such that every simple cubic,
 > 3-vertex-connected, $h$-vertex-expander $G$ on $n\ge n_0(h)$ vertices
 > contains a cycle of every even integer length in
@@ -76,8 +76,8 @@ The composition uses the following individually reviewed inputs.
   arXiv:1912.11011.  It is used only after the common strong gadget has been
   assembled.
 
-The revisions and reviews above concern inputs separately.  They do not certify
-this end-to-end theorem.
+Those input reviews are distinct from the final end-to-end mathematical and
+foundations reviews recorded above.
 
 ## 1. The pruning and block package used by the composition
 
@@ -761,10 +761,9 @@ attributed to a verbatim theorem there.  A bounded inspection of
 Ducoffe--Dumitru, arXiv:2609.28594, records the general Erdős--Gyárfás problem
 as open and did not find this restricted expander composition; that inspection
 is not a novelty proof.  No novelty or unrestricted Erdős--Gyárfás claim is
-made in this draft.
+made in this manuscript.
 
-The remaining required action is an independent end-to-end review of the
-composition, including the interface between the robust linkage, the fresh
-buffer hierarchy, the final pruning, and the corrected base-$2$ FK boundary.
-Until that review, the theorem above is a draft candidate rather than an
-accepted theorem.
+The final end-to-end reviews checked the interfaces between robust linkage,
+fresh buffers, final pruning, and the base-$2$ supported cycle adaptation,
+and found no blocking gap. The result remains an informal restricted-class
+theorem, not a formal Lean proof or a solution of the unrestricted conjecture.
