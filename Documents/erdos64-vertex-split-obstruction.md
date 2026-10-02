@@ -13,14 +13,16 @@ certificate. It formalizes only the seven-vertex core:
 facts, normalization `splitPart_complete`, and `all_splitCore` with actual
 simple $C_8$/$C_4$ witnesses for the three normalized partitions. It does not
 formalize a general graph-splitting operator, bridge completion, the sequence
-invariant, or the logical equivalences.
+invariant, or the logical equivalences. The two sections appended below—the
+general cycle criterion and the $B_j$ family—are entirely informal and are not
+formalized in that module; the formal boundary remains the seven-vertex core.
 
 An independently audited mathematical argument for the finite seven-vertex core
 has provenance hash `a4edc2b5e48a217ad51d1e5ab782c017c57815a4`; the prior conditional,
 invariant, and equivalence audit has hash
 `a8d6b3ff78df0c9e7cec6162abaae15205e441da`.  These hashes are audit provenance,
 not published sources.  A finite computational check is only supplementary
-evidence; the mathematical proof below is primary.
+evidence; the mathematical proof of the seven-vertex core is primary.
 
 There is no novelty claim here, and this is not an unconditional counterexample
 to EGC.  The conclusion is a conditional obstruction to a particular reduction
@@ -194,3 +196,119 @@ proper counterexample subgraphs $F$, so it does not rule out a specialized
 split chosen after selecting a suitably minimal counterexample, a theorem
 restricted to $2$-connected minimum-degree-three graphs, or arbitrary graph
 operations beyond the admissible splits defined here.
+
+## A complete informal cycle criterion
+
+Here is the general criterion that separates the two ways a split can create a
+new dyadic cycle.  Let $X$ be a dyadic-free simple graph, let $v$ be a vertex,
+and split it into adjacent fresh copies $u,w$ using
+$$
+N_X(v)=A\mathbin{\dot\cup}B.
+$$
+Write $X'$ for the resulting graph.  For every $k\ge2$, $X'$ has a simple
+cycle of length $2^k$ if and only if at least one of the following holds in $X$.
+
+* **(I)** There is a simple cycle of length $2^k-1$ through $v$, and its two
+  neighbors at $v$ lie on opposite sides of $A\mid B$.
+* **(II)** There are two simple cycles meeting exactly at $v$, of lengths
+  $r,s\ge3$ with $r+s=2^k$, such that the two neighbors of $v$ on each cycle
+  lie on opposite sides of $A\mid B$.
+
+This is an exact statement, not merely a sufficient test.  Indeed, a new power
+cycle must use both copies: if it uses neither, it is already an old power
+cycle, and if it uses only one, identifying that copy with $v$ gives an old
+power cycle.  If it uses the new edge $uw$, contracting that edge gives a cycle
+of length $2^k-1$ through $v$, with its two ports in opposite parts, which is
+(I).  If it avoids $uw$, identify $u$ and $w$ with $v$.  The result is a
+figure-eight consisting of two old simple cycles meeting exactly at $v$, which
+is (II).  The two $v$-to-$v$ portions each have length at least $3$: a
+length-two portion would use a common old neighbor of $u$ and $w$, impossible
+because $A$ and $B$ are disjoint.  Their lengths add to the length $2^k$ of
+the new cycle.
+
+Conversely, in (I), replace the segment through $v$ by the three-edge segment
+through $u$, $w$, using the new edge; this raises the length by one.  In (II),
+replace $v$ on one old cycle by the appropriate port at $u$ and on the other by
+the appropriate port at $w$.  The two resulting internally disjoint paths
+join $u$ to $w$ and form a simple cycle avoiding $uw$, of length $r+s$.
+Thus (I) is the edge-using case and (II) is the edge-avoiding, or **pure case
+II**, that a test based only on near-dyadic cycles cannot see.
+
+For clarity, define $R_v$ on $N_X(v)$ by joining $x$ and $y$ exactly when $X$
+has a simple cycle of length $2^k-1$ through $v$, for some $k\ge2$, whose two
+neighbors at $v$ are $x,y$.  Criterion (I) says that a safe partition must put
+every edge of $R_v$ within one side.  Equivalently, every connected component of
+$R_v$ must remain intact.  This is only a necessary condition: (II) can still
+make a split unsafe when $R_v$ has no edges at all.  The following family makes
+that failure especially explicit.  This criterion and its proof are informal
+and are not formalized in `VertexSplitObstruction.lean`.
+
+## An informal bipartite family with no safe balanced hub split
+
+For each integer $j\ge4$, put
+$$
+N=2^{j+1}-8
+$$
+and let $B_j$ consist of a rim cycle $C_N$ on vertices indexed modulo $N$,
+together with a hub $v$ joined to
+$$
+0,\quad4,
+\quad8,
+\quad2^j.
+$$
+The cyclic rim gaps between these four neighbors are
+$$
+4,\quad4,\quad2^j-8,\quad2^j-8,
+$$
+all multiples of $4$.  Every cycle through $v$ uses two spokes and one of the
+two rim arcs between their endpoints, so its length is $2$ modulo $4$.  The
+only cycle avoiding $v$ is the full rim, of length $N$, and
+$$
+2^j<N<2^{j+1}.
+$$
+Therefore $B_j$ is dyadic-free.
+
+The same description gives several useful structural features.  The rim is
+even, and all four hub neighbors have even indices, so coloring the rim by index
+parity and coloring $v$ oppositely makes $B_j$ bipartite.  Deleting $v$ leaves
+the rim cycle; deleting any rim vertex leaves a rim path containing at least
+three of the four hub neighbors.  Hence $B_j$ is $2$-connected.  The hub has
+degree $4$, its four neighbors have degree $3$, and every other rim vertex has
+degree $2$.  Since $B_j$ is bipartite, all its cycles are even, so no
+$2^k-1$ cycle exists and $R_v$ is empty; the stronger statement above says
+that every hub cycle is $2$ modulo $4$.
+
+Nevertheless, balanced splitting at $v$ is always unsafe.  Consider the two
+pairings
+$$
+M_1=\{(0,4),(8,2^j)\},\qquad
+M_2=\{(4,8),(2^j,0)\}.
+$$
+The two cycles supplied by either pairing meet exactly at $v$ and have lengths
+$6$ and $2^j-6$, whose sum is $2^j$.  Thus, whenever both pairs in one matching
+cross the split, criterion (II) gives a $C_{2^j}$ avoiding the new edge.  A
+matching crosses both pairs for two of the three balanced partitions, and does
+not cross either pair only for the partition that groups its own pairs:
+
+| balanced partition of $N(v)$ | crossing matching | new cycle |
+| --- | --- | --- |
+| $\{0,4\}\mid\{8,2^j\}$ | $M_2$ | $C_{2^j}$ |
+| $\{4,8\}\mid\{2^j,0\}$ | $M_1$ | $C_{2^j}$ |
+| $\{0,8\}\mid\{4,2^j\}$ | $M_1$ and $M_2$ | $C_{2^j}$ |
+
+Because $M_1$ and $M_2$ are distinct, no balanced partition groups the pairs
+of both matchings.  All three split choices are therefore unsafe, and every
+witnessing $C_{2^j}$ avoids the new edge.  For the small instance $j=4$, the
+cycle-length multiset is
+$$
+6,6,10,10,10,14,14,18,18,18,22,22,24.
+$$
+
+Thus this family strongly demonstrates that $R_v=\varnothing$, bipartiteness,
+$2$-connectedness, and degree $3$ for all four hub neighbors do not suffice for
+any safe balanced hub split.  It has minimum degree $2$, is not an EGC
+counterexample, and is not an $\varepsilon$-minimal counterexample model, so it
+does not settle a minimal-counterexample approach.  No 20-copy completion is
+needed: the seven-vertex core already supplies the universal-method equivalence
+above.  This family and all of the arguments in these two appended sections are
+informal and are not claimed as additional Lean proofs.
