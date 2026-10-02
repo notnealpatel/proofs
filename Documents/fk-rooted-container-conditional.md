@@ -1,15 +1,91 @@
 # Conditional rooted FK container: supported cycles through a prescribed outside arm (polylog return boundary)
 
-**Status.** Conditional theorem; informal adaptation of Friedman–Krivelevich
-(arXiv:1912.11011, §2.1 Lemmas 2.1–2.7, §2.3). No Lean formalization, no EGC claim. This
-file proves the cycle conclusion under the stated container hypotheses; the
-container is a hypothesis here and is **not proved by this file**. The assembled manuscript `Documents/high-girth-expander-cycles.md` constructs that container before applying this theorem.  This exposition is based on source revision `724c14d8259403ad831c3f0dbcf90aee04326c0d`, with the greedy quantifier clarification below.
+**Status.** Conditional theorem; this is our informal fixed-arm adaptation $F'$ of Friedman--Krivelevich (arXiv:1912.11011, §2.1 Lemmas 2.1--2.6, §2.2 Lemma 2.7, and §2.3 proof of Theorem 1). No Lean formalization, no EGC claim. The container is a hypothesis here and is **not proved by this file**. The assembled manuscript `Documents/high-girth-expander-cycles.md` constructs that container before applying $F'$.  This exposition is based on repository manuscript snapshot `724c14d8259403ad831c3f0dbcf90aee04326c0d`, not on an arXiv version, with the greedy quantifier clarification below.
 $\log=\log_2$.
+
+## 0. Expansion conventions, bridge, and the independent floor-pruning lemma
+
+For a graph $J$ of order $M$, write $N_J(S)$ for the external neighborhood
+$N_J(S)\setminus S$.  We distinguish the two half-range conventions:
+
+* **floor-half $\gamma$-expansion** means
+  $|N_J(S)|\ge\gamma|S|$ for every $S$ with
+  $|S|\le\lfloor M/2\rfloor$;
+* **ceil-half $\gamma$-expansion** means the same inequality for every $S$ with
+  $|S|\le\lceil M/2\rceil$.
+
+The parameter $\alpha$ in the theorem in §1 is explicitly a **ceil-half**
+parameter.  The floor-pruning lemma below is independent of the source's FK
+lemmas: it has no degree hypothesis and its loss is not obtained by replacing
+$|F|$ with a neighborhood of $F$.
+
+**Floor-pruning lemma.** Let $G$ have order $M>0$ and be floor-half
+$\alpha$-expanding, where $0<\alpha\le1$.  Let $F\subseteq V(G)$, write
+$f:=|F|$, and assume
+$$
+ f\le\frac{\alpha^2M}{16}.
+$$
+Starting with $R=\varnothing$, always keep $R\cap F=\varnothing$.  Put
+$H:=G-(F\cup R)$.  While there is a nonempty bad set
+$S\subseteq V(H)$ with $|S|\le|H|/2$ and
+$$
+ |N_H(S)|<\frac\alpha2|S|,
+$$
+remove $S$ into $R$.  The process terminates with
+$$
+ |R|\le\frac{2f}{\alpha},\qquad |F\cup R|\le\frac{3f}{\alpha},
+$$
+and the final $H$ is floor-half $\alpha/2$-expanding.  The conclusion is
+non-vacuous: $H$ is nonempty because
+$3f/\alpha\le3\alpha M/16<M$.
+
+Here is the bookkeeping.  At every stage a candidate bad $S$ is contained in
+an original half-set, and
+$$
+ |N_G(S)|\le f+|R|+|N_H(S)|,
+$$
+so original expansion gives
+$$
+ |S|<\frac{2(f+|R|)}\alpha.                       \tag{0.1}
+$$
+For the union of all removed bad sets, including a partial union at any stage,
+any external neighbor outside $F$ was present when the bad set adjacent to it
+was removed.  Consequently
+$$
+ N_G(R)\subseteq F\cup\bigcup_iN_{H_i}(S_i),\qquad
+ |N_G(R)|\le f+\frac\alpha2|R|,                    \tag{0.2}
+$$
+where $H_i$ is the current graph at the removal of $S_i$.  Applying original
+expansion to the **new** set $R$ (not to $F\cup R$) gives
+$|R|\le2f/\alpha$, provided $R$ is in the floor range.  Inductively this is
+valid: before the next removal, (0.1) and the preceding bound give
+$$
+ |R|+|S|\le\frac{4f}{\alpha}+\frac{4f}{\alpha^2}
+ \le\frac{8f}{\alpha^2}\le\frac M2.               \tag{0.3}
+$$
+Thus (0.2) applies after each update as well.  If $f=0$, no bad set exists
+initially, directly by original floor expansion, and $R$ stays empty.  At
+termination there is no bad set, which is precisely floor-half
+$\alpha/2$-expansion of the final graph.  This is a degree-free lemma and is
+not the source's FK Lemma 2.2.
+
+**Floor-to-ceil bridge.** If $J$ has order $M$ and is floor-half
+$\gamma$-expanding, it is ceil-half $\gamma/2$-expanding once the displayed
+threshold below is met.  For even $M$ there is no change.  For odd
+$M=2m+1$, only a set $S$ of size $m+1$ is new: choose $v\in S$ and apply
+floor expansion to $S\setminus\{v\}$ to obtain
+$$
+ |N_J(S)|\ge\gamma m-1\ge\frac\gamma2(m+1)
+$$
+whenever $m\ge1+2/\gamma$.  Smaller sets are already in the floor range.
+Thus the explicit threshold is $M\ge2\lceil1+2/\gamma\rceil+1$ in the odd
+case (and no threshold is needed in the even case).  In particular a large
+floor-half $\gamma$ host supplies a ceil-half $\gamma/2$ host.
 
 ## 1. Theorem
 
 Let $0<\alpha\le1$, $K>0$, $G$ a graph, $U\subseteq V(G)$, $|U|=n$, $H:=G[U]$ an
-$\alpha$-expander. Assume
+**ceil-half $\alpha$-expander**. Assume
 
 * (H1) outside $U$: vertex-disjoint rooted trees $T_1$ (root $a$), $T_2$ (root $b$),
   each of radius $\le K\log n$;
@@ -32,6 +108,12 @@ cycle $C_\ell$ with
 with $V(Q_j)\cap U=\varnothing$ and interior avoiding $V(T_1)\cup V(T_2)$, replacing $Q_0$
 by $Q_j$ inside $W_\ell$ gives a simple cycle with support
 $\subseteq U\cup V(T_1)\cup V(T_2)\cup V(Q_j)$ and length $|C_\ell|+(|Q_j|-|Q_0|)$.
+
+The width $51/\alpha$ and the constants $\rho(\alpha)$ and $(\log n)^6$
+are parameters of this internal conditional adaptation $F'$, not verbatim
+constants of canonical Friedman--Krivelevich Theorem 1.  That canonical theorem
+does not itself prescribe the two trees, the outside path, or the support and
+interface in (C2)--(C3); those features are derived here.
 
 ## 2. Greedy packing lemma (replaces FK's Menger packing; no linear $|X_2|$)
 
@@ -178,22 +260,28 @@ $U_3$.
 $A=3C_2=51/\alpha$, independent of $K$ and $n$; $C_3=2^{O(\log(1/\alpha)/\alpha)}$;
 $\rho=\alpha/(400C_3^2)=2^{-O(\log(1/\alpha)/\alpha)}$, $\alpha$-only;
 $c=3K+O_\alpha(1)$; $n_0=n_0(\alpha,K)$ from $C_3|Y|\le\alpha^2n/2000$ and
-$c\log n\le\rho n$. Since $A$ is $K$-free, the composition may fix $\alpha=\kappa/2$ and
-$q=\lceil A(\alpha)/2\rceil$ before any packing.
+$c\log n\le\rho n$. Since $A$ is $K$-free, the composition may choose the
+ceil-half parameter $\alpha$ after applying the floor-to-ceil bridge, and may
+fix $q$ before any packing.
 
-## 5. Where the literal sketch falls short; sufficient asymptotic weakening
+## 5. Provenance and asymptotic weakening
 
-FK's window $[k_0,k_2]$ gives $|Y|\le2\mu^2(C_1+C_2+1)=O(1/(\alpha^7\beta^2))$ *provided*
-$|B\cap T'_{[k_0,k_2]}|=|S|-|T'_{[1,k_0-1]}|$ is $\Omega(n/\mu)$, which for
-$\mu=\lceil16/(\alpha\beta)\rceil$ requires $\mu\lesssim200/\alpha^4$. For small $\beta$ that
-large-count requirement is not guaranteed by the source argument, so the window argument
-cannot be run; the full-level window (S4) costs one factor $k_2$ and yields
-$|Y|=O(n\log^3n/(\alpha^4D_0))$. The exponent $3$ is exactly the product
-$L\cdot k_2\cdot n/p$ with $L,k_2=O(\log n/\alpha)$, $p=\Omega(\alpha^2D_0/\log n)$. Hence
-$C_3|Y|=o(n)$ already for $|X_2|=\omega(\log^3n)$; we state the safe hypothesis
-$|X_2|\ge\log^6n$. No necessity is claimed for any of these bounds: they are
-the ones used here, and the linear return boundary $|X_2|\ge\beta n$ is not needed by this
-proof. All constants are $\alpha$-only except $c$ and $n_0$, which carry $K$.
+The canonical source uses $\mu=200/\alpha^4$ and a linear return condition
+$|X_2|\ge\alpha^4 n/200$ in its source-level container argument.  This
+companion does not attribute that linear-return proof to the present
+polylogarithmic statement.  Our $F'$ adaptation uses the full-level window in
+(S4), the greedy packing of §2, and the count
+$$
+ |Y|=O\!\left(\frac{n\log^3 n}{\alpha^4D_0}\right),
+$$
+which is enough when $D_0\ge\tfrac12\log^6 n$.  The $\beta$-dependent sketch
+sometimes used to motivate a shorter window is not attributed to
+Friedman--Krivelevich.  No claim is made that any canonical source proof has an
+error beyond the precisely documented adaptation and its changed return
+boundary.
+
+All constants in this adaptation are $\alpha$-only except $c$ and $n_0$,
+which carry $K$.
 
 ## 6. Bipartite / dyadic corollary
 

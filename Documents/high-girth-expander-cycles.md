@@ -12,13 +12,15 @@ asserted.
 
 All graphs are finite and simple.  If $X$ is a graph and $S$ is a vertex set,
 write $N_X(S)$ for the external vertex neighborhood $N_X(S)\setminus S$.
-Thus an $h$-vertex-expander on $n$ vertices satisfies
+Thus an $h$-vertex-expander on $n$ vertices means **floor-half** expansion:
 $$
- |N_X(S)|\ge h|S|\qquad(0<|S|\le n/2).
+ |N_X(S)|\ge h|S|\qquad(0<|S|\le\lfloor n/2\rfloor).
 $$
 Logarithms are base two unless a subscript is displayed.  Constants are
 increased harmlessly to absorb floors, ceilings, and changes of logarithm
-base.
+base.  The floor/ceil bridge and the degree-free floor-pruning lemma are in §0
+of `fk-rooted-container-conditional.md`; they are used below without changing
+any of the earlier $E/P$ proofs.
 
 ## 1. The generalized theorem
 
@@ -48,12 +50,13 @@ power of two above the lower endpoint remains below the upper endpoint.
 The proof has three inputs.  The deletion-expansion input $E$ below uses the
 average-degree Moore bound of Alon, Hoory, and Linial.  The sparse-adjuster
 packing input $P$ is the independently reviewed degree-free kernel described
-in §3.  The rooted container input $F$ is the conditional companion in
+in §3.  The rooted container input $F'$ is the conditional companion in
 `Documents/fk-rooted-container-conditional.md`, based on the
-Friedman--Krivelevich framework and source revision
-`724c14d8259403ad831c3f0dbcf90aee04326c0d`, with the greedy quantifier
+Friedman--Krivelevich framework and repository manuscript snapshot
+`724c14d8259403ad831c3f0dbcf90aee04326c0d` (not an arXiv version), with the greedy quantifier
 clarification recorded there.  The construction below supplies the container
-before applying $F$ and preserves its exact support and interface.
+before applying $F'$ and preserves its exact support and interface.  The
+companion's host parameter is explicitly ceil-half.
 
 ## 2. Deletion preserves expansion without a maximum-degree bound (`E`)
 
@@ -338,10 +341,11 @@ final deletion leaves a $\kappa$-expander, with
 $\kappa=\min\{h/2,1/16\}$.  The kernel is independently reviewed; it is an
 informal supplied argument, not a Lean artifact or a novelty claim.
 
-## 4. The rooted container input (`F`)
+## 4. The rooted container input ($F'$)
 
-We use the companion manuscript with its parameter order unchanged.  It takes
-an induced $\alpha$-expander $H'$ of order $M$, two vertex-disjoint rooted trees
+We use the companion's internal fixed-arm adaptation $F'$ with its parameter
+order unchanged.  It takes an induced **ceil-half** $\alpha$-expander $H'$ of
+order $M$, two vertex-disjoint rooted trees
 $T_1,T_2$ outside $H'$ with roots $a,b$, and an outside $a$--$b$ path $Q_0$
 whose interior avoids both trees.  The tree radii and $|Q_0|$ are at most
 $K\log M$.  With
@@ -351,7 +355,7 @@ $$
 the entry condition is $X_1\ne\varnothing$ and the return condition is
 $|X_2|\ge\log^6 M$.
 
-The corrected companion conclusion supplies constants
+The internal adaptation supplies constants
 $$
  A(\alpha)=51/\alpha,\qquad c=3K+O_\alpha(1),\qquad
  \rho(\alpha)=2^{-O(\log(1/\alpha)/\alpha)},
@@ -366,37 +370,43 @@ of length in $[\ell,\ell+A]$.  Its interface says that the cycle is a
 prescribed outside path through $T_1,a,Q_0,b,T_2$, plus a simple path in $H'$;
 therefore $Q_0$ can be replaced by any compatible outside alternative.  The
 container is conditional in the companion itself, while §5 below constructs
-it before $F$ is invoked, so no extra unproved container hypothesis remains in
+it before $F'$ is invoked, so no extra unproved container hypothesis remains in
 the assembled argument.  The exact support and parameter order are retained.
-The source framework is Friedman--Krivelevich, arXiv:1912.11011, §§2.1 and
-2.3, including Lemmas 2.1--2.7.
+The provenance is Friedman--Krivelevich, arXiv:1912.11011, §2.1 Lemmas 2.1--2.6,
+§2.2 Lemma 2.7, and §2.3 proof of Theorem 1.  The prescribed trees, path,
+support, interface, and constants here are derived adaptation data, not
+verbatim canonical-theorem conclusions.
 
 ## 5. Composition and the parity finish
 
-Fix $h$, put $\kappa=\min\{h/2,1/16\}$ and $\alpha=\kappa/2$, and set
-$A=51/\alpha$.  Before running the packing construction choose
+Fix $h$ and put
 $$
- q=\lceil A\rceil.
- \tag{C.1}
+ \kappa:=\min\{h/2,1/16\},\qquad \alpha:=\kappa/4,
+ \qquad A:=\frac{51}{\alpha}=\frac{204}{\kappa}.
 $$
-The same $q$ is used in both parity cases; it depends only on $h$, not on $K$.
+Choose $q=\lceil A\rceil$ **before** the packing construction.  The same $q$
+is used in both parity cases and depends only on $h$.
 
-Use the reservoir boundaries to join successive adjusters through the retained
-$\kappa$-expander by disjoint shortest connectors.  The greedy ball-growth
-argument is unchanged: after $O_{h,q}(\log n)$ previously used vertices, each
-unused boundary still has size at least a fixed fraction of $\log^8 n$, so two
-balls meet.  A common endpoint is allowed as a zero-length connector.  The
-connector paths, the endpoint trees, and the subsequent pruning are chosen so
-that every connector is used once and the endpoint trees remain disjoint.
-The expander-pruning step removes only $O_{h,q}(\log n)$ further vertices and
-leaves an induced $\alpha$-expander $H'$ of order
+The connector stage uses the original floor-half $\kappa$ host supplied by
+$E/P$, not a historically pruned survivor.  Against the total set of actual
+connector vertices used so far (including zero-length connector endpoints),
+apply the degree-free floor-pruning lemma from §0 of the companion.  The total
+connector seed is $O_{h,q}(\log n)$, so the lemma leaves a floor-half
+$\kappa/2$ host after one accumulated-seed pruning, with loss
+$O_{h,q}(\log n)$.  No iterative halving is performed.  The floor-to-ceil bridge
+then makes this host a ceil-half $\kappa/4=\alpha$ host once the explicit bridge
+threshold is exceeded.  This is the host to which $F'$ is applied.
+
+The reservoir boundaries still exceed $\log^6 M$ for large $n$, and their
+radii and the connector path have the same fixed $O_h(\log n)$ bounds as in the
+packing construction.  The resulting host order is
 $$
- M=n-O_{h,q}(\log^{p_1}n).
+ M=n-O_{h,q}(\log^{p_1}n),
  \tag{C.2}
 $$
-The endpoint reservoir boundaries still exceed $\log^6 M$ for large $n$.
-Thus the hypotheses of $F$ hold in the displayed order, with
-$K=K(h,q)$ fixed before the final constants are selected.
+where the larger loss is the already constructed $E/P$ deletion; the connector
+pruning itself costs only $O_{h,q}(\log n)$.  Thus the hypotheses of $F'$ hold
+with $K=K(h,q)$ fixed before the final constants are selected.
 
 The $q$ adjusters give an outside path family.  Let $d_i=1$ when $C_i$ is
 odd and $d_i=2$ when $C_i$ is even.  The short and long routes in the $i$th
@@ -406,17 +416,15 @@ $$
  w=d_1+\cdots+d_q,
 $$
 then $q\le w\le2q$, and subset sums of the $d_i$ fill every integer in
-$[0,w]$: start with the first $1$, and add each next $1$ or $2$, whose size is
-at most one more than the interval already filled.  The resulting alternatives are denoted $Q_t$, where $t$ is their total
-increment; they are simple, have lengths $|Q_0|+t$, and satisfy the
-support/interface requirements of $F$.
+$[0,w]$.  The resulting alternatives $Q_t$ are simple and satisfy the
+support/interface requirements of $F'$.
 
-In a bipartite graph every $d_i=2$.  The alternatives have all increments in
+In a bipartite graph every $d_i=2$.  The alternatives have increments in
 $\{0,2,4,\ldots,2q\}$, so they fill exactly the even subset sums in
 $[0,2q]$.  This is the only parity restriction.
 
 Let $T$ be an allowed target length and, in the nonbipartite case, set
-$w=\sum d_i$; in the bipartite case set $w=2q$.  Apply $F$ with
+$w=\sum d_i$; in the bipartite case set $w=2q$.  Apply $F'$ with
 $$
  \ell=T-w.
 $$
@@ -428,12 +436,13 @@ $$
 In the nonbipartite case $T-L$ lies in $[w-A,w]\subseteq[0,w]$ and is a
 subset sum, so replacing $Q_0$ by $Q_{T-L}$ gives length $T$.  In the
 bipartite case $T$ and $L$ are even, and $T-L$ is an attainable even subset
-sum in $[0,2q]$, so replacing by $Q_{T-L}$ gives the same conclusion.  The explicit support statement
-(F.1) and its interface ensure that the replacement remains a simple cycle.
+sum in $[0,2q]$, so replacing by $Q_{T-L}$ gives the same conclusion.  The
+explicit support statement (F.1) and its interface ensure that the replacement
+remains a simple cycle.
 
 Because $M=n-o(n)$ and $w=O_h(1)$, choose $B(h)$ large enough for the lower
-endpoint of $F$ and choose $\rho(h)$ small enough for its upper endpoint.  The
-fixed losses and the thresholds in $E$, the packing, pruning, and $F$ are then
+endpoint of $F'$ and choose $\rho(h)$ small enough for its upper endpoint.  The
+fixed losses and the thresholds in $E$, the packing, pruning, and $F'$ are then
 absorbed into one $n_0(h)$.  This proves the theorem in both parity cases.
 
 ## 6. Dyadic corollary
@@ -486,8 +495,6 @@ selected reservoirs, saturation, and the same-reservoir and cross-reservoir
 boundary cases.  The sparse kernel is independently reviewed, but this newly
 written generalized manuscript still awaits final exposition audit.
 
-The rooted companion `F` remains conditional on its explicitly stated
-container hypotheses and passed its correction review at revision
-`8ba7f02a063c3e814eccc412df2b559c5fb89ae6`.  The argument is informal, not
-Lean-formalized; it makes no novelty claim and is not an unrestricted EGC
-claim.  No `References` or ledger files are changed.
+The rooted companion $F'$ remains conditional on its explicitly stated
+container hypotheses.  The argument is informal, not Lean-formalized; it
+makes no novelty claim and is not an unrestricted EGC claim.  No `References` or ledger files are changed.

@@ -8,22 +8,24 @@ no novelty claim, and no Erdős--Gyárfás claim.  Every conclusion below is
 conditional on the common strong-gadget hypotheses in Section 2; this manuscript
 does not construct those gadgets.
 
-All graphs are finite and simple.  Logs in this document are base two,
-matching the supported F theorem, unless another base is displayed.
-The exact reviewed conditional F cycle theorem used as a black box is Section 1 of
-[`fk-rooted-container-conditional.md`](fk-rooted-container-conditional.md).
-The localized-pruning manuscript
+All graphs are finite and simple.  Ambient expansion in this manuscript uses
+the **floor-half** convention: a floor-$\gamma$ host of order $M$ expands every
+set of size at most $\lfloor M/2\rfloor$.  Logs in this document are base two,
+matching the supported $F'$ theorem, unless another base is displayed.
+The exact internal conditional fixed-arm adaptation $F'$ used as a black box is Section 1 of
+[`fk-rooted-container-conditional.md`](fk-rooted-container-conditional.md); its host
+parameter is explicitly **ceil-half**.  The localized-pruning manuscript
 [`erdos64-localized-pruning.md`](erdos64-localized-pruning.md) is related partial
 input only; it does not prove all hypotheses below.
 
 ## 1. Fixed-arm extension
 
-We use the reviewed conditional theorem in the following notation.  Let $H$ have
-order $M$ and be an $\alpha$-vertex-expander.  Outside $H$ are endpoint-rooted
+We use $F'$ in the following notation.  Let $H$ have
+order $M$ and be a **ceil-half $\alpha$-expander**.  Outside $H$ are endpoint-rooted
 trees of radius at most $K\log M$, with a clean outside path $Q_0$ between their
 roots whose interior avoids $H$ and the endpoint trees.  The entry boundary in
 $H$ is nonempty, the return boundary has at least
-$(\log M)^6$ vertices, and $Q_0$ has length at most $K\log M$.  The theorem
+$(\log M)^6$ vertices, and $Q_0$ has length at most $K\log M$.  The adaptation
 produces cycles supported only on $H$, the two trees, and $Q_0$, retaining
 $Q_0$, with width
 $$
@@ -46,7 +48,7 @@ choose the required tree-to-$H$ contact edges, omit the internal vertices of
 $Q_0$, and use one artificial edge $ab$ in their place.  If $ab$ is already an
 edge, retain and designate that edge; never add a parallel edge.
 
-Apply the reviewed theorem to the auxiliary graph at target
+Apply $F'$ to the auxiliary graph at target
 $$
  \ell'=\ell-(L-1).
  \tag{1.3}
@@ -70,7 +72,8 @@ enough.
 
 ## 2. Conditional common-$H$ strong-gadget assembly
 
-Fix $q\ge1$ and $\beta>0$.  Let $H$ be an induced $\beta$-vertex-expander of
+Fix $q\ge1$ and $0<\beta\le1$.  Let $H$ be an induced floor-half
+$\beta$-vertex-expander of
 order $M$.  Assume that outside $H$ there are $q$ vertex-disjoint gadget
 supports, indexed by $i=1,\ldots,q$, as follows.
 
@@ -91,25 +94,30 @@ The total core-and-leg support is polylogarithmic in $M$, with constants fixed
 size, although this is not needed for the deletion estimates.  These are input
 hypotheses, not a construction theorem.
 
-We first connect $R_i$ to $L_{i+1}$ for $1\le i<q$.  In $H$, repeatedly prune
-against the total set $F_i$ of previously used $H$-vertices, including vertices
-of connectors of length zero.  The reviewed deletion estimate gives a remaining
-subgraph $H_i\subseteq H-F_i$ that is a $(\beta/2)$-expander and loses at most
+We first connect $R_i$ to $L_{i+1}$ for $1\le i<q$.  At stage $i$, return to the **original** floor-$\beta$ host $H$ and apply the
+degree-free floor-pruning lemma of §0 against the total actual connector seed
+$F_i$ of previously used $H$-vertices, including vertices of zero-length
+connectors.  Since each of the fixed $q-1$ connectors has length
+$O_\beta(\log M)$ and only a fixed number of them is used,
 $$
- \frac{3|F_i|}{\beta}                                 
+ f_i:=|F_i|\le C_{q,\beta}\log M
+ \quad\text{and hence}\quad
+ f_i\le\frac{\beta^2M}{16}
+$$
+for all sufficiently large $M$.  The lemma supplies a subgraph $H_i$ that is
+floor-half $\beta/2$-expanding and loses at most
+$$
+ \frac{3f_i}{\beta}
  \tag{2.1}
 $$
-vertices.  Since $q$ and $\beta$ are fixed and all earlier support is
-polylogarithmic, the boundary sets lose only
-$O_{q,\beta}(\log M)$ contacts.  For large $M$ there remain suitable contacts,
-and
+vertices.  This is one pruning with the accumulated seed, not iterative
+halving of an already pruned host.  Since the reservoir boundaries have size
+at least $2(\log M)^6$ and the total loss is $O_{q,\beta}(\log M)$, suitable
+contacts remain, and
 $$
- \operatorname{diam}(H_i)=O_\beta(\log M).             
+ \operatorname{diam}(H_i)=O_\beta(\log M).
  \tag{2.2}
 $$
-If the two contact sets meet, the connector $S_i$ is allowed to have length
-zero.  Otherwise choose a shortest path $S_i$ between them.  Choose the paths
-successively so that all $S_i$ are vertex-disjoint.
 
 The full connecting piece from the root of $R_i$ to the root of $L_{i+1}$ is
 formed from the root-to-contact tree path in $R_i$, its contact edge, $S_i$,
@@ -128,32 +136,32 @@ $$
 The endpoint trees $L_1,R_q$ meet $Q$ only at their roots; intermediate
 reservoir trees may be traversed by the connecting pieces.
 
-Now perform one final reviewed deletion in the original $H$, pruning against
+Now perform one final pruning in the original floor-$\beta$ host $H$, against
 $$
- F=V(H)\cap V(Q)=\bigcup_{i=1}^{q-1}V(S_i),
+ F=V(H)\cap V(Q),\qquad f:=|F|\le C_{q,\beta}\log M.
 $$
-with contact-edge endpoints included in the indicated connector paths.  We
-obtain $H^*\subseteq H-F$ that is a $(\beta/2)$-expander and has order
+The bound is from the fixed number of actual connector vertices, not from an
+unquantified polylogarithmic support estimate.  For large $M$,
+$f\le\beta^2M/16$, so the floor-pruning lemma gives $H^*\subseteq H-F$ that
+is floor-half $\beta/2$-expanding and has order
 $$
- M^*=M-O_{q,\beta}(\log M).                           
- \tag{2.4}
+ M^*=M-O_{q,\beta}(\log M).                           \tag{2.4}
 $$
 All $H$-vertices of $Q$ lie in $F$, so the two endpoint trees are outside
 $H^*$.  Their surviving $H^*$-boundaries still have at least
-$(\log M^*)^6$ vertices for large $M$, and their radii remain $O(\log M^*)$
-with fixed constants.  Apply the fixed-arm extension with expander parameter
-$\beta/2$.  Its width is
+$(\log M^*)^6$ vertices for large $M^*$.  By the floor-to-ceil bridge in §0,
+$H^*$ is a ceil-half $(\beta/4)$-expander once the explicit bridge threshold is
+met.  Apply $F'$ with expander parameter $\alpha=\beta/4$.  Its width is
 $$
- A=\frac{102}{\beta},                              
- \tag{2.5}
+ A=\frac{204}{\beta},                               \tag{2.5}
 $$
 independent of $q$, and the exact target window is
 $$
- [L-1+c\log M^*,\ L-1+\rho M^*],                    
- \tag{2.6}
+ [L-1+c\log M^*,\ L-1+\rho(\beta/4)M^*],             \tag{2.6}
 $$
-with integer ceilings and floors understood.  It is nonempty for large $M$
-because $L$ is polylogarithmic and hence $o(M)$.
+with $c=3K+O_{\beta}(1)$ and integer endpoint adjustments understood.  It is
+nonempty for large $M$ because
+$L=O_{q,\beta,K}(\operatorname{polylog} M)=o(M)$.
 
 The cycle supplied by the extension contains the baseline long arc of every
 core.  For any subset $I\subseteq\{1,\ldots,q\}$, replace the long arc in
