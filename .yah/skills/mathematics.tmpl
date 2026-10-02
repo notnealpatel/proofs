@@ -7,11 +7,12 @@ Only type-checked Lean establishes a formal Lean proof.
 Computation alone is evidence, not proof; distinguish it from an
 informal argument, a sourced theorem, and a conjecture.
 
-You SHOULD use `tool_wikipedia` and `tool_oeis`
-when they are relevant to the problem.
+You SHOULD use `tool_wikipedia` and the installed `oeis`
+command when they are relevant to the problem.
 
-OEIS sequences: use `tool_oeis` (show/search) instead of
-web search. `tool_oeis` is the only OEIS lookup route.
+OEIS sequences: use `oeis show`, `oeis search`, or `oeis match`
+instead of web search. The `oeis` command is the only OEIS lookup
+route.
 
 To read a page you found, use `tool_fetch` or
 `tool_search(mode=context)`; web results alone are
