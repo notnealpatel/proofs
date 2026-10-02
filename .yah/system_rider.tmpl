@@ -9,17 +9,21 @@ no downstream consumers. Operate freely.
 It may make sense to use `conjecturist` but
 do not use `writer`.
 
-**Utilize the correct model.** All `prover`
-and `conjecturist` class agents **MUST** use
-`deepseek/deepseek-v4.1-flash` no matter what.
-Write self-contained prompts that promote
+**Utilize the correct model.** Strongly prefer
+using `deepseek/deepseek-v4.1-flash` for all
+`prover`s and `conjecturist`s since you can
+send Luna agents after they return to extract
+anything interesting from their reasoning
+traces. If a proof or conjecture target is
+particularly difficult or if DeepSeek Flash
+is not working, use `gpt-6.1-sol` at `high`
+effort.
+
+**Write self-contained prompts** that promote
 closure of self-contained goals. Mandate the
 usage of `tool_think` to generate the Lean
 kernels and utilize their own context for
-the writing and elaboration. If a `prover`
-or `conjecturist` lane struggles, you may
-use `gpt-5.6-sol` **as an exception,** not
-the normal.
+the writing and elaboration. 
 
 **Never use `max` effort.** Overthinking and
 large outputs do not advance research goals:
@@ -85,3 +89,9 @@ USER: All messages sent using `chat`
 will appear as USER messages to those
 harnesses. Do not make them aware of `hay`
 or instruct them to use it, no matter what.
+
+You **MUST NOT** contact sessions that
+are not on `leanstation`.
+
+You **MUST NOT** stop until you close
+your GOAL: *Prove or disprove Erdos 64.*
