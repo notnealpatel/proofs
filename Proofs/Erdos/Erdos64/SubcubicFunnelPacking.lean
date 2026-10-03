@@ -376,4 +376,31 @@ theorem h7_embedding_ranges_eq_of_shared_vertex [Fintype V] [DecidableRel G.Adj]
   · exact he
   · exact (Set.disjoint_left.mp hd hf hg).elim
 
+/-- Equal induced H7 vertex ranges have the same unordered pair of triangle
+ports. This uses the exact logical identification certificate, not a choice
+of labeling for a vertex set. -/
+theorem h7_triangle_ports_of_range_eq [Fintype V] [DecidableRel G.Adj]
+    (hdeg : ∀ v, G.degree v ≤ 3) (f g : h7 ↪g G)
+    (he : Set.range f = Set.range g) :
+    (f 0 = g 0 ∧ f 1 = g 1) ∨ (f 0 = g 1 ∧ f 1 = g 0) := by
+  obtain ⟨m,hm⟩ := identification_matrix f g
+  have hv := valid_identification hdeg f g m hm
+  have hfull : ∀ i, ∃ j, PackingCertificate.bit m i j := by
+    intro i
+    have hi : f i ∈ Set.range g := he ▸ Set.mem_range_self i
+    obtain ⟨j,hj⟩ := hi
+    exact ⟨j,(hm i j).mpr hj.symm⟩
+  rcases PackingCertificate.classify m hv with h | h | h | h | h | h | h | h | h
+  all_goals subst m
+  · exact ((by unfold PackingCertificate.bit; decide : ¬ (∀ i, ∃ j, PackingCertificate.bit 0 i j)) hfull).elim
+  · exact ((by unfold PackingCertificate.bit; decide : ¬ (∀ i, ∃ j, PackingCertificate.bit 4297129992 i j)) hfull).elim
+  · exact ((by unfold PackingCertificate.bit; decide : ¬ (∀ i, ∃ j, PackingCertificate.bit 4299685952 i j)) hfull).elim
+  · exact ((by unfold PackingCertificate.bit; decide : ¬ (∀ i, ∃ j, PackingCertificate.bit 4539780432896 i j)) hfull).elim
+  · exact ((by unfold PackingCertificate.bit; decide : ¬ (∀ i, ∃ j, PackingCertificate.bit 9899899625472 i j)) hfull).elim
+  · exact ((by unfold PackingCertificate.bit; decide : ¬ (∀ i, ∃ j, PackingCertificate.bit 281543712985092 i j)) hfull).elim
+  · exact ((by unfold PackingCertificate.bit; decide : ¬ (∀ i, ∃ j, PackingCertificate.bit 35218866078240 i j)) hfull).elim
+  · exact Or.inl ⟨(hm 0 0).mp (by decide), (hm 1 1).mp (by decide)⟩
+  · exact Or.inr ⟨(hm 0 1).mp (by decide), (hm 1 0).mp (by decide)⟩
+
 end Erdos64.SubcubicFunnel
+

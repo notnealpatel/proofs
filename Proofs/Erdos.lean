@@ -23,6 +23,7 @@ import Erdos.Erdos20.SunflowerConjecture
 import Erdos.Erdos64.SubcubicFunnel
 import Erdos.Erdos64.SubcubicFunnelPacking
 import Erdos.Erdos64.SubcubicFunnelSymmetricPacking
+import Erdos.Erdos64.SubcubicFunnelH15Packing
 import Erdos.Erdos142.ThreeAPCount
 import Erdos.Erdos142.WeightedCapacity
 import Erdos.Erdos142.RobustCapacity
