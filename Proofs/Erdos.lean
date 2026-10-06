@@ -21,6 +21,7 @@ import Erdos.Erdos20.Sunflower
 import Erdos.Erdos20.ErdosRado
 import Erdos.Erdos20.SunflowerConjecture
 import Erdos.Erdos64.CubicFewClawCenters
+import Erdos.Erdos64.ClawFreeMinimalExclusion
 import Erdos.Erdos64.SubcubicFunnel
 import Erdos.Erdos64.SubcubicFunnelPacking
 import Erdos.Erdos64.SubcubicFunnelSymmetricPacking
