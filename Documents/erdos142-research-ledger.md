@@ -1543,6 +1543,33 @@ proof.
 At $N=3$, the scalar-free set $A=\{2,5\}$ has $E=K_{0,2}=1$,
 so dropping the third carry is invalid.
 
+## Three-Luna upper-control mining (source-inspected)
+
+The completed three-Luna mining found no ready-made theorem closing O or
+improving the existing scalar-free bound. The accepted bridge at
+`4cbaa76aef42e1bb2e462495155b4c7048ac977f` already proves
+`E = Σ_z,k K_zk` and `E ≤ 3N max K` for finite `A`, `N > 0`; the existing
+bound is `2E ≤ (m + floor(m/2))M`. The target O and the route O → shadow C →
+square gain remain open mathematics; square gain P is intermediate, not
+asymptotic closure. The detailed source record is
+[here](erdos142-oai-upper-control-mining.md).
+
+The three inspected scopes were Estimates/reflection/energy,
+Fourier/Linear/Lattices, and Results/FixedDensity/Geometry/Sampling. Their
+external results were read-only SOURCE-INSPECTED, not newly compiled or
+axiom-audited (external Lean 4.34.1 versus local 4.33.0-rc1); no import, port,
+or new Lean result is justified. In particular, the finite-group graph-energy
+lemma does not admit `G = Z` or supply an AP-sensitive upper bound; the Fourier
+unit-bounded inverse adapter supplies no fixed-denominator or unequal-fiber
+collision control; and ordered-removal results propagate assumed density
+rather than produce it. Coarse regularization is retained only as a
+conditional lead after a faithful scalar/carry model, quantitative upper
+estimate, diagonal separation, and complexity budget are supplied. A finite
+Sage check (`A={1,2,4,8}`, `N=3`) found an AP in the shadow but none in A
+(`M=6`, `E=12`), so shadow APs do not transport back; this is computation, not
+a Lean theorem. Preserve uneven fibers, in-range targets, subproducts,
+affine-flat thinning families, and all carries in future tests.
+
 **Exact remaining gap.** L18 is a correlation **lower** extraction;
 (O) needs a sharp positional collision **upper** bound. The new identity
 connects to the energy in `ReflectionEnergyCriterion` and
