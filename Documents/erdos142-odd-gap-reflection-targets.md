@@ -106,3 +106,6 @@ targets `(-1,2,5)`, `S=6`, in 0.76 seconds. This is computation only, from
 the intentionally unintegrated parent file `Proofs/Scratch/Erdos142DyadicAudit.sage`
 and task `parent-improved-dyadic-small-audit`. The old N14 launched audit
 remains unavailable and is not presented as passed.
+
+## Closure checkpoint — 2026-10-07
+The odd-gap cycle is now closed at accepted primary source `01d6a6fa7c69737b1512877389d408ca395965df`, with combined candidate/source `564266b687c40de0c2325772f4d51346f87ce74d` adopted and `stale=false`. Original graph/`2S`/`7/4` and added `3S≤5m` semantic reviews are CLEAN; foundations review of the exact accepted source, parent byte comparison, all three endpoint signatures, standard-axiom audit, and full umbrella passed, with only old unrelated warnings. Thus arbitrary targets, strict finite-window AP-free filtering, `2S≤3m+min(q,r)`, and `3S≤5m` are closed, including relative parity and negative odd gaps. The dyadic `(k+6)` statement remains prose-only; universal `3m/2`, O/C/global-energy gain, and Erdős 142 remain open. Issue [#81](https://github.com/thatnealpatel/proofs/issues/81) is evaluation, not novelty certification.

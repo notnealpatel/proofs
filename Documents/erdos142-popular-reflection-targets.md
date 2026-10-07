@@ -107,3 +107,6 @@ umbrella attempt timed out after 180s on unrelated modules; this is preserved
 separately and is not a sorry-free umbrella claim. The foundations review of
 `ecd269...` is not CLEAN solely because of the earlier provenance wording error.
 Documentation fidelity recheck and adoption remain pending.
+
+## Closure checkpoint — 2026-10-07
+This detailed popular-reflection record is historically complete: accepted primary source `01d6a6fa7c69737b1512877389d408ca395965df` is CLEAN under semantic and corrected-foundations review. The original graph, `2S`, and `7/4` material, endpoint signatures, standard-axiom audit, byte-identical parent comparison, and full umbrella all passed; the parent audit workspace was intentionally not adopted. The triple-target AP and strict finite-window rich-target filter are therefore closed formal goals. This records accepted source status only, not a document self-reference, GitHub upload, novelty, or optimality claim. Evaluation request [#80](https://github.com/thatnealpatel/proofs/issues/80) remains external review, and bounded OpenAlex discovery found no direct match.
