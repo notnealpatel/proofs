@@ -1628,3 +1628,29 @@ error. Documentation fidelity recheck and adoption remain pending. See the
 detailed [popular-reflection-targets checkpoint](erdos142-popular-reflection-targets.md).
 Bounded literature checks found no direct match, which is provenance context
 rather than novelty certification.
+
+### Odd-gap reflection targets: corrected verification and stronger prose bound
+
+**Kernel checked for the original odd-gap theorem; foundations/adoption of the new result pending.** The exact source at `9e0c2540e38169a177571b2c30f2a5f30d9fb562`, `Proofs/Erdos/Erdos142/ReflectionOddGapTargets.lean`, proves, for scalar-3-AP-free finite `A ⊂ ℤ`, odd `h`, and relative parity counts `q,r`,
+
+$$2S\le3|A|+\min(q,r),\qquad 4S\le7|A|,$$
+
+where `S=ν(d-h)+ν(d)+ν(d+h)`. The focused build passed and standard axioms were confirmed as exactly `propext`, `Classical.choice`, and `Quot.sound`. Independent vacuity review of the exact original source is CLEAN. A reviewer whole-umbrella attempt timed out after 120 seconds in unrelated modules and is recorded separately, not as a focused-module failure. The parent independently copied a byte-identical module into an intentionally unintegrated audit workspace, compiled it, and printed both exact public statements; those endpoints have precisely the same three standard axioms. Rebased mechanical output `dd742b8f9b68f4ec3869246fdcbf22564a750429` contains the byte-identical module plus one umbrella import on accepted primary `01d6a6fa7c69737b1512877389d408ca395965df`, but completion of that particular build was unavailable. Foundations review and new-result adoption remain pending. Issue [#80](https://github.com/thatnealpatel/proofs/issues/80) remains a primary novelty-evaluation request, not a novelty claim.
+
+**Complete prose strengthening, Lean implementation pending.** Endpoint parity gives `ν(d)≤q` and `ν(d-h),ν(d+h)≤r`, hence `S≤q+2r`. The kernel-checked strong theorem also gives `2S≤3m+min(q,r)≤3m+q`. Adding yields
+
+$$3S\le3m+2q+2r=5m,$$
+
+so `S≤5m/3`. This uses no new graph argument. The older seven-quarters estimate remains the kernel-checked theorem; the five-thirds inequality is a complete prose derivation awaiting Lean implementation.
+
+The corresponding **informal, not Lean-formalized** dyadic lead improves to
+
+$$ (k+6)S\le2(k+5)m,$$
+
+for `h=2^k t` with `t` odd. Its parity split, scaling, and induction use `α_0=5/3`, `α_{k+1}=4/(4-α_k)`, and `α_k=2-2/(k+6)`. The former `(k+8)S≤2(k+7)m` / `α_0=7/4` formulation is superseded prose, not an additional formal result. The universal `S≤floor(3m/2)` bound remains OPEN; no O/C or Erdős 142 closure follows, and even gaps remain uncovered.
+
+**Computation only.** The parent reran its exact Sage audit with assertions for `S≤q+2r`, `3S≤5m`, and the improved dyadic inequality. Task `parent-improved-dyadic-small-audit` passed in 0.76 seconds on 705 scalar-free caps in `[0,12)`, 84,302 integer target APs with at least two supported targets, and the same maximum `S/m=3/2` witness `A={0,1,3,4}`, targets `(-1,2,5)`, `S=6`. The file remains in the intentionally unintegrated parent workspace at `Proofs/Scratch/Erdos142DyadicAudit.sage`. The launched N14 audit remains unavailable and is not reported as passed. Detailed prose is in [`erdos142-odd-gap-reflection-targets.md`](erdos142-odd-gap-reflection-targets.md).
+
+#### Final semantic-review update
+
+The incremental semantic review of exact prover output `c5266c8f0d5a02d4d1bfd14a01b0e81e10663b96` is now **CLEAN, with no findings**. This is alongside the already CLEAN original graph/`2S`/`7/4` review, the passed focused build and independent signature/standard-axiom audit, and the successful parent verification of all three public statements plus the full `Erdos` umbrella. Only foundations/provenance review and new-result adoption remain pending at this checkpoint.
