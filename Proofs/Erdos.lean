@@ -115,3 +115,4 @@ import Erdos.Erdos142.ReflectionCarryEnergy
 import Erdos.Erdos142.ReflectionMultiplicityCap
 import Erdos.Erdos142.ReflectionEnergyCriterion
 import Erdos.Erdos142.ReflectionFiberOverlap
+import Erdos.Erdos142.ReflectionPopularTargets

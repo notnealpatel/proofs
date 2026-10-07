@@ -1582,3 +1582,49 @@ the toolchains differ (external 4.34.1, local 4.33.0-rc1), and no external
 import was added. Finite partition/pigeonhole bookkeeping has no novelty
 claim. See [the detailed bridge note](erdos142-reflection-carry-bridge.md)
 for full signatures, attribution, normalization and direction checks.
+
+### Popular reflection targets: triple checkpoint
+
+**Kernel checked; repository-new, not a literature-novelty claim.** The finalized
+source `Proofs/Erdos/Erdos142/ReflectionPopularTargets.lean` proves that for
+finite 3-AP-free $A\subset\mathbb Z$, $c+e=2d$, and $c\ne e$,
+$$
+\nu_c+\nu_d+\nu_e\le2(|A|-1),
+\qquad
+\nu_c=|\{a\in A:2a-c\in A,\ a\ne c\}|.
+$$
+The companion `threeAPFree_richReflectionTargets` says that for every finite
+$T$, the targets with $3\nu_c>2(|A|-1)$ form a 3-AP-free set. The proof uses
+ordered targets, the degree-two cap, and two endpoint losses; it has no interval,
+positivity, or positive-mass hypothesis, and collision diagonals remain counted.
+Equality occurs for $A=\{0,1,3,4\}$ at targets $(-1,2,5)$, with multiplicity
+two at each target; the analogous shifted example is only an informal
+translation check. Only the original example and the failure of the analogous
+non-strict rich cutoff are kernel-checked. This does not claim optimality of
+multiplicative two for larger target sets and gives no automatic improvement of
+$E$, $O$, or $C$. A separate conjecture $\sum_c\nu_c\le\lfloor3m/2\rfloor$
+remains unproved; the finite data $0,2,4,6,7,9,9,10$ for $m=1,\ldots,8$ is
+not proof.
+
+The primary focused prover output is `d231ee8c590cd0344e7cf16de8257c4d38fea81d`.
+The registered Lean-only integration candidate is
+`fc00ae3d7812dfc7e21737a5dee723ad1b10fb10` (integration `snuQXux`), not an
+isolated parent-workspace revision. A later combined Lean-plus-documents
+candidate, reviewed as `ecd269ab4bbe3db90e5d970ab171c26cb2ca7238`, records the
+documentation combination; it is not presented as a future finalized hash.
+The parent copied the byte-identical new module from `fc00...` into its own
+isolated audit workspace `dispatch-gxmCEPK`, verified the comparison, and built
+the new module plus scratch signature/axiom probes there. That audit workspace
+was intentionally not integrated or adopted. Public declarations independently
+use only `propext`, `Classical.choice`, and `Quot.sound`. Primary semantic review
+was CLEAN. The parent audit then ran bounded `timeout 600s lake -q build Erdos`
+(tool task 660s) to completion with exit 0: the parent umbrella passed, with
+inherited unrelated warnings including sorry warnings outside this module and
+no warnings from the new module. A historical reviewer umbrella attempt timed
+out after 180s while compiling unrelated existing modules; this is preserved
+separately and is not a claim of a sorry-free umbrella. The foundations review
+of `ecd269...` is not CLEAN solely because of the earlier provenance wording
+error. Documentation fidelity recheck and adoption remain pending. See the
+detailed [popular-reflection-targets checkpoint](erdos142-popular-reflection-targets.md).
+Bounded literature checks found no direct match, which is provenance context
+rather than novelty certification.
