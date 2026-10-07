@@ -1494,3 +1494,64 @@ for the self-contained frontier at accepted revision
 must receive its own repository issue or an explicit scoped update to the
 matching existing issue before it is advertised; filed requests are external
 evaluation, not novelty certification.
+
+### L18 finite reflected-collision carry bridge
+
+**Finite kernel-checked checkpoint; not (O) or (C).**
+`Proofs/Erdos/Erdos142/ReflectionCarryEnergy.lean` identifies the existing
+in-range energy exactly with the sum of reflected collision slices:
+
+$$
+E=\sum_{z=0}^{N-1}\sum_{k=0}^2K_{z,k},\qquad
+\exists z,k:\ E\le3N K_{z,k}.
+$$
+
+Here $K_{z,k}$ counts ordered $(c,a,a')$ with $c\in[0,N^2)$,
+$a,a'\in\{u\in A:2u-c\in A,\ u\ne c\}$, and
+$(a\bmod N)+(a'\bmod N)+(c\bmod N)=z+kN$.
+The public `reflection_energy_eq_sum_carry` and
+`exists_reflectionCarrySlice_large` assume only finite integer $A$ and
+$N>0$; they need no AP-freeness, range bound on $A$, or positive energy.
+The digit-cell equivalences retain all six digit bounds and the literal
+reflected target digit $n=z+kN-x-y$; they expose the unequal-row and hard
+boundary interpretation. Per-residue wrapped slices are exactly the sum
+of their three unwrapped carry slices. Collision diagonals $a=a'$ remain
+included, while trivial reflection representations are excluded.
+
+This adapts the three-carry idea from source-inspected
+`OAI.Erdos3.exists_unwrapped_family_reflected_correlation` and
+`tripleCarry_representative` in L18, not the external theorem or its
+large dependency tree. The positive specialization supplies its own
+correlation interpretation: with family $(i,j,v)$ and zero-extended
+center indicators, some wrapped normalized average is at least $E/N^6$.
+The external complex extraction would give only
+$K\ge e^{-10}E^2/N^7$, whereas direct positive partition gives
+$K\ge E/(3N)$. The normalized complex correspondence is explained finite
+mathematics, not a compiled OAI port. L19/L20 are unnecessary.
+
+The focused module and full `lake build Erdos` passed (8871 jobs, with
+inherited sorry warnings outside the new module). The reviewer’s own 120s
+umbrella attempt timed out, while the author’s 600s umbrella passed. The
+author's explicit leaf audit of all eleven public theorem endpoints found
+exactly `[propext, Classical.choice, Quot.sound]`; an independent parent axiom
+audit also confirmed these exact standard axioms. Semantic/vacuity review of
+exact code candidate `964f753dc24b19e46b56bc61dbaa38525e0c6eaf` completed
+CLEAN. The parent’s fresh isolated workspace was not integrated or adopted.
+The reproducible Sage test checked all 530 subsets for $N=1,2,3$, including
+184 scalar-free subsets, plus boundary/stress cases. Computation is not the
+proof.
+At $N=3$, the scalar-free set $A=\{2,5\}$ has $E=K_{0,2}=1$,
+so dropping the third carry is invalid.
+
+**Exact remaining gap.** L18 is a correlation **lower** extraction;
+(O) needs a sharp positional collision **upper** bound. The new identity
+connects to the energy in `ReflectionEnergyCriterion` and
+`ReflectionFiberOverlap`, but improves neither existing energy estimate.
+No new upper bound on the slices, cross-row cancellation, general (O),
+(C), or asymptotic conclusion is proved. The carry $k=0,1,2$ partitions
+three nonnegative low digits; it is not the Fourier note's AP residual
+$t=-1,0,1$. The external source is not newly built or axiom-audited;
+the toolchains differ (external 4.34.1, local 4.33.0-rc1), and no external
+import was added. Finite partition/pigeonhole bookkeeping has no novelty
+claim. See [the detailed bridge note](erdos142-reflection-carry-bridge.md)
+for full signatures, attribution, normalization and direction checks.
