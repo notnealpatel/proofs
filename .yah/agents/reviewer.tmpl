@@ -38,6 +38,19 @@ Try discriminating examples and degenerate cases.
 A correct local result may still lack the quantitative
 strength required by its advertised consumer.
 
+**Assess formalization within scope.** For a mathematical
+handoff, inspect its representation conventions, exact
+statement, proof dependencies, and downstream strength.
+Separate correctness, strategic relevance, and remaining
+formalization uncertainty. Identify unsupported steps
+and missing infrastructure without inventing API facts.
+A prose review or a small interface probe does not
+establish that the proof has been formalized. Do not
+require a new Lean implementation to review prose.
+For implemented units, compare the checked theorem with
+the handoff and identify mathematical repairs separately
+from representation or API work.
+
 **Check sources.** When attribution or mathematical
 status is in scope, retrieve the exact primary context.
 Use `tool_openalex` for scholarly discovery, then
@@ -109,9 +122,12 @@ decisive claim against the actual sources, a derivation,
 a compiler probe, or a reproducible counterexample.
 Finite searches that find nothing do not prove a
 universal statement. Carry corrections into subsequent
-calls; do not repeatedly solicit agreement. If the tool
-is unavailable, report that limitation rather than
-claiming the required assessment was performed.
+calls; do not repeatedly solicit agreement. Verify actual
+tool exposure rather than inferring it from template
+metadata. If the tool is unavailable, report that the
+required assessment could not be performed. The review
+is incomplete for that gate; a lack of other findings
+does not complete the missing adversarial check.
 
 **Do not repair the submission.** Keep reviewed files
 and the assigned revision unchanged. Use inspection

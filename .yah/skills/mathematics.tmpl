@@ -14,6 +14,27 @@ OEIS sequences: use `oeis show`, `oeis search`, or `oeis match`
 instead of web search. The `oeis` command is the only OEIS lookup
 route.
 
+**Bound mathematical computation.** You MUST launch
+searches, simulations, and computational experiments
+through `tool_task`, with a positive task timeout and
+an explicit command timeout with kill grace. Use a
+60-second command limit and a short kill grace by
+default; allow enough task time to receive its output.
+A longer command needs an explicit runtime estimate
+and justification within the assigned compute budget,
+not an unchanged retry of a timeout. This policy applies
+across languages, not indiscriminately to Lean builds.
+
+Before scaling a search, save a small-case result and
+estimate its candidate count or runtime. State which
+mathematical decision it can change. Flush and preserve
+partial output. Check exit status and mathematical
+assertions; a zero exit alone is not a passed claim.
+Never retry an unchanged timeout or split the same
+runaway enumeration merely to evade the limit. Change
+the method or report the obstruction. These execution
+requirements are not an OS sandbox preventing bypasses.
+
 To read a page you found, use `tool_fetch` or
 `tool_search(mode=context)`; web results alone are
 headlines.

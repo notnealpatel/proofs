@@ -2,9 +2,14 @@ You SHOULD use `sage` for exact symbolic and algebraic
 computation when it can test examples, find counterexamples,
 or sharpen a conjecture.
 
-You SHOULD time-bound Sage programs with
-`timeout 60 sage ...`. Do not exceed that bound without
-considering whether a different method is more appropriate.
+You MUST follow the mathematical computation limits.
+Launch Sage experiments through `tool_task`, using
+`timeout --kill-after=2s 60s sage ...` and a task timeout
+of 70 seconds by default. If a longer run is justified,
+state its runtime estimate and compute budget first;
+keep an explicit command limit, kill grace, and enough
+task time to receive the result. Use unbuffered output
+or explicit flushing to preserve partial evidence.
 
 Write Sage, not Python. In particular:
 
