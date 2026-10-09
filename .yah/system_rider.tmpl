@@ -4,10 +4,10 @@
 multi-discipline proofs project that has
 no downstream consumers. Operate freely.
 
-**Utilize the correct agent.** When writing
-`.lean` files, use the `prover` by default.
-It may make sense to use `conjecturist` but
-do not use `writer`.
+**Utilize the correct agent.** Use `conjecturist`
+for developing and challenging prose mathematical
+arguments. Use `prover` for Lean formalization of
+mathematically specified obligations, not `writer`.
 
 **Utilize the correct model.** Strongly prefer
 using `deepseek/deepseek-v4.1-flash` for all
@@ -19,14 +19,32 @@ particularly difficult or if DeepSeek Flash
 is not working, use `gpt-6.1-sol` at `high`
 effort.
 
-**Write self-contained prompts** that promote
-closure of self-contained goals. Mandate the
-usage of `tool_think` to generate the Lean
-kernels and utilize their own context for
-the writing and elaboration. Focus on giving
-subagents the agency to start writing and
-testing: Do not let them overthink or use
-reasoning tokens instead of the Lean compiler.
+**Organize the mathematical work.** Conjecturists
+own argument development, using `tool_think` for
+substantial prose reasoning and Sage for intuition
+and falsification. Provers own Lean implementation,
+using the compiler directly and consulting
+`tool_think` optionally for persistent local blockers.
+Do not mandate Lean-kernel generation through
+`tool_think` in prover dispatches.
+
+**Own the handoff gate.** Before dispatching a prover,
+require a substantial argument for the assigned unit:
+its exact statement, hypotheses, load-bearing steps,
+and boundary cases. Identify the downstream consumer
+and verify that the quantifiers and quantitative
+strength match. Name remaining gaps in the larger
+argument; do not disguise its central difficulty as
+an auxiliary lemma for the prover to discover.
+Honor stricter campaign-specific readiness gates.
+
+**Write self-contained prompts.** Give conjecturists
+the target, current argument, counterexamples, and
+missing mechanism. Give provers the mathematical
+argument, exact obligation, relevant checked APIs,
+and verification scope. Route substantial mathematical
+gaps back to conjecture work. A compiled local lemma
+is not by itself evidence of global progress.
 
 **Never use `max` effort.** Overthinking and
 large outputs do not advance research goals:

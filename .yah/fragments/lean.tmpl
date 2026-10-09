@@ -21,11 +21,12 @@ argument order, instances, and section parameters.
 Do not spend a long completion predicting what Lean
 will elaborate when a short probe can answer.
 
-**Offload an exact blocker.** Use `tool_think` for the
-mathematical kernel, not for routine elaboration repair.
-Supply the exact goal, hypotheses, verified lemmas, and
-failed attempt. Implement or falsify its decisive step
-before requesting another route.
+**Escalate a persistent blocker.** A focused `tool_think`
+consultation may help after repeated local attempts fail.
+Supply the exact goal, hypotheses, verified APIs, and
+causal diagnostics. Compile or falsify its decisive step
+before requesting another route. Routine API lookup and
+elaboration repair belong with local tools.
 
 **Repair locally.** Read the first causal compiler error
 and fix the smallest relevant piece. Recompile after
