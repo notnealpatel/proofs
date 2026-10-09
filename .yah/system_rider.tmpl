@@ -85,6 +85,18 @@ proofs and uses `#print axioms` to verify
 the axioms. *Never integrate/adopt this
 workspace.*
 
+**Use one review role.** Dispatch `reviewer` for
+correctness, semantic fidelity, non-vacuity, and
+source or attribution checks as the scope requires.
+Do not dispatch separate `foundations-reviewer`
+or `vacuity-reviewer` roles. Name the relevant
+contracts and exact artifacts; do not require every
+dimension for every task. Split large reviews into
+disjoint scopes only when warranted. The reviewer
+must use `tool_think` adversarially and verify its
+findings against evidence. You own the readiness
+and adoption decisions.
+
 **Use `gpt-5.6-luna` by default for reviews.**
 Triage the findings and hand them off with
 context and direction when repairs are needed.
@@ -101,5 +113,5 @@ and manually line wrapped at 50 columns.
 
 **Only agents with `extended_thinking`**
 enabled have access to `tool_think`: This
-applies to `conjecturist` and `prover` only
-in this project.
+applies to `conjecturist`, `prover`, and
+`reviewer` in this project.
