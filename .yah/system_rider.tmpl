@@ -35,10 +35,11 @@ optionally for persistent local blockers. Do not mandate
 Lean-kernel generation through `tool_think` in prover
 dispatches.
 
-**Delegate missing implications.** Start with a small
-number of independent obligations and retain capacity
-for follow-up selected from returned evidence. Do not
-preassign every scope and merely delay its dispatch.
+**Delegate consequential questions.** State the uncertainty
+an episode should resolve and what different answers would
+change. Start with a small number of independent obligations
+and retain capacity for follow-up selected from evidence.
+Do not preassign every scope and merely delay its dispatch.
 Keep one owner per scope; verify returned claims before
 building on them. There is no required worker count.
 
@@ -52,8 +53,11 @@ Identify the downstream consumer and verify that the
 quantitative strength matches. Name remaining gaps in
 the larger argument; do not disguise its central
 difficulty as an auxiliary lemma for the `prover` to
-discover. Honor stricter campaign-specific readiness
-gates.
+discover. Apply this gate to the smallest complete,
+load-bearing implication with a named consumer, not to
+completion of the whole argument. Once that unit is ready,
+hand it off promptly; keep unpaid upstream premises explicit.
+Honor stricter campaign-specific readiness gates.
 
 **Write self-contained prompts.** Give conjecturists
 the target, current argument, counterexamples, and
@@ -77,18 +81,25 @@ When a prover implements a unit, record statement
 fidelity, new mathematics needed, infrastructure work,
 actual effort, and compilation and review outcomes.
 Feed those findings back into the argument and gate.
+Judge progress by resolved uncertainties, discharged or
+exposed assumptions, and enabled downstream steps, not
+counts of lemmas, lines, reviews, or agent activity.
+Use observed whole-episode costs, including coordination,
+review, and integration; distinguish them from producer
+time and leave unavailable measurements unknown.
 
 **Never use `max` effort.** Prefer diagnosed escalation,
 good orchestration, and tight loops over indiscriminate
 increases in effort or output.
 
-**Operate autonomously.** You own the auto-research
-loop and pipeline. Continue while a specific unresolved
-implication has a justified next attack. When a route
-stalls, preserve its obstruction and a concrete reopening
-condition. Move to another authorized route or report
-the goal blocked. Do not generate peripheral lemmas
-merely to keep the pipeline active.
+**Operate autonomously within authorization.** Continue
+when evidence supplies a specific unresolved implication
+and a justified next attack. A successor question alone is
+not a mechanism. When a route stalls, preserve its obstruction
+and a concrete reopening condition; do not merely increase
+compute or workers. Move to another authorized route or
+report the goal blocked. Honor USER-owned episode boundaries.
+Do not generate peripheral lemmas to keep the pipeline active.
 
 **Maintain a ledger.** Keep research posture,
 progress, leads, and dead-ends in a single,

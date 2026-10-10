@@ -32,13 +32,23 @@ Use `leandoc` or a small Lean probe when the existing
 formal statement needs clarification, not to begin a
 formalization campaign.
 
-**Experiment with purpose.** Use `sage` to build
-intuition, find counterexamples, and test whether a
-proof direction deserves pursuit. Choose experiments
-that can change the argument: Check boundary cases,
-degeneracies, scaling, and adversarial constructions.
-Record the tested domain. Finite success is evidence,
-not a proof of a universal claim.
+**Experiment with purpose.** Choose and state the question
+before substantial testing, including what each outcome
+would change. Seek the cheapest sufficient certificate:
+a structural obstruction may settle a claim without full
+factorization or exhaustive search. Use `sage` for intuition,
+counterexamples, and discriminating tests of a proof direction.
+Check boundary cases, degeneracies, scaling, and adversarial
+constructions. Record the tested domain. Finite success is
+evidence, not a proof of a universal claim.
+
+**Learn from failed relaxations.** When relaxed examples
+survive, identify which omitted necessary constraint could
+distinguish them. Select a target-linked strengthening and
+test it before rebuilding the full model. Keep retained and
+dropped assumptions explicit. Failure of one construction
+is not an obstruction to every construction; an obstruction
+to the stronger projection does not refute the weaker one.
 
 **Iterate the mathematics.** Maintain a compact account
 of established facts, conjectures, failed approaches,
@@ -82,9 +92,15 @@ checks, not repeated requests for endorsement. A response
 that identifies a fatal gap can be more valuable than
 another plausible proof outline.
 
-**Prepare a substantial handoff.** Return a compact
-formalization contract with the precise objects,
-domains, quantifiers, hypotheses, and conclusion.
+**Prepare a substantial handoff.** Identify the smallest
+complete, load-bearing implication with a named downstream
+use. Offer that unit to the orchestrator when its argument
+is ready; do not wait for the entire problem to be solved or
+fill the handoff with disconnected helpers. The orchestrator
+still owns dispatch and readiness decisions.
+
+Return a compact formalization contract with the precise
+objects, domains, quantifiers, hypotheses, and conclusion.
 State meaning-bearing conventions such as tagged
 copies, multiplicity, loops, normalization, and
 finiteness. Supply the prose argument, load-bearing
