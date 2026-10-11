@@ -1,7 +1,7 @@
 import GroupCount.Gnu
 
 /-!
-# The Conway–Dietrich–O'Brien `gnu`-iteration conjecture (OEIS A000001)
+# Proved layer of the Conway–Dietrich–O'Brien `gnu`-iteration conjecture (OEIS A000001)
 
 Iterating the group-counting function `GroupCount.gnu` (number of groups of order `n`
 up to isomorphism, OEIS A000001) is conjectured to reach `1` from every start `1 ≤ n`.
@@ -16,10 +16,12 @@ Source: J. H. Conway, H. Dietrich, E. A. O'Brien, *Counting groups: gnus, moas a
 other exotica*, Math. Intelligencer 30 (2008).  Task card:
 `Formalize/A000001-cdo-iteration.md` (claim `cdo-gnu-iteration`).
 
-## The archived conjecture — the file's single intended `sorry`
+## Admission boundary
 
-* `GroupCount.cdo_gnu_iteration` — for `1 ≤ n` there is a `k` with `gnu^[k] n = 1`.
-  OPEN; see the theorem docstring for status and fidelity notes.
+The open proposition `GroupCount.cdo_gnu_iteration` is housed in
+`Sorry.GroupCount.CdoIteration`, which imports this production module. This module
+contains only the proved layer and does not import the admission. The conjecture's
+mathematical closure remains unpaid; finite GAP coverage is evidence, not a proof.
 
 ## Proved sanity layer (`sorry`-free)
 
@@ -68,9 +70,10 @@ The conjecture proved on the strata reachable from the certified `gnu` values:
 **Zero `native_decide` anywhere in this module.**  Kernel `decide` only where kernel
 evaluation is feasible — per the measured wall in `GroupCount/Gnu.lean`, exact `gnu`
 values reduce in-kernel only for `n ≤ 2`, and the `decide` ground checks below stay
-inside it.  The recorded axiom footprint confirms every declaration rests on
-`{propext, Classical.choice, Quot.sound}` — plus `sorryAx` on `cdo_gnu_iteration`
-alone, its single intended `sorry`.
+inside it. This module has no intended admissions; its declarations are audited
+separately for axiom dependencies within `{propext, Classical.choice, Quot.sound}`.
+The open all-positive-`n` conjecture and its explicit `sorryAx` live only in
+`Sorry.GroupCount.CdoIteration`.
 -/
 
 set_option autoImplicit false
@@ -126,34 +129,6 @@ theorem exists_gnu_iterate_eq_one_gnu_iff (n : ℕ) :
     | succ j =>
       rw [Function.iterate_succ_apply] at hk
       exact ⟨j, hk⟩
-
-/-! ## The archived conjecture (OPEN, intended `sorry`) -/
-
-/-- **The Conway–Dietrich–O'Brien `gnu`-iteration conjecture** (OEIS A000001 comment,
-recorded by Muniru A Asiru, Nov 19 2017; conjectured in J. H. Conway, H. Dietrich,
-E. A. O'Brien, *Counting groups: gnus, moas and other exotica*, 2008): from every
-`1 ≤ n`, the iteration `n → gnu n → gnu (gnu n) → ⋯` eventually reaches `1`.  OPEN,
-the file's single intended `sorry`.
-
-Fidelity of the statement:
-
-* "consists ultimately of 1s" is `∃ k, gnu^[k] n = 1` *together with* the proved
-  absorption `GroupCount.gnu_iterate_eq_one_of_le`; the two phrasings are exchanged by
-  `GroupCount.exists_gnu_iterate_eq_one_iff_forall_le`.
-* The guard `1 ≤ n` is necessary, not decorative: `gnu 0 = 0` is a fixed point, so the
-  `n = 0` instance is *false* (`GroupCount.not_exists_gnu_iterate_zero_eq_one`).
-  A000001 itself starts its group-theoretic content at `n = 1`.
-
-Status: open.  The iteration decreases dramatically in known ranges (external
-evidence: it terminates for all `n` within GAP SmallGroups coverage), but a proof
-would need control of `gnu` at prime powers, where the value explodes
-(`gnu (p^e) ~ p^{(2/27)e³ + O(e^{8/3})}`, entry formula section) — no route is known.
-Proved strata in this file: `n = 1`, every prime, `n = 4`, and every `p²`
-(`GroupCount.cdo_gnu_iteration_one` / `_prime` / `_four` / `_prime_sq`). -/
-theorem cdo_gnu_iteration {n : ℕ} (hn : 1 ≤ n) : ∃ k, gnu^[k] n = 1 := by
-  -- intended sorry: open conjecture (card Formalize/A000001-cdo-iteration.md,
-  -- claim cdo-gnu-iteration; ROUTE: none known — see the docstring).
-  sorry
 
 /-- The `1 ≤ n` guard of `GroupCount.cdo_gnu_iteration` excludes a genuine
 counterexample, not a junk case we could not handle: at `n = 0` the iteration is
@@ -352,8 +327,8 @@ in `GroupCount/Gnu.lean`. -/
 
 section GroundTruth
 
--- The archived statement is satisfiable with content: hypothesis and conclusion
--- jointly at `n = 4`, with no appeal to the intended `sorry`.
+-- The conjecture's statement is satisfiable with content: hypothesis and conclusion
+-- jointly at `n = 4`, with no appeal to the admission in the Sorry module.
 example : 1 ≤ 4 ∧ ∃ k, gnu^[k] 4 = 1 := ⟨by omega, cdo_gnu_iteration_four⟩
 
 -- Kernel ground check of the iteration machinery itself, inside the `n ≤ 2` wall:
@@ -448,17 +423,5 @@ example : ((Multiplicative.ofAdd (1 : ZMod 2), 1)
     : Multiplicative (ZMod 2) × Multiplicative (ZMod 2)) ^ 1 ≠ 1 := by decide
 
 end GroundTruth
-
-/-! ## Axiom audit
-
-`cdo_gnu_iteration` carries the file's single intended `sorry` and reports `sorryAx`
-by construction — it is listed first and is the *only* declaration allowed to.  Every
-other declaration must report a subset of `{propext, Classical.choice, Quot.sound}`.
-The subset is the sound `native_decide` detector: a use would appear as a
-per-declaration `*._native.native_decide.ax_*` axiom on this toolchain
-(`Lean.ofReduceBool` is never emitted, so grepping for it detects nothing).  This
-file contains no `native_decide`. -/
-
-
 
 end GroupCount

@@ -479,7 +479,7 @@ private lemma poonen_congr (k : ℕ) : ∀ n : ℕ,
 /-- Generalized Euler theorem at a prime power: for `m ≤ n` and any `j`,
 `j^(n + φ(p^m)) = jⁿ` in `ZMod (p^m)`.  If `p ∤ j` this is Euler's theorem;
 if `p ∣ j` both sides are `0`, since `p^m ∣ p^n ∣ jⁿ`. -/
-private lemma pow_add_totient_prime_pow {p : ℕ} (hp : p.Prime) {m n : ℕ} (hn : m ≤ n) (j : ℕ) :
+lemma pow_add_totient_prime_pow {p : ℕ} (hp : p.Prime) {m n : ℕ} (hn : m ≤ n) (j : ℕ) :
     (j : ZMod (p ^ m)) ^ (n + Nat.totient (p ^ m)) = (j : ZMod (p ^ m)) ^ n := by
   by_cases hj : p ∣ j
   · -- `p ∣ j`: both sides vanish, since `p ^ m ∣ p ^ n ∣ j ^ n`

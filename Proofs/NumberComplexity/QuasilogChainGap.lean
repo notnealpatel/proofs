@@ -1,6 +1,6 @@
 import Mathlib
 import NumberComplexity.AdditionChain
-import NumberComplexity.Quasilog
+import NumberComplexity.QuasilogLogBound
 
 /-!
 # OEIS A076142: the gap between the quasi-logarithm and the shortest chain
@@ -61,17 +61,19 @@ Main declarations:
 * `NumberComplexity.gapSum_mul_log_div_sq_nonneg`,
   `NumberComplexity.eventually_log_pos_and_sq_pos` — sign and junk-value guards
   for the conjectured limit;
-* `NumberComplexity.exists_tendsto_gapSum_mul_log_div_sq` — **tier 2, open**:
-  the entry's unattributed "it seems" formula
-  `(∑_{k ≤ n} a(k)) * log n / n² → c` with `0.006 < c < 0.01`.  Carried as an
-  intended `sorry` (statement archive), guarded and instantiated as described
-  in its section below.
+* `NumberComplexity.tendsto_gapSum_mul_log_div_sq_zero` — the normalized sum
+  tends to zero, using the proved bound `quasilog n ≤ (2 / log 2) * log n`;
+* `NumberComplexity.PositiveNormalizedGapLimit` — the exact historical strict-window
+  formula, archived as a proposition, not asserted as a theorem;
+* `NumberComplexity.not_positiveNormalizedGapLimit` — the historical formula is
+  refuted under these local definitions and this normalization. This does not
+  refute a different interpretation of the original source sequence.
 
 **Degenerate values.** At `n = 0` both `l 0 = 0` (empty infimum: no chain
 reaches `0`) and `quasilog 0 = 0` (junk input) are junk, so `gap 0 = 0` is a
 junk-derived zero.  Every statement about a single `l n` or `gap n` therefore
 carries the guard `0 < n`; the partial sums start their index at `k = 1`; and
-the `Real.log` and division of the tier-2 statement are guarded structurally by
+the `Real.log` and division in the normalized sequence are guarded structurally by
 `eventually_log_pos_and_sq_pos`.
 
 Ground truth: `oeis show A076142`, pulled live 2026-07-30. Name
@@ -477,7 +479,7 @@ theorem l_lt_quasilog_23 : l 23 < quasilog 23 := by
   unfold gap at hgap
   omega
 
-/-! ## Tier 2: the entry's "it seems" formula (OPEN, intended `sorry`) -/
+/-! ## The normalized sum tends to zero; the historical positive limit is refuted -/
 
 /-- The gap sequence is not eventually zero on the range of the conjecture:
 `gap 23 = 1` gives `1 ≤ gapSum n` for every `23 ≤ n`.  This is the
@@ -514,22 +516,79 @@ theorem eventually_log_pos_and_sq_pos :
   have hn1 : (1 : ℝ) < (n : ℝ) := by linarith
   exact ⟨Real.log_pos hn1, pow_pos (by linarith : (0 : ℝ) < (n : ℝ)) 2⟩
 
-/-- **OEIS A076142, formula section** (unattributed: "It seems that
-`sum(k = 1, n, a(k)) * log(n)/n^2 -> c` with `0.006 < c < 0.01`") — OPEN,
-intended `sorry`.
+/-- The partial sums are at most a constant times `n log n`, for positive `n`. -/
+theorem gapSum_le_mul_log (n : ℕ) (_hn : 0 < n) :
+    (gapSum n : ℝ) ≤ (2 / Real.log 2) * n * Real.log n := by
+  have hC : 0 ≤ 2 / Real.log 2 := le_of_lt (div_pos (by norm_num) (Real.log_pos (by norm_num)))
+  have hterm : ∀ k ∈ Finset.Icc 1 n, (gap k : ℝ) ≤ (2 / Real.log 2) * Real.log n := by
+    intro k hk
+    obtain ⟨hk1, hkn⟩ := Finset.mem_Icc.mp hk
+    have hgap : (gap k : ℝ) ≤ (quasilog k : ℝ) := by
+      simp only [gap, Int.cast_sub, Int.cast_natCast]
+      exact sub_le_self _ (Nat.cast_nonneg _)
+    have hlog : Real.log k ≤ Real.log n :=
+      Real.log_le_log (by exact_mod_cast hk1) (by exact_mod_cast hkn)
+    exact hgap.trans ((quasilog_le_two_div_log_two_mul_log k hk1).trans
+      (mul_le_mul_of_nonneg_left hlog hC))
+  have hcard : (Finset.Icc 1 n).card = n := by simp
+  calc
+    (gapSum n : ℝ) = ∑ k ∈ Finset.Icc 1 n, (gap k : ℝ) := by simp [gapSum]
+    _ ≤ ∑ _k ∈ Finset.Icc 1 n, (2 / Real.log 2) * Real.log n := Finset.sum_le_sum hterm
+    _ = (2 / Real.log 2) * n * Real.log n := by
+      simp only [Finset.sum_const, hcard, nsmul_eq_mul]
+      ring
 
-Equivalently the average gap grows like `c' * n / log n`.  The statement is a
-`Filter.Tendsto` over `ℕ → ℝ` along `Filter.atTop`, so the junk values of
-`Real.log` and of division at `n ≤ 1` are irrelevant to its truth
-(`eventually_log_pos_and_sq_pos`).  The constant is existentially quantified
-and pinned only by the entry's strict numeric window, so it is not a free
-parameter fixed by a hypothesis. -/
-theorem exists_tendsto_gapSum_mul_log_div_sq :
+example : (gapSum 2 : ℝ) ≤ (2 / Real.log 2) * 2 * Real.log 2 :=
+  gapSum_le_mul_log 2 (by norm_num)
+
+/-- On the positive domain, the normalized sum is bounded by a constant times `log² n / n`. -/
+theorem gapSum_mul_log_div_sq_le (n : ℕ) (hn : 0 < n) :
+    (gapSum n : ℝ) * Real.log n / (n : ℝ)^2 ≤
+      (2 / Real.log 2) * (Real.log n)^2 / n := by
+  have hnR : (0 : ℝ) < n := by exact_mod_cast hn
+  have hmul := mul_le_mul_of_nonneg_right (gapSum_le_mul_log n hn) (Real.log_natCast_nonneg n)
+  calc
+    (gapSum n : ℝ) * Real.log n / (n : ℝ)^2 ≤
+        ((2 / Real.log 2) * n * Real.log n) * Real.log n / (n : ℝ)^2 :=
+      div_le_div_of_nonneg_right hmul (sq_nonneg _)
+    _ = (2 / Real.log 2) * (Real.log n)^2 / n := by field_simp [hnR.ne']
+
+example : (gapSum 2 : ℝ) * Real.log 2 / (2 : ℝ)^2 ≤
+    (2 / Real.log 2) * (Real.log 2)^2 / 2 := gapSum_mul_log_div_sq_le 2 (by norm_num)
+
+/-- Under the local A076142 definitions and normalization, the limit is zero. -/
+theorem tendsto_gapSum_mul_log_div_sq_zero :
+    Filter.Tendsto (fun n : ℕ => (gapSum n : ℝ) * Real.log n / (n : ℝ)^2)
+      Filter.atTop (nhds 0) := by
+  have hreal : Filter.Tendsto (fun x : ℝ => (Real.log x)^2 / x) Filter.atTop (nhds 0) := by
+    simpa using Real.tendsto_pow_log_div_mul_add_atTop 1 0 2 (by norm_num)
+  have hnat := hreal.comp (tendsto_natCast_atTop_atTop (R := ℝ))
+  have hbound : Filter.Tendsto (fun n : ℕ => (2 / Real.log 2) * (Real.log n)^2 / n)
+      Filter.atTop (nhds 0) := by
+    simpa [mul_div_assoc] using hnat.const_mul (2 / Real.log 2)
+  apply squeeze_zero' (Filter.Eventually.of_forall gapSum_mul_log_div_sq_nonneg) _ hbound
+  filter_upwards [Filter.eventually_ge_atTop 1] with n hn
+  exact gapSum_mul_log_div_sq_le n hn
+
+/-- The historical strict-window positive-limit formula, archived as a proposition,
+not an assertion. It is refuted below for the local definitions and normalization;
+this does not assert a refutation of different source interpretations. -/
+def PositiveNormalizedGapLimit : Prop :=
+  ∃ c : ℝ, 0.006 < c ∧ c < 0.01 ∧
+    Filter.Tendsto (fun n : ℕ => (gapSum n : ℝ) * Real.log n / (n : ℝ)^2)
+      Filter.atTop (nhds c)
+
+example : PositiveNormalizedGapLimit ↔
     ∃ c : ℝ, 0.006 < c ∧ c < 0.01 ∧
-      Filter.Tendsto (fun n : ℕ => (gapSum n : ℝ) * Real.log n / (n : ℝ) ^ 2)
-        Filter.atTop (nhds c) := by
-  -- intended sorry: open ("it seems") conjecture, card A076142-quasilog-chain-gap
-  sorry
+      Filter.Tendsto (fun n : ℕ => (gapSum n : ℝ) * Real.log n / (n : ℝ)^2)
+        Filter.atTop (nhds c) := Iff.rfl
+
+/-- The historical positive-limit window is impossible for the local normalization. -/
+theorem not_positiveNormalizedGapLimit : ¬ PositiveNormalizedGapLimit := by
+  rintro ⟨c, hc, _hcupper, hlimit⟩
+  have hc0 : c = 0 := tendsto_nhds_unique hlimit tendsto_gapSum_mul_log_div_sq_zero
+  subst c
+  norm_num at hc
 
 -- the constant window of the conjecture is a nonempty interval, so the `∃ c`
 -- is not quantified over an empty domain
