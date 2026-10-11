@@ -32,10 +32,11 @@ This file is the shared definition layer for the practical-number family:
   sufficiency direction of Stewart's structure theorem, but the factorisation-indexed
   iteration is **not formalized here** — this file provides the single step and
   hand-unrolled instances.  `Nat.practical_two_pow` is the base instance.
-* `Nat.IsMultiperfect` and `Nat.coleman_multiperfect_practical` — the archived
+* `Nat.IsMultiperfect` — the multiply-perfect predicate.  The archived
+  `Nat.coleman_multiperfect_practical` in `Sorry.Enumerative.Practical` states the
   **Coleman conjecture** (OEIS A007691 comment, Jaycob Coleman, Oct 15 2013): every
-  multiply-perfect number is practical.  **OPEN**; it is this file's single intended
-  `sorry`.  The sorry-free realization layer certifies the conjecture at the first
+  multiply-perfect number is practical.  **OPEN**; its intended `sorry` is quarantined
+  there.  The sorry-free realization layer certifies the conjecture at the first
   ten terms of A007691 (`1` through `523776`), via kernel `decide` where feasible and
   the Stewart step elsewhere.
 * `Nat.not_practical_of_odd_of_one_lt`, `Nat.Perfect.one_lt`, and the
@@ -53,8 +54,8 @@ This file is the shared definition layer for the practical-number family:
 
 ## Axiom audit
 
-`Nat.coleman_multiperfect_practical` carries the single intended `sorry` and reports
-`sorryAx` by construction.  Every other declaration reports a subset of
+The intended admission `Nat.coleman_multiperfect_practical` is quarantined in
+`Sorry.Enumerative.Practical`.  Declarations here report a subset of
 `{propext, Classical.choice, Quot.sound}`.  There is no `native_decide` in this file;
 kernel `decide` at ranges past `512` carries a per-declaration `maxRecDepth` bump.
 -/
@@ -570,33 +571,6 @@ example : (List.range 200).filter (fun n => decide (Nat.IsMultiperfect n)) = [1,
 
 namespace Nat
 
-/-- **Coleman's conjecture** — OEIS A007691, comment of Jaycob Coleman (Oct 15
-2013), pulled live: "Conjecture: Every multiply-perfect number is practical
-(A005153)."  **OPEN**; this is the file's single intended `sorry`.
-
-Status, per the live entry and this file:
-
-* Coleman reports verification "for the first 5261 terms with abundancy > 2 using
-  Achim Flammenkamp's data";
-* the realization layer below certifies the conjecture sorry-free at the first ten
-  terms of A007691, `1, 6, 28, 120, 496, 672, 8128, 30240, 32760, 523776`
-  (`Nat.coleman_instance_1` … `Nat.coleman_instance_523776`), which also witness
-  joint satisfiability of the hypothesis;
-* the conjecture is **OPN-hard** on its odd part: with `Nat.Practical.two_dvd` it
-  implies no odd multiperfect `> 1`, in particular no odd perfect number — see the
-  reduction section below (`Nat.not_perfect_of_odd_of_coleman`);
-* of Coleman's weak form (every *even* multiply-perfect number is practical), the
-  perfect case is settled below (`Nat.Perfect.practical_of_even`, via a local
-  re-proof of Euler's direction of Euclid–Euler); the even multiperfect case of
-  abundancy `≠ 2` remains the attackable open fragment.
-
-ROUTE: Stewart's criterion makes the conjecture verifiable per instance (as the
-realization layer does); no proof of the full conjecture is known to anyone. -/
-theorem coleman_multiperfect_practical {n : ℕ} (hn : n.IsMultiperfect) :
-    n.Practical := by
-  -- intended sorry: open conjecture (card Formalize/A007691-coleman-practical.md).
-  sorry
-
 /-!
 ## Sorry-free realization layer: the first ten terms of A007691
 
@@ -740,7 +714,7 @@ theorem coleman_instance_523776 :
 `Nat.Practical.two_dvd` makes practical numbers `> 1` even, so Coleman's conjecture
 forces every multiperfect `> 1` to be even — in particular it implies that no **odd
 perfect number** exists.  The odd part of Coleman's conjecture is therefore
-OPN-hard: the intended `sorry` above marks a statement at least as strong as
+OPN-hard: the intended `sorry` in `Sorry.Enumerative.Practical` marks a statement at least as strong as
 odd-perfect nonexistence, not a formalization gap.  The attackable open fragment is
 the even part — Coleman's weak form, "every even multiply-perfect number is
 practical" (every known multiperfect `> 1` is even; Coleman's comment asserts only
@@ -1008,8 +982,8 @@ end Nat
 
 /-! ## Axiom audit
 
-`Nat.coleman_multiperfect_practical` is the single intended `sorry` and reports
-`sorryAx`.  Every other declaration below rests on a subset of
+The intended admission `Nat.coleman_multiperfect_practical` is quarantined in
+`Sorry.Enumerative.Practical`.  Declarations here rest on a subset of
 `{propext, Classical.choice, Quot.sound}`.  The subset check is the sound
 `native_decide` detector on this toolchain: a use would surface as a
 per-declaration `*._native.native_decide.ax_*` axiom (`Lean.ofReduceBool` is never

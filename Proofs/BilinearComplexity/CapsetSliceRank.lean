@@ -70,7 +70,8 @@
     § 2 Poster Theorem 4, sorry-free: `sunflowerFreeWeight_le_capsetNumber`
         (A236397(n) ≤ A090245(n)) via the block construction `capBlock`
         sending x ∈ F_2^n to its 2^{#zeros} lift block in F_3^n.
-    § 3 ARCHIVED (intended `sorry`): `peebles_conjecture` — for even n,
+    § 3 Instances of `peebles_conjecture`, whose intended `sorry` is archived in
+        `Sorry.BilinearComplexity.CapsetSliceRank` — for even n,
         A236397(n+1) = 2·A090245(n). Open; source: the pinned OEIS comment.
     § 4 Cap-set ↔ slice-rank bridge, sorry-free: `lineTensor` (the line
         indicator tensor of a tuple of points of F_3^n),
@@ -120,8 +121,9 @@
         only the #857 reading of § 6 would be. The correct #857 anchor, and
         the Naslund–Sawin bound on m(n,3), live in that file.
 
-  Intended sorries (1, disclosed in its docstring): `peebles_conjecture`.
-  Everything else — `croot_lev_pach_sliceRank_lineTensor` and
+  The intended admission `peebles_conjecture` is quarantined in
+  `Sorry.BilinearComplexity.CapsetSliceRank`.
+  Declarations here — `croot_lev_pach_sliceRank_lineTensor` and
   `ellenberg_gijswijt` included since 2026-08-05 — no sorry, axioms ⊆
   {propext, Classical.choice, Quot.sound} (see the closing audit block).
 
@@ -396,22 +398,10 @@ theorem sunflowerFreeWeight_le_capsetNumber (n : ℕ) :
 
 end BlockConstruction
 
-/-! ## 3. The Peebles conjecture (ARCHIVED, intended sorry) -/
+/-! ## 3. Instances of the Peebles conjecture
 
-/-- **Peebles' conjecture** (OEIS A236397 comment, pinned 2026-07-30:
-"Peebles conjectures that if n is even, a(n+1) = 2*A090245(n)"; poster
-Conjecture 5: "For all even n, 2a_n = c_{n+1}").
-
-OPEN. INTENDED SORRY — archived conjecture, disclosed in the module header.
-Evidence: matches all pinned terms — n = 0: 2 = 2·1, n = 2: 8 = 2·4,
-n = 4: 40 = 2·20, n = 6: 224 = 2·112. The n = 0 and n = 2 instances are
-kernel-verified below. Evenness is load-bearing (n = 3: 20 ≠ 18, n = 5:
-96 ≠ 90 on pinned terms), though the identity coincidentally holds at
-n = 1 (kernel-verified below). Only 8 terms of A236397 and 7 of A090245
-are known; one new term of either sequence tests the conjecture. -/
-theorem peebles_conjecture (n : ℕ) (hn : Even n) :
-    sunflowerFreeWeight (n + 1) = 2 * capsetNumber n := by
-  sorry
+The attributed admission is quarantined in `Sorry.BilinearComplexity.CapsetSliceRank`.
+-/
 
 /-- Kernel-verified instance of `peebles_conjecture` at n = 0 (its
 hypothesis' joint witness: `Even 0`): A236397(1) = 2 = 2·A090245(0). -/
@@ -1078,9 +1068,9 @@ example :
 
 end ErdosRadoBridge
 
-/-! Axiom audit for the main declarations. `peebles_conjecture` is this
-file's single intended sorry (archived open conjecture, § 3) and reports
-`sorryAx`; everything else stays within the base axioms. -/
+/-! Axiom audit for the main declarations. The intended admission
+`peebles_conjecture` is quarantined in `Sorry.BilinearComplexity.CapsetSliceRank`;
+declarations here stay within the base axioms. -/
 
 
 end BilinearComplexity

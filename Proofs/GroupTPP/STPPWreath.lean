@@ -24,13 +24,11 @@ Product Property — together with the two pillars that turn it into asymptotic
    `|Gₙ| = (2n)ⁿ·n!`, has pseudo-exponent
    `α(Gₙ) ≤ γ(Gₙ) = 2 + (1+log 2)/log n + O(1/(log n)²) → 2`.
 
-This is the **furthest-out, "sorry-skeleton" layer** of the Cohn–Umans program:
-the deliverable is *correct type signatures* for the STPP, the wreath
-construction, and the pseudo-exponent convergence. The mathematical content of
-the inequalities is `sorry`d (each rests on tensor-rank / Schönwage's asymptotic
-sum inequality, the wreath character-degree computation via Clifford theory /
-Huppert, or the indexed Wedderburn layer — none of which are in Mathlib, and
-all of which sit one level below `GroupTPP.CUCapacity` and `GroupTPP.CharDegrees`).
+The existing STPP capacity admissions and their dependent CommGroup
+specialization are archived in `Sorry.GroupTPP.STPPWreath`. Production retains
+the definitions, proved finite estimates, and independent conditional engines,
+and does not import the archive. The direct-sum tensor/Schönhage asymptotic sum
+inequality assembly is unpaid; a one-shot wreath factorial bound is insufficient.
 
 ## The STPP, precisely (CKSU `section:stpp`)
 
@@ -67,7 +65,7 @@ element equality then following from the per-triple ordinary TPP.
 * `GroupTPP.STPPWreath.wreathGamma` — `γ(Gₙ) = 2 + (1+log 2)/log n`, the leading
   asymptotic bound on the pseudo-exponent.
 
-## Main results (sorry audit: `stpp_capacity_le` and `stpp_capacity_le_of_wreath`)
+## Main results (capacity admission cluster archived in `Sorry.GroupTPP.STPPWreath`)
 
 * `GroupTPP.STPPWreath.SimultaneousTPP.tppR_of` — the STPP entails the per-index
   right-quotient TPP.
@@ -80,14 +78,16 @@ element equality then following from the per-triple ordinary TPP.
   closure `tripleProductProperty_piFinset`.
 * `GroupTPP.STPPWreath.stpp_capacity_le` — **(`sorry`)** the STPP capacity
   inequality `∑ᵢ (|Aᵢ|·|Bᵢ|·|Cᵢ|)^{ω/3} ≤ D_ω(H)` (CKSU `theorem:asi`);
-  the general-`G` form, closed by Pl21 (Clifford campaign) after Df1.
+  the general-`G` form, archived in `Sorry.GroupTPP.STPPWreath`, not proved.
 * `GroupTPP.STPPWreath.stpp_capacity_le_of_wreath` — **(`sorry`: multinomial
   assembly)** the hypothesis-factored skeleton of the STPP capacity inequality
-  (Hu8-1c / Hu10-B): general `G`, with two hypotheses abstracting the
-  generality-varying planks (n!-carrier TPP in the wreath, wreath D_ω bound).
+  (Hu8-1c / Hu10-B): `[CommGroup G]`, with two hypotheses abstracting the
+  generality-varying planks (n!-carrier TPP in the wreath, wreath D_ω bound);
+  archived in `Sorry.GroupTPP.STPPWreath`.
 * `GroupTPP.STPPWreath.stpp_capacity_le_comm` — **(`sorry`: via factored skeleton)**
   the `[CommGroup G]` instance of the STPP capacity inequality, derived from the
-  factored skeleton by instantiation with the sorry-free abelian planks.
+  factored skeleton by instantiation with the sorry-free abelian planks;
+  also archived in `Sorry.GroupTPP.STPPWreath`.
 * `GroupTPP.STPPWreath.wreath_charDegree_bound` — **(`sorry`-free)** the wreath
   character-degree bound `∑ⱼ cⱼ^ω ≤ (n!)^{ω-1} · (∑ₖ dₖ^ω)^n` for abelian `H`
   (the abelian branch of CKSU `lemma:wreath-char-degrees`, FOCS'05 tex 313–320;
@@ -358,35 +358,8 @@ theorem SimultaneousTPP.pow [Fintype G] [DecidableEq G]
       (b t) (hb t) (b' t) (hb' t) (c t) (hc t) (c' t) (hc' t) (coord t)
   exact ⟨hΦ (funext fun t => (key t).1), hΦ (funext fun t => (key t).2)⟩
 
-/-! ### The STPP capacity inequality (CKSU `theorem:asi`, `sorry`)
-
-The multi-triple analogue of `GroupTPP.CUCapacity.capacity_rpow_le_charDegreeSumReal`
-(CU Theorem 4.1). Whereas the single-triple bound reads
-`(|S|·|T|·|U|)^{ω/3} ≤ D_ω(G)`, the STPP packs `n` independent triples into one
-group-algebra multiplication, giving a *sum* on the left. -/
-
-/-- **CKSU Theorem `theorem:asi`** [math/0511460]: the **STPP capacity
-inequality**. If the `n` triples `(A i, B i, C i)` of a finite group `G` satisfy
-the STPP, then
-
-  `∑ᵢ (|A i| · |B i| · |C i|)^{ω/3} ≤ D_ω(G) = ∑ₖ dₖ^ω`.
-
-This is the multi-triple version of CU Theorem 4.1
-(`GroupTPP.CUCapacity.capacity_rpow_le_charDegreeSumReal`). For abelian `G` the
-right-hand side collapses to `|G|` (`GroupTPP.CharDegrees.charDegreeSum_two`), the
-form used in the `ω < 2.93` example.
-
-**Proof route** (Pl21, Clifford campaign): the general-`G` form requires
-Clifford theory for the wreath character-degree bound and the corrected
-`SimultaneousTPP` definition (Df1). The abelian instance
-(`stpp_capacity_le_comm`) and its hypothesis-factored skeleton
-(`stpp_capacity_le_of_wreath`) are proved beside this statement; the general
-form is the Pl21 target after Df1. `sorry`. -/
-theorem stpp_capacity_le {n : ℕ} [Fintype G] [DecidableEq G]
-    (A B C : Fin n → Finset G) (h : SimultaneousTPP A B C) :
-    ∑ i, ((A i).card * (B i).card * (C i).card : ℝ) ^ (ω / 3)
-      ≤ charDegreeSumReal G ω :=
-  sorry
+/-! The general STPP capacity admission is archived in
+`Sorry.GroupTPP.STPPWreath`; production does not import it. -/
 
 /-! ### The cyclic base group `C₂ₙ` and the imprimitive wreath product `Gₙ = A ≀ Sₙ`
 
@@ -904,53 +877,8 @@ theorem stpp_to_tpp_wreath_card {H : Type*} [Group H] [Fintype H]
   · rw [Finset.card_inv, wreathCarrier_card]
   · rw [Finset.card_inv, wreathCarrier_card]
 
-/-! ### The STPP capacity inequality — hypothesis-factored skeleton and CommGroup instance
-
-The hypothesis-factored skeleton `stpp_capacity_le_of_wreath` (Hu8-1c / Hu10-B)
-takes the two generality-varying planks — the n!-carrier TPP lift and the wreath
-D_ω bound — as explicit hypotheses. The CommGroup instance
-`stpp_capacity_le_comm` instantiates them with the sorry-free abelian planks. -/
-
-/-- **CKSU `theorem:asi`, hypothesis-factored skeleton** (Hu8-1c / Hu10-B).
-See the docstring on `stpp_capacity_le` for the full mathematical statement.
-
-**Hypotheses (the two generality-varying planks):**
-* `htpp` — the n!-carrier TPP lift (shape of `stpp_to_tpp_wreath_card`).
-* `hbound` — the wreath D_ω bound (shape of `wreath_charDegree_bound`).
-
-**Blocker:** the multinomial assembly — producing the hypothesis of
-`sum_le_of_multinomial_prod_pow_le` from the wreath capacity chain. -/
-theorem stpp_capacity_le_of_wreath
-    {G : Type*} [CommGroup G] [Fintype G] [DecidableEq G]
-    {n : ℕ} (A B C : Fin n → Finset G) (h : SimultaneousTPP A B C)
-    (htpp : ∀ (ℓ : ℕ) (m : ℕ) (A' B' C' : Fin m → Finset (Fin ℓ → G)),
-      SimultaneousTPP A' B' C' →
-      ∃ S T U : Finset (ImprimitiveWreathProduct (Fin ℓ → G) m),
-        TripleProductProperty S T U
-        ∧ S.card = m.factorial * ∏ i, (A' i).card
-        ∧ T.card = m.factorial * ∏ i, (B' i).card
-        ∧ U.card = m.factorial * ∏ i, (C' i).card)
-    (hbound : ∀ (ℓ m : ℕ),
-      charDegreeSumReal (ImprimitiveWreathProduct (Fin ℓ → G) m) ω
-        ≤ (Nat.factorial m : ℝ) ^ (ω - 1)
-          * (charDegreeSumReal (Fin ℓ → G) ω) ^ m) :
-    ∑ i, ((A i).card * (B i).card * (C i).card : ℝ) ^ (ω / 3)
-      ≤ charDegreeSumReal G ω := by
-  sorry
-
-/-- **`[CommGroup G]` instance of the STPP capacity inequality** (Hu8-1c /
-Hu10-B): instantiation of `stpp_capacity_le_of_wreath` with the sorry-free
-abelian planks `stpp_to_tpp_wreath_card` and `wreath_charDegree_bound`. -/
-theorem stpp_capacity_le_comm
-    {G : Type*} [CommGroup G] [Fintype G] [DecidableEq G]
-    {n : ℕ} (A B C : Fin n → Finset G) (h : SimultaneousTPP A B C) :
-    ∑ i, ((A i).card * (B i).card * (C i).card : ℝ) ^ (ω / 3)
-      ≤ charDegreeSumReal G ω := by
-  apply stpp_capacity_le_of_wreath A B C h
-  · intro ℓ m A' B' C' hstpp
-    exact stpp_to_tpp_wreath_card A' B' C' hstpp
-  · intro ℓ m
-    exact wreath_charDegree_bound m
+/-! The capacity skeleton and its admission-dependent CommGroup specialization
+are archived in `Sorry.GroupTPP.STPPWreath`. -/
 
 /-! ### The Cohn–Umans wreath TPP witness: `Gₙ` realizes `⟨n!, n!, n!⟩` (CU.tex:1257–1299)
 

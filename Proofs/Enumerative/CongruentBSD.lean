@@ -96,7 +96,7 @@ and, on the unconditional state of the art (verbatim):
 
 ## What is archived and what is proved
 
-Archived with the single intended `sorry`:
+Archived in `Sorry.Enumerative.CongruentBSD` with the single intended `sorry`:
 
 * `a273929_subset_a006991` — every squarefree `n ≡ 5, 6, 7 (mod 8)` is a primitive
   congruent number.  This is the first sentence of the pinned comment.  **Status: open**;
@@ -143,7 +143,7 @@ Proved here, `sorry`-free and kernel-checked:
   curve n*y^2 = x^3 - x … has rank 2"); the complementary piece is defined as
   `IsPrimitiveCongruentLow`, i.e. by T. D. Noe's rank-free characterisation pinned above.
   A reader who wants the rank reading must supply Noe's comment as an extra input.
-* The subset claim is stated, not a characterisation.  `a273929_subset_a006991` is an
+* The subset claim is archived, not a characterisation.  `a273929_subset_a006991` is an
   implication; nothing in this file says or implies that A273929 exhausts A006991 — indeed
   `isPrimitiveCongruentLow_thirtyFour` exhibits a primitive congruent number outside it.
 * The entry's second sentence, "The union of this sequence with A062695 gives A006991", is
@@ -779,69 +779,10 @@ the right-hand disjunct is the one that holds. -/
 example : IsPrimitiveCongruent 34 ↔ MemA273929 34 ∨ IsPrimitiveCongruentLow 34 :=
   isPrimitiveCongruent_iff_of_congruent (fun h => absurd h.2 (by decide))
 
-/-! ## The archived claim -/
+/-! ## The archived claim
 
-/-- **A273929 is a subset of the primitive congruent numbers A006991 (OEIS, conditional on
-the Birch and Swinnerton-Dyer conjecture).**
-
-Verbatim from the entry's `comments` field, pulled 2026-08-05:
-
-> It has been shown, conditional on the Birch Swinnerton-Dyer conjecture, that this
-> sequence is a subset of the primitive congruent numbers (A006991). The union of this
-> sequence with A062695 gives A006991. Also this sequence is the intersection of A047574
-> and A005117.
-
-Only the first sentence is archived here; the second is
-`isPrimitiveCongruent_iff_of_congruent` and the third is true by construction (see the
-docstring of `MemA273929`).
-
-**Status: open.**  This is the single intended `sorry` of the file.  The claim is a
-theorem *conditional* on BSD for the curves `y² = x³ − n²x`, by Tunnell's criterion (whose
-converse direction is exactly what BSD supplies — see the verbatim wiki quotation in the
-module docstring) together with the observation that the Tunnell counting condition is
-automatic in the residue classes `5, 6, 7 (mod 8)`; the entry's own Mathematica program,
-pinned verbatim in the module docstring, encodes precisely that short circuit
-(`MemberQ[{5, 6, 7}, Mod[n, 8]], ok = True`).
-
-**Equivalent point form.**  By `a273929_subset_iff_hasNontrivialPoint`, this statement is
-equivalent to: for every squarefree `n ≡ 5, 6, 7 (mod 8)` the curve `Eₙ` carries a
-rational point with `y ≠ 0`.  That is the shape a proof would have to take, and it is why
-this file needs no rank functional.
-
-**Why it is hard.**  What has to be produced is an actual rational point, and the residue
-condition on its own only supplies the *Tunnell counting condition* — the conditional half
-of the pinned wiki sentence is exactly the step "these equalities are sufficient to
-conclude that `n` is a congruent number", and that step is the one that needs BSD.  The
-unconditional results are all partial.  The wiki records, verbatim:
-
-> if $p ≡ 5 (mod 8)$, then $p$ is a congruent number.
-
-> if $p ≡ 7 (mod 8)$, then $p$ and 2$p$ are congruent numbers.
-
-> It is also known that in each of the congruence classes $5, 6, 7 (mod 8)$, for any given
-> $k$ there are infinitely many square-free congruent numbers with $k$ prime factors.
-
-Neither covers all squarefree `n ≡ 5, 6, 7 (mod 8)`, and Mathlib has neither Heegner
-points, nor `L`-functions of elliptic curves over `ℚ` in a usable form, nor a Mordell–Weil
-theorem.
-
-**The residue classes are not interchangeable.**  The archived claim is specific to
-`5, 6, 7 (mod 8)`; the wiki records the opposite behaviour in one of the complementary
-classes, verbatim:
-
-> if $p ≡ 3 ([[modular arithmetic|mod]] 8)$, then $p$ is not a congruent number, but 2$p$
-> is a congruent number.
-
-So the primitive congruent numbers `≡ 1, 2, 3 (mod 8)` are a *proper* subset of the
-squarefree numbers in those classes — which is why `IsPrimitiveCongruentLow` carries
-`IsPrimitiveCongruent` as a conjunct and not just the residue.  That negative statement is
-not formalised here either (it is another descent; see "Mathlib gaps").
-
-What *is* proved here about this statement: it holds at the first six terms
-`5, 6, 7, 13, 14, 15` of the pinned `terms` field
-(`isPrimitiveCongruent_of_mem_first_six`), by explicit triangles. -/
-theorem a273929_subset_a006991 (n : ℕ) (hn : MemA273929 n) : IsPrimitiveCongruent n := by
-  sorry
+The attributed admission is quarantined in `Sorry.Enumerative.CongruentBSD`.
+-/
 
 /-- Nonvacuity of `a273929_subset_a006991`: its hypothesis is inhabited (`memA273929_five`)
 and its conclusion is *proved* at that point, so the archived statement is neither vacuous
@@ -868,8 +809,9 @@ theorem a273929_subset_iff_hasNontrivialPoint :
 
 /-! ## Axiom audit
 
-Everything below is `{propext, Classical.choice, Quot.sound}` except
-`a273929_subset_a006991`, the single intended `sorry`, which also reports `sorryAx`. -/
+Declarations here stay within `{propext, Classical.choice, Quot.sound}`.
+The intended admission `a273929_subset_a006991` is quarantined in
+`Sorry.Enumerative.CongruentBSD`. -/
 
 
 end A273929

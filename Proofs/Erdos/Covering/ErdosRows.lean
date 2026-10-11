@@ -31,7 +31,7 @@
   index half — `n ↦ 2n + 1` carries `{3, 7, 10, 22, 37, 52}` bijectively
   onto `{7, 15, 21, 45, 75, 105}`, which is exactly the odd part of
   `{4, 7, 15, 21, 45, 75, 105}` (4 being A039669's only even term) — and
-  §7 derives the A089654 conjecture from
+  `Sorry.Erdos.Covering.ErdosRows` derives the A089654 conjecture from
   `Erdos.Covering.erdos_1142` with **no new `sorry`**. What the OEIS
   entry offers as a cross-reference is thereby a machine-checked
   identification.
@@ -63,15 +63,15 @@
         controls at `n = 1, 2, 11`.
     § 6 The finite window at `n ≤ 499999999`, sorry-free, inherited
         from the `m ≤ 10 ^ 9` window of `Erdos.Covering.ErdosMinus2k`.
-    § 7 The A089654 conjecture, derived from the archived
-        `Erdos.Covering.erdos_1142` with no new `sorry`.
-    § 8 Axiom audit.
+    Archived in `Sorry.Erdos.Covering.ErdosRows`: the A089654 conjecture
+    and its set corollary, derived from the archived `erdos_1142`.
+    Production does not import either Sorry counterpart.
 
-  Axiom audit (2026-07-31, Lean 4.33.0-rc1, 26 declarations): this file
-  introduces **no `sorry` of its own**. `erdos_a089654` and
+  Historical axiom audit (2026-07-31, Lean 4.33.0-rc1, before relocation):
+  no new admission was introduced. The now-archived `erdos_a089654` and
   `setOf_forall_prime_erdosRowList_of_erdos_1142` report `sorryAx`
-  through `Erdos.Covering.erdos_1142` alone; every other declaration
-  reports a subset of {propext, Classical.choice, Quot.sound}. No
+  through `Erdos.Covering.erdos_1142` alone; the retained production declarations
+  report a subset of {propext, Classical.choice, Quot.sound}. No
   `native_decide`, no `axiom`, no
   `@[csimp]`/`@[implemented_by]`/`@[extern]`.
 
@@ -320,61 +320,7 @@ theorem setOf_forall_prime_erdosRowList_le :
       ⟨by norm_num, by norm_num, forall_prime_erdosRowList_37⟩,
       ⟨by norm_num, by norm_num, forall_prime_erdosRowList_52⟩]
 
--- ════════════════════════════════════════════════════════════════════
--- §7 THE A089654 CONJECTURE (no new `sorry`)
--- ════════════════════════════════════════════════════════════════════
-
-/-- **The A089654 conjecture** (OEIS A089654 comment, pinned 2026-07-30:
-"P. Erdos conjectures that T(n,k) are all primes for n = 3, 7, 10, 22,
-37, 52 and these are the only values of n with property").
-
-OPEN, but **not an independent `sorry`**: it is derived here from the
-archived `Erdos.Covering.erdos_1142` through the §3 bridge and the §4
-index bijection, so this file adds no `sorry` of its own. That
-derivation is the content: A089654's conjecture is A039669's conjecture
-restricted to odd `m`, and nothing more. -/
-theorem erdos_a089654 {n : ℕ} (hn : 0 < n) (h : ∀ x ∈ erdosRowList n, Nat.Prime x) :
-    n ∈ ({3, 7, 10, 22, 37, 52} : Finset ℕ) := by
-  have hm : IsAllPrimeMinusPow (2 * n + 1) :=
-    (forall_prime_erdosRowList_iff_isAllPrimeMinusPow hn).mp h
-  have hmem := erdos_1142 (2 * n + 1) hm
-  simp only [Finset.mem_insert, Finset.mem_singleton] at hmem ⊢
-  omega
-
-/-- A089654's all-prime rows as a set, granting `erdos_1142`. No new
-`sorry`; `sorryAx`-dependent through `erdos_1142` alone. -/
-theorem setOf_forall_prime_erdosRowList_of_erdos_1142 :
-    {n : ℕ | 0 < n ∧ ∀ x ∈ erdosRowList n, Nat.Prime x} =
-      ({3, 7, 10, 22, 37, 52} : Set ℕ) := by
-  ext n
-  constructor
-  · rintro ⟨hn, h⟩
-    have hmem := erdos_a089654 hn h
-    simp only [Finset.mem_insert, Finset.mem_singleton] at hmem
-    simpa only [Set.mem_insert_iff, Set.mem_singleton_iff] using hmem
-  · intro hn
-    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hn
-    rcases hn with rfl | rfl | rfl | rfl | rfl | rfl
-    exacts [⟨by norm_num, forall_prime_erdosRowList_3⟩,
-      ⟨by norm_num, forall_prime_erdosRowList_7⟩,
-      ⟨by norm_num, forall_prime_erdosRowList_10⟩,
-      ⟨by norm_num, forall_prime_erdosRowList_22⟩,
-      ⟨by norm_num, forall_prime_erdosRowList_37⟩,
-      ⟨by norm_num, forall_prime_erdosRowList_52⟩]
+/-! The archived conjecture and its dependent corollaries are in
+`Sorry.Erdos.Covering.ErdosRows`; this production module does not import them. -/
 
 end Erdos.Covering
-
--- ════════════════════════════════════════════════════════════════════
--- §8 AXIOM AUDIT
--- ════════════════════════════════════════════════════════════════════
-
-/-! ## Axiom audit
-
-This file introduces no `sorry`. `erdos_a089654` and
-`setOf_forall_prime_erdosRowList_of_erdos_1142` report `sorryAx` through
-`Erdos.Covering.erdos_1142` alone; every other declaration rests on a
-subset of `{propext, Classical.choice, Quot.sound}`. The subset check is
-also the sound `native_decide` detector on this toolchain: a use would
-surface as a per-declaration `*._native.native_decide.ax_*` axiom. There
-is no `native_decide` in this file. -/
-

@@ -86,12 +86,10 @@
         a primitive root there.
     § 6 The finite completeness window at N = 10 ^ 9, kernel-checked, in
         both the implication form and the set-equality form.
-    § 7 ARCHIVED (the file's single intended `sorry`): `erdos_1142`, the
-        Erdős completeness conjecture. Two corollaries are derived from
-        it with no new `sorry` (`sorryAx`-dependent through it).
-    § 8 Axiom audit.
+    Archived in `Sorry.Erdos.Covering.ErdosMinus2k`: `erdos_1142` and
+    its two admission-dependent corollaries. Production does not import it.
 
-  ROUTE for the archived `sorry`. Open (erdosproblems #1142). The
+  ROUTE for the `sorry` archived in `Sorry.Erdos.Covering.ErdosMinus2k`. Open (erdosproblems #1142). The
   standard machinery for statements of this shape is covering
   congruences — Erdős 1950, "On integers of the form 2^k + p and some
   related problems" — which is what `Erdos.Covering.Basic` provides
@@ -108,9 +106,9 @@
   Artin's conjecture (also open) is what would make that supply
   infinite.
 
-  Axiom audit (2026-07-31, Lean 4.33.0-rc1, 73 declarations):
-  `erdos_1142` and its two
-  corollaries report `sorryAx`; every other declaration reports a subset
+  Historical axiom audit (2026-07-31, Lean 4.33.0-rc1, before relocation):
+  `erdos_1142` and its two corollaries, now in the Sorry counterpart,
+  report `sorryAx`; the retained production declarations report a subset
   of {propext, Classical.choice, Quot.sound}. No `native_decide`, no
   `axiom`, no `@[csimp]`/`@[implemented_by]`/`@[extern]`. The
   `decide +kernel` uses below are ordinary kernel reduction: the trust
@@ -915,75 +913,7 @@ theorem setOf_isAllPrimeMinusPow_le :
 
 end Window
 
--- ════════════════════════════════════════════════════════════════════
--- §7 THE ARCHIVED CONJECTURE (the file's single intended `sorry`)
--- ════════════════════════════════════════════════════════════════════
-
-/-- **Erdős' completeness conjecture for A039669** (OEIS A039669 comment,
-pinned 2026-07-30: "Erdős conjectures that these are the only values of
-n with this property"; erdosproblems.com #1142: "Are there infinitely
-many n (or any n > 105) such that n - 2^k is prime for all 1 < 2^k < n?").
-
-OPEN. INTENDED SORRY — archived conjecture, disclosed in the module
-header; it is this file's only `sorry`. The same statement is `sorry`'d
-in google-deepmind/formal-conjectures (in the infinitude form, plus the
-`2 ^ 44` window); see the module header.
-
-Evidence: `4, 7, 15, 21, 45, 75, 105` are members
-(`isAllPrimeMinusPow_4` … `_105`); no other member `m ≤ 10 ^ 9`
-(`mem_of_isAllPrimeMinusPow_of_le`, kernel-checked here); no other
-member below `2 ^ 44` (Mientka–Weitzenkamp 1969) or below `2 ^ 120`
-(Alekseyev, OEIS 2011-12-08); and the number of members up to `N` is
-`o(N)` by Vaughan 1973.
-
-ROUTE: see the module header. §5's covering-congruence reduction is the
-standard tool applied as far as it goes; it shrinks each finite window
-but cannot close the infinite one. -/
-theorem erdos_1142 (m : ℕ) (h : IsAllPrimeMinusPow m) :
-    m ∈ ({4, 7, 15, 21, 45, 75, 105} : Finset ℕ) := by
-  -- intended sorry: open conjecture (Formalize/A039669-erdos-minus-2k.md,
-  -- erdosproblems.com #1142).
-  sorry
-
-/-- A039669 as a set, granting `erdos_1142`. No new `sorry`;
-`sorryAx`-dependent through `erdos_1142`. -/
-theorem setOf_isAllPrimeMinusPow_of_erdos_1142 :
-    {m : ℕ | IsAllPrimeMinusPow m} = ({4, 7, 15, 21, 45, 75, 105} : Set ℕ) := by
-  ext m
-  constructor
-  · intro h
-    have hmem := erdos_1142 m h
-    simp only [Finset.mem_insert, Finset.mem_singleton] at hmem
-    simpa only [Set.mem_insert_iff, Set.mem_singleton_iff] using hmem
-  · intro hm
-    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hm
-    rcases hm with rfl | rfl | rfl | rfl | rfl | rfl | rfl
-    exacts [isAllPrimeMinusPow_4, isAllPrimeMinusPow_7, isAllPrimeMinusPow_15,
-      isAllPrimeMinusPow_21, isAllPrimeMinusPow_45, isAllPrimeMinusPow_75,
-      isAllPrimeMinusPow_105]
-
-/-- The negative answer to the first half of erdosproblems #1142 ("Are
-there infinitely many n …?"), granting `erdos_1142`. No new `sorry`;
-`sorryAx`-dependent through `erdos_1142`. -/
-theorem not_infinite_setOf_isAllPrimeMinusPow_of_erdos_1142 :
-    ¬ {m : ℕ | IsAllPrimeMinusPow m}.Infinite := by
-  rw [Set.not_infinite, setOf_isAllPrimeMinusPow_of_erdos_1142]
-  exact (((((Set.finite_singleton 105).insert 75).insert 45).insert 21).insert 15
-    |>.insert 7).insert 4
+/-! The archived conjecture and its dependent corollaries are in
+`Sorry.Erdos.Covering.ErdosMinus2k`; this production module does not import them. -/
 
 end Erdos.Covering
-
--- ════════════════════════════════════════════════════════════════════
--- §8 AXIOM AUDIT
--- ════════════════════════════════════════════════════════════════════
-
-/-! ## Axiom audit
-
-`Erdos.Covering.erdos_1142` is the single intended `sorry` and reports
-`sorryAx`, as do the two corollaries derived from it. Every other
-declaration rests on a subset of `{propext, Classical.choice,
-Quot.sound}`. The subset check is also the sound `native_decide`
-detector on this toolchain: a use would surface as a per-declaration
-`*._native.native_decide.ax_*` axiom. There is no `native_decide` in
-this file. -/
-

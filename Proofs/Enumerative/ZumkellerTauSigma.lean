@@ -8,8 +8,9 @@ OEIS A083207 carries the unproved comment (Ivan N. Ianakiev, 2020-04-24, cf. A33
 
 > Conjecture: If `d > 1`, `d ∣ k` and `tau(d)*sigma(d) = k`, then `k` is a Zumkeller number.
 
-The conjecture is stated here as `isZumkeller_of_sigma_zero_mul_sigma_one`; its proof is
-an **intended `sorry`** — the claim is open (see the "Status" section below).  What *is*
+The conjecture is archived as `isZumkeller_of_sigma_zero_mul_sigma_one` in
+`Sorry.Enumerative.ZumkellerTauSigma`; its proof is an **intended `sorry`** — the claim
+is open (see the "Status" section below).  What *is*
 proved here is a complete `2`-adic reduction of Zumkeller-ness, and enough of it to settle
 every qualifying `k` reachable by finite certificate:
 
@@ -433,21 +434,10 @@ theorem isZumkeller_of_six_dvd_of_not_nine_dvd {n : ℕ} (h6 : 6 ∣ n) (h9 : ¬
     (Nat.Coprime.pow_left a ((Nat.Prime.coprime_iff_not_dvd Nat.prime_two).mpr h2s))
     ((Nat.Prime.coprime_iff_not_dvd Nat.prime_three).mpr h3s)
 
-/-! ## The conjecture -/
+/-! ## The conjecture
 
-/-- **Ianakiev's conjecture** (OEIS A083207, comment of 2020-04-24; cf. A331668).
-If `d > 1` divides `k` and `τ(d) · σ(d) = k`, then `k` is a Zumkeller number.
-
-The proof is an **intended `sorry`**: this is an open problem, and provably not just a
-formalization gap — the odd-perfect reduction at the end of this file
-(`not_isSquare_half_sigma_zero_mul_of_perfect`) shows any proof of this statement
-settles an open question about odd perfect numbers.  See the module docstring for the
-computational evidence (`d ≤ 10⁷`) and for exactly which qualifying `k` the proved
-engines above do and do not reach. -/
-theorem isZumkeller_of_sigma_zero_mul_sigma_one (d k : ℕ) (hd : 1 < d) (hdk : d ∣ k)
-    (hk : ArithmeticFunction.sigma 0 d * ArithmeticFunction.sigma 1 d = k) :
-    IsZumkeller k := by
-  sorry
+The attributed admission is quarantined in `Sorry.Enumerative.ZumkellerTauSigma`.
+-/
 
 /-! ## Satisfiability
 
