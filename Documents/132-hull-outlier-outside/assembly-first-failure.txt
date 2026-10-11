@@ -1,0 +1,55 @@
+⚠ [2396/2400] Replayed Erdos.Erdos132.TwoInteriorCircle
+warning: Proofs/Erdos/Erdos132/TwoInteriorCircle.lean:778:44: Variable name `hA` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hA
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: Proofs/Erdos/Erdos132/TwoInteriorCircle.lean:1092:37: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: Proofs/Erdos/Erdos132/TwoInteriorCircle.lean:1073:35: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+⚠ [2398/2400] Replayed Erdos.Erdos132.DoubleEndpoint
+warning: Proofs/Erdos/Erdos132/DoubleEndpoint.lean:109:5: Variable name `hR` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hR
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: Proofs/Erdos/Erdos132/DoubleEndpoint.lean:110:45: Variable name `hL` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hL
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+⚠ [2399/2400] Replayed Erdos.Erdos132.CircleFixtures
+warning: Proofs/Erdos/Erdos132/CircleFixtures.lean:134:37: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+✖ [2400/2400] Building Erdos.Erdos132.HullOutlierOutside (34s)
+trace: .> LEAN_PATH=/home/exedev/p/proofs/.lake/packages/Cli/.lake/build/lib/lean:/home/exedev/p/proofs/.lake/packages/batteries/.lake/build/lib/lean:/home/exedev/p/proofs/.lake/packages/Qq/.lake/build/lib/lean:/home/exedev/p/proofs/.lake/packages/aesop/.lake/build/lib/lean:/home/exedev/p/proofs/.lake/packages/proofwidgets/.lake/build/lib/lean:/home/exedev/p/proofs/.lake/packages/importGraph/.lake/build/lib/lean:/home/exedev/p/proofs/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/home/exedev/p/proofs/.lake/packages/plausible/.lake/build/lib/lean:/home/exedev/p/proofs/.lake/packages/mathlib/.lake/build/lib/lean:/home/exedev/.yah/jj/01a12b02-6ca8-79ec-b9c1-2583ca4cf678/workspaces/dispatch-mTfjKZb/.lake/build/lib/lean /home/exedev/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean /home/exedev/.yah/jj/01a12b02-6ca8-79ec-b9c1-2583ca4cf678/workspaces/dispatch-mTfjKZb/Proofs/Erdos/Erdos132/HullOutlierOutside.lean -o /home/exedev/.yah/jj/01a12b02-6ca8-79ec-b9c1-2583ca4cf678/workspaces/dispatch-mTfjKZb/.lake/build/lib/lean/Erdos/Erdos132/HullOutlierOutside.olean -i /home/exedev/.yah/jj/01a12b02-6ca8-79ec-b9c1-2583ca4cf678/workspaces/dispatch-mTfjKZb/.lake/build/lib/lean/Erdos/Erdos132/HullOutlierOutside.ilean -c /home/exedev/.yah/jj/01a12b02-6ca8-79ec-b9c1-2583ca4cf678/workspaces/dispatch-mTfjKZb/.lake/build/ir/Erdos/Erdos132/HullOutlierOutside.c --setup /home/exedev/.yah/jj/01a12b02-6ca8-79ec-b9c1-2583ca4cf678/workspaces/dispatch-mTfjKZb/.lake/build/ir/Erdos/Erdos132/HullOutlierOutside.setup.json --json
+error: Proofs/Erdos/Erdos132/HullOutlierOutside.lean:407:32: invalid `▸` notation, expected result type of cast is 
+  dist c z ∈ S
+however, the equality 
+  hsupport
+of type 
+  Finset.image (fun c => dist c z) C = nonDiameterDistances (insert 0 (insert z (insert u C)))
+does not contain the expected result type on either the left or the right hand side
+warning: Proofs/Erdos/Erdos132/HullOutlierOutside.lean:595:8: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: Proofs/Erdos/Erdos132/HullOutlierOutside.lean:595:8: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: Proofs/Erdos/Erdos132/HullOutlierOutside.lean:631:4: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: Proofs/Erdos/Erdos132/HullOutlierOutside.lean:843:4: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+error: Lean exited with code 1
+Some required targets logged failures:
+- Erdos.Erdos132.HullOutlierOutside
+error: build failed

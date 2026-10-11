@@ -1,0 +1,14 @@
+import Erdos.Erdos132.HullOutlierOutside
+set_option autoImplicit false
+#check @Erdos132.HullOutlierOutside.original_geometry_card_and_diameter
+#print axioms Erdos132.HullOutlierOutside.original_geometry_card_and_diameter
+#check @Erdos132.HullOutlierOutside.original_target_or_saturation
+#print axioms Erdos132.HullOutlierOutside.original_target_or_saturation
+#check @Erdos132.HullOutlierOutside.original_outside_geometry_fixture
+#print axioms Erdos132.HullOutlierOutside.original_outside_geometry_fixture
+#check @Erdos132.HullOutlierOutside.original_outside_target_or_chord_obstruction
+#print axioms Erdos132.HullOutlierOutside.original_outside_target_or_chord_obstruction
+#check @Erdos132.HullOutlierOutside.original_zero_centered_outside
+#print axioms Erdos132.HullOutlierOutside.original_zero_centered_outside
+#check @Erdos132.HullOutlierOutside.original_outside_fixture_with_conclusion
+#print axioms Erdos132.HullOutlierOutside.original_outside_fixture_with_conclusion

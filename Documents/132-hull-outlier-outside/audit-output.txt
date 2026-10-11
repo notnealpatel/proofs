@@ -1,0 +1,122 @@
+Erdos132.HullOutlierOutside.original_geometry_card_and_diameter : ∀ (C : Finset Erdos132.TwoInteriorCircle.Plane)
+  (O u z : Erdos132.TwoInteriorCircle.Plane) (R : ℝ),
+  C.card = 6 →
+    (∀ c ∈ C, dist c O = R) →
+      dist u O ≠ R →
+        (∀ a ∈ insert u C, a ∈ Set.extremePoints ℝ ((convexHull ℝ) ↑(insert u C))) →
+          O ∈ interior ((convexHull ℝ) ↑(insert u C)) →
+            z ∈ interior ((convexHull ℝ) ↑(insert u C)) →
+              O ≠ z →
+                (insert O (insert z (insert u C))).card = 9 ∧
+                  Metric.diam ↑(insert O (insert z (insert u C))) = Metric.diam ↑(insert u C) ∧
+                    0 < Metric.diam ↑(insert O (insert z (insert u C)))
+'Erdos132.HullOutlierOutside.original_geometry_card_and_diameter' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+Erdos132.HullOutlierOutside.original_target_or_saturation : ∀ (C : Finset Erdos132.TwoInteriorCircle.Plane)
+  (O u z : Erdos132.TwoInteriorCircle.Plane) (R : ℝ),
+  C.card = 6 →
+    (∀ c ∈ C, dist c O = R) →
+      dist u O ≠ R →
+        (∀ a ∈ insert u C, a ∈ Set.extremePoints ℝ ((convexHull ℝ) ↑(insert u C))) →
+          O ∈ interior ((convexHull ℝ) ↑(insert u C)) →
+            z ∈ interior ((convexHull ℝ) ↑(insert u C)) →
+              O ≠ z →
+                have X := insert O (insert z (insert u C));
+                have S := Erdos132.TwoInteriorCircle.nonDiameterDistances X;
+                X.card = 9 ∧
+                  ((∃ d,
+                      0 < d ∧
+                        d < Metric.diam ↑X ∧
+                          1 ≤ Erdos132.TwoInteriorCircle.multiplicity X d ∧
+                            Erdos132.TwoInteriorCircle.multiplicity X d ≤ 9) ∨
+                    S.card = 3 ∧
+                      Finset.image (fun c => dist c z) C = S ∧
+                        (∀ d ∈ S, {c ∈ C | dist c z = d}.card = 2) ∧
+                          (∀ c ∈ C, {b ∈ C | dist b z = dist c z}.card = 2) ∧
+                            ∀ d ∈ S, 10 ≤ Erdos132.TwoInteriorCircle.multiplicity X d)
+'Erdos132.HullOutlierOutside.original_target_or_saturation' depends on axioms: [propext, Classical.choice, Quot.sound]
+Erdos132.HullOutlierOutside.original_outside_geometry_fixture : ∃ C u z,
+  C.card = 6 ∧
+    (∀ c ∈ C, dist c 0 = 1) ∧
+      dist u 0 ≠ 1 ∧
+        (∀ a ∈ insert u C, a ∈ Set.extremePoints ℝ ((convexHull ℝ) ↑(insert u C))) ∧
+          0 ∈ interior ((convexHull ℝ) ↑(insert u C)) ∧
+            z ∈ interior ((convexHull ℝ) ↑(insert u C)) ∧ 0 ≠ z ∧ 1 < dist z 0
+'Erdos132.HullOutlierOutside.original_outside_geometry_fixture' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+Erdos132.HullOutlierOutside.original_outside_target_or_chord_obstruction : ∀
+  (C : Finset Erdos132.TwoInteriorCircle.Plane) (u z : Erdos132.TwoInteriorCircle.Plane) (R : ℝ),
+  C.card = 6 →
+    0 < R →
+      (∀ c ∈ C, ‖c‖ = R) →
+        ‖u‖ ≠ R →
+          (∀ a ∈ insert u C, a ∈ Set.extremePoints ℝ ((convexHull ℝ) ↑(insert u C))) →
+            0 ∈ interior ((convexHull ℝ) ↑(insert u C)) →
+              z ∈ interior ((convexHull ℝ) ↑(insert u C)) →
+                R ≤ ‖z‖ →
+                  have X := insert 0 (insert z (insert u C));
+                  have δ := Metric.diam ↑X ^ 2;
+                  X.card = 9 ∧
+                    ((∃ d,
+                        0 < d ∧
+                          d < Metric.diam ↑X ∧
+                            1 ≤ Erdos132.TwoInteriorCircle.multiplicity X d ∧
+                              Erdos132.TwoInteriorCircle.multiplicity X d ≤ 9) ∨
+                      ∃ T,
+                        T.card = 3 ∧
+                          (∀ t ∈ T, 0 < t ∧ t < δ ∧ ∃ c ∈ C, dist c z ^ 2 = t) ∧
+                            R ^ 2 ∈ T ∧
+                              ‖z‖ ^ 2 ∈ T ∧
+                                ‖u‖ ^ 2 ∈ T ∧
+                                  ‖z‖ ^ 2 < inner ℝ z u ∧
+                                    ‖z‖ < ‖u‖ ∧
+                                      (∃ c ∈ C, inner ℝ z c < 0) ∧
+                                        (∀ c ∈ C, dist c z ^ 2 ∈ T) ∧
+                                          (∀ c ∈ C,
+                                              (ℝ ∙ z).reflection c ∈ C ∧
+                                                (ℝ ∙ z).reflection c ≠ c ∧
+                                                  dist c z ^ 2 = R ^ 2 + ‖z‖ ^ 2 - 2 * inner ℝ z c ∧
+                                                    dist c ((ℝ ∙ z).reflection c) ^ 2 * ‖z‖ ^ 2 =
+                                                      4 * (R ^ 2 * ‖z‖ ^ 2 - inner ℝ z c ^ 2)) ∧
+                                            ∀ a ∈ C, ∀ b ∈ C, a ≠ b → dist a b ^ 2 ∈ T ∨ dist a b ^ 2 = δ)
+'Erdos132.HullOutlierOutside.original_outside_target_or_chord_obstruction' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+Erdos132.HullOutlierOutside.original_zero_centered_outside : ∀ (C : Finset Erdos132.TwoInteriorCircle.Plane)
+  (u z : Erdos132.TwoInteriorCircle.Plane) (R : ℝ),
+  C.card = 6 →
+    0 < R →
+      (∀ c ∈ C, dist c 0 = R) →
+        dist u 0 ≠ R →
+          (∀ a ∈ insert u C, a ∈ Set.extremePoints ℝ ((convexHull ℝ) ↑(insert u C))) →
+            0 ∈ interior ((convexHull ℝ) ↑(insert u C)) →
+              z ∈ interior ((convexHull ℝ) ↑(insert u C)) →
+                R ≤ dist z 0 →
+                  have X := insert 0 (insert z (insert u C));
+                  X.card = 9 ∧
+                    ∃ d,
+                      0 < d ∧
+                        d < Metric.diam ↑X ∧
+                          1 ≤ Erdos132.TwoInteriorCircle.multiplicity X d ∧
+                            Erdos132.TwoInteriorCircle.multiplicity X d ≤ 9
+'Erdos132.HullOutlierOutside.original_zero_centered_outside' depends on axioms: [propext, Classical.choice, Quot.sound]
+Erdos132.HullOutlierOutside.original_outside_fixture_with_conclusion : ∃ C u z,
+  C.card = 6 ∧
+    (∀ c ∈ C, dist c 0 = 1) ∧
+      dist u 0 ≠ 1 ∧
+        (∀ a ∈ insert u C, a ∈ Set.extremePoints ℝ ((convexHull ℝ) ↑(insert u C))) ∧
+          0 ∈ interior ((convexHull ℝ) ↑(insert u C)) ∧
+            z ∈ interior ((convexHull ℝ) ↑(insert u C)) ∧
+              0 ≠ z ∧
+                1 < dist z 0 ∧
+                  (insert 0 (insert z (insert u C))).card = 9 ∧
+                    ∃ d,
+                      0 < d ∧
+                        d < Metric.diam ↑(insert 0 (insert z (insert u C))) ∧
+                          1 ≤ Erdos132.TwoInteriorCircle.multiplicity (insert 0 (insert z (insert u C))) d ∧
+                            Erdos132.TwoInteriorCircle.multiplicity (insert 0 (insert z (insert u C))) d ≤ 9
+'Erdos132.HullOutlierOutside.original_outside_fixture_with_conclusion' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]

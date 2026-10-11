@@ -1,0 +1,30 @@
+[
+  {
+    "path": "Proofs/Erdos/Erdos132/ThreeInteriorCounting.lean",
+    "base": "62884b7550adc10429b4e86c0504fa9e1b8c3381",
+    "base_sha256": "1db0c49b92162704614f764f6b2ead4c4c3a24bbea04a7f54c975496a9253881",
+    "current_sha256": "1db0c49b92162704614f764f6b2ead4c4c3a24bbea04a7f54c975496a9253881",
+    "unchanged": true
+  },
+  {
+    "path": "Proofs/Erdos/Erdos132/CircleFixtures.lean",
+    "base": "62884b7550adc10429b4e86c0504fa9e1b8c3381",
+    "base_sha256": "be88d0aebc91e7a6f7e0409d30ee85416b3d7a5e4089af37f1fd813437207285",
+    "current_sha256": "be88d0aebc91e7a6f7e0409d30ee85416b3d7a5e4089af37f1fd813437207285",
+    "unchanged": true
+  },
+  {
+    "path": "Proofs/Erdos/Erdos132/DoubleEndpoint.lean",
+    "base": "62884b7550adc10429b4e86c0504fa9e1b8c3381",
+    "base_sha256": "5fd7b831694e9dba1323161dcea3fb3eb4527d1e8fdbef2cdc3c5440ef7f11af",
+    "current_sha256": "5fd7b831694e9dba1323161dcea3fb3eb4527d1e8fdbef2cdc3c5440ef7f11af",
+    "unchanged": true
+  },
+  {
+    "path": "Proofs/Erdos/Erdos132/TwoInteriorCircle.lean",
+    "base": "62884b7550adc10429b4e86c0504fa9e1b8c3381",
+    "base_sha256": "d36fdcc81b8e99f149e9ca53a8d57106563e46bbf93d70ef70b395db5faaab17",
+    "current_sha256": "d36fdcc81b8e99f149e9ca53a8d57106563e46bbf93d70ef70b395db5faaab17",
+    "unchanged": true
+  }
+]
