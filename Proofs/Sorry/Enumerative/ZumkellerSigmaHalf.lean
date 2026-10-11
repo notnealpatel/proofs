@@ -5,9 +5,10 @@ import Enumerative.ZumkellerSigmaHalf
 
 Ivan N. Ianakiev, OEIS A083207, Apr 03 2017, conjectured that among every four
 consecutive terms of the increasing Zumkeller sequence some term has Zumkeller
-half-sigma. Card `Formalize/A083207-ianakiev-sigma-half.md` classifies this as open,
+half-sigma. Retired implementation card
+`Formalize/A083207-ianakiev-sigma-half.md` classified this as open,
 with hard-blocked work and no known proof route. Reported verification of the first
-`10^5` windows is finite evidence, not a kernel proof of the universal claim.
+`10^5` terms is finite evidence, not a kernel proof of the universal claim.
 
 The exact existing proposition `IanakievSigmaHalf` is reused: for every natural
 index `i` there are `j < 4` and a natural `m` such that
@@ -21,7 +22,8 @@ and establishing these prerequisites do not prove the conjecture.
 
 The missing mechanism is a distribution theorem for Zumkeller numbers and their
 half-sigma values beyond the finite verification. This USER-authorized `sorry` is
-an archive-only statement interface, not a proof or closure of the card.
+an archive-only statement interface, not a proof. Card retirement records statement
+implementation, not mathematical closure.
 -/
 
 set_option autoImplicit false

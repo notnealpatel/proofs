@@ -4,7 +4,7 @@ import Enumerative.MultiperfectZumkeller
 # Archived multiperfect-to-Zumkeller conjecture (A007691 → A083207)
 
 OEIS A083207 records A007691 as a conjectured subsequence after its initial `1`.
-Card `Formalize/A007691-multiperfect-zumkeller.md` classifies this as an open
+Retired implementation card `Formalize/A007691-multiperfect-zumkeller.md` classified this as an open
 conjectural subsequence assertion and the work as hard-blocked. The exact domain is
 multiply-perfect natural numbers `n > 1`: the existing `Nat.IsMultiperfect` means
 `0 < n` and `n ∣ σ(n)`, and `IsZumkeller` means positivity and a subset/complement
@@ -22,7 +22,8 @@ positive even `σ(n) = 3*n` and positive `6 ∣ n`, `σ(n) = 4*n` slices.
 The missing mechanism is a divisor-partition argument for non-perfect multiperfect
 numbers, in particular the unresolved abundancy-at-least-three cases beyond these
 slices. This USER-authorized `sorry` is an archive-only statement interface, not a
-proof or closure of the card; no practicality or Coleman hypothesis is inserted.
+proof. Card retirement records statement implementation, not mathematical closure;
+no practicality or Coleman hypothesis is inserted.
 -/
 
 set_option autoImplicit false
