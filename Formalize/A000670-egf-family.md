@@ -1,35 +1,44 @@
 seq:     A000670
 claim:   bala-egf-family-periodicity
-status:  open
-stmt:    L
-proof:   hard
-module:  Proofs/Enumerative/Fubini.lean (special case)
+status:  coefficient theorem proved; formal-series composition bridge pending
+stmt:    L (original estimate; remaining bridge not yet implemented)
+proof:   hard (original estimate); coefficient theorem complete;
+         remaining composition bridge difficulty not reassessed
+module:  Proofs/Enumerative/OrdinaryIntegralEGF.lean,
+         Proofs/Enumerative/FubiniMod.lean
 source:  OEIS A000670 comment, Peter Bala, 2022-07-08
 
-CLAIM
-  Generalization of the completed Fubini periodicity theorem in
-  `Proofs/Enumerative/FubiniMod.lean`: for every
-  integral power series G(x), the integer sequence
-  with exponential generating function G(exp(x) - 1)
-  is, for every k >= 1, eventually periodic mod k with
-  period dividing phi(k). A000670 is G(x) = 1/(1-x);
-  Bell numbers are G(x) = exp(x).
+EXACT SCOPE
+  Let G(X) = sum a_m X^m with arbitrary ordinary integer coefficients
+  a_m. Over rational formal power series put F(X) = G(exp(X) - 1),
+  and b_n = n! * [X^n] F(X). The claim is that b_n are integers and,
+  for every k >= 1, are eventually periodic modulo k with period
+  dividing phi(k). It suffices to establish phi(k) as an eventual period.
+  No analytic convergence, finite support, or positivity is assumed.
 
-LEAN
-  Mathlib has PowerSeries (RingTheory.PowerSeries) but
-  no EGF API: no coefficient-extraction-with-n!
-  framework, no composition G(exp(x)-1) toolkit aimed
-  at integer sequences. Stating this faithfully needs
-  that layer built first — that is the L.
+PROVED PREREQUISITE
+  OrdinaryIntegralEGF.weightedStirlingTransform a n is the integer
+    sum_{m=0}^n a_m * m! * StirlingS2(n,m).
+  weightedStirlingTransform_eventuallyPeriodic proves that this sequence
+  has eventual period phi(k) modulo every positive k. The finite
+  alternating-power identity for m! * StirlingS2(n,m) is also proved.
+  The Fubini specialization a_m = 1 is already covered by FubiniMod.
 
-ROUTE
-  None with current machinery. If attacked, do the
-  single-sequence cases (A000670, Bell mod k — the
-  Bell case is Touchard congruence territory) first
-  and let the general statement emerge from the shared
-  proof shape.
+REMAINING BRIDGE
+  Use genuine rational formal-series exponentiation and substitution to
+  identify n! * [X^n] G(exp(X)-1) with the weighted Stirling transform.
+  The inner series has zero constant coefficient, so every coefficient
+  uses only finitely many outer coefficients. Prove the identity also
+  at n=0, then transfer integrality and the existing periodicity theorem.
+  The bridge is not supplied merely by naming the transform an EGF.
 
-EVIDENCE
-  Instances asserted by Bala at A000670, A002050,
-  A354242; Touchard's congruence is the proved Bell
-  prototype.
+CORRECTION AND EVIDENCE
+  Bala's source explicitly requires an integral power series G.
+  G(X)=1/(1-X) gives Fubini numbers. The old card's Bell example
+  G(X)=exp(X) is OUTSIDE this scope: its ordinary coefficient of X^2
+  is 1/2. Integral divided-power coefficients are a different condition;
+  the unrestricted divided-power version is not admitted. Touchard's
+  Bell congruences are not a proof or instance of the stated generality.
+  The original source also points to A002050 and A354242. Its conjectural
+  wording is source history, not the current status of the proved
+  weighted-coefficient theorem.
