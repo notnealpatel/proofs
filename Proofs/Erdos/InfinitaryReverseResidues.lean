@@ -2,6 +2,28 @@ import Erdos.InfinitaryReverseProduct
 
 set_option autoImplicit false
 
+/-!
+# Infinitary selected-tag residues
+
+The canonical objects here are `sigma`, `reverseTags`, `normalizedSlot`,
+ordinary `Nat.factorization`, and actual prime support.  The public theorem
+`reverseTag_residues` turns an actual tag, mod-4 base, positive odd five
+valuation, and exact 3/5 factorization into height zero, positive three
+valuation, and the residues `q % 3 = 2`, `q % 5 = 4`, and `q % 16 = 9 ∨ 13`.
+`exists_reverse_prime_residues` preserves the full mixed reverse contract and
+extracts an actual prime divisor with these residues; it assumes neither a
+forward equation nor a square/even premise nor normalized-slot primality.
+The proof is the height split modulo 5 and 3 followed by modulo 16, composed
+with D's selected actual tag.  The checked `(225,356,1,1)` model has tag 89,
+but is odd and satisfies `sigma 225 = 260 ≠ 356`, so it is not a full cycle.
+The current F2 module consumes this residue result in its canonical exclusion
+composition for the valuation-two whole-square branch; this module itself does
+not prove that composition or whole-square transport.  Valuations at least
+three and the global cycle classification remain out of scope.  This module
+docstring consolidates the former companion note from the exact declarations
+and their checked model.
+-/
+
 namespace InfinitarySuperperfect
 
 private theorem five_odd_mod (u : ℕ) (hu : Odd u) :

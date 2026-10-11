@@ -4,6 +4,22 @@ import Mathlib.Tactic
 
 set_option autoImplicit false
 
+/-!
+# Infinitary successor-origin congruence core
+
+`not_dvd_successors` is the public congruence core: for every prime q with
+`q % 4 = 1`, `q % 3 = 2`, `q % 5 = 4`, and `q % 16 = 9 ∨ 13`, and every
+`1 ≤ h`, none of `2^(2^h)+1`, `3^(2^h)+1`, or `5^(2^h)+1` is divisible by q.
+The intermediate public results expose exact order `2^(h+1)`, the bound
+`h ≤ 2`, and the finite six-factor check; the mod-4 and mod-3 hypotheses are
+retained in the final contract.  The proof uses finite-field order divisibility
+rather than a bounded exponent assumption, then checks h=1,2.  The q=29,
+b=12,h=1 checks jointly witness the interface hypotheses, not an actual
+cycle.  Extraction of the selected prime, reverse-budget/support bridges,
+and full f2 or cycle exclusion remain outside scope.  This docstring
+consolidates the former companion note from the exact module contracts.
+-/
+
 namespace Erdos.InfinitarySuccessorOrigins
 
 /-- An odd prime divisor of a successor at bit position `h` gives order exactly

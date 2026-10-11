@@ -2,6 +2,24 @@ import Erdos.InfinitarySuperperfect
 
 set_option autoImplicit false
 
+/-!
+# Infinitary support saturation
+
+This module keeps the canonical infinitary `sigma`, actual `primeFactors`,
+ordinary factorization, `binarySupport`, and whole-square predicate.  Its three
+public contracts retain positivity, divisibility by 2, whole-square input,
+divisibility by 3 and 5, and the literal two-bit budget: they prove exact
+support `{2,3,5}`, support inclusion, and the mixed shape with
+`v₃(n)=2^j`, `v₅(n)=2^k`, `1 ≤ j,k`.  The proof saturates the two odd support
+contributions, obtains singleton binary supports, uses whole-square evenness
+to exclude bit zero, and reconstructs n from actual prime factorization.  The
+joint checked model `n=900=30^2` satisfies all hypotheses and has nonempty
+support.  This is a support bridge only: deriving these premises upstream,
+and D/E, f2, cycle, and later consumers remain outside scope.  This docstring
+consolidates the former companion note against the exact declarations below;
+no alternate budget or support representation is introduced.
+-/
+
 namespace InfinitarySuperperfect
 
 /-- Every actual prime of a positive integer has an occupied valuation bit. -/

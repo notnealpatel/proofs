@@ -2,6 +2,30 @@ import Erdos.InfinitaryReverseBudget
 
 set_option autoImplicit false
 
+/-!
+# Infinitary reverse-product mixed tag
+
+This module uses the canonical infinitary `sigma`, actual factorization and
+prime support, and tagged `reverseTags`/`normalizedSlot` data.  Its public
+contracts `reverseProduct_eq_mixed` and `exists_reverseTag_mixed` retain
+`n m j k`, positivity, `v₂(m)=2`, the reverse equation, the selected-prime
+mod-4 hypothesis, both height bounds, and the exact mixed shape; the latter
+selects an actual tag with positive odd ordinary five-valuation and support
+only at 3 and 5.  The proof cancels the reverse equation using the exact
+sigma product, then uses factorization additivity and an ordinary
+prime-factor reconstruction; no pairwise coprimality, selected-slot
+primality, or forward equation is assumed, and the ordinary three-valuation
+may be zero.  The jointly checked model `(n,m,j,k)=(225,356,1,1)` is an odd
+reverse model with `reverseTags 356 = {⟨89,0⟩}` and is deliberately not a
+whole-even-square/full-cycle witness.  The selected-tag residue result is
+consumed by `InfinitaryReverseResidues`, and the current F2 module composes
+D/C/E with canonical exclusion for the valuation-two whole-square branch.
+This module itself does not prove a forward equality or whole-cycle
+classification; valuation at least three and the global cycle problem remain
+out of scope.  The model and contracts below are the consolidated provenance,
+not a claim that those larger obligations are paid.
+-/
+
 namespace InfinitarySuperperfect
 
 /-- The mixed input shape and reverse budget determine the tagged normalized product. -/

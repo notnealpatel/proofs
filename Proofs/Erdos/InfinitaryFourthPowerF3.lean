@@ -3,6 +3,26 @@ import Mathlib.FieldTheory.Finite.Basic
 
 set_option autoImplicit false
 
+/-!
+# Infinitary fourth-power parity obstruction
+
+This module works with the canonical infinitary `sigma`, `binarySupport`,
+`Nat.factorization`, and actual `Nat.primeFactors` in `InfinitarySuperperfect`.
+Its public contracts `factorization_sigma_two_even_of_four_dvd` and
+`factorization_sigma_two_even_of_fourth_power` preserve the positive-input,
+four-divisibility, odd-part, forward, and reverse hypotheses and conclude that
+the second member has even two-adic valuation; the existing corresponding
+`ne_three` contracts remain available as corollaries.  The proof derives
+actual odd support modulo eight from successor orders, reconstructs `sigma m`
+from the two-local factor, `2 ^ reverseCount m`, and tagged `reverseProduct m`,
+and compares odd parts modulo four.  The checked boundary model at `m = 17`
+exercises absent two, while `m = 136` exercises valuation three; these are
+separate hypothesis-block models, not a positive fourth-power cycle.  The
+module does not classify or establish cycles, global f3 exclusion, or the
+upstream shape/ratio/free-prime bridges.  This docstring consolidates the
+former companion mathematical note and the actual declarations below.
+-/
+
 namespace InfinitarySuperperfect
 
 /-- Every occupied bit of a multiple of four has height at least two. -/

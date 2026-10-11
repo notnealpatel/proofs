@@ -3,6 +3,26 @@ import Erdos.InfinitarySuccessorOrigins
 
 set_option autoImplicit false
 
+/-!
+# Infinitary f3 five-power-four anchor at 313
+
+The module uses canonical `sigma`, `localSigma`, `binarySupport`, ordinary
+factorization/prime support, and `ZMod 313`.  The public helpers establish
+that a 313-divisible successor has eighth-power-one base and exclude bases 2
+and 3.  `anchor313_of_actual_cycle_shape` preserves the literal shape
+`n = 2^a * 3^(2^j) * 5^4 * p^(2^ell)`, `a ≥ 2`, even `a`, `j,ell ≥ 1`,
+prime `p` distinct from 2,3,5, and both actual equations, concluding exactly
+`m.factorization 313 = 1 ∧ p = 157`; it does not assume a reverse-product or
+support certificate.  The proof reconstructs sigma from the explicit prime
+shape, forces the 313 valuation to one via successor orders and derived
+reverse support, then uses the height-zero tag to identify p.  The checked
+shape-and-forward model `(a,j,ell,p)=(2,1,1,7)` is not a full-cycle model;
+full antecedent satisfiability is not claimed.  Deriving the general f3 shape,
+restricting ell, abundance, and the remaining cycle obstruction are outside
+scope.  This docstring consolidates the former companion note with the exact
+Lean declarations and checked boundaries.
+-/
+
 namespace InfinitarySuperperfect
 
 private theorem prime313 : Nat.Prime 313 := by norm_num

@@ -4,6 +4,26 @@ import Erdos.InfinitaryCanonicalSupport
 
 set_option autoImplicit false
 
+/-!
+# Infinitary even whole-square valuation-two exclusion
+
+This composition uses canonical infinitary `sigma`, `binarySupport`, ordinary
+factorization, and actual prime support.  `exists_prime_dvd_reverse_not_dvd_sigma_of_budget_two`
+retains positivity, even whole-square input, `v₂(m)=2`, the reverse equation,
+actual odd-prime mod-4 support, and the literal canonical budget, and produces
+an actual odd prime dividing `m` but not `sigma n`.  The public cycle theorem
+`factorization_sigma_two_ne_two_of_even_square` instead assumes `m = sigma n`
+and both actual equations and derives the contradiction; its residue, budget,
+shape, D, E, and canonical-support bridges are imported rather than reproved.
+The load-bearing mechanism is support saturation, mixed-shape extraction,
+E's selected residue prime, and canonical successor exclusion.  The strict
+antecedent is jointly witnessed by `(n,m)=(8100,9860)`, with `sigma 9860 =
+2*8100` but `sigma 8100 = 10660 ≠ 9860`; hence it is not a full cycle and
+not a model of the contradictory cycle branch.  Valuations at least three,
+global classification, and general successor results remain out of scope.
+This docstring consolidates the former companion note and actual contracts.
+-/
+
 namespace InfinitarySuperperfect
 
 /-- An even whole square with canonical odd bit budget two has an actual reverse
