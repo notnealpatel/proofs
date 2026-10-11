@@ -34,7 +34,8 @@
           the conjecture below is nontrivial in both directions.
     · `hamiltonBallinger_finiteness`
         — the conjecture `{n | complexity n < powComplexity n}.Finite`,
-          OPEN, carried as the file's single intended `sorry`; the OEIS
+          OPEN, relocated unchanged to `Sorry.NumberComplexity.HamiltonBallinger`;
+          the OEIS
           entry offers only empirical evidence (within the pulled terms
           `n ≤ 78` the set has 31 elements, the largest being 78) and
           no route is known (card: requires comparative growth theory
@@ -740,22 +741,9 @@ theorem exists_powComplexity_lt_complexity :
   rw [complexity_eq_complexityRec, powComplexity_eq_powComplexityRec]
   decide
 
-/-- **Hamilton–Ballinger finiteness conjecture** (OEIS A005245 comment,
-Gordon Hamilton and Brad Ballinger, 2022-05-23) — OPEN: the integer
-(Mahler–Popken) complexity A005245 is strictly below the
-`{1, +, ^}`-complexity A348262 for only finitely many `n`. The set is
-nonempty (`6` is a member, `exists_complexity_lt_powComplexity`), and
-membership fails at `8` (`exists_powComplexity_lt_complexity`), so the
-statement is nontrivial in both directions. `n = 0` contributes nothing:
-both norms take the junk value `0` there and `0 < 0` is false. -/
-theorem hamiltonBallinger_finiteness :
-    {n : ℕ | complexity n < powComplexity n}.Finite := by
-  -- intended sorry: open conjecture (card A005245-hamilton-ballinger,
-  -- ROUTE: none known — requires comparative growth theory of the two
-  -- complexity measures; the OEIS entry offers only empirical evidence).
-  sorry
 
--- ground-truth/satisfiability layer for the sorried statement: the set is
+
+-- ground-truth/satisfiability layer for the separately archived statement: the set is
 -- inhabited and avoided at concrete points, both PROVED by kernel `decide`,
 -- so the conjectured finiteness is not the degenerate finiteness of `∅`
 example : 6 ∈ {n : ℕ | complexity n < powComplexity n} := by
@@ -860,11 +848,10 @@ example : powComplexityRec (2 ^ 3) ≤ powComplexityRec 2 + powComplexityRec 3 :
   powComplexityRec_pow_le (by omega) (by omega)
 example : 2 * 2 ≤ 2 ^ 2 := two_mul_le_two_pow (le_refl 2)
 
-/-! ## Axiom audit (sorry-free declarations only)
+/-! ## Trust boundary
 
-`hamiltonBallinger_finiteness` is excluded: it carries the file's single
-intended `sorry` and reports `sorryAx` by construction. Everything below
-must report a subset of `{propext, Classical.choice, Quot.sound}`. -/
+All definitions, engines, and proved comparisons here are independent of the
+open admission in `Sorry.NumberComplexity.HamiltonBallinger`. -/
 
 
 end NumberComplexity

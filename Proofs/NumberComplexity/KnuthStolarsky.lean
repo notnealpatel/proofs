@@ -6,12 +6,13 @@ import NumberComplexity.AdditionChain
 
 `l n` (OEIS A003313, built in `NumberComplexity/AdditionChain.lean`) is the
 number of additions in a shortest addition chain for `n`; `v n` (OEIS A000120)
-is the binary weight of `n`.  This file archives the **Knuth–Stolarsky
-conjecture**
+is the binary weight of `n`. This file studies the **Knuth–Stolarsky
+conjecture** and proves supporting results for it. The open admission is archived
+in `Sorry.NumberComplexity.KnuthStolarsky`:
 
 `⌊log₂ n⌋ + ⌈log₂ (v n)⌉ ≤ l n`
 
-as a single intended `sorry`, together with a sorry-free layer that pins the
+The proved layer pins the
 statement down: two infinite families on which it is proved outright and sharp,
 an equivalent multiplicative reformulation, and an exhaustive certificate for
 `1 ≤ n ≤ 16`.
@@ -129,8 +130,8 @@ Main declarations:
 * `NumberComplexity.knuth_stolarsky_of_le_sixteen` — **proved**: the conjecture
   for all `1 ≤ n ≤ 16`, by kernel-`decide` exhaustion of the chain enumeration
   of `AdditionChain.lean`;
-* `NumberComplexity.knuth_stolarsky` — **OPEN**, the intended `sorry`: the
-  conjecture itself;
+* `NumberComplexity.knuth_stolarsky` — **OPEN**, relocated unchanged to
+  `Sorry.NumberComplexity.KnuthStolarsky`;
 * `NumberComplexity.knuth_stolarsky_iff_lAsc` — **proved**: the claim is the
   same under the entry's own ascending chain convention (`lAsc`), via
   `l_eq_lAsc`.
@@ -142,9 +143,9 @@ Main declarations:
 `0 < n`, matching the A003313 offset `1`.
 
 **Trust.**  Every ground check closes by kernel `decide` or `rfl`; no
-`native_decide`, no `@[implemented_by]`/`@[extern]`/`@[csimp]`.  The axiom audit
-at the bottom reports at most `propext, Classical.choice, Quot.sound` for every
-sorry-free declaration, and `sorryAx` for `knuth_stolarsky` alone.
+`native_decide`, no `@[implemented_by]`/`@[extern]`/`@[csimp]`. Axiom audits
+should report at most `propext, Classical.choice, Quot.sound` for every
+production declaration. The archived `knuth_stolarsky` retains `sorryAx`.
 
 Card: `Formalize/A003313-knuth-stolarsky.md`.
 -/
@@ -419,39 +420,15 @@ theorem knuth_stolarsky_of_le_sixteen (n : ℕ) (hn : 0 < n) (h16 : n ≤ 16) :
     have hl : ¬l 16 ≤ 3 := by decide
     omega
 
-/-! ## The conjecture: open, intended `sorry`
+/-! ## The conjecture: open, archived separately
 
-Everything above is sorry-free and does not depend on what follows.  The
-statement below is the OEIS comment quoted verbatim in the module docstring,
-transcribed with `Nat.log 2` for `floor(log_2(·))`, `Nat.clog 2` for
-`ceiling(log_2(·))`, `binaryWeight` for `v`, and `l` for `a`.  It is open
-mathematics (see the status section above); no proof is attempted. -/
+The open admission is relocated unchanged to
+`Sorry.NumberComplexity.KnuthStolarsky`. Everything in this production module
+is independent of it. The archived statement uses `Nat.log 2` for
+`floor(log_2(·))`, `Nat.clog 2` for `ceiling(log_2(·))`, `binaryWeight` for `v`,
+and `l` for `a`. -/
 
-/-- **The Knuth–Stolarsky conjecture** (OEIS A003313, comment of Achim
-Flammenkamp, Oct 26 2016, attributing it to D. E. Knuth, K. Stolarsky et al.;
-first stated in a different form by Stolarsky 1969, Lemma 10) — OPEN:
 
-`floor(log_2 n) + ceiling(log_2 (v n)) ≤ l n` for every `n ≥ 1`,
-
-where `l` is A003313, the shortest-addition-chain length, and `v` is A000120, the
-binary weight.  The guard `0 < n` keeps `Nat.log`, `Nat.clog` and `l` off their
-junk values at `0` and matches the A003313 offset `1`.
-
-Known: Schönhage 1975 proved the approximation
-`l n ≥ log₂ n + log₂ (v n) − 2.123164629…`; Thurber 1973 proved the conjecture
-for `v n ≤ 16` (Clift extended this to `v n ≤ 128` by November 2023); Clift
-verified it for all `n ≤ 2 ^ 64` (October 2008) and for all `n` with
-`l n − ⌊log₂ n⌋ ≤ 5` (September 2019).  Proved here without hypothesis for
-`v n ≤ 2` (`knuth_stolarsky_of_binaryWeight_le_two`) and for `n ≤ 16`
-(`knuth_stolarsky_of_le_sixteen`), and shown sharp on `3 * 2 ^ m`
-(`knuth_stolarsky_eq_three_mul_two_pow`). -/
-theorem knuth_stolarsky (n : ℕ) (hn : 0 < n) :
-    Nat.log 2 n + Nat.clog 2 (binaryWeight n) ≤ l n := by
-  -- intended sorry: open conjecture (card `Formalize/A003313-knuth-stolarsky.md`).
-  -- Confirmed open as of the 2026-08-05 pull of Flammenkamp's page quoted in the
-  -- module docstring; the July 2024 Clift disproof recorded there refutes the
-  -- adjacent Scholz-Brauer equality, not this bound.
-  sorry
 
 /-! ## The claim under the entry's own (ascending) chain convention
 
@@ -514,14 +491,9 @@ example : (Nat.log 2 15 + Nat.clog 2 (binaryWeight 15) ≤ l 15) ↔
     Nat.log 2 15 + Nat.clog 2 (binaryWeight 15) ≤ lAsc 15 :=
   knuth_stolarsky_iff_lAsc 15
 
-/-! ## Axiom audit
+/-! ## Trust boundary
 
-Every declaration below is sorry-free and must report a subset of
-`{propext, Classical.choice, Quot.sound}`.  `knuth_stolarsky` is the file's one
-intended `sorry` and reports `sorryAx` by design; it is printed last so that the
-audit is explicit rather than silent. -/
-
-
--- the intended `sorry`, audited explicitly:
+All declarations here are proved independently of the open admission in
+`Sorry.NumberComplexity.KnuthStolarsky`. -/
 
 end NumberComplexity

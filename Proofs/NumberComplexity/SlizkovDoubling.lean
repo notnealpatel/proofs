@@ -46,12 +46,13 @@ instance) and has three tiers:
   Nothing in that section is kernel-certified; it documents the computation
   and its bound.
 
-* **Tier 3 (OPEN, intended `sorry`).**  Slizkov's question, archived in
+* **Tier 3 (OPEN, archived in `Sorry.NumberComplexity.SlizkovDoubling`).**
+  Slizkov's question is relocated unchanged in
   additive form (never `Nat` subtraction): `slizkov_doubling_gap :`
   `∀ k, 0 < k → l k ≤ l (2 * k) + 1` — "no, doubling can never save more than
   one addition".  A refutation is exactly a witness `k` with
-  `l (2 * k) + 1 < l k` (`slizkov_witness_iff`).  The file's satisfiability
-  layer instantiates the statement at kernel-certified values.
+  `l (2 * k) + 1 < l k` (`slizkov_witness_iff`). The production satisfiability
+  layer independently instantiates the statement at kernel-certified values.
 
 **Degenerate values.**  `l 0 = 0` is the junk value of the empty infimum
 (layer, `l_zero`); the guards `0 < k` keep every statement here on the honest
@@ -62,9 +63,9 @@ via `l 0 = 0`, and nothing below relies on that).
 `norm_num`; the single `decide +kernel` (at `¬l 14 ≤ 4`, a 576-chain
 enumeration) only moves evaluation from the elaborator to the kernel and is
 NOT `native_decide`.  No `native_decide`, no `@[implemented_by]`/`@[extern]`/
-`@[csimp]`.  The recorded axiom footprint contains at most
-`propext, Classical.choice, Quot.sound` for everything except the intended
-`sorry` of `slizkov_doubling_gap`.
+`@[csimp]`. The production axiom footprint should contain at most
+`propext, Classical.choice, Quot.sound`; the open `slizkov_doubling_gap` retains
+its admission only in `Sorry.NumberComplexity.SlizkovDoubling`.
 
 Ground truth: `oeis show A230528`, `oeis show A003313`, `oeis show A086878`,
 all pulled live 2026-07-30; A003313 terms (offset 1) begin
@@ -82,7 +83,8 @@ namespace NumberComplexity
 one extra addition, `l (2 * k) ≤ l k + 1` — append the doubling step
 `k + k = 2 * k` to an optimal chain for `k`.  This is the layer's
 `l_two_mul_le` restated on `0 < k`, the domain of the open converse
-`slizkov_doubling_gap` below (at `k = 0` the unguarded statement is junk-true
+`slizkov_doubling_gap` archived in `Sorry.NumberComplexity.SlizkovDoubling`
+(at `k = 0` the unguarded statement is junk-true
 via `l 0 = 0`, so the guard is deliberate slack, unused by the proof);
 Slizkov's question is whether the mirror-image bound `l k ≤ l (2 * k) + 1`
 also holds. -/
@@ -278,7 +280,10 @@ lower-bound half of `l n = v` enumerates all chains of `v - 1` additions,
   entry's own question, which the entry poses as open.
 -/
 
-/-! ## Tier 3: Slizkov's question (OPEN, intended `sorry`) -/
+/-! ## Tier 3: Slizkov's question (OPEN, archived separately)
+
+The admission is relocated unchanged to `Sorry.NumberComplexity.SlizkovDoubling`;
+the independent witness equivalence and ground checks remain here. -/
 
 /-- A *Slizkov witness* — a `k` at which doubling saves *more* than one
 addition, i.e. "the shortest addition chain for `2*k` is shorter than one for
@@ -294,35 +299,7 @@ theorem slizkov_witness_iff (k : ℕ) (_hk : 0 < k) :
     l (2 * k) + 1 < l k ↔ ¬(l k ≤ l (2 * k) + 1) := by
   omega
 
-/-- **Slizkov's question** (OEIS A230528 comment, Alexey Slizkov, 2024-01-20:
-"Can the shortest addition chain for 2*k be shorter than one for k by more
-than 1?") — archived as the conjecture that the answer is *no*, in additive
-form (never `Nat` subtraction): for `0 < k`, `l k ≤ l (2 * k) + 1`.  OPEN,
-intended `sorry`.
 
-Status of the statement, per the pulled entries and the tier-2 search:
-
-* it is *nontrivial*: it does not follow from tier 1, which bounds the
-  opposite difference, and `l (2 * k) < l k` genuinely happens — smallest at
-  `k = 375494703` (A230528; external, far beyond kernel range);
-* it is *sharp*: at each listed A230528 term the deficit is at least `1` by
-  that entry's definition, and exactly `1` since a larger deficit would answer
-  the entry's question (posed as open) — so the conjectured bound is attained
-  with equality there and cannot be strengthened to `l k ≤ l (2 * k)`;
-* it is kernel-verified for `0 < k ≤ 7` with room to spare
-  (`slizkov_of_le_seven`) and computationally verified for `k ≤ 50000`
-  (tier-2 section);
-* a refutation is exactly a Slizkov witness (`slizkov_witness_iff`), which by
-  the tier-2 search must have `k > 50000` — the project's witness-first
-  epistemics would want the two explicit chains.
-
-The guard `0 < k` keeps the statement off the junk value `l 0 = 0` (the
-`k = 0` instance is junk-true, not evidence). -/
-theorem slizkov_doubling_gap (k : ℕ) (hk : 0 < k) : l k ≤ l (2 * k) + 1 := by
-  -- intended sorry: open question (card A230528-slizkov-doubling; ROUTE: none
-  -- known — the entry offers only the seven deficit-1 terms as evidence, and
-  -- a refutation would be an explicit chain pair at some k > 50000).
-  sorry
 
 /-! ### Satisfiability / nontriviality layer for the archived statement
 
@@ -365,11 +342,10 @@ example : l 7 ≤ 4 := by decide
 example : ¬l 10 ≤ 3 := by decide
 example : l 12 ≤ 4 := by decide
 
-/-! ## Axiom audit (`sorry`-free declarations only)
+/-! ## Trust boundary
 
-`slizkov_doubling_gap` is excluded: it carries the file's single intended
-`sorry` and reports `sorryAx` by construction.  Everything below must report a
-subset of `{propext, Classical.choice, Quot.sound}`. -/
+All declarations here are independent of the open admission in
+`Sorry.NumberComplexity.SlizkovDoubling`. -/
 
 
 end NumberComplexity

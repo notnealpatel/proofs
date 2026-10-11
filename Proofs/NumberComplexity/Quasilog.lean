@@ -13,9 +13,10 @@ Main declarations:
 * `NumberComplexity.quasilog_mul` — complete additivity (the defining property), proved;
 * `NumberComplexity.log_two_le_quasilog` — Wilson's lower bound `⌊log₂ n⌋ ≤ a n`, proved
   via the sharper `NumberComplexity.le_two_pow_quasilog` (`n ≤ 2 ^ a n`);
-* `NumberComplexity.quasilog_le_two_point_five_mul_log` — Cloitre's conjectured upper
-  bound `a n ≤ 2.5 * Real.log n` for `1 < n`: OPEN, carried as an intended `sorry` over
-  a proved ground-truth instance at `n = 2`.
+* Cloitre's strict upper bound `a n < 2.5 * Real.log n` for `1 < n` is OPEN,
+  archived in `Sorry.NumberComplexity.Quasilog`. Its old weak theorem
+  `NumberComplexity.quasilog_le_two_point_five_mul_log` is derived there.
+  The independent proved ground-truth instance at `n = 2` remains here.
 
 Ground truth: `oeis show A064097`, pulled live 2026-07-29; first terms
 `0, 1, 2, 2, 3, 3, 4, 3, 4, 4, 5, 4, 5, 5, 5, 4, …` (offset 1), checked below.
@@ -276,28 +277,20 @@ example : Nat.log 2 16 = 4 :=
   Nat.log_eq_of_pow_le_of_lt_pow (by norm_num) (by norm_num)
 example : 5 ≤ 2 ^ quasilog 5 := le_two_pow_quasilog 5 (by norm_num)
 
-/-! ## Upper bound (Cloitre): open, intended `sorry`
+/-! ## Upper bound (Cloitre): open, archived separately
 
 The OEIS entry conjectures `a n < 2.5 * log n` for `1 < n` (Cloitre, 2002-10-30;
 verified computationally far into the entry, unproven in the literature as far as
 the campaign sweep found). Naive strong induction FAILS at `c = 2.5`: the prime
 step needs `2 ≤ c * Real.log 2`, but `2.5 * Real.log 2 ≈ 1.733 < 2`. A proof must
 exploit that `p - 1` is even for odd primes (cheap factor-`2` steps cannot repeat
-immediately) or track worst-case prime chains. HOLD tier: stated, not attempted.
--/
+immediately) or track worst-case prime chains. The strict admission is archived
+in `Sorry.NumberComplexity.Quasilog`, together with the derived old weak theorem.
+Neither is used by production. -/
 
-/-- **Cloitre's upper bound** (OEIS A064097, Benoit Cloitre, 2002-10-30) — OPEN:
-`a n ≤ 2.5 * Real.log n` for `1 < n` (the entry conjectures the strict form
-`a n < 2.5 * log n`). The guard `1 < n` keeps `Real.log` off `Real.log 1 = 0`
-(and off the junk value `Real.log 0 = 0`); at `n = 1` even the strict form would
-be false since `a 1 = 0 = 2.5 * log 1`. -/
-theorem quasilog_le_two_point_five_mul_log (n : ℕ) (hn : 1 < n) :
-    (quasilog n : ℝ) ≤ 2.5 * Real.log n := by
-  -- intended sorry: open conjecture (card A064097-quasilog-bounds, ROUTE (ii));
-  -- naive induction fails at c = 2.5 because 2.5 * log 2 < 2 at prime steps.
-  sorry
 
--- ground-truth/satisfiability layer for the sorried statement: the hypothesis
+
+-- ground-truth/satisfiability layer for the archived weak statement: the hypothesis
 -- `1 < n` and the conclusion are jointly satisfied at `n = 2`, proved outright
 -- (`quasilog 2 = 1 ≤ 2.5 * Real.log 2 ≈ 1.733`).
 example : ∃ n : ℕ, 1 < n ∧ (quasilog n : ℝ) ≤ 2.5 * Real.log n := by
