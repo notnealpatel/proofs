@@ -43,7 +43,7 @@ coincidence.  `Fintype.card` does not depend on which `Fintype` instance is in s
 
 ## What is archived and what is proved
 
-Archived with the single intended `sorry`:
+Archived separately in `Sorry.Enumerative.PartitionPerfectPower` with its single admission:
 
 * `sun_partitionNumber_not_isPerfectPower` — for every `n`, `partitionNumber n` is not
   of the form `x ^ m` with `1 < x` and `1 < m`.  This is the comment above.
@@ -322,50 +322,9 @@ theorem partitionNumber_le_succ (n : ℕ) : partitionNumber n ≤ partitionNumbe
 theorem monotone_partitionNumber : Monotone partitionNumber :=
   monotone_nat_of_le_succ partitionNumber_le_succ
 
-/-! ## The conjecture -/
+/-! The open conjecture is quarantined in `Sorry.Enumerative.PartitionPerfectPower`. -/
 
-/-- **Sun's perfect-power conjecture for the partition numbers (OEIS A000041).**
 
-Verbatim from the entry's `comments` field, pulled 2026-08-05:
-
-> Conjecture: No a(n) has the form x^m with m > 1 and x > 1. - _Zhi-Wei Sun_,
-> Dec 02 2013
-
-No guard on `n` is needed: `a(0) = a(1) = 1` and no perfect power in Sun's sense is
-below `4` (`four_le_of_isPerfectPower`), so the two degenerate indices are covered by
-the same statement — see `sun_partitionNumber_zero` and `sun_partitionNumber_one`,
-which are proved.
-
-**Status: open.**  This is the single intended `sorry` of the file.  The entry publishes
-no verification bound for this comment; what is verified here is
-`not_isPerfectPower_of_mem_a000041Prefix`, which rules out every term of the pinned
-50-term prefix `a(0), …, a(49)`, together with the compiler-checked identification
-`partitionNumber n = a(n)` for `n ≤ 16`.
-
-**Why it is hard.**  A proof must control the arithmetic of `p(n)` uniformly in `n`, and
-the two handles the A000041 entry itself supplies are the wrong shape for that.
-
-*Congruential.*  In a bracketed note on Forberg's comment about primes dividing
-partition numbers, the entry cites Ono (verbatim): "The existence of such partition
-numbers follows from Ono's proof (see his paper "Distribution of the partition function
-modulo m"). - _Ralf Stephan_, Jan 28 2026" — "such partition numbers" refers to
-partition numbers divisible by a given prime, not to perfect powers.  A congruence rules
-out a residue class of *values*, but `m`-th
-powers occupy every residue class that contains an `m`-th power residue, so no fixed
-modulus can exclude them all.
-
-*Analytic.*  The entry's `formulas` field records (verbatim) "a(n) ~
-1/(4*n*sqrt(3)) * e^(Pi * sqrt(2n/3)) as n -> infinity (Hardy and Ramanujan). See
-A050811."  Even the exact Rademacher refinement of that expansion only locates `p(n)` as
-the nearest integer to a transcendental sum, which says nothing about whether that
-integer is an `m`-th power.
-
-The same obstruction blocks the sibling conjecture on A000166 (derangements,
-`Proofs/Scratch/Candidates/A000166SunPerfectPower.lean`) and Brocard's problem
-(`Proofs/Scratch/Candidates/A146968Brocard.lean`). -/
-theorem sun_partitionNumber_not_isPerfectPower (n : ℕ) :
-    ¬ IsPerfectPower (partitionNumber n) := by
-  sorry
 
 /-! ## What the sweep gives unconditionally -/
 
@@ -408,9 +367,9 @@ example : ¬ IsPerfectPower (partitionNumber 1) :=
 
 /-! ## Axiom audit
 
-Everything below is `{propext, Classical.choice, Quot.sound}` except
-`sun_partitionNumber_not_isPerfectPower`, the single intended `sorry`, which also
-reports `sorryAx`. -/
+The proved declarations here use only standard axioms. The open declaration
+`sun_partitionNumber_not_isPerfectPower` lives in `Sorry.Enumerative.PartitionPerfectPower`
+and carries the existing admission there, not in this production module. -/
 
 
 end A000041

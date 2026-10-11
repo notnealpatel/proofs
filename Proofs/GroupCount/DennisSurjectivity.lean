@@ -4,11 +4,11 @@ import GroupCount.Gnu
 # Dennis's gnu-surjectivity conjecture (OEIS A046057)
 
 `GroupCount.gnu m` is the number of groups of order `m` up to isomorphism (OEIS
-A000001; certified layer: `GroupCount/Gnu.lean`).  This file archives **R. Keith
-Dennis's conjecture** that every positive integer occurs as a value of `gnu`,
-together with the sorry-free realization layer certifiable today.
+A000001; certified layer: `GroupCount/Gnu.lean`).  This file proves the realization layer for **R. Keith Dennis's conjecture** that
+every positive integer occurs as a value of `gnu`.  The unproved general statement
+is archived in `Sorry.GroupCount.DennisSurjectivity`, which imports this module.
 
-## The conjecture (the file's single intended `sorry`)
+## The conjecture (archived separately)
 
 OEIS A046057 (pulled live with `oeis show A046057`) is "Smallest order m > 0 for
 which there are n nonisomorphic finite groups of order m, or 0 if no such order
@@ -20,8 +20,8 @@ so this is entry-to-entry consistency, not a certified-layer check — plus the
 entry's comment `a(33) > 30500` against its 32 listed terms.)  The entry's first comment is the archived claim: **"R. Keith Dennis
 conjectures that there are no 0's in this sequence"** — every `1 ≤ n` is the
 number of groups of some order.  `GroupCount.dennis_gnu_surjective` states
-exactly that, `∀ n, 1 ≤ n → ∃ m, gnu m = n`, and carries the file's single
-intended `sorry`.  The OEIS side condition "order m > 0" costs nothing: the junk
+exactly that, `∀ n, 1 ≤ n → ∃ m, gnu m = n`, in
+`Sorry.GroupCount.DennisSurjectivity`; this production module does not admit it.  The OEIS side condition "order m > 0" costs nothing: the junk
 value is pinned upstream (`GroupCount.gnu_zero`, `GroupCount.gnu_eq_zero_iff`),
 so any witness for `1 ≤ n` is automatically a positive order
 (`GroupCount.one_le_of_one_le_gnu`).
@@ -73,8 +73,8 @@ classifications carried by `GroupCount/Gnu.lean`.
 
 ## Axiom audit
 
-`dennis_gnu_surjective` carries the single intended `sorry` and reports
-`sorryAx` by construction.  Every other declaration reports a subset of
+The separate archive admits `dennis_gnu_surjective`.  Every declaration here
+reports a subset of
 `{propext, Classical.choice, Quot.sound}`.  The subset check is an *allowlist*
 and is the sound detector for `native_decide`: on this toolchain a use surfaces
 as a per-declaration `<decl>._native.native_decide.ax_*` axiom (`Lean.ofReduceBool`
@@ -101,38 +101,9 @@ theorem one_le_of_one_le_gnu {m : ℕ} (h : 1 ≤ gnu m) : 1 ≤ m := by
     omega
   · exact hm
 
-/-! ## The archived conjecture (OPEN, the file's single intended `sorry`) -/
 
-/-- **Dennis's gnu-surjectivity conjecture** — OEIS A046057, first comment
-(pulled live): "R. Keith Dennis conjectures that there are no 0's in this
-sequence", the sequence being "Smallest order m > 0 for which there are n
-nonisomorphic finite groups of order m, or 0 if no such order exists."
-Equivalently: every positive integer is the number of groups of some order —
-`gnu` is surjective onto the positive integers.  **OPEN**; this is the file's
-single intended `sorry`.
 
-Status, per the live entries:
 
-* realized sorry-free in this file: `n = 1` (`GroupCount.exists_gnu_eq_one`)
-  and `n = 2` (`GroupCount.exists_gnu_eq_two`);
-* the companion A053403 records the search evidence (see the module docstring):
-  conjecturally only finitely many candidate values are unaccounted for — 508
-  known, the largest being `55487` — and if `55487` really is the largest, `gnu`
-  takes all positive integer values;
-* A046057 carries keyword `hard`, and even single values are open:
-  `a(33) > 30500` (Muniru A Asiru's comment on the entry).
-
-The hypothesis `1 ≤ n` restricts to the intended domain: `n = 0` is realized
-only by the junk order `0` (`gnu 0 = 0`; see the ground-truth section), which
-the OEIS name excludes by "order m > 0".  No `1 ≤ m` guard is needed on the
-witness: by `GroupCount.one_le_of_one_le_gnu` any witness for `1 ≤ n` is
-automatically positive. -/
-theorem dennis_gnu_surjective (n : ℕ) (hn : 1 ≤ n) : ∃ m : ℕ, gnu m = n := by
-  -- intended sorry: open conjecture (card A046057-dennis-surjectivity).
-  -- ROUTE: the literature realizes values through Hölder-type classification
-  -- formulas for gnu at orders p·q^k; none of those classifications is
-  -- formalized here, and no proof of the full conjecture is known to anyone.
-  sorry
 
 /-! ## Sorry-free realization layer -/
 
@@ -232,8 +203,8 @@ end GroundTruth
 
 /-! ## Axiom audit
 
-`dennis_gnu_surjective` carries the file's single intended `sorry` and reports
-`sorryAx` by construction.  Everything else must report a subset of
+The general conjecture is admitted only in `Sorry.GroupCount.DennisSurjectivity`.
+Every declaration here must report a subset of
 `{propext, Classical.choice, Quot.sound}`.  The subset is the sound
 `native_decide` detector: a use would appear as a per-declaration
 `*._native.native_decide.ax_*` axiom on this toolchain (`Lean.ofReduceBool` is

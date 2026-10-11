@@ -43,7 +43,8 @@ itself is one line):
 ## The archived claim
 
 The second comment — `Conjecture: The sequence is infinite.` — is the claim this
-file archives, as `primesNotCubeMinusSquare_infinite`.  It carries **no
+companion `Sorry.Enumerative.PrimesNotCubeMinusSquare` archives, as
+`primesNotCubeMinusSquare_infinite`.  It carries **no
 attribution** in the entry: unlike the third comment it has no trailing
 `- _Name_, Date`, so it is presumably the author's (Cino Hilliard).  Nothing
 here attributes it to anyone else.
@@ -364,7 +365,7 @@ theorem two_notMem_primesNotCubeMinusSquare : (2 : ℕ) ∉ primesNotCubeMinusSq
 /-- **A161682 is a proper subset of the primes.**
 
 This is the non-vacuity guard in the *upper* direction: without it,
-`primesNotCubeMinusSquare_infinite` below could be nothing more than a restatement
+`primesNotCubeMinusSquare_infinite` in the quarantine module could be nothing more than a restatement
 of Euclid's theorem.  `2` separates the two sets. -/
 theorem primesNotCubeMinusSquare_ssubset_setOf_prime :
     primesNotCubeMinusSquare ⊂ {p : ℕ | p.Prime} := by
@@ -573,41 +574,7 @@ theorem primesNotCubeMinusSquare_infinite_iff :
     obtain ⟨p, hlt, hp, hnot⟩ := h N
     exact ⟨p, ⟨hp, hnot⟩, hlt⟩
 
-/-- **The A161682 infinitude conjecture.**
 
-Verbatim from the entry's `comments` field, pulled 2026-08-05 — the whole line,
-which carries no attribution:
-
-> Conjecture: The sequence is infinite.
-
-**Status: open.**  This is the single intended `sorry` of the file.
-
-**What is and is not established around it.**  The statement is not vacuous in
-either direction: `primesNotCubeMinusSquare_nonempty` shows the set is inhabited
-(so the claim is not trivially *false*), and
-`primesNotCubeMinusSquare_ssubset_setOf_prime` shows it is a *proper* subset of
-the primes (so the claim is not a restatement of Euclid, which would make it
-trivially *true*).  Neither of those, of course, is evidence for the conjecture.
-
-**Why it is hard.**  Membership of a single prime `p` is the assertion that the
-Mordell equation `y ^ 2 = x ^ 3 - p` has no integral point.  Each such assertion
-is decidable in principle — Baker's method bounds the integral points effectively,
-and Siegel's theorem makes them finite — but the bounds are astronomical and, more
-to the point, they are *per `p`*.  An infinitude statement needs a single
-obstruction that recurs for infinitely many `p`, and the entry supplies none: its
-only evidence is the bounded search recorded in the first comment (`x,y < 10000`)
-and Starodubtsev's extension (`x < 2.2*10^9`), which are searches for
-representations, not proofs that none exist.  Hall's conjecture on `|x ^ 3 - y ^ 2|`
-is the natural quantitative frame and is itself open.
-
-The congruence obstructions that settle the individual cases here — `p = 3` and
-`p = 5`, via `x ^ 2 ∓ x + 1 ≡ 3 (mod 4)` dividing `z ^ 2 + 1` — do not generalize:
-for `p = 4 * k ^ 2 + 1` with `k > 1` the same factorization produces
-`x ^ 2 + x + 1 ∣ z ^ 2 + k ^ 2`, and a prime `≡ 3 (mod 4)` may divide `z ^ 2 + k ^ 2`
-whenever it divides both `z` and `k`, which nothing in the descent rules out. -/
-theorem primesNotCubeMinusSquare_infinite : primesNotCubeMinusSquare.Infinite := by
-  -- intended sorry: the unattributed A161682 comment "Conjecture: The sequence is infinite."
-  sorry
 
 /-! ## Satisfiability and sharpness
 
@@ -659,9 +626,9 @@ example : ∃ p : ℕ, 2 < p ∧ p.Prime ∧ ¬ IsCubeMinusSquare p :=
 
 /-! ## Axiom audit
 
-Everything below is `{propext, Classical.choice, Quot.sound}` except
-`primesNotCubeMinusSquare_infinite`, the single intended `sorry`, which also
-reports `sorryAx`. -/
+The proved declarations here use only standard axioms. The open declaration
+`primesNotCubeMinusSquare_infinite` lives in `Sorry.Enumerative.PrimesNotCubeMinusSquare`
+and carries the existing admission there, not in this production module. -/
 
 
 end A161682

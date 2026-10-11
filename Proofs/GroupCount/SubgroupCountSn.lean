@@ -5,8 +5,9 @@ import Mathlib
 
 `GroupCount.numSubgroupsSymm n = Fintype.card (Subgroup (Equiv.Perm (Fin n)))` is OEIS
 **A005432**, the number of subgroups of the symmetric group `Sₙ` with conjugates counted as
-distinct.  This file archives the *statement* that the lower end of Pyber's window is the
-true growth rate; that statement is the file's single `sorry`.
+distinct.  This file defines the growth-rate statement and proves its analytic reductions.
+The literature-proved but unformalized assertion is archived separately in
+`Sorry.GroupCount.SubgroupCountSn`, which imports this production module.
 
 ## The source, verbatim
 
@@ -78,15 +79,15 @@ elementary count of subgroups of an elementary abelian `2`-subgroup of rank `⌊
 |---|---|---|
 | `c^(n²(1+o(1))) ≤ a(n)`, `c = 2^(1/16)` | proved (elementary) | `PyberLowerBound`, a `Prop`; **not** asserted |
 | `a(n) ≤ d^(n²(1+o(1)))`, `d = 24^(1/6)` | proved (Pyber 1993) | `PyberUpperBound`, a `Prop`; **not** asserted |
-| `a(n) = c^(n²(1+o(1)))` ("lower bound is accurate") | proved (Roney-Dougal–Tracey 2025) | `pyber_conjecture`, the one `sorry` |
+| `a(n) = c^(n²(1+o(1)))` ("lower bound is accurate") | proved (Roney-Dougal–Tracey 2025) | `pyber_conjecture`, admitted in `Sorry.GroupCount.SubgroupCountSn` |
 | `2^(n²/16+αn log n) ≤ a(n) ≤ 2^(n²/16+βn^(3/2))` | proved (Roney-Dougal–Tracey 2025, Thm 1) | `RoneyDougalTraceyBound`, a `Prop`; **not** asserted |
 
 Nothing in this file is proved from the literature: the four claims above appear only as
-named `Prop`s, and the single `sorry` — `GroupCount.pyber_conjecture` — marks the third of
-them as *archived, not formalized*.  It is **not** an open problem; it is a 2025 theorem
+named `Prop`s.  The separate archive `Sorry.GroupCount.SubgroupCountSn` admits
+`GroupCount.pyber_conjecture`, marking the third as *archived, not formalized*.  It is **not** an open problem; it is a 2025 theorem
 that this file does not carry a proof of.  What the file *does* prove, `sorry`-free, is the
 reduction `GroupCount.PyberConjecture.of_roneyDougalTracey`: the strong Theorem 1 shape
-implies the archived statement.  That is exactly the gap the `sorry` stands for.
+implies the archived statement.  That is exactly the gap the separate admission stands for.
 
 ## Reading the `o(1)`
 
@@ -113,9 +114,9 @@ what the `∃ e` encoding means.
 
 ## Main results
 
-* `GroupCount.pyber_conjecture` — **the archived statement; the file's only `sorry`.**
+* `GroupCount.pyber_conjecture` — **admitted only in `Sorry.GroupCount.SubgroupCountSn`.**
 * `GroupCount.PyberConjecture.of_roneyDougalTracey` — the 2025 Theorem 1 shape implies the
-  archived statement, so the `sorry` is exactly "Theorem 1 is not formalized here";
+  archived statement, so the separate admission is exactly "Theorem 1 is not formalized here";
   `sorry`-free.
 * `GroupCount.exists_roneyDougalTraceyShape` — the Theorem 1 shape is satisfiable (a
   concrete `A` meeting both bounds), so the reduction above is not vacuous; `sorry`-free.
@@ -392,21 +393,9 @@ theorem pyberConjecture_iff_isLittleO_log :
     Filter.Eventually.of_forall fun n => by exact_mod_cast numSubgroupsSymm_pos n
   rw [PyberConjecture, growsLikePow_iff_isLittleO_log one_lt_pyberC hpos, log_pyberC]
 
-/-! ## The archived statement -/
+/-! ## Conditional consequences of the archived statement -/
 
-/-- **The A005432 growth rate — archived, not proved here.**  The OEIS comment reads
 
-> `L. Pyber shows c^(n^2(1+o(1))) <= a(n) <= d^(n^2(1+o(1))), c=2^(1/16), d=24^(1/6);`
-> `conjectures lower bound is accurate.`
-
-and this declaration archives the last clause: the number of subgroups of `Sₙ` is
-`2^((1/16 + o(1)) n²)`.  **This is not an open problem.**  Pyber conjectured it in 1993;
-Roney-Dougal and Tracey proved it in 2025 (arXiv:2503.05416, Theorem 1), in the stronger
-form recorded as `GroupCount.RoneyDougalTraceyBound`.  The `sorry` records that their proof
-is not formalized here — and `GroupCount.PyberConjecture.of_roneyDougalTracey` shows that
-formalizing Theorem 1 would discharge it.  This is the only `sorry` in the file. -/
-theorem pyber_conjecture : PyberConjecture := by
-  sorry
 
 /-- The archived statement implies the OEIS comment's lower bound: it is a genuine
 strengthening of it, not a restatement. -/
@@ -539,7 +528,7 @@ theorem isLittleO_log_of_roneyDougalTraceyShape {A : ℕ → ℕ} (hApos : ∀ n
         mul_le_mul_of_nonneg_right (le_abs_self _) hns
 
 /-- **The 2025 theorem discharges the archived statement.**  This is the precise content of
-the `sorry` in `GroupCount.pyber_conjecture`: formalizing Theorem 1 of arXiv:2503.05416
+the admission in `Sorry.GroupCount.SubgroupCountSn`: formalizing Theorem 1 of arXiv:2503.05416
 would remove it.  `sorry`-free. -/
 theorem PyberConjecture.of_roneyDougalTracey (h : RoneyDougalTraceyBound) : PyberConjecture :=
   pyberConjecture_iff_isLittleO_log.mpr
@@ -616,11 +605,10 @@ theorem growsLikePow_unique_base {b b' : ℝ} (hb : 1 < b) (hb' : 1 < b') {A : �
 
 /-! ## Axiom audit
 
-Every declaration in this file rests only on `{propext, Classical.choice, Quot.sound}` with
-exactly one exception: `GroupCount.pyber_conjecture`, which also carries `sorryAx`.  That is
-the archived statement, and it is the only `sorry` here.  Nothing else consumes it —
-`PyberConjecture.lowerBound`, `.upperBound` and `.of_roneyDougalTracey` take the statement as
-a *hypothesis*, so they stay `sorryAx`-free.  There is no `native_decide` in this file. -/
+Every declaration in this file rests only on `{propext, Classical.choice, Quot.sound}`.
+`GroupCount.pyber_conjecture` is admitted only in `Sorry.GroupCount.SubgroupCountSn`.
+`PyberConjecture.lowerBound`, `.upperBound` and `.of_roneyDougalTracey` use explicit
+hypotheses and do not consume that admission.  There is no `native_decide` here. -/
 
 
 end GroupCount

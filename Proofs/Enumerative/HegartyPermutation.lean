@@ -3,8 +3,9 @@ import Mathlib
 /-!
 # OEIS A094870: Hegarty's greedy AP-avoiding permutation of the positive integers
 
-**Status.** Archive file.  Everything is proved except one intended `sorry`, which carries
-Hegarty's Conjecture 3.2 (the OEIS "Conjecture: lim_{n->infinity} a(n)/n = 1").
+**Status.** Proved production infrastructure. Hegarty's open Conjecture 3.2
+(the OEIS "Conjecture: lim_{n->infinity} a(n)/n = 1") is admitted only in
+`Sorry.Enumerative.HegartyPermutation`.
 
 ## Primary sources, pinned verbatim
 
@@ -138,7 +139,7 @@ distinguishes them sharply:
 * `3n/8 ≤ a(n)` is **proved** — it is Theorem 3.3, formalized in the companion
   module `Enumerative.HegartyThreeEighths`.
 * `lim a(n)/n = 1` is **Conjecture 3.2**, explicitly open ("We have no idea how one might
-  prove this").  This is the file's single intended `sorry` (`conj_3_2`).
+  prove this").  Its existing admission (`conj_3_2`) is in `Sorry.Enumerative.HegartyPermutation`.
 * "The Hegarty paper shows that this is a permutation" is Theorem 3.1 (surjectivity;
   injectivity is immediate from the greedy rule).  Formalized here as `a_bijOn`.
 
@@ -604,21 +605,9 @@ theorem hegarty_bounds (n : ℕ) :
       exact_mod_cast hn
     linarith
 
-/-! ## The archived conjecture (OPEN — the file's single intended `sorry`) -/
+/-! The open Conjecture 3.2 is quarantined in `Sorry.Enumerative.HegartyPermutation`. -/
 
-/-- **Hegarty, Conjecture 3.2** = the OEIS comment "Conjecture: lim_{n->infinity} a(n)/n = 1
-(P. Hegarty)", 0-indexed: `a n / (n + 1) → 1`, where `a n = A094870(n+1)` so that `(n : ℝ) +
-1` is the OEIS index.  Hegarty writes of it: "We have no idea how one might prove this - our
-only real evidence is numerical."
 
-**Status: open.**  This is the single intended `sorry` of the file.  It is not vacuous: by
-`ratio_mem_Ico` the sequence `a n / (n + 1)` is confined to `[1/4, 3/2)` for every `n`, so
-the assertion is that a bounded sequence bounded away from `0` converges to the specific
-interior point `1`. -/
-theorem conj_3_2 :
-    Filter.Tendsto (fun n : ℕ => (a n : ℝ) / ((n : ℝ) + 1)) Filter.atTop (nhds 1) := by
-  -- intended sorry: open conjecture (Hegarty, Conjecture 3.2; OEIS A094870 comment 2).
-  sorry
 
 /-- **The conjectured limit is a statement about a genuinely bounded quantity** (`sorry`-free):
 Hegarty's proved bounds confine `a n / (n + 1)` to `[1/4, 3/2)` at every `n`, and the
@@ -888,7 +877,6 @@ end A094870
 
 /-! ## Axiom audit
 
-`A094870.conj_3_2` carries the file's single intended `sorry` and reports `sorryAx` by
-construction.  Every other declaration in the file — the full public surface is swept
-below — must report a subset of `{propext, Classical.choice, Quot.sound}`. -/
+The proved declarations here use only standard axioms. `A094870.conj_3_2` carries
+the existing admission in `Sorry.Enumerative.HegartyPermutation`, not here. -/
 

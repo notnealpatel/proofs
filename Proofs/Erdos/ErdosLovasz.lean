@@ -2,6 +2,7 @@
   Erdős Problem #21 / OEIS A391599 — the Erdős–Lovász cover number g(r).
 
   STATUS: PROVED for n ≤ 4, including the exact equality g(4) = 9.
+  The classical universal lower bound g(n) ≥ 8n/3 − 3 is also proved.
   The remaining large-n and n ≥ 5 literature statements in §6 are a
   STATEMENT ARCHIVE (USER directive) with INTENDED, DISCLOSED sorries;
   everything else in this file is proved. See "SORRY LEDGER" below.
@@ -183,6 +184,7 @@
                                           four-sets, over every ground type
     tripathi_nine_le_erdosLovaszNum_four — 9 ≤ g(4)
     tripathi_erdosLovaszNum_four        — g(4) = 9   [Tr14], now proved
+    erdos_lovasz_lower_bound            [EL75]      8n/3 − 3 ≤ g(n)
     sivashankarConst_bounds             — 61/20 < (41−√19)/12 < 3.054
     isBigO_of_forall_le_linear          — explicit constant → IsBigO
     lower_bound_61_20_of_asymptotic     — Thm 1(ii) → the 61/20 rounding
@@ -192,7 +194,6 @@
 
   TIER 2 — ARCHIVED LITERATURE (intended, disclosed sorries; no Tier 1
   declaration uses any of them):
-    erdos_lovasz_lower_bound            [EL75]      8n/3 − 3 ≤ g(n)
     kahn_erdosLovaszNum_le_linear       [Ka94]      ∃C, g(n) ≤ Cn
     sivashankar_three_mul_sub_four      [Si26](i)   3n − 4 ≤ g(n)
     sivashankar_asymptotic_lower_bound  [Si26](ii)  ((41−√19)/12 − ε)n ≤ g(n) ev.
@@ -205,11 +206,13 @@
     kahn_erdosLovaszNum_isBigO          [Ka94] in IsBigO form
     sivashankar_lower_bound_61_20       the 61/20 rounding
 
-  SORRY LEDGER: exactly the six Tier 2 statements, one
+  SORRY LEDGER: exactly the five Tier 2 statements, one
   `declaration uses sorry` warning each. `6 ≤ g(3)` left the ledger on
   2026-08-05; `tripathi_erdosLovaszNum_four : g(4) = 9` has now also left
-  the ledger. The remaining sorries are the four asymptotic/large-n bounds
-  ([EL75], [Ka94], [Si26](i), [Si26](ii)) and [Ba21]'s g(5) = 13 and
+  the ledger. The classical `erdos_lovasz_lower_bound` is now proved by
+  finite incidence counting, pairing, and peeling in Erdos/ErdosLovaszLower.
+  The remaining sorries are the three asymptotic/large-n bounds
+  ([Ka94], [Si26](i), [Si26](ii)) and [Ba21]'s g(5) = 13 and
   g(6) ≤ 18. These unrelated archived statements are unchanged.
 
   The exact g(4) proof combines Tripathi's explicit witness in
@@ -217,7 +220,7 @@
   Erdos/ErdosLovaszFourLower.lean. Its selected dependency closure, both
   bounds, and the family-level lower-bound bridge report exactly
   {propext, Classical.choice, Quot.sound}; no archived theorem is used.
-  The build emits exactly 6 `declaration uses sorry` warnings, one per
+  The build emits exactly 5 `declaration uses sorry` warnings, one per
   Tier 2 statement. The two Tier 3 consequences still inherit `sorryAx`.
   No `native_decide` or custom axioms are used; all finite ground checks are
   kernel `decide`.  The recorded signatures of the §1–§4 theorems (stated
@@ -227,6 +230,7 @@
 import Erdos.CoveringNumber
 import Erdos.ErdosLovaszFourWitness
 import Erdos.ErdosLovaszFourLower
+import Erdos.ErdosLovaszLower
 
 set_option autoImplicit false
 
@@ -869,14 +873,25 @@ example :
 -- §6 LITERATURE STATEMENTS (g(4) PROVED; OTHER STATEMENTS ARCHIVED)
 -- ════════════════════════════════════════════════════════════════════
 
-/-- **[EL75] lower bound** (literature, INTENDED SORRY): `8n/3 − 3 ≤ g(n)`
-for every `n ≥ 1`. Cast to `ℝ` before subtracting. Erdős and Lovász also
-proved `g(r) ≪ r^{3/2} log r`, superseded by [Ka92], [Ka94]. -/
+/-- **[EL75] lower bound**: `8n/3 − 3 ≤ g(n)` for every positive `n`.
+The finite incidence, degree-three pairing, and high-degree peeling proof
+is in `Erdos.ErdosLovaszLower`; attainment transfers its bound to the minimum.
+Cast to `ℝ` before subtracting. -/
 theorem erdos_lovasz_lower_bound (n : ℕ) (hn : 0 < n) :
     (8 : ℝ) / 3 * n - 3 ≤ erdosLovaszNum n := by
-  -- INTENDED SORRY: statement-archive lane. [EL75]'s argument is a genuine
-  -- (and sizeable) piece of extremal set theory, out of scope here.
-  sorry
+  obtain ⟨N, F, hF, hcard⟩ := erdosLovaszNum_mem hn
+  have hcover : ∀ T, IsTransversal F T → n ≤ T.card := by
+    intro T hT
+    by_contra hsmall
+    obtain ⟨A, hA, hdis⟩ := hF.2.2 T (by omega)
+    obtain ⟨x, hxA, hxT⟩ := hT A hA
+    exact Finset.disjoint_left.mp hdis hxA hxT
+  have hnat := ErdosLovaszLower.eight_mul_le_three_mul_card_add_nine
+    n hn F hF.1 hF.2.1 hcover
+  rw [hcard] at hnat
+  have hreal : (8 : ℝ) * n ≤ 3 * (erdosLovaszNum n : ℝ) + 9 := by
+    exact_mod_cast hnat
+  linarith
 
 /-- **[Ka94]** (literature, INTENDED SORRY): `g(r) = O(r)`, the solution of
 Erdős' $500 problem, in explicit-constant form. The constant is not explicit
@@ -1268,8 +1283,8 @@ end GroundChecks
 
 /-! ## Trust status
 
-The recorded axiom dependencies of the 50 Tier 1 declarations are exactly
-`[propext, Classical.choice, Quot.sound]`. The 6 Tier 2 statements and the 2
+The recorded axiom dependencies of the Tier 1 declarations are exactly
+`[propext, Classical.choice, Quot.sound]`. The 5 Tier 2 statements and the 2
 Tier 3 consequences additionally depend on `sorryAx`; no declaration has any
 other axiom dependency. No `native_decide`, `@[implemented_by]`, `@[extern]`,
 `@[csimp]`, or declared `axiom` is used. -/

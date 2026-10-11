@@ -16,7 +16,15 @@ says only "It seems fairly certain", with no name attached.  Verbatim quote:
 > all numbers are group-deficient. However, all that is known at present is that all
 > squarefree numbers except 1 are group-deficient."
 
-This file archives both conjectures together with their provable strata.
+This file proves strata relevant to both conjectures.  The unproved uniqueness
+statement and the weaker abundant-density-zero consequence are archived in
+`Sorry.GroupCount.GroupPerfect`, which imports this production module.  The literal
+source claims deficient density one: abundant density zero alone does not imply
+that without perfect density zero.  Conjoining uniqueness of the positive perfect
+number `1` yields the conditional equivalence proved here in
+`groupDeficient_density_one_iff_abundant_density_zero`.  The archive derives the
+literal deficient-density-one statement using both existing admissions; production
+still proves neither conjecture unconditionally.
 
 ## Status tiers
 
@@ -38,12 +46,14 @@ This file archives both conjectures together with their provable strata.
     `GroupCount.not_groupAbundant_prime_sq` — every prime square is neither
     group-perfect nor group-abundant;
   - `GroupCount.groupAbundantCount` with its ground checks — the counting function
-    of the abundant stratum, the quantity conjecture (ii) is about.
-* **Tier 2 (OPEN, intended `sorry`)** — conjecture (i),
+    of the abundant stratum, used in the weaker consequence of conjecture (ii);
+  - the finite trichotomy counts and conditional density equivalence, retaining
+    perfect uniqueness as an explicit unpaid premise.
+* **Tier 2 (OPEN, archived separately)** — conjecture (i),
   `GroupCount.not_groupPerfect_of_two_le`: for `2 ≤ n`, `gnu n ≠ n`.
-* **Tier 3 (OPEN, intended `sorry`)** — conjecture (ii),
+* **Tier 3 (OPEN, archived separately)** — a weaker consequence of conjecture (ii),
   `GroupCount.groupAbundant_density_zero`: the group-abundant numbers have natural
-  density `0`.
+  density `0`.  Both unproved declarations live in `Sorry.GroupCount.GroupPerfect`.
 
 ## Junk values and degeneracies
 
@@ -82,7 +92,7 @@ This file archives both conjectures together with their provable strata.
 sizes measured feasible upstream (values of `gnu n` for `n ≤ 2`).  Every other
 numeric fact routes through the certified upstream values `gnu_zero`, `gnu_one` …
 `gnu_five`, `gnu_seven`, `gnu_four`, `gnu_prime`, `gnu_prime_sq`.  The recorded axiom footprint
-confirms: `sorryAx` on the two archived conjectures only, everything else within
+for the proved layer is within
 `{propext, Classical.choice, Quot.sound}` — an *allowlist* check, and the sound
 `native_decide` detector on this toolchain: a use would surface as a
 per-declaration `<decl>._native.native_decide.ax_*` axiom (`Lean.ofReduceBool` is
@@ -233,7 +243,7 @@ theorem not_groupAbundant_prime_sq {p : ℕ} (hp : p.Prime) : ¬ GroupAbundant (
 
 /-! ## The counting function of the abundant stratum
 
-Conjecture (ii) says the group-abundant numbers have natural density `0`.  Mathlib
+Abundant density zero is a consequence of conjecture (ii), not its literal statement.  Mathlib
 has no off-the-shelf natural-density predicate (only Schnirelmann density, which is
 the wrong notion here), so the statement is spelled as the limit of the counting
 function divided by `N` — the standard counting-function formulation of density. -/
@@ -279,64 +289,125 @@ theorem groupAbundantCount_six : groupAbundantCount 6 = 0 := by
   · rw [gnu_four]; omega
   · rw [gnu_five]; omega
 
-/-! ## Tier 2: conjecture (i) — group-perfect uniqueness (OPEN, intended `sorry`) -/
 
-/-- **Group-perfect uniqueness** (OEIS A090052 comment, **unattributed** — the entry
-says only "It seems fairly certain that 1 is the only group-perfect number", with no
-name attached) — OPEN, intended `sorry`: for `2 ≤ n`, `gnu n ≠ n` (definitionally,
-`¬ GroupPerfect n`), i.e. `n = 1` is the only group-perfect number on `1 ≤ n`
-(`GroupCount.groupPerfect_one` gives membership; the `n = 0` junk solution is pinned
-by `GroupCount.groupPerfect_zero` and excluded by the guard).
 
-What exactly is open: no `n` with `2 ≤ n` and `gnu n = n` is known (none exists in
-the GAP-verified range), but no proof excludes one.  The entry itself claims nothing
-stronger than "seems fairly certain".  What *is* known (literature, not formalized
-here): all squarefree `n` except `1` satisfy the conjecture, since they are
-group-deficient (Hölder).  Proved strata in this file: every prime and `n = 4`, via
-`GroupCount.not_groupPerfect_of_groupDeficient` (instances in the satisfiability
-layer below). -/
-theorem not_groupPerfect_of_two_le {n : ℕ} (hn : 2 ≤ n) : ¬ GroupPerfect n := by
-  -- intended sorry: open conjecture (card A090052-group-perfect, claim (i)).
-  -- ROUTE: needs upper bounds on gnu away from 2-heavy orders and exact knowledge
-  -- at them; the squarefree stratum is classical (Hölder), the rest is open.
-  sorry
 
-/-! ## Tier 3: conjecture (ii) — density 0 of group-abundant numbers
-(OPEN, intended `sorry`) -/
 
-/-- **The group-abundant numbers have natural density `0`** — conjecture (ii) of
-OEIS A090052 (comment, **unattributed**, same "seems fairly certain" sentence) —
-OPEN, intended `sorry`, in the counting-function formulation:
-`groupAbundantCount N / N → 0` as `N → ∞` in `ℝ`.
 
-This is a strict *consequence* of the literal comment, not the comment itself.
-The comment says "almost all numbers are group-deficient", i.e. the *deficient*
-set has density `1`; deficient/perfect/abundant partition `ℕ` by trichotomy, so
-deficient-density-`1` is abundant-density-`0` PLUS perfect-density-`0`, and the
-perfect stratum is nonempty (`{0, 1}` in the certified range —
-`GroupCount.groupPerfect_zero`, `GroupCount.groupPerfect_one`).  This file
-archives the abundant-density-`0` form — the reading the campaign card itself
-fixes with its "i.e." — and derives neither reading from the other.  Under
-conjecture (i) the perfect stratum is exactly `{0, 1}`, which is null, so the two
-readings agree conjecturally.
 
-Junk-value note: at `N = 0` the ratio is the real-division junk `0 / 0 = 0`; the
-`Filter.atTop` limit is unaffected by any finite prefix, so the statement is not
-about the junk value.  (STYLE's guarded-`/` rule cannot attach its hypothesis
-inside a `Tendsto` over `atTop`; the rule's purpose is met by this disclosure
-plus the invariance of the limit under any reassignment of the `N = 0` term.)
-Content notes: the ratio is well-grounded — it is `0` at `N = 6`
-(`GroupCount.groupAbundantCount_six`) and at most `1` always
-(`GroupCount.groupAbundantCount_le`); and the conjecture does NOT follow from
-`GroupCount.infinite_setOf_groupDeficient` (an infinite complement does not force
-density `0`). -/
-theorem groupAbundant_density_zero :
+
+
+/-! ## Conditional bridge to the literal source density statement
+
+The new counts include the raw perfect index `0`; this is why the conditional
+perfect-count bound is `2`, not `1`.  Uniqueness remains an explicit unpaid premise:
+none of the production results below proves either global conjecture.  The ratio
+identity requires `0 < N`, and all asymptotic arguments use that guard eventually.
+The ratio at zero is totalized division and has no effect on the limit. -/
+
+/-- Number of group-deficient indices in the half-open interval `[0,N)`. -/
+def groupDeficientCount (N : ℕ) : ℕ :=
+  ((Finset.range N).filter fun n => gnu n < n).card
+/-- Number of raw group-perfect indices in `[0,N)`, including the junk index zero. -/
+def groupPerfectCount (N : ℕ) : ℕ :=
+  ((Finset.range N).filter fun n => gnu n = n).card
+example : groupDeficientCount 0 = 0 := rfl
+example : groupPerfectCount 0 = 0 := rfl
+example : groupDeficientCount 3 = 1 := by decide
+example : groupPerfectCount 3 = 2 := by decide
+/-- Trichotomy partitions each finite initial interval into the three strata. -/
+theorem groupCount_partition (N : ℕ) :
+    groupDeficientCount N + groupAbundantCount N + groupPerfectCount N = N := by
+  have hD := Finset.card_filter_add_card_filter_not (s := Finset.range N)
+    (fun n => gnu n < n)
+  have hAP := Finset.card_filter_add_card_filter_not
+    (s := (Finset.range N).filter fun n => ¬ gnu n < n) (fun n => n < gnu n)
+  simp only [Finset.filter_filter] at hAP
+  have hA : ((Finset.range N).filter fun n => (¬ gnu n < n) ∧ n < gnu n) =
+      ((Finset.range N).filter fun n => n < gnu n) := by
+    apply Finset.ext
+    intro n
+    simp only [Finset.mem_filter]
+    constructor
+    · intro hn
+      exact ⟨hn.1, hn.2.2⟩
+    · intro hn
+      exact ⟨hn.1, ⟨Nat.not_lt.mpr (Nat.le_of_lt hn.2), hn.2⟩⟩
+  have hP : ((Finset.range N).filter fun n => (¬ gnu n < n) ∧ (¬ n < gnu n)) =
+      ((Finset.range N).filter fun n => gnu n = n) := by
+    apply Finset.ext
+    intro n
+    simp only [Finset.mem_filter]
+    constructor
+    · intro hn
+      exact ⟨hn.1, Nat.le_antisymm (Nat.le_of_not_gt hn.2.2) (Nat.le_of_not_gt hn.2.1)⟩
+    · intro hn
+      refine ⟨hn.1, ?_⟩
+      rw [hn.2]
+      exact ⟨lt_irrefl n, lt_irrefl n⟩
+  rw [hA, hP] at hAP
+  rw [Finset.card_range] at hD
+  unfold groupDeficientCount groupAbundantCount groupPerfectCount
+  omega
+/-- Under the unproved uniqueness premise, only indices zero and one can be perfect. -/
+theorem groupPerfectCount_le_two (huniq : ∀ n : ℕ, 2 ≤ n → gnu n ≠ n) (N : ℕ) :
+    groupPerfectCount N ≤ 2 := by
+  have hsub : ((Finset.range N).filter fun n => gnu n = n) ⊆ Finset.range 2 := by
+    intro n hn
+    have heq := (Finset.mem_filter.mp hn).2
+    have hlt : n < 2 := by
+      by_contra hnot
+      exact huniq n (by omega) heq
+    exact Finset.mem_range.mpr hlt
+  simpa only [groupPerfectCount, Finset.card_range] using Finset.card_le_card hsub
+/-- Uniqueness makes the perfect stratum null; division is bounded eventually away from zero. -/
+theorem groupPerfect_density_zero_of_unique
+    (huniq : ∀ n : ℕ, 2 ≤ n → gnu n ≠ n) :
+    Filter.Tendsto (fun N : ℕ => (groupPerfectCount N : ℝ) / (N : ℝ))
+      Filter.atTop (nhds 0) := by
+  apply squeeze_zero' (g := fun N : ℕ => (2 : ℝ) / (N : ℝ))
+    (Filter.Eventually.of_forall fun N => by positivity)
+  · filter_upwards [Filter.eventually_ge_atTop 1] with N hN
+    have hpos : (0 : ℝ) < (N : ℝ) := by exact_mod_cast (show 0 < N by omega)
+    exact div_le_div_of_nonneg_right (by exact_mod_cast groupPerfectCount_le_two huniq N)
+      hpos.le
+  · exact tendsto_const_div_atTop_nhds_zero_nat (2 : ℝ)
+/-- At positive denominators the finite partition gives the exact complementary ratios. -/
+theorem groupDeficient_ratio (N : ℕ) (hN : 0 < N) :
+    (groupDeficientCount N : ℝ) / (N : ℝ) =
+      1 - (groupAbundantCount N : ℝ) / (N : ℝ) -
+        (groupPerfectCount N : ℝ) / (N : ℝ) := by
+  have hp : (groupDeficientCount N : ℝ) + (groupAbundantCount N : ℝ) +
+      (groupPerfectCount N : ℝ) = (N : ℝ) := by exact_mod_cast groupCount_partition N
+  have hn : (N : ℝ) ≠ 0 := by exact_mod_cast (Nat.ne_of_gt hN)
+  field_simp
+  linarith
+/-- Under uniqueness, literal deficient density one is equivalent to abundant density zero. -/
+theorem groupDeficient_density_one_iff_abundant_density_zero
+    (huniq : ∀ n : ℕ, 2 ≤ n → gnu n ≠ n) :
+    Filter.Tendsto (fun N : ℕ => (groupDeficientCount N : ℝ) / (N : ℝ))
+      Filter.atTop (nhds 1) ↔
     Filter.Tendsto (fun N : ℕ => (groupAbundantCount N : ℝ) / (N : ℝ))
       Filter.atTop (nhds 0) := by
-  -- intended sorry: open conjecture (card A090052-group-perfect, claim (ii)).
-  -- ROUTE: Pyber-type upper bounds on gnu are the known tool, far beyond the
-  -- current machinery (no upper bound on gnu of any kind is formalized upstream).
-  sorry
+  have hp := groupPerfect_density_zero_of_unique huniq
+  constructor
+  · intro hd
+    have ht := (tendsto_const_nhds (x := (1 : ℝ))).sub hd |>.sub hp
+    have heq : (fun N : ℕ => 1 - (groupDeficientCount N : ℝ) / (N : ℝ) -
+        (groupPerfectCount N : ℝ) / (N : ℝ)) =ᶠ[Filter.atTop]
+        (fun N : ℕ => (groupAbundantCount N : ℝ) / (N : ℝ)) := by
+      filter_upwards [Filter.eventually_ge_atTop 1] with N hN
+      have hr := groupDeficient_ratio N (by omega)
+      linarith
+    simpa only [sub_self, sub_zero] using ht.congr' heq
+  · intro ha
+    have ht := (tendsto_const_nhds (x := (1 : ℝ))).sub ha |>.sub hp
+    have heq : (fun N : ℕ => 1 - (groupAbundantCount N : ℝ) / (N : ℝ) -
+        (groupPerfectCount N : ℝ) / (N : ℝ)) =ᶠ[Filter.atTop]
+        (fun N : ℕ => (groupDeficientCount N : ℝ) / (N : ℝ)) := by
+      filter_upwards [Filter.eventually_ge_atTop 1] with N hN
+      exact (groupDeficient_ratio N (by omega)).symm
+    simpa only [sub_zero] using ht.congr' heq
 
 /-! ## Ground truth and satisfiability
 
@@ -430,13 +501,11 @@ end GroundTruth
 
 /-! ## Axiom audit
 
-Sweep of every public declaration.  The two archived conjectures
-(`not_groupPerfect_of_two_le`, `groupAbundant_density_zero`) carry the file's only
-intended `sorry`s and report `sorryAx` by construction — nothing else may.  Every
-other declaration must report a subset of `{propext, Classical.choice, Quot.sound}`.
-The subset is the sound `native_decide` detector: a use would appear as a
-per-declaration `*._native.native_decide.ax_*` axiom on this toolchain
-(`Lean.ofReduceBool` is never emitted, so grepping for it detects nothing). -/
+The two unproved declarations are admitted only in `Sorry.GroupCount.GroupPerfect`.
+Every declaration here must report a subset of `{propext, Classical.choice, Quot.sound}`.
+There is no `native_decide` in this file.  The anonymous disclosed example upstream
+(`GroupCount/Structures.lean`) persists no constant and taints no theorem here.
+The inherited `CdoIteration` admission is outside this module's proof dependencies. -/
 
 
 
