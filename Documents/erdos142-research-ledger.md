@@ -295,7 +295,7 @@ and vacuity reviews certified the theorem and its advertised scope.
 
 ### Tower-index negative-defect density and quantitative rate
 
-**Kernel checked.** At revision `6a6bb75bfbaa7301070a3ab5a5c24a3fde9b626b`, `Proofs/Erdos/Erdos142/SquareScaleNegativeDensity.lean`, imported by `Proofs/Erdos.lean`, proves the density results recorded in `Documents/erdos142-negative-defect-density.md`. The public endpoints are `Erdos142.eventually_card_squareScaleDefect_le_neg_mul_rothLogDeficit`, `Erdos142.eventually_card_squareScaleDefect_le_neg_const`, `Erdos142.eventually_card_squareScaleDefect_neg`, and `Erdos142.eventually_card_squareScaleDefect_nonpos`. The first pair give the existing $\delta_\beta=1-\log\sqrt2/\log(2-\beta)$ lower-density curve and its fixed-$H$ consequence. The new endpoint corollaries say that for every fixed tower $N_k=M^{2^k}$ with $M\ge3$ and every real $\delta<1/2$, eventually at least $\delta K$ indices $k<K$ have, respectively, $X(N_k)<0$ and $X(N_k)\le0$. Equivalently, the strict-negative set has tower-index lower density at least $1/2$.
+**Kernel checked.** At revision `6a6bb75bfbaa7301070a3ab5a5c24a3fde9b626b`, `Proofs/Erdos/Erdos142/SquareScaleNegativeDensity.lean`, imported by `Proofs/Erdos.lean`, proves the density results summarized here. The public endpoints are `Erdos142.eventually_card_squareScaleDefect_le_neg_mul_rothLogDeficit`, `Erdos142.eventually_card_squareScaleDefect_le_neg_const`, `Erdos142.eventually_card_squareScaleDefect_neg`, and `Erdos142.eventually_card_squareScaleDefect_nonpos`. The first pair give the existing $\delta_\beta=1-\log\sqrt2/\log(2-\beta)$ lower-density curve and its fixed-$H$ consequence. The new endpoint corollaries say that for every fixed tower $N_k=M^{2^k}$ with $M\ge3$ and every real $\delta<1/2$, eventually at least $\delta K$ indices $k<K$ have, respectively, $X(N_k)<0$ and $X(N_k)\le0$. Equivalently, the strict-negative set has tower-index lower density at least $1/2$.
 
 The half-density proof chooses $\beta>0$ in the existing curve with $\delta<\delta_\beta$; it does not apply the source theorem at $\beta=0$. Positivity of $\lambda(N_k)$ at every tower scale makes the source bound imply strict negativity. The focused module and full `Erdos` umbrella builds succeeded; the exact axiom audit is `[propext, Classical.choice, Quot.sound]`, with no `sorryAx`. This uses accepted Roth and EHPS/Behrend inputs, not Raghavan. It is tower-index density, not integer density or exact density, and does not assert the eventual-cardinality bound at $\delta=1/2$ or any endpoint magnitude. No overlap with P-shaped good scales, bounded gaps, $D\to0$, or asymptotic formula follows. The parameter endpoint $\beta=2-\sqrt2$ in the original density curve remains excluded, and no common set as $\beta$ varies is asserted.
 
@@ -701,7 +701,7 @@ popular-difference shortcut; it is not an in-range reflection-energy
 counterexample and proves nothing positive or negative about Erdős 142. No
 literature or novelty claim is made.
 
-**Exploratory/conjectural.** The candidate `|S(A)|³ r(N)^8 ≥ N²(m−N)^6` for `m>N` is unproved and would imply `r(N²)≤N+N^(2/3)r(N)^(4/3)≤2N^(2/3)r(N)^(4/3)` eventually, a P-shaped gain with `η=1/3`; this would be an intermediate estimate, not an asymptotic formula. It is checked informally for `N=3`, eventual fixed-linear `m≤KN` regimes, and short ternary Cartesian products; exhaustive `N≤6` and structured searches are computation only. A sufficient second-moment overlap bound `E≤M²r(N)^(8/3)/(N^(2/3)(m−N)²)` remains unproved and undisproved. The fixed-difference matching argument does not bound fixed-target multiplicity: `{1,2,4,8}⊂[9]` has `ν(0)=3`. A capped-at-2 moment variant is also unproved and at most within factor `9/8` of the desired support bound, not an independent breakthrough. See [`erdos142-reflection-shadow-route.md`](erdos142-reflection-shadow-route.md) for definitions, exact status, and derivations.
+**Exploratory/conjectural.** The candidate `|S(A)|³ r(N)^8 ≥ N²(m−N)^6` for `m>N` is unproved and would imply `r(N²)≤N+N^(2/3)r(N)^(4/3)≤2N^(2/3)r(N)^(4/3)` eventually, a P-shaped gain with `η=1/3`; this would be an intermediate estimate, not an asymptotic formula. It is checked informally for `N=3`, eventual fixed-linear `m≤KN` regimes, and short ternary Cartesian products; exhaustive `N≤6` and structured searches are computation only. A sufficient second-moment overlap bound `E≤M²r(N)^(8/3)/(N^(2/3)(m−N)²)` remains unproved and undisproved. The fixed-difference matching argument does not bound fixed-target multiplicity: `{1,2,4,8}⊂[9]` has `ν(0)=3`. A capped-at-2 moment variant is also unproved and at most within factor `9/8` of the desired support bound, not an independent breakthrough. See the reflection-shadow sections of this ledger for definitions and status, and [`erdos142-reflection-carry-bridge.md`](erdos142-reflection-carry-bridge.md) for the finite carry contract.
 
 **Independently reviewed informal counterfamily.** An auxiliary
 shadow-support lower bound comparable to `min{b²,L}` is false. For `d=q≥4`,
@@ -813,7 +813,7 @@ is `1/512`, not `1/64`: `|S(A)|³` contributes `1/8`
 and `m^6` contributes `64`. Thus this explicit family eventually satisfies
 (C) by a growing margin; it does not prove (C) for arbitrary sets.
 
-**Conditional significance only:** if an eventual P bound with `η=1/3` and fixed constant held, its iteration would give `λ(M^{2^k})≳_M(4/3)^k` on a sufficiently large fixed square tower, equivalently a tower lower bound of logarithmic exponent `log₂(4/3)≈0.415`. This is not an all-scale interpolation or a solution of Erdős 142. The carry-sensitive route complements, but does not remove, the relaxation obstruction in [`erdos142-carry-cardinality-obstruction.md`](erdos142-carry-cardinality-obstruction.md); the comparison with the square-defect threshold is recorded in [`erdos142-negative-defect-density.md`](erdos142-negative-defect-density.md). No global novelty claim is made. Issue [#59](https://github.com/thatnealpatel/proofs/issues/59)
+**Conditional significance only:** if an eventual P bound with `η=1/3` and fixed constant held, its iteration would give `λ(M^{2^k})≳_M(4/3)^k` on a sufficiently large fixed square tower, equivalently a tower lower bound of logarithmic exponent `log₂(4/3)≈0.415`. This is not an all-scale interpolation or a solution of Erdős 142. The carry-sensitive route complements, but does not remove, the relaxation obstruction in [`erdos142-carry-cardinality-obstruction.md`](erdos142-carry-cardinality-obstruction.md); the comparison with the square-defect threshold is recorded in `Proofs/Erdos/Erdos142/SquareScaleNegativeDensity.lean` and [`erdos142-raghavan-square-defect-rate.md`](erdos142-raghavan-square-defect-rate.md). No global novelty claim is made. Issue [#59](https://github.com/thatnealpatel/proofs/issues/59)
 requests external evaluation of the reflection-shadow route and cubic
 candidate; it is not a novelty certification.
 
@@ -978,8 +978,8 @@ r(N^2)\le2N^{1-\eta}r(N)^{1+\eta},
  \frac{\log(9/8)}{4KB^2}\right\}>0.
 $$
 
-The complete iteration is recorded in
-[`erdos142-relative-rank-one-checkpoint.md`](erdos142-relative-rank-one-checkpoint.md).
+The iteration budget is summarized here; its detailed historical
+checkpoint was retired during Documents triage.
 There are at most
 $\lfloor\eta\log(1/\beta)/\log(9/8)\rfloor+2$ increments.  The cumulative
 length remains at least $N^{2-\sqrt2/4-o(1)}$, hence at least
@@ -987,7 +987,8 @@ $16N/\beta$.  At the terminal density $>(9/8)\beta$, partitioning the
 proper AP parameter interval into $N$-blocks gives the contradictory upper
 bound $(17/16)\beta$.
 
-The exact rank-one Fourier special case is proved in the checkpoint.  If the
+The exact rank-one Fourier special case was proved informally in that
+historical checkpoint.  If the
 balanced indicator on the AP parameter interval has a rational Fourier
 coefficient of magnitude at least $\delta/4$ and coprime period
 $d\le\delta^{-K}$, splitting into residue classes modulo $d$ gives a class
@@ -995,7 +996,7 @@ with density at least $9\delta/8$ and length at least
 $\delta^K L/2$.  This is the complete `RAI(K)` conclusion with its exact
 constants.
 
-**The corresponding universal spectral input is false.**  The checkpoint
+**The corresponding universal spectral input is false.**  The historical checkpoint
 constructs a deterministic computable diagonal family of scalar 3-AP-free
 $A_j\subseteq[0,p_j)$, where $p_j\asymp N_j^2$, whose densities satisfy
 $0<\delta_j\le\beta_j^2\le(9/8)\beta_j$ and
@@ -1469,8 +1470,9 @@ proved theorem.
    $\delta=1/2$, no bounded gaps, and no common set across $\beta$ is known.
 3. Develop carry-sensitive global aggregation retaining reflected-digit
    locations. The reflection-shadow candidate and its open second-moment overlap
-   estimate are recorded in
-   [`erdos142-reflection-shadow-route.md`](erdos142-reflection-shadow-route.md).
+   estimate are recorded in this ledger's reflection-shadow sections.
+   The finite carry contract is in
+   [`erdos142-reflection-carry-bridge.md`](erdos142-reflection-carry-bridge.md).
    The new unequal-fiber Fourier identity, open phase-blind high-mass
    candidate, low-mass falsifier limitation, half-digit exclusion, and
    spread/cancellation stopping evidence are recorded in
@@ -1488,9 +1490,10 @@ proved theorem.
 
 ## Current handoff
 
-See [`erdos142-research-handoff-2026-09-27.md`](erdos142-research-handoff-2026-09-27.md)
-for the self-contained frontier at accepted revision
-`596825af4c347bbb311da8a340bec333c45b2f9a`. Any new potential novelty claim
+This ledger and the focused notes linked above retain the frontier; the
+2026-09-27 handoff at accepted revision
+`596825af4c347bbb311da8a340bec333c45b2f9a` was retired as a superseded snapshot.
+Any new potential novelty claim
 must receive its own repository issue or an explicit scoped update to the
 matching existing issue before it is advertised; filed requests are external
 evaluation, not novelty certification.
@@ -1624,8 +1627,9 @@ no warnings from the new module. A historical reviewer umbrella attempt timed
 out after 180s while compiling unrelated existing modules; this is preserved
 separately and is not a claim of a sorry-free umbrella. The foundations review
 of `ecd269...` is not CLEAN solely because of the earlier provenance wording
-error. Documentation fidelity recheck and adoption remain pending. See the
-detailed [popular-reflection-targets checkpoint](erdos142-popular-reflection-targets.md).
+error. Documentation fidelity recheck and adoption remained pending at this
+historical checkpoint; the subsequent closure is recorded below. The finite
+contract is retained in `Proofs/Erdos/Erdos142/ReflectionPopularTargets.lean`.
 Bounded literature checks found no direct match, which is provenance context
 rather than novelty certification.
 
@@ -1649,7 +1653,7 @@ $$ (k+6)S\le2(k+5)m,$$
 
 for `h=2^k t` with `t` odd. Its parity split, scaling, and induction use `α_0=5/3`, `α_{k+1}=4/(4-α_k)`, and `α_k=2-2/(k+6)`. The former `(k+8)S≤2(k+7)m` / `α_0=7/4` formulation is superseded prose, not an additional formal result. The universal `S≤floor(3m/2)` bound remains OPEN; no O/C or Erdős 142 closure follows, and even gaps remain uncovered.
 
-**Computation only.** The parent reran its exact Sage audit with assertions for `S≤q+2r`, `3S≤5m`, and the improved dyadic inequality. Task `parent-improved-dyadic-small-audit` passed in 0.76 seconds on 705 scalar-free caps in `[0,12)`, 84,302 integer target APs with at least two supported targets, and the same maximum `S/m=3/2` witness `A={0,1,3,4}`, targets `(-1,2,5)`, `S=6`. The file remains in the intentionally unintegrated parent workspace at `Proofs/Scratch/Erdos142DyadicAudit.sage`. The launched N14 audit remains unavailable and is not reported as passed. Detailed prose is in [`erdos142-odd-gap-reflection-targets.md`](erdos142-odd-gap-reflection-targets.md).
+**Computation only.** The parent reran its exact Sage audit with assertions for `S≤q+2r`, `3S≤5m`, and the improved dyadic inequality. Task `parent-improved-dyadic-small-audit` passed in 0.76 seconds on 705 scalar-free caps in `[0,12)`, 84,302 integer target APs with at least two supported targets, and the same maximum `S/m=3/2` witness `A={0,1,3,4}`, targets `(-1,2,5)`, `S=6`. The file remains in the intentionally unintegrated parent workspace at `Proofs/Scratch/Erdos142DyadicAudit.sage`. The launched N14 audit remains unavailable and is not reported as passed. The finite theorem contract and regression witnesses are retained in `Proofs/Erdos/Erdos142/ReflectionOddGapTargets.lean`; the standalone prose checkpoint was retired.
 
 #### Final semantic-review update
 

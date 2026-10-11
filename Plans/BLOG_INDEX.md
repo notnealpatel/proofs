@@ -221,9 +221,8 @@ this at the declaration site, and any write-up must too.
   before they age away). OEIS ground truth was checked against live
   entries on the dates noted; entries drift.
 - Deliberately out of scope for this index: the covering-systems arc
-  (`Manuscripts/Drafts/covering-criterion.md`,
-  `covering-certificates.md`), the matrix-multiplication/ω program
-  (`four-way-chain.md`, `abelian-factor-refutation.md`,
-  `exotic-groups-for-mm.md`), and all in-tree material with no
+  (`Documents/covering-certificates.md`), the matrix-multiplication/ω
+  program (`Documents/four-way-chain.md`,
+  `Documents/abelian-factor-refutation.md`), and all in-tree material with no
   manuscript coverage (`Proofs/ShearEC/*`, `Proofs/CHILO/*`,
   `Proofs/Erdos/Erdos*` outside `Covering/`).

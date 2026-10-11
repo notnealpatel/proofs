@@ -44,7 +44,7 @@ This is a formalization of known mathematics, not a new barrier theorem. The rep
 
 ## Recovered evidence and limitations
 
-The principal source locations are `Proofs/GroupTPP/FourierBarrier.lean:54–63, 124, 386, 468, 519, 668, 699, 733, 901, 941` and `Proofs/GroupTPP/BCGPUBarrier.lean:86, 100, 146, 209, 260`. `Proofs/GroupTPP/CUCapacity.lean` separately formalizes the Cohn–Umans capacity bound and $\omega$-related statements; it is context, not an additional premise of this candidate. `Documents/exotic-groups-for-mm.md` contains planning language and conjectural screening implications, not evidence that a suitable matrix-multiplication group exists.
+The principal source locations are `Proofs/GroupTPP/FourierBarrier.lean:54–63, 124, 386, 468, 519, 668, 699, 733, 901, 941` and `Proofs/GroupTPP/BCGPUBarrier.lean:86, 100, 146, 209, 260`. `Proofs/GroupTPP/CUCapacity.lean` separately formalizes the Cohn–Umans capacity bound and $\omega$-related statements; it is context, not an additional premise of this candidate. Planning language and conjectural screening implications are not evidence that a suitable matrix-multiplication group exists.
 
 This recovery did not run Lean, a build, tests, or an axiom/proof audit. The source declarations were inspected, but compilation and dependency status remain unverified in this recovery.
 

@@ -2,9 +2,9 @@
   Erdős Problem #142 — the elementary one-scale window-covering bound
   `L * rothNumberNat N ≤ 2 * N * rothNumberNat L` for `1 ≤ L ≤ N`.
 
-  This is the smallest Lean artifact isolated by the written contract
-  `Documents/erdos142-carry-discriminator.md`.  It packages the ceiling
-  estimate used in the LP route audit: writing `q = N / L + 1`, the block
+  This packages the ceiling estimate used in the one-scale LP route audit,
+  summarized in `Documents/erdos142-research-ledger.md`: writing
+  `q = N / L + 1`, the block
   (subadditivity) inequality `FixedRadixUpperEnvelope.rothNumberNat_mul_le`
   gives `rothNumberNat N ≤ q * rothNumberNat L`, and `L * q ≤ 2 * N` follows
   from `L * (N / L) ≤ N` and `L ≤ N`.  Equivalently, in terms of the density
@@ -14,7 +14,7 @@
 
   What this file does and does not say.  It proves only the local-cap
   feasibility arithmetic used in the one-scale obstruction.  It does **not**
-  formalize LP duality, does **not** formalize the target `P` of the contract
+  formalize LP duality, does **not** formalize the campaign's target `P`
   (which is neither stated nor assumed here), and does **not** assert any new
   upper bound for the Roth number.  The Roth numbers are used through the
   existing `rothNumberNat_mul_le` and `rothNumberNat.monotone`, not through a
