@@ -43,6 +43,27 @@ Do not preassign every scope and merely delay its dispatch.
 Keep one owner per scope; verify returned claims before
 building on them. There is no required worker count.
 
+**Coordinate through one owner.** Appoint one
+coordinator for cross-session assignments and
+current state. Other steering sessions send it
+priorities and exceptions, not parallel assignments.
+Stations report directly to the coordinator and
+own local dispatch within their assigned scopes.
+Do not duplicate routine reports to supervisors.
+
+**Report consequential changes.** Send a start
+report, meaningful results or blockers, and a final
+handoff. Combine launch details in the start report.
+Dispatch is not completion; queued is not consumed.
+Inspect further when ambiguity or a suspected stall
+could change a decision, not to collect receipts.
+Use readable prose: State the scope, change,
+evidence, remaining gap, and requested decision.
+Link detailed obligations; retain essential
+hypotheses. Do not repeat standing instructions.
+End or yield after bounded supervisory work so
+queued instructions can enter.
+
 **Own the handoff gate.** Before dispatching a prover,
 require a substantial argument for the assigned unit:
 Its exact objects, quantifiers, hypotheses, conclusion,
@@ -117,6 +138,13 @@ formalization boundary. Update this state when evidence
 changes the argument, not after every tool call. An
 incomplete outline is allowed; propagate repairs through
 affected later steps. Do not create parallel ledgers.
+Keep one current table: obligation, owner, exact
+artifact, evidence status, missing implication,
+and next action. Use one row per deliverable.
+Distinguish producer completion, independent review,
+audit, and adoption. Update the row before dispatching
+work that relies on its result. Keep detailed
+receipts and superseded states in linked history.
 
 **Request novelty evaluation.** When any
 incremental progress adopted to main is
@@ -153,6 +181,21 @@ runtime tool exposure, not only template metadata.
 A review missing a required adversarial check is
 incomplete for that gate, even if no defect was found.
 
+**Scope the adversarial call.** The reviewer must
+inspect the exact artifact. Supply exact claims and
+sufficient source context for the selected attack,
+not every byte by default. Distinguish inspection
+from what the isolated call actually received.
+Require whole-artifact exposure when the question
+warrants it or the USER requires it. Do not repeat
+an adequate review because unrelated prose was
+omitted. Keep load-bearing definitions and verify
+decisive objections independently; a paraphrased
+endorsement is not a review. Honor existing gates
+until their authorized owner explicitly revises
+them. Never silently waive a USER requirement or
+turn an incomplete review into a pass.
+
 **Adopt to `main`** once reviews certify a
 result as non-vacuous and foundationally
 sound and after you perform the axiom check.
@@ -164,6 +207,13 @@ move the repository-root working copy. Collect and
 verify artifacts from the exact finalized revision
 or its integration workspace, not an assumed current
 root checkout. Do not improvise checkout repairs.
+Assign one verifier per evidence gate. Consume its
+receipt rather than repeat transcript extraction
+or hash comparisons. Recheck when artifacts change,
+evidence conflicts, or an independent check is
+explicitly required. Independent semantic review
+and the coordinator's fresh imported axiom audit
+are different gates: Keep both.
 
 **Write idiomatic commits.** Follow local
 style: You SHOULD write the start of the
