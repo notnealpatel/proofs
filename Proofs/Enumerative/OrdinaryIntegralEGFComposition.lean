@@ -4,6 +4,47 @@ import Mathlib.RingTheory.PowerSeries.Substitution
 import Mathlib.RingTheory.PowerSeries.Order
 import Mathlib.Data.Nat.Choose.Sum
 
+/-!
+# Ordinary-integral EGF composition: A000670
+
+This module completes the literal general-family target from the retired
+`Formalize/A000670-egf-family.md` card (claim `bala-egf-family-periodicity`).
+Its source is Peter Bala's OEIS A000670 comment of 2022-07-08, which also
+points to A002050 and A354242. The source's conjectural wording is historical;
+completion here is not a claim of mathematical novelty or first proof.
+The original statement-size estimate was `L` and proof-difficulty estimate
+was `hard`; these are historical estimates, not remaining obligations.
+
+For arbitrary ordinary integral `G(X) = sum a_m X^m`, work over rational
+formal power series and put `F(X) = G(exp(X) - 1)`. The coefficients
+`b_n = n! * [X^n] F(X)` are integers and have eventual period `phi(k)` modulo
+every positive `k`. This supplies the source's period-dividing-`phi(k)`
+claim without asserting that `phi(k)` is the least period. There are no
+analytic convergence, finite-support, or positivity assumptions.
+
+`OrdinaryIntegralEGF.lean` proves the integer weighted Stirling transform
+formula `sum_{m=0}^n a_m * m! * StirlingS2(n,m)`, the alternating-power
+identity, and its eventual periodicity. Here genuine formal substitution
+with zero inner constant identifies that transform with the factorial-scaled
+coefficients, including degree zero. Each coefficient uses only finitely
+many outer coefficients. The integrality and periodicity conclusions thus
+concern actual composition, not merely a transform named an EGF.
+
+The coefficient specialization `a_m = 1` is already covered by
+`FubiniMod.lean`; the formal identity `G(X) = 1/(1-X)` gives the Fubini
+example. A separate checked identification of this geometric input with
+an inverse series, or matching its recurrence, is not supplied here and
+is not a premise of the general-family theorem.
+
+The old card's Bell example `G(X) = exp(X)` is outside ordinary-integral
+scope: its ordinary coefficient of `X^2` is `1/2`. Integral divided-power
+coefficients are a different condition; the unrestricted divided-power
+version is not admitted. Touchard's Bell congruences are neither a proof
+nor an instance of this target. The former pending-composition status was
+closed by the independently reviewed proof adopted at
+`681fd9f3fc307180056776134cc97cadbdc5d802`.
+-/
+
 set_option autoImplicit false
 
 open Finset
