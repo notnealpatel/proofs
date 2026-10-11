@@ -102,10 +102,10 @@ The same article fixes the definition of `g` used below:
 * `idealWaring_le_of_waringAdmissible` — **J. A. Euler's lower bound, sorry-free**:
   every `s` that works for exponent `n ≠ 0` satisfies `idealWaring n ≤ s`, hence
   `idealWaring n ≤ waringG n`.  This is the "one-line proof" above, formalized;
-* `waringAdmissible_idealWaring` — the *upper* half, `WaringAdmissible n
-  (idealWaring n)`.  **This is the single intended `sorry` of the file**;
-* `waringG_eq_idealWaring` — the entry's `name` field, obtained from those two.
-  It is not itself a `sorry`, but it depends on one.
+* The upper half `waringAdmissible_idealWaring` and its consequence
+  `waringG_eq_idealWaring` are admissions archived in
+  `Sorry.Enumerative.IdealWaring`, not declarations of this production module.
+  Their exact domain remains `n ≠ 0`, including `n = 1`.
 
 Sorry-free consequences that pin the statements to reality:
 
@@ -170,6 +170,18 @@ presupposes that `g(n)` exists.  The known partial results — Kubina and Wunder
 `n <= 471600000` and Mahler's finiteness — are recorded in the docstring of
 `waringAdmissible_idealWaring` and are *not* formalized.
 
+
+## Admission boundary and source interpretation
+
+The source quotes above are retained verbatim. The published conditional
+Dickson/Pillai/Rubugunday/Niven engine linking `WaringTight` to admissibility
+is not locally proved. Mahler's finite-exception result and the external
+471600000 search do not establish a uniform formal result here; merely making
+a finite-exception bound effective would not by itself exclude all exceptions.
+No Hilbert–Waring proof is supplied. The upper admission and its dependent
+identity are in `Sorry.Enumerative.IdealWaring` only. In particular,
+`idealWaring 1 = 2 + 1 - 2 = 1`, not 0, and exponent 1 remains in the contract.
+
 ## Library wiring
 
 `Proofs/Enumerative.lean` is not edited by this lane; the import line
@@ -185,9 +197,9 @@ including the twelve-term comparison against the `terms` field and the range che
 
 ## Axiom audit
 
-Every declaration below reports a subset of `{propext, Classical.choice, Quot.sound}`
-except `waringAdmissible_idealWaring` — the single intended `sorry` — and
-`waringG_eq_idealWaring`, which depends on it; both additionally report `sorryAx`.
+Every production declaration reports a subset of `{propext, Classical.choice, Quot.sound}`.
+Only the separate archive's `waringAdmissible_idealWaring` and
+`waringG_eq_idealWaring` additionally report `sorryAx`.
 There is no `native_decide`.
 -/
 
@@ -297,7 +309,7 @@ theorem not_waringAdmissible_zero (s : ℕ) : ¬ WaringAdmissible 0 s := by
 /-- `g(n)`: the least `s` that works for exponent `n`.  Junk (`= 0`) when no `s`
 works, which by `not_waringAdmissible_zero` happens exactly at `n = 0`; for `n ≠ 0`
 non-junkness is the Hilbert–Waring theorem, which Mathlib does not have and which
-this file assumes only inside `waringAdmissible_idealWaring`. -/
+the separate archive assumes only inside `waringAdmissible_idealWaring`. -/
 noncomputable def waringG (n : ℕ) : ℕ := sInf {s | WaringAdmissible n s}
 
 /-- `g(n)` is a lower bound for every admissible `s`. -/
@@ -552,68 +564,6 @@ counterexample to this inequality is known" — this is not evidence for the
 conjecture, only a guard that `WaringTight` is not vacuously false.) -/
 theorem waringTight_of_mem_range : ∀ n ∈ List.range 41, WaringTight n := by decide
 
-/-! ## The archived claim -/
-
-/-- **A002804's `name` field, upper half — the single intended `sorry`.**
-
-Verbatim from the entry, pulled 2026-08-05:
-
-> (Presumed) solution to Waring's problem: g(n) = 2^n + floor((3/2)^n) - 2.
-
-with the comment fixing what `g` means:
-
-> g(n) is the smallest number s such that every natural number is the sum of at
-> most s n-th powers of natural numbers.
-
-The lower half, `idealWaring n ≤ s` for every admissible `s`, is
-`idealWaring_le_of_waringAdmissible` and is proved.  What remains — and what this
-declaration asserts — is that `idealWaring n` many `n`-th powers actually suffice.
-
-**Status: open.**  Verbatim from the entry:
-
-> It is known (Kubina and Wunderlich, 1990) that g(n) = 2^n + floor((3/2)^n) - 2
-> for all n <= 471600000. This formula is conjectured to be correct for all n (see
-> A174420).
-
-> Mahler showed that there are only finitely many n's for which this formula
-> fails. - _Tomohiro Yamada_, Sep 23 2017
-
-So the statement is known for `n ≤ 471600000` (Kubina–Wunderlich, *Extending
-Waring's conjecture to 471,600,000*, Math. Comp. 55 (1990), 815–820) and can fail
-for at most finitely many `n` (Mahler, *On the fractional parts of the powers of a
-rational number (II)*, Mathematika 4 (1957), 122–124).  Neither result is formalized
-here; both would themselves be substantial developments.
-
-**What this `sorry` also swallows.**  Even for a *single* `n`, the assertion
-contains the Hilbert–Waring theorem (1909) — that some finite `s` works at all —
-which Mathlib does not have.  Hilbert–Waring is a theorem, so this does not make the
-statement weaker than the entry's; but a future discharge of the `sorry` has to
-supply it.  The `n = 2` case is discharged unconditionally elsewhere in this file
-(`waringAdmissible_two_four`, from `Nat.sum_four_squares`), and `n = 1` trivially
-(`waringAdmissible_one_one`); the exact values `waringG_one` and `waringG_two`
-therefore stand free of this `sorry`.
-
-**Why the remaining direction is hard.**  Reducing to `idealWaring n` summands means
-handling *every* natural number with a fixed budget, and the extremal numbers are
-exactly the ones the lower bound exhibits: `2 ^ n q - 1` and its relatives, which use
-only `1 ^ n` and `2 ^ n`.  Dickson, Pillai, Rubugunday and Niven reduced the general
-`g(n)` formula to the single arithmetic inequality `q + r ≤ 2 ^ n` recorded as
-`WaringTight`, so the open part is really a Diophantine question about the fractional
-parts of `(3/2) ^ n`; Mahler's finiteness result is an ineffective bound on that
-question, and effectivizing it is what would close A002804. -/
-theorem waringAdmissible_idealWaring {n : ℕ} (hn : n ≠ 0) :
-    WaringAdmissible n (idealWaring n) := by
-  -- intended sorry: A002804 `name`, "(Presumed) solution to Waring's problem"
-  sorry
-
-/-- **The archived A002804 identity**, `g(n) = 2 ^ n + floor((3/2) ^ n) - 2` for
-`n ≠ 0`, assembled from the two halves.  The `≤` direction is
-`waringAdmissible_idealWaring` (the `sorry`), the `≥` direction is
-`idealWaring_le_waringG` (J. A. Euler, proved).  Depends on `sorryAx`. -/
-theorem waringG_eq_idealWaring {n : ℕ} (hn : n ≠ 0) : waringG n = idealWaring n :=
-  le_antisymm (waringG_le (waringAdmissible_idealWaring hn))
-    (idealWaring_le_waringG hn ⟨_, waringAdmissible_idealWaring hn⟩)
-
 /-! ## Satisfiability and non-degeneracy
 
 Every predicate above is instantiated at a concrete value in both polarities, so no
@@ -690,9 +640,9 @@ example : idealWaring 0 = 0 ∧ waringG 0 = 0 := ⟨by decide, waringG_zero⟩
 
 /-! ## Axiom audit
 
-Everything is `{propext, Classical.choice, Quot.sound}` or a subset of it, except
-`waringAdmissible_idealWaring` — the single intended `sorry` — and
-`waringG_eq_idealWaring`, which is assembled from it. -/
+Everything in this production module is `{propext, Classical.choice, Quot.sound}`
+or a subset of it. The admission and its dependent identity live only in
+`Sorry.Enumerative.IdealWaring`; production does not import that archive. -/
 
 
 end A002804

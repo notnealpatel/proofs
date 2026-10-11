@@ -1,7 +1,8 @@
 /-
   Erdős Problem #20 — the **sunflower conjecture** in the shape OEIS A332077
-  states it.  This is a STATEMENT ARCHIVE: the conjecture itself is open and
-  is the file's single `sorry`.  Everything else — the definition of the
+  states it.  This is production infrastructure: the open conjecture and
+  its dependent OEIS form live only in `Sorry.Erdos.Erdos20.SunflowerConjecture`.
+  Everything here — the definition of the
   sunflower number, its finiteness, its lower bounds, its agreement with the
   tabulated OEIS terms, and the equivalence of the two sunflower conventions
   in play — is proved.
@@ -108,9 +109,9 @@
   (`hasSunflower_of_isOeisSunflower`).  The sandwich costs only a `+1` in the
   petal index, which the `∃ C` form absorbs: `sunflowerConjecture_iff` proves,
   sorry-free, that the conjecture for `Sun` and the conjecture for `SunOeis`
-  are the SAME statement (with `C ↦ 2 * C`).  So the single `sorry` is placed
-  on the `Sun` form the brief asks for, and the A332077-faithful form
-  `sunflower_conjecture_oeis` is derived from it with no further `sorry`.
+  are the SAME statement (with `C ↦ 2 * C`).  The separate archive places its single `sorry`
+  on the `Sun` form, and derives `sunflower_conjecture_oeis` from it.
+  Production retains this independent equivalence and does not import Sorry.
 
   ══════════════════════════════════════════════════════════════════════
   NON-VACUITY LEDGER
@@ -180,8 +181,8 @@
   ══════════════════════════════════════════════════════════════════════
 
   The sunflower conjecture is OPEN (A332077 keyword `hard`; Erdős #20).
-  Nothing here proves any new mathematics: the file is a faithful statement
-  archive plus the bookkeeping that makes the statement auditable.  Mathlib
+  Nothing here proves any new mathematics: the separate archive records the faithful statement,
+  and this production file supplies the bookkeeping that makes it auditable.  Mathlib
   as vendored contains no occurrence of "sunflower" (checked over
   `.lake/packages/mathlib/Mathlib/`, 2026-08-05).
 -/
@@ -766,26 +767,6 @@ theorem sun_le_sunOeis_succ {m n : ℕ} (hn : 1 ≤ n) :
 -- THE SUNFLOWER CONJECTURE
 -- ════════════════════════════════════════════════════════════════════
 
-/-- **Sunflower conjecture**, A332077 formula section, verbatim:
-"Sunflower conjecture: Sun(m,n) <= (n*O(1))^m."
-
-The `O(1)` is written as an explicit existential constant, as it must be for
-the line to name a single claim: ONE constant `C` serving every `m ≥ 1` and
-every `n ≥ 1`.  `1 ≤ m` is not decoration — `sun_two_petals 0` gives
-`Sun 0 2 = 2` against `(2 * C) ^ 0 = 1`, and the last `example` of this file
-machine-checks that dropping `1 ≤ m` turns the statement FALSE.
-
-OPEN (Erdős #20; A332077 keyword `hard`).  This is the file's single `sorry`
-and the reason the file exists.  Everything it needs in order to be a
-non-vacuous claim is proved above: `sunflowerProperty_nonempty` (so `Sun` is a
-real minimum, not `Nat.sInf ∅`), `two_le_sun` (so `Sun` is never `0`),
-`sun_le_erdosRado` (a finite upper bound exists), and
-`sunflowerConjecture_iff` (this form and the A332077-faithful form are the
-same statement). -/
-theorem sunflower_conjecture :
-    ∃ C : ℕ, ∀ m n : ℕ, 1 ≤ m → 1 ≤ n → Sun m n ≤ (n * C) ^ m := by
-  sorry
-
 /-- The conjecture for the `IsSunflowerWith` convention and the conjecture for
 A332077's own sunflower notion are the same statement: the sandwich
 `SunOeis m n ≤ Sun m n ≤ SunOeis m (n+1)` costs only `C ↦ 2 * C`.  Proved
@@ -805,13 +786,6 @@ theorem sunflowerConjecture_iff :
     calc Sun m n ≤ SunOeis m (n + 1) := sun_le_sunOeis_succ hn
       _ ≤ ((n + 1) * C) ^ m := hC m (n + 1) hm (by omega)
       _ ≤ (n * (2 * C)) ^ m := Nat.pow_le_pow_left hstep m
-
-/-- The sunflower conjecture as A332077 means it, i.e. on A332077's own
-sunflower notion.  Derived from `sunflower_conjecture` through
-`sunflowerConjecture_iff`; it introduces no `sorry` of its own. -/
-theorem sunflower_conjecture_oeis :
-    ∃ C : ℕ, ∀ m n : ℕ, 1 ≤ m → 1 ≤ n → SunOeis m n ≤ (n * C) ^ m :=
-  sunflowerConjecture_iff.mp sunflower_conjecture
 
 -- ════════════════════════════════════════════════════════════════════
 -- SATISFIABILITY WITNESSES
@@ -881,8 +855,11 @@ example : ¬ ∃ C : ℕ, ∀ m n : ℕ, 1 ≤ n → Sun m n ≤ (n * C) ^ m := 
 
 /-! ## Trust status
 
-Every declaration has axiom dependencies contained in
-`{propext, Classical.choice, Quot.sound}`, except `sunflower_conjecture` and
-its consequence `sunflower_conjecture_oeis`, which also carry `sorryAx`: that
-is the single intended `sorry`, the open conjecture itself. -/
+Every production declaration has axiom dependencies contained in
+`{propext, Classical.choice, Quot.sound}`. The separate archive's
+`sunflower_conjecture` and `sunflower_conjecture_oeis` also carry `sorryAx`.
+The absolute single constant uniform in both `m` and `n` remains unproved;
+no classical factorial bound, logarithmic bound, or popular-link amortization
+closes it. The nonempty-petal and OEIS conventions remain distinct, with
+`C ↦ 2 * C` transferring the guarded (`1 ≤ m`, `1 ≤ n`) conjecture. -/
 
