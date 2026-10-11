@@ -21,7 +21,7 @@ so cardinality is preserved, including for empty sets and negative levels.
 
 Source consolidation: `Plans/NoncommutingXCompression.md` at revision
 `8541812f37e99d0dae8f6bc3490d43aa56d7cc1c`.
-`Plans/NoncommutingXCompression.sage` remains an auxiliary reproduction: it
+`Programs/NoncommutingXCompression.sage` remains an auxiliary reproduction: it
 checks output sets and overlaps and stops at the first mask witness among at
 most 255 nonempty subsets of `{0,1}³`. This is not an exhaustive classification
 or a minimality claim, and Lean has no execution dependency on that script.
