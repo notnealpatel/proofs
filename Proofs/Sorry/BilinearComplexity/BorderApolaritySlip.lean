@@ -25,10 +25,11 @@ No exact theorem signature is asserted here: ambient dimensions, graded
 pieces, group assumptions, and source-specific hypotheses must be recovered
 from the cited rendering before a formal statement is written.
 
-`Documents/BorderApolarity.md` records the CHL v1 PDF rendering separately
-from a later TeX revision with shifted sections. It recommends stable labels:
-BB `thm_nonsaturated_apolarity` (local compiled Thm 3.15, versus the other
-revision's 4.18 numbering) and `thm_G_invariant_bVSP` (local Thm 4.3).
+`Conner–Harper–Landsberg, New lower bounds for matrix multiplication and det3`
+(arXiv:1911.07981) has a v1 PDF rendering distinct from a later TeX
+revision with shifted sections. Stable BB labels are
+`thm_nonsaturated_apolarity` (local compiled Thm 3.15, versus another
+revision's 4.18) and `thm_G_invariant_bVSP` (local Thm 4.3).
 Do not conflate revision numbers or the two papers' hypotheses.
 The card also retains arXiv:2602.11309 as a cactus-barrier boundary, not as
 an implementation of the missing Hilbert/Slip criterion.
@@ -46,7 +47,7 @@ every tensor passes; its sharper threshold is only a remark. Passing the
 modeled test is not a border-rank upper bound. These existing descriptions
 were inspected, not rebuilt or independently audited in this migration.
 
-## Historical/source-card subsection — complete current card verbatim
+## Historical/source-card subsection — source pointers consolidated
 
 # Border apolarity, Hilbert schemes, Slip, and search completeness
 
@@ -54,8 +55,49 @@ were inspected, not rebuilt or independently audited in this migration.
 - **Work status:** hard-blocked.
 - **Remaining target:** formalize the full Buczyńska–Buczyński / Conner–Harper–Landsberg border-apolarity criterion, including multigraded Hilbert functions, the relevant Hilbert scheme and `Slip` component/smoothability membership, Borel-fixed reduction, and completeness/soundness of the finite search algorithm over its stated field hypotheses.
 - **Completed narrow scope:** `Proofs/AlgComplexity/Vp2/Apolarity.lean` proves the polynomial-closure soundness of a weaker modeled `(111)` kernel test over an infinite field. That is not the full `Slip`-membership theorem, does not model smoothability or the cactus gap, and passing the test gives no border-rank upper bound.
-- **Source digest:** `Documents/BorderApolarity.md` consolidates arXiv:1910.01944 and arXiv:1911.07981 while preserving their different objects, field hypotheses, and theorem-number corrections. The deleted cactus-barrier note arXiv:2602.11309 is also covered by this residual boundary: its barrier consequences do not supply the missing Hilbert/Slip formalization.
+- **Source digest:** Buczyńska–Buczyński, arXiv:1910.01944, and Conner–Harper–Landsberg, arXiv:1911.07981, have different objects, field hypotheses and revision numbering. The cactus-barrier note arXiv:2602.11309 is covered only as a residual boundary: its barrier consequences do not supply the missing Hilbert/Slip formalization.
 - **Next obligation:** define multigraded Hilbert functors/schemes and the smoothable component sufficiently to state `Slip` membership; prove the degeneration/properness argument; only then connect Borel-fixed enumeration and algorithmic rejection/acceptance certificates.
 - **Claim boundary:** finite `(111)` linear algebra, bounded candidates, polynomial closure, and Borel-fixedness as an isolated reduction are not completion of the published criterion or algorithm.
 
+## Necessary-direction geometric kernel (source-derived, not Lean-checked)
+
+Buczyńska–Buczyński, *Apolarity, border rank and multigraded Hilbert
+scheme*, arXiv:1910.01944, lemma `lem_strong_nonsaturated_apolarity`
+and theorem `thm_nonsaturated_apolarity`, work over ℂ with a smooth
+projective toric variety X embedded by L in P(H⁰(X,L)*) and a nonzero
+F ∈ H⁰(X,L)*. This archive restricts the implication below to dim X ≥ 1;
+this is an archive domain restriction, not a claim that the paper explicitly
+states it. Fix r ≥ 1 and the generic Hilbert function
+h(D)=min(r,dim H⁰(X,O(D))). Sip consists of saturated ideals of r distinct
+points with this function; Slip is its closure in the reduced multigraded
+Hilbert scheme. The claim retained here is only the necessary direction:
+br_X(F) ≤ r implies some I ∈ Slip satisfies I ⊆ Ann(F).
+The zero-dimensional case r > 1 is excluded: X=P⁰ has no r distinct
+points, so Sip and its closure Slip are empty even though secant membership
+holds; secant membership alone cannot imply Slip membership there.
+
+The proof needs projectivity of this Hilbert scheme/Slip, supplied in the
+source via Haiman–Sturmfels, *Multigraded Hilbert schemes*, Corollary 1.2
+under its applicable grading hypotheses; it is not an automatic assumption
+for an arbitrary Hilbert functor. Constant degree-L codimension h(L) makes
+ρ(I)=(I_L)⊥ a morphism to Gr(h(L),H⁰(X,L)*). Pull back the universal
+subbundle and PROJECTIVIZE it: the incidence variety
+U={(I,[v]):I∈Slip,[v]∈P((I_L)⊥)} is closed in
+Slip × P(H⁰(X,L)*), hence projective. It is this projectivization, not the
+affine total space of a vector bundle, whose projection has closed image.
+For I ∈ Sip its fiber is the linear span of the r points. The union of
+these spans is dense in σ_r(X), by the source's generic-point/density
+argument (proposition on Sip, local number 4.16 in the digest). Closedness
+therefore puts every [F] ∈ σ_r(X) in the image. Choose its incidence
+preimage: I_L ⊆ (Ann(F))_L. The source's degree-L lifting proposition
+(local number 4.12) then gives I ⊆ Ann(F). These projectivity, morphism,
+density and graded-apolar lifting assertions are external geometric inputs,
+not declarations in this module. BB's extension discussion for other
+algebraically closed fields is not silently substituted for the ℂ contract.
+
+Reopen by constructing this incidence/properness bridge and the degree-L
+lift over the exact source objects. Polynomial-closure `BorderRankLE` still
+needs its bridge to classical secants; modeled111 supplies neither Slip,
+smoothability nor a border-rank upper bound. This kernel adds no converse
+acceptance certificate and no Borel enumeration completeness claim.
 -/

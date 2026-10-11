@@ -105,6 +105,49 @@ coefficient gains. The present unit only removes the finite low-pair encoding
 obligation from a future SC entropy formalization. Coordinator review, a
 separate axiom audit, and the retirement gate remain required before removal
 of the original plan; this archive itself does not authorize such removal.
+## High-mass balanced-subset obstruction (independent entropy route)
+
+This is an internal counterexample to the proposed uniform assertion:
+there exists absolute finite C such that, for all sufficiently large N,
+every vector cap A ⊆ [0,N)² of mass at least N√r obeys
+I(X;Y) ≤ C(d_X+d_Y+1), where r=r₃(N), (X,Y) is uniform on A,
+d_X=ln N−H(X), d_Y=ln N−H(Y), and entropy uses natural logarithms.
+A vector cap excludes every nonconstant coordinatewise 3-AP. This is NOT
+a counterexample to CB, to the scalar-cap Fourier candidate, or to global P.
+
+Take a maximum ordinary cap B ⊆ [0,N), |B|=r. Every subset of B×B is a
+vector cap: each coordinate progression in B is constant. The existing
+`Erdos142.eventually_rothNumberNat_lower_bound` in
+`Erdos.Erdos142.TorusAsymptoticLowerBound` gives, for each fixed ε>0,
+r ≥ N exp(−(torusLeadingConstant+ε)√ln N) eventually. Thus
+λ=ln(N/r)=O(√ln N), 0≤λ, and eventually r≥N^(2/3). Let
+m=⌈N√r⌉≤r² (the integer r² bounds the real quantity before the ceiling).
+Uniformly sample an m-subset of B×B. Each row/column degree D is
+hypergeometric with mean μ=m/r≥√N. Set
+δ=√(6 ln(4r)/μ)=o(1), eventually 0<δ<1. The hypergeometric Chernoff
+input gives Pr(|D−μ|≥δμ)≤2 exp(−δ²μ/3)=1/(8r²).
+The union bound over 2r fibers is at most 1/(4r)<1, so some deterministic
+m-subset has every fiber degree at most (1+δ)μ.
+
+Its marginal probabilities are at most (1+δ)/r. Relative entropy against
+the uniform law on B is the average of ln(rp), so
+0≤ln r−H(X), ln r−H(Y)≤ln(1+δ)=o(1).
+The whole-pair entropy is ln m=ln N+(ln r)/2+o(1). Consequently
+  d_X+d_Y=2λ+o(1),
+  I(X;Y)=(ln N)/2−3λ/2+o(1),
+and I/(d_X+d_Y+1)→∞. This defeats every fixed C at the stated mass.
+For each fixed η>0, however,
+  m/(r^(1+η)N^(1−η))=(1+o(1))N^(−1/2)exp((η+1/2)λ)→0;
+there is no P-shaped cardinality counterexample here.
+
+The maximum-cap and lower-bound inputs are current mathematical objects;
+only the lower-bound theorem is represented by the cited Lean module.
+Sampling, Chernoff concentration, deterministic extraction, entropy and all
+asymptotic bridges above remain prose, not kernel-checked. The construction
+is internal (no external priority claim). Reopen this entropy route only with
+a hypothesis excluding such sparse subproducts, or a precisely stronger
+mass condition near Nr and a new justified estimate; balanced marginals and
+mass N√r alone cannot supply it.
 -/
 
 set_option autoImplicit false
