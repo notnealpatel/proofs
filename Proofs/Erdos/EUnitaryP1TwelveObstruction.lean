@@ -8,6 +8,8 @@ import Mathlib.Algebra.Order.BigOperators.GroupWithZero.Finset
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Linarith
 import Lean.Elab.Tactic.Omega
+import Mathlib.Data.Nat.Squarefree
+import Mathlib.Data.Nat.GCD.BigOperators
 
 set_option autoImplicit false
 
@@ -537,5 +539,181 @@ example :
     2061 * localA 3 1 * (∏ q ∈ (∅ : Finset ℕ), (q + 1)) ≠
       2 ^ 12 * 3 ^ (1 - 1) * (∏ q ∈ (∅ : Finset ℕ), q) :=
   normalized_ne 1 ∅ (by decide) (by simp)
+
+/-- The actual exponential-unitary divisor sum is multiplicative on positive coprime inputs. -/
+theorem sigmaEU_mul_of_coprime (a b : ℕ) (ha : 0 < a) (hb : 0 < b) (hc : Nat.Coprime a b) :
+    sigmaEU (a*b) = sigmaEU a * sigmaEU b := by
+  have hdis := hc.disjoint_primeFactors
+  have hfA (p : ℕ) (hp : p ∈ a.primeFactors) : b.factorization p = 0 := by
+    have hn : p ∉ b.primeFactors := fun hpb => Finset.disjoint_left.mp hdis hp hpb
+    apply Finsupp.notMem_support_iff.mp
+    simpa only [Nat.support_factorization] using hn
+  have hfB (p : ℕ) (hp : p ∈ b.primeFactors) : a.factorization p = 0 := by
+    have hn : p ∉ a.primeFactors := fun hpa => Finset.disjoint_left.mp hdis hpa hp
+    apply Finsupp.notMem_support_iff.mp
+    simpa only [Nat.support_factorization] using hn
+  rw [sigmaEU, if_neg (Nat.ne_of_gt (Nat.mul_pos ha hb)), hc.primeFactors_mul,
+    Finset.prod_union hdis, sigmaEU, if_neg (Nat.ne_of_gt ha), sigmaEU, if_neg (Nat.ne_of_gt hb)]
+  congr 1
+  · apply Finset.prod_congr rfl
+    intro p hp
+    rw [Nat.factorization_mul (Nat.ne_of_gt ha) (Nat.ne_of_gt hb), Finsupp.add_apply, hfA p hp, Nat.add_zero]
+  · apply Finset.prod_congr rfl
+    intro p hp
+    rw [Nat.factorization_mul (Nat.ne_of_gt ha) (Nat.ne_of_gt hb), Finsupp.add_apply, hfB p hp, Nat.zero_add]
+
+/-- The actual exponential-unitary divisor sum of a positive squarefree number is the number itself. -/
+theorem sigmaEU_eq_self_of_squarefree (n : ℕ) (hn : 0 < n) (hs : Squarefree n) : sigmaEU n = n := by
+  have hf (p : ℕ) (hp : p ∈ n.primeFactors) : n.factorization p = 1 := by
+    have hpos : n.factorization p ≠ 0 := Finsupp.mem_support_iff.mp
+      (by simpa only [Nat.support_factorization] using hp)
+    have hle := hs.natFactorization_le_one p
+    omega
+  rw [sigmaEU, if_neg (Nat.ne_of_gt hn)]
+  calc
+    (∏ p ∈ n.primeFactors, ∑ d ∈ exponentDivisors (n.factorization p), p^d) =
+        ∏ p ∈ n.primeFactors, p := by
+      apply Finset.prod_congr rfl
+      intro p hp
+      rw [hf p hp, local_sum_eq, localA_one, Nat.mul_one]
+    _ = n := Nat.prod_primeFactors_of_squarefree hs
+
+/-- The actual exponential-unitary divisor sum distributes over a finite product of positive pairwise coprime inputs. -/
+theorem sigmaEU_prod_of_pairwise_coprime (S : Finset ℕ) (f : ℕ → ℕ)
+    (hpos : ∀ q ∈ S, 0 < f q)
+    (hc : (S : Set ℕ).Pairwise (fun q r => Nat.Coprime (f q) (f r))) :
+    sigmaEU (∏ q ∈ S, f q) = ∏ q ∈ S, sigmaEU (f q) := by
+  revert hpos hc
+  induction S using Finset.induction_on with
+  | empty => intro hpos hc; simp [sigmaEU]
+  | @insert q S hq ih =>
+    intro hpos hc
+    have hposS : ∀ r ∈ S, 0 < f r := fun r hr => hpos r (Finset.mem_insert_of_mem hr)
+    have hcS : (S : Set ℕ).Pairwise (fun r s => Nat.Coprime (f r) (f s)) := by
+      intro r hr s hs hne
+      exact hc (Finset.mem_insert_of_mem hr) (Finset.mem_insert_of_mem hs) hne
+    have hqprod : Nat.Coprime (f q) (∏ r ∈ S, f r) := Nat.coprime_prod_right_iff.mpr
+      (fun r hr => hc (Finset.mem_insert_self q S) (Finset.mem_insert_of_mem hr)
+        (by intro he; subst r; exact hq hr))
+    rw [Finset.prod_insert hq, sigmaEU_mul_of_coprime (f q) (∏ r ∈ S, f r)
+      (hpos q (Finset.mem_insert_self q S)) (Finset.prod_pos hposS) hqprod,
+      ih hposS hcS, Finset.prod_insert hq]
+
+/-- The sum on a product of distinct prime squares equals the product of their local factors `q*(q+1)`. -/
+theorem sigmaEU_prod_prime_sq (S : Finset ℕ) (hS : ∀ q ∈ S, q.Prime) :
+    sigmaEU (∏ q ∈ S, q^2) = ∏ q ∈ S, q*(q+1) := by
+  have hc : (S : Set ℕ).Pairwise (fun q r => Nat.Coprime (q^2) (r^2)) := by
+    intro q hq r hr hne
+    apply Nat.Coprime.pow_left
+    apply Nat.Coprime.pow_right
+    apply (hS q hq).coprime_iff_not_dvd.mpr
+    intro hd
+    exact hne ((Nat.prime_dvd_prime_iff_eq (hS q hq) (hS r hr)).mp hd)
+  rw [sigmaEU_prod_of_pairwise_coprime S (fun q => q^2) (fun q hq => pow_pos (hS q hq).pos _) hc]
+  apply Finset.prod_congr rfl
+  intro q hq
+  rw [sigmaEU_prime_pow q 2 (hS q hq) (by decide), localA_two]
+
+/-- The actual sum factors on the exponent-twelve family, including a positive squarefree decoration coprime to all supported primes. -/
+theorem sigmaEU_twelve_class_eq (b t : ℕ) (S : Finset ℕ) (hb : 0 < b) (ht : 0 < t)
+    (hS : ∀ q ∈ S, q.Prime ∧ q ≠ 2 ∧ q ≠ 3)
+    (hsq : Squarefree t) (htc : Nat.Coprime t (6 * ∏ q ∈ S, q)) :
+    sigmaEU (t * 2^12 * 3^b * ∏ q ∈ S, q^2) =
+      t * (2*2061) * (3*localA 3 b) * ∏ q ∈ S, q*(q+1) := by
+  have htc6 := (Nat.coprime_mul_iff_right.mp htc).1
+  have ht2 : Nat.Coprime t 2 := htc6.of_dvd_right (by decide : 2 ∣ 6)
+  have ht3 : Nat.Coprime t 3 := htc6.of_dvd_right (by decide : 3 ∣ 6)
+  have htq : ∀ q ∈ S, Nat.Coprime t q := Nat.coprime_prod_right_iff.mp
+    (Nat.coprime_mul_iff_right.mp htc).2
+  have h2q (q : ℕ) (hq : q ∈ S) : Nat.Coprime 2 q := by
+    apply (show Nat.Prime 2 from by decide).coprime_iff_not_dvd.mpr
+    intro hd
+    exact (hS q hq).2.1 ((Nat.prime_dvd_prime_iff_eq (by decide) (hS q hq).1).mp hd).symm
+  have h3q (q : ℕ) (hq : q ∈ S) : Nat.Coprime 3 q := by
+    apply (show Nat.Prime 3 from by decide).coprime_iff_not_dvd.mpr
+    intro hd
+    exact (hS q hq).2.2 ((Nat.prime_dvd_prime_iff_eq (by decide) (hS q hq).1).mp hd).symm
+  have h23 : Nat.Coprime 2 3 := by decide
+  have hfirst : Nat.Coprime t (2^12) := ht2.pow_right 12
+  have hsecond : Nat.Coprime (t*2^12) (3^b) :=
+    (ht3.mul_left (h23.pow_left 12)).pow_right b
+  have hthird : Nat.Coprime (t*2^12*3^b) (∏ q ∈ S, q^2) :=
+    Nat.coprime_prod_right_iff.mpr (fun q hq =>
+      (((htq q hq).mul_left ((h2q q hq).pow_left 12)).mul_left
+        ((h3q q hq).pow_left b)).pow_right 2)
+  have h2pos : 0 < (2:ℕ)^12 := by decide
+  have h3pos : 0 < (3:ℕ)^b := pow_pos (by decide) _
+  have hprodpos : 0 < ∏ q ∈ S, q^2 := Finset.prod_pos
+    (fun q hq => pow_pos (hS q hq).1.pos _)
+  rw [sigmaEU_mul_of_coprime (t*2^12*3^b) (∏ q ∈ S, q^2)
+      (Nat.mul_pos (Nat.mul_pos ht h2pos) h3pos) hprodpos hthird,
+    sigmaEU_mul_of_coprime (t*2^12) (3^b) (Nat.mul_pos ht h2pos) h3pos hsecond,
+    sigmaEU_mul_of_coprime t (2^12) ht h2pos hfirst, sigmaEU_eq_self_of_squarefree t ht hsq,
+    sigmaEU_prime_pow 2 12 (by decide) (by decide), localA_two_twelve,
+    sigmaEU_prime_pow 3 b (by decide) hb,
+    sigmaEU_prod_prime_sq S (fun q hq => (hS q hq).1)]
+
+/-- No number in the exponent-twelve family with positive exponent at three, distinct remaining prime squares, and coprime squarefree decoration is exponential-unitary perfect. -/
+theorem sigmaEU_twelve_class_ne (b t : ℕ) (S : Finset ℕ) (hb : 0 < b) (ht : 0 < t)
+    (hS : ∀ q ∈ S, q.Prime ∧ q ≠ 2 ∧ q ≠ 3)
+    (hsq : Squarefree t) (htc : Nat.Coprime t (6 * ∏ q ∈ S, q)) :
+    sigmaEU (t * 2^12 * 3^b * ∏ q ∈ S, q^2) ≠
+      2 * (t * 2^12 * 3^b * ∏ q ∈ S, q^2) := by
+  intro hid
+  let D := t * 2 * 3 * (∏ q ∈ S, q)
+  have hD : 0 < D := Nat.mul_pos (Nat.mul_pos (Nat.mul_pos ht (by decide)) (by decide))
+    (Finset.prod_pos (fun q hq => (hS q hq).1.pos))
+  have hpow : 3^b = 3 * 3^(b-1) := by
+    rw [← pow_succ']
+    congr 1
+    omega
+  have hi : D * (2061 * localA 3 b * (∏ q ∈ S, (q+1))) =
+      D * (2^12 * 3^(b-1) * (∏ q ∈ S, q)) := by
+    calc
+      D * (2061 * localA 3 b * (∏ q ∈ S, (q+1))) =
+          sigmaEU (t * 2^12 * 3^b * ∏ q ∈ S, q^2) := by
+        rw [sigmaEU_twelve_class_eq b t S hb ht hS hsq htc, Finset.prod_mul_distrib]
+        dsimp [D]
+        ring
+      _ = 2 * (t * 2^12 * 3^b * ∏ q ∈ S, q^2) := hid
+      _ = D * (2^12 * 3^(b-1) * (∏ q ∈ S, q)) := by
+        rw [hpow, Finset.prod_pow]
+        dsimp [D]
+        ring
+  exact normalized_ne b S hb hS (Nat.eq_of_mul_eq_mul_left hD hi)
+
+example : sigmaEU (1 * 2^12 * 3^1 * ∏ q ∈ (∅ : Finset ℕ), q^2) ≠
+    2 * (1 * 2^12 * 3^1 * ∏ q ∈ (∅ : Finset ℕ), q^2) := by
+  apply sigmaEU_twelve_class_ne 1 1 ∅ (by decide) (by decide) (by simp) (by norm_num)
+  norm_num
+
+example : (0 < (1:ℕ)) ∧ (0 < (7:ℕ)) ∧
+    (∀ q ∈ ({5} : Finset ℕ), q.Prime ∧ q ≠ 2 ∧ q ≠ 3) ∧
+    Squarefree (7:ℕ) ∧ Nat.Coprime 7 (6 * ∏ q ∈ ({5}:Finset ℕ), q) := by
+  refine ⟨by decide, by decide, ?_, ?_, ?_⟩
+  · norm_num
+  · exact (by decide : Nat.Prime 7).squarefree
+  · norm_num ; decide
+
+example : sigmaEU (7 * 2^12 * 3^1 * ∏ q ∈ ({5}:Finset ℕ), q^2) ≠
+    2 * (7 * 2^12 * 3^1 * ∏ q ∈ ({5}:Finset ℕ), q^2) := by
+  apply sigmaEU_twelve_class_ne 1 7 {5} (by decide) (by decide) (by norm_num)
+  · exact (by decide : Nat.Prime 7).squarefree
+  · norm_num ; decide
+
+example : sigmaEU (2*3) = sigmaEU 2 * sigmaEU 3 :=
+  sigmaEU_mul_of_coprime 2 3 (by decide) (by decide) (by decide)
+
+example : sigmaEU 7 = 7 :=
+  sigmaEU_eq_self_of_squarefree 7 (by decide) (by decide : Nat.Prime 7).squarefree
+
+example : sigmaEU (∏ q ∈ ({2,3} : Finset ℕ), q) =
+    ∏ q ∈ ({2,3} : Finset ℕ), sigmaEU q := by
+  apply sigmaEU_prod_of_pairwise_coprime {2,3} id
+  · norm_num
+  · norm_num [Set.Pairwise] ; decide
+
+example : sigmaEU (∏ q ∈ ({5}:Finset ℕ), q^2) = ∏ q ∈ ({5}:Finset ℕ), q*(q+1) := by
+  exact sigmaEU_prod_prime_sq {5} (by norm_num)
 
 end EUnitaryP1
