@@ -2,7 +2,7 @@
 
 ## Verdict and scope
 
-**AUTHOR-validated, pending independent review (prose-checked; not Lean-checked).** The squarefree hypothesis in `Plans/Erdos711PolynomialBadPrimeSieve.md` can be removed for the fixed-degree, canonical polynomial full-neighborhood model, at the cost of two explicit repeated-prime factors:
+**AUTHOR-validated, pending independent review (prose-checked; not Lean-checked).** The squarefree hypothesis of the historical polynomial bad-prime sieve can be removed for the fixed-degree, canonical polynomial full-neighborhood model, at the cost of two explicit repeated-prime factors:
 
 * `E(M)=M/rad(M)` in the interval-class count; and
 * `S_M=sum_{e|M} phi(e)/e = prod_{q^a||M}(1+a(1-1/q))` in the gcd summation.
@@ -104,6 +104,26 @@ where `S_M=(7/3)*prod_{q|Q0,q>3}(2-1/q)`. Since the source block has `Q<=W` and 
 `Err/Q >= 48*A*S_M*K^2*log n*H_(K-1)`.
 
 This is eventually larger than `G-1=K-2`, so the finite sieve error is quantitatively compatible with the source deficiency. The source actual-union count and CRT realization remain required; this comparison does not replace them. It does **not** show that the consumer rules out the construction.
+
+## Historical squarefree source and audit provenance
+
+The squarefree predecessor is preserved at revision
+`861e46dfa2b892d6b19863951664520ed2b73105`. Its Chen--Korsky Section 5
+source pointers are the compression lemma at lines 330--350 and the prime-rich
+block/construction at lines 354--429 of
+`/home/exedev/p/erdos711-restart-20261009/sources/ChenKorsky-2607.26450.tex`.
+It also records the historical quadratic CRT note at revision
+`672d5ebf503e293036ea21732e6f1c584cadab9a`.
+
+That predecessor reported the following audit history, copied here to preserve
+provenance, not to claim independent review of this prime-power extension:
+
+> Two independent prose audits were requested. Both accepted the local bad-prime sieve and checked the affine, constant, small-prime, `q|Delta`, CRT-lifting, endpoint, inclusion--exclusion, and asymptotic cases. One audit initially noted that the polynomial link must be explicit; here it is part of the definition of `b_d`, namely `b_d=P(d) mod M`. The other proposed a counterexample to the cross-`j` union bound, but its parameters violate the retained band condition (`M+(L-1)W<v`); with the band condition, the `T_j` are disjoint. These objections therefore do not invalidate the stated gate, but they identify two representation risks that must remain explicit in any formal consumer.
+
+The squarefree predecessor was prose-reviewed and interface-inspected only,
+not Lean-checked. This extension remains author-validated pending independent
+review; the historical audits do not cover its repeated-prime arguments or
+its derived nonsquarefree source construction.
 
 ## Remaining gaps and representation risks
 

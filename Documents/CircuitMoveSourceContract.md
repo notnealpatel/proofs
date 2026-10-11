@@ -2,8 +2,11 @@
 
 ## Scope and status
 
-This document is the source-fidelity boundary for the circuit-move program in
-`Plans/MatrixMultiplication.md`. It separates statements in the primary
+This document is the source-fidelity boundary for the circuit-move program.
+Current implementation contracts are recorded in
+`Proofs/BilinearComplexity/NormalizedBinaryContextual.md` and
+`Proofs/BilinearComplexity/FieldContextualStructure.md`; the historical
+coordination plan was retired. This document separates statements in the primary
 sources from routine consequences, gaps in those arguments, and results proved
 in this repository.
 

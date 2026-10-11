@@ -1,8 +1,8 @@
 /-
   Erdős Problem #276 — all-composite Lucas sequences without a covering
   obstruction.
-  Status: open.  Tier UA attack target (certificate slice, conditional
-  on the PLAN.md C6 lane).
+  Status: open.  Historical Tier UA attack target (certificate slice);
+  this archive does not activate a dispatch lane.
 
   Verbatim statement (`goof erdos fetch 276`, pulled 2026-08-05):
 
@@ -14,7 +14,7 @@
   DB remarks: Graham [Gr64] produced an all-composite Lucas sequence via
   covering systems (33-digit seeds); Vsemirnov holds the record seeds
   a₀ = 106276436867, a₁ = 35256392432.  Wilf's example is OEIS A083216
-  (the repo's PLAN.md lane C6 target).  Ismailescu–Son [IsSo14]
+  (the historical campaign's C6 target).  Ismailescu–Son [IsSo14]
   'conjecturally solved' the problem: with p = 1, q a 129-digit number,
   a₀ = p² + q², a₁ = 2pq + q², the even-indexed terms are composite by a
   covering system and the odd-indexed terms factor algebraically as
@@ -78,13 +78,14 @@ theorem erdos_276 :
     the covering-system half only (the sequence does have a common
     factor structure — it is the classical construction).
 
-    Attack: identical `IsFibonacciLike`-alpha-layer machinery to the
-    PLAN.md C6 lane (A083216/Wilf); land C6 first, then instantiate:
-    the covering system assigns to each residue class of indices a
+    Suggested infrastructure: the `IsFibonacciLike` machinery in
+    `Proofs/Erdos/Covering/RankOfApparition.lean`, used in the historical
+    A083216/Wilf lane; this is not a certificate for the displayed seeds.
+    The covering system must assign to each residue class of indices a
     prime dividing the corresponding terms (via `lucasSeq` mod p
     periodicity — Pisano periods).  Mathlib: `Nat.ModEq`, periodicity
     of linear recurrences mod p is elementary induction.
-    Effort M conditional on C6. -/
+    Historical effort estimate M, conditional on the certificate infrastructure. -/
 theorem vsemirnov_all_composite :
     AllComposite 106276436867 35256392432 := by
   sorry

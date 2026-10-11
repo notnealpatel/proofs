@@ -238,8 +238,9 @@ finite — the conjecture is about the supremum, not about any single value. -/
 optimal expression for `n - 1` represents `n` at cost `‖n-1‖ + 1`, so
 `‖n‖ ≤ ‖n-1‖ + ‖1‖ = ‖n-1‖ + 1`.
 
-This is the bound NEXT_TARGETS F1 requested under the name `neg_one_le_defect`,
-and it does come from `complexity_add_le` exactly as predicted there.  It is
+This is the bound the historical target survey requested under the name
+`neg_one_le_defect`, and it does come from `complexity_add_le` exactly as
+predicted there. It is
 **sharp** (`complexityDrop_two`), which is what makes A244743 one-sided: the
 drop can never fall below `-1`, and whether it can rise arbitrarily high is the
 open question. -/

@@ -128,6 +128,8 @@ first-proof candidate" (`Manuscripts/Drafts/first-proofs-and-opn-reduction.md:11
    Mathematical Competition, Problem A3" — one hop deep. Confirmed absent
    from the repo's awareness: `grep -rn Putnam Proofs/ Manuscripts/
    BLOG_INDEX.md PLAN.md YAH.md BRAINSTORM.md` → zero hits (2026-08-02).
+   This is the recorded historical command, not a list of current files;
+   the campaign dispatch log has since been retired.
 
 ### The drift chain (in-repo claims falsified this session)
 
@@ -172,14 +174,14 @@ want these numbered into the nine-claim ledger -->
   read this session), whose generic heuristic proposed "reflection
   x ↦ n+1-x"; OEIS suggested no involution (live entry: no formula
   lines, hedged comment only). Drift chain across artifacts: card
-  "ROUTE" → PLAN.md `0d98351` "Card's reflection involution is
+  "ROUTE" → historical dispatch log at `0d98351` "Card's reflection involution is
   provably wrong" → `Formalize/INDEX` (at `9ce3a87`) "the ROUTE's
   reflection involution was wrong" → manuscript §1.2 "the OEIS
   ROUTE's" — internal jargon drifting toward a reader-facing OEIS
   attribution. (b) "Recorded in-file" is false: greps this session
   (`reflection|wrong|deviat|route|counterexample|complement` over
   `MeanDivisors.lean`) → zero hits; the deviation is documented only
-  in `Formalize/INDEX` and retired PLAN.md, and "provably wrong" is
+  in the historical `Formalize/INDEX` and retired dispatch log, and "provably wrong" is
   proved nowhere in the corpus. Assistant's derivation (this
   session, unverified formally): for n > 1 the only reflection-fixed
   mean class is (n+1)/2, and (n+1)/2 ∣ n forces n = 1, so the

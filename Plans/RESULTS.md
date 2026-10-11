@@ -50,7 +50,8 @@ Each needs a literature sweep before any claim is published.
    LeanCamCombi explicitly checked and absent, formal-conjectures has
    a statement-request issue only, no Lean repos or Zulip threads.
    AFP entry confirmed: Thiemann, Feb 2021, classical bound only.
-   Nobody in any prover has the ALWZ improved bound (→ NEXT_TARGETS).
+   Nobody in any prover has the ALWZ improved bound (historical survey claim;
+   its former dispatch list has been retired).
 
 3. **base-b covering criterion (P13, 37e5f2e)** — `IsFixedDivisorSystemBase`
    generalises the fixed-divisor criterion to arbitrary bases with three
@@ -258,7 +259,7 @@ xref-chain depth misses: multiperfect cluster, A000009 Sun conjectures.
 Classical misses: ‖2^n‖ = 2n, Melfi 1996, Higman PORC.
 
 ## Planning: next targets (f4606e2)
-NEXT_TARGETS.md — 104 candidates coalesced: 44 formalize, 50 proof attempt,
+The retired next-targets survey recorded 104 candidates coalesced: 44 formalize, 50 proof attempt,
 5 unknown. Melfi 1996 is the P1 flagship. Sylvester–Schur unlocks a family.
 Natural density is the largest Mathlib gap blocking ~5 statements.
 

@@ -44,8 +44,8 @@ different character:
 | est. cost **[A]** | 5–9 person-months (BBMST) | this document |
 | committed layer helps? | **no** — statement vocabulary only, <3% of effort | **this is exactly what it is for** |
 
-This sheet is about the **lower bound**. The upper bound is scoped, and
-deliberately deferred, in `PLAN.md` lanes F/G.
+This sheet is about the **lower bound**. The historical campaign deliberately
+deferred the upper bound; it is not an active assignment in this sheet.
 
 ## 2. The gap nobody has closed
 
@@ -226,7 +226,7 @@ It has the four properties the covering arc currently lacks:
 ## 6. Explicit non-goals
 
 - **Not** the upper bound (Hough 2015 / BBMST 2022). Different mathematics,
-  different cost, scoped in `PLAN.md`. **[A]** the committed covering layer
+  different cost, deferred by the historical campaign. **[A]** the committed covering layer
   saves ~200 lines of statement preamble there, under 3% of the effort.
 - **Not** a claim that covering systems characterize anything. Izotov (1995)
   gives Sierpiński numbers with no covering set at all.
@@ -243,8 +243,9 @@ are the right ones and are reused verbatim; **only the decision procedure is
 replaced**. `FixedDivisor.lean` and the Sierpiński/Riesel/Erdős-1950
 applications are orthogonal to this sheet — they consume coverage, they do
 not produce it — and would become the infrastructure chapter of a paper this
-sheet headlines. See the paper running order under BLOG ARC in
-`Plans/PLAN.md` (compressed from the retired sheet's §8.1).
+sheet headlines. The former BLOG ARC paper running order was historical
+coordination and was retired with the campaign plan; it is not a current
+dependency of this certificate proposal.
 
 ## 8. First dispatch, if this is scoped
 

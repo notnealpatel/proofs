@@ -22,7 +22,7 @@
 
   Repo adjacency: `Proofs/Erdos/Covering/Basic.lean`
   (`IsCoveringSystem`, decidable coverage characterization);
-  PLAN.md already tracks upstream `erdos_7` (sorry'd over
+  The historical dispatch tracked upstream `erdos_7` (sorry'd over
   `StrictCoveringSystem ℤ` in formal-conjectures) — this file's
   contribution is the decidable restatement plus the BBMST squarefree
   boundary.
