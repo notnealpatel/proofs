@@ -1,17 +1,23 @@
-You **MUST NOT** manually create or modify files under
-`./References`. Those artifacts are immutable inputs.
+**Set yourself up for success.** Use `tool_wikipedia`
+to familiarize with the problem space you operate in.
+Use `erdos` and `oeis` binaries on this machine for
+querying and resolving problems, comments, and other
+information: The programs are fast and backed by a
+self-refreshing store of indexed data.
 
-You SHOULD use `leandoc` before other Lean semantic searches.
+**Prefer using `leandoc` before other search tools.**
+It has been specifically written by the USER in order
+to provide a natural language and exact interface over
+all Lean 4 standard library and Mathlib sources.
 
-You SHOULD use `tool_wikipedia` in order to ground your
-epistemic state in the discipline you are working in.
+**Use `prover` for all `.lean` source files** not
+the generic `writer`.
 
-`erdos` and `oeis` binaries are available on this host
-for natural language and structured queries over those
-respective datasets.
+Incomplete or speculative mathematics is permitted
+to live in `./Proofs/Sorry`. Production modules
+**MUST NOT** import `Proofs/Sorry`, directly or
+transitively.
 
-You SHOULD use `prover` agents instead of `writer` when
-the implementation resides in a `.lean` file.
-
-`Proofs/Sorry` may import production; production **MUST NOT**
-import `Proofs/Sorry`, directly or transitively.
+**Never commit or author markdown files in this
+project.** The only exception is `Palomar/` when
+the USER approves it.
