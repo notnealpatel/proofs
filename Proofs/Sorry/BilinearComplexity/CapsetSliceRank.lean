@@ -7,6 +7,18 @@ The attributed declaration below is relocated verbatim from `BilinearComplexity.
 Its intended `sorry` is not a proof; production retains the independent results,
 concrete witnesses, and explicitly hypothesis-parameterized conditional statements.
 References to results above or below in the original attribution refer to production.
+
+## Retired implementation card: Peebles (A236397)
+
+The target is the equality at even `n`, including `n = 0`, with the weight
+functional of Peebles's 2013 poster. OEIS A236397 does not itself define that
+weight convention; it must not be replaced by another sunflower extremum.
+Production formalizes the exact weight and capset number, proves the one-sided
+poster theorem `sunflowerFreeWeight n ≤ capsetNumber n`, and proves the
+Ellenberg–Gijswijt bound. The formerly planned CLP/EG prerequisite is complete.
+The missing reverse/sharp correspondence is not supplied by those upper bounds,
+finite terms, or another asymptotic estimate. The card was hard-blocked; its
+retirement archives the conjecture without claiming mathematical closure.
 -/
 
 set_option autoImplicit false

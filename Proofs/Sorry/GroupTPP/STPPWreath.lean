@@ -3,6 +3,29 @@ The direct-sum tensor/Schönhage assembly remains unpaid; the one-shot wreath
 factorial bound does not discharge it. -/
 import GroupTPP.STPPWreath
 
+/-!
+# Retired implementation card: CKSU STPP and wreath inequalities
+
+These are published results from Cohn–Kleinberg–Szegedy–Umans,
+arXiv:math/0511460, not open mathematical conjectures. Only the central
+simultaneous-TPP capacity and wreath-specialization portions belong to this
+archive. The chart-USP construction and `ω < 2.41` derivation remain separate
+in `Formalize/GroupTPP-Barriers-Lie-ChartUSP.md`.
+
+Production retains the right-quotient, cyclic `SimultaneousTPP` convention,
+direct-product closure, wreath embeddings, character-degree bounds and
+asymptotic witness families. The general capacity theorem below uses `[Group G]`;
+the hypothesis-factored wreath skeleton and its dependent commutative
+specialization use `[CommGroup G]`, with their displayed finiteness/decidability
+hypotheses unchanged. The skeleton is admitted, not proved; the commutative
+theorem inherits `sorryAx` despite its independently proved input planks.
+The missing direct-sum tensor/Schönhage asymptotic sum inequality and
+multinomial/wreath amplification must be formalized and their downstream
+consumers audited. The one-shot factorial estimate and proved constructions
+or convergence statements do not discharge those central inequalities.
+Retirement completes a faithful admission boundary, not the published proof.
+-/
+
 set_option autoImplicit false
 
 open scoped BigOperators
@@ -33,10 +56,10 @@ form used in the `ω < 2.93` example.
 
 **Proof route** (Pl21, Clifford campaign): the general-`G` form requires
 Clifford theory for the wreath character-degree bound and the corrected
-`SimultaneousTPP` definition (Df1). The abelian instance
-(`stpp_capacity_le_comm`) and its hypothesis-factored skeleton
-(`stpp_capacity_le_of_wreath`) are proved beside this statement; the general
-form is the Pl21 target after Df1. `sorry`. -/
+`SimultaneousTPP` definition (Df1). The hypothesis-factored skeleton
+(`stpp_capacity_le_of_wreath`) is also admitted below. The abelian instance
+(`stpp_capacity_le_comm`) is derived from it and therefore also depends on
+`sorryAx`; neither is an independent proof of the capacity inequality. -/
 theorem stpp_capacity_le {n : ℕ} [Fintype G] [DecidableEq G]
     (A B C : Fin n → Finset G) (h : SimultaneousTPP A B C) :
     ∑ i, ((A i).card * (B i).card * (C i).card : ℝ) ^ (ω / 3)

@@ -2,6 +2,29 @@
 Production definitions and finite certificates remain in `Erdos.Covering.ErdosMinus2k`. -/
 import Erdos.Covering.ErdosMinus2k
 
+/-!
+# Retired implementation card: Erdős problem 1142 (A039669)
+
+The exact predicate includes `m > 2` and primality of `m - 2^k` only for
+`k ≥ 1` with `2^k < m`; without the first guard, `0, 1, 2` are vacuous solutions.
+Production proves all seven memberships and completeness through `10^9`.
+The admission is the forward classification; the archived set equality also
+uses those proved memberships. `NotTwoPowerPlusPrime` supplies an infinite
+complementary family, not global completeness. The primitive-root congruence
+reduction used in the finite window is due to Chris Nash (2000). The strongest
+citable search bound recorded in this card's OEIS evidence is `2^120`, not the
+unreviewed `2^128` forum computation. An unbounded exclusion remains missing.
+
+The consolidated A089654 contract is the odd-row form
+`T(n,k) = 2*n + 1 - 2^k`. Production `ErdosRows` proves its exact bridge under
+`0 < n`; row zero is empty and vacuously all-prime. The six indices
+`{3, 7, 10, 22, 37, 52}` correspond to `{7, 15, 21, 45, 75, 105}`. OEIS A089654
+attributes the conjecture to Erdős and records the weaker search bound `2^77`.
+The two admission-consuming row classifications reside in
+`Sorry.Erdos.Covering.ErdosRows`, not production. This was a hard-blocked card;
+retiring both consolidated interfaces is statement implementation, not proof.
+-/
+
 set_option autoImplicit false
 
 namespace Erdos.Covering

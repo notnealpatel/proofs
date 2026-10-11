@@ -7,6 +7,22 @@ The attributed declaration below is relocated verbatim from `Enumerative.Congrue
 Its intended `sorry` is not a proof; production retains the independent results,
 concrete witnesses, and explicitly hypothesis-parameterized conditional statements.
 References to results above or below in the original attribution refer to production.
+
+## Retired implementation card: A273929 inclusion
+
+The unconditional inclusion remains open; the sourced conditional theorem
+belongs to the BSD/Tunnell/Monsky lineage. The exact source domain is squarefree
+`n` in residue classes `5, 6, 7 (mod 8)`, represented by `MemA273929 n`.
+Production proves `isCongruentArea_iff_hasNontrivialPoint` and
+`a273929_subset_iff_hasNontrivialPoint`: the target is equivalent to a rational
+point with nonzero y-coordinate on `y² = x³ - n²*x`. This rank-free bridge is
+complete, not a remaining definition task. Production also proves
+`isPrimitiveCongruent_twentyOne : IsPrimitiveCongruent 21` and other finite
+instances. The missing step is uniform unconditional point existence, not
+another isolated example. Retirement records only the admitted inclusion;
+it neither proves BSD nor discharges the open implication. Historical
+infrastructure absence remarks below are scoped source observations, not a
+fresh exhaustive audit of Mathlib or external libraries.
 -/
 
 set_option autoImplicit false

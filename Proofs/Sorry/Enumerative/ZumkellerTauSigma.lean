@@ -7,6 +7,20 @@ The attributed declaration below is relocated verbatim from `Enumerative.Zumkell
 Its intended `sorry` is not a proof; production retains the independent results,
 concrete witnesses, and explicitly hypothesis-parameterized conditional statements.
 References to results above or below in the original attribution refer to production.
+
+## Retired implementation card: Ianakiev tau-sigma (A083207)
+
+Ivan N. Ianakiev's OEIS comment of 2020-04-24 asks exactly for a Zumkeller
+partition when `d > 1`, `d ∣ k`, and `tau(d) * sigma(d) = k`. The exact production
+predicates and conditional odd-perfect-number consequence are preserved.
+The card was hard-blocked after two proposed routes were refuted: the
+hypotheses do not force `6 ∣ k` (counterexample parameter `d = 496`), and a
+suitable unitary Zumkeller divisor need not exist (`d = 234`). Neither route
+can be revived without a substantive repair. The independently proved
+`TauSigmaDominantPrime` necessary bound only excludes a dominant-prime
+obstruction; it is not the general divisor-partition theorem. New structural
+mathematics is still required. Retirement records a faithful admission, not
+closure of the conjecture or its conditional consequences.
 -/
 
 set_option autoImplicit false

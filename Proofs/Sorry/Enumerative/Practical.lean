@@ -7,6 +7,19 @@ The attributed declaration below is relocated verbatim from `Enumerative.Practic
 Its intended `sorry` is not a proof; production retains the independent results,
 concrete witnesses, and explicitly hypothesis-parameterized conditional statements.
 References to results above or below in the original attribution refer to production.
+
+## Retired implementation card: Coleman (A007691)
+
+The positive multiply-perfect predicate and distinct-divisor subset-sum
+practicality predicate are the unchanged production objects. Jaycob Coleman's
+OEIS conjecture remains open; its implementation card was hard-blocked, not
+mathematically discharged. Production `Practical` proves the Stewart step,
+standard infrastructure and the even-perfect case; `StewartCriterion` proves
+Stewart's criterion in both directions. The missing argument concerns odd
+multiply-perfect numbers (and would rule out odd perfect numbers), or even
+multiply-perfect numbers beyond abundancy two. Bounded certificates and the
+explicit-hypothesis odd-perfect reduction do not supply it. This archive
+completes statement implementation only.
 -/
 
 set_option autoImplicit false
