@@ -1,8 +1,0 @@
-import BilinearComplexity.FieldCircuitContraction
-
-set_option autoImplicit false
-
-open BilinearComplexity
-open BilinearComplexity.FieldCircuitContraction
-
-

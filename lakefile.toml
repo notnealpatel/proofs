@@ -55,7 +55,7 @@ name = "Combinatorics"
 srcDir = "Proofs"
 
 [[lean_lib]]
-name = "Scratch"
+name = "Sorry"
 srcDir = "Proofs"
 
 [[lean_lib]]
