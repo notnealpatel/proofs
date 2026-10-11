@@ -36,8 +36,42 @@
   Scope and honesty.  The fiber-overlap step (1) is proved here, not assumed:
   the module contains no `sorry`, `admit`, or new axiom, and no hypothesis is
   smuggled in for the geometric claim.  The statements are exact finite
-  combinatorics; nothing here is asymptotic and nothing asserts the open
-  estimates `(O)` or `(C)` of the reflection-shadow route.
+  combinatorics; the formal declarations are not asymptotic and do not assert
+  the universal estimates `(O)` or `(C)` of the reflection-shadow route.
+
+  Restricted consumer and family synopsis (prose deductions, not Lean theorems).
+  For a scalar 3-AP-free cap A ⊆ [0,N²), m=|A| with m>N≥2 and m≥9, put
+  r=r₃(N) (maximum cap size in [0,N)), F_N=r^(8/3)/N^(2/3),
+  u=⌊(m-1)²/4⌋ and B=m+⌊m/2⌋. For integer targets 0≤c<N² let
+  ν(c)=|{(a,b)∈A²:a≠b, 2a-b=c}|, M=Σ_c ν(c), E=Σ_c ν(c)².
+  The finite bound above gives E≤BM/2 and M≥u>0. Hence the candidate
+  (O): E≤F_N M²/(m-N)² follows whenever F_N≥B(m-N)²/(2u).
+  In particular, 4u≥(m-N)² and B≤3m/2 make m≤F_N/3 sufficient.
+  This is a restricted size regime, not a universal high-density bound.
+
+  Behrend's uniform lower bound r₃(N)≥N exp(-C√log N), for all sufficiently
+  large N and an absolute C, gives F_N≥N² exp(-C′√log N), C′=8C/3.
+  Thus every scalar cap with N<m≤(1/3)N² exp(-C′√log N) satisfies (O)
+  with constant 1 for large N; this range is eventually nonempty.
+
+  For fixed b≥2 and ordinary digit caps E₁,E₂⊆{0,…,b-1} satisfying
+  2 max(E_i)<b and s=|E₁||E₂|>b, take alternating 2k-digit base-b sets
+  A_k={Σ_{j=0}^{2k-1}a_j b^j:a_{2j}∈E₁, a_{2j+1}∈E₂}.
+  Carry-freeness makes these scalar caps; N=b^k, m=s^k and b<s<b² give
+  m/[N² exp(-C′√log N)]=(s/b²)^k exp(C′√(k log b))→0.
+  Consequently (O) holds with constant 1 for every sufficiently large member
+  of each fixed (b,E₁,E₂) family, not for arbitrary variable digit sets.
+
+  The distinct two-cluster stress family takes d≥2, Q=4d and B₀ the base-Q
+  encoding of a largest sphere in {0,…,d-1}^d. Put b₀=|B₀|,
+  L₀=1+(d-1)(Q^d-1)/(Q-1), T₀=3L₀-1, A=B₀∪(T₀-1-B₀),
+  m=2b₀ and N=⌈√T₀⌉. This is the scalar two-cluster cap, with
+  d^d/[d(d-1)²+1]≤b₀≤d^d and (3/16)Q^d≤T₀≤4Q^d, so m>N eventually.
+  Using log N≤d log(4d) eventually and the same Behrend bound,
+  m/(F_N/4)≤(128/3)4^(-d) exp(C′√(d log(4d)))→0.
+  Hence m≤F_N/4≤F_N/3 eventually and (O) holds with constant 1 for this
+  family too. None of these prose consequences proves (O) for arbitrary
+  scalar caps, a variable-alphabet family in general, or Erdős 142.
 -/
 
 import Erdos.Erdos142.ReflectionShadow

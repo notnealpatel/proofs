@@ -6,6 +6,38 @@ import Mathlib.RingTheory.AdjoinRoot
 
 set_option autoImplicit false
 
+/-!
+## Matrix-factor-rank obstruction (reported archive scan)
+
+This prose invariant is separate from the arbitrary-slot deformation API below.
+For a 47-term decomposition of the ⟨4,4,4⟩ matrix-multiplication tensor over a
+field K, let H(D)=(h₁,h₂,h₃,h₄), where hᵢ counts rank-i matrices among the 141
+4×4 factors. Burichenko's decomposable isotropy group PGL₄(K)³ ⋊ S₃ acts by
+(U,V,W) ↦ (PUQ⁻¹,QVR⁻¹,RWP⁻¹), factor permutations and transpositions.
+Invertible sandwich operations and transposition preserve matrix rank; term
+permutations and nonzero term gauges (λU,μV,νW), λμν=1, also preserve H(D).
+See V. P. Burichenko, *The Isotropy Group of the Matrix Multiplication Tensor*,
+arXiv:2210.16565, Propositions 5 and 8 and the main theorem (no characteristic-two
+or field-size exception).
+
+An independent, uncommitted and here unreplayed scan of the AlphaTensor /
+Kauers–Moosbauer archive reported 70,920 files with H=(50,48,42,1) and 28,181
+with H=(49,48,43,1), totaling 99,101 files. The reported local values are
+c680=(48,45,48,0) and c659=(51,49,41,0). Conditional on these scan values,
+c680 and c659 are inequivalent to the represented archive and to each other
+under the above decomposable isomorphisms and presentation redundancies.
+Matrix rank is unchanged by field extension, so for these F₂ inputs the same
+obstruction persists over every extension of F₂, including its algebraic
+closure. The committed `Programs/BilinearComplexity/rank47_local_audit.sage`
+checks local inputs, not the aggregate archive buckets.
+
+Kauers and Moosbauer told the user directly that the archive contains all
+⟨4,4,4⟩ schemes they found; this is not a classification of all rank-47 schemes.
+Neither bucket is asserted to be a single orbit, and no rank-minimality claim
+follows. Unrestricted ambient tensor-space transformations that fail to preserve
+decomposable tensors are outside this equivalence relation.
+-/
+
 namespace BilinearComplexity
 namespace Scheme
 namespace Deformation

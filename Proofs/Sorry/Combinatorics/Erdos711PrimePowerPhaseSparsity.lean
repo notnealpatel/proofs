@@ -152,6 +152,53 @@ No theorem here connects general #711 Hall subsets to this canonical polynomial
 model. That global bridge, all-moduli density, novelty and exponent gains remain
 unpaid. Coordinator review and fresh independent audits are still required before
 any source retirement; compiling this documentation does not discharge them.
+## Separate full-neighborhood affine-gauge diagnostic (prose only)
+
+This closes only one encoding, not global #711 or the canonical-phase sieve.
+Fix n≥1, nonempty D⊆{1,…,n}, m≥0 and an interval I={m+1,…,m+H}, H≥1.
+For each d omit empty N_d=I∩dℤ; if a_d is its first point, split the entire N_d
+into nonempty tags B_(d,ε)={a_d+(2j+ε)d:j≥0}∩I, ε∈{0,1}.
+Let r_ℓ=|B_ℓ|, E=Σ_ℓ r_ℓ>0 and c(x)=|{ℓ:x∈B_ℓ}|.
+Start ℓ₀ with probability r_ℓ₀/E, then alternately choose X₀ uniformly in
+B_ℓ₀, ℓ₁ uniformly among tags through X₀, X₁ uniformly in B_ℓ₁, ℓ₂ uniformly
+through X₁, and X₂ uniformly in B_ℓ₂. Condition on the event G given by
+ℓ₀≠ℓ₁, ℓ₁≠ℓ₂, X₀≠X₁, X₁≠X₂, assuming Pr(G)>0; remote repeats are allowed.
+
+Put Y_i=X_i-m, T=2d₀+ε₀ and B=2H+1. The specified encoding is
+P=(Y₀+BT,Y₁,0), Q=(Y₁-BT,0,Y₂), R=(0,Y₂,Y₁-Y₂), with
+S=P+Q+R=(Y₀+Y₁,Y₁+Y₂,Y₁). Since 1≤Y_i≤H<B, P recovers (T,Y₀,Y₁),
+Q recovers (T,Y₁,Y₂), and R recovers (Y₁,Y₂); T recovers the initial tag.
+Conversely S recovers Y₁=S₃, Y₀=S₁-S₃, Y₂=S₂-S₃, so (P,Q,R) and
+(T,Y₀,Y₁,Y₂) determine each other. With one fixed logarithm base, all following
+entropies are conditional on G. Write h=H(S), a=H(T|S), p=H(P), q=H(Q), r=H(R).
+Recoverability gives H(P,Q,R)=h+a, H(P|S)=H(Q|S)=a and H(R|S)=0, not separate
+identities H(P)=H(Q)=h+a. Thus TC(P,Q,R)=p+q+r-h-a and
+I(P;S)+I(Q;S)+I(R;S)=p+q+r-2a. The supplied correlated-plane fiber RHS is
+
+  ½(p+q+r) - TC(P,Q,R) + ½(I(P;S)+I(Q;S)+I(R;S))
+  = ½(p+q+r) - (p+q+r-h-a) + ½(p+q+r-2a) = h = H(S).
+
+It cancels for every conditional law on this encoding. Dropping MI gives only
+H(S)≥h+a-½(p+q+r)=½(u+v-r), where u=H(S|P), v=H(S|Q) (equation (14) of the
+calculation); this is not a new sign restriction. Exact path accounting is
+H(W|G)=H(S|G)+H(T|S,G)+b, where W=(ℓ₀,X₀,ℓ₁,X₁,ℓ₂,X₂) and
+b=H(ℓ₁,ℓ₂|T,Y₀,Y₁,Y₂,G)≤2 log κ, κ=max_{1≤t≤H}|{d∈D:d|t}|.
+This is a support bound, not conditional uniformity. The calculation uses the
+correlated-plane inequality, not a selected-common-AP stationary formula;
+Chen–Korsky, arXiv:2607.26450, Section 2 (local progression unions) and Section 5
+(prime CRT constructions) provide the original external progression-union
+context, not a machine check of these elementary entropy identities.
+
+There is also a precise disconnected-label warning. Set g₂=2^(min_{d∈D}v₂(d)).
+Every tagged class lies wholly in residue 0 or g₂ modulo 2g₂; the tag is
+ε=(x-a_d)/d mod 2, not unconditionally the parity of x/d. The normalized kernel
+K(ℓ,ℓ′)=(1/r_ℓ)Σ_{x∈B_ℓ∩B_ℓ′}1/c(x) cannot cross these residues.
+If both occur among nonempty labels, there are at least two closed components:
+eigenvalue 1 has multiplicity at least two. For this reversible positive
+semidefinite incidence up-down operator, Σ_{j≥2}λ_j^(2t)≥1 for every t≥1;
+a uniform global o(1) spectral-sum premise therefore fails. Componentwise
+mixing has not been shown to pay H(T|S,G). A different observable or new
+arithmetic control is needed for this route, not a global #711 refutation.
 -/
 
 set_option autoImplicit false

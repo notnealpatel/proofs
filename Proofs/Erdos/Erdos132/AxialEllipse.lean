@@ -327,7 +327,16 @@ private theorem image_eq_of_saturated {α β : Type*} [DecidableEq β] (H : Fins
     exact Finset.mem_image.mpr ⟨h, (Finset.mem_filter.mp hh).1, (Finset.mem_filter.mp hh).2⟩
 
 /-- The same-side axial ellipse theorem uses actual points, ambient interiors, ordinary
-Euclidean distance, and loop-free unordered-pair multiplicity. The threshold is inclusive. -/
+Euclidean distance, and loop-free unordered-pair multiplicity. The threshold is inclusive.
+
+The unrestricted two-fiber inference fails even rationally: for a=2, b=1 take
+H={(0,±1),(6/5,±4/5),(2,0),(-2,0)}, z=(9/20,0), w=(0,0).
+The radial square F_(9/20)(x)=(3/4)x²-(9/10)x+481/400 has level 481/400
+at x=0 and x=6/5, giving four actual hull points at one distance from z.
+The threshold (a²-b²)/a=3/2 fails for both axial coordinates (9/20 and 0),
+and their product is zero, not positive. This prose warning is not a certified
+pair census or a counterexample to this theorem; its purpose is to prevent
+unrestricted reuse of the thresholded two-fiber and saturation argument. -/
 theorem same_side_axial_ellipse (n : ℕ) (H : Finset Plane) (a b c₁ c₂ : ℝ)
     (hn : 8 ≤ n) (hb : 0 < b) (hab : b < a) (hH : H.card = n-2)
     (hE : ∀ p ∈ H, OnEllipse a b p)

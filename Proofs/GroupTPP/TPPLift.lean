@@ -31,6 +31,72 @@ provides the REUSABLE lift API:
 and ground facts about `C₂` are `decide`-checkable; multiplicative, so
 `C₂ × G` is a `Group` and the `GroupTPP.TPP` API applies verbatim.
 
+## Reported C₂ witness inputs (not certified here)
+
+The computational manuscript reported the following five graph-lift families.
+Here β₀(G) is the maximum product of orders of subgroup-TPP triples; for each
+member X, enumerate characters χ_X : X → C₂ and lift to {(χ_X(x),x):x∈X}.
+The reported tests check S ∩ TU = {1} and T ∩ U = {1} in C₂ × G, both by pair
+arithmetic and by permutations with C₂ on two fresh points. k counts nontrivial
+characters. These are unreplayed reports with uncommitted certificates, not new
+Lean-certified strict capacity inequalities. Passing character-combination
+counts, lifted products and capacities below remain reported, unreplayed source
+data; their use as witness conclusions requires compatible ordered witness
+certificates and the exact base-capacity premises.
+
+Integrity warning for the first two inputs: independent review's bounded Sage
+computation found ordered subgroup sizes (|S|,|T|,|U|)=(16,16,24) for M₁₀ and
+(12,12,36) for S₆, incompatible with the manuscript's ordered labels below.
+An elementary obstruction to the M₁₀ T-label S₄ is that its displayed generator
+(2,4)(3,7,9,8,10,11,5,6) has order 8, impossible in S₄. For S₆, the displayed
+T=Sym({2,4,6}) × ⟨(3,5)⟩ has order 6·2=12, not 36. The size triples are
+reviewer computations, not Lean theorems; no underlying isomorphism types or
+ordered noncommutative TPP/character certificates have been revalidated here.
+Products of the three sizes are unchanged, but this does not validate a silent
+slot permutation or a fresh C₂ witness conclusion. The original generators are
+preserved exactly despite these incompatible historical labels.
+
+* M₁₀ = Stabilizer(MathieuGroup(11),1), acting on {2,…,11}:
+  S = ⟨(2,3)(5,11)(6,7)(8,9), (2,3)(4,5,6,11,10,8,7,9)⟩;
+  T = ⟨(2,4)(5,9)(6,11)(7,8), (2,4)(3,7,9,8,10,11,5,6)⟩;
+  U = ⟨(3,9)(4,7)(5,6)(8,10), (2,11,10,8)(5,9,6,7)⟩.
+  The manuscript-reported ordered labels (QD16,S₄,QD16) and sizes (16,24,16)
+  are INCOMPATIBLE with these inputs, as detailed above. The manuscript reports
+  2 of 9 k=3 character combinations passing and product
+  6144=2·3072>4608=2·2304; these ordered witness checks remain unrevalidated.
+* S₆ = SymmetricGroup(6):
+  S = ⟨(2,5), (1,5), (3,4)⟩;
+  T = ⟨(2,4), (4,6), (3,5)⟩;
+  U = ⟨(1,5,3,2,6,4), (1,5,6,2,3,4), (1,6,3)⟩.
+  The manuscript-reported ordered labels (D12,S₃ × S₃,D12) and sizes (12,36,12)
+  are INCOMPATIBLE with these inputs, as detailed above. The manuscript reports
+  2 of 27 k=3 character combinations passing and product
+  5184=2·2592>4800=2·2400; these ordered witness checks remain unrevalidated.
+* A₇ = AlternatingGroup(7):
+  S = ⟨(1,2)(3,5)(4,6,7), (1,3)(2,5), (1,2)(6,7)⟩;
+  T = ⟨(2,5)(3,6,4,7), (2,3,4)⟩;
+  U = ⟨(1,3,5,6)(4,7), (3,6,7)⟩.
+  The members are (C₆ × C₂):C₂, (C₃ × C₃):C₄, (C₃ × C₃):C₄, of orders
+  (24,36,36). Reportedly 1 of 3 k=3 combinations passes, giving product
+  31104=2·15552>21168=2·10584.
+* Second M₁₀ family: shape (QD16,QD16,C₅:C₄), orders (16,16,20),
+  |Σ|=2560. Reportedly 2 of 18 combinations pass with k=2 and the third member
+  untwisted, giving product 5120>4608. No k=3 combination passes.
+* Second S₆ family: shape (C₂×D8,C₂×D8,C₅:C₄), orders (16,16,20),
+  |Σ|=2560. Reportedly 2 of 70 combinations pass with k=2 and the C₅:C₄ member
+  untwisted, giving product 5120>4800. No k=3 combination passes.
+
+The strict comparisons require compatible ordered witness certificates and the
+separately reported exact base-capacity premises β₀(M₁₀)=2304, β₀(S₆)=2400 and
+β₀(A₇)=10584; reported products alone do not establish them.
+Full-subgroup-lattice searches also reported β₀(C₂×A₅)=216,
+β₀(C₂×A₆)=1944, β₀(C₂×M₁₀)=6144 and β₀(C₂×S₆)=5184; the A₇ witness above
+by itself gives only β₀(C₂×A₇)≥31104. The first two calibrations use the base
+values β₀(A₅)=108 and β₀(A₆)=972 (Hedtke–Murthy, *Search and test algorithms
+for triple product property triples*, 2012, Table 3, as PSL₂(F₄), PSL₂(F₉)).
+Replayable committed witness certificates and verified exact base capacities
+remain necessary for a formal refutation of abelian-factor ratio invariance.
+
 ## References
 
 * Pf13, *The lift law, proved by Goursat case analysis*
