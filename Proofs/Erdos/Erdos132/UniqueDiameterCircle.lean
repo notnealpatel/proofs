@@ -1,6 +1,226 @@
 import Erdos.Erdos132.EvenThreeInteriorCircle
 import Erdos.Erdos132.CircleFixtures
 
+/-!
+# Unique-diameter circular hull: original-input largest nondiameter class
+
+## Contract and representation
+
+The named consumer is `Erdos132.UniqueDiameterCircle.unique_diameter_circle`.
+For natural numbers `N`, `k` with `3 ≤ N` and `1 ≤ k`, it takes finite sets
+`H I : Finset Plane`, an arbitrary center `O : Plane`, and a radius `R : ℝ`.
+The original hypotheses are exactly:
+
+* `H.card = N`, `I.card = k`, and `0 < R`;
+* `∀ h ∈ H, dist h O = R`;
+* `(interior (convexHull ℝ (H : Set Plane))).Nonempty`;
+* `∀ i ∈ I, i ∈ interior (convexHull ℝ (H : Set Plane))`;
+* a genuine unique unordered diameter pair on `X = H ∪ I`: there exist
+  `a ∈ X` and `b ∈ X` with `a ≠ b` and
+  `dist a b = Metric.diam (X : Set Plane)`, and for every `x ∈ X`, `y ∈ X`,
+  `dist x y = Metric.diam (X : Set Plane)` implies `s(x,y) = s(a,b)`.
+
+The conclusion is `X.card = N + k` and the existence of a real length `L`
+with all of the following properties jointly:
+
+* `0 < L` and `L < Metric.diam (X : Set Plane)`;
+* there exist `x ∈ X`, `y ∈ X` with `x ≠ y` and `dist x y = L`;
+* for every `x ∈ X`, `y ∈ X`, if `0 < dist x y` and
+  `dist x y < Metric.diam (X : Set Plane)`, then `dist x y ≤ L`;
+* `1 ≤ multiplicity X L` and `multiplicity X L ≤ N + k`.
+
+Thus `L` is an **occurring maximum positive strictly subdiametral distance**,
+not merely some conveniently small class. Neither its maximality nor hull
+membership of the diameter endpoints is an original premise. There is no
+forward exterior, endpoint-intersection, radial-classification, scalar, or
+other extra certificate, and no evenness, antipodality, `O = 0`, or `k ≤ 3`
+restriction. This is not a matching-diameter or odd-case extension and makes
+no novelty claim.
+
+`Plane` is the inherited canonical `EuclideanSpace ℝ (Fin 2)`, with ordinary
+Euclidean distance. Finsets represent distinct points within each layer;
+disjointness of the layers is proved, not assumed. Write
+`K = convexHull ℝ (H : Set Plane)`. Full dimensionality is represented by
+nonempty **ambient** interior in the plane, not relative interior. The explicit
+nonempty-interior premise is redundant given `I.card = k`, `1 ≤ k`, and
+interior membership; it is deliberately retained as `_hfull` to expose the
+intended representation, not used as a hidden certificate.
+
+Unordered uniqueness uses `Sym2`, identifying exchange of endpoints. The
+universal uniqueness clause includes diagonals, but the occurring distinct
+pair makes the diameter positive, so a diagonal cannot meet its antecedent.
+The inherited `pairs X` is `X.offDiag.image Sym2.mk.uncurry`, and `pairDist`
+is ordinary distance lifted using symmetry. `multiplicity X L` is
+`((pairs X).filter fun e => pairDist e = L).card`. It therefore counts actual
+loop-free unordered edges, not oriented pairs, signed directions, or distinct
+supports. The inherited `mk_mem_pairs` and `pairDist_mk` give the exact
+endpoint-membership/distinctness and distance characterizations.
+
+The maximum is taken over the inherited finite `nonDiameterDistances X`,
+namely `((pairs X).image pairDist).filter fun d => d < Metric.diam (X : Set Plane)`.
+Its membership lemma is equivalent to existence of an actual distinct
+endpoint pair of distance `d`, together with strict subdiametrality. Hence
+members are positive in this metric plane even though the definition does not
+separately filter positivity. Its `max'` is used only after nonemptiness has
+been proved. `3 ≤ N` and `1 ≤ k` inhabit the required finite domains; the
+positive radius, explicit endpoint inequalities, and positive/subdiametral
+length guards exclude degenerate or junk-value readings. No subtraction,
+division, derivative, infinite sum, or bounded extremum appears in the final
+statement. The objects, quantifiers, original hypotheses, and conclusion are
+preserved without a weakening or extra load-bearing premise.
+
+## Proof map and reuse boundary
+
+There are eight public theorems in this module: the four bridges below,
+`unique_diameter_circle`, and the three fixtures described next. There are no
+new definitions, instances, axioms, section variables, or hidden certificate
+parameters.
+
+1. `diam_union_interiors H I hInt` proves `diam X = diam H`. Every augmented
+   point lies in `K`; inherited `dist_le_diam_hull` bounds their distances by
+   `diam H`. Inclusion of `H` in `X` supplies the reverse inequality. This
+   general identity also covers empty finite inputs, which the final consumer
+   does not use.
+2. `card_union_interiors H I O hR hcircle hInt` proves
+   `X.card = H.card + I.card`. The disk bridge `dist_center_lt_radius` puts
+   every ambient hull interior strictly inside the positive-radius circle
+   disk, whereas vertices have radius `R`. This proves `Disjoint H I`.
+3. `diameter_endpoint_mem_hull` requires `2 ≤ H.card`, interior membership,
+   endpoint membership in `X`, and an actual diameter equality; it concludes
+   that the first endpoint belongs to `H`. An endpoint in `I` contradicts
+   inherited `dist_lt_diam_hull`, since the other endpoint lies in `K` and
+   `diam X = diam H`. Applying it in both orientations locates both endpoints.
+   Original uniqueness on `X` then restricts to `H`.
+4. In `unique_diameter_circle`, choose `i ∈ I` and a derived hull endpoint
+   `a`. Disk strictness gives `i ≠ a`; strict hull interiority gives
+   `0 < dist i a < diam X`. Thus `nonDiameterDistances X` is nonempty. Its
+   `max'` has an actual distinct pair by `mem_nonDiameterDistances`, is
+   positive and subdiametral, and bounds every other member. Zero distances
+   are handled separately to obtain the stronger helper premise bounding
+   **all** subdiametral distances, including diagonals.
+5. The local `longest_class_bound` takes a positive-radius circle about `O`,
+   a distinct unique diameter pair `a,b ∈ H`, ambient interior membership,
+   `0 < L < diam H`, and
+   `∀ x ∈ X, ∀ y ∈ X, dist x y < diam H → dist x y ≤ L`; it concludes
+   `multiplicity X L ≤ H.card + I.card`. Translation `f x = x - O` is an
+   isometry. `sub_mem_interior_hull`, isometric diameter transport, injective
+   image cardinalities, `Sym2.map`, and `multiplicity_image_isometry` transport
+   all hypotheses and the actual unordered multiplicity. The translated hull
+   has norm `R`. This invokes unchanged
+   `EvenThreeInteriorCircle.longest_class_bound` exactly once, for arbitrary
+   finite `I`, with the maximum property already proved.
+6. That supplied centered helper proves interior-interior edges at `L` are
+   absent; cross edges at `L` meet the derived diameter endpoints; the
+   double-endpoint budget is at most `I.card + 1`; and the unique-diameter
+   circular chord class has fewer than `H.card` edges. Its inherited rotation
+   argument covers nonprimitive/pentagram rotations. This consumer neither
+   rebuilds that geometry nor assumes it as a new final-input certificate.
+7. The card equalities turn the upper bound into `N + k`. The occurring
+   distinct `Sym2` edge proves the lower bound `1 ≤ multiplicity X L`.
+
+Diameter preservation, disjointness/cardinality, endpoint location, and
+nonempty finite-maximum selection are the new original-input mathematical
+bridges. Arbitrary-center translation is representation/API infrastructure;
+the geometric counting is reused checked geometry. The assigned conditional
+implication is complete: no mathematical bridge inside this contract was left
+unpaid. Review and dependency adoption are different gates, not hypotheses or
+consequences of the theorem.
+
+## Joint nonvacuity and concrete fixtures
+
+`scalene_triangle_fixture` constructs the triangle with coordinates
+`A = (-1,-1/2)`, `B = (3,-1/2)`, `C = (0,3/2)`, center
+`O = (1,-1/4)` (visibly nonzero), and radius `sqrt(65/16) > 0`.
+The side squares are `AB² = 16`, `AC² = 5`, `BC² = 13`, making `AB` the
+unique diameter. This is a translated version of the seed's scalene triangle.
+The open rectangle `(-1/4,1/4) × (-1/4,1/4)` lies in its ambient hull interior.
+Its four corners are explicitly proved convex combinations of `A,B,C`:
+for corner coordinates `i,j`, set `t = (j + 1/2)/2` and
+`u = (i + 1 - t)/(4*(1-t))`; the proof checks `t,u ∈ [0,1]` and
+`(1-t) • ((1-u) • A + u • B) + t • C = (i,j)` at those four corners.
+Here `t` is `1/8` or `3/8`, so the displayed corner denominators are nonzero.
+The inherited `CircleFixtures.rectangle_mem_interior` supplies ambient
+openness, and hull inclusion transports it to the triangle; in particular
+`0` witnesses nonempty interior.
+
+`original_hypotheses_every_positive_k` selects a `k`-point finite subset of
+that infinite ambient open hull interior for every `1 ≤ k`. Diameter
+preservation and endpoint location establish the **original** unique-diameter
+hypothesis on the same union `H ∪ I`. It invokes `unique_diameter_circle`,
+returning all original hypotheses and the entire largest-nondiameter conclusion
+jointly, with `N = 3`, for every positive `k`. No continuity gap, small-ball
+restriction, or new closeness premise is needed: strict ambient interiority
+already prevents any new diameter endpoint. `original_hypotheses_four_interiors`
+specializes the joint original hypotheses to `N = 3`, `k = 4`, witnessing an
+instance beyond three interiors. These are formal witnesses, not numerical
+probes; the four-interior theorem states the hypotheses, while the
+all-positive-`k` theorem also returns the full conclusion.
+
+## Provenance, historical dependency status, and evidence
+
+This documentation consolidates the former companion
+`Proofs/Erdos/Erdos132/UniqueDiameterCircle.md` and producer handoff
+`Documents/132-unique-diameter/handoff.md`. The historical production base was
+`ba4dff6394ac520f2074a9d3baa7f1ca828c8020`. The mathematical input was the
+user-authorized complete corrected seed `Documents/Erdos132Routes/DiameterGraph.md`
+at `d1606b9c208c5b7b11edc36a53f8e9fa3f18c330`, particularly its
+largest-nondiameter correction and arbitrary-`k` route. The ready seed helper
+was trusted as instructed, without preliminary independent paid review.
+Rotation provenance is the supplied exact revision
+`5b5a5653e5e473d51abde1b6a723a4985a0ffc40`.
+
+At the historical producer handoff, the unchanged same-base inputs were
+recorded as **unadopted**: `DoubleEndpoint.lean` (scalar/double-endpoint
+uniqueness), `CircleFixtures.lean` (ambient rectangle fixtures),
+`CircleRotation.lean` (saturated circular chords and genuine rotations),
+`EvenThreeInteriorCircle.lean` (centered arbitrary-finite-`I` longest-class
+helper), and `EvenThreeInteriorFixtures.lean` (fixture inventory, not imported
+by this module), all under `Proofs/Erdos/Erdos132/`. Inherited
+`TwoInteriorCircle.lean` separately supplies the plane, pairs, multiplicity,
+hull/distance, and translation APIs; it was not relabeled as newly produced
+or newly adopted. Five same-base SHA-256 values were checked against
+`Documents/132-even-formal/source-sha256.txt`; the separate unchanged
+TwoInteriorCircle check was appended to the dependency receipt. These are
+historical byte/provenance records, not independent review or adoption
+verdicts, and do not assert current branch dependency status.
+
+The handoff was producer-only, kernel-checked: no independent reviewer,
+adoption, or upload was claimed. Parent source inspection covered the complete
+then-319-line Lean source and companion documentation; whole-pair review,
+fresh coordinator audit, and dependency/consumer adoption were recorded as
+pending external ownership gates. This migration does not certify those gates
+or independently certify unchanged dependencies. Compilation, producer
+semantic/nonvacuity inspection, and an axiom inventory are distinct evidence.
+
+Preserved non-Markdown receipts in `Documents/132-unique-diameter/`:
+
+* `build-output.txt`, `build-check.txt`: historical exit-0 bounded narrow build,
+  `timeout --kill-after=2s 60s lake -q build +Erdos.Erdos132.UniqueDiameterCircle`;
+* `public-declarations.txt`, `public-signatures.txt`: all eight public names and
+  complete elaborated `#check @...` signatures, including fixtures;
+* `producer-audit.txt`, `producer-audit.lean.txt`, `audit-check.txt`: historical
+  separate exit-0 leaf axiom audit and its preserved **non-imported text source**.
+  The source was copied to a disposable Scratch leaf and run with
+  `timeout --kill-after=2s 60s lake env lean -j 1 -M 4000 Proofs/Scratch/UniqueDiameterAudit.lean`.
+  All eight reports contain only `propext`, `Classical.choice`, `Quot.sound`;
+* `dependency-unchanged.txt`, `dependency-sha256.txt`, `source-sha256.txt`:
+  unchanged-input verification and historical final byte receipts. The source
+  receipt predates this documentation insertion and is not a hash of the
+  migrated full file.
+
+The historical static inventory matched eight signature names and eight axiom
+reports to the eight declarations. It reported no `sorry`, new axiom,
+`native_decide`, external implementation attribute, partial definition, or
+production probe command. Disposable Scratch probes were removed. Replayed
+build warnings were from unchanged dependencies; the build was not a claim of
+a warning-free dependency inventory. The original delivery did not edit old
+Lean dependencies, old consumers, shared helpers, umbrella imports, References,
+global ledgers, or other stations. Episode timings and stale coordination are
+not mathematical obligations. This is a complete consumer, not a disconnected
+helper or partial proof, but producer-only checks are not independent review
+or adoption certification.
+-/
+
 set_option autoImplicit false
 
 namespace Erdos132.UniqueDiameterCircle
