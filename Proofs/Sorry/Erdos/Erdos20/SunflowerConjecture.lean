@@ -219,3 +219,69 @@ theorem sunflower_conjecture_oeis :
     ∃ C : ℕ, ∀ m n : ℕ, 1 ≤ m → 1 ≤ n → SunOeis m n ≤ (n * C) ^ m :=
   sunflowerConjecture_iff.mp sunflower_conjecture
 
+
+/-!
+# Historical/source card: A332077
+
+This documentation migration preserves the complete remaining OEIS A332077 /
+Erdos Problem 20 source card without changing executable archive bytes.
+For finite families of distinct sets, m bounds set size and n counts petals.
+The source claim has one absolute natural constant C, uniform for all m,n >= 1,
+with SunOeis(m,n) <= (n*C)^m. The production convention Sun is distinct from
+SunOeis; the guarded equivalence, finiteness and classical bounds are proved
+in the imported production module. The existing conjecture declarations here
+are explicit admissions depending on sorryAx, not proofs. This block adds no
+duplicate admission. The blocker remains the absolute-constant conjecture;
+petal-dependent constants and sourced logarithmic bounds do not discharge it.
+
+## Formalize/A332077-sunflower.md (verbatim)
+
+```text
+seq:     A332077
+claim:   sunflower-conjecture
+status:  open mathematics; faithful admission boundary implemented
+stmt:    S
+proof:   hard-open
+module:  Proofs/Erdos/Erdos20/SunflowerConjecture.lean;
+         archive Proofs/Sorry/Erdos/Erdos20/SunflowerConjecture.lean
+source:  OEIS A332077 formulas and indexing convention; Erdos Problem 20
+
+EXACT SOURCE CONVENTION
+  SunOeis(m,n) is the minimal family size forcing at least n sets with
+  all pairwise intersections equal, for distinct sets of cardinality
+  at most m. Thus m is the size bound and n the petal count. The old
+  card swapped them. OEIS uses m,n >= 1 and states
+    exists C in N, forall m,n >= 1, SunOeis(m,n) <= (n*C)^m.
+  There is ONE absolute C uniform in both parameters. Do not replace it
+  by constants depending on the petal count or silently claim those
+  quantifier patterns equivalent.
+
+PROVED INFRASTRUCTURE
+  The production module defines the minima, proves finiteness, concrete
+  values, classical Erdos-Rado estimates, and a normalization bridge.
+  Its project Sun uses a stricter nonempty-petal convention, not precisely
+  the OEIS predicate. For example Sun(1,1)=2 but SunOeis(1,1)=1.
+  The guarded conjectures for Sun and SunOeis are equivalent by
+  sunflowerConjecture_iff; the direction back to Sun uses C -> 2*C.
+  The original claim that the classical bound was unformalized is stale.
+  No claim that this is a novel formalization is made.
+
+SOURCE BOUNDS AND LIMITS
+  OEIS records (n-1)^m <= SunOeis(m,n) <= (n-1)^m*m!+1 and the
+  Rao O(n log(mn))^m / Bell-Chueluecha-Warnke O(n log m)^m bounds
+  for m,n >= 2. These source statements, or the available classical
+  estimates, do not establish the absolute-constant conjecture.
+  Preserve m>=1 and n>=1; dropping m>=1 makes the project-Sun version
+  false, as the production counterexample at m=0,n=2 shows.
+
+IMPLEMENTATION STATUS
+  The accepted boundary split moves exactly sunflower_conjecture and
+  sunflower_conjecture_oeis to the matching Sorry module; the independent
+  convention equivalence remains production. The build, fresh all-owned
+  production axiom audit, and separate archive signature audit passed.
+  Independent review passed and the boundary was adopted at
+  3935f8aa7ad524d66da0c83342120e9ac62f779a. This card remains for
+  metadata reconciliation before retirement. Acceptance is statement
+  implementation, never mathematical closure.
+```
+-/

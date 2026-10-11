@@ -1,3 +1,32 @@
+/-!
+# A250109: Blomberg source obligations
+
+DOCUMENTATION ONLY: this module has no imports, definitions, theorems or
+admissions. It preserves the complete historical/source card from
+Formalize/A250109-blomberg-recurrence.md. The sources are OEIS A250109,
+Blomberg/Barker (2016-12-04), and van Heesch (2014), pp. 3-5 and Table 3.
+
+Current evidence was read from Proofs/AlgComplexity/Blomberg.lean: integer
+binomial-inversion coefficients, triangular reconstruction/uniqueness,
+offset-three formulas, six-times cubics and the step-four recurrence are
+proved there. This is a coefficient sequence arising from the study of
+multiplicative complexity, not a minimum AND-gate count. The ambient diagonal
+uses n >= 4; OEIS index r = n - 3 starts at r = 1. The recurrence is guarded
+by ambient n >= 16, equivalently r > 12. Casting and finite triangular
+uniqueness identify residues, not integer lifts. Even p > n is insufficient:
+coefficient(1,4) = -8 and -8 is congruent to 2 modulo 5, with 5 > 4.
+
+Remaining source closure requires reconciling the source's integer/residue
+interpretation and indexing, and separately certifying Barker's empirical
+generating function if claimed. Integer recovery would need a chosen lift and
+coefficient bound. A minimum-complexity result would need a genuine circuit
+model and optimization proof; that is not a prerequisite to the already proved
+coefficient identities. No new formal admission or source-closure proof is
+provided by this documentation.
+
+## Formalize/A250109-blomberg-recurrence.md (verbatim)
+
+```text
 seq:     A250109
 claim:   blomberg-empirical-recurrence
 status:  integer coefficient formulas and recurrence proved;
@@ -49,3 +78,5 @@ REMAINING DISPOSITION
   for all recurrence work. Do not restore that blanket blocker or replace
   circuit complexity with bilinear rank. Barker's empirical rational
   generating function is source metadata, not separately certified here.
+```
+-/

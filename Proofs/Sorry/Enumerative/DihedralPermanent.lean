@@ -1,3 +1,74 @@
+/-!
+# Source-card archive: dihedral character-table permanent — A085805
+
+## Current archive status
+
+This added module documentation archives a hard-blocked target; it introduces
+no import, definition, theorem statement, or admission. Unlike the other five
+documentation-only archive modules in this handoff, this file already contains
+executable mathematics. All prior bytes, including its quarantine notice,
+formal declarations, and existing formal/admitted status, are preserved after
+this block. No fresh compilation or axiom audit of that mathematics is claimed.
+
+The original quarantine notice reports 60-second and 120-second checks timing
+out with exit 124; timeout is neither a proof nor a type error. The existing
+header reports historically sorry-free matrix results with historical standard
+axiom audits, and `NonvanishingConjecture` as an unasserted `Prop`, not a proof
+or admission of the conjecture. These historical reports are preserved as such;
+this archive does not certify them anew or change an admission status.
+
+## Remaining target and hypotheses/representation
+
+Prove nonvanishing at every intended positive group order `16m + 4` and identify
+the explicit table matrices with actual character tables of Mathlib's
+`DihedralGroup` under the order convention. The source uses `D_k` for order
+`k`; the existing executable module works with rotation parameter `m` and
+order `2m`, and for the even family with order `4M`. The nonvanishing class is
+`M ≡ 1 (mod 4)`. These conventions and the sequence indexing must be connected
+explicitly; the source cross-reference A017089 and the permanent values A086641
+are not that bridge. Intended groups have positive order and the table-size
+parameters must avoid empty or degenerate index types.
+
+The original header specifies a vanishing theorem over commutative rings with
+a functional equation on entries, then the real cosine specialization. Those
+entry hypotheses and explicit matrices do not themselves identify an actual
+complex character table. A future bridge must match rows, conjugacy-class
+columns, values, and permanent invariance under the selected enumerations.
+
+## Known prerequisites and named blocker
+
+The existing header records vanishing outside `4 mod 16` for explicit textbook
+matrix families, a reduction to `4 · perm (tableAB C M)` in the remaining class,
+and exact order-4 and order-20 nonzero cases. Finite checks are not proof of
+nonvanishing at all orders or identification with the group's character table.
+The historical source card still names `Proofs/Scratch/DihedralPermanent.lean`;
+the preserved executable archive is now this `Proofs/Sorry/Enumerative/` file.
+The source path is retained verbatim below as historical text, not a claim that
+that scratch leaf is the current consumer.
+
+Named blockers: **dihedral character-table identification bridge** and
+**uniform nonvanishing of the structured permanent in the remaining congruence
+class**. Neither is solved here. No end-to-end theorem about the actual group's
+character table, new nonzero certificate, or all-orders conjecture proof is
+claimed. Compilation of the new doc-only modules says nothing about this
+quarantined executable module.
+
+## Historical/source-card subsection (verbatim)
+
+Source: `Formalize/A085805-dihedral-permanent.md`. The complete current card text follows;
+historical metadata is not promoted to a formal declaration.
+
+```text
+# A085805 — permanent of a dihedral character table
+
+- **Mathematical status:** open OEIS conjecture (Yuval Dekel's 2003 comment): nonvanishing occurs exactly for group orders congruent to `4 mod 16`.
+- **Work status:** hard-blocked; one direction is proved only for an explicit table family.
+- **Remaining target:** prove nonvanishing for every order `16m+4` and identify the explicit matrices with the actual character tables of Mathlib's `DihedralGroup` under the order convention.
+- **Proved prerequisites:** `Proofs/Scratch/DihedralPermanent.lean` proves vanishing outside `4 mod 16` for the explicit textbook matrices and computes orders 4 and 20. It also records the nonvanishing proposition without proving it.
+- **Next obligation:** formalize the dihedral character-table bridge and prove the structured permanent is nonzero in the remaining congruence class. A table checked at finitely many orders is not that bridge.
+- **Convention:** OEIS `D_k` denotes order `k`; A017089 is the associated index sequence, and the permanent values are A086641.
+```
+-/
 /- Quarantined whole module: a 60-second build and a subsequent direct
 120-second, one-thread, 8 GB check both timed out (exit 124, empty logs).
 No type error or falsity was established. All matrix results, certificates,
