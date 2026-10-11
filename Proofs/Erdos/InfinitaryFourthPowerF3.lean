@@ -80,6 +80,70 @@ theorem reverseProduct_mod_four_of_mod_eight (m : ℕ)
   have hprod := Nat.ModEq.prod hslots
   simpa [Nat.ModEq, reverseProduct] using hprod
 
+/-- The local factor at two is one modulo four for even valuations and three for odd ones. -/
+theorem localSigma_two_mod_four (b : ℕ) :
+    localSigma 2 b % 4 = if b % 2 = 0 then 1 else 3 := by
+  have hrest : (∏ j ∈ (binarySupport b).erase 0, (1 + 2 ^ (2 ^ j))) % 4 = 1 := by
+    have hslots : ∀ j ∈ (binarySupport b).erase 0,
+        (1 + 2 ^ (2 ^ j)) ≡ 1 [MOD 4] := by
+      intro j hj
+      have hj0 := (Finset.mem_erase.mp hj).1
+      have hexp : 2 ≤ 2 ^ j := by
+        exact (show 2 ^ 1 ≤ 2 ^ j from Nat.pow_le_pow_right (by decide) (by omega))
+      have hd : 4 ∣ 2 ^ (2 ^ j) :=
+        show 2 ^ 2 ∣ 2 ^ (2 ^ j) from pow_dvd_pow 2 hexp
+      simp [Nat.ModEq, Nat.add_mod, Nat.mod_eq_zero_of_dvd hd]
+    simpa [Nat.ModEq] using Nat.ModEq.prod hslots
+  have hzero : 0 ∈ binarySupport b ↔ b % 2 = 1 := by
+    rw [mem_binarySupport_iff, Nat.testBit_eq_decide_div_mod_eq]
+    simp
+  unfold localSigma
+  by_cases hz : 0 ∈ binarySupport b
+  · rw [← Finset.mul_prod_erase _ (fun j => 1 + 2 ^ (2 ^ j)) hz]
+    have hb := hzero.mp hz
+    simp [Nat.mul_mod, hrest, hb]
+  · rw [← Finset.erase_eq_of_notMem hz]
+    have hbne : b % 2 ≠ 1 := fun hh => hz (hzero.mpr hh)
+    have hb : b % 2 = 0 := by omega
+    simp [hrest, hb]
+
+/-- Splitting off two works at every valuation, including zero when two is absent. -/
+theorem sigma_eq_localSigma_two_mul_raw_product (m : ℕ) (hm : 0 < m) :
+    sigma m = localSigma 2 (m.factorization 2) *
+      ∏ i ∈ reverseTags m, (1 + i.1 ^ (2 ^ i.2)) := by
+  have hsupport : reverseOddSupport m = m.primeFactors.erase 2 := by
+    ext q
+    simp [reverseOddSupport, and_comm]
+  rw [reverseTags, Finset.prod_sigma]
+  change sigma m = localSigma 2 (m.factorization 2) *
+    ∏ q ∈ reverseOddSupport m, localSigma q (m.factorization q)
+  rw [hsupport]
+  by_cases htwo : 2 ∈ m.primeFactors
+  · exact (Finset.mul_prod_erase m.primeFactors
+      (fun q => localSigma q (m.factorization q)) htwo).symm
+  · have hnot : ¬ 2 ∣ m := by
+      intro hd
+      exact htwo ((Nat.mem_primeFactors_of_ne_zero (ne_of_gt hm)).mpr ⟨by decide, hd⟩)
+    have hb : m.factorization 2 = 0 := Nat.factorization_eq_zero_of_not_dvd hnot
+    rw [Finset.erase_eq_of_notMem htwo, hb]
+    have hlocal : localSigma 2 0 = 1 := by decide
+    simp [hlocal, sigma]
+
+/-- Exact reconstruction with the general local factor at two and every tagged odd occurrence. -/
+theorem sigma_eq_localSigma_two_mul_two_pow_reverseCount (m : ℕ) (hm : 0 < m)
+    (hmod : ∀ q ∈ m.primeFactors, q ≠ 2 → q % 4 = 1) :
+    sigma m = localSigma 2 (m.factorization 2) *
+      2 ^ reverseCount m * reverseProduct m := by
+  rw [sigma_eq_localSigma_two_mul_raw_product m hm]
+  have heq : (∏ i ∈ reverseTags m, (1 + i.1 ^ (2 ^ i.2))) =
+      ∏ i ∈ reverseTags m, (2 * normalizedSlot i.1 i.2) := by
+    apply Finset.prod_congr rfl
+    intro i hi
+    obtain ⟨hp, hp2, _hb⟩ := (mem_reverseTags m i).mp hi
+    exact (normalizedSlot_spec i.1 i.2 (hmod i.1 hp hp2)).1
+  rw [heq, Finset.prod_mul_distrib, Finset.prod_const]
+  simp only [reverseCount, reverseProduct, mul_assoc]
+
 /-- Valuation three at two contributes fifteen, with the actual tagged raw odd-prime product. -/
 theorem sigma_eq_fifteen_mul_raw_product (m : ℕ) (hm : 0 < m)
     (hm3 : m.factorization 2 = 3) :
@@ -162,6 +226,68 @@ theorem oddPart_mod_four_of_isSquare (n : ℕ) (hn : 0 < n) (hsquare : IsSquare 
   rw [ha, Nat.mul_mod]
   rcases hamod with hh | hh <;> simp [hh]
 
+/-- Under mod-eight odd-prime support, the odd part of the reverse sum detects the parity
+of its input two-valuation: residue one for even valuations and three for odd valuations. -/
+theorem oddPart_sigma_mod_four_of_mod_eight (m : ℕ) (hm : 0 < m)
+    (hmod : ∀ q ∈ m.primeFactors, q ≠ 2 → q % 8 = 1) :
+    oddPart (sigma m) % 4 = if m.factorization 2 % 2 = 0 then 1 else 3 := by
+  have hmod4 : ∀ q ∈ m.primeFactors, q ≠ 2 → q % 4 = 1 := by
+    intro q hq hq2
+    have hh := hmod q hq hq2
+    omega
+  have hpmod := reverseProduct_mod_four_of_mod_eight m hmod
+  have hlmod := localSigma_two_mod_four (m.factorization 2)
+  have hcofactor : ¬ 2 ∣ localSigma 2 (m.factorization 2) * reverseProduct m := by
+    have hh : (localSigma 2 (m.factorization 2) * reverseProduct m) % 4 =
+        if m.factorization 2 % 2 = 0 then 1 else 3 := by
+      rw [Nat.mul_mod, hpmod, hlmod]
+      split <;> decide
+    split at hh <;> omega
+  have heq : sigma m = 2 ^ reverseCount m *
+      (localSigma 2 (m.factorization 2) * reverseProduct m) := by
+    rw [sigma_eq_localSigma_two_mul_two_pow_reverseCount m hm hmod4]
+    ring
+  have hop : oddPart (sigma m) = localSigma 2 (m.factorization 2) * reverseProduct m := by
+    rw [heq]
+    exact Nat.ordCompl_pow_mul_of_not_dvd (reverseCount m) (by decide) hcofactor
+  rw [hop, Nat.mul_mod, hpmod, hlmod]
+  split <;> decide
+
+/-- Actual forward and reverse equations force an even two-valuation in the second member
+when forward valuations are multiples of four and the input odd part is one modulo four. -/
+theorem factorization_sigma_two_even_of_four_dvd (n m : ℕ) (_hn : 0 < n)
+    (he : ∀ p ∈ n.primeFactors, 4 ∣ n.factorization p)
+    (hop : oddPart n % 4 = 1) (hm : m = sigma n)
+    (hcycle : sigma m = 2 * n) : Even (m.factorization 2) := by
+  have hmpos : 0 < m := by rw [hm]; exact sigma_pos n
+  have hmod : ∀ q ∈ m.primeFactors, q ≠ 2 → q % 8 = 1 := by
+    intro q hq hq2
+    obtain ⟨hprime, hd, _hm0⟩ := Nat.mem_primeFactors.mp hq
+    rw [hm] at hd
+    exact prime_mod_eight_of_dvd_sigma_of_four_dvd n q he hprime hq2 hd
+  have hres := oddPart_sigma_mod_four_of_mod_eight m hmpos hmod
+  rw [hcycle, oddPart_two_mul, hop] at hres
+  apply Nat.even_iff.mpr
+  split at hres <;> rename_i hparity
+  · exact hparity
+  · contradiction
+
+/-- A cycle starting at a positive fourth power has even two-valuation in its second member.
+Both sums are canonical infinitary divisor sums; the root may be odd. -/
+theorem factorization_sigma_two_even_of_fourth_power (n m t : ℕ)
+    (ht : 0 < t) (hfourth : n = t ^ 4) (hm : m = sigma n)
+    (hcycle : sigma m = 2 * n) : Even (m.factorization 2) := by
+  have hn : 0 < n := by rw [hfourth]; positivity
+  have he : ∀ p ∈ n.primeFactors, 4 ∣ n.factorization p := by
+    intro p _hp
+    rw [hfourth, Nat.factorization_pow, Finsupp.smul_apply, smul_eq_mul]
+    exact dvd_mul_right 4 _
+  have hsquare : IsSquare n := by
+    refine ⟨t ^ 2, ?_⟩
+    rw [hfourth, ← pow_two, ← pow_mul]
+  exact factorization_sigma_two_even_of_four_dvd n m hn he
+    (oddPart_mod_four_of_isSquare n hn hsquare) hm hcycle
+
 /-- Actual forward and reverse equations exclude valuation three when forward valuations
 are multiples of four and the input odd part is one modulo four. -/
 theorem factorization_sigma_two_ne_three_of_four_dvd (n m : ℕ) (_hn : 0 < n)
@@ -194,6 +320,28 @@ theorem factorization_sigma_two_ne_three_of_fourth_power (n m t : ℕ)
     rw [hfourth, ← pow_two, ← pow_mul]
   exact factorization_sigma_two_ne_three_of_four_dvd n m hn he
     (oddPart_mod_four_of_isSquare n hn hsquare) hm hcycle
+
+example : localSigma 2 0 = 1 ∧ localSigma 2 1 = 3 ∧
+    localSigma 2 2 = 5 ∧ localSigma 2 3 = 15 := by decide
+
+example : 0 < (17 : ℕ) ∧ (17 : ℕ).factorization 2 = 0 ∧
+    (∀ q ∈ (17 : ℕ).primeFactors, q ≠ 2 → q % 8 = 1) ∧
+    sigma 17 = 18 ∧ oddPart (sigma 17) % 4 = 1 := by
+  have hp : Nat.Prime 17 := by decide
+  have hmod : ∀ q ∈ (17 : ℕ).primeFactors, q ≠ 2 → q % 8 = 1 := by
+    rw [hp.primeFactors]
+    intro q hq _hq2
+    have hq17 : q = 17 := Finset.mem_singleton.mp hq
+    subst q
+    decide
+  have hb : (17 : ℕ).factorization 2 = 0 :=
+    Nat.factorization_eq_zero_of_not_dvd (by decide)
+  have hsum : sigma 17 = 18 := by
+    rw [sigma, hp.primeFactors, Finset.prod_singleton, hp.factorization_self]
+    decide
+  have hres := oddPart_sigma_mod_four_of_mod_eight 17 (by decide) hmod
+  simp only [hb] at hres
+  exact ⟨by decide, hb, hmod, hsum, hres⟩
 
 example : 4 ∣ (4 : ℕ) ∧ 2 ∈ binarySupport 4 := by decide
 example : 2 ≤ (2 : ℕ) ∧ Nat.Prime 17 ∧ (17 : ℕ) ≠ 2 ∧
