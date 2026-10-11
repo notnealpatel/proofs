@@ -16,6 +16,21 @@ project:
   license: "MIT"
 
 sources:
+  - title: "A survey on practical numbers"
+    authors:
+      - "Giuseppe Melfi"
+    id: "https://seminariomatematico.polito.it/rendiconti/cartaceo/53-4/347.pdf"
+    type: "survey"
+    location: "Rend. Sem. Mat. Univ. Pol. Torino 53 (1995), 347–359; read printed pp. 349–351 (Proposition 3, Lemma 4, Lemma 5, Theorem 6)"
+    relationship: "states-and-contextualizes"
+    license: ""
+    author_endorsement: "not-contacted"
+    note: >-
+      This public survey was actually read for the source gate. It states
+      Theorem 6 and supplies the source-checked twin-practical route comparison.
+      Its references to [8, Lemma 2] and [8, Theorem 1] identify subsidiary
+      arguments not independently re-read here.
+
   - title: "On Two Conjectures about Practical Numbers"
     authors:
       - "Giuseppe Melfi"
@@ -26,9 +41,11 @@ sources:
     license: ""
     author_endorsement: "not-contacted"
     note: >-
-      This formalization proves the published result by an alternative
-      two-family covering argument. The detailed proof in the source and the
-      comparison of proof routes have not been independently human-reviewed.
+      The formalization proves the published result by an alternative
+      two-family covering argument. The 1996 paper itself was not independently
+      read here; the 1995 survey was read on printed pp. 349–351 and supports a
+      bounded comparison of the routes. Human source-fidelity review remains
+      pending.
 
 related_formalizations: []
 
@@ -63,9 +80,11 @@ status:
       comparator_config: "Palomar/Melfi/comparator.json"
       literature_dependencies: []
       note: >-
-        The project-wide sorry count records an unrelated archived Coleman
-        theorem in Proofs/Enumerative/Practical.lean. A fresh axiom audit shows
-        that neither this result nor its source declaration depends on sorryAx.
+        The scoped packaged-development count records the unrelated archived
+        Coleman theorem imported by the development; it is not a count for the
+        entire repository, which contains other placeholders. The selected
+        theorem remains mechanically at sorry_count 0 and its audit excludes
+        sorryAx.
 
 automation:
   methods:
@@ -100,8 +119,9 @@ fidelity:
     of every m ≤ n as a sum over a finite subset of n's positive divisors. The
     Lean development uses an elementary covering by practical families based on
     powers of two and twice powers of three, not Melfi's twin-practical-sequence
-    construction. The detailed source proof was not independently read, so this
-    proof-route description has not been source-verified by a human.
+    construction. The survey comparison was checked against printed pp. 349–351;
+    the cited 1996 subsidiary arguments were not independently re-read. This is
+    a route comparison, not a claim of independence, novelty, or priority.
 
 review:
   status: "unchecked"

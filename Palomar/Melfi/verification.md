@@ -1,165 +1,101 @@
 # Verification record: Melfi practical-number sum
 
-## Current mechanical verification
+## Current status
 
-[Authoritative campaign manifest](../Wave4ComparatorEvidence.yaml): **PASS** for every declaration selected by this package’s `comparator.json`. Earlier text below is historical and superseded. Human review remains **UNCHECKED**; this makes no claim of Palomar acceptance, submission, or publication.
+This is a preparation receipt for USER review, not a Palomar submission. The
+current authoritative manifest `../Wave4ComparatorEvidence.yaml` records
+**PASS** for `Palomar.Melfi.even_eq_practical_add_practical` and supersedes the
+older local Comparator NOT RUN note. Human review remains **UNCHECKED**.
+Mechanical PASS is not human approval, a novelty or priority claim, or a
+submission/publication claim.
 
-## Status
+## Source gate: PASS
 
-- **Challenge elaboration:** PASS (the single warning is the intentional challenge hole).
-- **Solution build:** PASS.
-- **Selected theorem axiom audit:** PASS. The selected theorem uses only `propext`, `Classical.choice`, and `Quot.sound`; it does not depend on `sorryAx`.
-- **Comparator:** NOT RUN as of this initial record. The bounded final attempt and its exact outcome are recorded in the final section below.
-- **Human review:** PENDING. No human approval is asserted by this package.
+The source gate was closed by reading Giuseppe Melfi, “A survey on practical
+numbers,” *Rend. Sem. Mat. Univ. Pol. Torino* 53 (1995), 347–359,
+[public PDF](https://seminariomatematico.polito.it/rendiconti/cartaceo/53-4/347.pdf),
+printed pp. 349–351: Proposition 3, Lemma 4, Lemma 5, and Theorem 6.
 
-## Revisions and tools
+The survey's Theorem 6 states that every positive even integer is a sum of two
+practical numbers. Lemma 4 gives the multiplier closure condition
+`n ≤ σ(m)+1` (and the useful `n ≤ 2m` bound used here for the relevant practical
+numbers). The survey's twin-practical route uses seeds
+`{16, 30, 54, 88, 160}`, successors `r²/2 + 2r` and `r² + 3r`, and overlapping
+windows `[m²/2, 7m²/2]`. The Lean development instead uses practical families
+`2^k` and `2·3^j`, windows
+`[2^k*(3^j+1), 2^(2*k+1)]` under
+`3^(j+1) ≤ 2^k < 3^(j+2)`, and the separate cases `2, 4, 6`.
+This is a source-checked route comparison only: it does not establish
+proof-theoretic independence, novelty, priority, or first formalization.
 
-- Assigned campaign base: `8b4bc120463010dc27d1db6bde2e13bdf72280ce`.
-- Packaging worktree parent observed during the final tranche: `50e7e8f61a56443cd269be2042687109fe74a167`.
-- Lean: `4.33.0-rc1`, commit `62eed1db4d67327ec8120be05f1a1b0847d74561`, `x86_64-unknown-linux-gnu`, Release build.
-- Lake: `5.0.0-src+62eed1d` (Lean `4.33.0-rc1`).
-- Mathlib manifest revision: `3edb3c0658f69f197b1e501b1f7623f3f7b3898c`.
-- Comparator configuration: `Palomar/Melfi/comparator.json`.
+The survey attributes the middle-interval and recursion arguments to [8,
+Lemma 2] and [8, Theorem 1]. The cited original paper is bibliographically
+recorded in `formalization.yaml` (Melfi, *JNT* 56 (1996), 205–210,
+DOI 10.1006/jnth.1996.0012), but was not independently read here. Those
+subsidiary arguments are therefore not claimed to have been rederived. This
+research record is not human review.
 
-The theorem is source-based: `Palomar.Melfi.Solution` imports the repository theorem `Nat.even_eq_practical_add_practical` from `Enumerative.MelfiPracticalSum` and transports it across the literally matching practical-number predicate. The package does not claim that a human compared this Lean proof route with Melfi's published proof.
+## Mechanical checks
 
-## Challenge elaboration
+- Challenge elaboration: **PASS**; the one warning is the intentional Challenge
+  hole.
+- Solution build: **PASS**.
+- Selected theorem axiom audit: **PASS**; exactly `propext`,
+  `Classical.choice`, and `Quot.sound`, with no `sorryAx`.
+- Comparator evidence: **PASS**, according to the authoritative manifest named
+  above. The package source relationship recorded there covers this package.
 
-The successful bounded command was:
+The selected wrapper transports the repository theorem
+`Nat.even_eq_practical_add_practical` across the matching practical predicate.
+The imported development contains an unrelated archived Coleman `sorry`; the
+selected theorem's declaration-level audit excludes it.
+
+## Fresh imported-module audit
+
+At exact base `2a3cd431d0056a242ac3d001ea6e446a2256379b`, the coordinator ran a
+narrow `lake` build of `Palomar.Melfi.Solution`, followed by a scratch import
+of `Solution` with expanded `#check` of both wrapper/source declarations,
+`#print` of both `Practical` definitions, and `#print axioms` for both
+results. Both wrapper and source have exactly `[propext, Classical.choice,
+Quot.sound]`. The predicates are literally identical (`0 < n` together with a
+finite subset of `n.divisors` covering every `m ≤ n`), and the positivity guard
+is preserved. The imported module's Coleman warning is unrelated to these
+closures. Full log: `/home/exedev/x/erdos/prize-portfolio/evidence/melfi-issue45-import-audit.log`.
+
+This is an imported-module audit, not a new Comparator run. The scratch audit
+source is not adopted. The present change is documentation-only and leaves the
+audited Lean code unchanged; USER review will verify the package state. The
+inherited authoritative manifest PASS remains the current Comparator evidence.
+
+
+The following is retained historical evidence from the preparation work; it is
+not a current blocker and does not override the manifest PASS.
+
+Challenge command:
 
 ```sh
 ulimit -v 8388608
 timeout 180s lake env lean -M 5000 -j 1 Palomar/Melfi/Challenge.lean
 ```
 
-Exit status: `0`.
-
-Output:
-
-```text
-Palomar/Melfi/Challenge.lean:37:8: warning: declaration uses `sorry`
-@even_eq_practical_add_practical : ∀ {n : ℕ}, Even n → 0 < n → ∃ q r, Practical q ∧ Practical r ∧ q + r = n
-```
-
-The complete retained log is `/tmp/yah/subagent/melfi-package-prover-6374804/challenge-final.log`. The `sorry` is intentional and occurs only in the challenge theorem.
-
-## Targeted Solution build
-
-Immediately before the successful build, the host reported 8 cores, 23.46 GiB total memory, 0.80 GiB used, and 22.66 GiB available. The command restricted the process tree to one CPU because an earlier unrestricted Lean process failed while creating a thread:
+Solution command:
 
 ```sh
 ulimit -v 22544384
 timeout 720s taskset -c 0 lake --no-ansi build Palomar.Melfi.Solution
 ```
 
-Exit status: `0`.
+The successful logs were retained at the preparation paths recorded in the
+prior receipt (`challenge-final.log`, `solution-build-affinity1.log`, and
+`axiom-audit.log`). Earlier resource failures and the old Comparator NOT RUN
+attempt are historical attempts only; no obsolete tooling blocker is asserted
+as current, and `comparator.json` was not changed to bypass them.
 
-Relevant exact output:
+## Review and unpaid contract items
 
-```text
-⚠ [8694/8696] Built Enumerative.Practical (27s)
-warning: Proofs/Enumerative/Practical.lean:595:8: declaration uses `sorry`
-info: Proofs/Enumerative/Practical.lean:1039:0: 'Nat.coleman_multiperfect_practical' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
-ℹ [8695/8696] Built Enumerative.MelfiPracticalSum (6.1s)
-info: Proofs/Enumerative/MelfiPracticalSum.lean:571:0: 'Nat.even_eq_practical_add_practical' depends on axioms: [propext, Classical.choice, Quot.sound]
-ℹ [8696/8696] Built Palomar.Melfi.Solution (3.8s)
-info: Palomar/Melfi/Solution.lean:42:0: @even_eq_practical_add_practical : ∀ {n : ℕ}, Even n → 0 < n → ∃ q r, Practical q ∧ Practical r ∧ q + r = n
-info: Palomar/Melfi/Solution.lean:43:0: 'Palomar.Melfi.even_eq_practical_add_practical' depends on axioms: [propext, Classical.choice, Quot.sound]
-Build completed successfully (8696 jobs).
-```
-
-The complete retained log is `/tmp/yah/subagent/melfi-package-prover-6374804/solution-build-affinity1.log`.
-
-The imported `Enumerative.Practical` module contains the archived, unrelated theorem `Nat.coleman_multiperfect_practical`, whose proof has a `sorry`. Importing that module does not by itself put `sorryAx` in the dependency closure of the selected Melfi theorem; the fresh audit below checks this distinction directly.
-
-## Fresh selected-theorem axiom audit
-
-The audit source imported `Palomar.Melfi.Solution`, printed the axiom closures of the wrapper theorem, the repository Melfi theorem, and the unrelated Coleman theorem, and checked both relevant full signatures. The first attempt under an 8 GiB virtual-memory ceiling failed while reading a Mathlib `.olean`; it was not treated as theorem evidence. Immediately before the successful retry, the host reported 23.46 GiB total memory, 0.81 GiB used, and 22.65 GiB available.
-
-Successful command:
-
-```sh
-ulimit -v 22544384
-timeout 180s taskset -c 0 lake env lean -M 9000 -j 1 \
-  /tmp/yah/subagent/melfi-package-prover-6374804/MelfiAxiomAudit.lean
-```
-
-Exit status: `0`.
-
-Exact output:
-
-```text
-'Palomar.Melfi.even_eq_practical_add_practical' depends on axioms: [propext, Classical.choice, Quot.sound]
-'Nat.even_eq_practical_add_practical' depends on axioms: [propext, Classical.choice, Quot.sound]
-'Nat.coleman_multiperfect_practical' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
-@Palomar.Melfi.even_eq_practical_add_practical : ∀ {n : ℕ},
-  Even n → 0 < n → ∃ q r, Palomar.Melfi.Practical q ∧ Palomar.Melfi.Practical r ∧ q + r = n
-@Nat.even_eq_practical_add_practical : ∀ {n : ℕ}, Even n → 0 < n → ∃ q r, q.Practical ∧ r.Practical ∧ q + r = n
-```
-
-The complete retained log is `/tmp/yah/subagent/melfi-package-prover-6374804/axiom-audit.log`. This establishes that the selected theorem is independent of the archived Coleman `sorryAx`.
-
-## Earlier bounded failures
-
-These failures motivated the successful narrow-import and CPU-affinity configuration; none was counted as verification:
-
-1. Broad `import Mathlib` challenge attempts under 6/10 GiB virtual-memory ceilings failed to read private `.olean` artifacts. An 18 GiB attempt crossed Lean's memory threshold. Replacing the umbrella import with the allowlisted, sufficient `Mathlib.NumberTheory.Divisors` import made the challenge elaborate under 8 GiB.
-2. The first targeted Solution build used:
-
-   ```sh
-   ulimit -v 18874368
-   timeout 720s lake --no-ansi build Palomar.Melfi.Solution
-   ```
-
-   It reached `[8694/8696] Building Enumerative.Practical`, then exited `1` after Lean aborted with code `134`:
-
-   ```text
-   libc++abi: terminating due to uncaught exception of type lean::exception: failed to create thread
-   error: Lean exited with code 134
-   ```
-
-   Complete log: `/tmp/yah/subagent/melfi-package-prover-6374804/solution-build.log`.
-3. The first standalone axiom audit used an 8 GiB virtual-memory ceiling and exited `1` with:
-
-   ```text
-   error: failed to read file '.../Mathlib/Algebra/Quaternion.olean'
-   ```
-
-   The later resource-bounded audit above passed.
-
-## Comparator attempt
-
-**Status: NOT RUN (required verifier executables unavailable).** This is not a Comparator pass.
-
-Immediately before the bounded attempt, the host reported 8 cores, 23.46 GiB total memory, 0.81 GiB used, and 22.66 GiB available. The locally available Comparator source was pinned at revision `777e7f56119efc0fac34003db4efe831e0b53723`, but it declares Lean `4.34.0-rc1`, while this project is pinned to Lean `4.33.0-rc1`. Its executable had not been built. No `landrun`, `nanoda_bin`, or `lean4export` executable was installed in `PATH`. Although compatible lean4export tag `v4.33.0-rc1` resolves to commit `af5aa64bb914c3c2c781f378088dbd38acf4f804`, neither that exporter nor the other trusted verifier components was installed. Building several verifier projects and a second Lean toolchain would have violated this closing tranche's prohibition on toolchain upgrades and elaborate infrastructure setup.
-
-The one bounded invocation attempt was:
-
-```sh
-timeout 30s lake env \
-  /home/exedev/p/yah-upstreams/issue-490/comparator/.lake/build/bin/comparator \
-  Palomar/Melfi/comparator.json
-```
-
-Exit status: `255`.
-
-Exact preflight and error output:
-
-```text
-Comparator source revision: 777e7f56119efc0fac34003db4efe831e0b53723
-Comparator source lean-toolchain: leanprover/lean4:v4.34.0-rc1
-Project lean-toolchain: leanprover/lean4:v4.33.0-rc1
-comparator executable: MISSING
-landrun executable: MISSING
-nanoda_bin executable: MISSING
-lean4export executable: MISSING
---- bounded attempted invocation ---
-timeout 30s lake env /home/exedev/p/yah-upstreams/issue-490/comparator/.lake/build/bin/comparator Palomar/Melfi/comparator.json
-could not execute external process '/home/exedev/p/yah-upstreams/issue-490/comparator/.lake/build/bin/comparator'
-```
-
-Complete retained log: `/tmp/yah/subagent/melfi-package-prover-6374804/comparator-attempt.log`. The existing `comparator.json` was therefore not changed merely to bypass unavailable trusted tooling. The successful Lean build and exact `#print axioms` audit above remain technical evidence, but they are explicitly not a substitute for Comparator.
-
-## Review boundary and metadata blocker
-
-All implementation and packaging work disclosed here was AI-assisted. USER review is the sole review gate and remains pending. No human author of this formalization and no responsible human maintainer could be established from authoritative package material. Because Palomar metadata requires nonempty human author and responsible-maintainer identities, this is a concrete metadata blocker to submission. `formalization.yaml` leaves both required human lists empty and records the blocker explicitly rather than putting a placeholder, AI system, or invented person in a human identity field.
+USER review, human mathematical/source-fidelity review, authoritative human
+authors, and a responsible human maintainer remain pending. The metadata keeps
+those identity and reviewer fields empty rather than inventing people. The
+package is prepared as evidence for USER review and has not been submitted.
+No event/receipt date is asserted here. No mathematical, novelty, priority, or
+Palomar acceptance claim is made.
