@@ -6,6 +6,27 @@ import NumberComplexity.KnuthStolarsky
 The original admission is relocated unchanged from `NumberComplexity.KnuthStolarsky`.
 The proved definitions, engines, special cases, and ground checks remain there.
 This module is not imported by production.
+## Retired implementation card: A003313-knuth-stolarsky
+
+Card metadata: OEIS A003313; claim `knuth-stolarsky-lower-bound`; mathematical
+status open; statement size M; proof difficulty hard. Source: Achim
+Flammenkamp's 2016-10-26 comment, attributing the conjecture to D. E. Knuth,
+K. Stolarsky et al. Retiring the card records statement implementation only.
+The arbitrary-binary-weight inequality remains unproved.
+
+The actual shortest-length API is `NumberComplexity.l`, the minimum of
+`chainSteps` over `AdditionChain n`, built from `IsAddChain`; summands may
+coincide. `l_eq_lAsc` reconciles this permissive predicate with ascending
+chains. There is no `Nat.addChainLength` API. Binary weight is OEIS A000120.
+The positive-input guard matches the original offset.
+
+Both `knuth_stolarsky_of_binaryWeight_le_two` and
+`knuth_stolarsky_of_le_sixteen` are proved in the production module itself;
+the former uses the small-step lower bound, not exact two-bit lengths.
+`TwoBitAdditionChain` imports `KnuthStolarsky` in the opposite direction and
+separately proves `l_two_pow_add_two_pow`. That exact result feeds Slizkov,
+not these partial bounds. Flammenkamp/Clift exhaustive chain tables are
+external finite evidence, not the unrestricted theorem.
 -/
 
 set_option autoImplicit false

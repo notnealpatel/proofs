@@ -6,6 +6,19 @@ import NumberComplexity.HamiltonBallinger
 The original admission is relocated unchanged from `NumberComplexity.HamiltonBallinger`.
 The proved definitions, engines, special cases, and ground checks remain there.
 This module is not imported by production.
+## Retired implementation card: A005245-hamilton-ballinger
+
+The former hard-blocked card's `integerComplexity`/`powerComplexity` target is
+implemented by production `complexity`/`powComplexity`, whose optimization
+characterizations are proved. The first counts ones using addition and
+multiplication; the second uses addition and exponentiation. The OEIS A005245
+comment is due to Gordon Hamilton and Brad Ballinger, 2022-05-23. This
+admission retirement is not mathematical closure: a comparative eventual
+bound strong enough to make the displayed exceptional set finite is unpaid.
+
+The older universal prime recurrence `c(p) = c(p-1) + 1` is refuted, with
+reported least counterexample `353942783`. It is not the Hamilton–Ballinger
+target and must not be reintroduced as an admission or used as a prerequisite.
 -/
 
 set_option autoImplicit false

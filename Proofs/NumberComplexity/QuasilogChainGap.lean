@@ -82,7 +82,25 @@ twenty-two zeros, `a(23) = 1`, `a(33) = 1`, `a(43) = 1`, `a(46) = a(47) = 1`,
 … `a(129) = 2`; the entry's comment (Antti Karttunen, Aug 18 2017) records the
 first occurrences of `0, 1, 2, …` at `n = 1, 23, 129, 517, …`.  Checked below.
 
-Card: `Formalize/A076142-quasilog-chain-gap.md`.
+## Retired implementation card: A076142-quasilog-chain-gap
+
+The former card called the displayed positive-limit formula an open empirical
+asymptotic, described an intended `sorry`, and proposed an average-order
+theorem for shortest addition chains. Those descriptions are obsolete for the
+local objects and normalization: `tendsto_gapSum_mul_log_div_sq_zero` proves
+limit zero and `not_positiveNormalizedGapLimit` refutes the exact historical
+window `0.006 < c < 0.01`. The sum is over `1 ≤ k ≤ n`; each gap is the integer
+difference `quasilog k - l k`, not truncated natural subtraction. The sequence
+is nonzero, but its normalization still forces this limit to zero.
+
+The historical assertion remains only as `PositiveNormalizedGapLimit : Prop`;
+no false admission is retained or moved to `Proofs/Sorry`. The proof uses the
+pointwise logarithmic majorant, so the former proposed average-order machinery
+is not needed for this normalization. The existing actual addition-chain and
+quasi-logarithm APIs are preserved. This correction is deliberately limited to
+these local definitions: it is not a blanket refutation of other interpretations
+of the OEIS source. Card retirement records this proved correction, not the
+claimed positive asymptotic.
 -/
 
 set_option autoImplicit false

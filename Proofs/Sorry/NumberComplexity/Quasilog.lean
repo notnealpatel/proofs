@@ -7,6 +7,20 @@ The source asserts the strict bound with natural logarithm for `1 < n`.
 This is the module's single admission. The old weak theorem is derived from it,
 not separately admitted. The actual sequence and all proved results remain in
 `NumberComplexity.Quasilog`; production does not import this module.
+## Retired implementation card: A064097-quasilog-bounds
+
+The former hard-blocked card requested the strict empirical Cloitre inequality
+for `n > 1`. It is now the single strict admission below; the former weak
+interface is derived from it, not a second independent admission. Neither
+statement is proved in production, and retirement is not mathematical closure.
+Production `Quasilog` defines the completely additive quasi-logarithm, proves
+its defining clauses and Wilson's lower bound `Nat.log 2 n ≤ quasilog n`.
+
+The negative route evidence remains: naive prime-step induction would require
+`2 ≤ 2.5 * Real.log 2`, which is false. A proof needs additional structure in
+`p-1` or prime-chain control; the weaker proved logarithmic majorant in
+`QuasilogLogBound` does not establish the coefficient 2.5. At `n = 1` the
+strict target is false, so that boundary is deliberately excluded.
 -/
 
 set_option autoImplicit false
