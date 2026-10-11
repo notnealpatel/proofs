@@ -8,6 +8,21 @@ namespace and header. The production module supplies the definitions and uncondi
 proofs; importing production alone does not admit this conjecture. Source quotations,
 limitations, and evidence for the statement are retained below and in the production
 module's pinned source documentation. No mathematical proof closure is claimed.
+## Archived implementation-card crosswalk
+
+Former card `A094870-hegarty.md`: A094870, claim `hegarty-density`, statement size M,
+proof difficulty hard; the conjecture is open and proving it remains hard-blocked.
+The greedy sequence starts with 1, chooses the least unused positive value, and
+forbids arithmetic progressions at equally spaced indices in choice order; it does
+not forbid every three-element arithmetic progression in its range. Production
+`Proofs/Enumerative/HegartyPermutation.lean` supplies the permutation, AP-avoidance,
+and upper-bound infrastructure. Accepted revision
+`ce7ab453d8530cbfdd65c41eeb8ea71072f3fc94`, publishing
+`Proofs/Enumerative/HegartyThreeEighths.lean` and
+`A094870.hegarty_three_eighths : ∀ n, 3 * (n + 1) ≤ 8 * A094870.a n`.
+Thus the source's `3/8 ≤ a(N)/N < 3/2` is available, not merely the older `1/4`
+bound used in the nonvacuity paragraph below. The remaining numerical-evidence-only
+limit conjecture is exactly `conj_3_2` with denominator `n+1`, never `n`.
 -/
 
 set_option autoImplicit false

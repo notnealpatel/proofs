@@ -8,6 +8,19 @@ namespace and header. The production module supplies the definitions and uncondi
 proofs; importing production alone does not admit this conjecture. Source quotations,
 limitations, and evidence for the statement are retained below and in the production
 module's pinned source documentation. No mathematical proof closure is claimed.
+## Archived implementation-card crosswalk
+
+Former card `A000041-sun-perfect-power.md`: A000041, claim `sun-no-perfect-power`,
+statement size S, proof difficulty hard, mathematical status open; source is
+Zhi-Wei Sun's OEIS comment of 2013-12-02. Production remains at
+`Proofs/Enumerative/PartitionPerfectPower.lean`; this `Proofs/Sorry/` module is the
+unproved statement archive. `partitionNumber` is the cardinality of `Nat.Partition`;
+`IsPerfectPower` means `x^m` with both `x` and `m` at least 2, not `IsPrimePow`.
+The former card asked for `n ≥ 1`; the archived all-`n` formulation also includes
+the separately proved harmless `n = 0` case. Uniform partition arithmetic is unpaid.
+The card's unspecified “large computed ranges” claim is not supported by the
+pinned source's verification bound: that source gives none. The exact finite
+certificates and their identification range are stated below, not an unbounded proof.
 -/
 
 set_option autoImplicit false

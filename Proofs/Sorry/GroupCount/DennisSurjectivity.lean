@@ -5,6 +5,19 @@ import GroupCount.DennisSurjectivity
 
 This archive imports the proved production layer; production does not import this archive.
 The declarations below preserve the original names, types, and source provenance.
+## Archived implementation-card crosswalk
+
+Former card `A046057-dennis-surjectivity.md`: A046057, R. Keith Dennis's open
+surjectivity conjecture; proof work remains hard-blocked. The exact target is
+`∀ n ≥ 1, ∃ m, gnu m = n`. Production
+`Proofs/GroupCount/DennisSurjectivity.lean` pins the least witnesses for 1 and 2.
+A053403 records 508 not-yet-realized candidate values in its search, with largest
+listed term 55487; neither value is a certified obstruction to surjectivity.
+Accepted main `4b6938dc2aa2fb5655f22433f2aeee02bf2377b3` publishes the full Hölder
+`pq` formula `GroupCount.gnu_mul_primes` in `Proofs/GroupCount/HolderPQ.lean`.
+It realizes a structured family only: characterize that family's values and
+construct every remaining positive value to solve the conjecture. The existing
+classification prerequisite is not a proof of Dennis surjectivity.
 -/
 
 set_option autoImplicit false
@@ -38,8 +51,8 @@ automatically positive. -/
 theorem dennis_gnu_surjective (n : ℕ) (hn : 1 ≤ n) : ∃ m : ℕ, gnu m = n := by
   -- intended sorry: open conjecture (card A046057-dennis-surjectivity).
   -- ROUTE: the literature realizes values through Hölder-type classification
-  -- formulas for gnu at orders p·q^k; none of those classifications is
-  -- formalized here, and no proof of the full conjecture is known to anyone.
+  -- formulas for gnu at orders p·q^k. The pq case is formalized in HolderPQ;
+  -- it does not supply all positive values or prove the full conjecture.
   sorry
 
 end GroupCount

@@ -17,6 +17,25 @@ Status: OPEN. The theorem below is this module's single intended `sorry`, not a
 proof of the conjecture. Its axiom footprint includes `sorryAx`; neither GAP finite
 coverage nor asymptotic comments discharge the all-positive-`n` proposition.
 No `native_decide` is used here.
+## Archived implementation-card crosswalk
+
+Former card `A000001-cdo-iteration.md`: A000001, claim `cdo-gnu-iteration`,
+statement size M, proof difficulty hard, mathematical status open. The boundary
+is implemented, not proved; the production path is `Proofs/GroupCount/CdoIteration.lean`
+and the admission now lives here under `Proofs/Sorry/GroupCount/`.
+
+The classification-free model counts the isomorphism quotient of group structures
+on `Fin n` using `Nat.card`. Finite tables and bijections permit a finite-search
+computability argument; this is not a claim that a fast evaluator was implemented.
+The card's proposed sanity suite was prime orders, prime squares, and order 15.
+The first two strata are proved upstream; `gnu 15 = 1` is a remaining suggested
+sanity target, not a theorem supplied here. Structural classification is preferable
+to the factorial-scale table/isomorphism search; no `native_decide` certificate is
+claimed. The card's assertion of Lean novelty was not independently established.
+
+GAP SmallGroups coverage is reported finite external evidence, not a Lean proof
+or an exhaustive statement beyond that coverage. Arbitrary prime-power values
+remain the obstruction to extending the known iteration strata.
 -/
 
 set_option autoImplicit false

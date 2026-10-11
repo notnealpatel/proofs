@@ -5,6 +5,26 @@ import GroupCount.GroupPerfect
 
 This archive imports the proved production layer; production does not import this archive.
 The declarations below preserve the original names, types, and source provenance.
+## Archived implementation-card crosswalk
+
+Former card `A090052-group-perfect.md`: A090052, claim `group-perfect-uniqueness`,
+statement size M, proof difficulty hard. Both source claims remain open; the OEIS
+“seems fairly certain” comment is unattributed. A090052 counts group-abundant
+orders (`gnu n > n`), not group-perfect ones. The production counting model is the
+same all-group isomorphism count as A000001, with counts over `Finset.range N`.
+Production `Proofs/GroupCount/GroupPerfect.lean` proves
+`GroupCount.groupDeficient_of_prime` and `GroupCount.groupDeficient_prime_sq`,
+including the edge case prime 2. General squarefree and cube-free deficiency
+remain classification obligations, not consequences of these two strata.
+The reported absence of other group-perfect numbers in GAP ranges and sparsity
+of abundant, 2-group-heavy orders are finite external evidence only.
+
+The card's “i.e.” between deficient density one and abundant density zero needs
+perfect density zero. Production now proves that missing bridge conditionally
+on the uniqueness assertion (at most the two exceptional indices 0 and 1).
+This archive derives the literal deficient-density-one source statement from
+its two existing admissions, without admitting a third proposition. Estimates
+for arbitrary orders and the source's asymptotic density claim remain unpaid.
 -/
 
 set_option autoImplicit false

@@ -8,6 +8,21 @@ namespace and header. The production module supplies the definitions and uncondi
 proofs; importing production alone does not admit this conjecture. Source quotations,
 limitations, and evidence for the statement are retained below and in the production
 module's pinned source documentation. No mathematical proof closure is claimed.
+## Archived implementation-card crosswalk
+
+Former card `A161682-primes-not-x3-y2.md`: A161682, claim `infinitude`, statement
+size S, proof difficulty hard, mathematical status open. The source conjecture is
+unattributed; Daniel Starodubtsev's 2020-01-22 comment reports the extended search
+bound `x < 2.2 * 10^9`. Production is
+`Proofs/Enumerative/PrimesNotCubeMinusSquare.lean`; this archive alone admits
+infinitude. Its predicate uses integer `x,y` and integer subtraction, rather than
+truncated natural subtraction. The card requested checking the entry's nonnegative
+variable convention; its programs actually use positive variables. Production
+`isCubeMinusSquare_iff_isPosCubeMinusSquare_of_prime` proves equivalence on primes:
+`x ≤ 0` is impossible and `y = 0` would make a prime a cube; replacing `y` by its
+absolute value preserves the square. Bounded searches do not certify general
+nonrepresentation. Neither Hall's conjecture nor integral-point theory as cited
+below supplies the missing uniform infinitude argument.
 -/
 
 set_option autoImplicit false
