@@ -1,0 +1,88 @@
+Erdos132.UniqueDiameterCircle.diam_union_interiors : ∀ (H I : Finset Erdos132.TwoInteriorCircle.Plane),
+  (∀ i ∈ I, i ∈ interior ((convexHull ℝ) ↑H)) → Metric.diam ↑(H ∪ I) = Metric.diam ↑H
+Erdos132.UniqueDiameterCircle.card_union_interiors : ∀ (H I : Finset Erdos132.TwoInteriorCircle.Plane)
+  (O : Erdos132.TwoInteriorCircle.Plane) {R : ℝ},
+  0 < R → (∀ h ∈ H, dist h O = R) → (∀ i ∈ I, i ∈ interior ((convexHull ℝ) ↑H)) → (H ∪ I).card = H.card + I.card
+Erdos132.UniqueDiameterCircle.diameter_endpoint_mem_hull : ∀ (H I : Finset Erdos132.TwoInteriorCircle.Plane),
+  2 ≤ H.card →
+    (∀ i ∈ I, i ∈ interior ((convexHull ℝ) ↑H)) →
+      ∀ {a b : Erdos132.TwoInteriorCircle.Plane}, a ∈ H ∪ I → b ∈ H ∪ I → dist a b = Metric.diam ↑(H ∪ I) → a ∈ H
+Erdos132.UniqueDiameterCircle.longest_class_bound : ∀ (H I : Finset Erdos132.TwoInteriorCircle.Plane)
+  (O : Erdos132.TwoInteriorCircle.Plane) {R L : ℝ} {a b : Erdos132.TwoInteriorCircle.Plane},
+  0 < R →
+    (∀ h ∈ H, dist h O = R) →
+      a ∈ H →
+        b ∈ H →
+          a ≠ b →
+            dist a b = Metric.diam ↑H →
+              (∀ x ∈ H, ∀ y ∈ H, dist x y = dist a b → s(x, y) = s(a, b)) →
+                (∀ i ∈ I, i ∈ interior ((convexHull ℝ) ↑H)) →
+                  0 < L →
+                    L < Metric.diam ↑H →
+                      (∀ x ∈ H ∪ I, ∀ y ∈ H ∪ I, dist x y < Metric.diam ↑H → dist x y ≤ L) →
+                        Erdos132.TwoInteriorCircle.multiplicity (H ∪ I) L ≤ H.card + I.card
+Erdos132.UniqueDiameterCircle.unique_diameter_circle : ∀ (N k : ℕ) (H I : Finset Erdos132.TwoInteriorCircle.Plane)
+  (O : Erdos132.TwoInteriorCircle.Plane) (R : ℝ),
+  3 ≤ N →
+    1 ≤ k →
+      H.card = N →
+        I.card = k →
+          0 < R →
+            (∀ h ∈ H, dist h O = R) →
+              (interior ((convexHull ℝ) ↑H)).Nonempty →
+                (∀ i ∈ I, i ∈ interior ((convexHull ℝ) ↑H)) →
+                  (∃ a ∈ H ∪ I,
+                      ∃ b ∈ H ∪ I,
+                        a ≠ b ∧
+                          dist a b = Metric.diam ↑(H ∪ I) ∧
+                            ∀ x ∈ H ∪ I, ∀ y ∈ H ∪ I, dist x y = Metric.diam ↑(H ∪ I) → s(x, y) = s(a, b)) →
+                    (H ∪ I).card = N + k ∧
+                      ∃ L,
+                        0 < L ∧
+                          L < Metric.diam ↑(H ∪ I) ∧
+                            (∃ x ∈ H ∪ I, ∃ y ∈ H ∪ I, x ≠ y ∧ dist x y = L) ∧
+                              (∀ x ∈ H ∪ I,
+                                  ∀ y ∈ H ∪ I, 0 < dist x y → dist x y < Metric.diam ↑(H ∪ I) → dist x y ≤ L) ∧
+                                1 ≤ Erdos132.TwoInteriorCircle.multiplicity (H ∪ I) L ∧
+                                  Erdos132.TwoInteriorCircle.multiplicity (H ∪ I) L ≤ N + k
+Erdos132.UniqueDiameterCircle.scalene_triangle_fixture : ∃ H O R a b,
+  H.card = 3 ∧
+    0 < R ∧
+      (∀ h ∈ H, dist h O = R) ∧
+        (interior ((convexHull ℝ) ↑H)).Nonempty ∧
+          a ∈ H ∧ b ∈ H ∧ a ≠ b ∧ dist a b = Metric.diam ↑H ∧ ∀ x ∈ H, ∀ y ∈ H, dist x y = dist a b → s(x, y) = s(a, b)
+Erdos132.UniqueDiameterCircle.original_hypotheses_every_positive_k : ∀ (k : ℕ),
+  1 ≤ k →
+    ∃ H I O R,
+      H.card = 3 ∧
+        I.card = k ∧
+          0 < R ∧
+            (∀ h ∈ H, dist h O = R) ∧
+              (interior ((convexHull ℝ) ↑H)).Nonempty ∧
+                (∀ i ∈ I, i ∈ interior ((convexHull ℝ) ↑H)) ∧
+                  (∃ a ∈ H ∪ I,
+                      ∃ b ∈ H ∪ I,
+                        a ≠ b ∧
+                          dist a b = Metric.diam ↑(H ∪ I) ∧
+                            ∀ x ∈ H ∪ I, ∀ y ∈ H ∪ I, dist x y = Metric.diam ↑(H ∪ I) → s(x, y) = s(a, b)) ∧
+                    (H ∪ I).card = 3 + k ∧
+                      ∃ L,
+                        0 < L ∧
+                          L < Metric.diam ↑(H ∪ I) ∧
+                            (∃ x ∈ H ∪ I, ∃ y ∈ H ∪ I, x ≠ y ∧ dist x y = L) ∧
+                              (∀ x ∈ H ∪ I,
+                                  ∀ y ∈ H ∪ I, 0 < dist x y → dist x y < Metric.diam ↑(H ∪ I) → dist x y ≤ L) ∧
+                                1 ≤ Erdos132.TwoInteriorCircle.multiplicity (H ∪ I) L ∧
+                                  Erdos132.TwoInteriorCircle.multiplicity (H ∪ I) L ≤ 3 + k
+Erdos132.UniqueDiameterCircle.original_hypotheses_four_interiors : ∃ H I O R,
+  H.card = 3 ∧
+    I.card = 4 ∧
+      0 < R ∧
+        (∀ h ∈ H, dist h O = R) ∧
+          (interior ((convexHull ℝ) ↑H)).Nonempty ∧
+            (∀ i ∈ I, i ∈ interior ((convexHull ℝ) ↑H)) ∧
+              ∃ a ∈ H ∪ I,
+                ∃ b ∈ H ∪ I,
+                  a ≠ b ∧
+                    dist a b = Metric.diam ↑(H ∪ I) ∧
+                      ∀ x ∈ H ∪ I, ∀ y ∈ H ∪ I, dist x y = Metric.diam ↑(H ∪ I) → s(x, y) = s(a, b)

@@ -1,0 +1,6 @@
+Proofs/Erdos/Erdos132/DoubleEndpoint.lean: OK
+Proofs/Erdos/Erdos132/CircleFixtures.lean: OK
+Proofs/Erdos/Erdos132/CircleRotation.lean: OK
+Proofs/Erdos/Erdos132/EvenThreeInteriorCircle.lean: OK
+Proofs/Erdos/Erdos132/EvenThreeInteriorFixtures.lean: OK
+Proofs/Erdos/Erdos132/TwoInteriorCircle.lean: OK (byte-identical to exact assigned base ba4dff6394ac520f2074a9d3baa7f1ca828c8020; SHA-256 d36fdcc81b8e99f149e9ca53a8d57106563e46bbf93d70ef70b395db5faaab17)

@@ -1,0 +1,4 @@
+Command: timeout --kill-after=2s 60s lake env lean -j 1 -M 4000 Proofs/Scratch/UniqueDiameterAudit.lean
+Exit status: 0
+Source copied verbatim from: Documents/132-unique-diameter/producer-audit.lean.txt
+Completed UTC: 2026-10-11T17:59:53Z
