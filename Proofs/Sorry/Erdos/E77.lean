@@ -29,41 +29,13 @@
   G or in Gᶜ.  `SimpleGraph.CliqueFree` exists.
 -/
 import Mathlib
+import Erdos.Erdos77.ClassicalBounds
 
 set_option autoImplicit false
 
 namespace ErdosCandidates.E77
 
 open SimpleGraph
-
-/-- `HasRamseyProperty n k`: every 2-coloring of the edges of `K_n`
-    (equivalently, every graph `G` on `n` vertices, coloring edges of
-    `G` red and of `Gᶜ` blue) contains a monochromatic `K_k`. -/
-def HasRamseyProperty (n k : ℕ) : Prop :=
-  ∀ G : SimpleGraph (Fin n), ¬ G.CliqueFree k ∨ ¬ Gᶜ.CliqueFree k
-
-/-- `R k`: the diagonal Ramsey number — least `n` with the Ramsey
-    property.  `sInf` is honest: nonemptiness of the defining set is
-    Ramsey's theorem (`ramsey_finite` below). -/
-noncomputable def R (k : ℕ) : ℕ := sInf {n : ℕ | HasRamseyProperty n k}
-
-/-- **Ramsey's theorem** (finite, diagonal): the defining set is
-    nonempty — some `n` has the Ramsey property.  Needed so that `R`
-    is not the junk `sInf ∅ = 0`.  The classical
-    `R(k) ≤ C(2k−2, k−1) ≤ 4^k` double-induction is the natural proof
-    (effort M; a good self-contained target — Mathlib has no Ramsey
-    theorem for graphs, only Hindman/Hales–Jewett infrastructure). -/
-theorem ramsey_finite (k : ℕ) : {n : ℕ | HasRamseyProperty n k}.Nonempty := by
-  sorry
-
-/-- Monotonicity of the property in `n` — upward closure, so `R` is a
-    genuine threshold.  -- PROVABLE (restrict a coloring of K_{n+1} to
-    K_n... note the direction: property at n implies property at n+1
-    by restricting any G on n+1 to the first n vertices; clique lifts
-    along the embedding).  Effort S. -/
-theorem hasRamseyProperty_mono (n k : ℕ) (h : HasRamseyProperty n k) :
-    HasRamseyProperty (n + 1) k := by
-  sorry
 
 /-- Ground truth, small values (A059442 / classical): `R 1 = 1`,
     `R 2 = 2`, `R 3 = 6`.  `R 3 = 6`: the pentagon 2-coloring shows
@@ -100,9 +72,6 @@ theorem erdos_77_limit_exists :
         bound `2^{k/2} ≤ R(k)` (finite union bound over cliques;
         rational arithmetic, no measure theory needed).
     Effort M each. -/
-theorem R_upper_bound (k : ℕ) (hk : 1 ≤ k) : R k ≤ 4 ^ k := by
-  sorry
-
 theorem R_lower_bound (k : ℕ) (hk : 3 ≤ k) :
     (2 : ℝ) ^ ((k : ℝ) / 2) ≤ (R k : ℝ) := by
   sorry
