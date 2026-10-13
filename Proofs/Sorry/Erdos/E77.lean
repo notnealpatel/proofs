@@ -37,6 +37,21 @@ namespace ErdosCandidates.E77
 
 open SimpleGraph
 
+/-- The pentagon on five vertices and its complement both have no three-clique.
+The certificate checks only the 32 vertex subsets, not an enumeration of graphs. -/
+private theorem pentagon_cliqueFree_pair :
+    ∃ G : SimpleGraph (Fin 5), G.CliqueFree 3 ∧ Gᶜ.CliqueFree 3 := by
+  let G : SimpleGraph (Fin 5) := SimpleGraph.fromRel
+    (fun a b => (a.val + 1) % 5 = b.val)
+  have hfinite : ∀ t ∈ (Finset.univ : Finset (Fin 5)).powerset,
+      ¬G.IsNClique 3 t ∧ ¬Gᶜ.IsNClique 3 t := by
+    decide
+  refine ⟨G, ?_, ?_⟩
+  · intro t
+    exact (hfinite t (Finset.mem_powerset.mpr (Finset.subset_univ t))).1
+  · intro t
+    exact (hfinite t (Finset.mem_powerset.mpr (Finset.subset_univ t))).2
+
 /-- Ground truth, small values (A059442 / classical): `R 1 = 1`,
     `R 2 = 2`, `R 3 = 6`.  `R 3 = 6`: the pentagon 2-coloring shows
     5 < R 3 (C₅ and its complement are triangle-free), and every
@@ -45,7 +60,18 @@ open SimpleGraph
     on 6 vertices, or the pigeonhole argument by hand; the C₅ witness
     by decide).  Effort S–M. -/
 theorem R_three : R 3 = 6 := by
-  sorry
+  have hupper : R 3 ≤ 6 := by
+    have hchoose : Nat.choose 4 2 = 6 := by decide
+    simpa only [show 2 * 3 - 2 = 4 from rfl, show 3 - 1 = 2 from rfl,
+      hchoose] using R_le_choose 3 (by decide)
+  have hnot : ¬R 3 ≤ 5 := by
+    intro hle
+    obtain ⟨G, hG, hGc⟩ := pentagon_cliqueFree_pair
+    rcases (R_le_iff 5 3).mp hle G with h | h
+    · exact h hG
+    · exact h hGc
+  have hlower : 6 ≤ R 3 := by omega
+  exact Nat.le_antisymm hupper hlower
 
 /-- `R 4 = 18` (Greenwood–Gleason), the boundary of feasible
     verification: 2^{C(17,2)} colorings is far beyond brute force, but
