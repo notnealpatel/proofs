@@ -244,11 +244,29 @@ example : ¬ HasEgyptian4Strict 2 := by
   have hpos : 0 < x * y * z := Nat.mul_pos (Nat.mul_pos hx hy) hz
   nlinarith only [h, hyz_bound, hxz_bound, hxy_bound, hpos]
 
--- PROVABLE: the search bound.  `4/n = 1/x + 1/y + 1/z ≤ 3/x` forces `4x ≤ 3n`.
--- The bound is recorded separately; its proof remains admitted.
+/-- The search bound: `4/n = 1/x + 1/y + 1/z ≤ 3/x` forces `4x ≤ 3n`. -/
 theorem erdosStraus_bound_x {n x y z : ℕ} (hx : 0 < x) (hxy : x ≤ y) (hyz : y ≤ z)
     (h : 4 * x * y * z = n * (y * z + x * z + x * y)) : 4 * x ≤ 3 * n := by
-  sorry
+  have hy : 0 < y := lt_of_lt_of_le hx hxy
+  have hz : 0 < z := lt_of_lt_of_le hy hyz
+  have hxz : x ≤ z := le_trans hxy hyz
+  have hterm_z : x * z ≤ y * z := Nat.mul_le_mul_right z hxy
+  have hterm_y : x * y ≤ y * z := by
+    calc
+      x * y ≤ z * y := Nat.mul_le_mul_right y hxz
+      _ = y * z := Nat.mul_comm z y
+  have hsum : y * z + x * z + x * y ≤ 3 * (y * z) := by
+    calc
+      y * z + x * z + x * y ≤ y * z + y * z + y * z :=
+        Nat.add_le_add (Nat.add_le_add_left hterm_z (y * z)) hterm_y
+      _ = 3 * (y * z) := by ring
+  have hmul : (4 * x) * (y * z) ≤ (3 * n) * (y * z) := by
+    calc
+      (4 * x) * (y * z) = 4 * x * y * z := by ring
+      _ = n * (y * z + x * z + x * y) := h
+      _ ≤ n * (3 * (y * z)) := Nat.mul_le_mul_left n hsum
+      _ = (3 * n) * (y * z) := by ring
+  exact Nat.le_of_mul_le_mul_right hmul (Nat.mul_pos hy hz)
 
 /-! ## Notes for a follow-up card
 

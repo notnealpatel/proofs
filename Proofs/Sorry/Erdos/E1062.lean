@@ -47,21 +47,74 @@ def f (n : ℕ) : ℕ :=
 /-- Ground truth against A038372 prefix 1, 2, 2, 3, 4, 4, 5, 6, 6.
     -- PROVABLE (decide; n ≤ 6 is cheap, n ≤ 9 borderline kernel). -/
 example : f 1 = 1 ∧ f 2 = 2 ∧ f 3 = 2 ∧ f 4 = 3 ∧ f 5 = 4 ∧ f 6 = 4 := by
-  sorry
+  set_option maxRecDepth 4096 in
+    decide
+
+example : NoDivFork {1} := by decide
+
+example : f 0 = 0 := by decide
+
+example : f 1 = 1 := by decide
 
 /-- The interval `[⌊n/3⌋+1, n]` is fork-free: if `a ∣ b`, `a ∣ c` with
     `a < b < c` all in the interval then `c ≥ 3a > n`, contradiction.
     The witness behind the lower bound.  -- PROVABLE (elementary). -/
 theorem noDivFork_interval (n : ℕ) :
     NoDivFork (Finset.Icc (n / 3 + 1) n) := by
-  sorry
+  intro a ha b hb c hc hab hac hbc hdiv
+  obtain ⟨ha_lower, ha_upper⟩ := Finset.mem_Icc.mp ha
+  obtain ⟨hb_lower, hb_upper⟩ := Finset.mem_Icc.mp hb
+  obtain ⟨hc_lower, hc_upper⟩ := Finset.mem_Icc.mp hc
+  have ha_pos : 0 < a := by omega
+  have hthree : n < 3 * a := by omega
+  obtain ⟨u, hu⟩ := hdiv.1
+  obtain ⟨v, hv⟩ := hdiv.2
+  have hu_two : 2 ≤ u := by
+    by_contra h
+    have hu_cases : u = 0 ∨ u = 1 := by omega
+    rcases hu_cases with hu_zero | hu_one
+    · simp only [hu_zero, Nat.mul_zero] at hu
+      omega
+    · simp only [hu_one, Nat.mul_one] at hu
+      exact hab hu.symm
+  have hv_two : 2 ≤ v := by
+    by_contra h
+    have hv_cases : v = 0 ∨ v = 1 := by omega
+    rcases hv_cases with hv_zero | hv_one
+    · simp only [hv_zero, Nat.mul_zero] at hv
+      omega
+    · simp only [hv_one, Nat.mul_one] at hv
+      exact hac hv.symm
+  have huv : u ≠ v := by
+    intro heq
+    exact hbc (hu.trans (heq ▸ hv.symm))
+  have hlarge : 3 ≤ u ∨ 3 ≤ v := by omega
+  rcases hlarge with hu_three | hv_three
+  · have hmul := Nat.mul_le_mul_left a hu_three
+    rw [← hu] at hmul
+    omega
+  · have hmul := Nat.mul_le_mul_left a hv_three
+    rw [← hv] at hmul
+    omega
 
 /-- **Lower bound slice (the Tier-UA target)**: `f(n) ≥ ⌈2n/3⌉`, via the
     interval witness above.  Ceiling encoded as `(2 * n + 2) / 3` in ℕ
     (equals ⌈2n/3⌉; guard: `Nat.add_mul_div_left` arithmetic).
     Elementary divisibility-poset reasoning; effort S. -/
 theorem f_lower_bound (n : ℕ) : (2 * n + 2) / 3 ≤ f n := by
-  sorry
+  have hsubset : Finset.Icc (n / 3 + 1) n ⊆ Finset.Icc 1 n := by
+    intro a ha
+    obtain ⟨ha_lower, ha_upper⟩ := Finset.mem_Icc.mp ha
+    exact Finset.mem_Icc.mpr ⟨by omega, ha_upper⟩
+  have hmem : Finset.Icc (n / 3 + 1) n ∈
+      (Finset.Icc 1 n).powerset.filter NoDivFork := by
+    exact Finset.mem_filter.mpr
+      ⟨Finset.mem_powerset.mpr hsubset, noDivFork_interval n⟩
+  have hcard : (Finset.Icc (n / 3 + 1) n).card = (2 * n + 2) / 3 := by
+    rw [Nat.card_Icc]
+    omega
+  rw [← hcard]
+  exact Finset.le_sup hmem
 
 /-- **Lebensold's bounds** (Le76), archived: for sufficiently large `n`,
     `0.6725·n ≤ f(n) ≤ 0.6736·n`.  Rational constants; stated over ℚ to
@@ -88,7 +141,23 @@ theorem density_limit_exists :
 /-- Sanity: monotonicity `f n ≤ f (n+1)` and the trivial bound
     `f n ≤ n`.  -- PROVABLE (sup-mono + card bounds). -/
 theorem f_mono_le (n : ℕ) : f n ≤ f (n + 1) ∧ f n ≤ n := by
-  sorry
+  constructor
+  · apply Finset.sup_le_iff.mpr
+    intro A hA
+    obtain ⟨hA_power, hA_fork⟩ := Finset.mem_filter.mp hA
+    have hA_subset := Finset.mem_powerset.mp hA_power
+    have hA_next : A ⊆ Finset.Icc 1 (n + 1) := by
+      intro a ha
+      obtain ⟨ha_lower, ha_upper⟩ := Finset.mem_Icc.mp (hA_subset ha)
+      exact Finset.mem_Icc.mpr ⟨ha_lower, by omega⟩
+    exact Finset.le_sup (Finset.mem_filter.mpr
+      ⟨Finset.mem_powerset.mpr hA_next, hA_fork⟩)
+  · apply Finset.sup_le_iff.mpr
+    intro A hA
+    have hA_subset := Finset.mem_powerset.mp (Finset.mem_filter.mp hA).1
+    calc
+      A.card ≤ (Finset.Icc 1 n).card := Finset.card_le_card hA_subset
+      _ = n := by rw [Nat.card_Icc]; omega
 
 end ErdosCandidates.E1062
 

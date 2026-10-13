@@ -47,16 +47,50 @@ instance (n k : ℕ) : Decidable (AllFactorsLarge n k) := by
 noncomputable def g (k : ℕ) : ℕ :=
   sInf {n : ℕ | k + 1 < n ∧ AllFactorsLarge n k}
 
+/-- A valid candidate with no smaller valid candidate realizes the infimum defining `g`. -/
+private theorem g_eq_of_least (k m : ℕ)
+    (hm : k + 1 < m ∧ AllFactorsLarge m k)
+    (hbelow : ∀ n : Fin m, ¬(k + 1 < n.val ∧ AllFactorsLarge n.val k)) :
+    g k = m := by
+  apply IsLeast.csInf_eq
+  refine ⟨hm, ?_⟩
+  intro n hn
+  by_contra h
+  exact hbelow ⟨n, Nat.lt_of_not_ge h⟩ hn
+
 /-- Ground truth against A003458 (pulled 2026-08-05: 3, 6, 7, 7, 23,
     62, 143, 44, …): `g 1 = 3`, `g 2 = 6`, `g 3 = 7`, `g 4 = 7`,
     `g 5 = 23`, `g 6 = 62`.  Trace for g 2 = 6: C(4,2) = 6 (minFac 2),
     C(5,2) = 10 (2), C(6,2) = 15 = 3·5 — all factors > 2 ✓.
     -- PROVABLE (decide after sInf characterization). -/
-theorem g_two : g 2 = 6 := by sorry
+theorem g_two : g 2 = 6 := by
+  have hcandidate : 2 + 1 < 6 ∧ AllFactorsLarge 6 2 := by
+    simp only [AllFactorsLarge, Nat.choose_eq_descFactorial_div_factorial]
+    decide +kernel
+  have hbelow : ∀ n : Fin 6, ¬(2 + 1 < n.val ∧ AllFactorsLarge n.val 2) := by
+    simp only [AllFactorsLarge, Nat.choose_eq_descFactorial_div_factorial]
+    decide +kernel
+  exact g_eq_of_least 2 6 hcandidate hbelow
 
-theorem g_five : g 5 = 23 := by sorry
+/-- The least valid candidate for `k = 5` is `23`. -/
+theorem g_five : g 5 = 23 := by
+  have hcandidate : 5 + 1 < 23 ∧ AllFactorsLarge 23 5 := by
+    simp only [AllFactorsLarge, Nat.choose_eq_descFactorial_div_factorial]
+    decide +kernel
+  have hbelow : ∀ n : Fin 23, ¬(5 + 1 < n.val ∧ AllFactorsLarge n.val 5) := by
+    simp only [AllFactorsLarge, Nat.choose_eq_descFactorial_div_factorial]
+    decide +kernel
+  exact g_eq_of_least 5 23 hcandidate hbelow
 
-theorem g_six : g 6 = 62 := by sorry
+/-- The least valid candidate for `k = 6` is `62`. -/
+theorem g_six : g 6 = 62 := by
+  have hcandidate : 6 + 1 < 62 ∧ AllFactorsLarge 62 6 := by
+    simp only [AllFactorsLarge, Nat.choose_eq_descFactorial_div_factorial]
+    decide +kernel
+  have hbelow : ∀ n : Fin 62, ¬(6 + 1 < n.val ∧ AllFactorsLarge n.val 6) := by
+    simp only [AllFactorsLarge, Nat.choose_eq_descFactorial_div_factorial]
+    decide +kernel
+  exact g_eq_of_least 6 62 hcandidate hbelow
 
 /-- **EES74 lower bound (the elementary target)**: there is `c > 0`
     with `k^{1+c} < g(k)` for large `k`.  The EES argument is
