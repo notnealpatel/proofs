@@ -22,27 +22,17 @@
   translation-invariance slip in the DB's earlier phrasing).  Second
   question YES by Halász [Ha77] (multi-dimensional concentration).
 
-  Mathlib inventory: `Finset.powerset`, `Finset.sum`;
-  Littlewood–Offord material in Mathlib: leandoc probe
-  ("littlewood offord") should be run at campaign start — the
-  candidates doc flags possible existing material
-  (Combinatorics/SetFamily? `Finset.exists_subset_sum...`); the
-  Sárközy–Szemerédi proof itself is genuinely hard analysis.
 -/
 import Mathlib
+import Combinatorics.SubsetSumAntichain
 
 set_option autoImplicit false
 
 namespace ErdosCandidates.E362
 
-/-- `sumCount A t`: the number of subsets of `A` with sum `t`. -/
-def sumCount (A : Finset ℕ) (t : ℕ) : ℕ :=
-  (A.powerset.filter (fun S => ∑ n ∈ S, n = t)).card
-
-/-- Ground truth: `A = {1, 2, 3}`, `t = 3`: subsets {3} and {1,2} —
-    `sumCount = 2`.  -- PROVABLE (decide). -/
+/-- Ground truth: the subsets of `{1, 2, 3}` with sum `3` are `{3}` and `{1, 2}`. -/
 example : sumCount {1, 2, 3} 3 = 2 := by
-  sorry
+  decide
 
 /-- **Erdős #362, first bound (Sárközy–Szemerédi)** ([SaSz65]): there
     is an absolute `C` with: for every finite `A` of positive
@@ -51,10 +41,8 @@ example : sumCount {1, 2, 3} 3 = 2 := by
     reading of `A ⊆ ℕ`) of size `N ≥ 1` and every target `t`,
     `sumCount A t ≤ C·2^N/N^{3/2}` — stated multiplied out over ℝ.
 
-    Archive rationale: the proof is Fourier-analytic concentration
-    (Littlewood–Offord technology); real work.  Check Mathlib's
-    Littlewood–Offord holdings before scoping (leandoc probe listed
-    in the header). -/
+    Archive rationale: the proof requires concentration estimates beyond
+    the elementary Sperner bound proved below. -/
 theorem sarkozy_szemeredi :
     ∃ C : ℝ, 0 < C ∧ ∀ (A : Finset ℕ) (t : ℕ),
       (∀ a ∈ A, 1 ≤ a) → 1 ≤ A.card →
@@ -74,28 +62,17 @@ theorem halasz_sized :
       (sumCountSized A t l : ℝ) ≤ C * 2 ^ A.card / (A.card : ℝ) ^ 2 := by
   sorry
 
-/-- The elementary Erdős–Moser-level warm-up — the genuinely
-    formalizable slice: `sumCount A t ≤ C(N, ⌊N/2⌋)` — the number of
-    subsets of any fixed sum is at most the largest binomial
-    coefficient (Sperner-type: distinct-sum subsets of a positive set
-    form an antichain? No — same-sum subsets form an ANTICHAIN under
-    inclusion (a proper superset has strictly larger sum), and LYM /
-    `Finset.card_le_choose...` applies).  Mathlib HAS Sperner-family
-    material (`Finset.IsAntichain` + LYM in
-    Combinatorics/SetFamily/LYM).  Effort S–M; lands
-    `≪ 2^N/N^{1/2}` — the √N-weaker classical bound. -/
+/-- The elementary Sperner bound: equal-sum subsets of a positive set form
+    an antichain under inclusion. This is the √N-weaker bound, not the sharp
+    Sárközy–Szemerédi bound above. -/
 theorem antichain_bound (A : Finset ℕ) (t : ℕ) (hA : ∀ a ∈ A, 1 ≤ a) :
     sumCount A t ≤ A.card.choose (A.card / 2) := by
-  sorry
+  exact sumCount_le_choose A t hA
 
-/-- Sanity: the interval `A = {1, …, N}` at the central target
-    realizes near-maximal concentration — small-N table:
-    `sumCount {1,2,3,4} 5 = 3` ({1,4},{2,3},{5}? no 5 ∉ A: {1,4},
-    {2,3} and... 5 = 1+4 = 2+3 → 2.  Recompute: subsets of {1,2,3,4}
-    summing to 5: {1,4},{2,3} → 2.  -- PROVABLE (decide; the
-    docstring miscount is corrected in the statement). -/
+/-- Ground truth: the subsets of `{1, 2, 3, 4}` with sum `5` are
+    `{1, 4}` and `{2, 3}`. -/
 example : sumCount {1, 2, 3, 4} 5 = 2 := by
-  sorry
+  decide
 
 end ErdosCandidates.E362
 
@@ -110,8 +87,7 @@ end ErdosCandidates.E362
    - 0 not-in A convention (1 <= a) is a defensible reading of A in N; the
      docstring correctly notes the trivial doubling if 0 is allowed.
    - Sanity arithmetic verified: sumCount {1,2,3} 3 = 2 ({3},{1,2}); sumCount
-     {1,2,3,4} 5 = 2 ({1,4},{2,3}).  Docstring self-corrects its initial
-     miscount of 3.
+     {1,2,3,4} 5 = 2 ({1,4},{2,3}).
    - Antichain reasoning is sound: if all elements of A are >= 1, a proper
      superset has strictly larger sum, so same-sum subsets form an antichain
      under inclusion.  LYM then gives the C(N, N/2) bound.
