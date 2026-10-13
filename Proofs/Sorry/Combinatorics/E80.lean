@@ -21,17 +21,16 @@
   c < 1/4 — disproving the n^ε conjecture.  Potechin [Po18] further
   partial improvements (comment).
 
-  Audit note (candidates doc): the c > 1/4 slice leans on a
-  Turán-type input; Mathlib NOW has Turán machinery
-  (`SimpleGraph.isTuranMaximal_iff_nonempty_iso_turanGraph`,
-  Extremal/Turan.lean — leandoc hit), so the Edwards bound is more
-  approachable than the doc assumed.  Archive + attempt the c > 1/4
-  slice.
+  The c > 1/4 slice below uses the classical finite counting route,
+  as presented in Bollobás–Nikiforov, Books in graphs (2005),
+  Theorem 1, arXiv:math/0405080. The proof counts triangle/vertex
+  equal-adjacency incidences and uses Cauchy's degree-square bound;
+  it does not use a Kruskal–Katona or Turán supersaturation claim.
 
   Mathlib inventory: `SimpleGraph.cliqueFinset 3` for triangles;
   book size of an edge = number of common neighbours of its ends.
 -/
-import Mathlib
+import Combinatorics.Books.Edwards
 
 set_option autoImplicit false
 
@@ -43,14 +42,14 @@ variable {n : ℕ}
 
 /-- `bookSize G u v`: the number of triangles sharing the edge
     `{u, v}` — i.e. common neighbours of `u` and `v`. -/
-def bookSize (G : SimpleGraph (Fin n)) [DecidableRel G.Adj] (u v : Fin n) :
+abbrev bookSize (G : SimpleGraph (Fin n)) [DecidableRel G.Adj] (u v : Fin n) :
     ℕ :=
-  (Finset.univ.filter (fun w => G.Adj u w ∧ G.Adj v w)).card
+  ErdosCandidates.Books.bookSize G u v
 
 /-- `EveryEdgeInTriangle G`: each edge lies in at least one triangle. -/
-def EveryEdgeInTriangle (G : SimpleGraph (Fin n)) [DecidableRel G.Adj] :
+abbrev EveryEdgeInTriangle (G : SimpleGraph (Fin n)) [DecidableRel G.Adj] :
     Prop :=
-  ∀ u v : Fin n, G.Adj u v → 1 ≤ bookSize G u v
+  ErdosCandidates.Books.EveryEdgeInTriangle G
 
 /-- In `K₄`, the edge joining vertices `0` and `1` has two common neighbours. -/
 theorem k4_bookSize_zero_one : bookSize (⊤ : SimpleGraph (Fin 4)) 0 1 = 2 := by
@@ -61,24 +60,24 @@ theorem k4_bookSize_zero_one : bookSize (⊤ : SimpleGraph (Fin 4)) 0 1 = 2 := b
 example : bookSize (⊤ : SimpleGraph (Fin 4)) 0 1 = 2 := by
   exact k4_bookSize_zero_one
 
-/-- **Edwards / Khadzhiivanov–Nikiforov** (the c > 1/4 slice — the
-    clean target): if `G` has more than `n²/4` edges and every edge is
-    in a triangle, then some edge lies in at least `n/6` triangles.
-    Stated division-free: `n² < 4·#edges` and conclusion
-    `n ≤ 6·bookSize + 5` (i.e. bookSize ≥ ⌈(n−5)/6⌉ ≥ n/6 − 1; pin
-    the exact constant to the KhNi79 paper during the campaign —
-    the DB's "≥ n/6" hides floor conventions).
+/-- **Edwards / Khadzhiivanov–Nikiforov** (the c > 1/4 slice):
+    more than `n²/4` edges force a book of size at least `n/6`.
+    The unchanged archive conclusion `n ≤ 6·bookSize + 5` is a
+    division-free weakening of the classical bound, not a replacement
+    for its constant. The `EveryEdgeInTriangle` premise is retained.
 
-    Attack: supersaturation over Turán — a graph over the Turán
-    threshold has an edge in many triangles by
-    Kruskal–Katona/counting; Mathlib's new Extremal/Turan.lean
-    supplies the extremal structure.  Effort M–L. -/
+    The production proof follows the equal-adjacency incidence count
+    and degree-square inequality in Bollobás–Nikiforov, *Books in
+    graphs*, European J. Combin. 26 (2005), 259–270, Theorem 1
+    (arXiv:math/0405080); ordered counts avoid induced four-vertex
+    infrastructure. Edwards' unpublished result and the independent
+    Khadzhiivanov–Nikiforov (1979) result are classical, not new here. -/
 theorem edwards_kn_book (G : SimpleGraph (Fin n)) [DecidableRel G.Adj]
     (hn : 6 ≤ n)
     (he : n ^ 2 < 4 * G.edgeFinset.card)
     (ht : EveryEdgeInTriangle G) :
     ∃ u v : Fin n, G.Adj u v ∧ n ≤ 6 * bookSize G u v + 5 := by
-  sorry
+  exact ErdosCandidates.Books.edwards_kn_book G hn he ht
 
 /-- **Erdős #80, first conjecture — REFUTED by Fox–Loh** ([FoLo12]):
     it is NOT true that for `c < 1/4` one has `f_c(n) > n^ε`; there
@@ -125,19 +124,11 @@ example : (4 : ℕ) ^ 2 < 4 * (⊤ : SimpleGraph (Fin 4)).edgeFinset.card ∧
 
 end ErdosCandidates.E80
 
-/- SOURCE-FIDELITY REVIEW (flash, 2026-08-05)
-   Verdict: PASS
-   - Verbatim statement matches `goof erdos fetch 80` exactly.
-   - Attributions correct: Erdős–Rothschild; Alon–Trotter; Szemerédi
-     regularity; Edwards unpub. + Khadzhiivanov–Nikiforov [KhNi79] 1979;
-     Fox–Loh [FoLo12] 2012; Potechin [Po18] (comment).
-   - `bookSize` correctly counts common neighbors (triangles sharing an edge).
-   - K_4 sanity: bookSize = 2 correct; 16 < 24 correct.
-   - Division-free encoding `n^2 < 4 * edges` faithfully captures c > 1/4;
-     conclusion `n <= 6 * bookSize + 5` is a floor-safe weakening of >= n/6,
-     acknowledged in the docstring.
-   - Fox-Loh refutation correctly negates the epsilon-power conjecture for
-     c < 1/4: witnesses exist infinitely often with bookSize < n^epsilon.
-   - Szemerédi unboundedness statement correctly universally quantifies
-     over m with eventual N.
+/- Formalization scope: only the classical dense-graph slice is discharged.
+   The definitions above are transparent aliases of the production counts.
+   The adopted K₄ checks are unchanged. Fox–Loh and Szemerédi remain
+   OPEN formalization obligations, with their original sorry contracts.
+   The weaker +5 conclusion is intentional; it is not the exact classical
+   constant and this file makes no historical source-review PASS claim.
 -/
+
