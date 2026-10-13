@@ -68,12 +68,11 @@
     class, Prop. 1 shape), and the constant is already recorded on
     A120134 to 70+ digits (Kotesovec; `greedyLimit · 243/64` matches it).
     The mathematical content of this file is greedy ⟹ recurrence.
-  * The sibling card `Candidates/A172161GreedyCW.lean` currently FAILS to
-    build, for three reasons — the first a failed `decreasing_by` at its
-    line 133, then its two 6-element `CWProperty` `decide` examples
-    exceed the default `maxRecDepth` — so nothing is imported from it;
-    the definitions below restate the same `CWProperty` shape and the
-    statements mirror its `mcEachen_growth` / recurrence targets.
+  * The sibling archive `Sorry/Combinatorics/A172161GreedyCW.lean` now
+    imports `Combinatorics/A172161Recurrence.lean`, which identifies its
+    recurrence-defined sequence with `greedyA` and transfers the growth
+    theorem. This module remains independent of the archive; both use
+    the same nonempty-subset `CWProperty` convention.
   * All kernel computation in this file is bounded: the largest `decide`
     is the `PairRep {0,1,2,3}` base case (≈ 7·7·16·16 subset checks).
     6-element `CWProperty` `decide`s are feasible with `maxRecDepth`
