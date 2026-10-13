@@ -35,8 +35,18 @@ namespace ErdosCandidates.E384
 
 /-- Ground truth for the exceptional case: `C(7,3) = 35 = 5·7`, whose
     prime factors `5, 7` both exceed `7/2`.  -- PROVABLE (decide). -/
-example : Nat.choose 7 3 = 35 ∧ (Nat.choose 7 3).primeFactors = {5, 7} := by
-  sorry
+theorem choose_seven_three_sanity : Nat.choose 7 3 = 35 ∧ (Nat.choose 7 3).primeFactors = {5, 7} := by
+  have hc : Nat.choose 7 3 = 35 := by
+    rw [Nat.choose_eq_descFactorial_div_factorial]
+    decide
+  rw [hc]
+  constructor
+  · rfl
+  · change (5 * 7 : ℕ).primeFactors = {5, 7}
+    rw [Nat.primeFactors_mul (by decide) (by decide),
+      Nat.Prime.primeFactors (by decide : Nat.Prime 5),
+      Nat.Prime.primeFactors (by decide : Nat.Prime 7)]
+    decide
 
 /-- **Erdős #384, Ecklund's theorem** (Ec69), faithful form.
     If `2 ≤ k` and `2k ≤ n` and `(n, k) ≠ (7, 3)`, then `C(n,k)` has a
@@ -78,13 +88,22 @@ theorem ecklund_window_30 :
     ∀ n ∈ Finset.range 31, ∀ k ∈ Finset.range 16,
       2 ≤ k → 2 * k ≤ n → ¬(n = 7 ∧ k = 3) →
       ∃ p ∈ (n.choose k).primeFactors, 2 * p ≤ n := by
-  sorry
+  have hfinite : ∀ n ∈ Finset.range 31, ∀ k ∈ Finset.range 16,
+      2 ≤ k → 2 * k ≤ n → ¬(n = 7 ∧ k = 3) →
+      ∃ p ∈ Finset.range 16,
+        p.Prime ∧ p ∣ n.choose k ∧ n.choose k ≠ 0 ∧ 2 * p ≤ n := by
+    simp_rw [Nat.choose_eq_descFactorial_div_factorial]
+    decide +kernel
+  intro n hn k hk hk2 hkn hexc
+  obtain ⟨p, _, hp, hdvd, hne, hbound⟩ := hfinite n hn k hk hk2 hkn hexc
+  exact ⟨p, hp.mem_primeFactors hdvd hne, hbound⟩
 
 /-- The exception really is an exception: no prime `p ≤ 3` divides
     `C(7,3) = 35`.  Guards against a vacuous main statement.
     -- PROVABLE (decide). -/
-example : ∀ p ∈ (Nat.choose 7 3).primeFactors, ¬(2 * p ≤ 7) := by
-  sorry
+theorem exceptional_prime_window : ∀ p ∈ (Nat.choose 7 3).primeFactors, ¬(2 * p ≤ 7) := by
+  rw [choose_seven_three_sanity.2]
+  decide
 
 /-- Ecklund's stronger conjecture (recorded in the DB remarks; still
     open): if `k^2 < n` then `C(n,k)` has a prime factor `p` with
