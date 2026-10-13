@@ -61,12 +61,14 @@ Stating only one of them would misrepresent the source.  Both appear below.
 
 `Proofs/NumberComplexity/AdditionChain.lean` already has `IsAddChain`,
 `chainSteps`, `AdditionChain n`, `l n` (= A003313), the ascending mirror
-`IsAscAddChain`/`lAsc`, and `l_eq_lAsc`.  The Brauer variant defined here is a
-one-constructor restriction of the existing `IsAddChain` inductive, so it
+`IsAscAddChain`/`lAsc`, and `l_eq_lAsc`. The Brauer variant now lives in
+`Proofs/NumberComplexity/BrauerChain.lean`; this archive keeps compatibility
+names and the still-admitted open and expensive claims. The production variant
+is a one-constructor restriction of the existing `IsAddChain` inductive, so it
 inherits the whole convention (reversed lists, head = newest element).
 -/
 import Mathlib
-import NumberComplexity.AdditionChain
+import NumberComplexity.BrauerChain
 
 set_option autoImplicit false
 
@@ -100,26 +102,21 @@ extension rather than a parallel universe.
 (`leandoc "addition chain"` returns `AddChain`-free noise), so the repo's
 definitions are the only ones available and are used. -/
 
-/-- **Brauer (star) chains**, in the repo's reversed-list convention: each new
-element is `head + b` for some `b` already in the chain.  Compare
-`IsAddChain`, where *both* summands may be arbitrary chain elements. -/
-inductive IsBrauerChain : List ℕ → Prop
-  | one : IsBrauerChain [1]
-  | star {c : List ℕ} {a b : ℕ} (hb : b ∈ (a :: c)) (hc : IsBrauerChain (a :: c)) :
-      IsBrauerChain ((a + b) :: a :: c)
+/-- Compatibility name for the production reversed star-chain predicate. -/
+abbrev IsBrauerChain := NumberComplexity.IsBrauerChain
 
-/-- A Brauer chain for `n`. -/
-abbrev BrauerChain (n : ℕ) : Type := {c : List ℕ // IsBrauerChain c ∧ c.head? = some n}
+namespace IsBrauerChain
+export NumberComplexity.IsBrauerChain (one star)
+end IsBrauerChain
 
-/-- `lStar n = l*(n)`: the length of a shortest Brauer chain for `n`.
-Noncomputable for the same reason as the repo's `l` — it is an `⨅` over a
-subtype. -/
-noncomputable def lStar (n : ℕ) : ℕ := ⨅ c : BrauerChain n, chainSteps c.val
+/-- Compatibility name for production Brauer chains with endpoint `n`. -/
+abbrev BrauerChain := NumberComplexity.BrauerChain
 
-/-- Membership in A349044: `n` is a **non-Brauer number**, i.e. no shortest
-addition chain for `n` is a Brauer chain.  Per the entry's own restatement,
-this is equivalent to `l(n) < l*(n)`. -/
-def IsNonBrauer (n : ℕ) : Prop := l n < lStar n
+/-- Compatibility name for the shortest Brauer-chain length. -/
+noncomputable abbrev lStar := NumberComplexity.lStar
+
+/-- Compatibility name for membership in A349044. -/
+abbrev IsNonBrauer := NumberComplexity.IsNonBrauer
 
 /-! ## The statements -/
 
@@ -206,25 +203,26 @@ theorem not_isNonBrauer_below_12509 (n : ℕ) (hn : 0 < n) (hlt : n < 12509) :
 
 -- PROVABLE: every Brauer chain is an addition chain.  This is the bridge that
 -- makes `l n ≤ lStar n` a triviality, and it is the first thing to prove.
-theorem IsBrauerChain.isAddChain {c : List ℕ} (h : IsBrauerChain c) : IsAddChain c := by
-  sorry
+/-- Historical bridge name: every Brauer chain is an addition chain. -/
+theorem IsBrauerChain.isAddChain {c : List ℕ} (h : IsBrauerChain c) : IsAddChain c :=
+  NumberComplexity.IsBrauerChain.isAddChain h
 
 -- PROVABLE: hence `l n ≤ lStar n` always, so `IsNonBrauer` is the assertion of
 -- *strict* inequality and the gap is nonnegative by construction.
-theorem l_le_lStar (n : ℕ) : l n ≤ lStar n := by
-  sorry
+/-- Historical lower-bound name, including the zero boundary. -/
+theorem l_le_lStar (n : ℕ) : l n ≤ lStar n := NumberComplexity.l_le_lStar n
 
 -- PROVABLE: satisfiability of `IsBrauerChain` — concrete small chains.
 -- Reversed convention: `[8, 4, 2, 1]` is the doubling chain for `8`.
 example : IsBrauerChain [1] := IsBrauerChain.one
-example : IsBrauerChain [2, 1] := IsBrauerChain.star (by simp) IsBrauerChain.one
+example : IsBrauerChain [2, 1] := IsBrauerChain.star (b := 1) (by simp) IsBrauerChain.one
 
 -- PROVABLE: `lStar` agrees with `l` on the small range, matching A003313's head
 -- `0,1,2,2,3,3,4,3` for `n = 1..8` (already proved for `lAsc` in the repo as
 -- `lAsc_eq_A003313_of_le_eight`).
 example : lStar 1 = 0 ∧ lStar 2 = 1 ∧ lStar 3 = 2 ∧ lStar 4 = 2 ∧
-    lStar 5 = 3 ∧ lStar 6 = 3 ∧ lStar 7 = 4 ∧ lStar 8 = 3 := by
-  sorry
+    lStar 5 = 3 ∧ lStar 6 = 3 ∧ lStar 7 = 4 ∧ lStar 8 = 3 :=
+  NumberComplexity.lStar_eq_A003313_of_le_eight
 
 -- PROVABLE: `l` and `l*` agree for every `n ≤ 100` — the candidates document's
 -- proposed sanity layer.  Each value is a bounded search; feasible but not
@@ -237,16 +235,15 @@ example : ∀ n ∈ Finset.Icc 1 100, l n = lStar n := by
 -- **empty** for `n = 0` (no chain has head `0`), so `lStar 0` is the `⊥` junk
 -- value `0`.  Every statement above therefore carries `0 < n`.  This example
 -- records the degeneracy rather than hiding it.
-example : lStar 0 = 0 := by
-  sorry
+example : lStar 0 = 0 := NumberComplexity.lStar_zero
 
 /-! ## Notes for a follow-up card
 
 The infrastructure deliverables, in order:
 
-1. `IsBrauerChain.isAddChain` and `l_le_lStar` — free, and they establish that
-   the "gap" is a nonnegative quantity so the statements are about the right
-   thing.
+1. **Completed in production:** `IsBrauerChain.isAddChain`, positive-endpoint
+   realizability, `l_le_lStar`, the empty-zero boundary, and lengths `1..8`.
+   The archive's foundational sanity statements now use these checked results.
 2. A **computable mirror** `lStarRec` with `lStar_eq_lStarRec`, exactly
    paralleling `complexityRec`/`complexity_eq_complexityRec` in
    `NumberComplexity.IntComplexity`.  Without it no `native_decide` sanity check
