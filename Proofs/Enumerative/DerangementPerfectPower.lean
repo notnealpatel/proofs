@@ -39,7 +39,7 @@ exception, `a(4) = 3^2`, and `numDerangements 4 = 9 = 3 ^ 2` really is a perfect
 exactly Sun's sense (`x = 3 > 1`, `m = 2 > 1`).  Formalizing the brief as written would have
 put a refutable statement into the archive behind a `sorry`.
 
-What is archived below is the **source's** statement — "a perfect power only for `n = 4`" —
+What is archived in `Sorry.Enumerative.DerangementPerfectPower` is the **source's** statement — "a perfect power only for `n = 4`" —
 and the brief's reading is refuted outright and `sorry`-free by
 `not_forall_not_isPerfectPower_numDerangements`.  Nothing else in the brief is contradicted:
 the coprimality warm-up it suggested is proved (`coprime_numDerangements_succ`), and small
@@ -63,7 +63,7 @@ rather than by numerical coincidence — and, independently, the identification 
 
 ## What is archived and what is proved
 
-Archived with the single intended `sorry`:
+Archived in `Sorry.Enumerative.DerangementPerfectPower` (not admitted here):
 
 * `sun_eq_four_of_isPerfectPower_numDerangements` — for `2 < n`, if `a(n)` is a perfect power
   then `n = 4`.  This is the "only for n = 4" half of the comment above; the "with a(4) = 3^2"
@@ -161,7 +161,7 @@ namespace A000166
 Mathlib has no perfect-power predicate: `leandoc IsPerfectPower` returns `mode: "miss"`.  The
 definition below is character-for-character the one in the A000041 sibling card, deliberately:
 Sun's two comments use the same words, and the two cards must not drift apart.  It is repeated
-rather than imported so that neither archive card depends on the other's `sorry`. -/
+rather than imported to keep the production infrastructure independent. -/
 
 /-- `IsPerfectPower N` says `N = x ^ m` for some `1 < x` and `1 < m`.
 
@@ -549,74 +549,17 @@ theorem coprime_numDerangements_succ (n : ℕ) :
 it is not the trivial `gcd 1 _ = 1`: `gcd (a(5), a(6)) = gcd (44, 265) = 1`. -/
 example : Nat.gcd (numDerangements 5) (numDerangements 6) = 1 := by decide
 
-/-! ## The conjecture -/
-
-/-- **Sun's perfect-power conjecture for the derangement numbers (OEIS A000166).**
-
-Verbatim from the entry's `comments` field, pulled 2026-08-05:
-
-> Conjecture: a(n) with n > 2 is a perfect power only for n = 4 with a(4) = 3^2. This has been
-> verified for n <= 1000. - _Zhi-Wei Sun_, Jan 09 2025
-
-This declaration is the "only for n = 4" half.  The "with a(4) = 3^2" half is
-`isPerfectPower_numDerangements_four`, which is proved; the two are combined in
-`sun_isPerfectPower_numDerangements_iff`.
-
-**Status: open.**  This is the single intended `sorry` of the file.  The entry claims
-verification for `n ≤ 1000`; that claim is *not* reproduced here and is not assumed anywhere.
-What is verified here is `sun_isPerfectPower_numDerangements_iff_of_lt_24`, the same statement
-for every `n < 24`, kernel-checked end to end — the range covered by the entry's published
-`terms` field.
-
-See the module docstring for why the entry's own congruential and analytic handles do not
-reach this. -/
-theorem sun_eq_four_of_isPerfectPower_numDerangements {n : ℕ} (hn : 2 < n)
-    (h : IsPerfectPower (numDerangements n)) : n = 4 := by
-  sorry
-
 /-- **Joint satisfiability of the archived conjecture's hypotheses**, at `n = 4`: `2 < 4` and
-`a(4) = 9 = 3 ^ 2`.  Proved `sorry`-free, so the `sorry` above is not standing over an empty
+`a(4) = 9 = 3 ^ 2`.  Proved `sorry`-free, so the archived `sorry` is not standing over an empty
 hypothesis set — there really is an `n` past the guard whose derangement number is a perfect
 power, and the conjecture asserts that `4` is the only one. -/
 example : 2 < 4 ∧ IsPerfectPower (numDerangements 4) :=
   ⟨by norm_num, isPerfectPower_numDerangements_four⟩
 
-/-- **Sun's conjecture as an iff**, exactly as the source phrases it: for `n > 2`, `a(n)` is a
-perfect power precisely when `n = 4`.
-
-The `←` direction is proved (`isPerfectPower_numDerangements_four`); the `→` direction is the
-open half. -/
-theorem sun_isPerfectPower_numDerangements_iff {n : ℕ} (hn : 2 < n) :
-    IsPerfectPower (numDerangements n) ↔ n = 4 :=
-  ⟨fun h => sun_eq_four_of_isPerfectPower_numDerangements hn h,
-   fun h => h ▸ isPerfectPower_numDerangements_four⟩
-
-/-- The same, with the source's guard dropped — legitimate because the three excluded indices
-are settled by `not_isPerfectPower_numDerangements_of_lt_three`. -/
-theorem sun_isPerfectPower_numDerangements_iff_all (n : ℕ) :
-    IsPerfectPower (numDerangements n) ↔ n = 4 := by
-  rcases Nat.lt_or_ge n 3 with hn | hn
-  · constructor
-    · intro h
-      exact absurd h (not_isPerfectPower_numDerangements_of_lt_three hn)
-    · intro h
-      omega
-  · exact sun_isPerfectPower_numDerangements_iff (by omega)
-
-/-- The hypothesis of `sun_isPerfectPower_numDerangements_iff` is inhabited at the one index
-where its conclusion is affirmative, `n = 4`; so the conjecture is not a statement about an
-empty family. -/
-example : IsPerfectPower (numDerangements 4) ↔ (4 : ℕ) = 4 :=
-  sun_isPerfectPower_numDerangements_iff (by norm_num)
 
 
 
-/-! ## Axiom audit
 
-Everything below is `{propext, Classical.choice, Quot.sound}` except the three declarations
-downstream of the single intended `sorry` — `sun_eq_four_of_isPerfectPower_numDerangements`,
-`sun_isPerfectPower_numDerangements_iff`, `sun_isPerfectPower_numDerangements_iff_all` — which
-also report `sorryAx`. -/
 
 
 end A000166

@@ -44,7 +44,7 @@
       of the prime pattern: `a(n)` is prime for `2 ≤ n ≤ 23` outside
       the composite records `a(4) = 4`, `a(7) = 10`, `a(10) = 22`.
     · the two OPEN pattern claims of the entry, stated exactly and
-      left as INTENDED, DISCLOSED sorries:
+      quarantined in `Sorry.NumberComplexity.ComplexityPatterns`:
         (i)  after 1438 = 2·719, all terms through 8206559 = a(53)
              are prime (J. V. Post 2006);
         (ii) all known terms a(45) = 590399 … a(89) = 872573642639
@@ -665,42 +665,6 @@ theorem smallestOfComplexity_twentyThree_mod_120 :
     smallestOfComplexity 23 % 120 = 119 := by
   rw [smallestOfComplexity_twentyThree]
 
-/-! ## 6. The open pattern claims of the A005520 entry
-
-Both claims below are the card's claims (i) and (ii), stated exactly
-as the OEIS entry asserts them. Each is a FINITE, decidable-in-
-principle statement about record values that have been computed in
-the literature (Pegg 2001, Post 2006, Iraids 2011 b-file) but lie far
-beyond kernel `decide` reach (the window of claim (i) starts at
-a(26) = 1439 and runs to a(53) = 8206559; claim (ii) runs to
-a(89) = 872573642639). No structural explanation is known for either
-pattern. The `sorry`s are INTENDED and disclosed; they are the open
-content of the card. -/
-
-/-- OPEN — card claim (i), OEIS A005520 (J. V. Post, Apr 07 2006):
-"After 1438 = 2·719, all elements through 8206559 are primes." Every
-record value in the window `(1438, 8206559]` is prime. Per the
-b-file (pulled 2026-07-30) the terms in this window are
-a(26) = 1439 … a(53) = 8206559, so the hypotheses are jointly
-satisfiable (at `n = 26`, per data — itself beyond kernel reach).
-The claim is finite: `n ≤ a(n)` (`le_smallestOfComplexity`) bounds
-the indices concerned by `n ≤ 8206559`. -/
-theorem smallestOfComplexity_prime_of_1438_lt {n : ℕ}
-    (h1 : 1438 < smallestOfComplexity n)
-    (h2 : smallestOfComplexity n ≤ 8206559) :
-    Nat.Prime (smallestOfComplexity n) := by
-  sorry
-
-/-- OPEN — card claim (ii), OEIS A005520 (E. Pegg Jr, Apr 10 2001;
-range clarified by A. Karttunen, Dec 14 2015): all known terms
-a(45) = 590399 through a(89) = 872573642639 are ≡ −1 (mod 120).
-The index domain `45 ≤ n ≤ 89` is nonempty, and the pattern genuinely
-starts at 45: a(44) = 540539 ≡ 59 (mod 120) per the b-file (pulled
-2026-07-30). -/
-theorem smallestOfComplexity_mod_120 {n : ℕ} (h45 : 45 ≤ n) (h89 : n ≤ 89) :
-    smallestOfComplexity n % 120 = 119 := by
-  sorry
-
 /-! ## Satisfiability of the guarded statements
 
 Every hypothesis-bearing, sorry-free theorem above is instantiated
@@ -732,14 +696,7 @@ example : Nat.Prime (smallestOfComplexity 23) :=
   smallestOfComplexity_prime (by omega) (by omega) (by omega) (by omega)
     (by omega)
 
-/-! ## Axiom audit (sorry-free declarations only)
 
-Expected: every entry reports a subset of
-`{propext, Classical.choice, Quot.sound}`. The sweep covers every
-sorry-free declaration of this file, `private` helpers and `def`s
-included. The two OPEN claims `smallestOfComplexity_prime_of_1438_lt`
-and `smallestOfComplexity_mod_120` are intentionally `sorry`ed (card
-status: open) and are excluded from the audit. -/
 
 
 end NumberComplexity

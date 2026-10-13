@@ -2,8 +2,8 @@
   NumberComplexity/ComplexityDefect — OEIS A244743: the smallest `n` at which
   the integer-complexity DROP `‖n-1‖ - ‖n‖` equals `k`.  Both halves of the
   entry's status line are OPEN — that the drop is unbounded, and that the
-  sequence is well defined at all — and they are carried here by one intended,
-  disclosed `sorry` over a proved sanity layer.
+  sequence is well defined at all. These admissions are quarantined in
+  `Sorry.NumberComplexity.ComplexityDefect` above this proved sanity layer.
 
   Also fixes the terminology this lane inherited: the *defect* of the
   Altman–Zelinsky literature is `‖n‖ - 3 log₃ n`, a different quantity, given
@@ -129,9 +129,9 @@ See the lane report for the full discrepancy write-up.
   **proved**; the conditional form is the honest one, because the source says
   outright that no proof of well-definedness is known.
 * `dropLevel_nonempty` — THE CONJECTURE, in the form "every `k` is attained",
-  i.e. A244743 is well defined at every index.  OPEN; one intended, disclosed
-  `sorry`.  `complexityDrop_unbounded` and `A244743_mem_dropLevel` are proved
-  *from* it.
+  i.e. A244743 is well defined at every index. OPEN; quarantined in
+  `Sorry.NumberComplexity.ComplexityDefect`, together with its consequences
+  `complexityDrop_unbounded` and `A244743_mem_dropLevel`.
 * `A244743_zero`, `A244743_one`, `A244743_two` — `a(0) = 6`, `a(1) = 12`,
   `a(2) = 24`, each with its minimality sweep, by kernel `decide` through
   `complexityRec`.  **No `native_decide` anywhere in this file.**
@@ -337,58 +337,6 @@ theorem A244743_eq_of {k v : ℕ} (hv : 2 ≤ v)
   rw [← complexityDrop_eq_complexityDropRec]
   exact heq
 
-/-! ## 4. The conjecture
-
-One intended, disclosed `sorry`.  Everything above is sorry-free, and the two
-statements below are proved *from* the sorried one. -/
-
-/-- **OEIS A244743, THE CONJECTURE** — OPEN: every `k` is attained, i.e. for
-every `k` there is an `n ≥ 2` with `‖n-1‖ - ‖n‖ = k`, so the sequence A244743 is
-well defined (and infinite) at every index.
-
-Verbatim from the entry: "It is conjectured that ||n-1||-||n|| is not bounded.
-But there is no proof that the sequence is infinite or is well defined."
-
-This is the *stronger* of the two claims in that sentence: unboundedness alone
-would permit the drop to skip a value `k`, leaving `a(k)` undefined while the
-sequence still ran off to infinity.  `complexityDrop_unbounded` derives the
-weaker, literally-stated form from it.
-
-Status (sweep 2026-08-05): open, with only nine terms known — `a(0) = 6` through
-`a(8) = 612360000` — and `keywords: nonn,more`.  Nothing resembling a general
-construction is known; the A252739 cross-reference records Karttunen's attempt
-to predict `a(12)` or `a(16)` from the pattern `6, 720, 612360000` and Iraids'
-computation refuting it.  The obstruction is structural: a large drop at `n`
-needs `n` smooth (so `‖n‖` is small) with `n - 1` of provably *large*
-complexity, and lower bounds on `‖·‖` beyond Selfridge's `3 log₃ n`
-(`three_mul_logb_three_le_complexity`) are the hard direction of the whole
-subject — the same wall as `complexity_two_pow` in `DoublingConjecture.lean`.
-
-Non-vacuity: the level set is nonempty for `k = 0, 1, 2` outright, proved below
-by `A244743_zero`, `A244743_one`, `A244743_two`. -/
-theorem dropLevel_nonempty (k : ℕ) : (dropLevel k).Nonempty := by
-  -- INTENDED SORRY: open problem (OEIS A244743, "no proof that the sequence is
-  -- infinite or is well defined").  Proved for `k ≤ 2` by the certificates
-  -- below; the general case needs complexity lower bounds beyond Selfridge's.
-  sorry
-
-/-- **The conjecture as the entry literally states it** — "||n-1||-||n|| is not
-bounded" — derived from well-definedness by taking the level `⌈B⌉ + 1`.
-Phrased with `<` over an explicit bound rather than as an `iSup`, which would
-collapse on an empty index. -/
-theorem complexityDrop_unbounded (B : ℤ) : ∃ n : ℕ, 2 ≤ n ∧ B < complexityDrop n := by
-  obtain ⟨n, hn2, hnk⟩ := dropLevel_nonempty (B.toNat + 1)
-  refine ⟨n, hn2, ?_⟩
-  have hself : B ≤ (B.toNat : ℤ) := Int.self_le_toNat B
-  rw [hnk]
-  push_cast
-  omega
-
-/-- The unconditional form of `A244743_spec`, granted the conjecture: the value
-`A244743 k` really is the least `n` realising the drop `k`, for every `k`. -/
-theorem A244743_mem_dropLevel (k : ℕ) : A244743 k ∈ dropLevel k :=
-  Nat.sInf_mem (dropLevel_nonempty k)
-
 /-! ## 5. Ground truth against the A244743 DATA line
 
 `a(0) = 6`, `a(1) = 12`, `a(2) = 24`, each certified *with* its minimality
@@ -528,11 +476,7 @@ quantity: `2, 3, 4, 5, 7` all have drop `-1`, interleaved with the drop-`0`
 value at `6`. -/
 example : ∀ m ∈ ({2, 3, 4, 5, 7} : Finset ℕ), complexityDropRec m = -1 := by decide
 
-/-! ## 8. Axiom audit (sorry-free declarations only)
 
-`dropLevel_nonempty`, `complexityDrop_unbounded` and `A244743_mem_dropLevel`
-are omitted: the first is the intended `sorry` and the other two are proved
-from it, so all three depend on `sorryAx` by design. -/
 
 
 end NumberComplexity

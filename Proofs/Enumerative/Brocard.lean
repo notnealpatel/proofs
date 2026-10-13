@@ -3,8 +3,8 @@ import Mathlib
 /-!
 # OEIS A146968 / A085692 / A216071 — Brocard's problem, `n! + 1 = m²`
 
-**Status.**  Archive file.  Every declaration is proved and kernel-checked except one
-intended `sorry`, `A146968.brocard`, which carries the open problem itself.  No
+**Status.** Production infrastructure; all declarations here are proved. The open
+statement `A146968.brocard` is quarantined in `Sorry.Enumerative.Brocard`. No
 `native_decide` is used anywhere in this file; every `decide` is kernel reduction.
 
 ## Primary sources, pinned verbatim
@@ -172,7 +172,7 @@ Proved, `sorry`-free and kernel-checked:
   `solutions = {(4,5), (5,11), (7,71)}`, it implies finiteness of the solution set, and it
   pins A146968 `= {4,5,7}`, A216071 `= {5,11,71}` and A085692 `= {25,121,5041}`.
 
-The single intended `sorry`:
+Archived in `Sorry.Enumerative.Brocard` (not admitted in production):
 
 * `brocard : BrocardConjecture` — Brocard's problem itself, open since 1876.
 
@@ -539,24 +539,6 @@ theorem squares_eq_of_brocardConjecture (H : BrocardConjecture) :
     · exact ⟨⟨11, by decide⟩, 5, by decide⟩
     · exact ⟨⟨71, by decide⟩, 7, by decide⟩
 
-/-- **Brocard's problem** — the Brocard–Ramanujan conjecture, Erdős Problem 398:
-`n! + 1 = m²` has only the solutions `(n, m) = (4,5), (5,11), (7,71)`.
-
-**Status: open**, since Brocard posed it in 1876.  This is the single intended `sorry` of
-the file, and the only declaration here that reports `sorryAx`.  Erdős and Graham write that
-it "is almost certainly true but it is intractable at present"; Overholt `[Ov93]` derives
-finiteness of the solution set from a weak form of the abc conjecture, and the equation has
-been checked to `n ≤ 10^15`.
-
-It is not vacuous: `known_subset_solutions` shows the three asserted pairs really are
-solutions, `pair_eq_of_isBrown_of_le` proves the conjecture unconditionally for `n ≤ 30`,
-and `brocardConjecture_iff_solutions` shows the statement is equivalent to a set equality
-whose right-hand side has exactly three elements. -/
-theorem brocard : BrocardConjecture := by
-  -- Intended `sorry`: Brocard's problem, open since 1876 (Brocard 1876/1885; Ramanujan 1913;
-  -- Erdős Problem 398; OEIS A146968, keyword `hard`).
-  sorry
-
 /-! ## Satisfiability of every hypothesis, and non-vacuity
 
 Each theorem above with hypotheses is instantiated below at a single concrete model in which
@@ -640,9 +622,8 @@ example : ((4 : ℕ), (5 : ℕ)) ≠ (5, 11) ∧ ((5 : ℕ), (11 : ℕ)) ≠ (7,
     ((4 : ℕ), (5 : ℕ)) ≠ (7, 71) := by decide
 
 /-- The five consequence theorems take `H : BrocardConjecture` as a hypothesis, so each of
-them is `sorry`-free; the only way to discharge `H` in this file is `brocard`, and applying
-one of them to `brocard` would produce a `sorryAx`-dependent term.  No such application is
-made here, which is why `brocard` is the sole declaration below reporting `sorryAx`.  That
+them is `sorry`-free. The admitted `brocard` now lives only in
+`Sorry.Enumerative.Brocard`; no application to it is made in production. That
 `H` is not a self-contradictory hypothesis is witnessed instead by
 `brocardConjecture_iff_solutions`, whose right-hand side is a concrete three-element set
 containing the three verified solutions. -/
@@ -652,9 +633,5 @@ example : ({(4, 5), (5, 11), (7, 71)} : Set (ℕ × ℕ)).Finite :=
 
 end A146968
 
-/-! ## Axiom audit
 
-`A146968.brocard` carries the file's single intended `sorry` and reports `sorryAx` by
-construction.  Every other declaration in the file — the full public surface is swept
-below — must report a subset of `{propext, Classical.choice, Quot.sound}`. -/
 

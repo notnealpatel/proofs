@@ -13,13 +13,14 @@ It is not the minimum size of a maximal intersecting family.
 Production proves the first four values, in particular g(4) = 9 from the
 universal nine-edge lower bound and explicit upper witness. It also proves
 the classical (8/3)n - 3 lower bound via ErdosLovaszLower.lean. These results
-do not discharge the archived literature admissions still physically in
-Erdos/ErdosLovasz.lean: Sivashankar's positive-n 3n - 4 lower bound and eventual
+do not discharge the archived literature admissions now quarantined in
+Sorry/Erdos/ErdosLovasz.lean: Sivashankar's positive-n 3n - 4 lower bound and eventual
 ((41-sqrt(19))/12 - epsilon)n lower bound for every epsilon > 0, Barat's
 g(5) = 13 and g(6) <= 18. The same header also records the separate Kahn
 linear upper-bound admission; derived consequences inherit those dependencies.
-Calling these statements archived does not mean they have moved to this new
-module. This documentation neither adds admissions nor claims that the
+These statements and their dependent consequences live in the commensurate
+quarantine module, not in production or in this documentation-only module.
+This documentation neither adds admissions nor claims that the
 remaining peeling, edge-colouring, extremal witnesses or search certificates
 are formalized. The completed g(4) lower bound is not a remaining task.
 

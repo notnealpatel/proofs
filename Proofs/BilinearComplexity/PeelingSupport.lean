@@ -3,7 +3,7 @@ import Mathlib
 /-!
 # Support-geometry foundation for the peeling-peak invariant
 
-Formalization of five lemmas (L0–L5) about the combinatorial geometry
+Independent proved infrastructure (L0–L4 and the L5 helpers) about the combinatorial geometry
 of the matrix-multiplication support `T n` and its F₂-decompositions
 into indicator boxes.
 
@@ -28,13 +28,15 @@ cell in an even number.
 * `shadow_bound_12`, `shadow_bound_23`, `shadow_bound_13` (L2) —
   `|supp τ ∩ T n| ≤ |U|·|V|` (and cyclic variants);
   `shadow_cube_bound` — `m³ ≤ |τ|²`.
-* `cover_sum_ge` (L3) — `Σ mᵢ ≥ n³`; `cover_outmass_even` — total
-  out-mass is even.
+* `cover_sum_ge` (L3) — `Σ mᵢ ≥ n³`. The unfinished
+  `cover_outmass_even` and its dependent `outmass_ge_two` are quarantined in
+  `Sorry.BilinearComplexity.PeelingSupport`, not admitted here.
 * `slack0_size_bound` (L4) — `|τ| ≤ 2m`; `slack0_m_le` — `m ≤ 4`;
   `slack0_tau_le` — `|τ| ≤ 8`.
-* `outmass_ge_two` (L5) — any decomposition with `r < n³` has
-  out-mass ≥ 2.
+* The independent L5 pigeonhole and positive-out-mass helpers remain here.
 -/
+
+set_option autoImplicit false
 
 namespace BilinearComplexity.PeelingSupport
 
@@ -492,11 +494,6 @@ theorem cover_sum_ge {n : ℕ} {L : List (Box n)} (hd : IsDecomp n L) :
     _ = (L.map (fun τ => τ.mass)).sum := by
         simp only [List.map_map]; rfl
 
-/-- **L3b.** The total out-mass is even. -/
-theorem cover_outmass_even {n : ℕ} {L : List (Box n)} (hd : IsDecomp n L) :
-    Even (totalOutMass n L) := by
-  sorry
-
 /-! ### L4: Slack-0 move bound -/
 
 /-- The symmetric difference has card = |T \ S| + |S \ T|. -/
@@ -612,35 +609,6 @@ private lemma exists_ge_two_of_sum_gt_length {L : List ℕ}
         have hy2 : y < 2 := hall' y (List.Mem.head _)
         have := ihy (fun z hz => hall' z (List.Mem.tail _ hz))
         omega
-  omega
-
-/-- **L5.** Any decomposition with fewer than `n³` boxes has
-out-mass ≥ 2. -/
-theorem outmass_ge_two {n : ℕ} {L : List (Box n)}
-    (hd : IsDecomp n L) (hr : L.length < n ^ 3) :
-    2 ≤ totalOutMass n L := by
-  -- Step 1: totalMass ≥ n³ > r, so some box has mass ≥ 2
-  have hmass := cover_sum_ge hd
-  have hlen : L.length < (L.map (fun τ => τ.mass)).sum := by
-    calc L.length < n ^ 3 := hr
-      _ ≤ totalMass n L := hmass
-      _ = _ := rfl
-  have hlen' : (L.map (fun τ => τ.mass)).length < (L.map (fun τ => τ.mass)).sum := by
-    simp only [List.length_map]; exact hlen
-  obtain ⟨m, hm_mem, hm_ge⟩ := exists_ge_two_of_sum_gt_length hlen'
-  rw [List.mem_map] at hm_mem
-  obtain ⟨τ, hτ_mem, rfl⟩ := hm_mem
-  -- Step 2: that box has outMass ≥ 1
-  have hout := outMass_pos_of_mass_ge_two τ hm_ge
-  -- Step 3: totalOutMass ≥ 1
-  have hout1 : 1 ≤ totalOutMass n L := by
-    unfold totalOutMass
-    calc 1 ≤ τ.outMass := hout
-      _ ≤ (L.map (fun τ => τ.outMass)).sum :=
-          List.le_sum_of_mem (List.mem_map_of_mem (f := fun τ : Box n => τ.outMass) hτ_mem)
-  -- Step 4: totalOutMass is even, so ≥ 2
-  have heven := cover_outmass_even hd
-  obtain ⟨k, hk⟩ := heven
   omega
 
 end BilinearComplexity.PeelingSupport

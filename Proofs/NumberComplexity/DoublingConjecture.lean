@@ -2,8 +2,8 @@
   NumberComplexity/DoublingConjecture — the powers-of-two hypothesis
   `‖2^a‖ = 2a` for integer (Mahler–Popken) complexity: Guy, *Unsolved
   Problems in Number Theory*, §F26; Hypothesis 1 of Iraids et al.
-  (arXiv:1203.6462).  OPEN — carried here as one intended, disclosed
-  `sorry` over a proved sanity layer.
+  (arXiv:1203.6462).  OPEN — quarantined in `Sorry.NumberComplexity.DoublingConjecture`;
+  this production module contains the proved sanity layer.
 
   AI disclosure: produced with AI assistance (see Proofs/README).
 -/
@@ -137,7 +137,7 @@ open.
   from the hypothesis: at `2^a` it certifies only `a + 1`, strictly less than
   `2a` for every `2 ≤ a`.
 * `complexity_two_pow` — THE HYPOTHESIS, `‖2^a‖ = 2a` for `1 ≤ a`.  OPEN;
-  one intended, disclosed `sorry`.
+  quarantined in `Sorry.NumberComplexity.DoublingConjecture`.
 
 NOT formalized: the parenthetical "moreover" clause of Hypothesis 1 ("the
 product of `1+1`s is shorter than **any other** representation").  As an
@@ -687,39 +687,9 @@ example : complexity 36 = 10 := by rw [complexity_eq_complexityRec]; decide
 set_option maxRecDepth 16384 in
 example : complexity 48 = 11 := by rw [complexity_eq_complexityRec]; decide
 
-/-! ## 5. The hypothesis
-
-One intended, disclosed `sorry`.  Everything above is sorry-free. -/
-
-/-- **GUY F26 / IRAIDS ET AL. HYPOTHESIS 1** — OPEN: `‖2^a‖ = 2a` for every
-`a ≥ 1`, i.e. the product of `a` copies of `1 + 1` is an optimal
-`{1, +, ×}`-representation of `2 ^ a`.
-
-Status (sweep 2026-08-05): open.  Verified for `a ≤ 48` (Iraids et al.,
-arXiv:1606.03635, Thm 1.6); proved for `a ≤ 21` by classification of low-defect
-representations (Altman–Zelinsky, arXiv:1207.4841, Thm 1.7); proved here for
-`a ≤ 9` (`complexity_two_pow_of_le_nine`).  The source calls proving or
-disproving it "one of the biggest challenges of number theory".
-
-The guard `1 ≤ a` is the source's own (`For all $a\geq 1$`) and is necessary:
-at `a = 0` the claim would read `complexity 1 = 0`, false since
-`complexity 1 = 1`.
-
-The obstruction is precisely quantified in this file: the upper bound
-`‖2^a‖ ≤ 2a` is `complexity_two_pow_le`, proved for all `a`; the best
-unconditional lower bound is `3 log₃ 2 · a ≈ 1.893 a`
-(`three_mul_logb_three_le_complexity`), which reaches `2a` only for `a ≤ 9`
-(`cube_bound_insufficient_at_ten`).  No lower bound of the form
-`(2 − ε) a ≤ ‖2^a‖` is known. -/
-theorem complexity_two_pow {a : ℕ} (ha : 1 ≤ a) : complexity (2 ^ a) = 2 * a := by
-  -- INTENDED SORRY: open problem (Guy, UPINT §F26; arXiv:1203.6462 Hyp. 1).
-  -- Proved for `a ≤ 9` by `complexity_two_pow_of_le_nine`; the general case
-  -- needs a lower bound strictly stronger than Selfridge/Coppersmith.
-  sorry
-
 /-- **THE OPEN HALF, ISOLATED**: given the proved upper bound, the hypothesis
 at `a` is *equivalent* to the lower bound `2a ≤ ‖2^a‖`.  This is the exact
-statement that `complexity_two_pow`'s `sorry` stands for. -/
+statement that the quarantined `complexity_two_pow` asserts. -/
 theorem complexity_two_pow_eq_iff_two_mul_le {a : ℕ} (ha : 1 ≤ a) :
     complexity (2 ^ a) = 2 * a ↔ 2 * a ≤ complexity (2 ^ a) :=
   ⟨fun h => h.ge, fun h => le_antisymm (complexity_two_pow_le ha) h⟩
@@ -727,10 +697,10 @@ theorem complexity_two_pow_eq_iff_two_mul_le {a : ℕ} (ha : 1 ≤ a) :
 /-! ## 6. Satisfiability
 
 Every hypothesis-bearing statement above is instantiated jointly at a concrete
-model, so none of them is vacuous — including the sorried one, whose
+model, so none of them is vacuous — including the quarantined one, whose
 hypothesis and conclusion are met outright at `a = 3` (`‖8‖ = 6`). -/
 
-/-- Satisfiability of the sorried hypothesis: its guard and its conclusion hold
+/-- Satisfiability of the quarantined hypothesis: its guard and its conclusion hold
 together at `a = 3`, proved outright (`‖2^3‖ = ‖8‖ = 6 = 2 · 3`), so
 `complexity_two_pow` is not vacuous. -/
 example : ∃ a : ℕ, 1 ≤ a ∧ complexity (2 ^ a) = 2 * a :=
@@ -793,8 +763,6 @@ example : complexity (2 ^ 0 * 3 ^ 4) = 2 * 0 + 3 * 4 :=
 example : complexity (2 ^ 0 * 3 ^ 0) = 1 ∧ complexity (2 ^ 0 * 3 ^ 0) ≠ 2 * 0 + 3 * 0 := by
   have h : complexity (2 ^ 0 * 3 ^ 0) = 1 := by norm_num [complexity_one]
   exact ⟨h, by rw [h]; omega⟩
-
-/-! ## 7. Axiom audit (sorry-free declarations only) -/
 
 
 end NumberComplexity

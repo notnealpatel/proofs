@@ -73,13 +73,12 @@
   The database statement is a *question*, not a conjecture, and neither
   answer is known.  Erdős believed the answer is yes and staked $25 on
   a proof that it is no; Selfridge believed the answer is no and staked
-  (ultimately) $2000 on an explicit example.  `erdos_7` below states
+  (ultimately) $2000 on an explicit example.  `erdos_7` in `Sorry.Erdos.Covering.OddCovering` states
   the Erdős side — existence — because that is the side Erdős
-  conjectured; it carries this file's single intended `sorry`.  That
+  conjectured; it carries the quarantine module's single intended `sorry`.  That
   `sorry` is NOT evidence for the direction: if the Selfridge side is
   ever proved, `erdos_7` is false as stated and must be replaced by
-  `¬ OddCoveringExists`.  Both sides are named in §3 so that either can
-  be cited.
+  `¬ OddCoveringExists`.  The declaration and its direction disclosure are retained in the quarantine module.
 
   The 2026 comment thread on the problem page records two AI-assisted
   attempts at the Selfridge side, both rejected.  Verbatim, *Nat
@@ -157,8 +156,7 @@
         defining clauses become bounded quantifications, so a claimed
         odd covering system is checkable by kernel `decide`.  Negative
         controls included.
-  * §3  `erdos_7` — the archived question, the file's single intended
-        `sorry`.
+  * §3  `erdos_7` — the archived question, `sorry` retained in `Sorry.Erdos.Covering.OddCovering`.
   * §4  `natResidue`, `isCoveringSystem_image_natResidue`,
         `oddCoveringExists_of_int_residues` — the ℤ-residue → ℕ-residue
         normalization, i.e. the ℕ-encoding of §1 is no restriction.
@@ -186,9 +184,8 @@
   `no_odd_abundant_lt_945` is about natural numbers (witness: 945).
 
   ── Axiom audit ─────────────────────────────────────────────────────
-  `erdos_7` carries the single intended `sorry` and reports `sorryAx`
-  by construction; it is the only declaration allowed to.  Every other
-  declaration reports a subset of
+  `erdos_7` is retained only in `Sorry.Erdos.Covering.OddCovering`.
+  Production declarations report a subset of
   {propext, Classical.choice, Quot.sound}.  No `native_decide`, no
   `admit`, no custom axioms.
 -/
@@ -227,7 +224,7 @@ theorem IsOddCoveringSystem.three_le_mod {S : Finset (ℕ × ℕ)}
 /-- **The question of Erdős #7**, as a `Prop`: is there a distinct
     covering system all of whose moduli are odd?  The negation
     `¬ OddCoveringExists` is the Selfridge side.  Neither is proved; see
-    `erdos_7` in §3 for the archived form and the direction disclosure. -/
+    `erdos_7` in `Sorry.Erdos.Covering.OddCovering` for the archived form and the direction disclosure. -/
 def OddCoveringExists : Prop := ∃ S : Finset (ℕ × ℕ), IsOddCoveringSystem S
 
 -- ════════════════════════════════════════════════════════════════════
@@ -284,44 +281,8 @@ theorem not_isOddCoveringSystem_erdosSystem :
     absurd (h.odd_mod (0, 2) (by decide)) (by decide)⟩
 
 -- ════════════════════════════════════════════════════════════════════
--- §3 THE ARCHIVED QUESTION (OPEN, the file's single intended `sorry`)
+-- §3 THE OPEN QUESTION IS QUARANTINED IN Sorry.Erdos.Covering.OddCovering
 -- ════════════════════════════════════════════════════════════════════
-
-/-- **Erdős Problem #7** (Erdős–Selfridge, sometimes with Schinzel):
-    "Is there a distinct covering system all of whose moduli are odd?"
-    OPEN; this is the file's single intended `sorry`.
-
-    **Direction disclosure.**  The database statement is a question and
-    neither answer is known.  This declaration states the *existence*
-    side because that is the side Erdős conjectured — Filaseta–Ford–
-    Konyagin report that he was "convinced that an odd covering does
-    exist" and offered $25 for a proof that no odd covering exists,
-    while Selfridge offered ultimately $2000 for an explicit example.
-    The `sorry` is not evidence: `¬ OddCoveringExists` is equally
-    unproved, and a proof of it would make this declaration false as
-    stated.
-
-    **Fidelity.**  `IsOddCoveringSystem` carries all four requirements
-    of the database statement: distinct moduli
-    (`IsCoveringSystem.injOn_mod` — the "distinct" the Adenwalla comment
-    added), moduli greater than `1` (`IsCoveringSystem.one_lt_mod`),
-    moduli odd (`IsOddCoveringSystem.odd_mod`), and coverage of every
-    integer (`IsCoveringSystem.covers`, a quantifier over `ℤ`, not over
-    a finite window).  Restricting residues to `ℕ` costs nothing:
-    `oddCoveringExists_of_int_residues` in §4 derives this statement
-    from the version with arbitrary integer residues.
-
-    **Status and what a discharge would need.**  Neither side is in
-    formalization reach.  The existence side would be settled by an
-    explicit certificate, which `isOddCoveringSystem_iff` would then
-    verify by `decide`; §5 proves any such certificate has lcm at least
-    945.  The non-existence side would require the distortion-sieve
-    machinery of [BBMST22], which proves only the squarefree case; see
-    §6 and the header's record of two rejected 2026 attempts. -/
-theorem erdos_7 : OddCoveringExists := by
-  -- intended sorry: open question (Erdős #7; ROUTE: none known — see
-  -- the docstring and §6).
-  sorry
 
 -- ════════════════════════════════════════════════════════════════════
 -- §4 ℤ-RESIDUES NORMALIZE TO ℕ-RESIDUES
@@ -781,13 +742,11 @@ end GroundTruth
 -- §8 AXIOM AUDIT
 -- ════════════════════════════════════════════════════════════════════
 
-/-! `erdos_7` carries the file's single intended `sorry` and reports
-`sorryAx` by construction — it is listed first and is the *only*
-declaration allowed to.  Every other declaration must report a subset of
-{propext, Classical.choice, Quot.sound}.  That subset check is also the
-sound `native_decide` detector on this toolchain: a use would surface as
-a per-declaration `*._native.native_decide.ax_*` axiom.  This file
-contains no `native_decide`. -/
+/-! The admitted `erdos_7` and its direction disclosure live only in
+`Sorry.Erdos.Covering.OddCovering`. Production declarations must report a
+subset of {propext, Classical.choice, Quot.sound}. This file contains no
+`native_decide`. The early formal-conjectures `sorry` example is documentation,
+not an executable declaration. -/
 
 
 

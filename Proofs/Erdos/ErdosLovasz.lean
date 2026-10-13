@@ -103,7 +103,7 @@
     260–286). The likely reading is
     that the published version gained a coauthor the 2020 preprint lacks.
     Nothing in this file depends on the resolution — [Ba21] appears only in
-    the two archived §6 statements, which are sorried.
+    the two archived statements in `Sorry.Erdos.ErdosLovasz`, which are sorried.
   [Si26] V. Sivashankar, "An Improved Lower Bound for the Erdős–Lovász Cover
     Number Problem", arXiv:2606.24878 (2026), Theorem 1, verbatim:
       (i)  For every positive integer r, g(r) ≥ 3r − 4.
@@ -122,7 +122,8 @@
   open is the value of the optimal linear constant, which Frankl–Tokushige
   call "hopelessly difficult" [Si26, §1]; the erdosproblems.com/21 comment
   thread (Jun 2026) quotes [Si26] as g(r) ≥ (61/20 − o(1))r, a rounding of
-  (41 − √19)/12 — derived here as `sivashankar_lower_bound_61_20`.
+  (41 − √19)/12 — archived as `sivashankar_lower_bound_61_20` in
+  `Sorry.Erdos.ErdosLovasz`.
 
   ∅ ∉ F GUARD (auditor mandate for this lane). `coveringNumber F = 0`
   conflates the honest F = ∅ case with the junk ∅ ∈ F case
@@ -192,7 +193,7 @@
     thirteen_le_erdosLovaszNum_six_of_erdos_lovasz — [EL75] at n=6 gives 13
     not_threeMulAddBigO_of_asymptotic_lower_bound — Thm 1(ii) refutes 3r+O(1)
 
-  TIER 2 — ARCHIVED LITERATURE (intended, disclosed sorries; no Tier 1
+  TIER 2 — QUARANTINED in `Sorry.Erdos.ErdosLovasz` (disclosed sorries; no Tier 1
   declaration uses any of them):
     kahn_erdosLovaszNum_le_linear       [Ka94]      ∃C, g(n) ≤ Cn
     sivashankar_three_mul_sub_four      [Si26](i)   3n − 4 ≤ g(n)
@@ -200,13 +201,13 @@
     barat_erdosLovaszNum_five    [Ba21]    g(5) = 13
     barat_erdosLovaszNum_six_le  [Ba21]    g(6) ≤ 18
 
-  TIER 3 — DERIVED FROM TIER 2 (each is a Tier 1 implication applied to a
+  TIER 3 — QUARANTINED in `Sorry.Erdos.ErdosLovasz`, DERIVED FROM TIER 2 (each is a Tier 1 implication applied to a
   Tier 2 statement, so it reports `sorryAx` too — by design, not by
   oversight):
     kahn_erdosLovaszNum_isBigO          [Ka94] in IsBigO form
     sivashankar_lower_bound_61_20       the 61/20 rounding
 
-  SORRY LEDGER: exactly the five Tier 2 statements, one
+  QUARANTINE LEDGER: exactly the five Tier 2 statements, one
   `declaration uses sorry` warning each. `6 ≤ g(3)` left the ledger on
   2026-08-05; `tripathi_erdosLovaszNum_four : g(4) = 9` has now also left
   the ledger. The classical `erdos_lovasz_lower_bound` is now proved by
@@ -220,8 +221,8 @@
   Erdos/ErdosLovaszFourLower.lean. Its selected dependency closure, both
   bounds, and the family-level lower-bound bridge report exactly
   {propext, Classical.choice, Quot.sound}; no archived theorem is used.
-  The build emits exactly 5 `declaration uses sorry` warnings, one per
-  Tier 2 statement. The two Tier 3 consequences still inherit `sorryAx`.
+  Only the quarantine build emits the 5 `declaration uses sorry` warnings.
+  Production retains no Tier 2 or Tier 3 declarations.
   No `native_decide` or custom axioms are used; all finite ground checks are
   kernel `decide`.  The recorded signatures of the §1–§4 theorems (stated
   inside `variable` sections) and of the new g(4) bridges have the intended
@@ -870,7 +871,7 @@ example :
 
 
 -- ════════════════════════════════════════════════════════════════════
--- §6 LITERATURE STATEMENTS (g(4) PROVED; OTHER STATEMENTS ARCHIVED)
+-- §6 PROVED LITERATURE RESULTS (other statements in Sorry.Erdos.ErdosLovasz)
 -- ════════════════════════════════════════════════════════════════════
 
 /-- **[EL75] lower bound**: `8n/3 − 3 ≤ g(n)` for every positive `n`.
@@ -893,35 +894,6 @@ theorem erdos_lovasz_lower_bound (n : ℕ) (hn : 0 < n) :
     exact_mod_cast hnat
   linarith
 
-/-- **[Ka94]** (literature, INTENDED SORRY): `g(r) = O(r)`, the solution of
-Erdős' $500 problem, in explicit-constant form. The constant is not explicit
-in [Ka94] (a random-lines-in-a-projective-plane argument via [Ka92]). -/
-theorem kahn_erdosLovaszNum_le_linear :
-    ∃ C : ℝ, ∀ n : ℕ, 1 ≤ n → (erdosLovaszNum n : ℝ) ≤ C * n := by
-  -- INTENDED SORRY: statement-archive lane. [Ka94] is a full research paper.
-  sorry
-
-/-- **[Si26] Theorem 1(i)** (literature, INTENDED SORRY): `3n − 4 ≤ g(n)` for
-every `n ≥ 1`, by an elementary degree-peeling argument. Stated in `ℤ` so the
-subtraction is honest. -/
-theorem sivashankar_three_mul_sub_four (n : ℕ) (hn : 0 < n) :
-    3 * (n : ℤ) - 4 ≤ erdosLovaszNum n := by
-  -- INTENDED SORRY: statement-archive lane. [Si26, §2–§3].
-  sorry
-
-/-- **[Si26] Theorem 1(ii)** (literature, INTENDED SORRY): for every `ε > 0`,
-eventually `((41 − √19)/12 − ε) n ≤ g(n)`. The constant `(41 − √19)/12 =
-3.05342…` exceeds 3, so this settles Erdős' question whether `g(r) < 3r`
-(`not_threeMulAddBigO_of_asymptotic_lower_bound`). `Real.sqrt` is applied to
-the nonnegative numeral 19, so it is off its junk branch;
-`sivashankarConst_bounds` pins the value numerically. -/
-theorem sivashankar_asymptotic_lower_bound (ε : ℝ) (hε : 0 < ε) :
-    ∀ᶠ n : ℕ in Filter.atTop,
-      ((41 - Real.sqrt 19) / 12 - ε) * n ≤ erdosLovaszNum n := by
-  -- INTENDED SORRY: statement-archive lane. [Si26, §4] uses Kahn's
-  -- small-codegree hypergraph edge-colouring theorem.
-  sorry
-
 /-- **[Tr14] `g(4) = 9`**, now proved (OEIS A391599, a(4) = 9).
 The upper bound is Tripathi's nine-edge witness; the lower bound is a
 universal incidence argument on arbitrary ground types, passed through
@@ -931,28 +903,8 @@ theorem tripathi_erdosLovaszNum_four : erdosLovaszNum 4 = 9 :=
   le_antisymm erdosLovaszNum_four_le tripathi_nine_le_erdosLovaszNum_four
 
 
-/-- **[Ba21]** (literature, INTENDED SORRY): `g(5) = 13` (OEIS A391599,
-a(5) = 13), with exactly three non-isomorphic extremal examples
-(erdosproblems.com/21, comment of 03 Dec 2025). -/
-theorem barat_erdosLovaszNum_five : erdosLovaszNum 5 = 13 := by
-  -- INTENDED SORRY: statement-archive lane; computer search in [Ba21].
-  sorry
-
-/-- **[Ba21]** (literature, INTENDED SORRY): `g(6) ≤ 18`. [Ba21] determine
-`m(6) = 18`, where `m(r)` is the minimum number of lines of a projective plane
-with covering number `r`; such a configuration is a 6-uniform intersecting
-family with τ = 6, whence `g(6) ≤ 18`. The exact value of g(6) is unknown,
-which is why OEIS A391599 stops at a(5) and carries the `more` keyword.
-
-The companion `13 ≤ g(6)` quoted on erdosproblems.com/21 is NOT independent
-literature — it is [EL75] evaluated at n = 6, where `8·6/3 − 3 = 13` exactly;
-see `thirteen_le_erdosLovaszNum_six_of_erdos_lovasz`, which is sorry-free. -/
-theorem barat_erdosLovaszNum_six_le : erdosLovaszNum 6 ≤ 18 := by
-  -- INTENDED SORRY: statement-archive lane.
-  sorry
-
 -- ════════════════════════════════════════════════════════════════════
--- §7 CONSEQUENCES OF THE LITERATURE STATEMENTS (SORRY-FREE)
+-- §7 INDEPENDENT IMPLICATIONS (admitted applications in Sorry.Erdos.ErdosLovasz)
 -- ════════════════════════════════════════════════════════════════════
 
 /-- Numeric pin for [Si26]'s constant: `61/20 < (41 − √19)/12 < 3.054`. In
@@ -980,13 +932,6 @@ theorem lower_bound_61_20_of_asymptotic
   have hconst : (61 : ℝ) / 20 < (41 - Real.sqrt 19) / 12 := sivashankarConst_bounds.1
   exact mul_le_mul_of_nonneg_right (by linarith) (Nat.cast_nonneg n)
 
-/-- The `61/20` form of [Si26]'s bound. DERIVED from the archived
-`sivashankar_asymptotic_lower_bound`, hence inheriting its `sorryAx`; the
-derivation itself is the sorry-free `lower_bound_61_20_of_asymptotic`. -/
-theorem sivashankar_lower_bound_61_20 (ε : ℝ) (hε : 0 < ε) :
-    ∀ᶠ n : ℕ in Filter.atTop, ((61 : ℝ) / 20 - ε) * n ≤ erdosLovaszNum n :=
-  lower_bound_61_20_of_asymptotic sivashankar_asymptotic_lower_bound ε hε
-
 /-- SORRY-FREE DERIVATION behind `kahn_erdosLovaszNum_isBigO`: an explicit
 linear bound gives Mathlib's `IsBigO` form. -/
 theorem isBigO_of_forall_le_linear {C : ℝ}
@@ -999,14 +944,6 @@ theorem isBigO_of_forall_le_linear {C : ℝ}
     mul_le_mul_of_nonneg_right (le_abs_self C) (Nat.cast_nonneg n)
   rw [Real.norm_natCast, Real.norm_natCast]
   linarith
-
-/-- [Ka94]'s bound in Mathlib's asymptotic normal form. DERIVED from the
-archived `kahn_erdosLovaszNum_le_linear`, hence inheriting its `sorryAx`; the
-derivation itself is the sorry-free `isBigO_of_forall_le_linear`. -/
-theorem kahn_erdosLovaszNum_isBigO :
-    (fun n : ℕ => (erdosLovaszNum n : ℝ)) =O[Filter.atTop] (fun n : ℕ => (n : ℝ)) := by
-  obtain ⟨C, hC⟩ := kahn_erdosLovaszNum_le_linear
-  exact isBigO_of_forall_le_linear hC
 
 /-- CONTENT CHECK on `kahn_erdosLovaszNum_le_linear`: every admissible
 constant satisfies `1 ≤ C`, so the statement is not satisfiable by a trivial
@@ -1275,7 +1212,7 @@ example : (erdosLovaszNum 1 : ℝ) ≤ 3 * 1 ∧ (erdosLovaszNum 2 : ℝ) ≤ 3 
 
 -- The OEIS A391599 data row, as far as this file proves it: a(1) = 1,
 -- a(2) = 3, a(3) = 6 — the first three terms of `1, 3, 6, 9, 13`, all three
--- now sorry-free. (a(4) = 9 and a(5) = 13 remain archived.)
+-- now sorry-free. a(4) = 9 is also proved; a(5) = 13 remains quarantined.
 example : erdosLovaszNum 1 = 1 ∧ erdosLovaszNum 2 = 3 ∧ erdosLovaszNum 3 = 6 :=
   ⟨erdosLovaszNum_one, erdosLovaszNum_two, tripathi_erdosLovaszNum_three⟩
 
@@ -1285,6 +1222,6 @@ end GroundChecks
 
 The recorded axiom dependencies of the Tier 1 declarations are exactly
 `[propext, Classical.choice, Quot.sound]`. The 5 Tier 2 statements and the 2
-Tier 3 consequences additionally depend on `sorryAx`; no declaration has any
-other axiom dependency. No `native_decide`, `@[implemented_by]`, `@[extern]`,
+Tier 3 consequences live only in `Sorry.Erdos.ErdosLovasz`, where they retain
+their disclosed `sorryAx` dependencies. Production here has no admissions. No `native_decide`, `@[implemented_by]`, `@[extern]`,
 `@[csimp]`, or declared `axiom` is used. -/
