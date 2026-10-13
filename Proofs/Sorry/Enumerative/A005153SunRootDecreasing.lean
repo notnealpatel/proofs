@@ -39,15 +39,16 @@ That guard is load-bearing: `a(1)^{1/1} = 1` and `a(2)^{1/2} = √2 ≈ 1.414` w
 
 * **Limit `1`**: essentially known.  Weingartner's `a(n) = k·n·log(n log n) + O(n)`
   gives `a(n)^{1/n} → 1` immediately (any polynomially-growing sequence does).
-  This half is a *theorem modulo formalizing Weingartner*, and even a crude
-  `a(n) ≤ C·n^2` bound suffices — which is far weaker and provable by hand from
-  `practical_two_pow` plus a counting argument.
+  This half is now proved in `Enumerative.PracticalRoots`: a crude quadratic
+  bound suffices and follows from `practical_two_pow` plus a counting argument.
+  No distribution asymptotics are needed.
 * **Strict monotonicity**: open.  This is the whole content.
 
 The card separates them.
 -/
 import Mathlib
-import Enumerative.Practical
+import Enumerative.PracticalRoots
+import Enumerative.StewartCriterion
 
 set_option autoImplicit false
 
@@ -83,7 +84,7 @@ check exactly.  Their equivalence is in the PROVABLE layer. -/
 
 /-- The practical numbers, 0-indexed: `pract 0 = 1`, `pract 1 = 2`,
 `pract 2 = 4`, …  So A005153's `a(n)` is `pract (n − 1)`. -/
-noncomputable def pract (k : ℕ) : ℕ := Nat.nth Nat.Practical k
+noncomputable def pract (k : ℕ) : ℕ := Enumerative.PracticalRoots.pract k
 
 /-! ## The conjecture -/
 
@@ -113,13 +114,10 @@ Practical-number side is all repo API; `Nat.Practical` is infinite by
 1. *The limit half.*  `a(n)^{1/n} → 1` follows from any polynomial bound
    `a(n) ≤ C n^d`, since then `a(n)^{1/n} ≤ (C n^d)^{1/n} → 1`.  A crude bound
    is provable today: the practical numbers include all `2^j`, so
-   `a(n) ≤ 2^n`; that gives `a(n)^{1/n} ≤ 2`, not `→ 1`.  For `→ 1` one needs
-   `a(n) = n^{1+o(1)}`, i.e. positive density on a log scale — Saias/Weingartner
-   give `P(x) ≍ x/log x`, hence `a(n) ≍ n log n`, which is more than enough.
-   **Formalizing even a weak `a(n) ≤ C n^2` would settle the limit half**, and
-   that is plausibly reachable via Stewart's criterion (a practical number can
-   be built by multiplying primes greedily, giving `a(n) = O(n log n)` with the
-   right counting).
+   `a(n) ≤ 2^n`; that gives `a(n)^{1/n} ≤ 2`, not `→ 1`.  A polynomial upper bound suffices for `→ 1`; no
+   `a(n) = n^{1+o(1)}` estimate is required. The production module proves
+   `pract k ≤ 2 * (k+1)^2` by counting distinct practical multiples of one
+   power of two, and obtains the limit by an elementary logarithmic squeeze.
 2. *The monotonicity half.*  `a(n)^{1/n}` strictly decreasing is equivalent to
    `a(n)^{n+1} > a(n+1)^n`, i.e. `(n+1) log a(n) > n log a(n+1)`, i.e.
    `log a(n+1) − log a(n) < log a(n) / n`.  With `a(n) ≈ k n log n`, the left
@@ -133,7 +131,7 @@ Practical-number side is all repo API; `Nat.Practical` is infinite by
    bound plus a finite check.  That is a materially better outlook than the
    candidates document's "heavy" rating suggests, and worth flagging.
 
-**Tactic families.**  `native_decide` on the integer form for the window check;
+**Tactic families.**  Kernel-checked `decide` with the Stewart criterion for the window check;
 `Real.rpow` simp set and `Real.log` monotonicity for the real form;
 `Nat.nth_lt_nth` for basic monotonicity of `pract`; `nlinarith` for the
 integer inequalities; `Filter.Tendsto.comp` for the limit.
@@ -155,28 +153,32 @@ theorem sun_root_strictAnti_int (k : ℕ) (hk : 2 ≤ k) :
     pract (k + 1) ^ (k + 1) < pract k ^ (k + 2) := by
   sorry
 
-/-- The **limit half**, which is essentially known (Saias/Weingartner) and is a
-separate, materially easier target. -/
+/-- The **limit half**, proved from an elementary quadratic bound without
+Saias/Weingartner asymptotics. -/
 theorem sun_root_tendsto_one :
     Filter.Tendsto (fun k : ℕ => ((pract k : ℝ)) ^ ((k + 1 : ℝ)⁻¹))
       Filter.atTop (nhds 1) := by
-  sorry
+  exact Enumerative.PracticalRoots.sun_root_tendsto_one
 
 /-! ## Sanity layer -/
 
 -- PROVABLE: the offset shim.  `pract` is 0-indexed and reproduces the DATA line
 -- `1, 2, 4, 6, 8, 12, 16, 18, 20, 24` at indices `0..9`.  An off-by-one here
 -- would silently change which inequality the conjecture asserts.
-theorem pract_zero : pract 0 = 1 := by sorry
-theorem pract_one : pract 1 = 2 := by sorry
-theorem pract_two : pract 2 = 4 := by sorry
-theorem pract_three : pract 3 = 6 := by sorry
+/-- The zero-indexed prefix agrees with A005153. -/
+theorem pract_zero : pract 0 = 1 := Enumerative.PracticalRoots.pract_zero
+/-- The zero-indexed prefix agrees with A005153. -/
+theorem pract_one : pract 1 = 2 := Enumerative.PracticalRoots.pract_one
+/-- The zero-indexed prefix agrees with A005153. -/
+theorem pract_two : pract 2 = 4 := Enumerative.PracticalRoots.pract_two
+/-- The zero-indexed prefix agrees with A005153. -/
+theorem pract_three : pract 3 = 6 := Enumerative.PracticalRoots.pract_three
 
--- PROVABLE: the two forms of the conjecture agree.
+/-- The real root inequality is equivalent to the exact integer comparison. -/
 theorem root_strictAnti_iff_pow (k : ℕ) (hp : 0 < pract k) (hq : 0 < pract (k + 1)) :
     ((pract (k + 1) : ℝ)) ^ ((k + 2 : ℝ)⁻¹) < ((pract k : ℝ)) ^ ((k + 1 : ℝ)⁻¹)
       ↔ pract (k + 1) ^ (k + 1) < pract k ^ (k + 2) := by
-  sorry
+  exact Enumerative.PracticalRoots.root_strictAnti_iff_pow k hp hq
 
 -- PROVABLE: the `2 ≤ k` guard is load-bearing.  At `k = 1` (Sun's `n = 2`) the
 -- inequality **reverses**: `2^3 = 8 < 16 = 4^2`, i.e. `pract 1 ^ 3 < pract 2 ^ 2`,
@@ -197,21 +199,79 @@ example : (16 : ℕ) ^ 6 < 12 ^ 7 := by norm_num
 -- PROVABLE: `Nat.Practical` is infinite, which is what makes `Nat.nth` (and
 -- hence `pract`) well defined rather than eventually junk.  Follows from
 -- `Nat.practical_two_pow`.
-theorem practical_infinite : {n : ℕ | n.Practical}.Infinite := by
-  sorry
+/-- Powers of two certify that practical numbers form an infinite set. -/
+theorem practical_infinite : {n : ℕ | n.Practical}.Infinite :=
+  Enumerative.PracticalRoots.practical_infinite
 
--- PROVABLE (window check): the integer inequality for every `2 ≤ k ≤ 200`,
--- i.e. the candidates document's "`a(n)^(n+1) > a(n+1)^n` for n ≤ 200".
+-- PROVABLE (window check): the integer inequality for every `2 ≤ k ≤ 40`,
+-- i.e. Sun's one-indexed range `3 ≤ n ≤ 41`.
 -- Needs a computable list of practical numbers (not `Nat.nth`, which is
 -- `noncomputable`); build it with `Finset.filter Nat.Practical (Finset.range N)`
 -- and index into the sorted list.
+/-- Practical numbers below `N`, in increasing order. -/
 def practList (N : ℕ) : List ℕ := ((Finset.range N).filter Nat.Practical).sort (· ≤ ·)
 
-example : (practList 300).take 10 = [1, 2, 4, 6, 8, 12, 16, 18, 20, 24] := by native_decide
+/-- Computable Stewart criterion, using prime-factor-list multiplicities. -/
+private def checkPractical (n : ℕ) : Prop :=
+  0 < n ∧ ∀ p ∈ n.primeFactors,
+    p ≤ 1 + ∑ d ∈ (∏ q ∈ n.primeFactors.filter (fun q => q < p),
+      q ^ n.primeFactorsList.count q).divisors, d
+private instance : DecidablePred checkPractical := fun n => by
+  unfold checkPractical
+  infer_instance
+private theorem checkPractical_iff (n : ℕ) : checkPractical n ↔ n.Practical := by
+  unfold checkPractical
+  simp_rw [Nat.primeFactorsList_count_eq]
+  change (0 < n ∧ ∀ p ∈ n.primeFactors,
+    p ≤ 1 + ∑ d ∈ (Nat.stewartPrefix n p).divisors, d) ↔ n.Practical
+  constructor
+  · intro h
+    exact (Nat.practical_iff_stewart h.1).mpr h.2
+  · intro h
+    exact ⟨h.pos, (Nat.practical_iff_stewart h.pos).mp h⟩
+private theorem practList_eq_filter (N : ℕ) :
+    practList N = (List.range N).filter (fun n => decide (checkPractical n)) := by
+  let l := (List.range N).filter (fun n => decide (checkPractical n))
+  have hs : (Finset.range N).filter Nat.Practical = l.toFinset := by
+    ext n
+    simp [l, checkPractical_iff]
+  unfold practList
+  rw [hs]
+  apply (List.toFinset_sort (· ≤ ·) (List.nodup_range.filter _)).mpr
+  have hsorted : List.Pairwise (· ≤ ·) (List.range N) := by
+    simpa using (Finset.range N).pairwise_sort (· ≤ ·)
+  exact hsorted.filter _
+
+example : ¬checkPractical 0 := by decide +kernel
+example : checkPractical 1 := by decide +kernel
+example : checkPractical 6 := by decide +kernel
+example : checkPractical 300 := by decide +kernel
+example : practList 0 = [] := by
+  rw [practList_eq_filter]
+  decide
+example : (2 : ℕ) ∈ Finset.Icc 2 40 := by decide
+
+set_option maxRecDepth 10000 in
+set_option maxHeartbeats 1000000 in
+/-- The first ten practical numbers are certified by the Stewart criterion. -/
+theorem practList_first_ten : (practList 300).take 10 = [1, 2, 4, 6, 8, 12, 16, 18, 20, 24] := by
+  rw [practList_eq_filter]
+  decide +kernel
+
+example : (practList 300).take 10 = [1, 2, 4, 6, 8, 12, 16, 18, 20, 24] :=
+  practList_first_ten
+
+set_option maxRecDepth 10000 in
+set_option maxHeartbeats 2000000 in
+/-- Exact integer root comparisons for practical indices two through forty. -/
+theorem practList_window : ∀ k ∈ Finset.Icc 2 40,
+    (practList 3000)[k + 1]! ^ (k + 1) < (practList 3000)[k]! ^ (k + 2) := by
+  rw [practList_eq_filter]
+  decide +kernel
 
 example : ∀ k ∈ Finset.Icc 2 40,
-    (practList 3000)[k + 1]! ^ (k + 1) < (practList 3000)[k]! ^ (k + 2) := by
-  native_decide
+    (practList 3000)[k + 1]! ^ (k + 1) < (practList 3000)[k]! ^ (k + 2) :=
+  practList_window
 
 /-! ## Notes for a follow-up card
 
@@ -221,10 +281,8 @@ This candidate is **better than its Tier-3 placement suggests**.  In order:
    Free, and mandatory before any statement is trusted.
 2. `practical_infinite` — free from `practical_two_pow`.
 3. `root_strictAnti_iff_pow` — the real↔integer bridge, `Real.rpow` bookkeeping.
-4. `sun_root_tendsto_one` — the limit half.  Needs only a **polynomial** upper
-   bound on `pract k`; Stewart's criterion (already in the repo) plus a greedy
-   construction should give `pract k = O(k log k)`, which is far more than
-   enough.  **This is a genuine, reachable theorem** and the best target here.
+4. `sun_root_tendsto_one` — completed in production with the elementary
+   bound `pract k ≤ 2 * (k+1)^2`, valid also at `k = 0`.
 5. `sun_root_strictAnti` — open, but with a large asymptotic margin (see the
    sketch), so an explicit Weingartner-type bound plus a finite check might
    actually close it.  Worth a serious look before writing it off.
