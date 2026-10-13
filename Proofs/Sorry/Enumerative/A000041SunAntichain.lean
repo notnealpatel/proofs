@@ -60,10 +60,18 @@ DATA-driven checks of the guards:
 Open (May 2023).  Verified for `n ≤ 7140`.
 -/
 import Mathlib
+import Enumerative.PartitionAntichain
 
 set_option autoImplicit false
 
 namespace Candidates.A000041Antichain
+
+local instance (S : Finset ℕ) : Decidable (IsAntichain (· ∣ ·) (S : Set ℕ)) :=
+  inferInstanceAs (Decidable (∀ a ∈ S, ∀ b ∈ S, a ≠ b → ¬ a ∣ b))
+
+local instance admissibleSubsetDecidable : DecidablePred (fun S : Finset ℕ =>
+    S.Nonempty ∧ IsAntichain (· ∣ ·) (S : Set ℕ)) :=
+  fun _ => inferInstance
 
 /-! ## Definition layer
 
@@ -151,11 +159,78 @@ reach.  The candidates document already says "marginal", and that is right.
 theorem sun_a000041_antichain (n : ℕ) (hn : 2 < n) (h6 : n ≠ 6) : Representable n := by
   sorry
 
+/-- Every allowed summand is at least three, by positivity of partition counts. -/
+private theorem summand_ge_three {m : ℕ} (hm : IsSummand m) : 3 ≤ m := by
+  obtain ⟨k, hk, hmk⟩ := hm
+  have hp : 0 < p k := A000041.partitionNumber_pos k
+  omega
+
+/-- No positive-index partition count is four: the small values and monotonicity exclude it. -/
+private theorem p_ne_four {k : ℕ} (hk : 0 < k) : p k ≠ 4 := by
+  have hp1 : p 1 = 1 := congrArg (fun l : List ℕ => l[1]!) A000041.partitionNumber_range_seventeen
+  have hp2 : p 2 = 2 := congrArg (fun l : List ℕ => l[2]!) A000041.partitionNumber_range_seventeen
+  have hp3 : p 3 = 3 := congrArg (fun l : List ℕ => l[3]!) A000041.partitionNumber_range_seventeen
+  have hp4 : p 4 = 5 := congrArg (fun l : List ℕ => l[4]!) A000041.partitionNumber_range_seventeen
+  by_cases hsmall : k ≤ 3
+  · interval_cases k <;> omega
+  · have hmono : p 4 ≤ p k := A000041.monotone_partitionNumber (by omega)
+    omega
+
+/-- Six is not an allowed summand. -/
+private theorem six_not_summand : ¬ IsSummand 6 := by
+  rintro ⟨k, hk, heq⟩
+  exact p_ne_four hk (by omega)
+
+/-- Every nonempty finite representation has total at least three. -/
+private theorem representable_ge_three {n : ℕ} (hn : Representable n) : 3 ≤ n := by
+  obtain ⟨S, hnonempty, hallowed, hantichain, hsum⟩ := hn
+  obtain ⟨a, ha⟩ := hnonempty
+  have hmin := summand_ge_three (hallowed a ha)
+  have hle : a ≤ ∑ m ∈ S, m := Finset.single_le_sum (fun m _ => Nat.zero_le m) ha
+  omega
+
 /-- The two exclusions, as **refutations** rather than guards — these are finite
 claims and should be proved, since they are what justify the guards. -/
-theorem not_representable_one : ¬ Representable 1 := by sorry
-theorem not_representable_two : ¬ Representable 2 := by sorry
-theorem not_representable_six : ¬ Representable 6 := by sorry
+theorem not_representable_one : ¬ Representable 1 := by
+  intro h
+  have hmin := representable_ge_three h
+  omega
+
+/-- Two is smaller than every nonempty sum of allowed summands. -/
+theorem not_representable_two : ¬ Representable 2 := by
+  intro h
+  have hmin := representable_ge_three h
+  omega
+
+/-- Distinct allowed summands cannot sum to six, and six itself is not allowed. -/
+theorem not_representable_six : ¬ Representable 6 := by
+  rintro ⟨S, hnonempty, hallowed, hantichain, hsum⟩
+  obtain ⟨a, ha⟩ := hnonempty
+  have hmin : 3 ≤ a := summand_ge_three (hallowed a ha)
+  have hmembers : ∀ b ∈ S, b = a := by
+    intro b hb
+    by_contra hba
+    have hbmin : 3 ≤ b := summand_ge_three (hallowed b hb)
+    have hsub : ({a, b} : Finset ℕ) ⊆ S := by
+      intro x hx
+      have hx' : x = a ∨ x = b := by
+        simpa only [Finset.mem_insert, Finset.mem_singleton] using hx
+      rcases hx' with hxa | hxb
+      · exact hxa ▸ ha
+      · exact hxb ▸ hb
+    have hle : ∑ m ∈ ({a, b} : Finset ℕ), m ≤ ∑ m ∈ S, m :=
+      Finset.sum_le_sum_of_subset_of_nonneg hsub (fun m _ _ => Nat.zero_le m)
+    rw [Finset.sum_pair (Ne.symm hba)] at hle
+    omega
+  have hsingle : S = {a} := by
+    ext b
+    constructor
+    · intro hb
+      exact Finset.mem_singleton.mpr (hmembers b hb)
+    · intro hb
+      exact Finset.mem_singleton.mp hb ▸ ha
+  have ha6 : a = 6 := by simpa [hsingle] using hsum
+  exact six_not_summand (ha6 ▸ hallowed a ha)
 
 /-! ## Sanity layer
 
@@ -171,15 +246,35 @@ def summandList : List ℕ :=
 
 -- PROVABLE: the summand list really is `p(k) + 2`.  This is the transcription
 -- audit; without it the whole sanity layer is about the wrong numbers.
+/-- The transcribed summands equal the canonical positive-index partition counts plus two. -/
 theorem summandList_eq :
     summandList = (List.range' 1 16).map (fun k => p k + 2) := by
-  sorry
+  have hmap : (List.range' 1 16).map (fun k => p k + 2) =
+      (List.range' 1 16).map (fun k => A000041.computablePartitionNumber k + 2) :=
+    List.map_congr_left (fun k _ =>
+      congrArg (fun x : ℕ => x + 2) (A000041.computablePartitionNumber_eq_partitionNumber k).symm)
+  have hcomputed : summandList =
+      (List.range' 1 16).map (fun k => A000041.computablePartitionNumber k + 2) := by
+    decide +kernel
+  exact hcomputed.trans hmap.symm
 
 -- PROVABLE: `p` ground truth against the DATA line.
-example : p 0 = 1 := by sorry
-example : p 1 = 1 := by sorry
-example : p 5 = 7 := by sorry
-example : p 10 = 42 := by sorry
+example : p 0 = 1 := by
+  rw [show p 0 = A000041.computablePartitionNumber 0 from
+    (A000041.computablePartitionNumber_eq_partitionNumber 0).symm]
+  decide +kernel
+example : p 1 = 1 := by
+  rw [show p 1 = A000041.computablePartitionNumber 1 from
+    (A000041.computablePartitionNumber_eq_partitionNumber 1).symm]
+  decide +kernel
+example : p 5 = 7 := by
+  rw [show p 5 = A000041.computablePartitionNumber 5 from
+    (A000041.computablePartitionNumber_eq_partitionNumber 5).symm]
+  decide +kernel
+example : p 10 = 42 := by
+  rw [show p 10 = A000041.computablePartitionNumber 10 from
+    (A000041.computablePartitionNumber_eq_partitionNumber 10).symm]
+  decide +kernel
 
 -- PROVABLE: satisfiability — small representations, using the numeric list.
 --   8 = 3 + 5,  12 = 5 + 7,  15 = 3 + 5 + 7
@@ -226,10 +321,46 @@ example : ¬ IsAntichain (· ∣ ·) (({3, 9} : Finset ℕ) : Set ℕ) := by dec
 -- bound, which was **false** — that list tops out at `288` and already fails at
 -- `260`.  Caught by the adversarial reviewer.)  To go further, extend
 -- `summandList` with `p(17)+2 = 299`, `p(18)+2 = 387`, … first.
+/-- Archive-only cache of nonempty antichain subsets of the original summand set. -/
+private def admissibleSubsets : Finset (Finset ℕ) :=
+  @Finset.filter (Finset ℕ)
+    (fun S => S.Nonempty ∧ IsAntichain (· ∣ ·) (S : Set ℕ))
+    admissibleSubsetDecidable summandList.toFinset.powerset
+
+/-- Membership in the subset cache is exactly the original admissibility predicate. -/
+private theorem mem_admissibleSubsets_iff (S : Finset ℕ) :
+    S ∈ admissibleSubsets ↔ S ∈ summandList.toFinset.powerset ∧
+      S.Nonempty ∧ IsAntichain (· ∣ ·) (S : Set ℕ) :=
+  @Finset.mem_filter (Finset ℕ) _ admissibleSubsetDecidable _ _
+
+/-- Archive-only cache of the totals of admissible subsets. -/
+private def admissibleSums : Finset ℕ :=
+  admissibleSubsets.image (fun S => ∑ m ∈ S, m)
+
+/-- Membership in the sum cache yields exactly an original finite witness, and conversely. -/
+private theorem mem_admissibleSums_iff (n : ℕ) :
+    n ∈ admissibleSums ↔ ∃ S ∈ summandList.toFinset.powerset,
+      S.Nonempty ∧ IsAntichain (· ∣ ·) (S : Set ℕ) ∧ ∑ m ∈ S, m = n := by
+  constructor
+  · intro hn
+    obtain ⟨S, hS, hsum⟩ := Finset.mem_image.mp hn
+    obtain ⟨hpower, hnonempty, hantichain⟩ := (mem_admissibleSubsets_iff S).mp hS
+    exact ⟨S, hpower, hnonempty, hantichain, hsum⟩
+  · rintro ⟨S, hpower, hnonempty, hantichain, hsum⟩
+    exact Finset.mem_image.mpr
+      ⟨S, (mem_admissibleSubsets_iff S).mpr ⟨hpower, hnonempty, hantichain⟩, hsum⟩
+
+/-- Native archive certificate for the original interval, using one shared finite cache.
+This intentionally retains the enlarged trust surface of the original native window check. -/
+private theorem admissibleSums_window :
+    ∀ n ∈ Finset.Icc 3 900, n ≠ 6 → n ∈ admissibleSums := by
+  native_decide
+
 example : ∀ n ∈ Finset.Icc 3 900, n ≠ 6 →
     ∃ S ∈ (summandList.toFinset).powerset,
       S.Nonempty ∧ IsAntichain (· ∣ ·) (S : Set ℕ) ∧ ∑ m ∈ S, m = n := by
-  native_decide
+  intro n hn h6
+  exact (mem_admissibleSums_iff n).mp (admissibleSums_window n hn h6)
 
 /-! ## Notes for a follow-up card
 
