@@ -22,6 +22,7 @@
   needed.
 -/
 import Mathlib
+import Sorry.Erdos.E376
 
 set_option autoImplicit false
 
@@ -38,12 +39,16 @@ instance (m : ℕ) : Decidable (ZeroOneBase3 m) := by
     `2⁸ = 256 = (100111)₃`.  -- PROVABLE (decide). -/
 theorem witnesses :
     ZeroOneBase3 (2 ^ 0) ∧ ZeroOneBase3 (2 ^ 2) ∧ ZeroOneBase3 (2 ^ 8) := by
-  sorry
+  decide
+
+/-- Named certificate that the powers with exponents 1 and 4 have a digit 2. -/
+theorem negative_examples : ¬ ZeroOneBase3 (2 ^ 1) ∧ ¬ ZeroOneBase3 (2 ^ 4) := by
+  decide
 
 /-- Non-degeneracy: `2¹ = 2 = (2)₃` and `2⁴ = 16 = (121)₃` fail.
     -- PROVABLE (decide). -/
 example : ¬ ZeroOneBase3 (2 ^ 1) ∧ ¬ ZeroOneBase3 (2 ^ 4) := by
-  sorry
+  exact negative_examples
 
 /-- **Erdős #406 (OPEN)**: only finitely many `n` have `2ⁿ` with
     ternary digits in `{0, 1}`.
@@ -56,11 +61,24 @@ example : ¬ ZeroOneBase3 (2 ^ 1) ∧ ¬ ZeroOneBase3 (2 ^ 4) := by
 theorem erdos_406 : {n : ℕ | ZeroOneBase3 (2 ^ n)}.Finite := by
   sorry
 
+set_option maxRecDepth 100000 in
+set_option maxHeartbeats 0 in
 /-- Verified window: no further examples for `9 ≤ n ≤ 200`.
     -- PROVABLE (decide; 2²⁰⁰ is a 61-digit number, `Nat.digits`
     kernel evaluation is fine at this scale). -/
 theorem window_200 : ∀ n ∈ Finset.Icc 9 200, ¬ ZeroOneBase3 (2 ^ n) := by
-  sorry
+  decide
+
+/-- Finiteness of the exponent set gives a threshold beyond which no power has only digits 0 and 1. -/
+theorem eventual_not_zeroOneBase3
+    (h : {n : ℕ | ZeroOneBase3 (2 ^ n)}.Finite) :
+    ∃ K : ℕ, ∀ k : ℕ, K ≤ k → ¬ ZeroOneBase3 (2 ^ k) := by
+  classical
+  refine ⟨h.toFinset.sup id + 1, ?_⟩
+  intro k hk hzero
+  have hmem : k ∈ h.toFinset := h.mem_toFinset.mpr hzero
+  have hbound : k ≤ h.toFinset.sup id := Finset.le_sup (f := id) hmem
+  omega
 
 /-- The Kummer corollary recorded in the DB: if the conjecture holds
     (with the known-witness list complete), then `3 ∣ C(2^{k+1}, 2^k)`
@@ -71,8 +89,22 @@ theorem window_200 : ∀ n ∈ Finset.Icc 9 200, ¬ ZeroOneBase3 (2 ^ n) := by
 theorem kummer_corollary
     (h : {n : ℕ | ZeroOneBase3 (2 ^ n)}.Finite) :
     ∃ K : ℕ, ∀ k : ℕ, K ≤ k → 3 ∣ Nat.centralBinom (2 ^ k) := by
-  sorry
+  classical
+  obtain ⟨K, hK⟩ := eventual_not_zeroOneBase3 h
+  refine ⟨K, ?_⟩
+  intro k hk
+  by_contra hnot
+  have hdigits :=
+    (ErdosCandidates.E376.prime_not_dvd_centralBinom_iff_digits
+      3 (2 ^ k) (by decide) (by decide)).mp hnot
+  have hzero : ZeroOneBase3 (2 ^ k) := by
+    intro d hd
+    have hbound := hdigits d hd
+    omega
+  exact hK k hk hzero
 
+set_option maxRecDepth 100000 in
+set_option maxHeartbeats 0 in
 /-- The {1,2}-digit variant from the DB remarks: `2¹⁵` seems to be the
     largest power of 2 with all ternary digits in `{1, 2}`.  Sanity
     window only (the general claim is as hard as the headline).
@@ -80,7 +112,7 @@ theorem kummer_corollary
 theorem digits_12_window :
     (∀ d ∈ Nat.digits 3 (2 ^ 15), 1 ≤ d) ∧
     ∀ n ∈ Finset.Icc 16 200, ¬ ∀ d ∈ Nat.digits 3 (2 ^ n), 1 ≤ d := by
-  sorry
+  decide
 
 end ErdosCandidates.E406
 
