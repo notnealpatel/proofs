@@ -61,7 +61,7 @@ Realistic scope: `a(1)`, `a(2)`, `a(3)` fully; `a(4)`, `a(5)` lower bounds only;
 `a(6) ≥ 536` and `a(7) ≥ 1696` as `native_decide` certificates *if* the witness
 colorings can be obtained from Fredricksen–Sweet / Rowley.
 -/
-import Combinatorics.SchurNumbers
+import Combinatorics.SchurResults
 
 set_option autoImplicit false
 
@@ -77,10 +77,10 @@ open SchurNumbers
   no sum-free-set predicate.  `grep -rn "SumFree" .lake/packages/mathlib/Mathlib/`
   returns nothing.  Defined fresh here.
 * `leandoc "Schur theorem monochromatic"` returns only `Matrix.schur_complement_*`
-  and `Subgroup.SchurZassenhaus*` — **Mathlib has no Schur's theorem on
-  monochromatic solutions of `x + y = z`**, and no Ramsey numbers
-  (`leandoc "Ramsey number"` is noise).  So even the *finiteness* of `a(n)`
-  (Schur 1916) is unformalized upstream and would have to be proved here.
+  and `Subgroup.SchurZassenhaus*`.  The local production module
+  `Combinatorics.SchurFinite` now proves Schur finiteness using Mathlib's
+  Hindman theorem and Rado selection; `Combinatorics.SchurResults` connects
+  its uniform bound to sum-free colorings.
 * What *is* available: `Combinatorics.Line.IsMono` and the Hales–Jewett
   development (`Mathlib/Combinatorics/HalesJewett.lean`), which gives
   van der Waerden but not Schur.  `Finset.filter`, `Finset.Icc`, `Fin n`.
@@ -107,11 +107,10 @@ theorem schur_two : IsGreatest {m : ℕ | SchurColorable 2 m} 4 :=
 
 /-- **`a(3) = 13`.**  Witness (classical):
 `{1, 4, 10, 13}`, `{2, 3, 11, 12}`, `{5, 6, 7, 8, 9}`.
-Upper bound: `decide` over `3^14 ≈ 4.8·10^6` colorings of `{1,…,14}` — large but
-kernel-feasible with a good decidable encoding, and comfortable for
-`native_decide`.  Fully provable. -/
-theorem schur_three : IsGreatest {m : ℕ | SchurColorable 3 m} 13 := by
-  sorry
+Upper bound: the production `SchurThreeCertificate` checks a pruned search
+with kernel `decide`, and `SchurResults` connects it to sum-free classes. -/
+theorem schur_three : IsGreatest {m : ℕ | SchurColorable 3 m} 13 :=
+  SchurNumbers.schur_three
 
 /-- **`a(4) = 44`** (Baumert 1965).  The lower bound is a witness check; the
 upper bound needs `4^45 ≈ 1.2·10^27` colorings, so brute force is out.  The
@@ -143,37 +142,11 @@ theorem schur_seven_lower : SchurColorable 7 1696 := by
   sorry
 
 /-- **Schur's theorem (1916): `a(n)` is finite.**
-
-Mathlib does *not* have this (see the definition layer), so it is genuinely
-missing upstream infrastructure rather than an OEIS conjecture.  Formalizing it
-— via Ramsey's theorem, which Mathlib also lacks — would be a substantial and
-independently valuable contribution.
-
-**Mathlib primitives available.**  `Mathlib/Combinatorics/HalesJewett.lean`
-(`Combinatorics.Line.exists_mono_in_high_dimension` — Hales–Jewett, hence van
-der Waerden but *not* Schur), `Finset.exists_ne_map_eq_of_card_lt_of_maps_to`
-(pigeonhole), `SimpleGraph.cliqueFree`.  A Ramsey-number development would be
-the clean route: `R(3,3,…,3)` bounds `a(n)`.
-
-**Sketch.**  Given an `n`-coloring `c` of `{1,…,m}`, color the edges of `K_{m+1}`
-by `c(|i − j|)`.  A monochromatic triangle `i < j < k` gives
-`(j−i) + (k−j) = (k−i)` all the same color, i.e. a violation of sum-freeness.
-So `a(n) < R_n(3)`, the `n`-color Ramsey number for triangles, and
-`R_n(3) ≤ 3 · n!` by the standard greedy bound.
-
-**Tactic families.**  `decide` for the small witnesses; `native_decide` for
-`a(3)`'s upper bound and any large witness (note the enlarged trust surface);
-`Finset.card_le_card`, `Finset.exists_ne_map_eq_of_card_lt_of_maps_to` for the
-pigeonhole core; `omega` for the index arithmetic.
-
-**Related work in this repo.**  `Proofs/Erdos/Erdos880/` (restricted sumsets) is
-the nearest neighbourhood — sum-free colorings and restricted sumsets are the
-same circle of ideas.  `Proofs/BilinearComplexity/Capset.lean` and
-`CapsetSliceRank.lean` handle the `x + y = 2z` analogue over `𝔽_3^n`, which is
-the *cap-set* problem; the slice-rank method there does **not** transfer to
-Schur numbers (no group structure to exploit). -/
-theorem schur_finite (n : ℕ) (hn : 0 < n) : {m : ℕ | SchurColorable n m}.Finite := by
-  sorry
+The production proof uses a uniform monochromatic-sum bound obtained from
+Mathlib's Hindman theorem and Rado selection, then rules out every sum-free
+coloring on an interval reaching that bound. -/
+theorem schur_finite (n : ℕ) (hn : 0 < n) : {m : ℕ | SchurColorable n m}.Finite :=
+  SchurNumbers.schur_finite n hn
 
 /-! ## Sanity layer -/
 
@@ -214,20 +187,11 @@ example : SumFree (∅ : Finset ℕ) := by decide
 
 Realistic scope, in order:
 
-1. `SumFree.subset`, `SchurColorable.mono` — free, and prerequisites for
-   everything else.
-2. `schur_one`, `schur_two` — fully provable, tiny `decide`s.
-3. `schur_three` — provable, but the upper bound needs a good decidable
-   encoding: naive `∀ c : Fin 14 → Fin 3` is `3^14 ≈ 4.8·10^6` and the kernel
-   will not enjoy it.  Use symmetry breaking (`c 1 = 0`) to cut it to `3^13`,
-   and `native_decide`.
-4. `schur_four` / `schur_five` lower bounds — witness checks, provable once the
+1. `SumFree.subset`, `SchurColorable.mono`, `schur_one`, `schur_two`,
+   `schur_three`, and `schur_finite` are now proved in production.
+2. `schur_four` / `schur_five` lower bounds — witness checks, provable once the
    colorings are transcribed.
-5. `schur_finite` — the real prize.  It is Schur's 1916 theorem, Mathlib does
-   not have it, and it needs a Ramsey-for-triangles development that would be
-   independently useful.  **This is the item worth doing**, and it is a
-   *theorem*, not a conjecture.
-6. `schur_four`/`schur_five` upper bounds and `a(6)`, `a(7)` — out of reach. -/
+3. `schur_four`/`schur_five` upper bounds and `a(6)`, `a(7)` remain archived. -/
 
 /-!
 ## Adversarial review verdict — **PASS-WITH-NOTES**
