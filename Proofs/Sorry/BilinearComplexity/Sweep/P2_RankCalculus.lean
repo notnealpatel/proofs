@@ -25,11 +25,13 @@
       200 random rank-1 peels of ⟨3,3,3⟩/F₂ all keep residual Lie-stab
       dim ≥ 4 (> the 2-dimensional trivial space).
 
-  Every statement is `sorry`; a later stage elaborates/attacks them.
+  The original vocabulary and p2_c1, p2_c2, p2_c4 are now provided by
+  BilinearComplexity.Sandwich. The seven remaining conjectures retain `sorry`;
+  their historical computational evidence below is not a proof.
   AI disclosure: produced with AI assistance (see Proofs/README).
 -/
 import Mathlib.Data.ZMod.Basic
-import BilinearComplexity.RankCalculus
+import BilinearComplexity.Sandwich
 
 set_option autoImplicit false
 
@@ -38,40 +40,12 @@ namespace P2Sweep
 
 open Matrix
 
-/-! ### Local vocabulary (new definitions, historically no collisions with the production API) -/
-
-/-- Kronecker product of matrices, packed row-major by `finProdFinEquiv`
-(first component slow), matching the packing of `matMulTensor` and `kron`. -/
-def matKron {k : Type*} [Mul k] {a b a' b' : ℕ} (M : Matrix (Fin a) (Fin b) k)
-    (N : Matrix (Fin a') (Fin b') k) : Matrix (Fin (a * a')) (Fin (b * b')) k :=
-  fun i j => M (finProdFinEquiv.symm i).1 (finProdFinEquiv.symm j).1
-    * N (finProdFinEquiv.symm i).2 (finProdFinEquiv.symm j).2
-
-/-- A single rank-one triad `u ⊗ v ⊗ w`. -/
-def triad {k : Type*} [Mul k] {a b c : ℕ} (u : Fin a → k) (v : Fin b → k)
-    (w : Fin c → k) : Tensor k a b c := fun i j l => u i * v j * w l
-
-/-- Simultaneous contraction of all three modes — the group action whose
-stabilizers `stab_residual` reasons about. -/
-def sandwich {k : Type*} [CommSemiring k] {a b c : ℕ}
-    (M₁ : Matrix (Fin a) (Fin a) k) (M₂ : Matrix (Fin b) (Fin b) k)
-    (M₃ : Matrix (Fin c) (Fin c) k) (T : Tensor k a b c) : Tensor k a b c :=
-  contract₁ M₁ (contract₂ M₂ (contract₃ M₃ T))
+/-! ### Remaining local vocabulary (shared sandwich vocabulary is imported) -/
 
 /-- Unpack a mode vector of `matMulTensor k n n n` into an `n × n` matrix
 (row-major, first component slow). -/
 def matOf {k : Type*} {n : ℕ} (x : Fin (n * n) → k) : Matrix (Fin n) (Fin n) k :=
   fun i j => x (finProdFinEquiv (i, j))
-
-/-- The vectorized identity matrix, `vec(Iₙ)` in row-major packing. -/
-def vecI (k : Type*) [Zero k] [One k] (n : ℕ) : Fin (n * n) → k :=
-  fun x => if (finProdFinEquiv.symm x).1 = (finProdFinEquiv.symm x).2 then 1 else 0
-
-/-- The identity triad `vec(Iₙ) ⊗ vec(Iₙ) ⊗ vec(Iₙ)` — the distinguished
-symmetry-fixed term of both the Strassen and Smirnov-1 decompositions. -/
-def identityTriad (k : Type*) [CommSemiring k] (n : ℕ) :
-    Tensor k (n * n) (n * n) (n * n) :=
-  triad (vecI k n) (vecI k n) (vecI k n)
 
 /-- Infinitesimal (Lie-algebra) stabilizer condition: `(X₁,X₂,X₃)` is a
 derivation annihilating `T`. Over F₂ the triple `(α•1, β•1, (α+β)•1)`
@@ -82,7 +56,7 @@ def InfStab {k : Type*} [CommSemiring k] {a b c : ℕ}
   ∀ i j l, (∑ i', X₁ i i' * T i' j l) + (∑ j', X₂ j j' * T i j' l)
     + (∑ l', X₃ l l' * T i j l') = 0
 
-/-! ### Conjectures -/
+/-! ### Historical sweep: imported results and remaining conjectures -/
 
 /- (a) The de-Groote-style sandwich `(P,Q,R) ↦ (P⊗⅟Qᵀ, Q⊗⅟Rᵀ, R⊗⅟Pᵀ)`
    fixes `matMulTensor` — the licensing lemma behind every orbit count in
@@ -91,11 +65,7 @@ def InfStab {k : Type*} [CommSemiring k] {a b c : ℕ}
    implicitly by every verified decomposition-stabilizer computation.
    (b) [concrete]
    (c) exact-tier data only. -/
-theorem p2_c1 {k : Type*} [CommSemiring k] {a b c : ℕ}
-    (P : Matrix (Fin a) (Fin a) k) (Q : Matrix (Fin b) (Fin b) k)
-    (R : Matrix (Fin c) (Fin c) k) [Invertible P] [Invertible Q] [Invertible R] :
-    sandwich (matKron P (⅟Q)ᵀ) (matKron Q (⅟R)ᵀ) (matKron R (⅟P)ᵀ)
-      (matMulTensor k a b c) = matMulTensor k a b c := sorry
+-- `p2_c1` is now provided by `BilinearComplexity.Sandwich`.
 
 /- (a) Stabilizers multiply under Kronecker product: the mode-wise
    `matKron` of a stabilizing triple of `T` and one of `T'` stabilizes
@@ -104,14 +74,7 @@ theorem p2_c1 {k : Type*} [CommSemiring k] {a b c : ℕ}
    `tensor_product` to build the acting group.
    (b) [concrete]
    (c) exact-tier. -/
-theorem p2_c2 {k : Type*} [CommSemiring k] {a b c a' b' c' : ℕ}
-    (M₁ : Matrix (Fin a) (Fin a) k) (M₂ : Matrix (Fin b) (Fin b) k)
-    (M₃ : Matrix (Fin c) (Fin c) k) (N₁ : Matrix (Fin a') (Fin a') k)
-    (N₂ : Matrix (Fin b') (Fin b') k) (N₃ : Matrix (Fin c') (Fin c') k)
-    (T : Tensor k a b c) (T' : Tensor k a' b' c')
-    (hT : sandwich M₁ M₂ M₃ T = T) (hT' : sandwich N₁ N₂ N₃ T' = T') :
-    sandwich (matKron M₁ N₁) (matKron M₂ N₂) (matKron M₃ N₃) (kron T T')
-      = kron T T' := sorry
+-- `p2_c2` is now provided by `BilinearComplexity.Sandwich`.
 
 /- (a) No nonzero rank-1 tensor is fixed by the whole stabilizer of
    `⟨n,n,n⟩` over F₂: exhaustive for n=2 (all 3375 nonzero triads, min
@@ -137,11 +100,7 @@ theorem p2_c3 (n : ℕ) (hn : 2 ≤ n) (u v w : Fin (n * n) → ZMod 2)
    identity-triad-first search.
    (b) [concrete]
    (c) Smirnov-1 evidence is lower-bound-tier (C₃ only); Strassen exact. -/
-theorem p2_c4 {k : Type*} [CommRing k] (n : ℕ)
-    (P : Matrix (Fin n) (Fin n) k) [Invertible P] :
-    sandwich (matKron P (⅟P)ᵀ) (matKron P (⅟P)ᵀ) (matKron P (⅟P)ᵀ)
-        (matMulTensor k n n n - identityTriad k n)
-      = matMulTensor k n n n - identityTriad k n := sorry
+-- `p2_c4` is now provided by `BilinearComplexity.Sandwich`.
 
 /- (a) Every rank-7 decomposition of `⟨2,2,2⟩` over F₂ contains a triad
    all three of whose factor matrices are invertible: in Strassen mod 2 the
