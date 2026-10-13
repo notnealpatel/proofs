@@ -39,8 +39,19 @@ def ContainsAllTrees {V : Type*} (G : SimpleGraph V) (k : ℕ) : Prop :=
     only one tree shape on 3 vertices (the path); on 4 vertices there
     are two (path, star) — `K₄` contains all of them (k = 3).
     -- PROVABLE (explicit embeddings). -/
-example : ContainsAllTrees (⊤ : SimpleGraph (Fin 4)) 3 := by
-  sorry
+theorem completeGraph_four_containsAllTrees :
+    ContainsAllTrees (⊤ : SimpleGraph (Fin 4)) 3 := by
+  intro T _hT
+  refine ⟨{
+    toHom := {
+      toFun := id
+      map_rel' := ?_ }
+    injective' := Function.injective_id }⟩
+  intro a b hab
+  exact (SimpleGraph.top_adj a b).mpr hab.ne
+
+example : ContainsAllTrees (⊤ : SimpleGraph (Fin 4)) 3 :=
+  completeGraph_four_containsAllTrees
 
 /-- **Erdős #548, the Erdős–Sós conjecture (OPEN)**: every graph on
     `n ≥ k + 1` vertices with more than `(k−1)n/2` edges contains every
@@ -96,7 +107,17 @@ theorem erdos_gallai_path (n k : ℕ) (hk : 1 ≤ k) (hn : k + 1 ≤ n)
 theorem sharpness_kk (k : ℕ) (hk : 1 ≤ k) :
     2 * (⊤ : SimpleGraph (Fin k)).edgeFinset.card = (k - 1) * k ∧
     ¬ ContainsAllTrees (⊤ : SimpleGraph (Fin k)) k := by
-  sorry
+  constructor
+  · rw [SimpleGraph.card_edgeFinset_top_eq_card_choose_two, Fintype.card_fin]
+    have hcount := Nat.add_one_mul_choose_eq (k - 1) 1
+    simpa [Nat.sub_add_cancel hk, Nat.choose_one_right, Nat.mul_comm] using hcount.symm
+  · intro hcontains
+    obtain ⟨copy⟩ := hcontains (starGraph (0 : Fin (k + 1)))
+      (SimpleGraph.isTree_starGraph _)
+    have hcard : k + 1 ≤ k := by
+      simpa only [Fintype.card_fin] using
+        Fintype.card_le_of_injective copy.toHom copy.injective
+    omega
 
 end ErdosCandidates.E548
 
