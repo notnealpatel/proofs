@@ -1,7 +1,10 @@
 /-
 # A309370 — Sidon subsets of the hypercube
 
-## OEIS source (re-pulled verbatim with `goof oeis show A309370`, 2026-08-05)
+## Preserved OEIS quotation from archive
+
+Fresh retrieval unavailable (HTTP 503); contents not independently reverified
+in this episode.
 
 ```
 NAME:     Maximum size of a Sidon subset of {0,1}^n.
@@ -50,62 +53,31 @@ full square fails (`00 + 11 = 01 + 10`) while any three of its points work.
 
 ## Status
 
-Open.  Lindström (1969) gives the lower bound, Cohen–Litsyn–Zémor the upper
-bound `2^{0.57526 n}`; the conjectured truth `2^{n/2 + 1}` sits strictly below
-the known upper bound, so the conjecture is *not* implied by current results.
-The entry is under active revision (Blair's records are dated June 2026).
+The preserved OEIS quotation describes an open conjecture and attributes a
+lower bound to Lindström (1969) and an upper bound `2^{0.57526 n}` to
+Cohen–Litsyn–Zémor. These are literature claims in the archive quotation,
+not primary-paper results verified here. The conjectured `2^{n/2 + 1}` is
+strictly below that quoted upper bound, which alone would not imply it.
+The archive records active revisions dated June 2026; these were not freshly
+retrieved in this episode.
 -/
-import Mathlib
+import Combinatorics.SidonHypercube
 
 set_option autoImplicit false
 
 namespace Candidates.A309370
 
-/-! ## Definition layer
+/-- Compatibility alias for the general production Sidon predicate. -/
+abbrev IsSidon := @Sidon.IsSidon
 
-`leandoc` findings: **Mathlib has no Sidon sets.**
-`grep -rn "Sidon" .lake/packages/mathlib/Mathlib/` returns nothing, and
-`leandoc "Sidon set"` is pure noise.  The repo has none either
-(`grep -rn "Sidon" /home/neal/p/proofs/` is empty).  So the predicate is
-defined fresh, and it is written to be reusable by `A390813SidonSquares.lean`
-in this directory — hence the general `AddCommMonoid` version alongside the
-hypercube specialization.
+/-- Compatibility alias for the ordinary-addition cube embedding. -/
+abbrev emb := @SidonHypercube.emb
 
-What *is* available and relevant:
-* `ThreeAPFree` (`Mathlib/Combinatorics/Additive/AP/Three/Defs.lean`) — the
-  `x + z = 2y` analogue.  Sidon is the `a + b = c + d` analogue and is *not* a
-  special case, so it cannot be reduced to it.
-* `Finset.card`, `Finset.filter`, `Fintype.card` — STYLE.md forbids mixing
-  cardinality APIs, so everything below uses `Finset.card` and the maximum is
-  taken with `Finset.max'`/`IsGreatest`, never `Nat.card`.
-* `Asymptotics.IsLittleO`, `Filter.Tendsto`, `Real.rpow` — for the asymptotic.
-  `2^(n/2+1)` has a half-integer exponent, so it must live in `ℝ` via
-  `Real.rpow`; `(2 : ℕ) ^ (n / 2 + 1)` with `ℕ` division would be a *different
-  and wrong* quantity (it truncates at odd `n`).  That is the main type trap in
-  this card. -/
+/-- Compatibility alias for the original cube predicate. -/
+abbrev IsSidonCube := @SidonHypercube.IsSidonCube
 
-/-- A general Sidon predicate over an additive commutative monoid: the only
-solutions of `a + b = c + d` inside `S` are the trivial ones. -/
-def IsSidon {α : Type*} [AddCommMonoid α] [DecidableEq α] (S : Finset α) : Prop :=
-  ∀ a ∈ S, ∀ b ∈ S, ∀ c ∈ S, ∀ d ∈ S,
-    a + b = c + d → (a = c ∧ b = d) ∨ (a = d ∧ b = c)
-
-/-- The hypercube point `v` as an `ℕ`-valued vector, so that addition is the
-componentwise **ordinary** addition the OEIS comment specifies (landing in
-`{0,1,2}^n`), not addition mod `2`. -/
-def emb {n : ℕ} (v : Fin n → Bool) : Fin n → ℕ := fun i => if v i then 1 else 0
-
-/-- A subset of the Boolean hypercube is Sidon when its image under `emb` is. -/
-def IsSidonCube {n : ℕ} (S : Finset (Fin n → Bool)) : Prop :=
-  ∀ a ∈ S, ∀ b ∈ S, ∀ c ∈ S, ∀ d ∈ S,
-    emb a + emb b = emb c + emb d → (a = c ∧ b = d) ∨ (a = d ∧ b = c)
-
-instance {n : ℕ} (S : Finset (Fin n → Bool)) : Decidable (IsSidonCube S) := by
-  unfold IsSidonCube; infer_instance
-
-/-- A309370: the maximum size of a Sidon subset of `{0,1}^n`.  Offset `0`. -/
-noncomputable def a309370 (n : ℕ) : ℕ :=
-  sSup {k : ℕ | ∃ S : Finset (Fin n → Bool), IsSidonCube S ∧ S.card = k}
+/-- Compatibility alias for the maximum Sidon cube cardinality. -/
+noncomputable abbrev a309370 := SidonHypercube.a309370
 
 /-! ## The conjecture -/
 
@@ -125,16 +97,13 @@ literally "asymptotic to" and is the Mathlib-normal spelling —
 `Asymptotics.IsEquivalent f g ↔ (f - g) =o[l] g`).  The repo's asymptotics
 toolbox (see `reference_lean_basic_asymptotics_toolbox`) applies.
 
-**Sketch of the known bounds.**
-* *Lower* (Lindström 1969): a Sidon set in `{0,1}^n` of size `≍ 2^{n/2}` comes
-  from a Sidon set in `ℤ/2^n` via binary expansion — the "B₂ set" construction.
-  Constructive and formalizable, though not small.
-* *Upper*: counting pairs gives `binom(|S|,2) ≤ 3^n` (the sumset lives in
-  `{0,1,2}^n`), i.e. `|S| ≲ 3^{n/2} = 2^{0.7925n}`.  **This trivial bound is
-  provable today and is the right first target**; the Cohen–Litsyn–Zémor
-  refinement to `2^{0.57526 n}` is a Fourier/linear-programming argument.
-* The conjecture `2^{n/2+1}` is *below* the CLZ upper bound, so proving it needs
-  a new upper-bound technique, not just bookkeeping.
+**Bounds and provenance.** The literature lower bound attributed to
+Lindström and the refined upper bound attributed to Cohen–Litsyn–Zémor are
+claims from the preserved OEIS quotation, not primary-paper verified here.
+The production theorem supplies only the finite counting bound: distinct
+unordered pairs give `binom(|S|, 2) ≤ 3^n`, since ordinary sums lie in
+`{0,1,2}^n`. The open asymptotic statement below is not inferred from these
+finite checks or from the quoted literature claims.
 
 **Tactic families.**  `decide` for `n ≤ 3` (`|{0,1}^n| ≤ 8`, so
 `2^8 = 256` subsets); `native_decide` for `n = 4, 5` (`2^16`, `2^32` subsets —
@@ -157,17 +126,17 @@ theorem a309370_asymptotic :
 /-- The trivial counting upper bound, **provable today**: the sumset of a Sidon
 set in `{0,1}^n` lives in `{0,1,2}^n`, and distinct unordered pairs have
 distinct sums, so `binom(|S|, 2) ≤ 3^n`. -/
-theorem a309370_trivial_upper (n : ℕ) : a309370 n * (a309370 n - 1) ≤ 2 * 3 ^ n := by
-  sorry
+theorem a309370_trivial_upper (n : ℕ) : a309370 n * (a309370 n - 1) ≤ 2 * 3 ^ n :=
+  SidonHypercube.a309370_trivial_upper n
 
 /-! ## Sanity layer -/
 
 -- PROVABLE: the exact values, `n = 0..6`, matching the DATA line
 -- `1, 2, 3, 5, 7, 12, 15` with offset `0`.
-example : a309370 0 = 1 := by sorry
-example : a309370 1 = 2 := by sorry
-example : a309370 2 = 3 := by sorry
-example : a309370 3 = 5 := by sorry
+example : a309370 0 = 1 := SidonHypercube.a309370_zero
+example : a309370 1 = 2 := SidonHypercube.a309370_one
+example : a309370 2 = 3 := SidonHypercube.a309370_two
+example : a309370 3 = 5 := SidonHypercube.a309370_three
 
 -- PROVABLE: the offset pin.  The full square `{0,1}^2` is *not* Sidon because
 -- `(0,0) + (1,1) = (0,1) + (1,0)`, which is why `a(2) = 3 < 4`.  This single
@@ -191,8 +160,8 @@ example : emb ![true] + emb ![true] = ![2] := by decide
 -- the `sSup ∅ = 0` junk value.  `∅` is always a Sidon subset of card `0`, and
 -- cards are bounded by `2^n`.
 theorem a309370_bddAbove (n : ℕ) :
-    BddAbove {k : ℕ | ∃ S : Finset (Fin n → Bool), IsSidonCube S ∧ S.card = k} := by
-  sorry
+    BddAbove {k : ℕ | ∃ S : Finset (Fin n → Bool), IsSidonCube S ∧ S.card = k} :=
+  SidonHypercube.a309370_bddAbove n
 
 /-! ## Notes for a follow-up card
 
@@ -200,9 +169,10 @@ theorem a309370_bddAbove (n : ℕ) :
    every other statement about a well-defined quantity.
 2. `a309370_trivial_upper` — the `binom(|S|,2) ≤ 3^n` bound.  Provable today,
    maybe 60 lines, and it is a real (if weak) theorem about the sequence.
-3. Lindström's lower bound `2^{n/2} ≲ a(n)` — a construction, so formalizable,
-   and it turns the conjecture into a two-sided question.
-4. The conjecture itself — open, and not implied by the known upper bound.
+3. The lower bound attributed to Lindström in the preserved quotation would
+   need a primary-paper audit before any construction is formalized here.
+4. The conjecture itself remains unresolved here; quoted literature bounds
+   are not checked premises of any production theorem.
 
 References: Lindström, *Determination of two vectors from the sum*,
 J. Combin. Theory 6 (1969) 402–407; Cohen, Litsyn, Zémor, *Binary B₂-sequences:
@@ -211,7 +181,10 @@ a new upper bound*, J. Combin. Theory Ser. A 94 (2001) 152–155. -/
 /-!
 ## Adversarial review verdict — **PASS-WITH-NOTES** (no defects)
 
-Independent re-pull of A309370 by a source-fidelity reviewer, 2026-08-05.
+Historical preserved review transcript, dated 2026-08-05, claiming an
+independent re-pull of A309370 by a source-fidelity reviewer. This transcript
+is not a fresh audit: retrieval in this episode failed with HTTP 503, and
+its source claims have not been independently reverified here.
 
 Confirmed:
 * `%O A309370 0,2` — **offset `0`**, so the candidates document's
@@ -223,7 +196,7 @@ Confirmed:
   `(2:ℝ)^(3.5) = 11.314…`.  `Real.rpow` is mandatory.
 * `emb` lands in `ℕ`-vectors, so addition is ordinary (`1 + 1 = 2`), matching
   the OEIS's "not addition modulo 2".
-* Mathlib has no Sidon predicate; neither did the repo before these two cards.
+* The production Sidon predicate preserves the original explicit formula.
 * `a309370_trivial_upper`: the `binom(|S|,2) ≤ 3^n` counting is valid, and the
   `ℕ` subtraction `a309370 n - 1` cannot truncate harmfully (at `a = 0` both
   sides are `0`; and `a ≥ 1` always, since singletons are Sidon).

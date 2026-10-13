@@ -1,7 +1,10 @@
 /-
 # A390813 — Erdős: Sidon subsets of the squares
 
-## OEIS source (re-pulled verbatim with `goof oeis show A390813`, 2026-08-05)
+## Preserved OEIS quotation from archive
+
+Fresh retrieval unavailable (HTTP 503); contents not independently reverified
+in this episode.
 
 ```
 NAME:     a(n) is the size of the largest Sidon subset of the first n positive
@@ -23,8 +26,8 @@ XREFS:
 
 Offset `1`.  `a(7) = 6` is the first drop below `n`: the seven squares
 `1, 4, 9, 16, 25, 36, 49` are **not** Sidon because `1 + 49 = 50 = 25 + 25`
-(and `a ≤ b` permits `a = b`, so this counts as a collision).  Any six of them
-work.
+(and `a ≤ b` permits `a = b`, so this counts as a collision).  A six-element subset
+works.
 
 ## "Asks", not "conjectures"
 
@@ -38,50 +41,22 @@ remain explicit and unresolved.
 ## Status
 
 Open.  This is one of the Erdős problems (see the entry's "Erdős problems"
-link).  The trivial bounds are `a(n) ≤ n` and `a(n) ≫ n^{1/2}` (any Sidon set
-in `[1, n²]` has size `≪ n`, and the squares themselves contain large Sidon
-subsets by greedy selection).
+link).  The ambient-cardinality bound is `a(n) ≤ n`. No literature lower bound is
+asserted here without a primary-paper audit.
 -/
-import Mathlib
-import Sorry.Combinatorics.A309370SidonHypercube
+import Combinatorics.SidonSquares
 
 set_option autoImplicit false
 
 namespace Candidates.A390813
 
-open Candidates.A309370 (IsSidon)
+open Sidon (IsSidon)
 
-/-! ## Definition layer
+/-- Compatibility alias for the first positive squares. -/
+abbrev squares := SidonSquares.squares
 
-`IsSidon` is imported from `Sorry.Combinatorics.A309370SidonHypercube`:
-
-```lean
-def IsSidon {α : Type*} [AddCommMonoid α] [DecidableEq α] (S : Finset α) : Prop :=
-  ∀ a ∈ S, ∀ b ∈ S, ∀ c ∈ S, ∀ d ∈ S,
-    a + b = c + d → (a = c ∧ b = d) ∨ (a = d ∧ b = c)
-```
-
-**Are the two OEIS phrasings the same?**  A309370 says "the only solutions to
-`a + b = c + d` are the trivial ones"; A390813 says "all sums `a + b` with
-`a ≤ b` are distinct".  For a set of *numbers* these agree — the unordered-pair
-sum map is injective iff the only `a+b = c+d` are trivial.  The equivalence is
-in the PROVABLE layer (`isSidon_iff_sums_distinct`) rather than assumed, because
-the two entries use different words and a silent identification is exactly the
-kind of drift this card is supposed to catch.
-
-`leandoc` confirms Mathlib has **no** Sidon-set predicate
-(`grep -rn "Sidon" .lake/packages/mathlib/Mathlib/` is empty), so the shared
-fresh definition is the only option. -/
-
-/-- The first `n` positive perfect squares, `{1², 2², …, n²}`. -/
-def squares (n : ℕ) : Finset ℕ := (Finset.Icc 1 n).image (fun k => k ^ 2)
-
-/-- A390813: the size of the largest Sidon subset of the first `n` positive
-squares.  `Finset.max'` on a nonempty set of achievable cardinalities; stated
-via `sSup` over `ℕ`, whose junk value on `∅` is avoided by
-`a390813_set_nonempty`. -/
-noncomputable def a390813 (n : ℕ) : ℕ :=
-  sSup {k : ℕ | ∃ S ⊆ squares n, IsSidon S ∧ S.card = k}
+/-- Compatibility alias for the maximum Sidon square-subset cardinality. -/
+noncomputable abbrev a390813 := SidonSquares.a390813
 
 /-! ## The question -/
 
@@ -91,36 +66,16 @@ Verbatim: "Erdős asks if a(n) is n^(1-o(1)) (see Erdős problems link)."
 
 `n^{1-o(1)}` unwinds to: for every `ε > 0`, eventually `a(n) ≥ n^{1-ε}`.
 Stated with `Real.rpow` because the exponent is real.  Note this is **not** the
-same as `a(n)/n → 1`; the DATA line shows `a(n)/n` decreasing (`a(68) = 32`), so
-that stronger reading would be refuted by the data and must be avoided.
+same as `a(n)/n → 1`: that is a distinct and stronger assertion not expressed
+by the question. Finite data alone do not settle either limit.
 
 **Mathlib primitives available.**  `Real.rpow` and its API (`Real.rpow_natCast`,
 `Real.rpow_le_rpow_left_iff`, `Real.rpow_natCast`), `Filter.atTop`,
 `Filter.Eventually`, `Asymptotics.IsLittleO`.  Nothing Sidon-specific.
 
-**Sketch of the two sides.**
-* *Upper bound (easy).*  A Sidon subset of `[1, n²]` has
-  `binom(|S|,2) ≤ n²`, so `|S| ≲ √2 · n`.  Combined with `|S| ≤ n` (the ambient
-  set has `n` elements), `a(n) ≤ n` trivially.  So the question is entirely
-  about the lower bound.
-* *Lower bound (the content).*  A greedy/probabilistic argument gives
-  `a(n) ≫ n^{1/3}` (each new square kills `O(k²)` candidates among `n`), which
-  is far from `n^{1-o(1)}`.  Getting to `n^{1-o(1)}` would need the squares to
-  behave "randomly" for additive quadruples `a² + b² = c² + d²` — and that
-  equation has *many* solutions (it is the two-squares representation problem),
-  which is precisely why the question is hard.  The number of solutions of
-  `a² + b² = c² + d²` with all parts `≤ n` is `≍ n² log n`, so the "collision
-  graph" on the `n` squares has `≍ n² log n / n = n log n` edges — a sparse but
-  not-quite-forest graph, and its independence number is what `a(n)` is.
-  So: **`a(n)` is the independence number of the collision graph on `{1,…,n}`
-  given by `a² + b² = c² + d²`**, and Turán's bound gives `a(n) ≫ n/ log n`,
-  which is *already* `n^{1-o(1)}`.  If that argument is correct the question is
-  answerable — **so a card here should first check whether the Turán bound
-  really applies**, i.e. whether the collision structure is genuinely a graph
-  (pairwise) rather than a 4-uniform hypergraph.  It is a hypergraph
-  (a collision involves four indices), which is why Turán does not immediately
-  apply and the question stays open.  This trap is recorded so a follow-up does
-  not fall into it.
+**Finite structural facts.** The ambient set has at most `n` elements, so
+`a(n) ≤ n`. The lower-bound question remains open; no speculative collision
+graph or unaudited greedy lower-bound derivation is used here.
 
 **Tactic families.**  `decide`/`native_decide` for exact small values (the
 search is over `2^n` subsets, so `n ≤ 20` needs pruning);
@@ -149,16 +104,15 @@ example : erdos_question_sidon_squares_neg ↔
       (a390813 n : ℝ) < (n : ℝ) ^ (1 - ε)) := Iff.rfl
 
 /-- The trivial upper bound, **provable today**: `a(n) ≤ n`. -/
-theorem a390813_le (n : ℕ) : a390813 n ≤ n := by
-  sorry
+theorem a390813_le (n : ℕ) : a390813 n ≤ n := SidonSquares.a390813_le n
 
 /-! ## Sanity layer -/
 
--- PROVABLE: the two OEIS phrasings of "Sidon" agree for sets of numbers.
+/-- The two OEIS phrasings of Sidon agree for sets of natural numbers. -/
 theorem isSidon_iff_sums_distinct (S : Finset ℕ) :
     IsSidon S ↔ ∀ a ∈ S, ∀ b ∈ S, ∀ c ∈ S, ∀ d ∈ S,
-      a ≤ b → c ≤ d → a + b = c + d → a = c ∧ b = d := by
-  sorry
+      a ≤ b → c ≤ d → a + b = c + d → a = c ∧ b = d :=
+  SidonSquares.isSidon_iff_sums_distinct S
 
 -- PROVABLE: `squares` ground truth.
 example : squares 3 = {1, 4, 9} := by decide
@@ -183,9 +137,9 @@ example : IsSidon ({1} : Finset ℕ) := by decide
 
 -- PROVABLE: the `sSup` is over a nonempty bounded set, so `a390813 n` is not
 -- the `sSup ∅ = 0` junk value.
+/-- The achievable-cardinality set is nonempty, so its supremum is not junk. -/
 theorem a390813_set_nonempty (n : ℕ) :
-    {k : ℕ | ∃ S ⊆ squares n, IsSidon S ∧ S.card = k}.Nonempty := by
-  sorry
+    {k : ℕ | ∃ S ⊆ squares n, IsSidon S ∧ S.card = k}.Nonempty := SidonSquares.a390813_set_nonempty n
 
 -- PROVABLE: Sievers's observation, at the one exceptional index he reports.
 -- "Up to at least n=68, the case of n=32 is the only one where the maximum size
@@ -200,8 +154,7 @@ theorem a390813_set_nonempty (n : ℕ) :
    `a390813` (it is `noncomputable`, being an `sSup` over a `Set ℕ`), same
    gating issue as `A244743ComplexityDefect.lean` and
    `A293771WhitneyMachine.lean`.
-3. The greedy lower bound `a(n) ≫ n^{1/3}` — a real, provable theorem, and the
-   first nontrivial statement about the sequence.
+3. Any literature lower-bound formalization first needs a primary-paper audit.
 4. The question itself — open. -/
 
 /-!
@@ -223,16 +176,12 @@ Confirmed:
 * The two alternatives are now proposition definitions, not opposing theorems.
 * The one-sided `n^{1−o(1)}` encoding is adequate **because** `a(n) ≤ n` is
   trivial, so the upper half of the two-sided definition is free.
-* `IsSidon` really is declared in `Candidates.A309370`, and the module path
-  `Sorry.Combinatorics.A309370SidonHypercube` is correct for
-  `lakefile.toml`'s `[[lean_lib]] name = "Sorry", srcDir = "Proofs"`.
+* `IsSidon` is now imported from production `Combinatorics.Sidon`; production
+  modules do not import the archive.
 * `squares`, the `∃ S ⊆ t, P S` sugar, and the Sievers comment-only note are all
   well formed.
 
-Notes: the collision-structure sketch in the main docstring is informally
-phrased (the obstruction to Turán is that a Sidon set must avoid *all*
-collisions simultaneously, not merely pairwise ones), but the warning it
-carries is sound and achieves its purpose.
+Notes: the speculative collision-graph and greedy-bound prose has been removed.
 -/
 
 end Candidates.A390813
