@@ -70,21 +70,27 @@ those originals.
 * `a(5) = 160`: Heule, arXiv:1711.08076 (2017 preprint, AAAI 2018), with a
   certificate exceeding 2 PB checked by a formally verified checker.  That
   certificate is not imported here; `schur_five` remains admitted.
-* `schur_six_lower` and `schur_seven_lower` also remain admitted: four
-  admissions in total.  Exact values from `a(6)` onward remain open in the
-  cited sources.
+* `schur_six_lower` and `schur_seven_lower` are now proved from literal
+  primary-source witnesses with kernel-checked finite certificates. Only the
+  two exact-value admissions above remain. Exact values from `a(6)` onward
+  remain open in the cited sources.
 
 ## Current formalization and remaining work
 
-Production proofs supply the first three exact values and finiteness.  The
-remaining lower-bound work is to obtain and transcribe witness colorings and
-check that they partition the intended intervals into sum-free classes.
-The fourth and fifth upper bounds still need formal proofs or checked
-certificate bridges.  No such witnesses or certificates for the four
-remaining admissions are supplied by this archive; their absence here is
-not a claim of impossibility.
+Production proofs supply the first three exact values, finiteness, and the
+six- and seven-color lower bounds. `Combinatorics.SchurLargeCertificate`
+transcribes Rowley's arXiv:2107.03560 ancillary workbook, sheet
+`S(7) >= 1696`, D6:E1701; its first 536 rows use six colors. Thus the six-color
+witness here is a restriction of Rowley's seven-color witness, not the
+original Fredricksen–Sweet lists mentioned in the historical OEIS quote.
+The source hashes and exact coverage/sum-free checks are recorded in that
+production module. This addition does not constitute a fresh OEIS retrieval
+or assert novelty or optimality. The fourth and fifth upper bounds still
+need formal proofs or checked certificate bridges; those two exact-value
+admissions remain unchanged.
 -/
 import Combinatorics.SchurResults
+import Combinatorics.SchurLargeCertificate
 
 set_option autoImplicit false
 
@@ -145,17 +151,19 @@ witness coloring, not supplied by this archive. -/
 theorem schur_five : IsGreatest {m : ℕ | SchurColorable 5 m} 160 := by
   sorry
 
-/-- **The open frontier: `a(6) ≥ 536`** (Fredricksen–Sweet, per Kamenetsky's
-comment).  A lower bound is a *witness*, so this is fully provable given the
-coloring — the only obstacle is obtaining it. -/
-theorem schur_six_lower : SchurColorable 6 536 := by
-  sorry
+/-- **`a(6) ≥ 536`.** Kernel-checked witness: the first-536 restriction of
+Rowley's arXiv:2107.03560 seven-color ancillary workbook, using only six
+colors. This is not a transcription of the Fredricksen–Sweet lists quoted
+in the historical OEIS block and makes no optimality claim. -/
+theorem schur_six_lower : SchurColorable 6 536 :=
+  SchurNumbers.schur_six_lower
 
-/-- **`a(7) ≥ 1696`** (Fred Rowley, 2021, per the Mar 01 2023 comment).
-Note the entry records two different lower bounds for `a(7)`: `1680`
-(Fredricksen–Sweet) and the later `1696` (Rowley).  The stronger one is used. -/
-theorem schur_seven_lower : SchurColorable 7 1696 := by
-  sorry
+/-- **`a(7) ≥ 1696`.** Rowley's 2021 ancillary workbook witness, checked in
+production by kernel `decide`, including diagonal sums. The historical
+entry quotes `1680` (Fredricksen–Sweet) and `1696` (Rowley); this wrapper
+uses the latter witness, without claiming an exact value. -/
+theorem schur_seven_lower : SchurColorable 7 1696 :=
+  SchurNumbers.schur_seven_lower
 
 /-- **Schur's theorem (historically attributed to Schur, 1916): `a(n)` is finite.**
 The production proof is a modern derivation using a uniform monochromatic-sum
@@ -210,7 +218,9 @@ Realistic scope, in order:
    `schur_three`, and `schur_finite` are now proved in production.
 2. `schur_four` / `schur_five` lower bounds — witness checks, provable once the
    colorings are transcribed.
-3. `schur_four`/`schur_five` upper bounds and `a(6)`, `a(7)` remain archived. -/
+3. `schur_six_lower` and `schur_seven_lower` now reuse the primary-source
+   witness certificates; exact `a(6)`, `a(7)` and the fourth/fifth upper
+   bounds remain outside this certificate work. -/
 
 /-!
 ## Historical archive note: adversarial review verdict — **PASS-WITH-NOTES**
