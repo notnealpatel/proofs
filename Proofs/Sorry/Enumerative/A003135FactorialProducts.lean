@@ -46,7 +46,7 @@ Open.  Classical (Guy, *UPINT* B23 territory); the entry's own attribution is
 thin — the `%A` is Sloane and the only dated comment is McCranie's 2005
 computation to `10^5`.
 -/
-import Enumerative.FactorialProducts
+import Enumerative.FactorialProductWindow
 
 set_option autoImplicit false
 
@@ -190,32 +190,21 @@ example : ¬ IsNontrivialFactorialProduct 6 :=
 -- `Multiset` (not `Finset`) is the right type.  This example pins that.
 example : ({7, 3, 3, 2} : Multiset ℕ).card = 4 := by decide
 
--- PROVABLE (window check): no `n ≤ 60` outside `{9, 10, 16}` is a nontrivial
--- factorial product. The proved largest-factor bound is a necessary constraint,
--- not a finite search certificate; a decidable reformulation is still needed.
+-- PROVABLE (window check): no `n ∈ Finset.Icc 2 60` outside `{9, 10, 16}` is a
+-- nontrivial factorial product. The complete search equivalence and its
+-- kernel-checked certificate are proved in `FactorialProductWindow`.
 example : ∀ n ∈ Finset.Icc 2 60, IsNontrivialFactorialProduct n → n ∈ knownTerms := by
-  sorry  -- needs a decidable reformulation with the search bound made explicit
+  exact FactorialProducts.isNontrivialFactorialProduct_mem_knownTerms_window
 
 /-! ## Notes for a follow-up card
 
-The candidates document rates the statement audit "high relative to payoff"
-because of the multiset condition.  Using `Multiset` (rather than a list or a
-`Finset`) makes it clean, so the real cost is the *decidable reformulation* for
-the sanity sweep — `IsNontrivialFactorialProduct` as written quantifies over all
-multisets and is not decidable as stated.
-
-Order of attack:
-1. A decidable mirror `IsNontrivialFactorialProductB (n : ℕ) : Bool` that
-   enumerates factor multisets greedily from the largest factor down. A finite
-   enumeration needs an upper bound on multiplicities in addition to the
-   largest-factor constraint. Gating item.
-2. `largest_factor_lower_bound` — now proved in `FactorialProducts` from Bertrand
-   (`Nat.exists_prime_lt_and_le_two_mul`, in Mathlib) plus
-   `Nat.Prime.dvd_factorial`. It supplies a necessary largest-factor constraint,
-   not by itself finiteness of the search.
-3. The `n ≤ 60` sweep.
-4. `a003135_finite` — open; would need the valuation cascade made effective.
-5. `a003135_complete` — open.
+The bounded sanity sweep is now proved through the exact positive-target
+multiset equivalence in `FactorialProductWindow`. Its search preserves repeated
+factors, permits the empty product only for target one, and rejects zero.
+The guarded bridge at `(n - 2, n!)` recovers the original predicate for `2 ≤ n`.
+Prime-divisor rejection shortens the certificates without changing search
+semantics. The global finiteness and completeness conjectures remain open;
+the inclusive window through sixty supplies neither global implication.
 
 Reference: Guy, *Unsolved Problems in Number Theory*, §B23. -/
 
