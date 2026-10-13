@@ -35,6 +35,8 @@ with a `DecidablePred` instance.  Statement cost is essentially zero.
 import Mathlib
 import Enumerative.Practical
 import Enumerative.StewartCriterion
+import Enumerative.MelfiPracticalSum
+import Enumerative.SwitkayParity
 
 set_option autoImplicit false
 
@@ -88,12 +90,12 @@ and out of reach, but the shape of a real attack is:
 2. A Chen/Vinogradov-style circle-method argument on `primes + practicals` would
    need a bilinear/major-arc estimate for the practical-number indicator.
    Weingartner's asymptotics give the major arcs; the minor arcs are the gap.
-3. **The cheap partial result within reach**: `2` is prime and `n - 2` is
-   practical for many odd `n`, so a sufficient condition is "every odd `n ≥ 3`
-   has `n - 2` practical **or** `n - p` practical for some small prime `p`".
-   Since every practical number `> 1` is even (`Practical.two_dvd`, already in
-   the repo) and `n` is odd, `n - p` is even for odd prime `p` — so the *real*
-   statement is: for odd `n ≥ 5`, `n - p` must be an even practical number for
+3. **The parity refinement within reach**: at the boundary `n = 3`, the
+   decomposition is `2 + 1`. For odd `n ≥ 5`, `n - 2` is odd and greater than
+   `1`, so it cannot be practical: every practical number greater than `1`
+   is even (`Practical.two_dvd`, already in the repo). Any prime + practical
+   decomposition must therefore use an odd prime and an even practical
+   summand. Equivalently, `n - p` must be an even practical number for
    some odd prime `p < n`, and for `n = 3` the decomposition is `2 + 1`.
    This parity observation is provable today and materially narrows the search;
    see `switkay_parity_reduction`.
@@ -122,8 +124,8 @@ number `> 1` is even by `Practical.two_dvd`, and `q = 1` would force `p = n - 1`
 even, hence `p = 2`, hence `n = 3`), and it is the form a search should use. -/
 theorem switkay_parity_reduction (n : ℕ) (hodd : Odd n) (hn : 5 ≤ n)
     (h : ∃ p q : ℕ, p.Prime ∧ q.Practical ∧ p + q = n) :
-    ∃ p q : ℕ, p.Prime ∧ Odd p ∧ q.Practical ∧ Even q ∧ p + q = n := by
-  sorry
+    ∃ p q : ℕ, p.Prime ∧ Odd p ∧ q.Practical ∧ Even q ∧ p + q = n :=
+  SwitkayParity.switkay_parity_reduction n hodd hn h
 
 /-- **Melfi's theorem (1996), the proved statement Switkay's comment sits above.**
 
@@ -131,14 +133,14 @@ Verbatim from the same comment: "the theorem that every even number, beginning
 with 2, is the sum of two practical numbers (Melfi's 1996 proof of Margenstern's
 conjecture)".
 
-Recorded here because (a) it is a *theorem*, not a conjecture, so it is a
-legitimate full-proof target rather than an archive card, and (b) it is the
+This archive wrapper now reuses the canonical proof in
+`Enumerative.MelfiPracticalSum`; it is not a new admission. It supplies the
 natural lower bound against which Switkay's statement should be calibrated.
 Melfi, *On two conjectures about practical numbers*, J. Number Theory 56 (1996)
 205–210. -/
 theorem melfi_even_eq_practical_add_practical (n : ℕ) (heven : Even n) (hn : 2 ≤ n) :
-    ∃ q r : ℕ, q.Practical ∧ r.Practical ∧ q + r = n := by
-  sorry
+    ∃ q r : ℕ, q.Practical ∧ r.Practical ∧ q + r = n :=
+  Nat.even_eq_practical_add_practical heven (by omega)
 
 /-! ## Sanity layer -/
 
@@ -160,13 +162,33 @@ example : ¬ ∃ p q : ℕ, p.Prime ∧ q.Practical ∧ p + q = 1 := by
 example : ∃ p q : ℕ, p.Prime ∧ q.Practical ∧ p + q = 5 :=
   ⟨3, 2, Nat.prime_three, Nat.practical_two, by norm_num⟩
 
+section NativeChecks
+
+/-- Archive computations decide practicality by the proved Stewart criterion;
+the positivity branch excludes the vacuous criterion at zero. -/
+local instance practicalDecidable (n : ℕ) : Decidable n.Practical := by
+  by_cases hn : 0 < n
+  · exact decidable_of_iff
+      (∀ p ∈ n.primeFactors, p ≤ 1 + ∑ d ∈ (Nat.stewartPrefix n p).divisors, d)
+      (Nat.practical_iff_stewart hn).symm
+  · exact isFalse (fun hp => hn hp.1)
+
 -- PROVABLE (window check): the conjecture holds for every odd `n ≤ 5000`, with
 -- the prime summand bounded by `n`.  The bound is not a hypothesis smuggled in:
 -- `p + q = n` with `q ≥ 1` already forces `p < n`.
 example : ∀ n ∈ Finset.range 5001, Odd n → 3 ≤ n →
     ∃ p ∈ Finset.range (n + 1), ∃ q ∈ Finset.range (n + 1),
       p.Prime ∧ q.Practical ∧ p + q = n := by
-  native_decide
+  have hwindow : ∀ n ∈ Finset.range 5001, Odd n → 3 ≤ n →
+      ∃ p ∈ Finset.range (n + 1), p ≤ n ∧ p.Prime ∧ (n - p).Practical := by
+    native_decide
+  intro n hn hodd hn3
+  obtain ⟨p, hp, hpn, hprime, hpractical⟩ := hwindow n hn hodd hn3
+  refine ⟨p, hp, n - p, Finset.mem_range.mpr ?_, hprime, hpractical, ?_⟩
+  · omega
+  · exact Nat.add_sub_of_le hpn
+
+end NativeChecks
 
 -- PROVABLE: the practical numbers used above really are practical, checked
 -- against the OEIS DATA line `1, 2, 4, 6, 8, 12, …`.
