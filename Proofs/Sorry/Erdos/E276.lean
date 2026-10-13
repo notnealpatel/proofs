@@ -42,7 +42,8 @@ def lucasSeq (a₀ a₁ : ℕ) : ℕ → ℕ
 
 /-- Ground truth: seeds (0, 1) give Fibonacci.
     -- PROVABLE (rfl / induction against `Nat.fib`). -/
-example : lucasSeq 0 1 10 = 55 := by sorry
+theorem lucas_fib_ten : lucasSeq 0 1 10 = 55 := by
+  decide
 
 /-- `AllComposite a₀ a₁`: every term of the sequence is composite
     (neither 0, 1, nor prime — we require `2 ≤ aₖ ∧ ¬ prime`, pinning
@@ -93,17 +94,31 @@ theorem vsemirnov_all_composite :
 /-- Sanity: the Vsemirnov seeds themselves are composite, and the
     recurrence's first terms are as expected.
     -- PROVABLE (decide / norm_num primality certificates). -/
-example : ¬ (106276436867 : ℕ).Prime ∧ ¬ (35256392432 : ℕ).Prime ∧
+theorem vsemirnov_seed_sanity :
+    ¬ (106276436867 : ℕ).Prime ∧ ¬ (35256392432 : ℕ).Prime ∧
     lucasSeq 106276436867 35256392432 2 = 141532829299 := by
-  sorry
+  have hdiv₀ : 31 ∣ (106276436867 : ℕ) := by
+    norm_num
+  have hdiv₁ : 2 ∣ (35256392432 : ℕ) := by
+    norm_num
+  constructor
+  · exact Nat.not_prime_of_dvd_of_lt hdiv₀ (by norm_num) (by norm_num)
+  · constructor
+    · exact Nat.not_prime_of_dvd_of_lt hdiv₁ (by norm_num) (by norm_num)
+    · norm_num [lucasSeq]
 
 /-- Non-degeneracy of `NoCommonFactor`: the Fibonacci sequence (seeds
     1, 1) satisfies it — consecutive Fibonacci numbers are coprime, so
     no `m ≥ 2` divides every term (indeed `fib` hits 1).  But Fibonacci
     has prime terms, so it fails `AllComposite`: the two conjuncts of
     the problem are jointly nontrivial.  -- PROVABLE. -/
-example : NoCommonFactor 1 1 ∧ ¬ AllComposite 1 1 := by
-  sorry
+theorem fibonacci_seed_nontrivial : NoCommonFactor 1 1 ∧ ¬ AllComposite 1 1 := by
+  constructor
+  · intro m hm
+    exact ⟨0, Nat.coprime_one_right m⟩
+  · intro h
+    have hsmall : 2 ≤ 1 := (h 0).1
+    omega
 
 end ErdosCandidates.E276
 

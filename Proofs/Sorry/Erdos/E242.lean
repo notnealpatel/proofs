@@ -40,11 +40,45 @@ def ES (n : ℕ) : Prop :=
 /-- Witness layer: explicit decompositions for the first cases.
     4/3 = 1/1 + 1/4 + 1/12;  4/5 = 1/2 + 1/4 + 1/20;
     4/7 = 1/2 + 1/15 + 1/210.  -- PROVABLE (norm_num). -/
-theorem es_3 : ES 3 := by sorry
+theorem es_3 : ES 3 := by
+  exact ⟨1, 4, 12, by norm_num, by norm_num, by norm_num, by norm_num⟩
 
-theorem es_5 : ES 5 := by sorry
+/-- The explicit decomposition `4/5 = 1/2 + 1/4 + 1/20`. -/
+theorem es_5 : ES 5 := by
+  exact ⟨2, 4, 20, by norm_num, by norm_num, by norm_num, by norm_num⟩
 
-theorem es_7 : ES 7 := by sorry
+/-- The explicit decomposition `4/7 = 1/2 + 1/15 + 1/210`. -/
+theorem es_7 : ES 7 := by
+  exact ⟨2, 15, 210, by norm_num, by norm_num, by norm_num, by norm_num⟩
+
+/-- The explicit decomposition of `4/4` with denominators `2, 3, 6`. -/
+private theorem es_4 : ES 4 := by
+  exact ⟨2, 3, 6, by norm_num, by norm_num, by norm_num, by norm_num⟩
+
+/-- Multiplying all three denominators by a positive cofactor preserves `ES`. -/
+private theorem es_mul (p q : ℕ) (hp : 0 < p) (hq : 0 < q)
+    (h : ES p) : ES (p * q) := by
+  obtain ⟨x, y, z, hx, hxy, hyz, heq⟩ := h
+  have hxpos : 0 < x := by omega
+  have hypos : 0 < y := by omega
+  have hzpos : 0 < z := by omega
+  have hpQ : (p : ℚ) ≠ 0 := by exact_mod_cast (Nat.ne_of_gt hp)
+  have hqQ : (q : ℚ) ≠ 0 := by exact_mod_cast (Nat.ne_of_gt hq)
+  have hxQ : (x : ℚ) ≠ 0 := by exact_mod_cast (Nat.ne_of_gt hxpos)
+  have hyQ : (y : ℚ) ≠ 0 := by exact_mod_cast (Nat.ne_of_gt hypos)
+  have hzQ : (z : ℚ) ≠ 0 := by exact_mod_cast (Nat.ne_of_gt hzpos)
+  refine ⟨x * q, y * q, z * q, ?_,
+    Nat.mul_lt_mul_of_pos_right hxy hq,
+    Nat.mul_lt_mul_of_pos_right hyz hq, ?_⟩
+  · exact Nat.one_le_iff_ne_zero.mpr (Nat.ne_of_gt (Nat.mul_pos hxpos hq))
+  · push_cast
+    calc
+      (4 : ℚ) / ((p : ℚ) * q) = (4 / p) / q := by
+        field_simp
+      _ = (1 / x + 1 / y + 1 / z) / q := by rw [heq]
+      _ = 1 / ((x : ℚ) * q) + 1 / ((y : ℚ) * q) +
+          1 / ((z : ℚ) * q) := by
+        field_simp [hpQ, hqQ, hxQ, hyQ, hzQ]
 
 /-- **Erdős #242, the Erdős–Straus conjecture (OPEN)**: every `n > 2`
     admits a decomposition.  Verified to 10¹⁸; falsifiable status in
@@ -63,7 +97,39 @@ theorem erdos_straus (n : ℕ) (hn : 2 < n) : ES n := by
     1/2 + 1/3 + 1/6).  -- PROVABLE (target; effort S). -/
 theorem es_of_es_primes (h : ∀ p : ℕ, p.Prime → 2 < p → ES p) :
     ∀ n : ℕ, 2 < n → ES n := by
-  sorry
+  intro n hn
+  have scale_divisor : ∀ p : ℕ, 0 < p → p ∣ n → ES p → ES n := by
+    intro p hp hpn hep
+    obtain ⟨q, hnq⟩ := hpn
+    have hq : 0 < q := by
+      by_contra hq
+      have hqzero : q = 0 := by omega
+      simp only [hqzero, Nat.mul_zero] at hnq
+      omega
+    rw [hnq]
+    exact es_mul p q hp hq hep
+  by_cases hfour : 4 ∣ n
+  · exact scale_divisor 4 (by norm_num) hfour es_4
+  · by_cases htwo : 2 ∣ n
+    · obtain ⟨m, hnm⟩ := htwo
+      have hm : m ≠ 1 := by omega
+      obtain ⟨p, hp, hpm⟩ := Nat.exists_prime_and_dvd hm
+      have hpne : p ≠ 2 := by
+        intro hpeq
+        obtain ⟨k, hmk⟩ := hpm
+        apply hfour
+        refine ⟨k, ?_⟩
+        rw [hnm, hmk, hpeq]
+        omega
+      have hplt : 2 < p := by have hpge := hp.two_le; omega
+      have hmn : m ∣ n := ⟨2, by omega⟩
+      exact scale_divisor p (by omega) (Nat.dvd_trans hpm hmn) (h p hp hplt)
+    · obtain ⟨p, hp, hpn⟩ := Nat.exists_prime_and_dvd (by omega : n ≠ 1)
+      have hpne : p ≠ 2 := by
+        intro hpeq
+        exact htwo (hpeq ▸ hpn)
+      have hplt : 2 < p := by have hpge := hp.two_le; omega
+      exact scale_divisor p (by omega) hpn (h p hp hplt)
 
 /-- **Mordell's residue-class theorem (the Tier-UB target)**: if
     `n % 840 ∉ {1, 121, 169, 289, 361, 529}` and `2 < n`, then `ES n`.
@@ -81,17 +147,42 @@ theorem mordell_classes (n : ℕ) (hn : 2 < n)
 /-- Sanity: the six Mordell classes are the quadratic residues
     1², 11², 13², 17², 19², 23² reduced mod 840.
     -- PROVABLE (decide). -/
-example : (121 : ℕ) = 11 ^ 2 % 840 ∧ (169 : ℕ) = 13 ^ 2 % 840 ∧
+theorem mordell_residue_sanity : (121 : ℕ) = 11 ^ 2 % 840 ∧ (169 : ℕ) = 13 ^ 2 % 840 ∧
     (289 : ℕ) = 17 ^ 2 % 840 ∧ (361 : ℕ) = 19 ^ 2 % 840 ∧
     (529 : ℕ) = 23 ^ 2 % 840 := by
-  sorry
+  decide
 
 /-- Non-degeneracy of `ES`: `n = 1` fails — `4 = 1/x + 1/y + 1/z ≤ 3`
     is impossible; keeps the `2 < n` guard honest (n = 2: 2 = ... ≤
     1 + 1/2 + 1/3 < 2 also fails).  -- PROVABLE (bounding the three
     unit fractions).  -/
-example : ¬ ES 1 ∧ ¬ ES 2 := by
-  sorry
+theorem es_small_nonexistence : ¬ ES 1 ∧ ¬ ES 2 := by
+  have bound : ∀ n : ℕ, ES n → (4 : ℚ) / n ≤ 11 / 6 := by
+    intro n hen
+    obtain ⟨x, y, z, hx, hxy, hyz, heq⟩ := hen
+    have hy : 2 ≤ y := by omega
+    have hz : 3 ≤ z := by omega
+    have hxQ : (1 : ℚ) ≤ x := by exact_mod_cast hx
+    have hyQ : (2 : ℚ) ≤ y := by exact_mod_cast hy
+    have hzQ : (3 : ℚ) ≤ z := by exact_mod_cast hz
+    have bx : (1 : ℚ) / x ≤ 1 / 1 :=
+      one_div_le_one_div_of_le (by norm_num) hxQ
+    have byy : (1 : ℚ) / y ≤ 1 / 2 :=
+      one_div_le_one_div_of_le (by norm_num) hyQ
+    have bz : (1 : ℚ) / z ≤ 1 / 3 :=
+      one_div_le_one_div_of_le (by norm_num) hzQ
+    rw [heq]
+    calc
+      (1 : ℚ) / x + 1 / y + 1 / z ≤ 1 / 1 + 1 / 2 + 1 / 3 :=
+        add_le_add (add_le_add bx byy) bz
+      _ = 11 / 6 := by norm_num
+  constructor
+  · intro h1
+    have hb := bound 1 h1
+    norm_num at hb
+  · intro h2
+    have hb := bound 2 h2
+    norm_num at hb
 
 end ErdosCandidates.E242
 
