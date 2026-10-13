@@ -40,7 +40,7 @@ binary witness with separated retained factors and a five-atom fresh context. Th
 a general collision-to-useful-operation interface, nor standard-action transport.
 The historical card's accepted-revision identity is preserved below without revalidation.
 
-## Remaining blocker and limits
+## CURRENT-STATUS: scoped completed prerequisites and remaining limits
 
 `Proofs/BilinearComplexity/SchemeMoveAlgebra.lean` now proves all 41 generic move-algebra
 prerequisite lemmas, with its original definitions and theorem contracts retained. These
@@ -51,10 +51,35 @@ space. This is a generic algebraic discharge, not a concrete historical-family s
 support-five classification, kernel presentation for a concrete proper move family, bounded
 connectivity, or rank improvement. Abstract goal propositions are not proofs of those goals.
 A multiset carries multiplicity even when evaluated occurrences cancel in characteristic two;
-a reversed relation is not a group inverse of a decomposition. No additional full
-standard-action validity-transport or ordinary-flip enumeration closure is certified by this
-change; those acceptance obligations remain outside this generic prerequisite discharge.
-One finite native witness cannot establish universal completeness or a rank lower bound.
+a reversed relation is not a group inverse of a decomposition.
+
+The adopted `Proofs/BilinearComplexity/SchemeActionValidity.lean` supplies five generic
+full-validity transport theorems: sandwich, all six physical orientations, product-one
+gauge, computed replay, and exact replay witness transport. Its two ZMod 3 fixture
+theorems check source and target full validity for a concrete replay. These results
+transport all three validity conjuncts, not only represented-tensor equality.
+
+`Proofs/BilinearComplexity/SchemeFlipEnumeration.lean` now supplies the computable
+`Scheme.FlipReduction.ordinaryFlipTargetsF2` and its sound-and-complete membership
+characterization `mem_ordinaryFlipTargetsF2_iff`. For an ordered two-slot F2 source with
+both evaluated terms nonzero, membership is equivalent to nonempty existing
+`NontrivialOrdinaryTwoTermFlip` witness data. The algorithm checks exactly three
+repeated-factor positions, applies coefficient one, deduplicates equal stored targets,
+and filters zero-output terms and unchanged presentations. It uses constructive
+finite-coordinate scheme equality, not enumeration of all schemes. Concrete
+positive-dimensional kernel-decide checks exhibit a nonempty enumeration with a
+wrapper witness and an empty enumeration caused by zero-output filtering. This is
+actual-target completeness for that exact ordered wrapper, with no slot-permutation
+field; it strengthens the earlier position-index coverage only in this narrow class.
+
+Neither this enumeration nor full standard-action validity transport proves target
+injectivity, ambient freshness, a full Valid flip edge, source-set edge equivalence,
+all exact two-to-two relations, Plus completeness, or bounded-path connectivity.
+The explicit source-nonzero premise remains required; zero factor dimensions make
+that premise impossible, rather than introducing an implicit positive-dimension
+assumption. The complete broader T1 acceptance package and its remaining consumer
+bridges must still be audited separately. One finite native witness cannot establish
+universal completeness or a rank lower bound.
 
 ## Historical/source-card subsection — complete verbatim current card
 
