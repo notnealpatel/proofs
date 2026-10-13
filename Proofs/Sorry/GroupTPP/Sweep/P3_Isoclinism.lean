@@ -1,7 +1,9 @@
 import GroupTPP.IsoclinismInvariants
 import GroupTPP.CharDegrees
+import GroupTPP.CharacterDegreeZeroLocus
 import GroupTPP.CharDegreesMul
 import GroupTPP.STPPWreath
+import GroupTPP.TPPCapacityPadding
 
 set_option autoImplicit false
 
@@ -113,7 +115,8 @@ if THIS fails, `p3_c1`/`p3_c2` die with it.
 Checked in GAP: `G ∈ {S₃, SL(2,3)}`, `A ∈ {C₂, C₃}`. -/
 theorem p3_c4 {G : Type u} [Group G] [Fintype G]
     {A : Type w} [CommGroup A] [Fintype A] :
-    minNontrivIrrepDim (G × A) = minNontrivIrrepDim G := sorry
+    minNontrivIrrepDim (G × A) = minNontrivIrrepDim G :=
+  GroupTPP.CharDegrees.minNontrivIrrepDim_prod_comm G A
 
 /-- (a) The multiplicity of degree `1` in `charDegrees` is the order of the
 abelianization: linear characters = characters of `G/G'`. This is the plank
@@ -137,7 +140,8 @@ commutativity nowhere). Nontrivial witnesses on both sides: any abelian `G`
 (c) FOUNDATION: proved.
 GAP-checkable trivially. -/
 theorem p3_c6 {G : Type u} [Group G] [Fintype G] :
-    minNontrivIrrepDim G = 0 ↔ nc G = 0 := sorry
+    minNontrivIrrepDim G = 0 ↔ nc G = 0 :=
+  GroupTPP.CharDegrees.minNontrivIrrepDim_eq_zero_iff_nc_eq_zero G
 
 /- ────────────────────────────────────────────────────────────────────────────
 ### Block II: isoclinism data of the wreath construction (the live lane)
@@ -200,19 +204,19 @@ theorem p3_c9 {H : Type u} [Group H] [Fintype H] [DecidableEq H]
 /-- (a) TPP capacity transfer across the canonical isoclinism `G ~ G × A`:
 padding by an abelian factor multiplies the capacity by AT LEAST `|A|`
 (pad one TPP slot: `(S, T, U) ↦ (S ×ˢ univ, T × {1}, U × {1})`; the `A`-strand
-of the quotient equation collapses on its own). Paired with `p3_c3` at `x = ω`
-(where `D_ω` scales EXACTLY by `|A|`) this says the CU inequality's slack
-`D_ω(G) - β(G)^(ω/3)`-side strictly reorganizes across an isoclinism family —
-the family is not α-flat even though it is `k/|Z|`-flat. Nontrivial witness:
-`G = S₃`, `A = C₂` (`β(S₃) ≥ 6·|A|` beats the trivial `card` bound on
-`S₃ × C₂` only via the padding argument... verified consistent with
-`tppCapacity_eq_card` on abelian instances).
+of the quotient equation collapses on its own). The general isoclinism
+comparison with `p3_c3` remains conditional on that admitted claim. This theorem
+establishes a weak capacity lower bound; it does not assert strict improvement
+or a strict change in CU slack. For `G = S₃`, `A = C₂`, padding the trivial
+bound `β(S₃) ≥ 6` gives `β(S₃ × C₂) ≥ 12`, equal to the trivial cardinality
+bound.
 (b) [theory]
 (c) FOUNDATION: proved (`GroupTPP.TPP` is sorry-free).
 Computationally checkable for tiny `G` only (`tppCapacity` is a sup over all
 triple powersets; keep runs < 60 s — full check skipped for time). -/
 theorem p3_c10 {G : Type u} [Group G] [Fintype G] [DecidableEq G]
     {A : Type w} [CommGroup A] [Fintype A] [DecidableEq A] :
-    tppCapacity G * Fintype.card A ≤ tppCapacity (G × A) := sorry
+    tppCapacity G * Fintype.card A ≤ tppCapacity (G × A) :=
+  GroupTPP.TPP.tppCapacity_mul_card_le_prod
 
 end Scratch.Sweep.P3
