@@ -36,13 +36,13 @@ def divisorDefect (n k : ℕ) : ℕ :=
 /-- Ground truth: `C(4,2) = 6` is divisible by `4` — no wait, `4 ∤ 6`;
     but `3 ∣ 6`.  Defect of `(4,2)` is exactly 1 (index i = 0 fails).
     -- PROVABLE (decide). -/
-example : divisorDefect 4 2 = 1 := by sorry
+example : divisorDefect 4 2 = 1 := by decide
 
 /-- Ground truth: `(6,2)`: `C(6,2) = 15`; `6 ∤ 15`, `5 ∣ 15` — defect 1.
     But n₂ = 4 is the least.  `(5,2)`: `C(5,2) = 10`; `5 ∣ 10`,
     `4 ∤ 10` — defect 1 as well?  A389360 says n₂ = 4, and indeed 4 is
     the least n ≥ 2k = 4.  -- PROVABLE (decide). -/
-example : divisorDefect 5 2 = 1 ∧ divisorDefect 4 2 = 1 := by sorry
+example : divisorDefect 5 2 = 1 ∧ divisorDefect 4 2 = 1 := by decide
 
 /-- `nk k`: the least `n ≥ 2k` with divisor defect at most one — the
     quantity `n_k` of the problem.  By `erdos_selfridge_defect_pos`
@@ -71,17 +71,57 @@ theorem erdos_selfridge_defect_pos (n k : ℕ) (hk : 2 ≤ k)
     1 ≤ divisorDefect n k := by
   sorry
 
+/-- A candidate is the least admissible natural if every smaller natural is inadmissible. -/
+private theorem nk_eq_of_least (k w : ℕ)
+    (hw : 2 * k ≤ w ∧ divisorDefect w k ≤ 1)
+    (hsmall : ∀ n : ℕ, n < w → ¬ (2 * k ≤ n ∧ divisorDefect n k ≤ 1)) :
+    nk k = w := by
+  unfold nk
+  apply Nat.le_antisymm
+  · exact Nat.sInf_le hw
+  · apply Nat.le_of_not_lt
+    intro hlt
+    exact hsmall _ hlt
+      (Nat.sInf_mem (s := {n : ℕ | 2 * k ≤ n ∧ divisorDefect n k ≤ 1}) ⟨w, hw⟩)
+
 /-- Small values against OEIS A389360 (pulled 2026-08-05:
     4, 6, 9, 12, 75, 30, 70, 56, …): `n₂ = 4`, `n₃ = 6`, `n₄ = 9`,
     `n₅ = 12`.  -- PROVABLE (decide after an sInf-characterization
     lemma; each requires checking finitely many n). -/
-theorem nk_two : nk 2 = 4 := by sorry
+theorem nk_two : nk 2 = 4 := by
+  apply nk_eq_of_least
+  · decide
+  · have hsmall : ∀ n : Fin 4, ¬ (2 * 2 ≤ n.val ∧ divisorDefect n.val 2 ≤ 1) :=
+      by decide
+    intro n hn
+    exact hsmall ⟨n, hn⟩
 
-theorem nk_three : nk 3 = 6 := by sorry
+/-- The least admissible value for `k = 3` is `6`. -/
+theorem nk_three : nk 3 = 6 := by
+  apply nk_eq_of_least
+  · decide
+  · have hsmall : ∀ n : Fin 6, ¬ (2 * 3 ≤ n.val ∧ divisorDefect n.val 3 ≤ 1) :=
+      by decide
+    intro n hn
+    exact hsmall ⟨n, hn⟩
 
-theorem nk_four : nk 4 = 9 := by sorry
+/-- The least admissible value for `k = 4` is `9`. -/
+theorem nk_four : nk 4 = 9 := by
+  apply nk_eq_of_least
+  · decide
+  · have hsmall : ∀ n : Fin 9, ¬ (2 * 4 ≤ n.val ∧ divisorDefect n.val 4 ≤ 1) :=
+      by decide
+    intro n hn
+    exact hsmall ⟨n, hn⟩
 
-theorem nk_five : nk 5 = 12 := by sorry
+/-- The least admissible value for `k = 5` is `12`. -/
+theorem nk_five : nk 5 = 12 := by
+  apply nk_eq_of_least
+  · decide
+  · have hsmall : ∀ n : Fin 12, ¬ (2 * 5 ≤ n.val ∧ divisorDefect n.val 5 ≤ 1) :=
+      by decide
+    intro n hn
+    exact hsmall ⟨n, hn⟩
 
 /-- **Monier's upper bound**: `n_k ≤ k!` for `3 ≤ k`, witnessed by
     `n = k!`: for `1 ≤ i < k`, `(k! − i) ∣ C(k!, k)`.
