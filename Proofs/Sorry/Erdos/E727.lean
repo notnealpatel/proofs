@@ -15,15 +15,17 @@
   (even for k < c·log n).  Erdős [Er68c]: a!b! ∣ n! forces
   a + b ≤ n + O(log n).
 
-  OEIS anchors: A002503 (numbers n with (n+1)² ∣ C(2n,n):
-  0, 5, 13, 14, 41, 55, 63, …), A343507, A389396.
+  OEIS anchors: A002503 (positive numbers n with (n+1)² ∣ C(2n,n));
+  `n = 0` is also a valid boundary case, A343507, A389396.
 
   Mathlib inventory: `Nat.factorial`, `Nat.centralBinom`, `catalan`
-  with `Nat.succ_mul_catalan_eq_centralBinom` (`(n+1)·Cₙ = C(2n,n)`)
+  with `succ_mul_catalan_eq_centralBinom` (`(n+1)·Cₙ = C(2n,n)`)
   — the bridge making the k = 1 statement a divisibility fact about
   Catalan numbers.
 -/
 import Mathlib
+import Erdos.FactorialCatalan
+import Erdos.FactorialSquareWitness
 
 set_option autoImplicit false
 
@@ -31,26 +33,23 @@ namespace ErdosCandidates.E727
 
 /-- Ground truth for the k = 1 shape at the first nontrivial A002503
     term: n = 5: (5+1)!² = 518400 divides 10! = 3628800 = 7·518400.
-    -- PROVABLE (decide). -/
+    Certified by the production ground-truth theorem. -/
 example : (Nat.factorial 6) ^ 2 ∣ Nat.factorial 10 := by
-  sorry
+  exact Erdos727.factorial_six_sq_dvd_factorial_ten
 
-/-- The equivalence powering the k = 1 case: for `n ≥ 1`,
+/-- The equivalence powering the k = 1 case, for every natural `n`, including `0`:
     `(n+1)!² ∣ (2n)! ↔ (n+1) ∣ catalan n`.
     Via `(2n)!/(n!)² = C(2n,n) = (n+1)·catalan n`.
-    -- PROVABLE (Mathlib: `Nat.succ_mul_catalan_eq_centralBinom`,
-    `Nat.choose_mul_factorial_mul_factorial`; effort S). -/
+    The production bridge uses `succ_mul_catalan_eq_centralBinom` and
+    `Nat.choose_mul_factorial_mul_factorial`. -/
 theorem sq_dvd_iff_dvd_catalan (n : ℕ) :
     (n + 1).factorial ^ 2 ∣ (2 * n).factorial ↔ (n + 1) ∣ catalan n := by
-  sorry
+  exact Erdos727.sq_dvd_iff_dvd_catalan n
 
 /-- **Balakran's theorem (k = 1; the lemma-mine prize)** ([Ba29]):
     `(n+1)!² ∣ (2n)!` for infinitely many `n`.
-    Proof route: via the equivalence, find infinitely many `n` with
-    `(n+1) ∣ catalan n` — Balakran's construction takes `n + 1 = p`
-    prime... (concretely A002503 contains 5, 13, 41: n+2 = 7, 15?, no —
-    re-derive the construction from [Ba29] before the campaign; the
-    OEIS terms 5, 13, 14, 41 suggest n ≡ p − 1 patterns).  Effort M. -/
+    This known infinitude theorem remains unformalized here; no sourced
+    infinitude construction is formalized. -/
 theorem balakran_k1 :
     {n : ℕ | (n + 1).factorial ^ 2 ∣ (2 * n).factorial}.Infinite := by
   sorry
@@ -61,14 +60,12 @@ theorem erdos_727 (k : ℕ) (hk : 2 ≤ k) :
     {n : ℕ | (n + k).factorial ^ 2 ∣ (2 * n).factorial}.Infinite := by
   sorry
 
-/-- Satisfiability of the k = 2 property at SOME point — probe:
-    does any small n satisfy (n+2)!² ∣ (2n)!?  (Density heuristics say
-    solutions exist but are sparse; run a sage sweep before pinning a
-    witness.  Recorded sorry'd with the witness left symbolic.)
-    -- PROBE NEEDED. -/
+/-- Satisfiability of the k = 2 property: the production theorem certifies
+    `(n+2)!² ∣ (2n)!` at `n = 208`. This single witness does not establish
+    infinitude. -/
 theorem k2_witness_exists :
     ∃ n : ℕ, (n + 2).factorial ^ 2 ∣ (2 * n).factorial := by
-  sorry
+  exact Erdos727.k2_witness_exists
 
 /-- **EGRS mixed-factorial theorem** (EGRS75), archived:
     `(n+k)!(n+1)! ∣ (2n)!` for infinitely many `n` (for each fixed
@@ -94,7 +91,8 @@ end ErdosCandidates.E727
    Verdict: PASS
    - Verbatim statement matches DB text exactly.
    - Balakran k=1 claim, EGRS mixed form, Erdos a!b!|n! bound all match DB remarks.
-   - OEIS anchors A002503, A343507, A389396 match DB comments.
+   - OEIS identifiers A002503, A343507, A389396 are recorded above;
+     the previously listed unchecked examples were removed.
    - Arithmetic: 6!^2 = 518400, 10! = 3628800, quotient 7. Correct.
    - sq_dvd_iff_dvd_catalan equivalence: (2n)!/(n!)^2 = C(2n,n) = (n+1)*catalan(n),
      so (n+1)!^2 | (2n)! iff (n+1)^2 | C(2n,n) iff (n+1) | catalan(n). Plausible.
