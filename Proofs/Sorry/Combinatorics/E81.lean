@@ -21,6 +21,7 @@
 -/
 import Mathlib
 import Combinatorics.ChordalBasics
+import Combinatorics.SplitGraphCliqueLowerBound
 
 set_option autoImplicit false
 
@@ -74,26 +75,28 @@ theorem eoz_woett_bound (n : ℕ) (hn : 3 ≤ n) (G : SimpleGraph (Fin n))
       (P.card : ℚ) ≤ (1 / 4 - 1 / 133) * n ^ 2 := by
   sorry
 
-/-- **Existential chordal lower-bound target**, inspired by the EOZ93
-    complete split-graph witness: for each `n ≥ 3`, some chordal graph
-    requires `n²/6 − C·n` cliques in every edge partition.
-    The current type does not specify a split decomposition or a particular
-    graph. Exact witness realization and attribution require a separate bridge. -/
+/-- **Existential chordal lower bound**, realized by the complete split graph
+    whose clique side consists of the vertices with value below `n / 3`.
+    With `C = 2`, every clique edge partition of this explicit chordal witness
+    satisfies the original quadratic lower bound. This is an in-repo proof;
+    it does not certify fidelity to any external formalization or attribution. -/
 theorem sharpness_split_witness :
     ∃ C : ℕ, ∀ n : ℕ, 3 ≤ n →
       ∃ (G : SimpleGraph (Fin n)) (_ : DecidableRel G.Adj),
         Chordal G ∧
         ∀ P : Finset (Finset (Fin n)), CliqueEdgePartition G P →
           n ^ 2 ≤ 6 * P.card + C * n := by
-  sorry
+  exact ⟨2, splitGraph_sharpness_witness⟩
 
 end ErdosCandidates.E81
 
 /- VERIFICATION STATUS
    The three basic examples are kernel checked via Combinatorics.ChordalBasics.
-   The three research targets remain admitted. The existential sharpness target
-   does not specify the claimed split-graph family; exact realization and
-   attribution require a separate bridge.
+   The two upper-bound research targets remain admitted. The original
+   existential sharpness target is kernel checked with C = 2 via
+   Combinatorics.SplitGraphCliqueLowerBound, using the explicit split graph
+   with clique side {x : Fin n | x.val < n / 3}.
+   External attribution and source-fidelity certification remain separate.
    The external Woett primary source was inspected at revision
    0dd69298bc5870970257f002ed376ac35aa8fa8c. Its representation bridge and local
    external compilation and axiom audit remain unpaid.
