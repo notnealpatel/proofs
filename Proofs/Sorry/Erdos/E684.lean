@@ -48,7 +48,29 @@ def roughPart (k m : ℕ) : ℕ :=
     roughPart 4 = 5·7 = 35.  -- PROVABLE (decide). -/
 example : smoothPart 4 (Nat.choose 10 4) = 6 ∧
     roughPart 4 (Nat.choose 10 4) = 35 := by
-  sorry
+  have hchoose : Nat.choose 10 4 = 210 := by decide
+  have hfac : (210 : ℕ).factorization =
+      Finsupp.single 2 1 + Finsupp.single 3 1 + Finsupp.single 5 1 + Finsupp.single 7 1 := by
+    rw [show (210 : ℕ) = 2 * 3 * 5 * 7 by norm_num]
+    rw [Nat.factorization_mul (by norm_num) (by norm_num),
+      Nat.factorization_mul (by norm_num) (by norm_num),
+      Nat.factorization_mul (by norm_num) (by norm_num)]
+    norm_num [Nat.Prime.factorization (by norm_num : Nat.Prime 2),
+      Nat.Prime.factorization (by norm_num : Nat.Prime 3),
+      Nat.Prime.factorization (by norm_num : Nat.Prime 5),
+      Nat.Prime.factorization (by norm_num : Nat.Prime 7)]
+  have hprod (f g : ℕ →₀ ℕ) (P : ℕ → Prop) [DecidablePred P] :
+      (f + g).prod (fun p e => if P p then p ^ e else 1) =
+      f.prod (fun p e => if P p then p ^ e else 1) *
+      g.prod (fun p e => if P p then p ^ e else 1) := by
+    apply Finsupp.prod_add_index'
+    · intro p
+      simp
+    · intro p a b
+      by_cases hp : P p <;> simp [hp, pow_add]
+  unfold smoothPart roughPart
+  rw [hchoose, hfac]
+  norm_num [hprod]
 
 /-- The factorization identity `u·v = C(n,k)` — the definitional
     glue.  -- PROVABLE (`Nat.factorization_prod_pow_eq_self`; split
@@ -56,7 +78,15 @@ example : smoothPart 4 (Nat.choose 10 4) = 6 ∧
     #1093/#1094/#1095). -/
 theorem smoothPart_mul_roughPart (k m : ℕ) (hm : m ≠ 0) :
     smoothPart k m * roughPart k m = m := by
-  sorry
+  rw [smoothPart, roughPart, ← Finsupp.prod_mul]
+  calc
+    _ = m.factorization.prod (fun p e => p ^ e) := by
+      apply Finsupp.prod_congr
+      intro p hp
+      by_cases hpk : p ≤ k
+      · simp [hpk, Nat.not_lt_of_ge hpk]
+      · simp [hpk, Nat.lt_of_not_ge hpk]
+    _ = m := Nat.prod_factorization_pow_eq_self hm
 
 /-- `f n`: the least `k ≤ n` with `smoothPart k (C(n,k)) > n²` — the
     `f(n)` of the problem.  sInf honesty: `k = n` gives
