@@ -1,8 +1,11 @@
 /- RETENTION NOTE: this card uses prime-power layers (p,j), not just
 prime support. A production gcd/sunflower development using a different
-encoding does not provide an exact port of these statements. All substantive
-encoding, extremal, and asymptotic targets here remain admitted. Preservation
-is not promotion or proof of the unique targets. -/
+encoding does not provide an exact port of these statements. The two
+sanity checks, layer intersection, and injectivity below are proved.
+The quantitative targets remain admitted: the cardinality/logarithm and
+non-uniform layering bridges are unpaid. Historical source claims in the
+archival comments below are not newly source-certified by these proofs.
+Preservation is not promotion or a complete quantitative reduction. -/
 /-
   Erdős Problem #535 — sets with no r elements of equal pairwise gcd.
   Status: open.  Tier UA attack target (sunflower-encoding reduction).
@@ -52,12 +55,12 @@ def EqualPairwiseGcd (S : Finset ℕ) : Prop :=
 def GcdPatternFree (r : ℕ) (A : Finset ℕ) : Prop :=
   ∀ S ∈ A.powersetCard r, ¬ EqualPairwiseGcd S
 
+open scoped Classical in
 /-- `fgcd r N`: the size of the largest gcd-pattern-free subset of
     `{1, …, N}` — the `f_r(N)` of the problem.  (`EqualPairwiseGcd` has
     an unbounded `∃ d`, so the filter runs classically; a decidable
     refactor — pin `d` to the gcd of the two smallest elements — is the
     first cleanup if ground computation is wanted.) -/
-open scoped Classical in
 noncomputable def fgcd (r N : ℕ) : ℕ :=
   ((Finset.Icc 1 N).powerset.filter (GcdPatternFree r)).sup Finset.card
 
@@ -65,20 +68,81 @@ noncomputable def fgcd (r N : ℕ) : ℕ :=
     `{2,3,5}` has all pairwise gcds equal to 1, so it is NOT
     3-pattern-free.  Guards against misreading the constraint: the
     forbidden pattern includes the coprime case.  -- PROVABLE (decide). -/
+theorem not_gcdPatternFree_three_primes : ¬ GcdPatternFree 3 ({2, 3, 5} : Finset ℕ) := by
+  intro hfree
+  have hmem : ({2, 3, 5} : Finset ℕ) ∈ ({2, 3, 5} : Finset ℕ).powersetCard 3 := by
+    simp
+  apply hfree _ hmem
+  refine ⟨1, ?_⟩
+  intro a ha b hb hab
+  simp only [Finset.mem_insert, Finset.mem_singleton] at ha hb
+  rcases ha with rfl | rfl | rfl <;>
+    rcases hb with rfl | rfl | rfl <;>
+    first | exact (hab rfl).elim | norm_num
+
 example : ¬ GcdPatternFree 3 ({2, 3, 5} : Finset ℕ) := by
-  sorry
+  exact not_gcdPatternFree_three_primes
 
 /-- Satisfiability: `{2, 4, 3}` — gcd(2,4) = 2, gcd(2,3) = 1,
     gcd(4,3) = 1 — not all equal, and no other 3-subset exists, so it IS
     3-pattern-free.  -- PROVABLE (decide). -/
+theorem gcdPatternFree_two_four_three : GcdPatternFree 3 ({2, 4, 3} : Finset ℕ) := by
+  intro S hS hequal
+  obtain ⟨hsub, hcard⟩ := Finset.mem_powersetCard.mp hS
+  have hEq : S = ({2, 4, 3} : Finset ℕ) :=
+    Finset.eq_of_subset_of_card_le hsub (by simp [hcard])
+  subst S
+  obtain ⟨d, hd⟩ := hequal
+  have h24 : Nat.gcd 2 4 = d := hd 2 (by simp) 4 (by simp) (by decide)
+  have h23 : Nat.gcd 2 3 = d := hd 2 (by simp) 3 (by simp) (by decide)
+  norm_num at h24 h23
+  omega
+
 example : GcdPatternFree 3 ({2, 4, 3} : Finset ℕ) := by
-  sorry
+  exact gcdPatternFree_two_four_three
 
 /-- The prime-power layer encoding `n ↦ {(p, j) : p^j ∣ n, j ≥ 1}` as a
     Finset of pairs, realized via `Nat.factorization`. -/
 def layerSet (n : ℕ) : Finset (ℕ × ℕ) :=
   n.factorization.support.biUnion
     (fun p => (Finset.Icc 1 (n.factorization p)).image (fun j => (p, j)))
+
+/-- Membership in the layer encoding is exactly a positive exponent bounded by
+    the prime factorization at the first coordinate. -/
+theorem mem_layerSet (n p j : ℕ) :
+    (p, j) ∈ layerSet n ↔ 1 ≤ j ∧ j ≤ n.factorization p := by
+  constructor
+  · intro h
+    obtain ⟨q, hq, himage⟩ := Finset.mem_biUnion.mp h
+    obtain ⟨k, hk, hpair⟩ := Finset.mem_image.mp himage
+    have hp : q = p := congrArg Prod.fst hpair
+    have hj : k = j := congrArg Prod.snd hpair
+    subst q
+    subst k
+    exact Finset.mem_Icc.mp hk
+  · intro h
+    have hnonzero : n.factorization p ≠ 0 := by omega
+    apply Finset.mem_biUnion.mpr
+    refine ⟨p, Finsupp.mem_support_iff.mpr hnonzero, ?_⟩
+    exact Finset.mem_image.mpr ⟨j, Finset.mem_Icc.mpr h, rfl⟩
+
+example : layerSet 0 = ∅ := by
+  apply Finset.eq_empty_iff_forall_notMem.mpr
+  rintro ⟨p, j⟩ hmem
+  have h := (mem_layerSet 0 p j).mp hmem
+  simp only [Nat.factorization_zero, Finsupp.zero_apply] at h
+  omega
+
+example : layerSet 1 = ∅ := by
+  apply Finset.eq_empty_iff_forall_notMem.mpr
+  rintro ⟨p, j⟩ hmem
+  have h := (mem_layerSet 1 p j).mp hmem
+  simp only [Nat.factorization_one, Finsupp.zero_apply] at h
+  omega
+
+example : (2, 1) ∈ layerSet 2 := by
+  rw [mem_layerSet]
+  norm_num
 
 /-- **The encoding lemma** (the audit-promoted reduction; Hrishi et al.
     §2, elementary): `layerSet a ∩ layerSet b = layerSet (gcd a b)`.
@@ -88,14 +152,32 @@ def layerSet (n : ℕ) : Finset (ℕ × ℕ) :=
     (pointwise min) is the engine.  -- PROVABLE (target; effort S–M). -/
 theorem layerSet_inter (a b : ℕ) (ha : a ≠ 0) (hb : b ≠ 0) :
     layerSet a ∩ layerSet b = layerSet (Nat.gcd a b) := by
-  sorry
+  ext x
+  rcases x with ⟨p, j⟩
+  simp only [Finset.mem_inter, mem_layerSet, Nat.factorization_gcd ha hb,
+    Finsupp.inf_apply, le_inf_iff]
+  tauto
 
 /-- Injectivity of the encoding on positive integers — needed so that
     sunflower cardinality bounds transfer back to `f_r(N)`.
     -- PROVABLE (factorization determines n). -/
 theorem layerSet_injective :
     Set.InjOn layerSet {n : ℕ | n ≠ 0} := by
-  sorry
+  intro a ha b hb hab
+  apply Nat.factorization_inj ha hb
+  apply Finsupp.ext
+  intro p
+  have hle : ∀ x y : ℕ, layerSet x = layerSet y →
+      x.factorization p ≤ y.factorization p := by
+    intro x y hxy
+    by_cases hzero : x.factorization p = 0
+    · simp [hzero]
+    · have hpos : 1 ≤ x.factorization p := Nat.one_le_iff_ne_zero.mpr hzero
+      have hmem : (p, x.factorization p) ∈ layerSet x :=
+        (mem_layerSet x p _).mpr ⟨hpos, le_rfl⟩
+      rw [hxy] at hmem
+      exact ((mem_layerSet y p _).mp hmem).2
+  exact Nat.le_antisymm (hle a b hab) (hle b a hab.symm)
 
 /-- **The reduction target (Tier-UA deliverable)**: any bound
     `|sunflower-free family of ≤ m-element sets| ≤ B(m, r)` transfers to
