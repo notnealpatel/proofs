@@ -64,23 +64,83 @@ def RamseyDigraph (N n m : ℕ) : Prop :=
     bound (archived below), so `sInf` is honest modulo that input. -/
 noncomputable def kDigraph (n m : ℕ) : ℕ := sInf {N : ℕ | RamseyDigraph N n m}
 
-/-- Ground truth at the trivial boundary: `k(n, 1) = 0`? A transitive
-    tournament of size 1 is a single vertex — any nonempty digraph has
-    one, and the empty digraph (N = 0) has none, and also no
-    independent 1-set...  `RamseyDigraph 0 n 1` is FALSE for n ≥ 1
-    (both disjuncts need a vertex), while `RamseyDigraph 1 n 1` holds.
-    So `kDigraph n 1 = 1` for `n ≥ 1`.  Pins the size conventions.
-    -- PROVABLE (decide-scale logic). -/
-example : kDigraph 2 1 = 1 := by
-  sorry
+/-- Any qualifying vertex count is at least the smaller requested size. -/
+private theorem min_le_of_ramsey (N n m : ℕ) (h : RamseyDigraph N n m) :
+    min n m ≤ N := by
+  obtain hind | htour := h (fun _ _ => False) (by simp)
+  · obtain ⟨S, hcard, _⟩ := hind
+    have hn : n ≤ N := by simpa [hcard] using Finset.card_le_univ S
+    exact (min_le_left n m).trans hn
+  · obtain ⟨S, e, _, hcard, _⟩ := htour
+    have hm : m ≤ N := by simpa [hcard] using Finset.card_le_univ S
+    exact (min_le_right n m).trans hm
 
-/-- Ground truth, first nontrivial diagonal: `k(2,2)`: every digraph
-    on N vertices has 2 independent vertices or an arc (a transitive
-    2-tournament).  Any digraph on 2 vertices: either some arc (T₂) or
-    none (independent pair) — so `k(2,2) = 2`.
-    -- PROVABLE. -/
-example : kDigraph 2 2 = 2 := by
-  sorry
+/-- A single vertex contains a transitive tournament of size one. -/
+private theorem ramsey_one_two_one : RamseyDigraph 1 2 1 := by
+  intro r hirr
+  right
+  refine ⟨{0}, Function.Embedding.refl _, ?_, ?_, ?_⟩
+  · intro i
+    have hi : i = 0 := Subsingleton.elim _ _
+    simp [hi]
+  · simp
+  · intro i j hij
+    have heq : i = j := Subsingleton.elim _ _
+    exact False.elim ((ne_of_lt hij) heq)
+
+/-- Two vertices either have an arc or form an independent pair. -/
+private theorem ramsey_two_two_two : RamseyDigraph 2 2 2 := by
+  intro r hirr
+  classical
+  by_cases h01 : r 0 1
+  · right
+    refine ⟨Finset.univ, Function.Embedding.refl _, ?_, ?_, ?_⟩
+    · intro i
+      exact Finset.mem_univ _
+    · simp
+    · intro i j hij
+      have hi : i = 0 := by fin_cases i <;> fin_cases j <;> simp_all
+      have hj : j = 1 := by fin_cases i <;> fin_cases j <;> simp_all
+      simpa [hi, hj] using h01
+  · by_cases h10 : r 1 0
+    · right
+      refine ⟨Finset.univ, (Equiv.swap (0 : Fin 2) 1).toEmbedding, ?_, ?_, ?_⟩
+      · intro i
+        exact Finset.mem_univ _
+      · simp
+      · intro i j hij
+        have hi : i = 0 := by fin_cases i <;> fin_cases j <;> simp_all
+        have hj : j = 1 := by fin_cases i <;> fin_cases j <;> simp_all
+        simpa [hi, hj] using h10
+    · left
+      refine ⟨Finset.univ, by simp, ?_⟩
+      intro a ha b hb
+      fin_cases a <;> fin_cases b
+      · exact hirr 0
+      · exact h01
+      · exact h10
+      · exact hirr 1
+
+/-- Ground truth at the singleton boundary: `k(2,1) = 1`. -/
+theorem kDigraph_two_one : kDigraph 2 1 = 1 := by
+  have hmem : 1 ∈ {N : ℕ | RamseyDigraph N 2 1} := ramsey_one_two_one
+  have hnonempty : Set.Nonempty {N : ℕ | RamseyDigraph N 2 1} := ⟨1, hmem⟩
+  have hupper : kDigraph 2 1 ≤ 1 := Nat.sInf_le hmem
+  have hramsey : RamseyDigraph (kDigraph 2 1) 2 1 := Nat.sInf_mem hnonempty
+  have hlower := min_le_of_ramsey _ _ _ hramsey
+  simpa using Nat.le_antisymm hupper hlower
+
+/-- Ground truth at the first diagonal: `k(2,2) = 2`. -/
+theorem kDigraph_two_two : kDigraph 2 2 = 2 := by
+  have hmem : 2 ∈ {N : ℕ | RamseyDigraph N 2 2} := ramsey_two_two_two
+  have hnonempty : Set.Nonempty {N : ℕ | RamseyDigraph N 2 2} := ⟨2, hmem⟩
+  have hupper : kDigraph 2 2 ≤ 2 := Nat.sInf_le hmem
+  have hramsey : RamseyDigraph (kDigraph 2 2) 2 2 := Nat.sInf_mem hnonempty
+  have hlower := min_le_of_ramsey _ _ _ hramsey
+  simpa using Nat.le_antisymm hupper hlower
+
+example : RamseyDigraph 1 2 1 := ramsey_one_two_one
+example : RamseyDigraph 2 2 2 := ramsey_two_two_two
 
 /-- **Erdős #112 (OPEN)**: determine `k(n,m)`.  Archived via the known
     bounds; the determination question has no closed form conjectured
