@@ -38,11 +38,37 @@ def blockProd (n k : ℕ) : ℕ := ∏ i ∈ Finset.Icc 1 k, (n + i)
 noncomputable def q (n k : ℕ) : ℕ :=
   sInf {p : ℕ | p.Prime ∧ ¬ p ∣ blockProd n k}
 
+/-- For either finite product 6 or 24, the least prime nondivisor is 5. -/
+private theorem least_prime_nondivisor_eq_five (P : ℕ) (hP : P = 6 ∨ P = 24) :
+    sInf {p : ℕ | p.Prime ∧ ¬ p ∣ P} = 5 := by
+  have hmem : 5 ∈ {p : ℕ | p.Prime ∧ ¬ p ∣ P} := by
+    rcases hP with rfl | rfl <;> decide
+  have hleast : ∀ p ∈ {p : ℕ | p.Prime ∧ ¬ p ∣ P}, 5 ≤ p := by
+    intro p hp
+    by_contra hlt
+    have hp_lt : p < 5 := by omega
+    rcases hP with rfl | rfl <;>
+      interval_cases p <;> norm_num at hp
+  exact le_antisymm (Nat.sInf_le hmem)
+    (hleast _ (Nat.sInf_mem ⟨5, hmem⟩))
+
+/-- The finite block products and their least prime nondivisors agree with
+    the sanity values 24, 5, and 5. -/
+theorem finite_sanity_certificate :
+    blockProd 0 4 = 24 ∧ q 0 4 = 5 ∧ q 1 2 = 5 := by
+  have h24 : blockProd 0 4 = 24 := by decide
+  have h6 : blockProd 1 2 = 6 := by decide
+  refine ⟨h24, ?_, ?_⟩
+  · exact least_prime_nondivisor_eq_five _ (Or.inr h24)
+  · exact least_prime_nondivisor_eq_five _ (Or.inl h6)
+
+example : (6 : ℕ) = 6 ∨ (6 : ℕ) = 24 := Or.inl rfl
+
 /-- Ground truth: `blockProd 0 4 = 24`; least prime not dividing 24
     is 5, so `q 0 4 = 5`.  `blockProd 1 2 = 2·3 = 6`; `q 1 2 = 5`.
     -- PROVABLE (decide after sInf characterization). -/
 example : blockProd 0 4 = 24 ∧ q 0 4 = 5 ∧ q 1 2 = 5 := by
-  sorry
+  exact finite_sanity_certificate
 
 /-- **The easy bound (the lemma-mine target)**: for fixed `k ≥ 2` and
     every `ε > 0`, eventually `q(n,k) < (1+ε)·k·log n`.
@@ -75,7 +101,16 @@ theorem erdos_663 (k : ℕ) (hk : 2 ≤ k) (ε : ℝ) (hε : 0 < ε) :
     effort S). -/
 theorem two_dvd_blockProd (n k : ℕ) (hk : 2 ≤ k) :
     2 ∣ blockProd n k := by
-  sorry
+  by_cases hfirst : 2 ∣ n + 1
+  · have hmem : 1 ∈ Finset.Icc 1 k := Finset.mem_Icc.mpr ⟨by decide, by omega⟩
+    exact hfirst.trans (Finset.dvd_prod_of_mem (fun i => n + i) hmem)
+  · have hsecond : 2 ∣ n + 2 := by
+      rw [Nat.dvd_iff_mod_eq_zero] at hfirst ⊢
+      omega
+    have hmem : 2 ∈ Finset.Icc 1 k := Finset.mem_Icc.mpr ⟨by decide, hk⟩
+    exact hsecond.trans (Finset.dvd_prod_of_mem (fun i => n + i) hmem)
+
+example : 2 ≤ (2 : ℕ) := by decide
 
 /-- A391668 cross-check (its "least number coprime" is our least
     prime, for values ≥ 2): the table's antidiagonal entries at small
@@ -84,7 +119,7 @@ theorem two_dvd_blockProd (n k : ℕ) (hk : 2 ≤ k) :
     concrete instance to pin the def-to-OEIS orientation.
     -- PROVABLE (decide). -/
 example : q 1 2 = 5 := by
-  sorry
+  exact finite_sanity_certificate.2.2
 
 end ErdosCandidates.E663
 
