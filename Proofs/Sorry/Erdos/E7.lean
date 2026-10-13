@@ -81,8 +81,37 @@ theorem bbmst_lcm_condition (S : Finset (ℕ × ℕ))
     exhibited nowhere yet, which is the problem.  Uses the repo's
     proved `isCoveringSystem_erdosSystem`.
     -- PROVABLE (decide on the moduli list). -/
-example : IsCoveringSystem erdosSystem ∧ ¬ OddModuli erdosSystem := by
-  sorry
+theorem erdosSystem_covering_not_odd :
+    IsCoveringSystem erdosSystem ∧ ¬ OddModuli erdosSystem := by
+  refine ⟨isCoveringSystem_erdosSystem, ?_⟩
+  intro hodd
+  have htwo : Odd (2 : ℕ) := hodd (0, 2) (by decide)
+  exact (by decide : ¬ Odd (2 : ℕ)) htwo
+
+example : IsCoveringSystem erdosSystem ∧ ¬ OddModuli erdosSystem :=
+  erdosSystem_covering_not_odd
+
+/-- A residue class modulo a positive divisor of `L` contains at most
+`L / m` natural numbers below `L`, by injection into the quotient range. -/
+theorem residue_card_le (L a m : ℕ) (hm : 0 < m) (hdvd : m ∣ L) :
+    ((Finset.range L).filter (fun r => r % m = a % m)).card ≤ L / m := by
+  apply le_trans (Finset.card_le_card_of_injOn (fun r : ℕ => r / m)
+    (t := Finset.range (L / m)) ?_ ?_)
+    (by simp)
+  · intro r hr
+    have hrL : r < L := Finset.mem_range.mp (Finset.mem_filter.mp hr).1
+    apply Finset.mem_range.mpr
+    apply (Nat.div_lt_iff_lt_mul hm).mpr
+    simpa only [Nat.div_mul_cancel hdvd] using hrL
+  · intro r hr s hs heq
+    change r / m = s / m at heq
+    have hrmod := (Finset.mem_filter.mp hr).2
+    have hsmod := (Finset.mem_filter.mp hs).2
+    have hrdecomp := Nat.mod_add_div r m
+    have hsdecomp := Nat.mod_add_div s m
+    rw [hrmod, heq] at hrdecomp
+    rw [hsmod] at hsdecomp
+    exact hrdecomp.symm.trans hsdecomp
 
 /-- Sanity (folklore density obstruction, from the Zeraoulia comment,
     self-contained): the lcm `L` of the moduli of any covering system
@@ -93,7 +122,59 @@ example : IsCoveringSystem erdosSystem ∧ ¬ OddModuli erdosSystem := by
     -- PROVABLE (target; effort S–M). -/
 theorem lcm_abundant (S : Finset (ℕ × ℕ)) (h : IsCoveringSystem S) :
     2 * S.lcm Prod.snd ≤ ∑ d ∈ (S.lcm Prod.snd).divisors, d := by
-  sorry
+  classical
+  let L := S.lcm Prod.snd
+  have hpos : ∀ q ∈ S, 0 < q.2 := fun q hq => lt_trans Nat.zero_lt_one (h.one_lt_mod q hq)
+  have hL : 0 < L := by
+    apply Nat.pos_of_ne_zero
+    intro hzero
+    obtain ⟨q, hq, hqzero⟩ := Finset.lcm_eq_zero_iff.mp hzero
+    exact (hpos q hq).ne' hqzero
+  have hdvd : ∀ q ∈ S, q.2 ∣ L := fun q hq => Finset.dvd_lcm hq
+  let A := fun q : ℕ × ℕ => (Finset.range L).filter (fun r => r % q.2 = q.1 % q.2)
+  have hcover : Finset.range L ⊆ S.biUnion A := by
+    intro r hr
+    obtain ⟨q, hq, hrq⟩ := (covers_iff_forall_range_lcm hpos).mp h.covers r hr
+    exact Finset.mem_biUnion.mpr ⟨q, hq, Finset.mem_filter.mpr ⟨hr, hrq⟩⟩
+  have hdensity : L ≤ ∑ q ∈ S, L / q.2 := by
+    calc
+      L = (Finset.range L).card := (Finset.card_range L).symm
+      _ ≤ (S.biUnion A).card := Finset.card_le_card hcover
+      _ ≤ ∑ q ∈ S, (A q).card := Finset.card_biUnion_le
+      _ ≤ ∑ q ∈ S, L / q.2 := Finset.sum_le_sum fun q hq =>
+        residue_card_le L q.1 q.2 (hpos q hq) (hdvd q hq)
+  let D := S.image (fun q => L / q.2)
+  have hinj : Set.InjOn (fun q : ℕ × ℕ => L / q.2) (S : Set (ℕ × ℕ)) := by
+    intro q hq p hp heq
+    apply h.injOn_mod hq hp
+    calc
+      q.2 = L / (L / q.2) := (Nat.div_div_self (hdvd q hq) hL.ne').symm
+      _ = L / (L / p.2) := congrArg (fun e => L / e) heq
+      _ = p.2 := Nat.div_div_self (hdvd p hp) hL.ne'
+  have hsumD : ∑ e ∈ D, e = ∑ q ∈ S, L / q.2 := by
+    exact Finset.sum_image hinj
+  have hnot : L ∉ D := by
+    intro hmem
+    obtain ⟨q, hq, heq⟩ := Finset.mem_image.mp hmem
+    have hlt : L / q.2 < L := Nat.div_lt_self hL (h.one_lt_mod q hq)
+    exact (ne_of_lt hlt) heq
+  have hsubset : insert L D ⊆ L.divisors := by
+    intro e he
+    rcases Finset.mem_insert.mp he with heq | heD
+    · subst e
+      exact Nat.mem_divisors.mpr ⟨dvd_refl L, hL.ne'⟩
+    · obtain ⟨q, hq, rfl⟩ := Finset.mem_image.mp heD
+      exact Nat.mem_divisors.mpr ⟨Nat.div_dvd_of_dvd (hdvd q hq), hL.ne'⟩
+  calc
+    2 * L = L + L := by omega
+    _ ≤ L + ∑ e ∈ D, e := Nat.add_le_add_left (hsumD.symm ▸ hdensity) L
+    _ = ∑ e ∈ insert L D, e := by rw [Finset.sum_insert hnot]
+    _ ≤ ∑ e ∈ L.divisors, e := Finset.sum_le_sum_of_subset hsubset
+
+example : IsCoveringSystem erdosSystem := isCoveringSystem_erdosSystem
+
+example : ((Finset.range 12).filter (fun r => r % 2 = 0 % 2)).card ≤ 12 / 2 :=
+  residue_card_le 12 0 2 (by decide) (by decide)
 
 end ErdosCandidates.E7
 
