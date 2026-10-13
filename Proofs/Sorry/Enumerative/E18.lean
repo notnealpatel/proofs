@@ -29,52 +29,23 @@
   while the DB says `1 ≤ n < m` (exclusive): equivalent since `m` is
   a divisor of itself — the repo file documents this equivalence.
 -/
-import Mathlib
-import Enumerative.Practical
+import Enumerative.E18
 
 set_option autoImplicit false
 
 namespace ErdosCandidates.E18
 
-/-- `RepresentableWithin m B`: every `1 ≤ n < m` is a sum of at most
-    `B` distinct divisors of `m`. -/
-def RepresentableWithin (m B : ℕ) : Prop :=
-  ∀ n : ℕ, 1 ≤ n → n < m →
-    ∃ S : Finset ℕ, S ⊆ m.divisors ∧ S.card ≤ B ∧ n = ∑ d ∈ S, d
-
-/-- `h m`: the least `B` such that `B` divisors always suffice — the
-    `h(m)` of the problem.  For practical `m` the defining set is
-    nonempty (B = τ(m) works); for non-practical `m` the sInf is the
-    junk 0 — theorems guard with `Nat.Practical`. -/
-noncomputable def h (m : ℕ) : ℕ := sInf {B : ℕ | RepresentableWithin m B}
 
 /-- Ground truth: `h 6 = 2` (divisors 1,2,3,6: 1=1, 2=2, 3=3, 4=1+3,
-    5=2+3 — two always suffice, and 5 needs two).
-    -- PROVABLE (decide after an sInf-characterization lemma). -/
-example : h 6 = 2 := by sorry
+    5=2+3 — two always suffice, and 5 needs two), certified in production. -/
+example : h 6 = 2 := h_six
 
-/-- Sanity: `h` is honest on practicals — for practical `m`,
-    `RepresentableWithin m (m.divisors.card)` holds, so the sInf set
-    is nonempty.  -- PROVABLE from
-    `Nat.Practical.exists_sum_eq` (repo layer; effort S). -/
-theorem representable_of_practical (m : ℕ) (hm : m.Practical) :
-    RepresentableWithin m m.divisors.card := by
-  sorry
-
-/-- **Erdős's bound `h(n!) < n`** — the first sorry-free target of the
-    lane (elementary: greedy representation using the divisors
-    n!, n!/2, …; the factorial's divisor richness gives a length-`n`
-    greedy chain).  Guard: `3 ≤ n` keeps `n!` practical (n! is
-    practical for n ≥ 3 — provable via the repo's Stewart step). -/
-theorem h_factorial_lt (n : ℕ) (hn : 3 ≤ n) : h n.factorial < n := by
-  sorry
-
-/-- Practicality of factorials — the prerequisite, via iterated
-    Stewart steps (`Nat.Practical.mul_prime_pow` in the repo layer).
-    -- PROVABLE (effort S–M). -/
-theorem practical_factorial (n : ℕ) (hn : 3 ≤ n) :
-    (n.factorial).Practical := by
-  sorry
+/- The unchanged definitions and checked factorial results now live in
+`Enumerative.E18`, under the same fully qualified names. Erdős's observation
+is recorded in erdos18 and independently in Erdos1981, printed p. 172.
+The proof here uses quotient/remainder scaling, not a greedy chain or Stewart
+steps: represent the quotient using divisors of the previous factorial,
+scale by the new factor, and insert the nonzero remainder. -/
 
 /-- **Erdős #18, question 1 (OPEN, $250)**: are there infinitely many
     practical `m` with `h(m) < (log log m)^C` for some fixed `C`? -/
@@ -104,12 +75,10 @@ theorem vose :
         (h m : ℝ) ≤ C * Real.sqrt (Real.log m)}.Infinite := by
   sorry
 
-/-- The computed table (candidates doc; re-verify computationally
-    before certifying): `h(n!)` for n = 3, …, 11 is
-    2, 3, 4, 5, 5, 6, 7, 7, 7.  Recorded at the first two entries as
-    decide targets: `h 6 = 2` (above) and `h 24 = 3`.
-    -- PROVABLE (decide; 24 has 8 divisors, bounded search). -/
-example : h 24 = 3 := by sorry
+/-- The computed table (candidates doc): `h(n!)` for n = 3, …, 11 is
+    2, 3, 4, 5, 5, 6, 7, 7, 7. Only the first two entries are certified
+    here by production powerset checks: `h 6 = 2` and `h 24 = 3`. -/
+example : h 24 = 3 := h_twenty_four
 
 end ErdosCandidates.E18
 
