@@ -34,6 +34,8 @@
 -/
 import Mathlib
 import GroupCount.SmallCases
+import GroupCount.NoncommutingBoundOne
+import GroupCount.QuaternionCover
 
 set_option autoImplicit false
 
@@ -99,7 +101,25 @@ theorem pyber_bounds :
     -- PROVABLE (effort S; the natural first landing, pinning the
     definitional plumbing). -/
 theorem hFun_one : hFun 1 = 1 := by
-  sorry
+  let B : Set ℕ := {h : ℕ | ∀ (G : Type) (_ : Group G), NoncommBounded G 1 →
+    CoveredByAbelian G h}
+  have hone : 1 ∈ B := by
+    intro G inst hbound
+    exact GroupCount.covered_by_one_of_noncommuting_bound_one G hbound
+  have hzero : 0 ∉ B := by
+    intro hmem
+    have hbound : NoncommBounded (Multiplicative Unit) 1 :=
+      GroupCount.noncommuting_bound_one_of_subsingleton (Multiplicative Unit)
+    obtain ⟨H, habelian, hcover⟩ := hmem (Multiplicative Unit) inferInstance hbound
+    obtain ⟨i, hi⟩ := hcover 1
+    exact Fin.elim0 i
+  have hinf_mem : sInf B ∈ B := Nat.sInf_mem ⟨1, hone⟩
+  have hinf_ne_zero : sInf B ≠ 0 := by
+    intro heq
+    exact hzero (heq ▸ hinf_mem)
+  have hinf_le : sInf B ≤ 1 := Nat.sInf_le hone
+  change sInf B = 1
+  omega
 
 /-- Sanity witness that the property is nontrivial at n ≥ 3: the
     quaternion group Q₈ has pairwise non-commuting {i, j, k}, so
@@ -109,7 +129,13 @@ theorem hFun_one : hFun 1 = 1 := by
     computation; effort S–M). -/
 example : ¬ NoncommBounded (QuaternionGroup 2) 2 ∧
     CoveredByAbelian (QuaternionGroup 2) 3 := by
-  sorry
+  constructor
+  · intro hbound
+    obtain ⟨S, hcard, hpair⟩ := GroupCount.QuaternionCover.noncommuting_triple
+    have hle : S.ncard ≤ 2 := (hbound S hpair).2
+    rw [hcard] at hle
+    omega
+  · exact GroupCount.QuaternionCover.abelian_cover
 
 end ErdosCandidates.E117
 
