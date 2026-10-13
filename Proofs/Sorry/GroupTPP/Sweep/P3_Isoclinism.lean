@@ -4,6 +4,8 @@ import GroupTPP.CharacterDegreeZeroLocus
 import GroupTPP.CharDegreesMul
 import GroupTPP.STPPWreath
 import GroupTPP.TPPCapacityPadding
+import GroupTPP.LinearCharacterCount
+import GroupTPP.WreathCommutator
 
 set_option autoImplicit false
 
@@ -128,7 +130,8 @@ consistent (`|(G × A)ᵃᵇ| = |A| · |Gᵃᵇ|` matches the count scaling). Ab
 (c) FOUNDATION: proved.
 GAP-checkable trivially (`LinearCharacters` vs `G/DerivedSubgroup`). -/
 theorem p3_c5 {G : Type u} [Group G] [Fintype G] :
-    (charDegrees G).count 1 = Nat.card (G ⧸ commutator G) := sorry
+    (charDegrees G).count 1 = Nat.card (G ⧸ commutator G) :=
+  GroupTPP.CharDegrees.count_one_charDegrees_eq_card_abelianization G
 
 /-- (a) Cross-module zero-locus bridge: the barrier quantity `n(G)` vanishes iff
 the non-central class count `n_c(G)` vanishes (both detect abelianness, but
@@ -161,15 +164,15 @@ theorem p3_c7 {D : Type u} [Group D] [Fintype D] [DecidableEq D]
     {n : ℕ} (hn : 2 ≤ n) :
     Nat.card (commutator (ImprimitiveWreathProduct D n))
       = Nat.card D ^ (n - 1) * Nat.card (commutator D) * (n.factorial / 2) :=
-  sorry
+  GroupTPP.STPPWreath.wreath_commutator_card D n hn
 
 /-- (a) Isoclinism padding does NOT commute with the wreath construction: `G` is
 isoclinic to `G × A` (`isoclinic_prod_abelian`), yet `G ≀ S₂` is NOT isoclinic
 to `(G × A) ≀ S₂` for any nontrivial finite abelian `A` — by `p3_c7` the
 commutator subgroups have orders `|G|·|G'|` vs `|G|·|A|·|G'|`, so no
-`ψ : W₁' ≃* W₂'` can exist. Consequence for the STPP lane: the wreath capacity
-chain is sensitive to the isoclinism representative of the base, so
-α/γ-optimization over an isoclinism family must happen BEFORE wreathing.
+`ψ : W₁' ≃* W₂'` can exist. Thus wreathing need not preserve isoclinism of the base groups.
+This derived-order comparison does not establish a change in TPP capacity
+or an optimization rule for the capacity chain.
 (b) [theory]
 (c) FOUNDATION: proved.
 GAP-checkable via commutator orders (no isoclinism tester needed). -/
@@ -177,7 +180,8 @@ theorem p3_c8 {G : Type u} [Group G] [Fintype G] [DecidableEq G]
     {A : Type w} [CommGroup A] [Fintype A] [DecidableEq A]
     (hA : 1 < Nat.card A) :
     ¬ Isoclinic (ImprimitiveWreathProduct G 2)
-        (ImprimitiveWreathProduct (G × A) 2) := sorry
+        (ImprimitiveWreathProduct (G × A) 2) :=
+  GroupTPP.STPPWreath.not_isoclinic_wreath_prod_comm G A hA
 
 /-- (a) The nonabelian wreath `D_x` bound — the general-`H` form of the
 `hbound` hypothesis that `stpp_capacity_le_of_wreath` (one of the two live
