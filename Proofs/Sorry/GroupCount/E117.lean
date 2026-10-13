@@ -33,6 +33,7 @@
   subgroups exists; re-probe leandoc at campaign start), `Commute`.
 -/
 import Mathlib
+import GroupCount.SmallCases
 
 set_option autoImplicit false
 
@@ -61,7 +62,12 @@ def CoveredByAbelian (G : Type*) [Group G] (h : ℕ) : Prop :=
     abelian subgroup (itself).  -- PROVABLE (effort S). -/
 example (G : Type*) [CommGroup G] :
     NoncommBounded G 1 ∧ CoveredByAbelian G 1 := by
-  sorry
+  constructor
+  · unfold NoncommBounded
+    intro S hS
+    exact GroupCount.pairwise_noncommuting_finite_ncard_le_one G S hS
+  · unfold CoveredByAbelian
+    exact GroupCount.commGroup_covered_by_one G
 
 /-- **Pyber's theorem, qualitative core** ([Py87]) — h(n) is
     well-defined: there is a bound `h` (depending only on `n`) such

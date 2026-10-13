@@ -29,7 +29,7 @@
   14, …).
 -/
 import Mathlib
-import GroupCount.Gnu
+import GroupCount.SmallCases
 
 set_option autoImplicit false
 
@@ -56,7 +56,9 @@ theorem erdos_1160 (m n : ℕ) (hn : 1 ≤ n) (h : n ≤ 2 ^ m) :
     -- PROVABLE (case split on n ∈ {1,2,3,4}). -/
 theorem erdos_1160_m2 (n : ℕ) (hn : 1 ≤ n) (h : n ≤ 2 ^ 2) :
     gnu n ≤ gnu (2 ^ 2) := by
-  sorry
+  have hfour : n ≤ 4 := by simpa only [show (2 : ℕ) ^ 2 = 4 by decide] using h
+  simpa only [show (2 : ℕ) ^ 2 = 4 by decide, gnu_four] using
+    gnu_le_two_of_le_four n hn hfour
 
 /-- The `m = 3` instance: needs `gnu 8 = 5` (certified classification
     of order-8 groups — C₈, C₄×C₂, C₂³, D₄, Q₈) and `gnu n ≤ 5` for
