@@ -1,8 +1,9 @@
 /-
   Erdős Problem #130 — integer-distance graphs and the Anning–Erdős
   theorem.
-  Status: open (main question); the Anning–Erdős theorem (1945) is the
-  proof target.  Tier C (opens a Euclidean plane-geometry lane).
+  Status: open (main chromatic question); the Anning–Erdős theorem,
+  integer-axis example, and no-infinite-clique corollary are proved in
+  the independent production module.
 
   Verbatim statement (`goof erdos fetch 130`, pulled 2026-08-05):
 
@@ -23,11 +24,15 @@
   Mathlib inventory (leandoc 2026-08-05): `EuclideanSpace ℝ (Fin 2)`,
   `dist`, `Collinear ℝ`, `Set.Infinite`; concyclic:
   `EuclideanGeometry.Cospherical` exists (Mathlib geometry) for the
-  no-four-on-a-circle condition.  The Anning–Erdős argument is a
-  classical self-contained hyperbola-counting proof — the right entry
-  point for a plane-geometry lane the repo has not opened.
+  no-four-on-a-circle condition. The original paper, N. H. Anning and
+  P. Erdős, “Integral distances”, Bull. AMS 51 (1945), 598–600,
+  DOI 10.1090/S0002-9904-1945-08407-9, uses an angular proof.
+  Erdős's second December 1945 note (DOI 10.1090/S0002-9904-1945-08490-0)
+  gives a hyperbola proof, reproduced in arXiv:2401.10821 §1.3.
+  The production proof below is an independent coordinate-quadratic
+  argument, not a formalization of either historical proof.
 -/
-import Mathlib
+import Combinatorics.IntegralDistances.AnningErdos
 
 set_option autoImplicit false
 
@@ -36,20 +41,21 @@ namespace ErdosCandidates.E130
 open EuclideanGeometry
 
 /-- Points of the plane. -/
-abbrev Plane : Type := EuclideanSpace ℝ (Fin 2)
+abbrev Plane : Type := AnningErdos.Plane
 
 /-- `IntegralDistances A`: all pairwise distances in `A` are integers
     (witnessed in ℤ via a cast, so no `Nat.floor` junk). -/
-def IntegralDistances (A : Set Plane) : Prop :=
-  ∀ x ∈ A, ∀ y ∈ A, ∃ z : ℤ, dist x y = (z : ℝ)
+abbrev IntegralDistances (A : Set Plane) : Prop :=
+  AnningErdos.IntegralDistances A
 
-/-- Satisfiability: any set of collinear integer points has integral
+/-- Satisfiability: any subset of the integer points on the x-axis has integral
     distances — e.g. `{(0,0), (1,0), (2,0)}`; indeed ℤ×{0} is an
     infinite example, which is why collinearity is the conclusion and
-    not a contradiction.  -- PROVABLE (norm computation). -/
+    not a contradiction. The `WithLp.toLp` wrapper constructs the
+    Euclidean-space point with precisely these coordinates. -/
 example : IntegralDistances (Set.range (fun n : ℤ =>
-    (fun i : Fin 2 => if i = 0 then (n : ℝ) else 0 : Plane))) := by
-  sorry
+    (WithLp.toLp 2 (fun i : Fin 2 => if i = 0 then (n : ℝ) else 0) : Plane))) :=
+  AnningErdos.integer_axis_integral
 
 /-- **Anning–Erdős theorem (1945) — the proof target**: an infinite
     set in ℝ² with all pairwise distances integral is collinear.
@@ -57,31 +63,26 @@ example : IntegralDistances (Set.range (fun n : ℤ =>
     Source (DB remarks): "an infinite set in ℝ² with all pairwise
     distances integral must be collinear" [AnEr45].
 
-    Proof sketch (attack plan): suppose x, y, z ∈ A not collinear.
-    For any further point p, |d(p,x) − d(p,y)| is an integer at most
-    d(x,y), so p lies on one of finitely many hyperbolae with foci
-    x, y; similarly for the pair (x, z).  Two distinct conic families
-    intersect in ≤ 4 points each; finitely many hyperbola pairs give
-    finitely many candidate points — contradicting infinitude.
-    Formalization load: hyperbola = level set of |dist − dist|;
-    the finite-intersection input is the real work (algebraic —
-    two distinct conics meet in ≤ 4 points; Bezout-flavored;
-    Mathlib's `Polynomial` in two variables via `MvPolynomial` or a
-    hand-rolled resultant for the special conic case).
-    Effort M–L per candidates audit. -/
+    Independent proof: choose three noncollinear points o, a, b.
+    The signed differences dist(p,a)-dist(p,o) and dist(p,b)-dist(p,o)
+    are integers in bounded intervals, so have finitely many patterns.
+    For a fixed pattern, squaring actual distance equalities gives two
+    linear equations. Their nonzero coordinate determinant expresses
+    p-o as an affine function of r = dist(p,o). The norm equation is a
+    quadratic in r. If its coefficients all vanish, the constant vector
+    vanishes and both focus vectors become multiples of a single vector,
+    contradicting the determinant. Thus each pattern has finitely many
+    radii, each determining at most one point. Infinitude is impossible.
+    No general conic-intersection or hyperbola-pair claim is assumed. -/
 theorem anning_erdos (A : Set Plane) (hA : A.Infinite)
     (hd : IntegralDistances A) :
-    Collinear ℝ A := by
-  sorry
+    Collinear ℝ A :=
+  AnningErdos.anning_erdos A hA hd
 
 /-- The integer-distance graph on a point set: edges join points at
     integer distance (distinct points). -/
-def intDistGraph (A : Set Plane) : SimpleGraph A where
-  Adj x y := x ≠ y ∧ ∃ z : ℤ, dist x.1 y.1 = (z : ℝ)
-  symm := by
-    intro x y h
-    exact ⟨h.1.symm, by obtain ⟨z, hz⟩ := h.2; exact ⟨z, by rwa [dist_comm]⟩⟩
-  loopless := by intro x h; exact h.1 rfl
+abbrev intDistGraph (A : Set Plane) : SimpleGraph A :=
+  AnningErdos.intDistGraph A
 
 /-- **Erdős #130, main question (OPEN)**: can the chromatic number of
     the integer-distance graph on an infinite `A` (no 3 collinear, no
@@ -102,18 +103,20 @@ theorem erdos_130_chromatic :
     clique.  Follows from `anning_erdos` applied to the clique (an
     infinite clique is an infinite set with pairwise integral
     distances, hence collinear — contradicting no-3-collinear).
-    -- PROVABLE from `anning_erdos` (effort S). -/
+    No no-four-concyclic hypothesis is needed. -/
 theorem no_infinite_clique (A : Set Plane)
     (h3 : ∀ s ⊆ A, s.ncard = 3 → ¬ Collinear ℝ s)
     (B : Set A) (hB : B.Infinite)
     (hclique : ∀ x ∈ B, ∀ y ∈ B, x ≠ y → (intDistGraph A).Adj x y) :
-    False := by
-  sorry
+    False :=
+  AnningErdos.no_infinite_clique A h3 B hB hclique
 
 end ErdosCandidates.E130
 
 /- SOURCE-FIDELITY REVIEW (flash, 2026-08-05)
-   Verdict: PASS
+   Verdict: PASS for archived statement fidelity, not a proof review.
+   This historical review does not certify the later independent
+   coordinate-quadratic proof in the production module.
    - Verbatim statement matches `goof erdos fetch 130` exactly.
    - Attribution Andrásfai–Erdős correct; Anning–Erdős [AnEr45] 1945 correct.
    - `Cospherical` is the right Mathlib notion: its docstring explicitly
