@@ -38,17 +38,67 @@ variable {V : Type*}
 def oddCycleLengths (G : SimpleGraph V) : Set ℕ :=
   {ℓ : ℕ | Odd ℓ ∧ ∃ (v : V) (c : G.Walk v v), c.IsCycle ∧ c.length = ℓ}
 
+/-- Every cycle in a finite graph has length between three and the vertex count. -/
+theorem cycle_length_bounds [Fintype V] {G : SimpleGraph V} {v : V}
+    {c : G.Walk v v} (hc : c.IsCycle) :
+    3 ≤ c.length ∧ c.length ≤ Fintype.card V := by
+  refine ⟨hc.three_le_length, ?_⟩
+  have hcard := hc.support_nodup.length_le_card
+  simpa [List.length_tail, Walk.length_support] using hcard
+
+/-- A complete graph on at least three vertices contains a triangle. -/
+theorem triangle_in_top (n : ℕ) :
+    ∃ (v : Fin (n + 3)) (c : (⊤ : SimpleGraph (Fin (n + 3))).Walk v v),
+      c.IsCycle ∧ c.length = 3 := by
+  let a : Fin (n + 3) := ⟨0, by omega⟩
+  let b : Fin (n + 3) := ⟨1, by omega⟩
+  let d : Fin (n + 3) := ⟨2, by omega⟩
+  have hab : (⊤ : SimpleGraph (Fin (n + 3))).Adj a b := by simp [a, b]
+  have hbd : (⊤ : SimpleGraph (Fin (n + 3))).Adj b d := by simp [b, d]
+  have hda : (⊤ : SimpleGraph (Fin (n + 3))).Adj d a := by simp [d, a]
+  let c := Walk.cons hab (Walk.cons hbd (Walk.cons hda Walk.nil))
+  refine ⟨a, c, ?_, rfl⟩
+  apply Walk.isCycle_iff_isPath_tail_and_le_length.mpr
+  constructor
+  · apply Walk.IsPath.mk'
+    change ([b, d, a] : List (Fin (n + 3))).Nodup
+    simp [a, b, d]
+  · simp [c]
+
 /-- Ground truth: the odd cycle spectrum of a triangle is `{3}`.
     -- PROVABLE (the only cycles of `K₃` have length 3). -/
-example : oddCycleLengths (⊤ : SimpleGraph (Fin 3)) = {3} := by
-  sorry
+theorem oddCycleLengths_top_fin_three : oddCycleLengths (⊤ : SimpleGraph (Fin 3)) = {3} := by
+  ext ℓ
+  constructor
+  · rintro ⟨hodd, v, c, hc, hlen⟩
+    have hb := cycle_length_bounds hc
+    simp only [Fintype.card_fin] at hb
+    simp only [Set.mem_singleton_iff]
+    omega
+  · intro hℓ
+    have hlen : ℓ = 3 := Set.mem_singleton_iff.mp hℓ
+    subst ℓ
+    obtain ⟨v, c, hc, hlength⟩ := triangle_in_top 0
+    exact ⟨by decide, v, c, hc, hlength⟩
+
+example : oddCycleLengths (⊤ : SimpleGraph (Fin 3)) = {3} :=
+  oddCycleLengths_top_fin_three
 
 /-- Ground truth: bipartite graphs have empty odd cycle spectrum —
     e.g. `K₂`.  Guards the k = 0 edge of the statement: with no odd
     cycles the bound reads χ ≤ 2, which is the bipartite case.
     -- PROVABLE. -/
-example : oddCycleLengths (⊤ : SimpleGraph (Fin 2)) = ∅ := by
-  sorry
+theorem oddCycleLengths_top_fin_two : oddCycleLengths (⊤ : SimpleGraph (Fin 2)) = ∅ := by
+  ext ℓ
+  constructor
+  · rintro ⟨hodd, v, c, hc, hlen⟩
+    have hb := cycle_length_bounds hc
+    simp only [Fintype.card_fin] at hb
+    omega
+  · simp
+
+example : oddCycleLengths (⊤ : SimpleGraph (Fin 2)) = ∅ :=
+  oddCycleLengths_top_fin_two
 
 /-- **Erdős #58, Gyárfás's theorem, headline bound** (Gy92): if a finite
     graph has at most `k` different odd cycle lengths, then
@@ -94,20 +144,50 @@ theorem gyarfas_equality_iff [Fintype V] (G : SimpleGraph V) (k : ℕ)
     G.chromaticNumber = (2 * k + 2 : ℕ) ↔ ¬ G.CliqueFree (2 * k + 2) := by
   sorry
 
+/-- The odd cycle spectrum of the complete graph on four vertices is `{3}`. -/
+theorem oddCycleLengths_top_fin_four : oddCycleLengths (⊤ : SimpleGraph (Fin 4)) = {3} := by
+  ext ℓ
+  constructor
+  · rintro ⟨hodd, v, c, hc, hlen⟩
+    have hb := cycle_length_bounds hc
+    simp only [Fintype.card_fin] at hb
+    obtain ⟨k, hk⟩ := hodd
+    simp only [Set.mem_singleton_iff]
+    omega
+  · intro hℓ
+    have hlen : ℓ = 3 := Set.mem_singleton_iff.mp hℓ
+    subst ℓ
+    obtain ⟨v, c, hc, hlength⟩ := triangle_in_top 1
+    exact ⟨by decide, v, c, hc, hlength⟩
+
+/-- The complete graph on four vertices jointly realizes one odd cycle length and chromatic number four. -/
+theorem top_fin_four_spectrum_chromatic :
+    (oddCycleLengths (⊤ : SimpleGraph (Fin 4))).ncard = 1 ∧
+    (⊤ : SimpleGraph (Fin 4)).chromaticNumber = (4 : ℕ) := by
+  constructor
+  · rw [oddCycleLengths_top_fin_four]
+    exact Set.ncard_singleton 3
+  · simp [SimpleGraph.chromaticNumber_top]
+
 /-- Satisfiability of the equality case at `k = 1`: `K₄` has odd cycle
     spectrum `{3}` (one length) and `χ(K₄) = 4 = 2·1 + 2`.
     -- PROVABLE (decide-scale + `chromaticNumber_top`). -/
 example :
     (oddCycleLengths (⊤ : SimpleGraph (Fin 4))).ncard = 1 ∧
-    (⊤ : SimpleGraph (Fin 4)).chromaticNumber = (4 : ℕ) := by
-  sorry
+    (⊤ : SimpleGraph (Fin 4)).chromaticNumber = (4 : ℕ) :=
+  top_fin_four_spectrum_chromatic
 
 /-- Sanity for the `k = 1` slice (Bollobás–Shelah): a 5-cycle has one
     odd cycle length and χ(C₅) = 3 ≤ 4.
     -- PROVABLE (`chromaticNumber_cycleGraph_of_odd` exists in Mathlib,
     leandoc hit in Coloring/Constructions.lean). -/
-example : (cycleGraph 5).chromaticNumber ≤ (4 : ℕ) := by
-  sorry
+theorem cycleGraph_five_chromaticNumber_le_four :
+    (cycleGraph 5).chromaticNumber ≤ (4 : ℕ) := by
+  rw [SimpleGraph.chromaticNumber_cycleGraph_of_odd 5 (by decide) (by decide)]
+  norm_num
+
+example : (cycleGraph 5).chromaticNumber ≤ (4 : ℕ) :=
+  cycleGraph_five_chromaticNumber_le_four
 
 end ErdosCandidates.E58
 
