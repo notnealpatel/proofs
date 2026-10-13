@@ -31,6 +31,7 @@
 import Mathlib
 import GroupCount.SmallCases
 import GroupCount.OrderEightBound
+import GroupCount.OrderEightClassification
 
 set_option autoImplicit false
 
@@ -86,13 +87,12 @@ theorem bnv_22_18 :
   sorry
 
 /-- Sanity against A000001 (pulled 2026-08-05): gnu values 1, 1, 1, 2,
-    1, 2, 1, 5 for n = 1..8 — the m ≤ 3 ground truth.  gnu 1 through
-    gnu 4 follow from landed lemmas; gnu 5, 7 from `gnu_prime`;
-    gnu 6 = 2 and gnu 8 = 5 are the open certified-count targets.
-    -- PROVABLE-with-work. -/
+    1, 2, 1, 5 for n = 1..8 — the m ≤ 3 ground truth, certified by
+    the exact small-order counts and the exhaustive order-eight classification. -/
 example : gnu 1 = 1 ∧ gnu 2 = 1 ∧ gnu 3 = 1 ∧ gnu 4 = 2 ∧ gnu 5 = 1 ∧
     gnu 6 = 2 ∧ gnu 7 = 1 ∧ gnu 8 = 5 := by
-  sorry
+  exact ⟨gnu_one, gnu_prime (by decide), gnu_prime (by decide), gnu_four,
+    gnu_prime (by decide), gnu_six, gnu_prime (by decide), gnu_eight⟩
 
 end ErdosCandidates.E1160
 
