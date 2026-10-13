@@ -1,164 +1,28 @@
-/-
-# A141386 — Sun: exceptions for `x² + y² + 5·(triangular)`
+import Enumerative.SunQuadratic
 
-## OEIS source (re-pulled verbatim with `goof oeis show A141386`, 2026-08-05)
+/-!
+# A141386: two squares and five triangular numbers
 
-```
-NAME:     Conjectured to be complete list of numbers not of the form
-          x^2 + y^2 + 5*triangular number.
-TERMS:    3,11,12,27,129,138,273
-KEYWORDS: nonn
-COMMENTS: (none)
-XREFS:
-  Cf. A141273, A141423, A141428, A141443, A141463.
-  Cf. A141464, A141491, A141497.
-```
+Primary source: Kane–Sun, *On almost universal mixed sums of squares and
+triangular numbers*, arXiv:0808.2761, Introduction and Example 1.1.
+The introduction uses integer witnesses and `T_z = z(z+1)/2`.
+Natural witnesses give the same convention: take absolute values of the
+square witnesses, and replace a negative triangular index `z` by `-z-1`,
+since `T_z = T_{-z-1}`. Zero is allowed.
 
-The conjecture **is** the NAME line; the entry carries no comments at all.
-The `%A` line is `_N. J. A. Sloane_, Sep 05 2008` — **Sloane submitted the
-sequence, not Sun**.  The mathematical source is the `%H` link:
-
-> Kane & Sun, *On almost universal mixed sums of squares and triangular
-> numbers*, arXiv:0808.2761 (Trans. AMS 362 (2010) 6425–6455),
-
-whose Example 1.1 lists `E(x² + y² + 5T_z) = {3, 11, 12, 27, 129, 138, 273}` as
-a **computational** finding ("our computation via computer suggests"), not a
-proved theorem.  So the candidates document's attribution to Zhi-Wei Sun is
-right in substance (Sun is a coauthor and this is his representability
-programme) but the OEIS `%A` field says Sloane; the conjecture line is Kane–Sun's.
-
-## Convention pinning (done computationally before writing this card)
-
-The NAME does not say whether `x, y` range over nonnegative or positive
-integers, nor whether `0` counts as a triangular number.  Both matter.  An
-exhaustive sweep of `n < 20000` under the reading
-
-> `x, y ∈ ℕ` (so `0` allowed), triangular numbers `T_t = t(t+1)/2` with `t ∈ ℕ`
-> (so `T_0 = 0` allowed)
-
-returns exactly `3, 11, 12, 27, 129, 138, 273` — the DATA line, with nothing
-extra and nothing missing.  That fixes the convention.  Under a
-positive-only reading `1` would also be an exception (`1 = 1² + 0² + 0`
-needs `y = 0`), contradicting the DATA, so the nonnegative reading is forced.
-
-Spot-check of the smallest exception: `n = 3`.  `5·T_0 = 0` and `3` is not a sum
-of two squares (`3 ≡ 3 mod 4`); `5·T_1 = 5 > 3`.  So `3` is an exception. ✓
-
-## Status — **open, with a GRH-conditional path**
-
-A literature sweep (Kane–Sun arXiv:0808.2761; Chan–Haensch arXiv:1402.1640;
-web search) found **no unconditional proof** that the exception set is exactly
-these seven.  What is established:
-
-* `x² + y² + 5T_z` is *almost universal* (finitely many exceptions) — that is the
-  Kane–Sun theorem, and Chan–Haensch later characterized almost-universality for
-  the whole `αx² + βT_y + γT_z` family.
-* Kane–Sun note (their §1) that **under GRH**, an Ono–Soundararajan-style
-  argument via Waldspurger's theorem makes the exception set *effectively*
-  verifiable — i.e. GRH plus a finite computation would settle it.
-* Kane (their ref. [Kane4]) proved some exception sets in the list under GRH,
-  but `x² + y² + 5T_z` is not among the ones confirmed by this sweep.
-
-So the honest status is **open unconditionally; conditionally decidable under
-GRH**.  A card should say that, not "open" flatly.
+Example 1.1 lists this form as almost universal (finitely many exceptions).
+It says that computer computation *suggests* the seven exceptions below;
+it does not prove completeness for this form. Its GRH discussion describes
+a route to an effective computationally feasible bound, not a completed
+proof of this particular list. No present-day literature status is asserted.
+The two conjectures below remain explicit unpaid obligations.
 -/
-import Mathlib
 
 set_option autoImplicit false
 
 namespace Candidates.A141386
 
-/-! ## Definition layer
-
-`leandoc` findings:
-
-* `leandoc "Nat.triangular"` → `mode:"miss"`.  Mathlib has no triangular-number
-  definition under that name.  The nearest available spellings are
-  `Nat.choose (t + 1) 2` (which *is* `t(t+1)/2`, via `Nat.choose_two_right`) and
-  `Finset.sum (Finset.range (t+1)) id` (via `Gauss.sum`/`Finset.sum_range_id_mul_two`).
-* `Nat.sqrt`, `Nat.exists_mul_self` — the decision procedure for "is a square".
-* Sums of two squares: `Nat.Prime.sq_add_sq`, `ZMod.exists_sq_eq_neg_one_iff`,
-  `Nat.eq_sq_add_sq_iff_...` — Mathlib has Fermat's two-square theorem, and the
-  full "which `n` are sums of two squares" characterization lives in
-  `Mathlib/NumberTheory/SumTwoSquares.lean` as
-  `Nat.eq_sq_add_sq_iff` / `ZMod.isSquare_neg_one_iff`.  That characterization
-  is the *right* tool for a serious attack and is cited in the theorem docstring.
-
-**Division discipline.**  `T_t = t(t+1)/2` involves `ℕ` division.  Rather than
-guard it, the primary statement is written **division-free** by doubling:
-`2n = 2x² + 2y² + 5·t·(t+1)`.  Since `t(t+1)` is always even, the two readings
-agree; the equivalence is in the PROVABLE layer so the doubling is auditable
-rather than assumed. -/
-
-/-- The `t`-th triangular number, division-free by construction:
-`tri t = t * (t + 1) / 2` is *not* used; instead the predicate is doubled. -/
-def tri (t : ℕ) : ℕ := t * (t + 1) / 2
-
-/-- `n` is representable as `x² + y² + 5·T_t`, stated **division-free** by
-doubling.  `x, y, t` range over `ℕ` (so `0` is allowed for each), which is the
-convention forced by the DATA line — see the header. -/
-def Representable (n : ℕ) : Prop :=
-  ∃ x y t : ℕ, 2 * n = 2 * x ^ 2 + 2 * y ^ 2 + 5 * (t * (t + 1))
-
-/-- The same predicate in the literal `x² + y² + 5·T_t` form, for readability.
-`representable_iff_tri` (PROVABLE) shows the two agree. -/
-def Representable' (n : ℕ) : Prop := ∃ x y t : ℕ, n = x ^ 2 + y ^ 2 + 5 * tri t
-
-/-- The seven listed exceptions. -/
-def exceptions : Finset ℕ := {3, 11, 12, 27, 129, 138, 273}
-
-/-! ## The conjecture -/
-
-/-- **Sun's `x² + y² + 5·triangular` completeness conjecture (A141386).**
-
-Verbatim (the NAME line, which is the whole claim): "Conjectured to be complete
-list of numbers not of the form x^2 + y^2 + 5*triangular number", with DATA
-`3, 11, 12, 27, 129, 138, 273`.
-
-Formalized: every `n` outside the seven exceptions is representable.  The
-converse (the seven really are exceptions) is a **finite** check and is in the
-PROVABLE layer, so this theorem carries the entire open content.
-
-**Mathlib primitives available.**  The two-squares characterization
-(`Mathlib/NumberTheory/SumTwoSquares.lean`: `Nat.eq_sq_add_sq_iff`,
-`ZMod.isSquare_neg_one_iff`, `Nat.Prime.sq_add_sq`), `Nat.factorization`,
-`Nat.sqrt`, `ZMod`, `legendreSym`, `Nat.choose_two_right`.
-
-**Sketch of an attack.**  This is a ternary-quadratic-form representability
-problem in disguise.  Completing the square on the triangular part:
-`5·T_t = 5t(t+1)/2`, so `8n + 5 = 8x² + 8y² + 5(2t+1)²`, i.e. `n` is
-representable iff `8n + 5` is represented by the ternary form
-`8u² + 8v² + 5w²` with `w` odd.  (Sanity: `n = 3` gives `29`; `8u²+8v²+5w²=29`
-needs `w` odd, `w = 1 → 8(u²+v²) = 24 → u²+v² = 3`, impossible; `w = ±... `
-larger overshoots.  ✓ consistent with `3` being an exception.)
-Ternary forms of this shape are handled by:
-1. *Local solvability* — decide representability over every `ℤ_p` and over `ℝ`.
-   Mechanical, and Lean-feasible via `ZMod (p^k)` computations.
-2. *The genus/spinor-genus gap* — a ternary form represents everything locally
-   representable **except** finitely many "spinor exceptional" square classes.
-   Bounding those is where the real work is, and it is exactly why Sun's family
-   of conjectures resisted for years and then fell one by one.
-3. *Effective bounds* — Ono–Soundararajan-style results give an effective
-   threshold above which local solvability suffices, modulo GRH.
-
-**Status caveat.**  A literature sweep found no unconditional proof, but did
-find a GRH-conditional route (Kane–Sun §1, via Waldspurger + Ono–Soundararajan).
-The genuinely honest formalization target is therefore the **conditional**
-theorem — `sun_a141386_complete` with GRH as an explicit hypothesis — in the
-same spirit as the Brocard-under-Szpiro card.  Mathlib has
-`RiemannHypothesis`-adjacent statements only for the classical zeta
-(`riemannZeta`), not GRH for Dirichlet `L`-functions, so the hypothesis would
-have to be spelled out.
-
-**Tactic families.** `decide` for the seven exceptions (bounded searches);
-`native_decide` for the `n ≤ 20000` sweep; `interval_cases` for `t` given
-`5·T_t ≤ n`; `omega` for the doubling arithmetic;
-`Nat.sqrt`-based `decide` for "is a sum of two squares".
-
-**Related work in this repo.** None directly.  Adjacent card in this directory:
-`A373686SomuTran.lean` (also "practical/polygonal additive representation", also
-a Sun-adjacent conjecture, and the Somu–Tran paper's Theorem 1 resolves the
-*triangular* analogue). -/
+/-- The conjectured completeness of the seven-element list; unpaid here. -/
 theorem sun_a141386_complete (n : ℕ) (h : n ∉ exceptions) : Representable n := by
   sorry
 
@@ -167,88 +31,4847 @@ theorem sun_a141386_exceptions_eq :
     {n : ℕ | ¬ Representable n} = (exceptions : Finset ℕ) := by
   sorry
 
-/-! ## Sanity layer -/
 
--- PROVABLE: the doubled and literal forms agree (`t * (t+1)` is always even).
-theorem representable_iff_tri (n : ℕ) : Representable n ↔ Representable' n := by
-  sorry
+/-- The seven listed values fail the complete, bounded residual search. -/
+private theorem exceptions_not_representable : ∀ n ∈ exceptions, ¬ Representable n := by
+  have hcheck : ∀ n ∈ exceptions, search n = false := by decide +kernel
+  intro n hn hr
+  have htrue := (search_eq_true_iff n).mpr hr
+  have hfalse := hcheck n hn
+  rw [hfalse] at htrue
+  contradiction
 
--- PROVABLE: `2 * tri t = t * (t + 1)` — the doubling identity, which is what
--- licenses the division-free statement.
-theorem two_mul_tri (t : ℕ) : 2 * tri t = t * (t + 1) := by
-  sorry
-
--- PROVABLE: satisfiability — the conclusion of `sun_a141386_complete` is
--- instantiable, so the theorem is not vacuous.
---   1 = 1² + 0² + 5·T₀
 example : Representable 1 := ⟨1, 0, 0, by norm_num⟩
---   6 = 1² + 0² + 5·T₁
 example : Representable 6 := ⟨1, 0, 1, by norm_num⟩
 
--- PROVABLE: the seven exceptions really are exceptions (the direction the
--- conjecture does *not* cover).  Bounded search: `5·T_t ≤ n` forces
--- `t ≤ n`, and `x², y² ≤ n` forces `x, y ≤ Nat.sqrt n`.
 example : ∀ n ∈ exceptions,
     ¬ ∃ x ∈ Finset.range (n.sqrt + 1), ∃ y ∈ Finset.range (n.sqrt + 1),
       ∃ t ∈ Finset.range (n + 1), 2 * n = 2 * x ^ 2 + 2 * y ^ 2 + 5 * (t * (t + 1)) := by
-  native_decide
+  intro n hn hbox
+  exact exceptions_not_representable n hn ((representable_iff_bounded n).mpr hbox)
 
--- PROVABLE: the smallest exception, spelled out.  `3` is not a sum of two
--- squares and `5·T_1 = 5 > 3`, so no representation exists.
-example : ¬ Representable 3 := by
-  rintro ⟨x, y, t, h⟩
-  interval_cases t <;> interval_cases x <;> interval_cases y <;> omega
+example : ¬ Representable 3 := exceptions_not_representable 3 (by decide)
 
--- PROVABLE: the convention audit.  Under a *positive*-only reading of `x, y`,
--- `1` would be an exception — but `1` is not in the DATA line, so the
--- nonnegative reading is forced.  This example pins that down.
 example : Representable 1 ∧ (1 : ℕ) ∉ exceptions := ⟨⟨1, 0, 0, by norm_num⟩, by decide⟩
 
--- PROVABLE (window check): the exceptions below `20000` are exactly the seven.
--- Externally verified: the sweep returns `3, 11, 12, 27, 129, 138, 273`.
+/-- Verify supplied witnesses for successive integers, allowing listed exceptions. -/
+private def checkRows (n : ℕ) : List (ℕ × ℕ × ℕ) → Bool
+  | [] => true
+  | w :: ws =>
+      (decide (n ∈ exceptions) || decide (n = w.1 ^ 2 + w.2.1 ^ 2 + 5 * tri w.2.2)) &&
+        checkRows (n + 1) ws
+
+example : checkRows 0 [(0, 0, 0)] = true := by decide
+example : checkRows 1 [(0, 0, 0)] = false := by decide
+
+/-- Successful row verification supplies a genuine representation or a listed exception. -/
+private theorem checkRows_sound (ws : List (ℕ × ℕ × ℕ)) (n : ℕ)
+    (h : checkRows n ws = true) (k : ℕ) (hk : k < ws.length) :
+    n + k ∈ exceptions ∨ Representable (n + k) := by
+  induction ws generalizing n k with
+  | nil => simp at hk
+  | cons w ws ih =>
+    simp only [checkRows, Bool.and_eq_true] at h
+    rcases h with ⟨hhead, htail⟩
+    cases k with
+    | zero =>
+      simp only [Bool.or_eq_true, decide_eq_true_eq] at hhead
+      simp only [Nat.add_zero]
+      rcases hhead with hexc | heq
+      · exact Or.inl hexc
+      · exact Or.inr ((representable_iff_tri n).mpr ⟨w.1, w.2.1, w.2.2, heq⟩)
+    | succ k =>
+      have hk' : k < ws.length := by simpa only [List.length_cons, Nat.succ_lt_succ_iff] using hk
+      have hrow := ih (n + 1) htail k hk'
+      simpa only [Nat.succ_eq_add_one, Nat.add_assoc, Nat.add_comm 1 k] using hrow
+
+/-- The number of witness rows in a chunked certificate. -/
+private def certificateSize : List (List (ℕ × ℕ × ℕ)) → ℕ
+  | [] => 0
+  | ws :: rest => ws.length + certificateSize rest
+
+/-- Chunking avoids a deep kernel recursion or repeated indexed list lookup. -/
+private def checkBlocks (n : ℕ) : List (List (ℕ × ℕ × ℕ)) → Bool
+  | [] => true
+  | ws :: rest => checkRows n ws && checkBlocks (n + ws.length) rest
+
+example : certificateSize [[(0, 0, 0)], [(1, 0, 0)]] = 2 := rfl
+example : checkBlocks 0 [[(0, 0, 0)], [(1, 0, 0)]] = true := by decide
+
+/-- A chunked certificate covers every integer below its row count. -/
+private theorem checkBlocks_sound (blocks : List (List (ℕ × ℕ × ℕ))) (n : ℕ)
+    (h : checkBlocks n blocks = true) (k : ℕ) (hk : k < certificateSize blocks) :
+    n + k ∈ exceptions ∨ Representable (n + k) := by
+  induction blocks generalizing n k with
+  | nil => simp only [certificateSize] at hk; omega
+  | cons ws rest ih =>
+    simp only [checkBlocks, Bool.and_eq_true] at h
+    simp only [certificateSize] at hk
+    rcases h with ⟨hrows, hrest⟩
+    by_cases hsmall : k < ws.length
+    · exact checkRows_sound ws n hrows k hsmall
+    · have hge : ws.length ≤ k := by omega
+      have hremaining : k - ws.length < certificateSize rest := by omega
+      have htail := ih (n + ws.length) hrest (k - ws.length) hremaining
+      have hindex : n + ws.length + (k - ws.length) = n + k := by omega
+      rw [hindex] at htail
+      exact htail
+
+/-- Witness rows for consecutive indices `0` through `99`. -/
+private def windowChunk000 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 0, 0), (0, 1, 0), (1, 1, 0), (0, 0, 0), (0, 2, 0), (1, 2, 0), (0, 1, 1), (1, 1, 1), (2, 2, 0), (0, 3, 0),
+    (1, 3, 0), (0, 0, 0), (0, 0, 0), (2, 3, 0), (0, 3, 1), (1, 3, 1), (0, 4, 0), (1, 4, 0), (3, 3, 0), (0, 2, 2),
+    (2, 4, 0), (0, 4, 1), (1, 4, 1), (3, 3, 1), (0, 3, 2), (0, 5, 0), (1, 5, 0), (0, 0, 0), (2, 3, 2), (2, 5, 0),
+    (0, 5, 1), (1, 5, 1), (4, 4, 0), (3, 3, 2), (3, 5, 0), (2, 4, 2), (0, 6, 0), (1, 6, 0), (2, 2, 3), (3, 5, 1),
+    (2, 6, 0), (4, 5, 0), (1, 6, 1), (2, 3, 3), (2, 5, 2), (3, 6, 0), (4, 5, 1), (4, 4, 2), (3, 3, 3), (0, 7, 0),
+    (1, 7, 0), (0, 6, 2), (4, 6, 0), (2, 7, 0), (0, 7, 1), (1, 7, 1), (4, 5, 2), (4, 6, 1), (3, 7, 0), (2, 5, 3),
+    (3, 6, 2), (5, 6, 0), (4, 4, 3), (3, 7, 1), (0, 8, 0), (1, 8, 0), (5, 6, 1), (4, 6, 2), (2, 8, 0), (0, 8, 1),
+    (1, 8, 1), (4, 5, 3), (6, 6, 0), (3, 8, 0), (5, 7, 0), (3, 6, 3), (5, 6, 2), (6, 6, 1), (3, 8, 1), (5, 7, 1),
+    (4, 8, 0), (0, 9, 0), (1, 9, 0), (2, 8, 2), (3, 5, 4), (2, 9, 0), (0, 9, 1), (1, 9, 1), (3, 8, 2), (5, 8, 0),
+    (3, 9, 0), (5, 6, 3), (1, 4, 5), (3, 3, 5), (5, 8, 1), (3, 9, 1), (0, 9, 2), (4, 9, 0), (7, 7, 0), (0, 7, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk000_size : windowChunk000.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk000_checked : checkRows 0 windowChunk000 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `100` through `199`. -/
+private def windowChunk001 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 10, 0), (1, 10, 0), (4, 9, 1), (7, 7, 1), (2, 10, 0), (0, 10, 1), (5, 9, 0), (4, 4, 5), (3, 7, 4), (3, 10, 0),
+    (4, 8, 3), (5, 9, 1), (4, 9, 2), (7, 8, 0), (3, 10, 1), (0, 10, 2), (4, 10, 0), (6, 9, 0), (7, 8, 1), (2, 10, 2),
+    (3, 9, 3), (0, 11, 0), (1, 11, 0), (3, 8, 4), (3, 10, 2), (2, 11, 0), (0, 11, 1), (1, 11, 1), (8, 8, 0), (0, 0, 0),
+    (3, 11, 0), (4, 10, 2), (6, 9, 2), (8, 8, 1), (2, 10, 3), (3, 11, 1), (6, 10, 0), (4, 11, 0), (0, 0, 0), (3, 10, 3),
+    (2, 11, 2), (6, 10, 1), (4, 11, 1), (8, 8, 2), (0, 12, 0), (1, 12, 0), (5, 11, 0), (6, 9, 3), (2, 12, 0), (7, 10, 0),
+    (1, 12, 1), (5, 11, 1), (4, 11, 2), (3, 12, 0), (7, 10, 1), (2, 11, 3), (5, 9, 4), (6, 11, 0), (3, 12, 1), (0, 12, 2),
+    (4, 12, 0), (5, 11, 2), (9, 9, 0), (2, 12, 2), (8, 10, 0), (4, 12, 1), (6, 10, 3), (9, 9, 1), (3, 12, 2), (0, 13, 0),
+    (1, 13, 0), (0, 11, 4), (6, 11, 2), (2, 13, 0), (0, 13, 1), (1, 13, 1), (5, 11, 3), (9, 9, 2), (3, 13, 0), (8, 10, 2),
+    (6, 12, 0), (9, 10, 0), (1, 1, 8), (3, 13, 1), (0, 13, 2), (4, 13, 0), (9, 10, 1), (6, 11, 3), (2, 13, 2), (0, 7, 7),
+    (4, 13, 1), (4, 10, 5), (9, 9, 3), (7, 12, 0), (5, 13, 0), (6, 12, 2), (0, 14, 0), (1, 14, 0), (7, 12, 1), (5, 13, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk001_size : windowChunk001.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk001_checked : checkRows 100 windowChunk001 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `200` through `299`. -/
+private def windowChunk002 : List (ℕ × ℕ × ℕ) :=
+  [
+    (2, 14, 0), (0, 14, 1), (9, 11, 0), (2, 13, 3), (0, 8, 7), (3, 14, 0), (1, 10, 6), (9, 11, 1), (8, 12, 0), (5, 13, 2),
+    (3, 14, 1), (0, 14, 2), (4, 14, 0), (8, 12, 1), (8, 10, 4), (2, 14, 2), (0, 6, 8), (4, 14, 1), (7, 13, 0), (0, 13, 4),
+    (3, 14, 2), (5, 14, 0), (6, 9, 6), (7, 13, 1), (5, 13, 3), (0, 15, 0), (1, 15, 0), (4, 14, 2), (3, 13, 4), (2, 15, 0),
+    (0, 15, 1), (1, 15, 1), (6, 14, 0), (8, 13, 0), (3, 15, 0), (3, 14, 3), (5, 14, 2), (6, 14, 1), (8, 13, 1), (3, 15, 1),
+    (0, 15, 2), (4, 15, 0), (11, 11, 0), (7, 12, 4), (10, 12, 0), (7, 14, 0), (4, 15, 1), (11, 11, 1), (8, 13, 2), (10, 12, 1),
+    (5, 15, 0), (5, 14, 3), (9, 11, 4), (3, 13, 5), (7, 10, 6), (5, 15, 1), (0, 16, 0), (1, 16, 0), (8, 12, 4), (10, 12, 2),
+    (2, 16, 0), (6, 15, 0), (1, 16, 1), (8, 13, 3), (3, 15, 3), (3, 16, 0), (6, 15, 1), (9, 9, 6), (7, 13, 4), (10, 13, 0),
+    (3, 16, 1), (0, 16, 2), (4, 16, 0), (0, 0, 0), (7, 15, 0), (2, 16, 2), (6, 15, 2), (9, 14, 0), (2, 13, 6), (7, 15, 1),
+    (3, 16, 2), (5, 16, 0), (9, 14, 1), (8, 13, 4), (10, 13, 2), (6, 12, 6), (5, 16, 1), (4, 16, 2), (12, 12, 0), (0, 17, 0),
+    (1, 17, 0), (6, 15, 3), (6, 16, 0), (2, 17, 0), (0, 17, 1), (1, 17, 1), (10, 14, 0), (6, 16, 1), (3, 17, 0), (10, 13, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk002_size : windowChunk002.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk002_checked : checkRows 200 windowChunk002 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `300` through `399`. -/
+private def windowChunk003 : List (ℕ × ℕ × ℕ) :=
+  [
+    (5, 15, 4), (10, 14, 1), (4, 16, 3), (3, 17, 1), (0, 17, 2), (4, 17, 0), (9, 15, 0), (6, 16, 2), (2, 17, 2), (3, 15, 5),
+    (4, 17, 1), (9, 15, 1), (1, 6, 10), (12, 13, 0), (5, 17, 0), (3, 16, 4), (4, 15, 5), (11, 14, 0), (12, 13, 1), (5, 17, 1),
+    (8, 16, 0), (9, 15, 2), (11, 14, 1), (2, 17, 3), (0, 18, 0), (1, 18, 0), (10, 14, 3), (9, 14, 4), (2, 18, 0), (0, 18, 1),
+    (1, 18, 1), (5, 16, 4), (11, 14, 2), (3, 18, 0), (2, 15, 6), (8, 16, 2), (9, 15, 3), (9, 16, 0), (7, 17, 0), (0, 18, 2),
+    (4, 18, 0), (4, 10, 9), (9, 16, 1), (7, 17, 1), (5, 17, 3), (4, 18, 1), (11, 15, 0), (11, 14, 3), (3, 18, 2), (5, 18, 0),
+    (8, 16, 3), (11, 15, 1), (9, 16, 2), (8, 17, 0), (5, 18, 1), (4, 18, 2), (10, 16, 0), (1, 9, 10), (8, 17, 1), (2, 5, 11),
+    (6, 18, 0), (0, 19, 0), (1, 19, 0), (3, 18, 3), (5, 18, 2), (2, 19, 0), (0, 19, 1), (1, 19, 1), (8, 17, 2), (12, 15, 0),
+    (3, 19, 0), (10, 16, 2), (6, 14, 7), (7, 18, 0), (12, 15, 1), (3, 19, 1), (0, 19, 2), (4, 19, 0), (7, 18, 1), (5, 18, 3),
+    (2, 19, 2), (9, 15, 5), (4, 19, 1), (8, 17, 3), (12, 15, 2), (3, 19, 2), (5, 19, 0), (9, 16, 4), (8, 18, 0), (10, 17, 0),
+    (6, 18, 3), (5, 19, 1), (14, 14, 0), (8, 18, 1), (13, 15, 0), (2, 19, 3), (11, 15, 4), (6, 19, 0), (2, 17, 6), (13, 15, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk003_size : windowChunk003.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk003_checked : checkRows 300 windowChunk003 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `400` through `499`. -/
+private def windowChunk004 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 20, 0), (1, 20, 0), (6, 19, 1), (8, 18, 2), (2, 20, 0), (9, 18, 0), (1, 20, 1), (14, 14, 2), (3, 18, 5), (3, 20, 0),
+    (7, 19, 0), (0, 19, 4), (6, 19, 2), (7, 17, 5), (3, 20, 1), (7, 19, 1), (4, 20, 0), (9, 14, 7), (8, 18, 3), (2, 20, 2),
+    (9, 18, 2), (14, 15, 0), (14, 14, 3), (7, 18, 4), (10, 18, 0), (5, 20, 0), (14, 15, 1), (6, 19, 3), (8, 17, 5), (10, 18, 1),
+    (5, 20, 1), (4, 20, 2), (6, 16, 7), (12, 17, 0), (2, 20, 3), (9, 18, 3), (6, 20, 0), (1, 19, 5), (12, 17, 1), (10, 18, 2),
+    (5, 20, 2), (0, 21, 0), (1, 21, 0), (7, 17, 6), (13, 15, 4), (2, 21, 0), (0, 21, 1), (1, 21, 1), (12, 17, 2), (7, 20, 0),
+    (3, 21, 0), (6, 20, 2), (14, 16, 0), (12, 13, 7), (7, 20, 1), (3, 21, 1), (0, 21, 2), (4, 21, 0), (13, 17, 0), (3, 20, 4),
+    (2, 21, 2), (10, 19, 0), (4, 21, 1), (13, 17, 1), (8, 20, 0), (3, 21, 2), (5, 21, 0), (14, 16, 2), (12, 18, 0), (8, 20, 1),
+    (2, 19, 6), (5, 21, 1), (4, 21, 2), (12, 18, 1), (10, 18, 4), (2, 21, 3), (10, 19, 2), (6, 21, 0), (7, 18, 6), (8, 20, 2),
+    (3, 21, 3), (9, 20, 0), (11, 19, 0), (12, 18, 2), (0, 22, 0), (1, 22, 0), (9, 20, 1), (11, 19, 1), (2, 22, 0), (0, 22, 1),
+    (7, 21, 0), (10, 19, 3), (6, 21, 2), (3, 22, 0), (8, 20, 3), (7, 21, 1), (9, 20, 2), (11, 19, 2), (3, 22, 1), (0, 22, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk004_size : windowChunk004.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk004_checked : checkRows 400 windowChunk004 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `500` through `599`. -/
+private def windowChunk005 : List (ℕ × ℕ × ℕ) :=
+  [
+    (4, 22, 0), (0, 19, 7), (14, 16, 4), (2, 22, 2), (0, 18, 8), (8, 21, 0), (1, 20, 6), (6, 21, 3), (3, 22, 2), (5, 22, 0),
+    (8, 21, 1), (9, 20, 3), (16, 16, 0), (7, 18, 7), (15, 17, 0), (4, 22, 2), (5, 21, 4), (16, 16, 1), (2, 22, 3), (15, 17, 1),
+    (6, 22, 0), (11, 20, 0), (9, 21, 0), (3, 22, 3), (5, 22, 2), (6, 22, 1), (11, 20, 1), (9, 21, 1), (8, 18, 7), (0, 23, 0),
+    (1, 23, 0), (9, 20, 4), (11, 19, 4), (2, 23, 0), (0, 23, 1), (1, 23, 1), (11, 20, 2), (9, 21, 2), (3, 23, 0), (5, 22, 3),
+    (7, 21, 4), (10, 21, 0), (16, 16, 3), (3, 23, 1), (12, 20, 0), (4, 23, 0), (10, 21, 1), (1, 21, 6), (8, 22, 0), (15, 18, 0),
+    (4, 23, 1), (11, 20, 3), (9, 21, 3), (8, 22, 1), (5, 23, 0), (8, 21, 4), (10, 21, 2), (14, 19, 0), (3, 18, 9), (5, 23, 1),
+    (4, 23, 2), (14, 15, 7), (11, 21, 0), (8, 22, 2), (15, 18, 2), (6, 23, 0), (10, 19, 6), (11, 21, 1), (3, 23, 3), (13, 20, 0),
+    (6, 23, 1), (10, 21, 3), (14, 19, 2), (12, 18, 6), (13, 20, 1), (4, 23, 3), (0, 24, 0), (1, 24, 0), (7, 23, 0), (15, 18, 3),
+    (2, 24, 0), (0, 24, 1), (1, 24, 1), (7, 23, 1), (10, 22, 0), (3, 24, 0), (15, 19, 0), (14, 19, 3), (3, 23, 4), (10, 22, 1),
+    (3, 24, 1), (15, 19, 1), (4, 24, 0), (8, 23, 0), (12, 20, 4), (2, 24, 2), (14, 20, 0), (4, 24, 1), (8, 23, 1), (10, 22, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk005_size : windowChunk005.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk005_checked : checkRows 500 windowChunk005 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `600` through `699`. -/
+private def windowChunk006 : List (ℕ × ℕ × ℕ) :=
+  [
+    (3, 24, 2), (5, 24, 0), (4, 19, 9), (2, 18, 10), (5, 23, 4), (11, 22, 0), (5, 24, 1), (4, 24, 2), (8, 23, 2), (0, 3, 15),
+    (9, 23, 0), (14, 20, 2), (6, 24, 0), (17, 18, 0), (10, 22, 3), (9, 23, 1), (5, 24, 2), (16, 19, 0), (17, 18, 1), (13, 20, 4),
+    (11, 22, 2), (9, 20, 7), (16, 19, 1), (8, 23, 3), (15, 18, 5), (0, 25, 0), (1, 25, 0), (6, 24, 2), (12, 22, 0), (2, 25, 0),
+    (0, 25, 1), (1, 25, 1), (16, 19, 2), (12, 22, 1), (3, 25, 0), (11, 22, 3), (15, 19, 4), (14, 21, 0), (2, 23, 6), (3, 25, 1),
+    (8, 24, 0), (4, 25, 0), (14, 21, 1), (12, 22, 2), (2, 25, 2), (8, 24, 1), (4, 25, 1), (16, 19, 3), (18, 18, 0), (3, 25, 2),
+    (5, 25, 0), (5, 24, 4), (14, 21, 2), (13, 22, 0), (15, 18, 6), (5, 25, 1), (16, 20, 0), (9, 24, 0), (13, 22, 1), (2, 25, 3),
+    (9, 23, 4), (6, 25, 0), (9, 24, 1), (18, 18, 2), (3, 25, 3), (5, 25, 2), (15, 21, 0), (14, 21, 3), (13, 22, 2), (0, 23, 7),
+    (8, 24, 3), (15, 21, 1), (9, 24, 2), (12, 23, 0), (7, 25, 0), (0, 25, 4), (0, 26, 0), (1, 26, 0), (12, 23, 1), (7, 25, 1),
+    (2, 26, 0), (0, 26, 1), (1, 26, 1), (13, 22, 3), (3, 25, 4), (3, 26, 0), (16, 20, 3), (9, 24, 3), (12, 23, 2), (8, 25, 0),
+    (3, 26, 1), (0, 26, 2), (4, 26, 0), (12, 18, 9), (8, 25, 1), (2, 26, 2), (15, 21, 3), (11, 24, 0), (13, 23, 0), (10, 18, 10)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk006_size : windowChunk006.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk006_checked : checkRows 600 windowChunk006 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `700` through `799`. -/
+private def windowChunk007 : List (ℕ × ℕ × ℕ) :=
+  [
+    (3, 26, 2), (5, 26, 0), (11, 24, 1), (13, 23, 1), (8, 25, 2), (6, 23, 7), (9, 25, 0), (4, 26, 2), (12, 17, 10), (15, 22, 0),
+    (2, 26, 3), (9, 25, 1), (6, 26, 0), (13, 23, 2), (15, 22, 1), (3, 26, 3), (5, 26, 2), (6, 26, 1), (17, 18, 6), (8, 25, 3),
+    (12, 24, 0), (9, 25, 2), (19, 19, 0), (12, 23, 4), (18, 20, 0), (7, 26, 0), (0, 26, 4), (19, 19, 1), (13, 23, 3), (0, 27, 0),
+    (1, 27, 0), (5, 26, 3), (9, 24, 5), (2, 27, 0), (0, 27, 1), (1, 27, 1), (9, 25, 3), (19, 19, 2), (3, 27, 0), (18, 20, 2),
+    (8, 26, 0), (15, 21, 5), (6, 26, 3), (3, 27, 1), (0, 27, 2), (4, 27, 0), (11, 25, 0), (11, 24, 4), (2, 27, 2), (7, 25, 5),
+    (4, 27, 1), (11, 25, 1), (19, 19, 3), (3, 27, 2), (5, 27, 0), (8, 26, 2), (9, 25, 4), (9, 26, 0), (13, 22, 6), (5, 27, 1),
+    (4, 27, 2), (19, 20, 0), (9, 26, 1), (2, 27, 3), (8, 25, 5), (6, 27, 0), (19, 20, 1), (4, 26, 5), (3, 27, 3), (12, 25, 0),
+    (6, 27, 1), (15, 21, 6), (14, 24, 0), (17, 22, 0), (12, 25, 1), (4, 27, 3), (10, 26, 0), (14, 24, 1), (7, 27, 0), (0, 27, 4),
+    (6, 27, 2), (10, 26, 1), (1, 26, 6), (7, 27, 1), (0, 28, 0), (1, 28, 0), (6, 15, 14), (14, 24, 2), (2, 28, 0), (0, 28, 1),
+    (1, 28, 1), (10, 26, 2), (6, 24, 8), (3, 28, 0), (13, 25, 0), (6, 27, 3), (11, 25, 4), (11, 26, 0), (3, 28, 1), (13, 25, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk007_size : windowChunk007.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk007_checked : checkRows 700 windowChunk007 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `800` through `899`. -/
+private def windowChunk008 : List (ℕ × ℕ × ℕ) :=
+  [
+    (4, 28, 0), (15, 24, 0), (19, 21, 0), (2, 28, 2), (5, 27, 4), (4, 28, 1), (15, 24, 1), (19, 21, 1), (18, 22, 0), (5, 28, 0),
+    (9, 27, 0), (19, 20, 4), (11, 26, 2), (18, 22, 1), (5, 28, 1), (9, 27, 1), (15, 24, 2), (19, 21, 2), (17, 23, 0), (12, 25, 4),
+    (6, 28, 0), (14, 25, 0), (14, 24, 4), (17, 23, 1), (5, 28, 2), (6, 28, 1), (14, 25, 1), (11, 26, 3), (7, 27, 4), (10, 27, 0),
+    (4, 28, 3), (15, 24, 3), (16, 24, 0), (7, 28, 0), (10, 27, 1), (6, 28, 2), (14, 25, 2), (16, 24, 1), (7, 28, 1), (5, 28, 3),
+    (9, 27, 3), (0, 29, 0), (1, 29, 0), (3, 28, 4), (10, 27, 2), (2, 29, 0), (0, 29, 1), (1, 29, 1), (8, 28, 0), (15, 22, 7),
+    (3, 29, 0), (14, 25, 3), (19, 21, 4), (18, 23, 0), (7, 25, 8), (3, 29, 1), (0, 29, 2), (4, 29, 0), (18, 23, 1), (10, 27, 3),
+    (2, 29, 2), (15, 19, 10), (4, 29, 1), (8, 28, 2), (18, 20, 7), (9, 28, 0), (5, 29, 0), (4, 24, 10), (18, 23, 2), (13, 25, 5),
+    (9, 28, 1), (5, 29, 1), (14, 26, 0), (12, 27, 0), (12, 25, 6), (2, 29, 3), (15, 24, 5), (6, 29, 0), (12, 27, 1), (10, 27, 4),
+    (9, 28, 2), (16, 25, 0), (21, 21, 0), (18, 23, 3), (10, 28, 0), (9, 27, 5), (16, 25, 1), (21, 21, 1), (12, 27, 2), (10, 28, 1),
+    (7, 29, 0), (0, 29, 4), (6, 29, 2), (17, 23, 5), (5, 27, 7), (7, 29, 1), (16, 25, 2), (21, 21, 2), (13, 27, 0), (10, 28, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk008_size : windowChunk008.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk008_checked : checkRows 800 windowChunk008 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `900` through `999`. -/
+private def windowChunk009 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 30, 0), (1, 30, 0), (14, 26, 3), (13, 27, 1), (2, 30, 0), (8, 29, 0), (1, 30, 1), (6, 29, 3), (7, 28, 5), (3, 30, 0),
+    (8, 29, 1), (16, 25, 3), (21, 21, 3), (13, 27, 2), (17, 25, 0), (0, 30, 2), (4, 30, 0), (1, 29, 5), (7, 27, 7), (17, 25, 1),
+    (8, 29, 2), (4, 30, 1), (9, 29, 0), (12, 27, 4), (3, 30, 2), (5, 30, 0), (14, 25, 6), (9, 29, 1), (12, 28, 0), (20, 23, 0),
+    (5, 30, 1), (4, 30, 2), (16, 26, 0), (12, 28, 1), (20, 23, 1), (8, 29, 3), (6, 30, 0), (19, 24, 0), (7, 28, 6), (3, 30, 3),
+    (5, 30, 2), (10, 29, 0), (19, 24, 1), (12, 28, 2), (20, 23, 2), (6, 27, 8), (10, 29, 1), (16, 26, 2), (13, 27, 4), (7, 30, 0),
+    (0, 30, 4), (6, 30, 2), (19, 24, 2), (13, 28, 0), (15, 27, 0), (5, 30, 3), (10, 29, 2), (21, 21, 5), (13, 28, 1), (15, 27, 1),
+    (6, 28, 7), (0, 31, 0), (1, 31, 0), (3, 27, 9), (8, 30, 0), (2, 31, 0), (0, 31, 1), (1, 31, 1), (22, 22, 0), (8, 30, 1),
+    (3, 31, 0), (10, 29, 3), (9, 29, 4), (22, 22, 1), (13, 25, 8), (3, 31, 1), (20, 24, 0), (4, 31, 0), (12, 28, 4), (8, 30, 2),
+    (14, 28, 0), (9, 30, 0), (4, 31, 1), (22, 22, 2), (15, 27, 3), (12, 29, 0), (5, 31, 0), (19, 24, 4), (8, 28, 7), (17, 25, 5),
+    (12, 29, 1), (5, 31, 1), (4, 31, 2), (18, 23, 7), (8, 30, 3), (14, 28, 2), (9, 30, 2), (6, 31, 0), (22, 22, 3), (7, 30, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk009_size : windowChunk009.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk009_checked : checkRows 900 windowChunk009 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `1000` through `1099`. -/
+private def windowChunk010 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 30, 0), (5, 31, 2), (6, 31, 1), (13, 28, 4), (15, 27, 4), (10, 30, 1), (20, 24, 3), (4, 31, 3), (2, 27, 10), (15, 28, 0),
+    (7, 31, 0), (9, 30, 3), (6, 31, 2), (22, 23, 0), (15, 28, 1), (7, 31, 1), (5, 31, 3), (21, 24, 0), (17, 27, 0), (17, 25, 6),
+    (3, 31, 4), (11, 30, 0), (21, 24, 1), (17, 27, 1), (0, 32, 0), (1, 32, 0), (11, 30, 1), (6, 31, 3), (2, 32, 0), (0, 32, 1),
+    (1, 32, 1), (9, 30, 4), (21, 24, 2), (3, 32, 0), (20, 23, 6), (12, 29, 4), (11, 30, 2), (14, 29, 0), (3, 32, 1), (0, 32, 2),
+    (4, 32, 0), (6, 30, 6), (9, 31, 0), (2, 32, 2), (12, 30, 0), (4, 32, 1), (10, 29, 6), (9, 31, 1), (3, 32, 2), (5, 32, 0),
+    (10, 30, 4), (11, 30, 3), (14, 29, 2), (18, 27, 0), (5, 32, 1), (4, 32, 2), (9, 30, 5), (9, 31, 2), (23, 23, 0), (12, 30, 2),
+    (6, 32, 0), (10, 31, 0), (9, 29, 7), (23, 23, 1), (5, 32, 2), (6, 32, 1), (15, 29, 0), (14, 29, 3), (18, 27, 2), (13, 30, 0),
+    (4, 32, 3), (15, 29, 1), (9, 31, 3), (7, 32, 0), (13, 30, 1), (6, 32, 2), (20, 26, 0), (19, 24, 7), (7, 32, 1), (5, 32, 3),
+    (0, 30, 8), (20, 26, 1), (11, 31, 0), (18, 27, 3), (13, 30, 2), (7, 31, 5), (9, 30, 6), (11, 31, 1), (8, 32, 0), (0, 33, 0),
+    (1, 33, 0), (20, 26, 2), (9, 31, 4), (2, 33, 0), (0, 33, 1), (1, 33, 1), (14, 30, 0), (16, 29, 0), (3, 33, 0), (13, 30, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk010_size : windowChunk010.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk010_checked : checkRows 1000 windowChunk010 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `1100` through `1199`. -/
+private def windowChunk011 : List (ℕ × ℕ × ℕ) :=
+  [
+    (1, 32, 5), (14, 30, 1), (16, 29, 1), (3, 33, 1), (0, 33, 2), (4, 33, 0), (20, 26, 3), (21, 21, 9), (18, 28, 0), (22, 25, 0),
+    (4, 33, 1), (14, 30, 2), (16, 29, 2), (18, 28, 1), (5, 33, 0), (4, 32, 5), (15, 29, 4), (21, 26, 0), (8, 32, 3), (5, 33, 1),
+    (4, 33, 2), (9, 30, 7), (21, 26, 1), (18, 28, 2), (10, 32, 0), (6, 33, 0), (14, 30, 3), (16, 29, 3), (3, 33, 3), (20, 27, 0),
+    (13, 31, 0), (15, 24, 11), (21, 26, 2), (23, 23, 5), (20, 27, 1), (13, 31, 1), (10, 31, 5), (6, 31, 7), (7, 33, 0), (10, 32, 2),
+    (6, 33, 2), (15, 29, 5), (14, 29, 6), (7, 33, 1), (20, 27, 2), (11, 32, 0), (14, 30, 4), (21, 26, 3), (3, 33, 4), (12, 30, 6),
+    (11, 32, 1), (20, 26, 5), (24, 24, 0), (8, 33, 0), (23, 25, 0), (6, 33, 3), (0, 34, 0), (1, 34, 0), (8, 33, 1), (23, 25, 1),
+    (2, 34, 0), (0, 34, 1), (1, 34, 1), (8, 32, 5), (5, 33, 4), (3, 34, 0), (10, 31, 6), (24, 24, 2), (12, 32, 0), (23, 25, 2),
+    (9, 33, 0), (0, 34, 2), (4, 34, 0), (12, 32, 1), (10, 32, 4), (9, 33, 1), (1, 30, 10), (4, 34, 1), (7, 32, 6), (20, 27, 4),
+    (3, 34, 2), (5, 34, 0), (24, 24, 3), (12, 32, 2), (20, 28, 0), (9, 33, 2), (15, 31, 0), (4, 34, 2), (7, 33, 4), (10, 33, 0),
+    (2, 34, 3), (15, 31, 1), (6, 34, 0), (13, 32, 0), (10, 33, 1), (3, 34, 3), (5, 34, 2), (6, 34, 1), (13, 32, 1), (20, 28, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk011_size : windowChunk011.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk011_checked : checkRows 1100 windowChunk011 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `1200` through `1299`. -/
+private def windowChunk012 : List (ℕ × ℕ × ℕ) :=
+  [
+    (9, 33, 3), (24, 25, 0), (19, 29, 0), (8, 33, 4), (10, 33, 2), (7, 34, 0), (24, 25, 1), (19, 29, 1), (13, 32, 2), (13, 30, 7),
+    (11, 33, 0), (5, 34, 3), (19, 24, 10), (22, 27, 0), (20, 28, 3), (11, 33, 1), (24, 25, 2), (16, 31, 0), (22, 27, 1), (10, 33, 3),
+    (8, 34, 0), (10, 21, 16), (16, 31, 1), (13, 32, 3), (18, 30, 0), (0, 35, 0), (1, 35, 0), (24, 24, 5), (22, 27, 2), (2, 35, 0),
+    (0, 35, 1), (1, 35, 1), (16, 31, 2), (12, 33, 0), (3, 35, 0), (8, 34, 2), (15, 31, 4), (9, 34, 0), (12, 33, 1), (3, 35, 1),
+    (0, 35, 2), (4, 35, 0), (9, 34, 1), (22, 27, 3), (2, 35, 2), (9, 33, 5), (4, 35, 1), (16, 31, 3), (12, 33, 2), (15, 32, 0),
+    (5, 35, 0), (24, 25, 4), (24, 26, 0), (7, 32, 8), (15, 32, 1), (5, 35, 1), (10, 34, 0), (24, 26, 1), (13, 33, 0), (2, 35, 3),
+    (11, 33, 4), (6, 35, 0), (1, 34, 6), (13, 33, 1), (15, 32, 2), (5, 35, 2), (6, 35, 1), (24, 26, 2), (22, 28, 0), (20, 27, 7),
+    (8, 34, 4), (10, 34, 2), (6, 31, 10), (22, 28, 1), (7, 35, 0), (0, 35, 4), (6, 35, 2), (11, 34, 0), (7, 33, 7), (7, 35, 1),
+    (16, 32, 0), (5, 24, 16), (21, 29, 0), (22, 28, 2), (3, 35, 4), (14, 33, 0), (10, 34, 3), (21, 29, 1), (13, 33, 3), (8, 35, 0),
+    (14, 33, 1), (6, 35, 3), (11, 34, 2), (8, 33, 7), (8, 35, 1), (16, 32, 2), (0, 36, 0), (1, 36, 0), (22, 28, 3), (15, 32, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk012_size : windowChunk012.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk012_checked : checkRows 1200 windowChunk012 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `1300` through `1399`. -/
+private def windowChunk013 : List (ℕ × ℕ × ℕ) :=
+  [
+    (2, 36, 0), (25, 26, 0), (1, 36, 1), (2, 32, 10), (8, 35, 2), (3, 36, 0), (9, 35, 0), (11, 34, 3), (13, 33, 4), (3, 35, 5),
+    (3, 36, 1), (9, 35, 1), (4, 36, 0), (17, 32, 0), (15, 33, 0), (2, 36, 2), (25, 26, 2), (4, 36, 1), (17, 32, 1), (15, 33, 1),
+    (3, 36, 2), (5, 36, 0), (19, 31, 0), (3, 33, 9), (7, 35, 4), (10, 35, 0), (5, 36, 1), (19, 31, 1), (17, 32, 2), (15, 33, 2),
+    (10, 35, 1), (25, 26, 3), (6, 36, 0), (13, 33, 5), (2, 35, 6), (3, 36, 3), (5, 36, 2), (6, 36, 1), (12, 33, 6), (8, 35, 4),
+    (10, 35, 2), (21, 30, 0), (4, 36, 3), (17, 32, 3), (15, 33, 3), (7, 36, 0), (11, 35, 0), (6, 36, 2), (18, 32, 0), (7, 35, 5),
+    (7, 36, 1), (11, 35, 1), (14, 34, 0), (18, 32, 1), (25, 27, 0), (10, 35, 3), (21, 30, 2), (14, 34, 1), (2, 32, 11), (25, 27, 1),
+    (8, 36, 0), (20, 31, 0), (6, 36, 3), (18, 32, 2), (15, 33, 4), (8, 36, 1), (20, 31, 1), (14, 34, 2), (2, 33, 10), (0, 37, 0),
+    (1, 37, 0), (21, 30, 3), (19, 31, 4), (2, 37, 0), (0, 37, 1), (1, 37, 1), (20, 31, 2), (9, 36, 0), (3, 37, 0), (7, 35, 6),
+    (3, 36, 5), (15, 34, 0), (9, 36, 1), (3, 37, 1), (22, 30, 0), (4, 37, 0), (15, 34, 1), (4, 36, 5), (2, 37, 2), (22, 30, 1),
+    (4, 37, 1), (20, 31, 3), (9, 36, 2), (3, 37, 2), (5, 37, 0), (7, 36, 4), (10, 36, 0), (19, 31, 5), (18, 32, 4), (5, 37, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk013_size : windowChunk013.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk013_checked : checkRows 1300 windowChunk013 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `1400` through `1499`. -/
+private def windowChunk014 : List (ℕ × ℕ × ℕ) :=
+  [
+    (4, 37, 2), (10, 36, 1), (21, 31, 0), (2, 37, 3), (25, 27, 4), (6, 37, 0), (25, 26, 6), (21, 31, 1), (3, 37, 3), (25, 28, 0),
+    (6, 37, 1), (10, 36, 2), (16, 34, 0), (18, 33, 0), (25, 28, 1), (4, 37, 3), (21, 30, 5), (11, 36, 0), (7, 37, 0), (0, 37, 4),
+    (6, 37, 2), (14, 35, 0), (11, 36, 1), (7, 37, 1), (20, 32, 0), (14, 33, 7), (14, 35, 1), (16, 34, 2), (18, 33, 2), (23, 30, 0),
+    (10, 35, 6), (15, 34, 4), (11, 36, 2), (8, 37, 0), (23, 30, 1), (6, 37, 3), (14, 35, 2), (6, 36, 6), (8, 37, 1), (20, 32, 2),
+    (12, 36, 0), (25, 26, 7), (16, 34, 3), (18, 33, 3), (0, 38, 0), (1, 38, 0), (10, 36, 4), (11, 36, 3), (2, 38, 0), (0, 38, 1),
+    (9, 37, 0), (14, 35, 3), (21, 31, 4), (3, 38, 0), (20, 32, 3), (9, 37, 1), (15, 34, 5), (14, 34, 6), (27, 27, 0), (0, 38, 2),
+    (4, 38, 0), (5, 36, 7), (16, 34, 4), (27, 27, 1), (10, 33, 10), (13, 36, 0), (25, 29, 0), (11, 36, 4), (3, 38, 2), (5, 38, 0),
+    (13, 36, 1), (25, 29, 1), (6, 36, 7), (27, 27, 2), (5, 38, 1), (4, 38, 2), (24, 30, 0), (21, 31, 5), (2, 38, 3), (23, 30, 4),
+    (6, 38, 0), (16, 35, 0), (9, 36, 6), (3, 38, 3), (5, 38, 2), (6, 38, 1), (16, 35, 1), (16, 34, 5), (27, 27, 3), (20, 33, 0),
+    (11, 37, 0), (24, 30, 2), (14, 36, 0), (7, 38, 0), (20, 33, 1), (11, 37, 1), (16, 35, 2), (14, 36, 1), (7, 38, 1), (5, 38, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk014_size : windowChunk014.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk014_checked : checkRows 1400 windowChunk014 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `1500` through `1599`. -/
+private def windowChunk015 : List (ℕ × ℕ × ℕ) :=
+  [
+    (9, 37, 4), (10, 36, 6), (19, 31, 8), (3, 38, 4), (20, 33, 2), (11, 37, 2), (24, 30, 3), (14, 36, 2), (8, 38, 0), (0, 37, 7),
+    (6, 38, 3), (16, 35, 3), (6, 36, 8), (12, 37, 0), (17, 35, 0), (13, 36, 4), (25, 29, 4), (19, 34, 0), (12, 37, 1), (17, 35, 1),
+    (11, 37, 3), (0, 39, 0), (1, 39, 0), (8, 38, 2), (22, 30, 7), (2, 39, 0), (0, 39, 1), (1, 39, 1), (12, 37, 2), (17, 35, 2),
+    (3, 39, 0), (16, 35, 4), (19, 34, 2), (27, 27, 5), (23, 30, 6), (3, 39, 1), (0, 39, 2), (4, 39, 0), (13, 37, 0), (20, 33, 4),
+    (2, 39, 2), (25, 29, 5), (4, 39, 1), (13, 37, 1), (10, 38, 0), (3, 39, 2), (5, 39, 0), (19, 34, 3), (2, 33, 13), (18, 35, 0),
+    (1, 38, 6), (5, 39, 1), (16, 36, 0), (23, 32, 0), (18, 35, 1), (2, 39, 3), (20, 34, 0), (6, 39, 0), (23, 32, 1), (10, 38, 2),
+    (3, 39, 3), (20, 34, 1), (6, 39, 1), (12, 37, 4), (18, 35, 2), (11, 38, 0), (21, 30, 9), (16, 36, 2), (28, 28, 0), (23, 30, 7),
+    (7, 39, 0), (20, 34, 2), (6, 39, 2), (22, 33, 0), (10, 38, 3), (7, 39, 1), (26, 30, 0), (14, 34, 9), (22, 33, 1), (18, 35, 3),
+    (11, 38, 2), (26, 30, 1), (16, 36, 3), (28, 28, 2), (0, 38, 7), (8, 39, 0), (19, 35, 0), (6, 39, 3), (12, 38, 0), (17, 35, 5),
+    (8, 39, 1), (19, 35, 1), (19, 34, 5), (12, 38, 1), (15, 37, 0), (11, 38, 3), (5, 39, 4), (21, 34, 0), (28, 28, 3), (15, 37, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk015_size : windowChunk015.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk015_checked : checkRows 1500 windowChunk015 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `1600` through `1699`. -/
+private def windowChunk016 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 40, 0), (1, 40, 0), (9, 39, 0), (12, 38, 2), (2, 40, 0), (0, 40, 1), (1, 40, 1), (9, 39, 1), (8, 33, 13), (3, 40, 0),
+    (4, 37, 9), (0, 34, 13), (21, 34, 2), (13, 38, 0), (3, 40, 1), (0, 40, 2), (4, 40, 0), (9, 39, 2), (23, 33, 0), (2, 40, 2),
+    (18, 36, 0), (10, 39, 0), (19, 34, 6), (23, 33, 1), (3, 40, 2), (5, 40, 0), (10, 39, 1), (21, 34, 3), (13, 38, 2), (27, 30, 0),
+    (5, 40, 1), (4, 40, 2), (9, 39, 3), (23, 33, 2), (27, 30, 1), (18, 36, 2), (6, 40, 0), (26, 31, 0), (12, 38, 4), (3, 40, 3),
+    (14, 38, 0), (6, 40, 1), (11, 39, 0), (13, 38, 3), (27, 30, 2), (14, 38, 1), (4, 40, 3), (11, 39, 1), (23, 33, 3), (7, 40, 0),
+    (18, 36, 3), (6, 40, 2), (26, 31, 2), (12, 37, 7), (7, 40, 1), (14, 38, 2), (24, 30, 8), (19, 36, 0), (17, 37, 0), (27, 30, 3),
+    (8, 39, 5), (19, 35, 5), (19, 36, 1), (17, 37, 1), (8, 40, 0), (12, 39, 0), (21, 35, 0), (26, 31, 3), (23, 33, 4), (15, 38, 0),
+    (12, 39, 1), (21, 35, 1), (19, 36, 2), (17, 37, 2), (15, 38, 1), (5, 40, 4), (1, 40, 5), (9, 39, 5), (22, 33, 6), (8, 40, 2),
+    (12, 39, 2), (0, 41, 0), (1, 41, 0), (27, 27, 9), (28, 30, 0), (2, 41, 0), (0, 41, 1), (1, 41, 1), (17, 37, 3), (28, 30, 1),
+    (3, 41, 0), (4, 40, 5), (11, 39, 4), (18, 37, 0), (8, 40, 3), (3, 41, 1), (20, 36, 0), (4, 41, 0), (18, 37, 1), (28, 30, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk016_size : windowChunk016.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk016_checked : checkRows 1600 windowChunk016 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `1700` through `1799`. -/
+private def windowChunk017 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 40, 0), (20, 36, 1), (4, 41, 1), (2, 37, 11), (27, 30, 5), (10, 40, 1), (5, 41, 0), (19, 36, 4), (18, 37, 2), (22, 35, 0),
+    (7, 39, 7), (5, 41, 1), (4, 41, 2), (22, 33, 7), (25, 33, 0), (10, 40, 2), (21, 35, 4), (6, 41, 0), (13, 38, 6), (25, 33, 1),
+    (3, 41, 3), (11, 40, 0), (6, 41, 1), (18, 37, 3), (22, 35, 2), (18, 36, 6), (11, 40, 1), (4, 41, 3), (12, 38, 7), (25, 33, 2),
+    (7, 41, 0), (0, 41, 4), (24, 34, 0), (17, 38, 0), (28, 30, 4), (7, 41, 1), (11, 40, 2), (21, 36, 0), (17, 38, 1), (22, 35, 3),
+    (3, 41, 4), (29, 30, 0), (21, 36, 1), (18, 37, 4), (12, 40, 0), (8, 41, 0), (15, 39, 0), (24, 34, 2), (17, 38, 2), (12, 40, 1),
+    (8, 41, 1), (15, 39, 1), (21, 36, 2), (27, 32, 0), (23, 35, 0), (3, 39, 9), (29, 30, 2), (1, 41, 5), (27, 32, 1), (23, 35, 1),
+    (8, 41, 2), (15, 39, 2), (9, 41, 0), (17, 38, 3), (0, 42, 0), (1, 42, 0), (19, 35, 8), (9, 41, 1), (2, 42, 0), (13, 40, 0),
+    (1, 42, 1), (29, 30, 3), (4, 41, 5), (3, 42, 0), (13, 40, 1), (8, 41, 3), (15, 39, 3), (16, 39, 0), (3, 42, 1), (0, 42, 2),
+    (4, 42, 0), (10, 41, 0), (16, 39, 1), (2, 42, 2), (13, 40, 2), (4, 42, 1), (10, 41, 1), (21, 36, 4), (3, 42, 2), (5, 42, 0),
+    (2, 41, 6), (29, 30, 4), (16, 39, 2), (13, 38, 8), (5, 42, 1), (4, 42, 2), (14, 40, 0), (19, 36, 7), (2, 42, 3), (13, 40, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk017_size : windowChunk017.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk017_checked : checkRows 1700 windowChunk017 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `1800` through `1899`. -/
+private def windowChunk018 : List (ℕ × ℕ × ℕ) :=
+  [
+    (6, 42, 0), (24, 35, 0), (11, 41, 0), (3, 42, 3), (5, 42, 2), (19, 38, 0), (24, 35, 1), (11, 41, 1), (28, 32, 0), (15, 38, 7),
+    (17, 39, 0), (14, 40, 2), (9, 41, 4), (7, 42, 0), (0, 42, 4), (17, 39, 1), (24, 35, 2), (11, 41, 2), (27, 33, 0), (5, 42, 3),
+    (19, 38, 2), (15, 39, 5), (6, 41, 6), (27, 33, 1), (28, 30, 7), (12, 41, 0), (14, 40, 3), (16, 39, 4), (8, 42, 0), (23, 35, 5),
+    (12, 41, 1), (24, 35, 3), (26, 34, 0), (8, 42, 1), (3, 40, 9), (19, 38, 3), (20, 36, 7), (26, 34, 1), (28, 32, 3), (5, 42, 4),
+    (12, 41, 2), (4, 40, 9), (21, 36, 6), (8, 42, 2), (20, 38, 0), (9, 42, 0), (14, 40, 4), (26, 34, 2), (27, 33, 3), (0, 43, 0),
+    (1, 43, 0), (24, 35, 4), (11, 41, 4), (2, 43, 0), (0, 43, 1), (1, 43, 1), (16, 40, 0), (6, 41, 7), (3, 43, 0), (20, 38, 2),
+    (9, 42, 2), (30, 31, 0), (26, 34, 3), (3, 43, 1), (10, 42, 0), (4, 43, 0), (30, 31, 1), (9, 41, 6), (2, 43, 2), (10, 42, 1),
+    (4, 43, 1), (16, 40, 2), (24, 36, 0), (28, 33, 0), (5, 43, 0), (9, 42, 3), (30, 31, 2), (14, 41, 0), (28, 33, 1), (5, 43, 1),
+    (4, 43, 2), (29, 30, 7), (19, 39, 0), (2, 43, 3), (12, 40, 7), (6, 43, 0), (16, 40, 3), (19, 39, 1), (28, 33, 2), (17, 40, 0),
+    (6, 43, 1), (30, 31, 3), (14, 41, 2), (27, 33, 5), (17, 40, 1), (4, 43, 3), (10, 39, 10), (19, 39, 2), (7, 43, 0), (0, 43, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk018_size : windowChunk018.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk018_checked : checkRows 1800 windowChunk018 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `1900` through `1999`. -/
+private def windowChunk019 : List (ℕ × ℕ × ℕ) :=
+  [
+    (6, 43, 2), (26, 35, 0), (24, 36, 3), (7, 43, 1), (17, 40, 2), (6, 42, 6), (15, 41, 0), (14, 41, 3), (12, 42, 0), (13, 40, 7),
+    (19, 38, 6), (15, 41, 1), (19, 39, 3), (8, 43, 0), (10, 42, 4), (6, 43, 3), (26, 35, 2), (16, 39, 7), (8, 43, 1), (17, 40, 3),
+    (9, 42, 5), (20, 39, 0), (31, 31, 0), (12, 42, 2), (18, 40, 0), (1, 43, 5), (20, 39, 1), (31, 31, 1), (22, 38, 0), (18, 40, 1),
+    (9, 43, 0), (26, 35, 3), (19, 39, 4), (13, 42, 0), (23, 35, 8), (9, 43, 1), (0, 44, 0), (1, 44, 0), (13, 42, 1), (18, 40, 2),
+    (2, 44, 0), (0, 44, 1), (1, 44, 1), (22, 38, 2), (0, 42, 8), (3, 44, 0), (11, 40, 9), (24, 36, 5), (13, 42, 2), (10, 43, 0),
+    (3, 44, 1), (0, 44, 2), (4, 44, 0), (7, 42, 7), (27, 35, 0), (2, 44, 2), (15, 41, 4), (4, 44, 1), (22, 38, 3), (27, 35, 1),
+    (14, 42, 0), (5, 44, 0), (21, 39, 0), (13, 42, 3), (10, 43, 2), (14, 42, 1), (5, 44, 1), (21, 39, 1), (8, 42, 7), (27, 35, 2),
+    (11, 43, 0), (20, 39, 4), (6, 44, 0), (23, 38, 0), (18, 40, 4), (11, 43, 1), (5, 44, 2), (6, 44, 1), (23, 38, 1), (10, 43, 3),
+    (9, 43, 4), (15, 41, 5), (4, 44, 3), (13, 42, 4), (27, 35, 3), (7, 44, 0), (0, 44, 4), (6, 44, 2), (23, 38, 2), (15, 42, 0),
+    (7, 44, 1), (5, 44, 3), (21, 39, 3), (12, 43, 0), (25, 37, 0), (3, 44, 4), (20, 39, 5), (29, 34, 0), (12, 43, 1), (25, 37, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk019_size : windowChunk019.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk019_checked : checkRows 1900 windowChunk019 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `2000` through `2099`. -/
+private def windowChunk020 : List (ℕ × ℕ × ℕ) :=
+  [
+    (8, 44, 0), (30, 31, 7), (29, 34, 1), (23, 38, 3), (15, 42, 2), (18, 41, 0), (26, 35, 6), (24, 34, 10), (12, 43, 2), (28, 35, 0),
+    (18, 41, 1), (5, 44, 4), (29, 34, 2), (12, 42, 6), (28, 35, 1), (8, 44, 2), (29, 30, 10), (9, 44, 0), (13, 43, 0), (15, 42, 3),
+    (16, 42, 0), (14, 40, 9), (9, 44, 1), (13, 43, 1), (28, 35, 2), (0, 45, 0), (1, 45, 0), (29, 34, 3), (27, 32, 10), (2, 45, 0),
+    (0, 45, 1), (1, 45, 1), (9, 44, 2), (13, 43, 2), (3, 45, 0), (16, 42, 2), (10, 44, 0), (21, 39, 5), (13, 42, 6), (3, 45, 1),
+    (0, 45, 2), (4, 45, 0), (19, 41, 0), (12, 43, 4), (2, 45, 2), (14, 43, 0), (4, 45, 1), (19, 41, 1), (32, 32, 0), (3, 45, 2),
+    (5, 45, 0), (10, 44, 2), (24, 36, 8), (17, 42, 0), (10, 43, 6), (5, 45, 1), (30, 34, 0), (11, 44, 0), (17, 42, 1), (2, 45, 3),
+    (14, 43, 2), (6, 45, 0), (11, 44, 1), (32, 32, 2), (3, 45, 3), (5, 45, 2), (29, 35, 0), (9, 44, 4), (17, 42, 2), (25, 38, 0),
+    (16, 42, 4), (29, 35, 1), (11, 44, 2), (13, 42, 7), (7, 45, 0), (14, 43, 3), (6, 45, 2), (6, 44, 6), (32, 32, 3), (7, 45, 1),
+    (12, 44, 0), (20, 41, 0), (6, 39, 14), (17, 42, 3), (22, 40, 0), (12, 44, 1), (20, 41, 1), (11, 44, 3), (18, 42, 0), (8, 45, 0),
+    (7, 44, 6), (6, 45, 3), (19, 41, 4), (18, 42, 1), (8, 45, 1), (12, 44, 2), (20, 41, 2), (24, 39, 0), (27, 37, 0), (22, 40, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk020_size : windowChunk020.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk020_checked : checkRows 2000 windowChunk020 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `2100` through `2199`. -/
+private def windowChunk021 : List (ℕ × ℕ × ℕ) :=
+  [
+    (5, 45, 4), (1, 45, 5), (24, 39, 1), (27, 37, 1), (8, 45, 2), (13, 44, 0), (9, 45, 0), (11, 44, 4), (22, 38, 8), (3, 45, 5),
+    (13, 44, 1), (9, 45, 1), (24, 39, 2), (32, 33, 0), (22, 40, 3), (3, 34, 19), (0, 46, 0), (1, 46, 0), (32, 33, 1), (8, 45, 3),
+    (2, 46, 0), (0, 46, 1), (21, 41, 0), (32, 32, 5), (7, 45, 4), (3, 46, 0), (26, 35, 9), (21, 41, 1), (32, 33, 2), (23, 40, 0),
+    (3, 46, 1), (0, 46, 2), (4, 46, 0), (12, 43, 7), (23, 40, 1), (2, 46, 2), (9, 45, 3), (29, 36, 0), (17, 43, 0), (8, 45, 4),
+    (3, 46, 2), (5, 46, 0), (29, 36, 1), (17, 43, 1), (23, 40, 2), (18, 41, 7), (11, 45, 0), (4, 46, 2), (27, 37, 4), (7, 45, 5),
+    (2, 46, 3), (11, 45, 1), (6, 46, 0), (28, 37, 0), (0, 42, 12), (3, 46, 3), (5, 46, 2), (6, 46, 1), (28, 37, 1), (23, 40, 3),
+    (16, 42, 7), (15, 44, 0), (4, 46, 3), (32, 33, 4), (20, 42, 0), (7, 46, 0), (15, 44, 1), (6, 46, 2), (28, 37, 2), (12, 45, 0),
+    (7, 46, 1), (5, 46, 3), (21, 41, 4), (18, 43, 0), (12, 45, 1), (3, 46, 4), (24, 40, 0), (29, 34, 8), (33, 33, 0), (20, 42, 2),
+    (8, 46, 0), (24, 40, 1), (6, 46, 3), (33, 33, 1), (12, 45, 2), (8, 46, 1), (31, 35, 0), (29, 36, 4), (18, 43, 2), (22, 40, 6),
+    (5, 45, 7), (31, 35, 1), (16, 44, 0), (33, 33, 2), (13, 45, 0), (8, 46, 2), (30, 36, 0), (9, 46, 0), (13, 43, 8), (13, 45, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk021_size : windowChunk021.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk021_checked : checkRows 2100 windowChunk021 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `2200` through `2299`. -/
+private def windowChunk022 : List (ℕ × ℕ × ℕ) :=
+  [
+    (3, 46, 5), (30, 36, 1), (9, 46, 1), (18, 43, 3), (23, 40, 5), (21, 42, 0), (24, 40, 3), (16, 44, 2), (33, 33, 3), (0, 47, 0),
+    (1, 47, 0), (30, 36, 2), (9, 46, 2), (2, 47, 0), (0, 47, 1), (1, 47, 1), (10, 46, 0), (9, 41, 13), (3, 47, 0), (12, 45, 4),
+    (21, 42, 2), (14, 45, 0), (16, 44, 3), (3, 47, 1), (0, 47, 2), (4, 47, 0), (14, 45, 1), (9, 46, 3), (28, 38, 0), (8, 45, 7),
+    (4, 47, 1), (10, 46, 2), (16, 39, 13), (28, 38, 1), (5, 47, 0), (21, 42, 3), (14, 45, 2), (11, 46, 0), (27, 37, 7), (5, 47, 1),
+    (4, 47, 2), (6, 45, 8), (11, 46, 1), (28, 38, 2), (13, 45, 4), (6, 47, 0), (10, 46, 3), (9, 46, 4), (22, 42, 0), (20, 43, 0),
+    (15, 45, 0), (14, 45, 3), (11, 46, 2), (22, 42, 1), (20, 43, 1), (15, 45, 1), (0, 46, 7), (24, 41, 0), (7, 47, 0), (0, 47, 4),
+    (12, 46, 0), (31, 35, 5), (24, 41, 1), (7, 47, 1), (20, 43, 2), (12, 46, 1), (10, 46, 4), (11, 46, 3), (3, 47, 4), (30, 37, 0),
+    (7, 46, 6), (14, 45, 4), (24, 41, 2), (8, 47, 0), (30, 37, 1), (12, 46, 2), (26, 40, 0), (29, 36, 7), (8, 47, 1), (20, 43, 3),
+    (15, 45, 3), (16, 45, 0), (11, 44, 9), (33, 33, 6), (30, 37, 2), (13, 46, 0), (16, 45, 1), (24, 41, 3), (8, 47, 2), (0, 42, 14),
+    (9, 47, 0), (26, 40, 2), (6, 46, 7), (23, 42, 0), (25, 38, 9), (9, 47, 1), (16, 45, 2), (19, 44, 0), (23, 42, 1), (30, 37, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk022_size : windowChunk022.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk022_checked : checkRows 2200 windowChunk022 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `2300` through `2399`. -/
+private def windowChunk023 : List (ℕ × ℕ × ℕ) :=
+  [
+    (13, 46, 2), (30, 36, 6), (19, 44, 1), (8, 47, 3), (0, 48, 0), (1, 48, 0), (25, 41, 0), (24, 41, 4), (2, 48, 0), (10, 47, 0),
+    (1, 48, 1), (25, 41, 1), (14, 46, 0), (3, 48, 0), (17, 45, 0), (13, 46, 3), (24, 40, 7), (14, 46, 1), (3, 48, 1), (17, 45, 1),
+    (4, 48, 0), (25, 41, 2), (24, 39, 9), (2, 48, 2), (10, 47, 2), (4, 48, 1), (26, 40, 4), (14, 46, 2), (3, 48, 2), (5, 48, 0),
+    (11, 47, 0), (16, 45, 4), (24, 41, 5), (22, 43, 0), (5, 48, 1), (11, 47, 1), (20, 44, 0), (9, 46, 7), (22, 43, 1), (10, 47, 3),
+    (6, 48, 0), (15, 46, 0), (14, 46, 3), (3, 48, 3), (30, 38, 0), (6, 48, 1), (15, 46, 1), (19, 44, 4), (22, 43, 2), (18, 45, 0),
+    (4, 48, 3), (20, 44, 2), (21, 39, 12), (7, 48, 0), (18, 45, 1), (6, 48, 2), (15, 46, 2), (26, 41, 0), (7, 48, 1), (30, 38, 2),
+    (11, 47, 3), (14, 45, 7), (29, 39, 0), (22, 43, 3), (18, 45, 2), (9, 47, 5), (20, 44, 3), (29, 39, 1), (8, 48, 0), (20, 38, 14),
+    (6, 48, 3), (15, 46, 3), (16, 46, 0), (8, 48, 1), (30, 38, 3), (14, 43, 11), (30, 36, 8), (21, 44, 0), (13, 47, 0), (18, 45, 3),
+    (11, 47, 4), (34, 35, 0), (21, 44, 1), (13, 47, 1), (28, 40, 0), (9, 48, 0), (19, 45, 0), (16, 46, 2), (3, 48, 5), (25, 42, 0),
+    (9, 48, 1), (19, 45, 1), (21, 44, 2), (32, 37, 0), (25, 42, 1), (4, 48, 5), (34, 35, 2), (24, 41, 7), (32, 37, 1), (28, 40, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk023_size : windowChunk023.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk023_checked : checkRows 2300 windowChunk023 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `2400` through `2499`. -/
+private def windowChunk024 : List (ℕ × ℕ × ℕ) :=
+  [
+    (9, 48, 2), (0, 49, 0), (1, 49, 0), (7, 48, 4), (10, 48, 0), (2, 49, 0), (0, 49, 1), (1, 49, 1), (32, 37, 2), (10, 48, 1),
+    (3, 49, 0), (34, 35, 3), (29, 39, 4), (2, 48, 6), (28, 40, 3), (3, 49, 1), (0, 49, 2), (4, 49, 0), (8, 48, 4), (10, 48, 2),
+    (22, 44, 0), (30, 39, 0), (4, 49, 1), (32, 37, 3), (18, 45, 5), (11, 48, 0), (5, 49, 0), (21, 44, 4), (13, 47, 4), (20, 43, 8),
+    (11, 48, 1), (5, 49, 1), (4, 49, 2), (23, 42, 7), (15, 47, 0), (22, 44, 2), (30, 39, 2), (6, 49, 0), (22, 43, 6), (15, 47, 1),
+    (18, 46, 0), (29, 40, 0), (6, 49, 1), (32, 37, 4), (0, 48, 7), (18, 46, 1), (29, 40, 1), (4, 49, 3), (12, 48, 0), (15, 47, 2),
+    (7, 49, 0), (30, 39, 3), (34, 36, 0), (12, 48, 1), (10, 48, 4), (7, 49, 1), (29, 40, 2), (34, 36, 1), (33, 37, 0), (28, 40, 5),
+    (3, 49, 4), (19, 45, 5), (26, 41, 6), (33, 37, 1), (15, 47, 3), (8, 49, 0), (21, 45, 0), (34, 36, 2), (32, 38, 0), (5, 48, 7),
+    (8, 49, 1), (21, 45, 1), (9, 46, 10), (13, 48, 0), (25, 43, 0), (11, 48, 4), (5, 49, 4), (19, 46, 0), (13, 48, 1), (25, 43, 1),
+    (8, 49, 2), (21, 45, 2), (9, 49, 0), (32, 38, 2), (15, 47, 4), (3, 49, 5), (34, 35, 6), (9, 49, 1), (13, 48, 2), (25, 43, 2),
+    (18, 46, 4), (29, 40, 4), (19, 46, 2), (27, 42, 0), (25, 42, 6), (8, 49, 3), (21, 45, 3), (9, 49, 2), (17, 47, 0), (12, 45, 11)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk024_size : windowChunk024.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk024_checked : checkRows 2400 windowChunk024 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `2500` through `2599`. -/
+private def windowChunk025 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 50, 0), (1, 50, 0), (34, 36, 4), (17, 47, 1), (2, 50, 0), (0, 50, 1), (1, 50, 1), (19, 46, 3), (27, 42, 2), (3, 50, 0),
+    (2, 49, 6), (30, 34, 13), (24, 44, 0), (17, 47, 2), (3, 50, 1), (0, 50, 2), (4, 50, 0), (24, 44, 1), (32, 38, 4), (2, 50, 2),
+    (6, 48, 8), (35, 36, 0), (11, 49, 0), (27, 42, 3), (3, 50, 2), (5, 50, 0), (35, 36, 1), (11, 49, 1), (17, 47, 3), (15, 48, 0),
+    (5, 50, 1), (4, 50, 2), (9, 49, 4), (18, 47, 0), (15, 48, 1), (12, 46, 10), (6, 50, 0), (11, 49, 2), (18, 47, 1), (3, 50, 3),
+    (5, 50, 2), (6, 50, 1), (24, 44, 3), (27, 42, 4), (15, 48, 2), (12, 49, 0), (4, 50, 3), (21, 34, 19), (28, 42, 0), (7, 50, 0),
+    (12, 49, 1), (6, 50, 2), (11, 49, 3), (28, 42, 1), (23, 45, 0), (5, 50, 3), (16, 45, 10), (21, 46, 0), (13, 47, 8), (23, 45, 1),
+    (16, 48, 0), (25, 44, 0), (21, 46, 1), (28, 42, 2), (8, 50, 0), (16, 48, 1), (25, 44, 1), (11, 46, 11), (27, 42, 5), (8, 50, 1),
+    (13, 49, 0), (35, 36, 4), (21, 46, 2), (17, 47, 5), (15, 47, 7), (13, 49, 1), (25, 44, 2), (6, 49, 7), (27, 43, 0), (8, 50, 2),
+    (18, 46, 7), (9, 50, 0), (19, 46, 6), (27, 43, 1), (23, 45, 3), (13, 49, 2), (9, 50, 1), (21, 46, 3), (12, 48, 7), (17, 45, 10),
+    (16, 48, 3), (25, 44, 3), (36, 36, 0), (17, 48, 0), (35, 37, 0), (12, 49, 4), (9, 50, 2), (14, 49, 0), (17, 48, 1), (35, 37, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk025_size : windowChunk025.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk025_checked : checkRows 2500 windowChunk025 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `2600` through `2699`. -/
+private def windowChunk026 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 50, 0), (0, 51, 0), (1, 51, 0), (17, 47, 6), (23, 45, 4), (2, 51, 0), (0, 51, 1), (1, 51, 1), (17, 48, 2), (20, 47, 0),
+    (3, 51, 0), (9, 50, 3), (26, 44, 0), (13, 48, 7), (20, 47, 1), (3, 51, 1), (0, 51, 2), (4, 51, 0), (32, 37, 9), (30, 38, 10),
+    (2, 51, 2), (11, 50, 0), (4, 51, 1), (17, 48, 3), (32, 40, 0), (3, 51, 2), (5, 51, 0), (26, 44, 2), (18, 48, 0), (32, 40, 1),
+    (10, 50, 3), (5, 51, 1), (4, 51, 2), (28, 43, 0), (15, 48, 6), (2, 51, 3), (11, 50, 2), (6, 51, 0), (28, 43, 1), (32, 40, 2),
+    (3, 51, 3), (5, 51, 2), (31, 41, 0), (18, 48, 2), (12, 50, 0), (23, 46, 0), (21, 45, 8), (31, 41, 1), (28, 43, 2), (12, 50, 1),
+    (7, 51, 0), (11, 50, 3), (6, 51, 2), (27, 43, 5), (32, 40, 3), (7, 51, 1), (5, 51, 3), (16, 49, 0), (18, 48, 3), (12, 50, 2),
+    (23, 46, 2), (35, 36, 7), (16, 49, 1), (28, 43, 3), (30, 42, 0), (8, 51, 0), (25, 44, 6), (6, 51, 3), (17, 48, 5), (13, 50, 0),
+    (8, 51, 1), (11, 50, 4), (16, 49, 2), (18, 47, 7), (13, 50, 1), (23, 46, 3), (5, 51, 4), (34, 39, 0), (18, 48, 4), (30, 42, 2),
+    (8, 51, 2), (1, 50, 8), (9, 51, 0), (28, 43, 4), (13, 50, 2), (3, 51, 5), (9, 50, 6), (9, 51, 1), (28, 42, 7), (33, 40, 0),
+    (17, 49, 0), (21, 45, 9), (24, 46, 0), (22, 47, 0), (33, 40, 1), (17, 49, 1), (14, 50, 0), (24, 46, 1), (22, 47, 1), (13, 50, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk026_size : windowChunk026.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk026_checked : checkRows 2600 windowChunk026 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `2700` through `2799`. -/
+private def windowChunk027 : List (ℕ × ℕ × ℕ) :=
+  [
+    (7, 51, 4), (10, 51, 0), (14, 49, 6), (18, 48, 5), (0, 52, 0), (1, 52, 0), (10, 51, 1), (24, 46, 2), (2, 52, 0), (0, 52, 1),
+    (1, 52, 1), (14, 50, 2), (9, 51, 3), (3, 52, 0), (30, 42, 4), (8, 51, 4), (10, 51, 2), (31, 41, 5), (3, 52, 1), (0, 52, 2),
+    (4, 52, 0), (9, 50, 7), (11, 51, 0), (2, 52, 2), (30, 37, 13), (15, 50, 0), (14, 50, 3), (11, 51, 1), (3, 52, 2), (5, 52, 0),
+    (15, 50, 1), (10, 51, 3), (9, 51, 4), (18, 48, 6), (5, 52, 1), (4, 52, 2), (16, 45, 13), (11, 51, 2), (23, 47, 0), (33, 40, 4),
+    (6, 52, 0), (25, 46, 0), (24, 46, 4), (23, 47, 1), (5, 52, 2), (12, 51, 0), (35, 39, 0), (31, 41, 6), (13, 48, 10), (30, 43, 0),
+    (12, 51, 1), (35, 39, 1), (11, 51, 3), (7, 52, 0), (27, 45, 0), (6, 52, 2), (16, 50, 0), (9, 51, 5), (7, 52, 1), (27, 45, 1),
+    (12, 51, 2), (16, 50, 1), (19, 49, 0), (3, 52, 4), (30, 43, 2), (17, 49, 5), (5, 51, 7), (19, 49, 1), (8, 52, 0), (27, 45, 2),
+    (13, 51, 0), (16, 50, 2), (11, 51, 4), (8, 52, 1), (13, 50, 6), (13, 51, 1), (35, 39, 3), (29, 44, 0), (12, 48, 11), (30, 43, 3),
+    (1, 52, 5), (0, 51, 8), (29, 44, 1), (8, 52, 2), (27, 45, 3), (9, 52, 0), (16, 50, 3), (9, 51, 6), (22, 48, 0), (17, 50, 0),
+    (9, 52, 1), (25, 46, 4), (26, 46, 0), (22, 48, 1), (17, 50, 1), (12, 51, 4), (35, 39, 4), (14, 51, 0), (8, 52, 3), (30, 43, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk027_size : windowChunk027.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk027_checked : checkRows 2700 windowChunk027 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `2800` through `2899`. -/
+private def windowChunk028 : List (ℕ × ℕ × ℕ) :=
+  [
+    (9, 52, 2), (20, 49, 0), (14, 51, 1), (22, 48, 2), (10, 52, 0), (8, 51, 7), (20, 49, 1), (26, 46, 2), (18, 48, 8), (0, 53, 0),
+    (1, 53, 0), (6, 50, 10), (14, 51, 2), (2, 53, 0), (0, 53, 1), (1, 53, 1), (20, 49, 2), (36, 39, 0), (3, 53, 0), (10, 52, 2),
+    (13, 51, 4), (35, 39, 5), (36, 39, 1), (3, 53, 1), (18, 50, 0), (4, 53, 0), (15, 51, 0), (14, 51, 3), (2, 53, 2), (18, 50, 1),
+    (4, 53, 1), (15, 51, 1), (36, 39, 2), (23, 48, 0), (5, 53, 0), (9, 52, 4), (30, 44, 0), (34, 41, 0), (23, 48, 1), (5, 53, 1),
+    (4, 53, 2), (30, 44, 1), (21, 49, 0), (2, 53, 3), (0, 52, 7), (6, 53, 0), (25, 46, 6), (21, 49, 1), (12, 52, 0), (5, 53, 2),
+    (6, 53, 1), (30, 44, 2), (34, 41, 2), (33, 42, 0), (18, 50, 3), (4, 53, 3), (15, 51, 3), (16, 51, 0), (7, 53, 0), (0, 53, 4),
+    (6, 53, 2), (19, 50, 0), (16, 51, 1), (7, 53, 1), (5, 53, 3), (15, 50, 7), (29, 45, 0), (34, 41, 3), (33, 42, 2), (5, 52, 7),
+    (17, 49, 8), (29, 45, 1), (16, 51, 2), (8, 53, 0), (18, 50, 4), (6, 53, 3), (19, 50, 2), (1, 51, 10), (8, 53, 1), (10, 52, 5),
+    (24, 48, 0), (29, 45, 2), (29, 44, 6), (33, 42, 3), (5, 53, 4), (22, 49, 0), (30, 44, 4), (16, 51, 3), (38, 38, 0), (30, 43, 7),
+    (9, 53, 0), (19, 50, 3), (21, 49, 4), (38, 38, 1), (17, 50, 6), (9, 53, 1), (36, 40, 0), (31, 44, 0), (12, 52, 4), (18, 50, 5)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk028_size : windowChunk028.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk028_checked : checkRows 2800 windowChunk028 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `2900` through `2999`. -/
+private def windowChunk029 : List (ℕ × ℕ × ℕ) :=
+  [
+    (14, 52, 0), (36, 40, 1), (31, 44, 1), (38, 38, 2), (0, 48, 15), (14, 52, 1), (35, 41, 0), (16, 51, 4), (7, 53, 4), (10, 53, 0),
+    (24, 48, 3), (35, 41, 1), (31, 44, 2), (33, 37, 13), (10, 53, 1), (14, 52, 2), (0, 54, 0), (1, 54, 0), (38, 38, 3), (12, 50, 10),
+    (2, 54, 0), (0, 54, 1), (1, 54, 1), (8, 53, 4), (10, 53, 2), (3, 54, 0), (36, 40, 3), (31, 44, 3), (33, 42, 5), (15, 52, 0),
+    (11, 53, 0), (0, 54, 2), (4, 54, 0), (7, 53, 5), (15, 52, 1), (11, 53, 1), (35, 41, 3), (4, 54, 1), (27, 47, 0), (10, 53, 3),
+    (3, 54, 2), (5, 54, 0), (34, 41, 6), (27, 47, 1), (15, 52, 2), (11, 53, 2), (5, 54, 1), (4, 54, 2), (8, 53, 5), (0, 53, 7),
+    (2, 54, 3), (11, 50, 11), (6, 54, 0), (12, 53, 0), (5, 52, 9), (3, 54, 3), (5, 54, 2), (29, 46, 0), (12, 53, 1), (15, 52, 3),
+    (16, 52, 0), (16, 45, 16), (19, 51, 0), (38, 38, 5), (18, 50, 7), (7, 54, 0), (0, 54, 4), (19, 51, 1), (12, 53, 2), (37, 40, 0),
+    (7, 54, 1), (5, 54, 3), (29, 46, 2), (23, 48, 7), (37, 40, 1), (16, 52, 2), (30, 44, 7), (24, 49, 0), (13, 53, 0), (15, 52, 4),
+    (8, 54, 0), (35, 41, 5), (24, 49, 1), (13, 53, 1), (22, 50, 0), (8, 54, 1), (31, 45, 0), (29, 46, 3), (27, 47, 4), (35, 42, 0),
+    (16, 52, 3), (31, 45, 1), (24, 49, 2), (17, 52, 0), (35, 42, 1), (8, 54, 2), (5, 46, 18), (9, 54, 0), (17, 52, 1), (22, 50, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk029_size : windowChunk029.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk029_checked : checkRows 2900 windowChunk029 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `3000` through `3099`. -/
+private def windowChunk030 : List (ℕ × ℕ × ℕ) :=
+  [
+    (3, 54, 5), (20, 51, 0), (9, 54, 1), (12, 53, 4), (35, 42, 2), (14, 53, 0), (20, 51, 1), (24, 49, 3), (17, 52, 2), (23, 45, 13),
+    (14, 53, 1), (35, 41, 6), (9, 54, 2), (27, 47, 5), (22, 50, 3), (7, 54, 4), (10, 54, 0), (34, 41, 8), (18, 48, 12), (35, 42, 3),
+    (14, 53, 2), (10, 54, 1), (1, 54, 6), (17, 52, 3), (30, 43, 10), (0, 55, 0), (1, 55, 0), (9, 54, 3), (18, 52, 0), (2, 55, 0),
+    (0, 55, 1), (1, 55, 1), (29, 46, 5), (27, 48, 0), (3, 55, 0), (14, 53, 3), (31, 45, 4), (11, 54, 0), (27, 48, 1), (3, 55, 1),
+    (0, 55, 2), (4, 55, 0), (21, 51, 0), (18, 52, 2), (38, 40, 0), (13, 51, 10), (4, 55, 1), (21, 51, 1), (27, 48, 2), (32, 45, 0),
+    (5, 55, 0), (20, 51, 4), (11, 54, 2), (13, 53, 5), (32, 45, 1), (5, 55, 1), (4, 55, 2), (21, 51, 2), (18, 52, 3), (38, 40, 2),
+    (12, 54, 0), (6, 55, 0), (29, 46, 6), (27, 48, 3), (32, 45, 2), (16, 53, 0), (6, 55, 1), (11, 54, 3), (17, 52, 5), (15, 52, 7),
+    (16, 53, 1), (4, 55, 3), (21, 51, 3), (12, 52, 9), (7, 55, 0), (12, 54, 2), (24, 50, 0), (26, 49, 0), (18, 52, 4), (7, 55, 1),
+    (16, 53, 2), (24, 50, 1), (26, 49, 1), (27, 48, 4), (3, 55, 4), (13, 54, 0), (35, 41, 8), (11, 54, 4), (28, 48, 0), (8, 55, 0),
+    (13, 54, 1), (24, 50, 2), (34, 44, 0), (28, 48, 1), (8, 55, 1), (16, 53, 3), (0, 54, 8), (34, 44, 1), (17, 53, 0), (32, 45, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk030_size : windowChunk030.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk030_checked : checkRows 3000 windowChunk030 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `3100` through `3199`. -/
+private def windowChunk031 : List (ℕ × ℕ × ℕ) :=
+  [
+    (13, 54, 2), (1, 55, 5), (9, 54, 6), (17, 53, 1), (20, 52, 0), (7, 54, 7), (9, 55, 0), (34, 44, 2), (27, 48, 5), (30, 47, 0),
+    (12, 54, 4), (9, 55, 1), (14, 54, 0), (17, 53, 2), (33, 45, 0), (13, 54, 3), (4, 55, 5), (14, 54, 1), (28, 48, 3), (33, 45, 1),
+    (8, 54, 7), (39, 40, 0), (34, 44, 3), (12, 52, 10), (30, 47, 2), (10, 55, 0), (39, 40, 1), (14, 54, 2), (17, 53, 3), (33, 45, 2),
+    (23, 51, 0), (1, 55, 6), (6, 54, 8), (18, 53, 0), (20, 52, 3), (23, 51, 1), (0, 56, 0), (1, 56, 0), (18, 53, 1), (30, 47, 3),
+    (2, 56, 0), (15, 54, 0), (1, 56, 1), (2, 53, 11), (33, 45, 3), (3, 56, 0), (11, 55, 0), (21, 51, 6), (18, 53, 2), (7, 55, 5),
+    (3, 56, 1), (11, 55, 1), (4, 56, 0), (18, 48, 14), (20, 52, 4), (2, 56, 2), (15, 54, 2), (4, 56, 1), (13, 53, 8), (30, 47, 4),
+    (3, 56, 2), (5, 56, 0), (14, 54, 4), (18, 53, 3), (33, 45, 4), (12, 54, 6), (5, 56, 1), (4, 56, 2), (18, 52, 7), (12, 55, 0),
+    (19, 53, 0), (15, 54, 3), (6, 56, 0), (17, 53, 5), (12, 55, 1), (19, 53, 1), (26, 50, 0), (24, 51, 0), (12, 53, 9), (20, 52, 5),
+    (23, 51, 4), (34, 45, 0), (24, 51, 1), (18, 53, 4), (12, 55, 2), (7, 56, 0), (34, 45, 1), (6, 56, 2), (22, 52, 0), (33, 45, 5),
+    (7, 56, 1), (26, 50, 2), (24, 51, 2), (22, 52, 1), (13, 55, 0), (3, 56, 4), (34, 45, 2), (34, 44, 6), (22, 42, 19), (13, 55, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk031_size : windowChunk031.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk031_checked : checkRows 3100 windowChunk031 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `3200` through `3299`. -/
+private def windowChunk032 : List (ℕ × ℕ × ℕ) :=
+  [
+    (8, 56, 0), (6, 55, 7), (39, 41, 0), (22, 52, 2), (30, 48, 0), (17, 54, 0), (26, 50, 3), (39, 41, 1), (38, 42, 0), (20, 53, 0),
+    (17, 54, 1), (34, 45, 3), (1, 56, 5), (38, 42, 1), (20, 53, 1), (8, 56, 2), (15, 54, 5), (9, 56, 0), (37, 43, 0), (30, 48, 2),
+    (17, 54, 2), (14, 55, 0), (9, 56, 1), (37, 43, 1), (20, 53, 2), (13, 54, 7), (25, 51, 0), (24, 51, 4), (28, 48, 7), (27, 50, 0),
+    (8, 56, 3), (25, 51, 1), (36, 44, 0), (23, 52, 0), (27, 50, 1), (17, 54, 3), (10, 56, 0), (36, 44, 1), (23, 52, 1), (20, 53, 3),
+    (18, 54, 0), (10, 56, 1), (29, 49, 0), (33, 42, 12), (27, 50, 2), (18, 54, 1), (15, 54, 6), (29, 49, 1), (23, 52, 2), (0, 57, 0),
+    (1, 57, 0), (10, 56, 2), (39, 41, 4), (2, 57, 0), (0, 57, 1), (1, 57, 1), (25, 51, 3), (11, 56, 0), (3, 57, 0), (27, 50, 3),
+    (7, 56, 5), (39, 40, 7), (11, 56, 1), (3, 57, 1), (0, 57, 2), (4, 57, 0), (10, 56, 3), (9, 56, 4), (2, 57, 2), (13, 55, 5),
+    (4, 57, 1), (14, 55, 4), (34, 46, 0), (3, 57, 2), (5, 57, 0), (8, 56, 5), (25, 51, 4), (19, 54, 0), (17, 53, 8), (5, 57, 1),
+    (12, 56, 0), (16, 55, 0), (19, 54, 1), (2, 57, 3), (28, 50, 0), (6, 57, 0), (16, 55, 1), (34, 46, 2), (3, 57, 3), (28, 50, 1),
+    (6, 57, 1), (10, 54, 10), (19, 54, 2), (22, 53, 0), (33, 45, 8), (12, 56, 2), (16, 55, 2), (21, 49, 13), (7, 57, 0), (28, 50, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk032_size : windowChunk032.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk032_checked : checkRows 3200 windowChunk032 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `3300` through `3399`. -/
+private def windowChunk033 : List (ℕ × ℕ × ℕ) :=
+  [
+    (6, 57, 2), (30, 49, 0), (34, 46, 3), (7, 57, 1), (5, 57, 3), (13, 56, 0), (30, 49, 1), (19, 54, 3), (22, 53, 2), (30, 48, 6),
+    (13, 56, 1), (16, 55, 3), (6, 56, 7), (8, 57, 0), (17, 55, 0), (6, 57, 3), (20, 54, 0), (29, 49, 5), (8, 57, 1), (17, 55, 1),
+    (13, 56, 2), (36, 45, 0), (34, 46, 4), (22, 53, 3), (5, 57, 4), (1, 57, 5), (36, 45, 1), (19, 54, 4), (32, 48, 0), (25, 52, 0),
+    (9, 57, 0), (20, 54, 2), (14, 56, 0), (32, 48, 1), (25, 52, 1), (9, 57, 1), (36, 45, 2), (14, 56, 1), (23, 53, 0), (33, 45, 9),
+    (4, 57, 5), (29, 50, 0), (39, 41, 7), (23, 53, 1), (25, 52, 2), (9, 57, 2), (29, 50, 1), (14, 56, 2), (7, 57, 4), (10, 57, 0),
+    (19, 53, 8), (36, 45, 3), (19, 54, 5), (23, 53, 2), (10, 57, 1), (13, 56, 4), (29, 50, 2), (21, 54, 0), (32, 48, 3), (25, 52, 3),
+    (9, 57, 3), (15, 56, 0), (31, 49, 0), (8, 57, 4), (0, 58, 0), (1, 58, 0), (15, 56, 1), (31, 49, 1), (2, 58, 0), (0, 58, 1),
+    (11, 57, 0), (29, 50, 3), (21, 54, 2), (3, 58, 0), (13, 55, 8), (11, 57, 1), (15, 56, 2), (31, 49, 2), (3, 58, 1), (0, 58, 2),
+    (4, 58, 0), (9, 55, 10), (14, 56, 4), (2, 58, 2), (30, 48, 8), (24, 53, 0), (19, 55, 0), (21, 54, 3), (3, 58, 2), (5, 58, 0),
+    (24, 53, 1), (19, 55, 1), (16, 56, 0), (12, 57, 0), (37, 45, 0), (4, 58, 2), (36, 45, 5), (16, 56, 1), (12, 57, 1), (37, 45, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk033_size : windowChunk033.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk033_checked : checkRows 3300 windowChunk033 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `3400` through `3499`. -/
+private def windowChunk034 : List (ℕ × ℕ × ℕ) :=
+  [
+    (6, 58, 0), (19, 55, 2), (24, 51, 9), (3, 58, 3), (5, 58, 2), (6, 58, 1), (30, 49, 6), (16, 56, 2), (12, 57, 2), (37, 45, 2),
+    (4, 58, 3), (15, 56, 4), (36, 46, 0), (7, 58, 0), (0, 58, 4), (6, 58, 2), (19, 55, 3), (36, 46, 1), (13, 57, 0), (5, 58, 3),
+    (11, 57, 4), (20, 54, 6), (16, 56, 3), (13, 57, 1), (37, 45, 3), (17, 56, 0), (36, 45, 6), (36, 46, 2), (8, 58, 0), (0, 57, 8),
+    (17, 56, 1), (4, 55, 12), (21, 54, 5), (27, 52, 0), (25, 53, 0), (24, 53, 4), (19, 55, 4), (31, 49, 5), (27, 52, 1), (25, 53, 1),
+    (17, 56, 2), (30, 49, 7), (29, 51, 0), (8, 58, 2), (37, 45, 4), (9, 58, 0), (29, 50, 6), (29, 51, 1), (27, 52, 2), (40, 43, 0),
+    (9, 58, 1), (25, 51, 9), (34, 46, 8), (8, 57, 7), (40, 43, 1), (17, 56, 3), (20, 54, 7), (39, 44, 0), (8, 58, 3), (3, 50, 19),
+    (18, 56, 0), (31, 50, 0), (39, 44, 1), (27, 52, 3), (10, 58, 0), (18, 56, 1), (21, 55, 0), (16, 56, 5), (13, 57, 4), (38, 45, 0),
+    (1, 58, 6), (21, 55, 1), (39, 44, 2), (2, 58, 6), (15, 57, 0), (18, 56, 2), (31, 50, 2), (39, 41, 10), (8, 58, 4), (15, 57, 1),
+    (17, 54, 10), (0, 59, 0), (1, 59, 0), (27, 52, 4), (38, 45, 2), (2, 59, 0), (0, 59, 1), (1, 59, 1), (28, 52, 0), (15, 57, 2),
+    (3, 59, 0), (31, 50, 3), (24, 54, 0), (28, 52, 1), (10, 58, 3), (3, 59, 1), (0, 59, 2), (4, 59, 0), (12, 57, 6), (38, 45, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk034_size : windowChunk034.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk034_checked : checkRows 3400 windowChunk034 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `3500` through `3599`. -/
+private def windowChunk035 : List (ℕ × ℕ × ℕ) :=
+  [
+    (2, 59, 2), (30, 51, 0), (4, 59, 1), (28, 52, 2), (15, 57, 3), (16, 57, 0), (5, 59, 0), (24, 54, 2), (12, 58, 0), (22, 55, 0),
+    (16, 57, 1), (5, 59, 1), (4, 59, 2), (12, 58, 1), (22, 55, 1), (2, 59, 3), (30, 51, 2), (6, 59, 0), (28, 52, 3), (38, 45, 4),
+    (16, 57, 2), (5, 59, 2), (6, 59, 1), (12, 58, 2), (32, 50, 0), (24, 53, 7), (19, 55, 7), (4, 59, 3), (42, 42, 0), (35, 48, 0),
+    (7, 59, 0), (30, 51, 3), (6, 59, 2), (13, 58, 0), (35, 48, 1), (7, 59, 1), (20, 56, 0), (21, 54, 8), (17, 57, 0), (32, 50, 2),
+    (3, 59, 4), (25, 54, 0), (24, 54, 4), (17, 57, 1), (35, 48, 2), (8, 59, 0), (39, 45, 0), (6, 59, 3), (13, 58, 2), (15, 57, 5),
+    (8, 59, 1), (39, 45, 1), (36, 46, 7), (17, 57, 2), (23, 55, 0), (16, 57, 4), (25, 54, 2), (34, 49, 0), (42, 42, 3), (23, 55, 1),
+    (14, 58, 0), (39, 45, 2), (9, 59, 0), (13, 58, 3), (30, 47, 13), (14, 58, 1), (20, 56, 3), (9, 59, 1), (17, 57, 3), (23, 55, 2),
+    (18, 54, 11), (25, 54, 3), (34, 49, 2), (18, 57, 0), (32, 50, 4), (14, 58, 2), (39, 45, 3), (21, 56, 0), (37, 47, 0), (35, 48, 4),
+    (7, 59, 4), (10, 59, 0), (21, 56, 1), (37, 47, 1), (23, 55, 3), (9, 58, 7), (10, 59, 1), (34, 49, 3), (18, 57, 2), (15, 58, 0),
+    (14, 58, 3), (25, 54, 4), (26, 54, 0), (28, 53, 0), (15, 58, 1), (8, 59, 4), (10, 59, 2), (26, 54, 1), (28, 53, 1), (32, 50, 5)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk035_size : windowChunk035.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk035_checked : checkRows 3500 windowChunk035 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `3600` through `3699`. -/
+private def windowChunk036 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 60, 0), (1, 60, 0), (11, 59, 0), (18, 57, 3), (2, 60, 0), (0, 60, 1), (1, 60, 1), (11, 59, 1), (28, 53, 2), (3, 60, 0),
+    (19, 57, 0), (10, 59, 3), (9, 59, 4), (42, 43, 0), (3, 60, 1), (19, 57, 1), (4, 60, 0), (41, 44, 0), (42, 43, 1), (2, 60, 2),
+    (16, 58, 0), (4, 60, 1), (41, 44, 1), (28, 53, 3), (3, 60, 2), (5, 60, 0), (35, 49, 0), (21, 56, 4), (42, 43, 2), (23, 55, 5),
+    (5, 60, 1), (35, 49, 1), (41, 44, 2), (42, 42, 6), (2, 60, 3), (16, 58, 2), (6, 60, 0), (39, 46, 0), (13, 58, 6), (3, 60, 3),
+    (5, 60, 2), (6, 60, 1), (39, 46, 1), (42, 43, 3), (10, 58, 8), (27, 54, 0), (4, 60, 3), (41, 44, 3), (18, 57, 5), (7, 60, 0),
+    (13, 59, 0), (6, 60, 2), (39, 46, 2), (17, 58, 0), (7, 60, 1), (13, 59, 1), (34, 50, 0), (6, 59, 7), (17, 58, 1), (3, 60, 4),
+    (27, 54, 2), (34, 50, 1), (34, 49, 6), (42, 43, 4), (8, 60, 0), (23, 56, 0), (6, 60, 3), (39, 46, 3), (17, 58, 2), (8, 60, 1),
+    (23, 56, 1), (34, 50, 2), (24, 54, 8), (37, 48, 0), (40, 43, 9), (27, 54, 3), (35, 49, 4), (14, 59, 0), (37, 48, 1), (8, 60, 2),
+    (23, 56, 2), (9, 60, 0), (14, 59, 1), (17, 58, 3), (3, 60, 5), (19, 57, 5), (9, 60, 1), (39, 46, 4), (18, 58, 0), (22, 55, 8),
+    (21, 57, 0), (4, 60, 5), (14, 59, 2), (18, 58, 1), (8, 60, 3), (21, 57, 1), (9, 60, 2), (36, 49, 0), (43, 43, 0), (7, 60, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk036_size : windowChunk036.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk036_checked : checkRows 3600 windowChunk036 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `3700` through `3799`. -/
+private def windowChunk037 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 60, 0), (26, 55, 0), (36, 49, 1), (43, 43, 1), (32, 50, 8), (10, 60, 1), (15, 59, 0), (14, 59, 3), (42, 42, 8), (30, 53, 0),
+    (7, 59, 8), (15, 59, 1), (24, 56, 0), (43, 43, 2), (30, 53, 1), (10, 60, 2), (40, 46, 0), (24, 56, 1), (18, 58, 3), (5, 58, 11),
+    (21, 57, 3), (0, 61, 0), (1, 61, 0), (37, 48, 4), (30, 53, 2), (2, 61, 0), (0, 61, 1), (1, 61, 1), (32, 52, 0), (15, 58, 7),
+    (3, 61, 0), (40, 46, 2), (26, 54, 7), (22, 57, 0), (23, 55, 8), (3, 61, 1), (0, 61, 2), (4, 61, 0), (22, 57, 1), (30, 53, 3),
+    (2, 61, 2), (6, 60, 6), (4, 61, 1), (32, 52, 2), (12, 60, 0), (3, 61, 2), (5, 61, 0), (36, 49, 4), (38, 48, 0), (12, 60, 1),
+    (10, 60, 4), (5, 61, 1), (4, 61, 2), (38, 48, 1), (27, 55, 0), (2, 61, 3), (15, 59, 4), (6, 61, 0), (32, 52, 3), (27, 55, 1),
+    (3, 61, 3), (25, 56, 0), (6, 61, 1), (38, 48, 2), (20, 58, 0), (21, 57, 5), (25, 56, 1), (4, 61, 3), (8, 57, 13), (13, 60, 0),
+    (7, 61, 0), (0, 61, 4), (6, 61, 2), (43, 43, 5), (13, 60, 1), (7, 61, 1), (25, 56, 2), (39, 46, 7), (23, 57, 0), (20, 58, 2),
+    (3, 61, 4), (15, 59, 5), (14, 59, 6), (23, 57, 1), (13, 60, 2), (8, 61, 0), (9, 60, 6), (6, 61, 3), (22, 52, 15), (42, 45, 0),
+    (8, 61, 1), (25, 56, 3), (6, 59, 10), (33, 52, 0), (42, 45, 1), (21, 57, 6), (14, 60, 0), (41, 46, 0), (33, 52, 1), (13, 60, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk037_size : windowChunk037.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk037_checked : checkRows 3700 windowChunk037 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `3800` through `3899`. -/
+private def windowChunk038 : List (ℕ × ℕ × ℕ) :=
+  [
+    (8, 61, 2), (14, 60, 1), (9, 61, 0), (32, 52, 5), (42, 45, 2), (18, 59, 0), (26, 55, 6), (9, 61, 1), (33, 52, 2), (28, 55, 0),
+    (18, 59, 1), (14, 60, 2), (26, 56, 0), (37, 48, 7), (28, 55, 1), (8, 61, 3), (30, 54, 0), (26, 56, 1), (28, 53, 9), (42, 45, 3),
+    (18, 59, 2), (10, 61, 0), (24, 54, 11), (33, 52, 3), (28, 55, 2), (15, 60, 0), (35, 51, 0), (26, 56, 2), (23, 57, 4), (27, 55, 5),
+    (15, 60, 1), (35, 51, 1), (9, 61, 3), (32, 53, 0), (3, 60, 9), (18, 59, 3), (10, 61, 2), (36, 49, 7), (32, 53, 1), (28, 55, 3),
+    (15, 60, 2), (35, 51, 2), (11, 61, 0), (33, 52, 4), (0, 62, 0), (1, 62, 0), (30, 54, 3), (11, 61, 1), (2, 62, 0), (0, 62, 1),
+    (1, 62, 1), (10, 61, 3), (9, 61, 4), (3, 62, 0), (32, 50, 11), (15, 60, 3), (16, 60, 0), (11, 61, 2), (3, 62, 1), (0, 62, 2),
+    (4, 62, 0), (16, 60, 1), (26, 56, 4), (2, 62, 2), (42, 45, 5), (12, 61, 0), (29, 55, 0), (26, 54, 10), (3, 62, 2), (5, 62, 0),
+    (12, 61, 1), (29, 55, 1), (44, 44, 0), (22, 57, 7), (25, 57, 0), (4, 62, 2), (35, 51, 4), (31, 54, 0), (2, 62, 3), (25, 57, 1),
+    (6, 62, 0), (20, 59, 0), (31, 54, 1), (3, 62, 3), (5, 62, 2), (6, 62, 1), (20, 59, 1), (44, 44, 2), (38, 48, 7), (17, 60, 0),
+    (13, 61, 0), (30, 54, 5), (31, 54, 2), (7, 62, 0), (17, 60, 1), (13, 61, 1), (20, 59, 2), (36, 51, 0), (33, 53, 0), (5, 62, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk038_size : windowChunk038.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk038_checked : checkRows 3800 windowChunk038 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `3900` through `3999`. -/
+private def windowChunk039 : List (ℕ × ℕ × ℕ) :=
+  [
+    (15, 60, 5), (35, 51, 5), (36, 51, 1), (33, 53, 1), (40, 48, 0), (13, 61, 2), (16, 60, 4), (31, 54, 3), (8, 62, 0), (40, 48, 1),
+    (6, 62, 3), (20, 59, 3), (36, 51, 2), (8, 62, 1), (28, 55, 6), (12, 61, 4), (29, 55, 4), (14, 61, 0), (23, 57, 7), (40, 48, 2),
+    (28, 56, 0), (30, 54, 6), (21, 59, 0), (8, 62, 2), (18, 60, 0), (9, 62, 0), (10, 61, 6), (21, 59, 1), (33, 53, 3), (35, 52, 0),
+    (9, 62, 1), (20, 59, 4), (14, 61, 2), (33, 52, 7), (35, 52, 1), (28, 56, 2), (14, 60, 7), (21, 59, 2), (8, 62, 3), (18, 60, 2),
+    (24, 58, 0), (29, 55, 5), (9, 61, 7), (7, 62, 4), (10, 62, 0), (24, 58, 1), (15, 61, 0), (14, 61, 3), (33, 53, 4), (10, 62, 1),
+    (28, 56, 3), (15, 61, 1), (21, 59, 3), (2, 62, 6), (18, 60, 3), (24, 58, 2), (20, 59, 5), (21, 54, 15), (8, 62, 4), (10, 62, 2),
+    (16, 57, 13), (19, 60, 0), (4, 61, 9), (18, 58, 10), (17, 60, 5), (11, 62, 0), (19, 60, 1), (14, 61, 4), (7, 62, 5), (0, 63, 0),
+    (1, 63, 0), (29, 55, 6), (21, 59, 4), (2, 63, 0), (0, 63, 1), (1, 63, 1), (19, 60, 2), (16, 61, 0), (3, 63, 0), (35, 52, 4),
+    (11, 62, 2), (15, 59, 10), (16, 61, 1), (3, 63, 1), (0, 63, 2), (4, 63, 0), (31, 55, 0), (24, 56, 10), (12, 62, 0), (25, 58, 0),
+    (4, 63, 1), (31, 55, 1), (16, 61, 2), (12, 62, 1), (5, 63, 0), (11, 62, 3), (15, 61, 4), (21, 59, 5), (7, 62, 6), (5, 63, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk039_size : windowChunk039.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk039_checked : checkRows 3900 windowChunk039 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `4000` through `4099`. -/
+private def windowChunk040 : List (ℕ × ℕ × ℕ) :=
+  [
+    (20, 60, 0), (40, 49, 0), (36, 51, 6), (12, 62, 2), (25, 58, 2), (6, 63, 0), (40, 49, 1), (16, 61, 3), (3, 63, 3), (5, 63, 2),
+    (17, 61, 0), (19, 60, 4), (44, 44, 7), (13, 62, 0), (25, 57, 7), (17, 61, 1), (40, 49, 2), (31, 54, 7), (7, 63, 0), (25, 58, 3),
+    (6, 63, 2), (39, 50, 0), (14, 61, 6), (7, 63, 1), (5, 63, 3), (17, 61, 2), (39, 50, 1), (16, 61, 4), (13, 62, 2), (18, 60, 6),
+    (20, 60, 3), (40, 49, 3), (6, 61, 10), (8, 63, 0), (35, 53, 0), (6, 63, 3), (30, 56, 0), (36, 51, 7), (8, 63, 1), (35, 53, 1),
+    (14, 62, 0), (21, 60, 0), (24, 56, 11), (13, 62, 3), (5, 63, 4), (18, 61, 0), (21, 60, 1), (26, 54, 13), (8, 63, 2), (32, 55, 0),
+    (9, 63, 0), (30, 56, 2), (44, 46, 0), (3, 63, 5), (32, 55, 1), (9, 63, 1), (21, 60, 2), (24, 59, 0), (43, 47, 0), (2, 60, 13),
+    (18, 61, 2), (31, 55, 5), (24, 59, 1), (43, 47, 1), (32, 55, 2), (9, 63, 2), (30, 56, 3), (44, 46, 2), (42, 48, 0), (10, 63, 0),
+    (14, 62, 3), (21, 60, 3), (34, 54, 0), (37, 52, 0), (10, 63, 1), (18, 61, 3), (40, 49, 5), (34, 54, 1), (37, 52, 1), (32, 55, 3),
+    (9, 63, 3), (16, 60, 9), (19, 61, 0), (42, 48, 2), (22, 60, 0), (17, 61, 5), (30, 56, 4), (19, 61, 1), (37, 52, 2), (22, 60, 1),
+    (11, 63, 0), (21, 60, 4), (39, 46, 13), (27, 58, 0), (25, 58, 6), (11, 63, 1), (0, 64, 0), (1, 64, 0), (27, 58, 1), (22, 60, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk040_size : windowChunk040.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk040_checked : checkRows 4000 windowChunk040 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `4100` through `4199`. -/
+private def windowChunk041 : List (ℕ × ℕ × ℕ) :=
+  [
+    (2, 64, 0), (0, 64, 1), (1, 64, 1), (37, 52, 3), (18, 60, 8), (3, 64, 0), (25, 59, 0), (24, 59, 4), (27, 58, 2), (35, 53, 5),
+    (3, 64, 1), (25, 59, 1), (4, 64, 0), (12, 63, 0), (33, 55, 0), (2, 64, 2), (21, 60, 5), (4, 64, 1), (12, 63, 1), (33, 55, 1),
+    (3, 64, 2), (5, 64, 0), (39, 51, 0), (27, 58, 3), (32, 55, 5), (9, 63, 5), (5, 64, 1), (39, 51, 1), (12, 63, 2), (23, 60, 0),
+    (2, 64, 3), (16, 60, 10), (6, 64, 0), (17, 62, 0), (23, 60, 1), (3, 64, 3), (5, 64, 2), (6, 64, 1), (13, 63, 0), (35, 53, 6),
+    (11, 63, 4), (35, 54, 0), (4, 64, 3), (13, 63, 1), (23, 60, 2), (7, 64, 0), (35, 54, 1), (6, 64, 2), (28, 58, 0), (30, 57, 0),
+    (7, 64, 1), (5, 64, 3), (39, 51, 3), (43, 48, 0), (30, 57, 1), (3, 64, 4), (35, 54, 2), (26, 59, 0), (43, 48, 1), (23, 60, 3),
+    (8, 64, 0), (39, 50, 7), (21, 61, 0), (28, 58, 2), (30, 57, 2), (14, 63, 0), (31, 55, 8), (21, 61, 1), (18, 62, 0), (25, 58, 8),
+    (14, 63, 1), (35, 54, 3), (26, 59, 2), (18, 62, 1), (10, 63, 6), (8, 64, 2), (24, 60, 0), (9, 64, 0), (37, 53, 0), (30, 57, 3),
+    (14, 63, 2), (34, 55, 0), (9, 64, 1), (37, 53, 1), (25, 52, 18), (18, 61, 7), (34, 55, 1), (26, 59, 3), (13, 63, 4), (33, 55, 5),
+    (8, 64, 3), (24, 60, 2), (9, 64, 2), (37, 53, 2), (15, 63, 0), (14, 63, 3), (10, 64, 0), (39, 51, 5), (18, 62, 3), (15, 63, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk041_size : windowChunk041.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk041_checked : checkRows 4100 windowChunk041 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `4200` through `4299`. -/
+private def windowChunk042 : List (ℕ × ℕ × ℕ) :=
+  [
+    (9, 62, 10), (40, 51, 0), (1, 64, 6), (43, 48, 4), (23, 60, 5), (19, 62, 0), (40, 51, 1), (9, 64, 3), (37, 53, 3), (15, 63, 2),
+    (27, 59, 0), (10, 64, 2), (36, 54, 0), (13, 63, 5), (35, 53, 8), (27, 59, 1), (40, 51, 2), (11, 64, 0), (18, 62, 4), (33, 55, 6),
+    (19, 62, 2), (21, 60, 8), (11, 64, 1), (28, 58, 5), (15, 63, 3), (0, 65, 0), (1, 65, 0), (36, 54, 2), (37, 53, 4), (2, 65, 0),
+    (0, 65, 1), (1, 65, 1), (46, 46, 0), (27, 58, 7), (3, 65, 0), (19, 62, 3), (0, 64, 7), (46, 46, 1), (17, 62, 6), (3, 65, 1),
+    (12, 64, 0), (4, 65, 0), (36, 54, 3), (18, 62, 5), (20, 62, 0), (12, 64, 1), (4, 65, 1), (46, 46, 2), (42, 48, 8), (20, 62, 1),
+    (5, 65, 0), (40, 51, 4), (9, 64, 5), (38, 53, 0), (30, 57, 6), (5, 65, 1), (4, 65, 2), (9, 61, 13), (17, 63, 0), (20, 62, 2),
+    (27, 59, 4), (6, 65, 0), (46, 46, 3), (17, 63, 1), (30, 58, 0), (13, 64, 0), (6, 65, 1), (11, 64, 4), (38, 53, 2), (30, 58, 1),
+    (13, 64, 1), (4, 65, 3), (6, 64, 7), (32, 57, 0), (7, 65, 0), (0, 65, 4), (26, 60, 0), (1, 64, 8), (32, 57, 1), (7, 65, 1),
+    (13, 64, 2), (26, 60, 1), (41, 51, 0), (38, 53, 3), (3, 65, 4), (21, 62, 0), (34, 55, 6), (41, 51, 1), (32, 57, 2), (8, 65, 0),
+    (21, 62, 1), (26, 60, 2), (14, 64, 0), (18, 63, 0), (8, 65, 1), (13, 64, 3), (39, 50, 10), (24, 61, 0), (18, 63, 1), (15, 63, 6)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk042_size : windowChunk042.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk042_checked : checkRows 4200 windowChunk042 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `4300` through `4399`. -/
+private def windowChunk043 : List (ℕ × ℕ × ℕ) :=
+  [
+    (21, 62, 2), (1, 65, 5), (24, 61, 1), (32, 57, 3), (40, 52, 0), (14, 63, 7), (9, 65, 0), (14, 64, 2), (18, 63, 2), (40, 52, 1),
+    (19, 62, 6), (9, 65, 1), (24, 61, 2), (17, 62, 8), (30, 58, 4), (21, 62, 3), (4, 65, 5), (36, 54, 6), (37, 53, 7), (40, 52, 2),
+    (18, 61, 10), (15, 64, 0), (29, 59, 0), (18, 63, 3), (7, 65, 4), (10, 65, 0), (15, 64, 1), (29, 59, 1), (22, 62, 0), (27, 60, 0),
+    (19, 63, 0), (1, 65, 6), (41, 51, 4), (22, 62, 1), (27, 60, 1), (19, 63, 1), (15, 64, 2), (44, 49, 0), (33, 57, 0), (8, 65, 4),
+    (10, 65, 2), (40, 51, 7), (44, 49, 1), (33, 57, 1), (27, 60, 2), (19, 63, 2), (11, 65, 0), (24, 61, 4), (32, 57, 5), (43, 50, 0),
+    (27, 59, 7), (11, 65, 1), (16, 64, 0), (33, 57, 2), (43, 50, 1), (10, 65, 3), (0, 66, 0), (1, 66, 0), (22, 62, 3), (27, 60, 3),
+    (2, 66, 0), (35, 56, 0), (1, 66, 1), (17, 63, 6), (43, 50, 2), (3, 66, 0), (35, 56, 1), (16, 64, 2), (33, 57, 3), (12, 65, 0),
+    (3, 66, 1), (0, 66, 2), (4, 66, 0), (23, 62, 0), (12, 65, 1), (2, 66, 2), (35, 56, 2), (4, 66, 1), (23, 62, 1), (43, 50, 3),
+    (3, 66, 2), (5, 66, 0), (16, 64, 3), (42, 42, 18), (28, 60, 0), (17, 64, 0), (5, 66, 1), (4, 66, 2), (32, 58, 0), (28, 60, 1),
+    (17, 64, 1), (35, 56, 3), (6, 66, 0), (32, 58, 1), (13, 65, 0), (3, 66, 3), (5, 66, 2), (26, 61, 0), (18, 63, 6), (13, 65, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk043_size : windowChunk043.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk043_checked : checkRows 4300 windowChunk043 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `4400` through `4499`. -/
+private def windowChunk044 : List (ℕ × ℕ × ℕ) :=
+  [
+    (17, 64, 2), (6, 65, 7), (26, 61, 1), (32, 58, 2), (27, 60, 5), (7, 66, 0), (0, 66, 4), (6, 66, 2), (17, 62, 10), (40, 53, 0),
+    (21, 63, 0), (5, 66, 3), (26, 61, 2), (33, 57, 5), (40, 53, 1), (21, 63, 1), (26, 60, 7), (4, 61, 16), (47, 47, 0), (12, 65, 4),
+    (8, 66, 0), (14, 65, 0), (6, 66, 3), (47, 47, 1), (40, 53, 2), (8, 66, 1), (45, 49, 0), (26, 61, 3), (43, 48, 10), (8, 65, 7),
+    (10, 65, 6), (45, 49, 1), (36, 56, 0), (47, 47, 2), (28, 60, 4), (8, 66, 2), (44, 50, 0), (9, 66, 0), (32, 58, 4), (40, 53, 3),
+    (21, 63, 3), (29, 60, 0), (31, 59, 0), (33, 57, 6), (13, 65, 4), (13, 64, 8), (29, 60, 1), (31, 59, 1), (47, 47, 3), (5, 63, 13),
+    (15, 65, 0), (44, 50, 2), (9, 66, 2), (22, 63, 0), (43, 50, 6), (15, 65, 1), (10, 66, 0), (19, 64, 0), (22, 63, 1), (40, 53, 4),
+    (21, 63, 4), (10, 66, 1), (19, 64, 1), (32, 58, 5), (3, 60, 18), (15, 65, 2), (44, 50, 3), (9, 66, 3), (42, 52, 0), (25, 62, 0),
+    (8, 66, 4), (10, 66, 2), (19, 64, 2), (42, 52, 1), (35, 57, 0), (5, 65, 9), (45, 49, 4), (11, 66, 0), (23, 62, 6), (35, 57, 1),
+    (15, 65, 3), (16, 65, 0), (11, 66, 1), (42, 52, 2), (25, 62, 2), (21, 63, 5), (16, 65, 1), (19, 64, 3), (8, 63, 13), (0, 67, 0),
+    (1, 67, 0), (29, 60, 4), (11, 66, 2), (2, 67, 0), (0, 67, 1), (1, 67, 1), (20, 64, 0), (6, 66, 6), (3, 67, 0), (25, 62, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk044_size : windowChunk044.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk044_checked : checkRows 4400 windowChunk044 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `4500` through `4599`. -/
+private def windowChunk045 : List (ℕ × ℕ × ℕ) :=
+  [
+    (12, 66, 0), (20, 64, 1), (26, 61, 6), (3, 67, 1), (0, 67, 2), (4, 67, 0), (10, 66, 4), (11, 66, 3), (2, 67, 2), (12, 65, 7),
+    (4, 67, 1), (20, 64, 2), (9, 66, 5), (47, 48, 0), (5, 67, 0), (12, 66, 2), (40, 54, 0), (46, 49, 0), (47, 48, 1), (5, 67, 1),
+    (26, 62, 0), (40, 54, 1), (46, 49, 1), (2, 67, 3), (35, 57, 4), (6, 67, 0), (20, 64, 3), (11, 66, 4), (47, 48, 2), (5, 67, 2),
+    (6, 67, 1), (40, 54, 2), (46, 49, 2), (17, 63, 10), (13, 65, 7), (26, 62, 2), (0, 66, 8), (21, 64, 0), (7, 67, 0), (0, 67, 4),
+    (6, 67, 2), (44, 50, 6), (21, 64, 1), (7, 67, 1), (5, 67, 3), (24, 63, 0), (39, 55, 0), (46, 49, 3), (3, 67, 4), (18, 65, 0),
+    (24, 63, 1), (39, 55, 1), (14, 66, 0), (8, 67, 0), (18, 65, 1), (6, 67, 3), (16, 65, 5), (14, 66, 1), (8, 67, 1), (2, 65, 11),
+    (24, 63, 2), (31, 60, 0), (29, 61, 0), (47, 48, 4), (18, 65, 2), (1, 67, 5), (31, 60, 1), (29, 61, 1), (8, 67, 2), (33, 55, 13),
+    (9, 67, 0), (20, 64, 5), (36, 56, 7), (27, 62, 0), (25, 62, 6), (9, 67, 1), (31, 60, 2), (29, 61, 2), (27, 62, 1), (18, 65, 3),
+    (22, 64, 0), (15, 66, 0), (14, 66, 3), (8, 67, 3), (15, 63, 12), (22, 64, 1), (19, 65, 0), (21, 64, 4), (27, 62, 2), (10, 67, 0),
+    (15, 65, 7), (19, 65, 1), (29, 61, 3), (22, 63, 7), (25, 63, 0), (22, 64, 2), (15, 66, 2), (41, 54, 0), (2, 67, 6), (25, 63, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk045_size : windowChunk045.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk045_checked : checkRows 4500 windowChunk045 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `4600` through `4699`. -/
+private def windowChunk046 : List (ℕ × ℕ × ℕ) :=
+  [
+    (9, 67, 3), (19, 65, 2), (41, 54, 1), (27, 62, 3), (10, 67, 2), (12, 66, 6), (45, 49, 8), (11, 64, 12), (48, 48, 0), (25, 63, 2),
+    (11, 67, 0), (15, 66, 3), (16, 66, 0), (48, 48, 1), (35, 57, 7), (11, 67, 1), (46, 50, 0), (16, 66, 1), (37, 57, 0), (10, 67, 3),
+    (9, 67, 4), (30, 61, 0), (46, 49, 6), (37, 57, 1), (0, 68, 0), (1, 68, 0), (45, 51, 0), (16, 66, 2), (2, 68, 0), (0, 68, 1),
+    (1, 68, 1), (45, 51, 1), (1, 66, 10), (3, 68, 0), (40, 53, 9), (21, 63, 9), (30, 61, 2), (34, 59, 0), (3, 68, 1), (0, 68, 2),
+    (4, 68, 0), (45, 51, 2), (34, 59, 1), (2, 68, 2), (25, 63, 4), (17, 66, 0), (46, 50, 3), (41, 54, 4), (3, 68, 2), (5, 68, 0),
+    (17, 66, 1), (30, 61, 3), (34, 59, 2), (47, 48, 7), (5, 68, 1), (4, 68, 2), (45, 51, 3), (39, 56, 0), (13, 67, 0), (28, 60, 10),
+    (6, 68, 0), (19, 65, 5), (39, 56, 1), (13, 67, 1), (5, 68, 2), (6, 68, 1), (21, 65, 0), (34, 59, 3), (37, 57, 4), (25, 63, 5),
+    (4, 68, 3), (21, 65, 1), (24, 64, 0), (7, 68, 0), (0, 68, 4), (6, 68, 2), (45, 51, 4), (24, 64, 1), (7, 68, 1), (5, 68, 3),
+    (18, 66, 0), (21, 65, 2), (31, 61, 0), (3, 68, 4), (40, 53, 10), (14, 67, 0), (15, 66, 6), (31, 61, 1), (8, 68, 0), (33, 60, 0),
+    (14, 67, 1), (46, 50, 5), (14, 66, 7), (38, 57, 0), (33, 60, 1), (18, 66, 2), (21, 65, 3), (31, 61, 2), (27, 63, 0), (5, 68, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk046_size : windowChunk046.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk046_checked : checkRows 4600 windowChunk046 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `4700` through `4799`. -/
+private def windowChunk047 : List (ℕ × ℕ × ℕ) :=
+  [
+    (14, 67, 2), (45, 51, 5), (24, 64, 3), (27, 63, 1), (33, 60, 2), (9, 68, 0), (35, 59, 0), (39, 56, 4), (38, 57, 2), (22, 65, 0),
+    (9, 68, 1), (35, 59, 1), (31, 61, 3), (27, 63, 2), (15, 67, 0), (14, 67, 3), (21, 65, 4), (19, 66, 0), (8, 68, 3), (15, 67, 1),
+    (9, 68, 2), (25, 64, 0), (19, 66, 1), (38, 57, 3), (10, 68, 0), (24, 63, 8), (25, 64, 1), (26, 61, 11), (27, 63, 3), (45, 52, 0),
+    (18, 66, 4), (45, 51, 6), (19, 66, 2), (37, 58, 0), (45, 52, 1), (9, 68, 3), (40, 56, 0), (41, 54, 7), (37, 58, 1), (10, 68, 2),
+    (21, 63, 11), (40, 56, 1), (34, 59, 6), (38, 57, 4), (30, 62, 0), (11, 68, 0), (0, 66, 12), (19, 66, 3), (37, 58, 2), (30, 62, 1),
+    (11, 68, 1), (40, 56, 2), (16, 66, 7), (28, 63, 0), (23, 65, 0), (9, 68, 4), (20, 66, 0), (31, 61, 5), (28, 63, 1), (23, 65, 1),
+    (11, 68, 2), (0, 69, 0), (1, 69, 0), (37, 58, 3), (15, 67, 4), (2, 69, 0), (0, 69, 1), (1, 69, 1), (12, 68, 0), (23, 65, 2),
+    (3, 69, 0), (20, 66, 2), (26, 64, 0), (12, 68, 1), (30, 62, 3), (3, 69, 1), (0, 69, 2), (4, 69, 0), (17, 67, 0), (45, 52, 4),
+    (2, 69, 2), (35, 59, 5), (4, 69, 1), (17, 67, 1), (23, 65, 3), (3, 69, 2), (5, 69, 0), (26, 64, 2), (48, 48, 8), (42, 55, 0),
+    (14, 67, 6), (5, 69, 1), (4, 69, 2), (13, 68, 0), (42, 55, 1), (2, 69, 3), (25, 64, 5), (6, 69, 0), (13, 68, 1), (10, 68, 5)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk047_size : windowChunk047.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk047_checked : checkRows 4700 windowChunk047 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `4800` through `4899`. -/
+private def windowChunk048 : List (ℕ × ℕ × ℕ) :=
+  [
+    (3, 69, 3), (24, 65, 0), (49, 49, 0), (28, 63, 4), (48, 50, 0), (31, 62, 0), (24, 65, 1), (49, 49, 1), (38, 58, 0), (48, 50, 1),
+    (7, 69, 0), (0, 69, 4), (6, 69, 2), (18, 67, 0), (22, 65, 6), (7, 69, 1), (24, 65, 2), (41, 56, 0), (18, 67, 1), (48, 50, 2),
+    (14, 68, 0), (39, 55, 10), (41, 56, 1), (38, 58, 2), (18, 65, 10), (8, 69, 0), (25, 64, 6), (6, 69, 3), (18, 67, 2), (23, 65, 5),
+    (8, 69, 1), (24, 65, 3), (41, 56, 2), (38, 57, 7), (45, 53, 0), (14, 68, 2), (5, 69, 4), (1, 69, 5), (38, 58, 3), (45, 53, 1),
+    (22, 66, 0), (40, 56, 6), (9, 69, 0), (18, 67, 3), (5, 67, 11), (22, 66, 1), (35, 59, 7), (9, 69, 1), (27, 62, 10), (15, 68, 0),
+    (19, 67, 0), (24, 65, 4), (44, 54, 0), (17, 67, 5), (15, 68, 1), (19, 67, 1), (15, 66, 10), (44, 54, 1), (38, 58, 4), (23, 65, 6),
+    (7, 69, 4), (10, 69, 0), (31, 61, 8), (18, 67, 4), (15, 68, 2), (19, 67, 2), (10, 69, 1), (44, 54, 2), (32, 62, 0), (30, 63, 0),
+    (22, 66, 3), (16, 65, 12), (9, 69, 3), (32, 62, 1), (43, 55, 0), (8, 69, 4), (10, 69, 2), (34, 61, 0), (27, 63, 8), (43, 55, 1),
+    (16, 68, 0), (45, 49, 13), (11, 69, 0), (32, 62, 2), (30, 63, 2), (23, 66, 0), (35, 59, 8), (11, 69, 1), (18, 67, 5), (20, 67, 0),
+    (23, 66, 1), (10, 69, 3), (34, 61, 2), (28, 63, 7), (20, 67, 1), (16, 68, 2), (36, 60, 0), (11, 69, 2), (32, 62, 3), (30, 63, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk048_size : windowChunk048.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk048_checked : checkRows 4800 windowChunk048 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `4900` through `4999`. -/
+private def windowChunk049 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 70, 0), (1, 70, 0), (44, 54, 4), (2, 68, 10), (2, 70, 0), (12, 69, 0), (1, 70, 1), (34, 61, 3), (12, 68, 7), (3, 70, 0),
+    (12, 69, 1), (36, 60, 2), (11, 69, 3), (17, 68, 0), (3, 70, 1), (0, 70, 2), (4, 70, 0), (9, 69, 5), (17, 68, 1), (2, 70, 2),
+    (12, 69, 2), (4, 70, 1), (41, 56, 6), (27, 63, 9), (3, 70, 2), (5, 70, 0), (36, 60, 3), (34, 61, 4), (17, 68, 2), (42, 55, 7),
+    (13, 69, 0), (4, 70, 2), (24, 66, 0), (33, 62, 0), (2, 70, 3), (13, 69, 1), (6, 70, 0), (29, 64, 0), (33, 62, 1), (3, 70, 3),
+    (5, 70, 2), (45, 54, 0), (29, 64, 1), (17, 68, 3), (30, 63, 5), (13, 69, 2), (35, 61, 0), (24, 66, 2), (18, 68, 0), (7, 70, 0),
+    (0, 70, 4), (35, 61, 1), (29, 64, 2), (18, 68, 1), (27, 65, 0), (5, 70, 3), (45, 54, 2), (14, 69, 0), (17, 67, 8), (27, 65, 1),
+    (13, 69, 3), (44, 55, 0), (14, 69, 1), (18, 68, 2), (8, 70, 0), (8, 69, 7), (44, 55, 1), (29, 64, 3), (38, 57, 10), (37, 60, 0),
+    (11, 68, 9), (45, 54, 3), (14, 69, 2), (22, 67, 0), (37, 60, 1), (5, 70, 4), (44, 55, 2), (6, 69, 8), (22, 67, 1), (8, 70, 2),
+    (13, 69, 4), (9, 70, 0), (24, 66, 4), (33, 62, 4), (37, 60, 2), (19, 68, 0), (15, 69, 0), (14, 69, 3), (22, 67, 2), (15, 68, 7),
+    (19, 68, 1), (15, 69, 1), (44, 54, 7), (32, 63, 0), (8, 70, 3), (3, 69, 9), (30, 64, 0), (41, 56, 8), (32, 63, 1), (37, 60, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk049_size : windowChunk049.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk049_checked : checkRows 4900 windowChunk049 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `5000` through `5099`. -/
+private def windowChunk050 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 70, 0), (30, 64, 1), (39, 59, 0), (22, 67, 3), (27, 65, 4), (10, 70, 1), (1, 70, 6), (39, 59, 1), (48, 52, 0), (28, 65, 0),
+    (12, 69, 6), (30, 64, 2), (29, 64, 5), (42, 57, 0), (28, 65, 1), (10, 70, 2), (15, 69, 3), (16, 69, 0), (23, 67, 0), (37, 60, 4),
+    (16, 68, 7), (11, 70, 0), (16, 69, 1), (23, 67, 1), (20, 68, 0), (23, 66, 7), (11, 70, 1), (49, 49, 9), (42, 57, 2), (20, 68, 1),
+    (10, 70, 3), (9, 70, 4), (26, 66, 0), (23, 67, 2), (22, 60, 19), (19, 68, 4), (11, 70, 2), (26, 66, 1), (48, 52, 3), (20, 68, 2),
+    (0, 70, 7), (0, 71, 0), (1, 71, 0), (42, 57, 3), (12, 70, 0), (2, 71, 0), (0, 71, 1), (1, 71, 1), (23, 67, 3), (12, 70, 1),
+    (3, 71, 0), (11, 70, 3), (39, 59, 4), (18, 68, 6), (20, 68, 3), (3, 71, 1), (0, 71, 2), (4, 71, 0), (33, 63, 0), (12, 70, 2),
+    (2, 71, 2), (15, 69, 5), (4, 71, 1), (33, 63, 1), (42, 55, 10), (21, 68, 0), (5, 71, 0), (16, 69, 4), (23, 67, 4), (13, 70, 0),
+    (21, 68, 1), (5, 71, 1), (44, 56, 0), (33, 63, 2), (13, 70, 1), (2, 71, 3), (6, 70, 7), (6, 71, 0), (22, 67, 6), (48, 50, 10),
+    (21, 68, 2), (40, 59, 0), (6, 71, 1), (48, 52, 5), (13, 70, 2), (18, 69, 0), (40, 59, 1), (44, 56, 2), (33, 63, 3), (7, 70, 7),
+    (7, 71, 0), (0, 71, 4), (6, 71, 2), (23, 67, 5), (12, 70, 4), (7, 71, 1), (14, 70, 0), (14, 69, 7), (43, 57, 0), (13, 70, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk050_size : windowChunk050.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk050_checked : checkRows 5000 windowChunk050 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `5100` through `5199`. -/
+private def windowChunk051 : List (ℕ × ℕ × ℕ) :=
+  [
+    (18, 69, 2), (50, 51, 0), (44, 56, 3), (43, 57, 1), (8, 70, 7), (8, 71, 0), (50, 51, 1), (6, 71, 3), (22, 68, 0), (37, 60, 7),
+    (8, 71, 1), (14, 70, 2), (24, 66, 8), (48, 53, 0), (25, 67, 0), (18, 69, 3), (50, 51, 2), (1, 71, 5), (48, 53, 1), (25, 67, 1),
+    (32, 64, 0), (39, 60, 0), (9, 71, 0), (22, 68, 2), (15, 68, 10), (15, 70, 0), (39, 60, 1), (9, 71, 1), (42, 58, 0), (25, 67, 2),
+    (15, 70, 1), (50, 51, 3), (4, 71, 5), (42, 58, 1), (27, 65, 8), (32, 64, 2), (39, 60, 2), (9, 71, 2), (22, 68, 3), (25, 57, 22),
+    (28, 66, 0), (10, 71, 0), (39, 59, 7), (42, 58, 2), (25, 67, 3), (28, 66, 1), (10, 71, 1), (44, 56, 5), (43, 57, 4), (12, 70, 6),
+    (32, 64, 3), (39, 60, 3), (9, 71, 3), (23, 68, 0), (35, 57, 16), (28, 66, 2), (16, 70, 0), (16, 69, 7), (23, 68, 1), (13, 65, 17),
+    (18, 69, 5), (20, 69, 0), (11, 71, 0), (48, 53, 4), (25, 67, 4), (26, 67, 0), (20, 69, 1), (11, 71, 1), (23, 68, 2), (15, 67, 13),
+    (26, 67, 1), (16, 70, 2), (9, 71, 4), (43, 57, 5), (13, 70, 6), (15, 70, 4), (20, 69, 2), (11, 71, 2), (42, 58, 4), (27, 65, 9),
+    (26, 67, 2), (0, 71, 7), (6, 71, 6), (23, 68, 3), (0, 72, 0), (1, 72, 0), (31, 65, 0), (6, 69, 12), (2, 72, 0), (17, 70, 0),
+    (1, 72, 1), (31, 65, 1), (11, 71, 3), (3, 72, 0), (35, 63, 0), (26, 67, 3), (39, 60, 5), (29, 66, 0), (3, 72, 1), (35, 63, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk051_size : windowChunk051.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk051_checked : checkRows 5100 windowChunk051 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `5200` through `5299`. -/
+private def windowChunk052 : List (ℕ × ℕ × ℕ) :=
+  [
+    (4, 72, 0), (31, 65, 2), (21, 69, 0), (2, 72, 2), (50, 52, 0), (4, 72, 1), (16, 70, 4), (21, 69, 1), (3, 72, 2), (5, 72, 0),
+    (13, 71, 0), (20, 69, 4), (29, 66, 2), (37, 62, 0), (5, 72, 1), (13, 71, 1), (31, 65, 3), (21, 69, 2), (27, 67, 0), (50, 52, 2),
+    (6, 72, 0), (40, 59, 7), (1, 71, 8), (27, 67, 1), (18, 70, 0), (6, 72, 1), (39, 60, 6), (29, 66, 3), (37, 62, 2), (18, 70, 1),
+    (4, 72, 3), (16, 70, 5), (21, 69, 3), (7, 72, 0), (47, 55, 0), (6, 72, 2), (31, 65, 4), (14, 71, 0), (7, 72, 1), (47, 55, 1),
+    (13, 71, 3), (50, 51, 7), (39, 61, 0), (37, 62, 3), (35, 63, 4), (22, 69, 0), (10, 71, 6), (39, 61, 1), (8, 72, 0), (25, 68, 0),
+    (22, 69, 1), (10, 69, 12), (34, 64, 0), (8, 72, 1), (25, 68, 1), (5, 70, 11), (30, 66, 0), (34, 64, 1), (23, 68, 6), (5, 72, 4),
+    (22, 69, 2), (19, 70, 0), (9, 71, 7), (8, 72, 2), (25, 68, 2), (9, 72, 0), (15, 71, 0), (34, 64, 2), (27, 67, 4), (35, 63, 5),
+    (9, 72, 1), (15, 71, 1), (39, 61, 3), (28, 67, 0), (45, 57, 0), (22, 69, 3), (19, 70, 2), (21, 69, 5), (28, 67, 1), (45, 57, 1),
+    (9, 72, 2), (41, 60, 0), (34, 64, 3), (7, 72, 4), (10, 72, 0), (13, 71, 5), (41, 60, 1), (14, 71, 4), (38, 62, 0), (10, 72, 1),
+    (23, 69, 0), (19, 70, 3), (39, 61, 4), (38, 62, 1), (17, 70, 6), (23, 69, 1), (41, 60, 2), (16, 71, 0), (8, 72, 4), (10, 72, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk052_size : windowChunk052.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk052_checked : checkRows 5200 windowChunk052 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `5300` through `5399`. -/
+private def windowChunk053 : List (ℕ × ℕ × ℕ) :=
+  [
+    (20, 70, 0), (20, 69, 7), (16, 71, 1), (38, 62, 2), (45, 57, 3), (11, 72, 0), (30, 66, 4), (21, 69, 6), (7, 72, 5), (50, 53, 0),
+    (11, 72, 1), (41, 60, 3), (16, 71, 2), (3, 68, 16), (33, 65, 0), (20, 70, 2), (15, 71, 4), (31, 66, 0), (38, 62, 3), (33, 65, 1),
+    (11, 72, 2), (35, 64, 0), (31, 66, 1), (28, 67, 4), (50, 53, 2), (6, 72, 6), (35, 64, 1), (16, 71, 3), (12, 72, 0), (0, 73, 0),
+    (1, 73, 0), (41, 60, 4), (31, 66, 2), (2, 73, 0), (0, 73, 1), (1, 73, 1), (35, 64, 2), (24, 69, 0), (3, 73, 0), (50, 53, 3),
+    (23, 69, 4), (21, 70, 0), (24, 69, 1), (3, 73, 1), (0, 73, 2), (4, 73, 0), (21, 70, 1), (31, 66, 3), (2, 73, 2), (45, 57, 5),
+    (4, 73, 1), (35, 64, 3), (24, 69, 2), (13, 72, 0), (5, 73, 0), (11, 72, 4), (21, 70, 2), (34, 64, 6), (13, 72, 1), (5, 73, 1),
+    (4, 73, 2), (30, 66, 6), (26, 66, 11), (2, 73, 3), (42, 60, 0), (6, 73, 0), (19, 70, 6), (24, 69, 3), (13, 72, 2), (42, 60, 1),
+    (6, 73, 1), (21, 70, 3), (16, 71, 5), (7, 72, 7), (47, 55, 7), (4, 73, 3), (50, 51, 10), (14, 71, 7), (7, 73, 0), (42, 60, 2),
+    (14, 72, 0), (34, 65, 0), (39, 61, 7), (7, 73, 1), (22, 70, 0), (14, 72, 1), (25, 69, 0), (24, 69, 4), (3, 73, 4), (30, 67, 0),
+    (13, 71, 8), (25, 69, 1), (36, 64, 0), (8, 73, 0), (30, 67, 1), (14, 72, 2), (34, 65, 2), (36, 64, 1), (8, 73, 1), (22, 70, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk053_size : windowChunk053.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk053_checked : checkRows 5300 windowChunk053 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `5400` through `5499`. -/
+private def windowChunk054 : List (ℕ × ℕ × ℕ) :=
+  [
+    (6, 72, 8), (25, 69, 2), (19, 71, 0), (13, 72, 4), (30, 67, 2), (1, 73, 5), (15, 71, 7), (19, 71, 1), (28, 68, 0), (15, 72, 0),
+    (9, 73, 0), (34, 65, 3), (24, 69, 5), (38, 63, 0), (15, 72, 1), (9, 73, 1), (50, 54, 0), (44, 59, 0), (38, 63, 1), (30, 67, 3),
+    (4, 73, 5), (50, 54, 1), (44, 59, 1), (28, 68, 2), (15, 72, 2), (9, 73, 2), (49, 55, 0), (21, 69, 9), (38, 63, 2), (10, 73, 0),
+    (14, 72, 4), (49, 55, 1), (44, 59, 2), (12, 72, 6), (10, 73, 1), (1, 73, 6), (25, 69, 4), (26, 69, 0), (28, 68, 3), (15, 72, 3),
+    (16, 72, 0), (20, 71, 0), (26, 69, 1), (38, 63, 3), (40, 62, 0), (33, 66, 0), (20, 71, 1), (44, 59, 3), (33, 63, 12), (43, 60, 0),
+    (11, 73, 0), (39, 60, 11), (26, 69, 2), (7, 73, 5), (43, 60, 1), (11, 73, 1), (20, 71, 2), (31, 66, 7), (47, 57, 0), (40, 62, 2),
+    (33, 66, 2), (25, 69, 5), (14, 71, 9), (47, 57, 1), (43, 60, 2), (29, 68, 0), (50, 54, 4), (26, 69, 3), (8, 73, 5), (42, 60, 6),
+    (29, 68, 1), (20, 71, 3), (29, 66, 10), (12, 73, 0), (40, 62, 3), (33, 66, 3), (0, 74, 0), (1, 74, 0), (12, 73, 1), (43, 60, 3),
+    (2, 74, 0), (0, 74, 1), (21, 71, 0), (28, 68, 5), (15, 72, 5), (3, 74, 0), (34, 65, 6), (21, 71, 1), (12, 73, 2), (22, 70, 6),
+    (27, 69, 0), (0, 74, 2), (4, 74, 0), (13, 72, 7), (40, 62, 4), (27, 69, 1), (0, 71, 13), (4, 74, 1), (13, 73, 0), (43, 60, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk054_size : windowChunk054.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk054_checked : checkRows 5400 windowChunk054 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `5500` through `5599`. -/
+private def windowChunk055 : List (ℕ × ℕ × ℕ) :=
+  [
+    (3, 74, 2), (5, 74, 0), (14, 66, 19), (13, 73, 1), (10, 73, 5), (27, 69, 2), (45, 59, 0), (4, 74, 2), (18, 72, 0), (0, 73, 8),
+    (2, 74, 3), (45, 59, 1), (6, 74, 0), (32, 67, 0), (15, 72, 6), (3, 74, 3), (5, 74, 2), (51, 54, 0), (32, 67, 1), (40, 62, 5),
+    (27, 69, 3), (36, 65, 0), (51, 54, 1), (18, 72, 2), (30, 68, 0), (7, 74, 0), (36, 65, 1), (6, 74, 2), (32, 67, 2), (30, 68, 1),
+    (7, 74, 1), (5, 74, 3), (51, 54, 2), (47, 57, 5), (10, 73, 6), (3, 74, 4), (44, 60, 0), (49, 56, 0), (18, 72, 3), (30, 68, 2),
+    (8, 74, 0), (44, 60, 1), (49, 56, 1), (32, 67, 3), (42, 60, 8), (19, 72, 0), (20, 71, 6), (51, 54, 3), (13, 73, 4), (40, 62, 6),
+    (19, 72, 1), (44, 60, 2), (49, 56, 2), (48, 57, 0), (15, 73, 0), (8, 74, 2), (45, 59, 4), (9, 74, 0), (48, 57, 1), (15, 73, 1),
+    (19, 72, 2), (34, 65, 8), (9, 74, 1), (32, 67, 4), (22, 70, 8), (27, 69, 5), (44, 60, 3), (49, 56, 3), (48, 57, 2), (40, 63, 0),
+    (23, 71, 0), (36, 65, 4), (9, 74, 2), (47, 58, 0), (40, 63, 1), (23, 71, 1), (10, 74, 0), (26, 69, 7), (33, 67, 0), (5, 73, 9),
+    (16, 72, 7), (35, 66, 0), (1, 74, 6), (33, 67, 1), (20, 72, 0), (16, 73, 0), (35, 66, 1), (9, 74, 3), (47, 58, 2), (20, 72, 1),
+    (16, 73, 1), (10, 74, 2), (51, 54, 5), (33, 67, 2), (37, 65, 0), (19, 72, 4), (35, 66, 2), (11, 74, 0), (47, 57, 7), (37, 65, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk055_size : windowChunk055.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk055_checked : checkRows 5500 windowChunk055 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `5600` through `5699`. -/
+private def windowChunk056 : List (ℕ × ℕ × ℕ) :=
+  [
+    (16, 73, 2), (39, 40, 31), (29, 69, 0), (47, 58, 3), (15, 73, 4), (29, 68, 7), (10, 74, 3), (29, 69, 1), (42, 62, 0), (37, 65, 2),
+    (6, 72, 12), (35, 66, 3), (11, 74, 2), (42, 62, 1), (20, 72, 3), (16, 73, 3), (0, 74, 7), (24, 71, 0), (17, 73, 0), (40, 63, 4),
+    (12, 74, 0), (20, 71, 8), (24, 71, 1), (17, 73, 1), (37, 65, 3), (0, 75, 0), (1, 75, 0), (11, 74, 3), (33, 67, 4), (2, 75, 0),
+    (0, 75, 1), (1, 75, 1), (24, 71, 2), (17, 73, 2), (3, 75, 0), (12, 74, 2), (50, 56, 0), (14, 69, 16), (42, 62, 3), (3, 75, 1),
+    (0, 75, 2), (4, 75, 0), (49, 56, 6), (2, 72, 13), (2, 75, 2), (13, 74, 0), (4, 75, 1), (24, 71, 3), (32, 68, 0), (3, 75, 2),
+    (5, 75, 0), (50, 56, 2), (36, 66, 0), (18, 73, 0), (10, 73, 9), (5, 75, 1), (4, 75, 2), (44, 61, 0), (18, 73, 1), (2, 75, 3),
+    (13, 74, 2), (6, 75, 0), (44, 61, 1), (32, 68, 2), (3, 75, 3), (5, 75, 2), (25, 71, 0), (36, 66, 2), (22, 72, 0), (38, 65, 0),
+    (12, 74, 4), (25, 71, 1), (14, 74, 0), (22, 72, 1), (7, 75, 0), (13, 74, 3), (6, 75, 2), (14, 74, 1), (32, 68, 3), (7, 75, 1),
+    (5, 75, 3), (25, 71, 2), (36, 66, 3), (22, 72, 2), (28, 70, 0), (19, 72, 7), (50, 56, 4), (14, 74, 2), (18, 72, 8), (8, 75, 0),
+    (19, 73, 0), (6, 75, 3), (24, 71, 5), (43, 62, 0), (8, 75, 1), (19, 73, 1), (40, 64, 0), (9, 74, 7), (43, 62, 1), (28, 70, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk056_size : windowChunk056.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk056_checked : checkRows 5600 windowChunk056 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `5700` through `5799`. -/
+private def windowChunk057 : List (ℕ × ℕ × ℕ) :=
+  [
+    (5, 75, 4), (15, 74, 0), (14, 74, 3), (18, 73, 4), (8, 75, 2), (19, 73, 2), (9, 75, 0), (44, 61, 4), (43, 62, 2), (3, 75, 5),
+    (23, 71, 7), (9, 75, 1), (26, 69, 10), (23, 72, 0), (35, 67, 0), (27, 69, 9), (46, 60, 0), (26, 71, 0), (23, 72, 1), (35, 67, 1),
+    (19, 73, 3), (46, 60, 1), (31, 69, 0), (43, 62, 3), (7, 75, 4), (10, 75, 0), (40, 64, 3), (31, 69, 1), (23, 72, 2), (20, 73, 0),
+    (10, 75, 1), (46, 60, 2), (16, 74, 0), (42, 63, 0), (20, 73, 1), (4, 73, 12), (9, 75, 3), (51, 56, 0), (42, 63, 1), (8, 75, 4),
+    (10, 75, 2), (29, 70, 0), (51, 56, 1), (23, 72, 3), (20, 73, 2), (23, 69, 13), (11, 75, 0), (16, 74, 2), (42, 63, 2), (50, 57, 0),
+    (13, 74, 6), (11, 75, 1), (51, 56, 2), (32, 68, 6), (50, 57, 1), (10, 75, 3), (29, 70, 2), (36, 66, 6), (18, 73, 6), (20, 73, 3),
+    (24, 72, 0), (11, 75, 2), (16, 74, 3), (42, 63, 3), (50, 57, 2), (17, 74, 0), (46, 60, 4), (51, 56, 3), (43, 62, 5), (12, 75, 0),
+    (21, 73, 0), (29, 70, 3), (31, 69, 4), (22, 72, 6), (12, 75, 1), (21, 73, 1), (0, 76, 0), (1, 76, 0), (48, 57, 9), (50, 57, 3),
+    (2, 76, 0), (0, 76, 1), (1, 76, 1), (42, 63, 4), (12, 75, 2), (3, 76, 0), (19, 70, 14), (51, 56, 4), (23, 72, 5), (35, 67, 5),
+    (3, 76, 1), (0, 76, 2), (4, 76, 0), (18, 73, 7), (13, 75, 0), (2, 76, 2), (11, 75, 4), (4, 76, 1), (43, 62, 6), (13, 75, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk057_size : windowChunk057.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk057_checked : checkRows 5700 windowChunk057 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `5800` through `5899`. -/
+private def windowChunk058 : List (ℕ × ℕ × ℕ) :=
+  [
+    (18, 74, 0), (5, 76, 0), (21, 69, 15), (33, 67, 9), (20, 73, 5), (18, 74, 1), (5, 76, 1), (4, 76, 2), (42, 63, 5), (25, 72, 0),
+    (2, 76, 3), (9, 75, 6), (6, 76, 0), (22, 73, 0), (25, 72, 1), (18, 74, 2), (5, 76, 2), (6, 76, 1), (43, 63, 0), (12, 75, 4),
+    (21, 73, 4), (14, 75, 0), (4, 76, 3), (43, 63, 1), (25, 72, 2), (7, 76, 0), (14, 75, 1), (6, 76, 2), (22, 73, 2), (8, 75, 7),
+    (7, 76, 1), (5, 76, 3), (54, 54, 0), (43, 63, 2), (53, 55, 0), (3, 76, 4), (14, 75, 2), (19, 74, 0), (42, 63, 6), (53, 55, 1),
+    (8, 76, 0), (15, 74, 7), (19, 74, 1), (22, 73, 3), (13, 75, 4), (8, 76, 1), (29, 70, 6), (54, 54, 2), (43, 63, 3), (35, 68, 0),
+    (15, 75, 0), (14, 75, 3), (19, 74, 2), (23, 72, 7), (35, 68, 1), (15, 75, 1), (46, 60, 7), (9, 76, 0), (23, 73, 0), (25, 72, 4),
+    (26, 72, 0), (31, 70, 0), (9, 76, 1), (23, 73, 1), (50, 58, 0), (26, 72, 1), (31, 70, 1), (19, 74, 3), (43, 63, 4), (45, 62, 0),
+    (8, 76, 3), (14, 75, 4), (9, 76, 2), (23, 73, 2), (45, 62, 1), (26, 72, 2), (10, 76, 0), (39, 66, 0), (18, 73, 9), (50, 58, 2),
+    (15, 75, 3), (16, 75, 0), (29, 71, 0), (42, 62, 10), (45, 62, 2), (2, 76, 6), (16, 75, 1), (29, 71, 1), (23, 73, 3), (50, 57, 7),
+    (26, 72, 3), (10, 76, 2), (39, 66, 2), (43, 63, 5), (50, 58, 3), (12, 74, 10), (16, 75, 2), (11, 76, 0), (18, 72, 12), (45, 62, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk058_size : windowChunk058.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk058_checked : checkRows 5800 windowChunk058 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `5900` through `5999`. -/
+private def windowChunk059 : List (ℕ × ℕ × ℕ) :=
+  [
+    (15, 75, 4), (1, 75, 10), (11, 76, 1), (47, 58, 11), (48, 60, 0), (24, 73, 0), (41, 65, 0), (39, 66, 3), (23, 73, 4), (48, 60, 1),
+    (24, 73, 1), (41, 65, 1), (11, 76, 2), (27, 72, 0), (17, 75, 0), (8, 76, 5), (0, 76, 7), (21, 74, 0), (27, 72, 1), (17, 75, 1),
+    (12, 76, 0), (41, 65, 2), (21, 74, 1), (43, 63, 6), (32, 70, 0), (12, 76, 1), (10, 76, 4), (11, 76, 3), (27, 72, 2), (0, 77, 0),
+    (1, 77, 0), (16, 75, 4), (21, 74, 2), (2, 77, 0), (0, 77, 1), (1, 77, 1), (41, 65, 3), (54, 54, 6), (3, 77, 0), (32, 70, 2),
+    (18, 74, 7), (30, 71, 0), (19, 74, 6), (3, 77, 1), (0, 77, 2), (4, 77, 0), (30, 71, 1), (21, 74, 3), (2, 77, 2), (18, 75, 0),
+    (4, 77, 1), (10, 76, 5), (39, 66, 5), (52, 57, 0), (5, 77, 0), (24, 73, 4), (40, 66, 0), (29, 71, 5), (52, 57, 1), (5, 77, 1),
+    (22, 74, 0), (40, 66, 1), (9, 76, 6), (2, 77, 3), (18, 75, 2), (6, 77, 0), (31, 70, 6), (21, 74, 4), (28, 72, 0), (5, 77, 2),
+    (6, 77, 1), (40, 66, 2), (14, 76, 0), (28, 72, 1), (32, 70, 4), (22, 74, 2), (15, 74, 10), (14, 76, 1), (7, 77, 0), (18, 75, 3),
+    (6, 77, 2), (50, 59, 0), (39, 66, 6), (7, 77, 1), (5, 77, 3), (24, 72, 9), (19, 75, 0), (14, 76, 2), (3, 77, 4), (33, 70, 0),
+    (22, 74, 3), (19, 75, 1), (21, 74, 5), (8, 77, 0), (45, 63, 0), (6, 77, 3), (50, 59, 2), (9, 76, 7), (8, 77, 1), (45, 63, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk059_size : windowChunk059.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk059_checked : checkRows 5900 windowChunk059 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `6000` through `6099`. -/
+private def windowChunk060 : List (ℕ × ℕ × ℕ) :=
+  [
+    (26, 72, 7), (15, 76, 0), (31, 71, 0), (52, 57, 4), (33, 70, 2), (23, 74, 0), (15, 76, 1), (31, 71, 1), (8, 77, 2), (45, 63, 2),
+    (9, 77, 0), (50, 59, 3), (54, 54, 8), (3, 77, 5), (53, 55, 8), (9, 77, 1), (15, 76, 2), (31, 71, 2), (28, 72, 4), (33, 70, 3),
+    (23, 74, 2), (16, 75, 7), (14, 76, 4), (8, 77, 3), (45, 63, 3), (20, 75, 0), (5, 76, 9), (6, 71, 19), (7, 77, 4), (10, 77, 0),
+    (20, 75, 1), (15, 76, 3), (16, 76, 0), (33, 67, 13), (10, 77, 1), (23, 74, 3), (19, 75, 4), (41, 66, 0), (2, 77, 6), (33, 70, 4),
+    (20, 75, 2), (31, 70, 8), (41, 66, 1), (8, 77, 4), (10, 77, 2), (24, 73, 7), (30, 71, 6), (16, 76, 2), (3, 72, 18), (45, 62, 8),
+    (11, 77, 0), (15, 76, 4), (24, 74, 0), (47, 62, 0), (18, 75, 6), (11, 77, 1), (34, 70, 0), (36, 69, 0), (27, 73, 0), (10, 77, 3),
+    (9, 77, 4), (34, 70, 1), (36, 69, 1), (27, 73, 1), (33, 70, 5), (17, 76, 0), (21, 75, 0), (24, 74, 2), (38, 68, 0), (45, 63, 5),
+    (17, 76, 1), (21, 75, 1), (36, 69, 2), (12, 77, 0), (43, 65, 0), (20, 75, 4), (15, 76, 5), (31, 71, 5), (12, 77, 1), (43, 65, 1),
+    (17, 76, 2), (21, 75, 2), (51, 59, 0), (38, 68, 2), (0, 78, 0), (1, 78, 0), (34, 70, 3), (51, 59, 1), (2, 78, 0), (40, 67, 0),
+    (1, 78, 1), (19, 75, 6), (4, 74, 15), (3, 78, 0), (40, 67, 1), (17, 76, 3), (21, 75, 3), (51, 59, 2), (13, 77, 0), (0, 78, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk060_size : windowChunk060.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk060_checked : checkRows 6000 windowChunk060 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `6100` through `6199`. -/
+private def windowChunk061 : List (ℕ × ℕ × ℕ) :=
+  [
+    (4, 78, 0), (25, 74, 0), (24, 74, 4), (13, 77, 1), (40, 67, 2), (4, 78, 1), (25, 74, 1), (36, 69, 4), (3, 78, 2), (5, 78, 0),
+    (23, 74, 6), (30, 66, 18), (51, 59, 3), (28, 73, 0), (5, 78, 1), (4, 78, 2), (25, 74, 2), (51, 54, 15), (28, 73, 1), (40, 67, 3),
+    (6, 78, 0), (45, 64, 0), (49, 61, 0), (3, 78, 3), (5, 78, 2), (14, 77, 0), (45, 64, 1), (49, 61, 1), (28, 73, 2), (33, 70, 7),
+    (33, 71, 0), (25, 74, 3), (51, 59, 4), (7, 78, 0), (0, 78, 4), (33, 71, 1), (45, 64, 2), (19, 76, 0), (7, 78, 1), (5, 78, 3),
+    (14, 77, 2), (21, 75, 5), (19, 76, 1), (28, 73, 3), (45, 62, 10), (31, 72, 0), (34, 65, 17), (29, 66, 19), (8, 78, 0), (43, 65, 5),
+    (31, 72, 1), (45, 64, 3), (26, 74, 0), (8, 78, 1), (15, 77, 0), (14, 77, 3), (16, 75, 10), (26, 74, 1), (47, 62, 6), (15, 77, 1),
+    (31, 72, 2), (44, 65, 0), (36, 69, 6), (8, 78, 2), (40, 67, 5), (9, 78, 0), (44, 65, 1), (26, 74, 2), (3, 78, 5), (15, 77, 2),
+    (29, 73, 0), (45, 64, 4), (49, 61, 4), (53, 58, 0), (45, 63, 8), (29, 73, 1), (20, 76, 0), (41, 66, 7), (47, 63, 0), (43, 65, 6),
+    (9, 78, 2), (20, 76, 1), (26, 74, 3), (47, 63, 1), (10, 78, 0), (16, 77, 0), (6, 75, 14), (19, 76, 4), (53, 58, 2), (10, 78, 1),
+    (16, 77, 1), (20, 76, 2), (24, 74, 7), (47, 63, 2), (40, 67, 6), (9, 78, 3), (36, 70, 0), (34, 71, 0), (8, 78, 4), (10, 78, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk061_size : windowChunk061.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk061_checked : checkRows 6100 windowChunk061 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `6200` through `6299`. -/
+private def windowChunk062 : List (ℕ × ℕ × ℕ) :=
+  [
+    (16, 77, 2), (24, 75, 0), (34, 71, 1), (53, 58, 3), (15, 77, 4), (11, 78, 0), (24, 75, 1), (39, 66, 11), (32, 72, 0), (10, 77, 8),
+    (11, 78, 1), (36, 70, 2), (46, 64, 0), (32, 72, 1), (10, 78, 3), (16, 77, 3), (24, 75, 2), (21, 76, 0), (17, 77, 0), (45, 63, 9),
+    (11, 78, 2), (50, 61, 0), (21, 76, 1), (17, 77, 1), (40, 68, 0), (6, 78, 6), (50, 61, 1), (46, 64, 2), (12, 78, 0), (30, 73, 0),
+    (14, 77, 6), (24, 75, 3), (21, 76, 2), (12, 78, 1), (30, 73, 1), (11, 78, 3), (50, 61, 2), (36, 69, 8), (32, 72, 3), (40, 68, 2),
+    (9, 78, 5), (0, 79, 0), (1, 79, 0), (12, 78, 2), (30, 73, 2), (2, 79, 0), (0, 79, 1), (1, 79, 1), (17, 77, 3), (5, 78, 7),
+    (3, 79, 0), (50, 61, 3), (36, 66, 15), (13, 78, 0), (40, 68, 3), (3, 79, 1), (0, 79, 2), (4, 79, 0), (13, 78, 1), (30, 73, 3),
+    (22, 76, 0), (45, 64, 7), (4, 79, 1), (2, 77, 11), (0, 78, 8), (22, 76, 1), (5, 79, 0), (21, 76, 4), (13, 78, 2), (37, 70, 0),
+    (9, 78, 6), (5, 79, 1), (56, 56, 0), (33, 72, 0), (55, 57, 0), (22, 76, 2), (24, 75, 5), (6, 79, 0), (33, 72, 1), (55, 57, 1),
+    (14, 78, 0), (5, 79, 2), (39, 69, 0), (13, 78, 3), (37, 70, 2), (14, 78, 1), (40, 66, 11), (39, 69, 1), (33, 72, 2), (55, 57, 2),
+    (7, 79, 0), (0, 79, 4), (44, 66, 0), (17, 77, 5), (15, 77, 7), (7, 79, 1), (5, 79, 3), (44, 66, 1), (12, 77, 9), (37, 70, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk062_size : windowChunk062.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk062_checked : checkRows 6200 windowChunk062 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `6300` through `6399`. -/
+private def windowChunk063 : List (ℕ × ℕ × ℕ) :=
+  [
+    (3, 79, 4), (26, 75, 0), (56, 56, 3), (33, 72, 3), (52, 60, 0), (8, 79, 0), (26, 75, 1), (44, 66, 2), (7, 77, 11), (15, 78, 0),
+    (8, 79, 1), (50, 59, 11), (39, 69, 3), (32, 72, 6), (15, 78, 1), (26, 72, 13), (26, 75, 2), (29, 74, 0), (47, 63, 7), (52, 60, 2),
+    (8, 79, 2), (4, 75, 16), (9, 79, 0), (33, 72, 4), (15, 78, 2), (3, 79, 5), (50, 61, 6), (9, 79, 1), (13, 78, 5), (20, 77, 0),
+    (14, 78, 4), (26, 75, 3), (29, 74, 2), (12, 78, 6), (20, 77, 1), (8, 79, 3), (36, 70, 7), (36, 71, 0), (43, 67, 0), (15, 78, 3),
+    (16, 78, 0), (10, 79, 0), (36, 71, 1), (43, 67, 1), (38, 70, 0), (16, 78, 1), (10, 79, 1), (29, 74, 3), (33, 72, 5), (38, 70, 1),
+    (2, 79, 6), (26, 75, 4), (24, 76, 0), (32, 73, 0), (27, 75, 0), (16, 78, 2), (10, 79, 2), (24, 76, 1), (32, 73, 1), (27, 75, 1),
+    (1, 78, 10), (40, 69, 0), (11, 79, 0), (2, 78, 10), (40, 68, 7), (7, 79, 5), (40, 69, 1), (11, 79, 1), (32, 73, 2), (27, 75, 2),
+    (21, 77, 0), (10, 79, 3), (9, 79, 4), (17, 78, 0), (38, 70, 3), (21, 77, 1), (30, 74, 0), (11, 79, 2), (17, 78, 1), (20, 77, 4),
+    (8, 79, 5), (45, 66, 0), (24, 76, 3), (32, 73, 3), (27, 75, 3), (12, 79, 0), (45, 66, 1), (36, 71, 4), (42, 68, 0), (55, 58, 0),
+    (12, 79, 1), (30, 74, 2), (11, 79, 3), (42, 68, 1), (55, 58, 1), (7, 79, 6), (45, 66, 2), (54, 59, 0), (17, 77, 8), (3, 75, 17)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk063_size : windowChunk063.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk063_checked : checkRows 6300 windowChunk063 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `6400` through `6499`. -/
+private def windowChunk064 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 80, 0), (1, 80, 0), (54, 59, 1), (42, 68, 2), (2, 80, 0), (0, 80, 1), (1, 80, 1), (29, 71, 14), (18, 78, 0), (3, 80, 0),
+    (13, 79, 0), (45, 66, 3), (54, 59, 2), (22, 77, 0), (3, 80, 1), (13, 79, 1), (4, 80, 0), (6, 79, 7), (33, 73, 0), (2, 80, 2),
+    (21, 77, 4), (39, 70, 0), (29, 74, 6), (33, 73, 1), (3, 80, 2), (5, 80, 0), (39, 70, 1), (54, 59, 3), (22, 77, 2), (27, 75, 5),
+    (5, 80, 1), (4, 80, 2), (44, 66, 7), (33, 73, 2), (47, 65, 0), (12, 79, 4), (6, 80, 0), (14, 79, 0), (18, 78, 3), (47, 65, 1),
+    (5, 80, 2), (6, 80, 1), (41, 69, 0), (22, 77, 3), (52, 60, 7), (19, 78, 0), (4, 80, 3), (41, 69, 1), (33, 73, 3), (7, 80, 0),
+    (19, 78, 1), (6, 80, 2), (26, 76, 0), (33, 72, 8), (7, 80, 1), (5, 80, 3), (45, 66, 5), (26, 76, 1), (23, 77, 0), (3, 80, 4),
+    (19, 78, 2), (31, 70, 15), (9, 79, 7), (23, 77, 1), (8, 80, 0), (9, 77, 13), (15, 79, 0), (26, 76, 2), (33, 73, 4), (50, 63, 0),
+    (7, 79, 8), (15, 79, 1), (46, 66, 0), (43, 68, 0), (50, 63, 1), (19, 78, 3), (1, 80, 5), (46, 66, 1), (43, 68, 1), (8, 80, 2),
+    (36, 72, 0), (9, 80, 0), (26, 76, 3), (18, 78, 5), (20, 78, 0), (34, 73, 0), (9, 80, 1), (46, 66, 2), (43, 68, 2), (20, 78, 1),
+    (34, 73, 1), (4, 80, 5), (41, 69, 4), (33, 73, 5), (8, 80, 3), (36, 72, 2), (9, 80, 2), (16, 79, 0), (57, 57, 0), (20, 78, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk064_size : windowChunk064.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk064_checked : checkRows 6400 windowChunk064 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `6500` through `6599`. -/
+private def windowChunk065 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 80, 0), (40, 69, 7), (16, 79, 1), (57, 57, 1), (30, 73, 10), (24, 77, 0), (55, 59, 0), (39, 69, 9), (23, 77, 4), (47, 65, 5),
+    (24, 77, 1), (55, 59, 1), (16, 79, 2), (57, 57, 2), (45, 67, 0), (10, 80, 2), (54, 60, 0), (41, 69, 5), (22, 77, 6), (45, 67, 1),
+    (24, 77, 2), (11, 80, 0), (46, 66, 4), (43, 68, 4), (7, 80, 5), (21, 78, 0), (11, 80, 1), (16, 79, 3), (57, 57, 3), (48, 65, 0),
+    (17, 79, 0), (54, 60, 2), (24, 76, 8), (23, 77, 5), (48, 65, 1), (17, 79, 1), (11, 80, 2), (54, 59, 7), (32, 72, 11), (8, 80, 5),
+    (21, 78, 2), (15, 79, 5), (14, 79, 6), (2, 78, 13), (12, 80, 0), (17, 79, 2), (54, 60, 3), (16, 79, 4), (52, 62, 0), (12, 80, 1),
+    (10, 80, 4), (11, 80, 3), (6, 79, 10), (37, 72, 0), (25, 77, 0), (21, 78, 3), (55, 59, 4), (26, 76, 6), (37, 72, 1), (25, 77, 1),
+    (28, 76, 0), (0, 81, 0), (1, 81, 0), (52, 62, 2), (45, 67, 4), (2, 81, 0), (0, 81, 1), (1, 81, 1), (22, 78, 0), (13, 80, 0),
+    (3, 81, 0), (11, 80, 4), (16, 79, 5), (22, 78, 1), (13, 80, 1), (3, 81, 1), (0, 81, 2), (4, 81, 0), (52, 62, 3), (48, 65, 4),
+    (2, 81, 2), (41, 70, 0), (4, 81, 1), (22, 78, 2), (13, 80, 2), (3, 81, 2), (5, 81, 0), (11, 79, 9), (18, 78, 8), (45, 67, 5),
+    (28, 76, 3), (5, 81, 1), (4, 81, 2), (22, 77, 8), (12, 80, 4), (2, 81, 3), (14, 80, 0), (6, 81, 0), (22, 78, 3), (13, 80, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk065_size : windowChunk065.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk065_checked : checkRows 6500 windowChunk065 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `6600` through `6699`. -/
+private def windowChunk066 : List (ℕ × ℕ × ℕ) :=
+  [
+    (3, 81, 3), (14, 80, 1), (19, 79, 0), (37, 72, 4), (25, 77, 4), (26, 77, 0), (15, 79, 7), (19, 79, 1), (17, 77, 12), (50, 63, 7),
+    (7, 81, 0), (14, 80, 2), (6, 81, 2), (23, 78, 0), (47, 65, 8), (7, 81, 1), (5, 81, 3), (29, 76, 0), (23, 78, 1), (13, 80, 4),
+    (26, 77, 2), (54, 60, 6), (29, 76, 1), (52, 62, 5), (20, 78, 7), (8, 81, 0), (49, 65, 0), (6, 81, 3), (38, 72, 0), (25, 77, 5),
+    (8, 81, 1), (49, 65, 1), (34, 74, 0), (38, 72, 1), (48, 65, 6), (26, 77, 3), (5, 81, 4), (54, 61, 0), (57, 57, 7), (15, 78, 11),
+    (8, 81, 2), (20, 79, 0), (9, 81, 0), (38, 72, 2), (13, 80, 5), (3, 81, 5), (20, 79, 1), (9, 81, 1), (17, 78, 10), (32, 75, 0),
+    (5, 80, 9), (30, 74, 10), (54, 61, 2), (53, 62, 0), (32, 75, 1), (8, 81, 3), (16, 80, 0), (9, 81, 2), (27, 77, 0), (25, 77, 6),
+    (24, 78, 0), (10, 81, 0), (34, 74, 3), (27, 77, 1), (42, 70, 0), (24, 78, 1), (10, 81, 1), (54, 61, 3), (53, 62, 2), (42, 70, 1),
+    (2, 81, 6), (16, 80, 2), (9, 81, 3), (52, 63, 0), (13, 80, 6), (24, 78, 2), (30, 76, 0), (19, 79, 5), (52, 63, 1), (42, 70, 2),
+    (26, 77, 5), (30, 76, 1), (11, 81, 0), (53, 62, 3), (12, 80, 7), (7, 81, 5), (16, 80, 3), (11, 81, 1), (52, 63, 2), (17, 80, 0),
+    (24, 78, 3), (30, 76, 2), (9, 81, 4), (37, 72, 7), (17, 80, 1), (8, 79, 12), (54, 60, 8), (44, 69, 0), (37, 73, 0), (32, 75, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk066_size : windowChunk066.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk066_checked : checkRows 6600 windowChunk066 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `6700` through `6799`. -/
+private def windowChunk067 : List (ℕ × ℕ × ℕ) :=
+  [
+    (8, 81, 5), (35, 74, 0), (44, 69, 1), (37, 73, 1), (17, 80, 2), (12, 81, 0), (35, 74, 1), (34, 74, 5), (27, 77, 4), (25, 78, 0),
+    (12, 81, 1), (10, 81, 4), (44, 69, 2), (28, 77, 0), (33, 75, 0), (7, 81, 6), (35, 74, 2), (9, 81, 5), (28, 77, 1), (33, 75, 1),
+    (12, 81, 2), (41, 70, 7), (41, 71, 0), (52, 63, 4), (0, 82, 0), (1, 82, 0), (30, 76, 4), (41, 71, 1), (2, 82, 0), (0, 82, 1),
+    (13, 81, 0), (35, 74, 3), (11, 81, 4), (3, 82, 0), (25, 77, 8), (13, 81, 1), (56, 60, 0), (31, 76, 0), (3, 82, 1), (0, 82, 2),
+    (4, 82, 0), (56, 60, 1), (31, 76, 1), (2, 82, 2), (33, 75, 3), (4, 82, 1), (55, 61, 0), (44, 69, 4), (3, 82, 2), (5, 82, 0),
+    (7, 81, 7), (55, 61, 1), (31, 76, 2), (23, 78, 7), (5, 82, 1), (4, 82, 2), (9, 80, 10), (14, 81, 0), (2, 82, 3), (25, 78, 4),
+    (6, 82, 0), (19, 80, 0), (14, 81, 1), (3, 82, 3), (5, 82, 2), (6, 82, 1), (19, 80, 1), (31, 76, 3), (38, 72, 7), (42, 70, 6),
+    (23, 79, 0), (45, 66, 12), (36, 74, 0), (7, 82, 0), (0, 82, 4), (23, 79, 1), (19, 80, 2), (36, 74, 1), (53, 63, 0), (5, 82, 3),
+    (13, 81, 4), (34, 75, 0), (9, 81, 7), (53, 63, 1), (40, 72, 0), (23, 79, 2), (15, 81, 0), (36, 74, 2), (8, 82, 0), (40, 72, 1),
+    (6, 82, 3), (15, 81, 1), (36, 71, 13), (48, 67, 0), (17, 80, 6), (3, 81, 9), (34, 75, 2), (41, 71, 5), (48, 67, 1), (40, 72, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk067_size : windowChunk067.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk067_checked : checkRows 6700 windowChunk067 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `6800` through `6899`. -/
+private def windowChunk068 : List (ℕ × ℕ × ℕ) :=
+  [
+    (20, 80, 0), (15, 81, 2), (36, 74, 3), (8, 82, 2), (42, 70, 7), (9, 82, 0), (35, 74, 6), (14, 81, 4), (48, 67, 2), (27, 75, 13),
+    (9, 82, 1), (34, 75, 3), (31, 76, 5), (27, 78, 0), (40, 72, 3), (20, 80, 2), (15, 81, 3), (16, 81, 0), (27, 78, 1), (33, 75, 6),
+    (9, 82, 2), (55, 61, 5), (16, 81, 1), (48, 67, 3), (10, 82, 0), (21, 77, 13), (51, 65, 0), (41, 71, 6), (27, 78, 2), (30, 77, 0),
+    (20, 80, 3), (51, 65, 1), (16, 81, 2), (47, 68, 0), (30, 77, 1), (9, 82, 3), (44, 70, 0), (44, 69, 7), (47, 68, 1), (10, 82, 2),
+    (24, 78, 8), (21, 80, 0), (31, 76, 6), (27, 78, 3), (30, 77, 2), (11, 82, 0), (21, 80, 1), (16, 81, 3), (47, 68, 2), (57, 60, 0),
+    (17, 81, 0), (44, 70, 2), (4, 81, 10), (53, 63, 5), (57, 60, 1), (17, 81, 1), (50, 66, 0), (56, 61, 0), (47, 63, 16), (30, 77, 3),
+    (11, 82, 2), (50, 66, 1), (56, 61, 1), (47, 68, 3), (57, 60, 2), (33, 76, 0), (25, 79, 0), (16, 81, 4), (12, 82, 0), (55, 62, 0),
+    (33, 76, 1), (25, 79, 1), (56, 61, 2), (12, 82, 1), (55, 62, 1), (11, 82, 3), (51, 65, 4), (46, 69, 0), (7, 82, 6), (57, 60, 3),
+    (33, 76, 2), (25, 79, 2), (46, 69, 1), (12, 82, 2), (22, 80, 0), (18, 81, 0), (50, 66, 3), (56, 61, 3), (27, 78, 5), (0, 83, 0),
+    (1, 83, 0), (21, 80, 4), (46, 69, 2), (2, 83, 0), (0, 83, 1), (1, 83, 1), (25, 79, 3), (14, 81, 7), (3, 83, 0), (22, 80, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk068_size : windowChunk068.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk068_checked : checkRows 6800 windowChunk068 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `6900` through `6999`. -/
+private def windowChunk069 : List (ℕ × ℕ × ℕ) :=
+  [
+    (18, 81, 2), (51, 65, 5), (41, 71, 8), (3, 83, 1), (0, 83, 2), (4, 83, 0), (50, 66, 4), (46, 69, 3), (2, 83, 2), (15, 78, 15),
+    (4, 83, 1), (44, 70, 5), (36, 74, 7), (3, 83, 2), (5, 83, 0), (18, 81, 3), (25, 79, 4), (26, 79, 0), (12, 82, 4), (5, 83, 1),
+    (14, 82, 0), (36, 75, 0), (19, 81, 0), (2, 83, 3), (57, 60, 5), (6, 83, 0), (36, 75, 1), (19, 81, 1), (48, 68, 0), (23, 80, 0),
+    (6, 83, 1), (50, 66, 5), (34, 76, 0), (48, 68, 1), (23, 80, 1), (14, 82, 2), (36, 75, 2), (34, 76, 1), (7, 83, 0), (0, 83, 4),
+    (6, 83, 2), (25, 79, 5), (31, 66, 25), (7, 83, 1), (23, 80, 2), (9, 82, 7), (21, 80, 6), (34, 76, 2), (42, 72, 0), (15, 82, 0),
+    (14, 82, 3), (36, 75, 3), (19, 81, 3), (8, 83, 0), (15, 82, 1), (6, 83, 3), (49, 65, 11), (51, 66, 0), (8, 83, 1), (23, 80, 3),
+    (18, 81, 5), (20, 81, 0), (59, 59, 0), (42, 72, 2), (58, 60, 0), (1, 83, 5), (20, 81, 1), (59, 59, 1), (8, 83, 2), (58, 60, 1),
+    (9, 83, 0), (36, 75, 4), (51, 66, 2), (3, 83, 5), (55, 62, 6), (9, 83, 1), (24, 80, 0), (44, 71, 0), (42, 72, 3), (58, 60, 2),
+    (16, 82, 0), (24, 80, 1), (44, 71, 1), (8, 83, 3), (30, 78, 0), (16, 82, 1), (19, 80, 9), (51, 66, 3), (7, 83, 4), (10, 83, 0),
+    (18, 81, 6), (24, 80, 2), (44, 71, 2), (27, 78, 8), (37, 75, 0), (16, 82, 2), (36, 75, 5), (39, 74, 0), (42, 72, 4), (37, 75, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk069_size : windowChunk069.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk069_checked : checkRows 6900 windowChunk069 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `7000` through `7099`. -/
+private def windowChunk070 : List (ℕ × ℕ × ℕ) :=
+  [
+    (9, 83, 3), (35, 76, 0), (21, 81, 0), (8, 83, 4), (10, 83, 2), (33, 76, 7), (35, 76, 1), (21, 81, 1), (12, 82, 7), (37, 75, 2),
+    (11, 83, 0), (20, 81, 4), (54, 64, 0), (17, 82, 0), (30, 78, 3), (11, 83, 1), (46, 70, 0), (54, 64, 1), (33, 77, 0), (10, 83, 3),
+    (9, 83, 4), (46, 70, 1), (26, 79, 6), (33, 77, 1), (37, 75, 3), (25, 80, 0), (24, 80, 4), (54, 64, 2), (17, 82, 2), (0, 83, 7),
+    (25, 80, 1), (46, 70, 2), (21, 81, 3), (12, 83, 0), (53, 65, 0), (6, 82, 10), (20, 81, 5), (59, 59, 5), (12, 83, 1), (53, 65, 1),
+    (25, 80, 2), (5, 81, 13), (54, 64, 3), (17, 82, 3), (37, 75, 4), (22, 81, 0), (46, 70, 3), (39, 74, 4), (18, 82, 0), (53, 65, 2),
+    (22, 81, 1), (35, 76, 4), (21, 81, 4), (18, 82, 1), (15, 82, 6), (25, 80, 3), (0, 84, 0), (1, 84, 0), (13, 83, 0), (30, 78, 5),
+    (2, 84, 0), (0, 84, 1), (1, 84, 1), (13, 83, 1), (53, 65, 3), (3, 84, 0), (45, 71, 0), (59, 59, 6), (33, 77, 4), (38, 75, 0),
+    (3, 84, 1), (45, 71, 1), (4, 84, 0), (13, 83, 2), (38, 75, 1), (2, 84, 2), (26, 80, 0), (4, 84, 1), (18, 82, 3), (5, 82, 11),
+    (3, 84, 2), (5, 84, 0), (29, 79, 0), (12, 83, 4), (38, 75, 2), (14, 83, 0), (5, 84, 1), (29, 79, 1), (13, 83, 3), (30, 78, 6),
+    (23, 81, 0), (26, 80, 2), (6, 84, 0), (42, 73, 0), (10, 83, 6), (23, 81, 1), (5, 84, 2), (6, 84, 1), (42, 73, 1), (38, 75, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk070_size : windowChunk070.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk070_checked : checkRows 7000 windowChunk070 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `7100` through `7199`. -/
+private def windowChunk071 : List (ℕ × ℕ × ℕ) :=
+  [
+    (14, 83, 2), (20, 81, 7), (4, 84, 3), (7, 82, 11), (58, 60, 7), (7, 84, 0), (26, 80, 3), (6, 84, 2), (32, 78, 0), (47, 70, 0),
+    (7, 84, 1), (5, 84, 3), (29, 79, 3), (32, 78, 1), (15, 83, 0), (14, 83, 3), (45, 71, 4), (54, 64, 6), (17, 82, 6), (15, 83, 1),
+    (8, 84, 0), (55, 64, 0), (6, 84, 3), (32, 78, 2), (20, 82, 0), (8, 84, 1), (55, 64, 1), (31, 76, 12), (42, 72, 8), (27, 80, 0),
+    (25, 80, 6), (5, 84, 4), (29, 79, 4), (13, 83, 5), (27, 80, 1), (8, 84, 2), (55, 64, 2), (9, 84, 0), (32, 78, 3), (20, 82, 2),
+    (23, 81, 4), (30, 79, 0), (9, 84, 1), (42, 73, 4), (27, 80, 2), (16, 83, 0), (39, 75, 0), (4, 84, 5), (52, 62, 15), (50, 63, 16),
+    (16, 83, 1), (39, 75, 1), (9, 84, 2), (18, 82, 6), (35, 77, 0), (7, 84, 4), (10, 84, 0), (41, 74, 0), (32, 78, 4), (35, 77, 1),
+    (16, 83, 2), (10, 84, 1), (49, 69, 0), (13, 83, 6), (15, 83, 4), (21, 82, 0), (44, 70, 11), (49, 69, 1), (42, 73, 5), (35, 77, 2),
+    (21, 82, 1), (10, 84, 2), (41, 74, 2), (33, 78, 0), (20, 82, 4), (16, 83, 3), (39, 75, 3), (11, 84, 0), (17, 83, 0), (27, 80, 4),
+    (21, 82, 2), (26, 80, 6), (11, 84, 1), (17, 83, 1), (28, 80, 0), (22, 81, 7), (25, 81, 0), (41, 74, 3), (33, 78, 2), (28, 80, 1),
+    (14, 83, 6), (25, 81, 1), (11, 84, 2), (52, 67, 0), (45, 67, 16), (21, 82, 3), (39, 75, 4), (6, 84, 6), (52, 67, 1), (28, 80, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk071_size : windowChunk071.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk071_checked : checkRows 7100 windowChunk071 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `7200` through `7299`. -/
+private def windowChunk072 : List (ℕ × ℕ × ℕ) :=
+  [
+    (12, 84, 0), (25, 81, 2), (31, 79, 0), (33, 78, 3), (48, 70, 0), (12, 84, 1), (10, 84, 4), (31, 79, 1), (22, 82, 0), (45, 72, 0),
+    (7, 84, 6), (44, 65, 20), (49, 69, 4), (18, 83, 0), (45, 72, 1), (12, 84, 2), (25, 81, 3), (31, 79, 2), (57, 63, 0), (48, 70, 2),
+    (38, 76, 0), (39, 75, 5), (29, 79, 7), (57, 63, 1), (45, 72, 2), (0, 85, 0), (1, 85, 0), (11, 84, 4), (18, 83, 2), (2, 85, 0),
+    (0, 85, 1), (1, 85, 1), (56, 64, 0), (57, 63, 2), (3, 85, 0), (38, 76, 2), (25, 81, 4), (26, 81, 0), (22, 82, 3), (3, 85, 1),
+    (34, 78, 0), (4, 85, 0), (26, 81, 1), (18, 83, 3), (2, 85, 2), (34, 78, 1), (4, 85, 1), (56, 64, 2), (57, 63, 3), (3, 85, 2),
+    (5, 85, 0), (39, 75, 6), (14, 84, 0), (23, 82, 0), (48, 70, 4), (5, 85, 1), (4, 85, 2), (14, 84, 1), (23, 82, 1), (2, 85, 3),
+    (8, 84, 7), (6, 85, 0), (56, 64, 3), (18, 83, 4), (3, 85, 3), (32, 79, 0), (6, 85, 1), (14, 84, 2), (23, 82, 2), (27, 80, 7),
+    (32, 79, 1), (4, 85, 3), (54, 66, 0), (42, 73, 8), (7, 85, 0), (0, 85, 4), (6, 85, 2), (54, 66, 1), (33, 78, 6), (7, 85, 1),
+    (32, 79, 2), (15, 84, 0), (14, 84, 3), (23, 82, 3), (3, 85, 4), (16, 83, 7), (15, 84, 1), (54, 66, 2), (18, 83, 5), (8, 85, 0),
+    (27, 81, 0), (6, 85, 3), (59, 59, 11), (57, 63, 5), (8, 85, 1), (27, 81, 1), (15, 84, 2), (39, 76, 0), (37, 77, 0), (7, 75, 25)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk072_size : windowChunk072.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk072_checked : checkRows 7200 windowChunk072 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `7300` through `7399`. -/
+private def windowChunk073 : List (ℕ × ℕ × ℕ) :=
+  [
+    (24, 82, 0), (49, 70, 0), (39, 76, 1), (37, 77, 1), (8, 85, 2), (24, 82, 1), (9, 85, 0), (56, 64, 5), (12, 83, 10), (35, 78, 0),
+    (14, 83, 9), (9, 85, 1), (16, 84, 0), (37, 77, 2), (35, 78, 1), (24, 82, 2), (49, 70, 2), (16, 84, 1), (18, 83, 6), (8, 85, 3),
+    (27, 81, 3), (60, 61, 0), (54, 66, 4), (57, 63, 6), (35, 78, 2), (10, 85, 0), (60, 61, 1), (16, 84, 2), (52, 68, 0), (32, 75, 16),
+    (21, 83, 0), (49, 70, 3), (1, 84, 10), (58, 63, 0), (2, 85, 6), (21, 83, 1), (60, 61, 2), (56, 64, 6), (58, 63, 1), (35, 78, 3),
+    (10, 85, 2), (45, 71, 10), (16, 84, 3), (52, 68, 2), (48, 70, 7), (17, 84, 0), (11, 85, 0), (39, 76, 4), (58, 63, 2), (25, 82, 0),
+    (17, 84, 1), (11, 85, 1), (59, 59, 12), (18, 83, 7), (45, 73, 0), (10, 85, 3), (9, 85, 4), (14, 84, 6), (52, 68, 3), (45, 73, 1),
+    (17, 84, 2), (31, 80, 0), (51, 69, 0), (58, 63, 3), (25, 82, 2), (27, 81, 5), (31, 80, 1), (51, 69, 1), (42, 73, 10), (12, 85, 0),
+    (32, 79, 6), (60, 61, 4), (39, 76, 5), (22, 83, 0), (12, 85, 1), (17, 84, 3), (40, 76, 0), (51, 69, 2), (22, 83, 1), (25, 82, 3),
+    (18, 84, 0), (55, 66, 0), (31, 79, 8), (58, 63, 4), (12, 85, 2), (18, 84, 1), (55, 66, 1), (16, 84, 5), (22, 83, 2), (42, 75, 0),
+    (5, 85, 7), (40, 76, 2), (51, 69, 3), (47, 72, 0), (13, 85, 0), (18, 84, 2), (0, 86, 0), (1, 86, 0), (47, 72, 1), (13, 85, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk073_size : windowChunk073.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk073_checked : checkRows 7300 windowChunk073 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `7400` through `7499`. -/
+private def windowChunk074 : List (ℕ × ℕ × ℕ) :=
+  [
+    (2, 86, 0), (0, 86, 1), (29, 81, 0), (22, 83, 3), (42, 75, 2), (3, 86, 0), (40, 76, 3), (29, 81, 1), (47, 72, 2), (13, 85, 2),
+    (3, 86, 1), (0, 86, 2), (4, 86, 0), (27, 78, 15), (35, 78, 6), (2, 86, 2), (30, 79, 10), (19, 84, 0), (23, 83, 0), (42, 75, 3),
+    (3, 86, 2), (5, 86, 0), (19, 84, 1), (23, 83, 1), (32, 80, 0), (12, 84, 9), (5, 86, 1), (4, 86, 2), (33, 72, 21), (32, 80, 1),
+    (2, 86, 3), (55, 66, 4), (6, 86, 0), (53, 68, 0), (45, 72, 9), (3, 86, 3), (5, 86, 2), (6, 86, 1), (53, 68, 1), (32, 80, 2),
+    (24, 82, 7), (49, 70, 7), (49, 71, 0), (47, 72, 4), (60, 62, 0), (7, 86, 0), (0, 86, 4), (49, 71, 1), (53, 68, 2), (60, 62, 1),
+    (15, 85, 0), (5, 86, 3), (29, 81, 4), (27, 82, 0), (32, 80, 3), (15, 85, 1), (20, 84, 0), (41, 76, 0), (27, 82, 1), (60, 62, 2),
+    (8, 86, 0), (30, 81, 0), (41, 76, 1), (53, 68, 3), (42, 75, 5), (24, 83, 0), (35, 79, 0), (19, 84, 4), (27, 82, 2), (13, 85, 5),
+    (24, 83, 1), (35, 79, 1), (41, 76, 2), (58, 63, 7), (43, 75, 0), (8, 86, 2), (30, 81, 2), (9, 86, 0), (22, 83, 6), (43, 75, 1),
+    (24, 83, 2), (16, 85, 0), (9, 86, 1), (27, 82, 3), (45, 72, 10), (18, 84, 6), (16, 85, 1), (41, 76, 3), (48, 72, 0), (33, 80, 0),
+    (8, 86, 3), (30, 81, 3), (56, 66, 0), (48, 72, 1), (33, 80, 1), (24, 83, 3), (10, 86, 0), (21, 84, 0), (47, 72, 6), (32, 80, 5)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk074_size : windowChunk074.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk074_checked : checkRows 7400 windowChunk074 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `7500` through `7599`. -/
+private def windowChunk075 : List (ℕ × ℕ × ℕ) :=
+  [
+    (15, 85, 4), (45, 74, 0), (21, 84, 1), (48, 72, 2), (33, 80, 2), (2, 86, 6), (45, 74, 1), (56, 66, 2), (28, 82, 0), (12, 85, 7),
+    (8, 86, 4), (10, 86, 2), (21, 84, 2), (28, 82, 1), (17, 85, 0), (24, 83, 4), (45, 74, 2), (11, 86, 0), (48, 72, 3), (17, 85, 1),
+    (7, 86, 5), (55, 66, 7), (31, 81, 0), (28, 82, 2), (43, 75, 4), (15, 85, 5), (10, 86, 3), (31, 81, 1), (38, 78, 0), (40, 77, 0),
+    (12, 84, 11), (45, 74, 3), (11, 86, 2), (38, 78, 1), (40, 77, 1), (8, 86, 5), (30, 81, 5), (36, 79, 0), (47, 73, 0), (33, 80, 4),
+    (12, 86, 0), (50, 71, 0), (36, 79, 1), (47, 73, 1), (40, 77, 2), (12, 86, 1), (50, 71, 1), (11, 86, 3), (57, 63, 11), (18, 85, 0),
+    (7, 86, 6), (45, 74, 4), (36, 79, 2), (47, 73, 2), (18, 85, 1), (12, 86, 2), (34, 80, 0), (19, 84, 7), (38, 78, 3), (40, 77, 3),
+    (18, 84, 8), (44, 75, 0), (41, 76, 6), (48, 72, 5), (18, 85, 2), (13, 86, 0), (44, 75, 1), (36, 79, 3), (47, 73, 3), (0, 87, 0),
+    (1, 87, 0), (34, 80, 2), (31, 81, 4), (2, 87, 0), (0, 87, 1), (1, 87, 1), (44, 75, 2), (59, 64, 0), (3, 87, 0), (18, 85, 3),
+    (13, 86, 2), (9, 85, 10), (59, 64, 1), (3, 87, 1), (0, 87, 2), (4, 87, 0), (19, 85, 0), (36, 79, 4), (2, 87, 2), (58, 65, 0),
+    (4, 87, 1), (19, 85, 1), (14, 86, 0), (3, 87, 2), (5, 87, 0), (13, 86, 3), (20, 84, 7), (14, 86, 1), (23, 83, 8), (5, 87, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk075_size : windowChunk075.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk075_checked : checkRows 7500 windowChunk075 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `7600` through `7699`. -/
+private def windowChunk076 : List (ℕ × ℕ × ℕ) :=
+  [
+    (4, 87, 2), (19, 85, 2), (21, 84, 6), (2, 87, 3), (52, 70, 0), (6, 87, 0), (34, 80, 4), (14, 86, 2), (3, 87, 3), (52, 70, 1),
+    (37, 79, 0), (44, 75, 4), (36, 79, 5), (47, 73, 5), (43, 75, 7), (37, 79, 1), (19, 85, 3), (9, 86, 7), (7, 87, 0), (52, 70, 2),
+    (6, 87, 2), (15, 86, 0), (14, 86, 3), (7, 87, 1), (30, 82, 0), (20, 85, 0), (15, 86, 1), (59, 64, 4), (3, 87, 4), (30, 82, 1),
+    (20, 85, 1), (34, 80, 5), (24, 84, 0), (8, 87, 0), (52, 70, 3), (6, 87, 3), (15, 86, 2), (24, 84, 1), (8, 87, 1), (30, 82, 2),
+    (20, 85, 2), (45, 74, 7), (51, 71, 0), (47, 73, 6), (5, 87, 4), (1, 87, 5), (50, 71, 6), (51, 71, 1), (8, 87, 2), (55, 68, 0),
+    (9, 87, 0), (15, 86, 3), (16, 86, 0), (3, 87, 5), (55, 68, 1), (9, 87, 1), (55, 66, 10), (16, 86, 1), (53, 68, 9), (48, 70, 13),
+    (37, 79, 4), (19, 85, 5), (24, 84, 3), (8, 87, 3), (55, 68, 2), (9, 87, 2), (21, 85, 0), (16, 86, 2), (7, 87, 4), (10, 87, 0),
+    (13, 86, 6), (21, 85, 1), (51, 71, 3), (28, 83, 0), (10, 87, 1), (20, 85, 4), (10, 86, 8), (54, 69, 0), (28, 83, 1), (55, 68, 3),
+    (9, 87, 3), (25, 84, 0), (54, 69, 1), (8, 87, 4), (40, 78, 0), (17, 86, 0), (25, 84, 1), (4, 86, 10), (62, 62, 0), (40, 78, 1),
+    (11, 87, 0), (19, 85, 6), (54, 69, 2), (42, 77, 0), (58, 65, 6), (11, 87, 1), (36, 80, 0), (14, 86, 6), (42, 77, 1), (40, 78, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk076_size : windowChunk076.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk076_checked : checkRows 7600 windowChunk076 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `7700` through `7799`. -/
+private def windowChunk077 : List (ℕ × ℕ × ℕ) :=
+  [
+    (17, 86, 2), (36, 80, 1), (16, 86, 4), (62, 62, 2), (57, 60, 18), (11, 87, 2), (59, 65, 0), (54, 69, 3), (42, 77, 2), (22, 85, 0),
+    (6, 87, 6), (59, 65, 1), (44, 76, 0), (12, 87, 0), (22, 85, 1), (17, 86, 3), (21, 85, 4), (34, 81, 0), (12, 87, 1), (10, 87, 4),
+    (18, 86, 0), (59, 65, 2), (34, 81, 1), (42, 77, 3), (22, 85, 2), (18, 86, 1), (36, 80, 3), (44, 76, 2), (12, 87, 2), (30, 82, 6),
+    (29, 83, 0), (25, 84, 4), (26, 84, 0), (28, 82, 9), (40, 78, 4), (29, 83, 1), (59, 65, 3), (26, 84, 1), (13, 87, 0), (22, 85, 3),
+    (11, 87, 4), (46, 75, 0), (44, 76, 3), (13, 87, 1), (0, 88, 0), (1, 88, 0), (46, 75, 1), (26, 84, 2), (2, 88, 0), (0, 88, 1),
+    (1, 88, 1), (5, 86, 11), (54, 69, 5), (3, 88, 0), (23, 85, 0), (9, 87, 6), (46, 75, 2), (19, 86, 0), (3, 88, 1), (23, 85, 1),
+    (4, 88, 0), (15, 86, 7), (39, 79, 0), (2, 88, 2), (30, 82, 7), (14, 87, 0), (19, 85, 8), (39, 79, 1), (3, 88, 2), (5, 88, 0),
+    (14, 87, 1), (46, 75, 3), (19, 86, 2), (8, 87, 7), (5, 88, 1), (4, 88, 2), (45, 74, 10), (39, 79, 2), (43, 77, 0), (42, 75, 12),
+    (6, 88, 0), (59, 65, 5), (26, 84, 4), (43, 77, 1), (5, 88, 2), (27, 84, 0), (35, 81, 0), (19, 86, 3), (13, 87, 4), (30, 83, 0),
+    (27, 84, 1), (35, 81, 1), (39, 79, 3), (7, 88, 0), (15, 87, 0), (6, 88, 2), (20, 86, 0), (31, 81, 10), (7, 88, 1), (15, 87, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk077_size : windowChunk077.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk077_checked : checkRows 7700 windowChunk077 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `7800` through `7899`. -/
+private def windowChunk078 : List (ℕ × ℕ × ℕ) :=
+  [
+    (27, 84, 2), (24, 85, 0), (59, 64, 9), (3, 88, 4), (30, 83, 2), (29, 83, 5), (24, 85, 1), (19, 86, 4), (8, 88, 0), (15, 87, 2),
+    (6, 88, 3), (20, 86, 2), (39, 79, 4), (33, 82, 0), (22, 85, 6), (27, 84, 3), (54, 70, 0), (61, 64, 0), (33, 82, 1), (30, 83, 3),
+    (1, 88, 5), (54, 70, 1), (61, 64, 1), (8, 88, 2), (15, 87, 3), (9, 88, 0), (20, 86, 3), (21, 84, 11), (33, 82, 2), (50, 73, 0),
+    (9, 88, 1), (54, 70, 2), (61, 64, 2), (42, 77, 7), (47, 75, 0), (27, 84, 4), (35, 81, 4), (21, 86, 0), (8, 88, 3), (47, 75, 1),
+    (28, 84, 0), (40, 79, 0), (21, 86, 1), (33, 82, 3), (10, 88, 0), (28, 84, 1), (40, 79, 1), (61, 64, 3), (42, 78, 0), (10, 88, 1),
+    (25, 85, 0), (24, 85, 4), (21, 86, 2), (58, 67, 0), (27, 75, 24), (25, 85, 1), (40, 79, 2), (36, 81, 0), (17, 87, 0), (10, 88, 2),
+    (27, 84, 5), (35, 81, 5), (36, 81, 1), (17, 87, 1), (47, 75, 3), (11, 88, 0), (54, 70, 4), (21, 86, 3), (58, 67, 2), (15, 87, 5),
+    (11, 88, 1), (40, 79, 3), (36, 81, 2), (57, 68, 0), (10, 88, 3), (9, 88, 4), (24, 85, 5), (49, 74, 0), (57, 68, 1), (50, 73, 4),
+    (22, 86, 0), (46, 75, 7), (49, 74, 1), (58, 67, 3), (47, 75, 4), (22, 86, 1), (59, 65, 8), (36, 81, 3), (12, 88, 0), (22, 85, 8),
+    (28, 84, 4), (40, 79, 4), (46, 76, 0), (18, 87, 0), (10, 88, 4), (22, 86, 2), (15, 86, 10), (29, 84, 0), (18, 87, 1), (15, 87, 6)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk078_size : windowChunk078.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk078_checked : checkRows 7800 windowChunk078 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `7900` through `7999`. -/
+private def windowChunk079 : List (ℕ × ℕ × ℕ) :=
+  [
+    (25, 85, 4), (26, 85, 0), (29, 84, 1), (12, 88, 2), (50, 73, 5), (14, 87, 7), (26, 85, 1), (46, 76, 2), (18, 87, 2), (47, 75, 5),
+    (22, 86, 3), (20, 84, 13), (29, 84, 2), (13, 88, 0), (42, 75, 14), (11, 88, 4), (26, 85, 2), (51, 71, 10), (13, 88, 1), (10, 88, 5),
+    (6, 88, 7), (0, 89, 0), (1, 89, 0), (18, 87, 3), (0, 88, 8), (2, 89, 0), (0, 89, 1), (1, 89, 1), (13, 88, 2), (48, 75, 0),
+    (3, 89, 0), (26, 85, 3), (36, 81, 5), (43, 78, 0), (48, 75, 1), (3, 89, 1), (0, 89, 2), (4, 89, 0), (63, 63, 0), (47, 75, 6),
+    (14, 88, 0), (24, 85, 7), (4, 89, 1), (63, 63, 1), (48, 75, 2), (14, 88, 1), (5, 89, 0), (29, 84, 4), (43, 78, 2), (35, 82, 0),
+    (3, 81, 23), (5, 89, 1), (4, 89, 2), (63, 63, 2), (27, 85, 0), (14, 88, 2), (30, 84, 0), (6, 89, 0), (58, 67, 6), (27, 85, 1),
+    (3, 89, 3), (30, 84, 1), (6, 89, 1), (43, 78, 3), (35, 82, 2), (9, 88, 7), (35, 81, 8), (4, 89, 3), (63, 63, 3), (15, 88, 0),
+    (7, 89, 0), (30, 84, 2), (24, 86, 0), (7, 88, 8), (15, 88, 1), (7, 89, 1), (50, 74, 0), (24, 86, 1), (33, 83, 0), (35, 82, 3),
+    (3, 89, 4), (50, 74, 1), (49, 74, 6), (33, 83, 1), (15, 88, 2), (8, 89, 0), (30, 84, 3), (24, 86, 2), (58, 68, 0), (42, 75, 15),
+    (8, 89, 1), (50, 74, 2), (34, 81, 10), (53, 72, 0), (5, 88, 9), (18, 86, 10), (5, 89, 4), (1, 89, 5), (53, 72, 1), (15, 88, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk079_size : windowChunk079.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk079_checked : checkRows 7900 windowChunk079 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `8000` through `8099`. -/
+private def windowChunk080 : List (ℕ × ℕ × ℕ) :=
+  [
+    (16, 88, 0), (60, 61, 16), (9, 89, 0), (58, 68, 2), (27, 85, 4), (38, 81, 0), (50, 74, 3), (9, 89, 1), (53, 72, 2), (28, 85, 0),
+    (21, 87, 0), (35, 81, 9), (4, 89, 5), (63, 63, 5), (28, 85, 1), (21, 87, 1), (46, 75, 10), (31, 84, 0), (58, 68, 3), (15, 88, 4),
+    (36, 82, 0), (10, 89, 0), (31, 84, 1), (53, 72, 3), (28, 85, 2), (36, 82, 1), (49, 75, 0), (1, 89, 6), (33, 83, 4), (27, 85, 5),
+    (16, 88, 3), (49, 75, 1), (31, 84, 2), (17, 88, 0), (48, 75, 6), (36, 82, 2), (56, 70, 0), (29, 84, 7), (17, 88, 1), (28, 85, 3),
+    (21, 87, 3), (56, 70, 1), (11, 89, 0), (53, 72, 4), (15, 88, 5), (34, 83, 0), (15, 84, 17), (11, 89, 1), (17, 88, 2), (5, 87, 13),
+    (34, 83, 1), (56, 70, 2), (9, 89, 4), (22, 87, 0), (35, 82, 6), (38, 81, 4), (49, 75, 3), (11, 89, 2), (22, 87, 1), (28, 85, 4),
+    (34, 83, 2), (30, 84, 6), (6, 89, 6), (17, 88, 3), (30, 83, 10), (12, 89, 0), (29, 85, 0), (31, 84, 4), (18, 88, 0), (62, 65, 0),
+    (12, 89, 1), (29, 85, 1), (26, 86, 0), (18, 88, 1), (62, 65, 1), (34, 83, 3), (49, 75, 4), (51, 74, 0), (63, 63, 7), (30, 82, 13),
+    (32, 84, 0), (41, 80, 0), (39, 81, 0), (18, 88, 2), (62, 65, 2), (32, 84, 1), (41, 80, 1), (39, 81, 1), (33, 82, 10), (60, 67, 0),
+    (13, 89, 0), (54, 70, 10), (51, 74, 2), (37, 82, 0), (60, 67, 1), (13, 89, 1), (41, 80, 2), (39, 81, 2), (23, 87, 0), (62, 65, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk080_size : windowChunk080.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk080_checked : checkRows 8000 windowChunk080 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `8100` through `8199`. -/
+private def windowChunk081 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 90, 0), (1, 90, 0), (26, 86, 3), (23, 87, 1), (2, 90, 0), (19, 88, 0), (1, 90, 1), (51, 74, 3), (37, 82, 2), (3, 90, 0),
+    (19, 88, 1), (41, 80, 3), (39, 81, 3), (23, 87, 2), (35, 83, 0), (0, 90, 2), (4, 90, 0), (14, 89, 0), (18, 88, 4), (35, 83, 1),
+    (19, 88, 2), (4, 90, 1), (14, 89, 1), (37, 82, 3), (3, 90, 2), (5, 90, 0), (10, 89, 6), (51, 74, 4), (23, 87, 3), (35, 83, 2),
+    (5, 90, 1), (4, 90, 2), (14, 89, 2), (53, 72, 7), (2, 90, 3), (19, 88, 3), (6, 90, 0), (6, 89, 8), (47, 77, 0), (3, 90, 3),
+    (5, 90, 2), (6, 90, 1), (9, 89, 7), (47, 77, 1), (20, 88, 0), (24, 87, 0), (15, 89, 0), (14, 89, 3), (23, 87, 4), (7, 90, 0),
+    (24, 87, 1), (15, 89, 1), (51, 74, 5), (47, 77, 2), (7, 90, 1), (5, 90, 3), (41, 80, 5), (39, 81, 5), (22, 87, 6), (20, 88, 2),
+    (24, 87, 2), (40, 81, 0), (4, 89, 9), (63, 63, 9), (8, 90, 0), (13, 89, 5), (40, 81, 1), (14, 89, 4), (38, 82, 0), (8, 90, 1),
+    (12, 89, 6), (29, 85, 6), (29, 84, 10), (38, 82, 1), (20, 88, 3), (24, 87, 3), (40, 81, 2), (16, 89, 0), (42, 78, 11), (8, 90, 2),
+    (28, 86, 0), (9, 90, 0), (16, 89, 1), (38, 82, 2), (3, 90, 5), (21, 88, 0), (31, 85, 0), (39, 81, 6), (47, 77, 4), (35, 83, 5),
+    (21, 88, 1), (31, 85, 1), (64, 64, 0), (22, 87, 7), (25, 87, 0), (28, 86, 2), (9, 90, 2), (64, 64, 1), (38, 82, 3), (25, 87, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk081_size : windowChunk081.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk081_checked : checkRows 8100 windowChunk081 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `8200` through `8299`. -/
+private def windowChunk082 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 90, 0), (31, 85, 2), (54, 69, 14), (23, 87, 6), (48, 75, 10), (10, 90, 1), (1, 90, 6), (64, 64, 2), (18, 88, 7), (55, 72, 0),
+    (17, 89, 0), (9, 90, 3), (34, 84, 0), (47, 77, 5), (55, 72, 1), (17, 89, 1), (31, 85, 3), (34, 84, 1), (38, 82, 4), (20, 88, 5),
+    (24, 87, 5), (11, 90, 0), (64, 64, 3), (18, 87, 11), (60, 68, 0), (17, 89, 2), (51, 75, 0), (34, 84, 2), (22, 88, 0), (60, 68, 1),
+    (10, 90, 3), (51, 75, 1), (6, 89, 10), (48, 77, 0), (28, 85, 9), (21, 88, 4), (11, 90, 2), (29, 86, 0), (48, 77, 1), (60, 68, 2),
+    (17, 89, 3), (51, 75, 2), (41, 81, 0), (22, 88, 2), (12, 90, 0), (18, 89, 0), (29, 85, 8), (41, 81, 1), (48, 77, 2), (32, 85, 0),
+    (18, 89, 1), (11, 90, 3), (29, 86, 2), (33, 83, 10), (32, 85, 1), (28, 86, 5), (51, 75, 3), (41, 81, 2), (37, 83, 0), (12, 90, 2),
+    (18, 89, 2), (31, 85, 5), (34, 84, 4), (37, 83, 1), (58, 70, 0), (5, 90, 7), (45, 79, 0), (29, 86, 3), (53, 72, 10), (13, 90, 0),
+    (13, 89, 8), (45, 79, 1), (41, 81, 3), (23, 88, 0), (13, 90, 1), (18, 89, 3), (50, 76, 0), (9, 89, 10), (23, 88, 1), (58, 70, 2),
+    (0, 90, 8), (0, 91, 0), (1, 91, 0), (48, 77, 4), (13, 90, 2), (2, 91, 0), (0, 91, 1), (1, 91, 1), (23, 88, 2), (7, 90, 7),
+    (3, 91, 0), (50, 76, 2), (41, 81, 4), (47, 78, 0), (58, 70, 3), (3, 91, 1), (14, 90, 0), (4, 91, 0), (27, 87, 0), (13, 90, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk082_size : windowChunk082.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk082_checked : checkRows 8200 windowChunk082 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `8300` through `8399`. -/
+private def windowChunk083 : List (ℕ × ℕ × ℕ) :=
+  [
+    (2, 91, 2), (14, 90, 1), (4, 91, 1), (27, 87, 1), (8, 90, 7), (3, 91, 2), (5, 91, 0), (39, 81, 9), (47, 78, 2), (22, 85, 15),
+    (27, 84, 14), (5, 91, 1), (4, 91, 2), (27, 87, 2), (33, 85, 0), (2, 91, 3), (45, 79, 4), (6, 91, 0), (47, 77, 8), (33, 85, 1),
+    (24, 88, 0), (20, 89, 0), (6, 91, 1), (47, 78, 3), (40, 82, 0), (15, 90, 0), (20, 89, 1), (4, 91, 3), (27, 87, 3), (52, 75, 0),
+    (7, 91, 0), (0, 91, 4), (6, 91, 2), (38, 83, 0), (52, 75, 1), (7, 91, 1), (44, 80, 0), (4, 84, 22), (38, 83, 1), (40, 82, 2),
+    (15, 90, 2), (44, 80, 1), (29, 86, 6), (47, 78, 4), (52, 75, 2), (8, 91, 0), (14, 90, 4), (6, 91, 3), (38, 83, 2), (12, 90, 6),
+    (8, 91, 1), (44, 80, 2), (36, 84, 0), (28, 87, 0), (55, 73, 0), (15, 90, 3), (16, 90, 0), (31, 86, 0), (28, 87, 1), (55, 73, 1),
+    (8, 91, 2), (60, 69, 0), (9, 91, 0), (38, 83, 3), (33, 85, 4), (3, 91, 5), (60, 69, 1), (9, 91, 1), (28, 87, 2), (25, 88, 0),
+    (24, 88, 4), (16, 90, 2), (31, 86, 2), (27, 87, 5), (25, 88, 1), (8, 91, 3), (60, 69, 2), (51, 76, 0), (23, 88, 6), (52, 75, 4),
+    (7, 91, 4), (10, 91, 0), (51, 76, 1), (28, 87, 3), (25, 88, 2), (18, 89, 7), (10, 91, 1), (31, 86, 3), (48, 78, 0), (17, 90, 0),
+    (2, 91, 6), (60, 69, 3), (54, 74, 0), (48, 78, 1), (17, 90, 1), (8, 91, 4), (10, 91, 2), (54, 74, 1), (47, 78, 6), (25, 88, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk083_size : windowChunk083.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk083_checked : checkRows 8300 windowChunk083 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `8400` through `8499`. -/
+private def windowChunk084 : List (ℕ × ℕ × ℕ) :=
+  [
+    (15, 90, 5), (14, 90, 6), (11, 91, 0), (48, 78, 2), (17, 90, 2), (22, 89, 0), (16, 90, 4), (11, 91, 1), (38, 83, 5), (13, 90, 7),
+    (29, 87, 0), (10, 91, 3), (9, 91, 4), (23, 88, 7), (55, 68, 17), (29, 87, 1), (50, 76, 7), (11, 91, 2), (48, 78, 3), (17, 90, 3),
+    (26, 88, 0), (0, 91, 7), (54, 74, 3), (37, 82, 11), (18, 90, 0), (12, 91, 0), (20, 89, 6), (51, 76, 4), (28, 87, 5), (50, 77, 0),
+    (12, 91, 1), (10, 91, 4), (11, 91, 3), (57, 72, 0), (53, 75, 0), (26, 88, 2), (60, 69, 5), (9, 91, 5), (57, 72, 1), (53, 75, 1),
+    (12, 91, 2), (44, 80, 6), (54, 74, 4), (38, 82, 10), (50, 77, 2), (14, 87, 16), (5, 91, 7), (14, 89, 11), (57, 72, 2), (53, 75, 2),
+    (13, 91, 0), (51, 75, 9), (64, 66, 0), (23, 88, 8), (18, 90, 3), (13, 91, 1), (10, 91, 5), (64, 66, 1), (63, 67, 0), (50, 77, 3),
+    (29, 87, 4), (19, 90, 0), (31, 86, 6), (63, 67, 1), (0, 92, 0), (1, 92, 0), (19, 90, 1), (64, 66, 2), (2, 92, 0), (30, 87, 0),
+    (1, 92, 1), (41, 80, 12), (39, 81, 12), (3, 92, 0), (30, 87, 1), (12, 91, 4), (19, 90, 2), (14, 91, 0), (3, 92, 1), (0, 92, 2),
+    (4, 92, 0), (49, 75, 13), (61, 69, 0), (2, 92, 2), (30, 87, 2), (33, 86, 0), (10, 91, 6), (61, 69, 1), (42, 82, 0), (5, 92, 0),
+    (33, 86, 1), (19, 90, 3), (14, 91, 2), (42, 82, 1), (5, 92, 1), (4, 92, 2), (16, 90, 7), (24, 89, 0), (2, 92, 3), (30, 87, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk084_size : windowChunk084.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk084_checked : checkRows 8400 windowChunk084 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `8500` through `8599`. -/
+private def windowChunk085 : List (ℕ × ℕ × ℕ) :=
+  [
+    (6, 92, 0), (55, 74, 0), (24, 89, 1), (42, 82, 2), (5, 92, 2), (6, 92, 1), (15, 91, 0), (14, 91, 3), (63, 67, 4), (53, 75, 5),
+    (4, 92, 3), (15, 91, 1), (24, 89, 2), (7, 92, 0), (0, 92, 4), (6, 92, 2), (46, 80, 0), (51, 76, 7), (7, 92, 1), (5, 92, 3),
+    (18, 89, 10), (36, 85, 0), (59, 71, 0), (3, 92, 4), (32, 85, 10), (13, 91, 5), (36, 85, 1), (59, 71, 1), (8, 92, 0), (18, 90, 6),
+    (31, 87, 0), (46, 80, 2), (61, 69, 4), (8, 92, 1), (50, 77, 6), (31, 87, 1), (36, 85, 2), (16, 91, 0), (42, 82, 4), (5, 92, 4),
+    (1, 92, 5), (21, 90, 0), (16, 91, 1), (8, 92, 2), (30, 87, 5), (9, 92, 0), (25, 89, 0), (24, 89, 4), (58, 72, 0), (25, 88, 8),
+    (9, 92, 1), (25, 89, 1), (34, 86, 0), (58, 72, 1), (52, 75, 9), (4, 92, 5), (21, 90, 2), (34, 86, 1), (8, 92, 3), (2, 90, 13),
+    (9, 92, 2), (25, 89, 2), (39, 76, 22), (58, 72, 2), (10, 92, 0), (12, 91, 7), (46, 80, 4), (34, 86, 2), (48, 78, 8), (10, 92, 1),
+    (17, 91, 0), (21, 90, 3), (59, 71, 4), (43, 82, 0), (30, 87, 6), (17, 91, 1), (25, 89, 3), (39, 84, 0), (57, 73, 0), (10, 92, 2),
+    (31, 87, 4), (65, 66, 0), (39, 84, 1), (57, 73, 1), (22, 90, 0), (11, 92, 0), (45, 81, 0), (16, 91, 4), (43, 82, 2), (22, 90, 1),
+    (11, 92, 1), (45, 81, 1), (39, 84, 2), (32, 87, 0), (37, 85, 0), (9, 92, 4), (65, 66, 2), (26, 89, 0), (32, 87, 1), (37, 85, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk085_size : windowChunk085.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk085_checked : checkRows 8500 windowChunk085 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `8600` through `8699`. -/
+private def windowChunk086 : List (ℕ × ℕ × ℕ) :=
+  [
+    (11, 92, 2), (45, 81, 2), (26, 89, 1), (43, 82, 3), (0, 92, 7), (18, 91, 0), (55, 74, 6), (39, 84, 3), (12, 92, 0), (47, 80, 0),
+    (18, 91, 1), (65, 66, 3), (56, 74, 0), (12, 92, 1), (47, 80, 1), (11, 92, 3), (45, 81, 3), (56, 74, 1), (7, 92, 6), (8, 90, 13),
+    (18, 91, 2), (35, 86, 0), (61, 69, 7), (12, 92, 2), (47, 80, 2), (33, 86, 7), (35, 86, 1), (56, 74, 2), (57, 73, 4), (23, 90, 0),
+    (13, 91, 8), (65, 66, 4), (64, 66, 8), (13, 92, 0), (23, 90, 1), (18, 91, 3), (35, 86, 2), (24, 89, 7), (13, 92, 1), (47, 80, 3),
+    (6, 92, 7), (60, 71, 0), (19, 91, 0), (32, 87, 4), (30, 88, 0), (17, 91, 5), (60, 71, 1), (19, 91, 1), (13, 92, 2), (0, 93, 0),
+    (1, 93, 0), (35, 86, 3), (39, 84, 5), (2, 93, 0), (0, 93, 1), (1, 93, 1), (40, 84, 0), (19, 91, 2), (3, 93, 0), (30, 88, 2),
+    (14, 92, 0), (40, 84, 1), (56, 74, 4), (3, 93, 1), (0, 93, 2), (4, 93, 0), (44, 80, 11), (54, 74, 10), (2, 93, 2), (38, 85, 0),
+    (4, 93, 1), (40, 84, 2), (19, 91, 3), (3, 93, 2), (5, 93, 0), (14, 92, 2), (24, 90, 0), (46, 81, 0), (43, 82, 6), (5, 93, 1),
+    (4, 93, 2), (20, 91, 0), (46, 81, 1), (2, 93, 3), (38, 85, 2), (6, 93, 0), (20, 91, 1), (56, 74, 5), (3, 93, 3), (15, 92, 0),
+    (6, 93, 1), (24, 90, 2), (36, 86, 0), (58, 73, 0), (15, 92, 1), (4, 93, 3), (20, 91, 2), (36, 86, 1), (7, 93, 0), (38, 85, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk086_size : windowChunk086.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk086_checked : checkRows 8600 windowChunk086 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `8700` through `8799`. -/
+private def windowChunk087 : List (ℕ × ℕ × ℕ) :=
+  [
+    (6, 93, 2), (36, 85, 8), (26, 89, 6), (7, 93, 1), (48, 80, 0), (28, 89, 0), (24, 90, 3), (36, 86, 2), (58, 73, 2), (48, 80, 1),
+    (28, 89, 1), (20, 91, 3), (66, 66, 0), (8, 93, 0), (65, 67, 0), (6, 93, 3), (60, 71, 5), (66, 66, 1), (8, 93, 1), (65, 67, 1),
+    (16, 92, 0), (65, 66, 7), (21, 91, 0), (58, 73, 3), (5, 93, 4), (25, 90, 0), (24, 90, 4), (21, 91, 1), (8, 93, 2), (65, 67, 2),
+    (9, 93, 0), (20, 91, 4), (34, 86, 8), (3, 93, 5), (48, 80, 3), (9, 93, 1), (19, 90, 10), (41, 84, 0), (43, 83, 0), (15, 92, 4),
+    (25, 90, 2), (50, 79, 0), (41, 84, 1), (43, 83, 1), (62, 70, 0), (9, 93, 2), (39, 85, 0), (19, 91, 6), (7, 93, 4), (10, 93, 0),
+    (16, 92, 3), (39, 85, 1), (41, 84, 2), (17, 92, 0), (10, 93, 1), (25, 90, 3), (50, 79, 2), (39, 84, 8), (17, 92, 1), (62, 70, 2),
+    (9, 93, 3), (56, 75, 0), (29, 89, 0), (8, 93, 4), (10, 93, 2), (22, 91, 0), (56, 75, 1), (29, 89, 1), (32, 88, 0), (23, 90, 7),
+    (11, 93, 0), (50, 79, 3), (21, 91, 4), (32, 88, 1), (62, 70, 3), (11, 93, 1), (26, 90, 0), (29, 89, 2), (48, 78, 12), (10, 93, 3),
+    (22, 91, 2), (26, 90, 1), (46, 81, 6), (32, 88, 2), (60, 72, 0), (11, 93, 2), (20, 91, 6), (41, 84, 4), (18, 92, 0), (60, 72, 1),
+    (6, 93, 6), (26, 90, 2), (29, 89, 3), (12, 93, 0), (35, 87, 0), (22, 91, 3), (39, 85, 4), (21, 91, 5), (12, 93, 1), (35, 87, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk087_size : windowChunk087.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk087_checked : checkRows 8700 windowChunk087 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `8800` through `8899`. -/
+private def windowChunk088 : List (ℕ × ℕ × ℕ) :=
+  [
+    (11, 93, 3), (49, 80, 0), (39, 84, 9), (18, 92, 2), (35, 82, 18), (9, 93, 5), (49, 80, 1), (14, 91, 11), (12, 93, 2), (35, 87, 2),
+    (23, 91, 0), (56, 75, 4), (29, 89, 4), (43, 83, 5), (60, 72, 3), (23, 91, 1), (49, 80, 2), (66, 66, 6), (13, 93, 0), (62, 70, 5),
+    (42, 84, 0), (30, 89, 0), (19, 91, 8), (13, 93, 1), (35, 87, 3), (19, 92, 0), (30, 89, 1), (21, 91, 6), (17, 92, 5), (27, 90, 0),
+    (19, 92, 1), (49, 80, 3), (36, 86, 7), (33, 88, 0), (27, 90, 1), (42, 84, 2), (0, 94, 0), (1, 94, 0), (33, 88, 1), (10, 92, 10),
+    (2, 94, 0), (0, 94, 1), (51, 79, 0), (12, 93, 4), (27, 90, 2), (3, 94, 0), (50, 79, 6), (51, 79, 1), (33, 88, 2), (65, 68, 0),
+    (3, 94, 1), (0, 94, 2), (4, 94, 0), (8, 93, 7), (65, 68, 1), (2, 94, 2), (24, 90, 8), (24, 91, 0), (17, 92, 6), (27, 90, 3),
+    (3, 94, 2), (5, 94, 0), (24, 91, 1), (33, 88, 3), (20, 92, 0), (36, 87, 0), (5, 94, 1), (4, 94, 2), (13, 93, 4), (63, 70, 0),
+    (36, 87, 1), (30, 89, 4), (6, 94, 0), (32, 88, 6), (15, 93, 0), (3, 94, 3), (5, 94, 2), (6, 94, 1), (43, 83, 7), (15, 93, 1),
+    (36, 87, 2), (26, 90, 6), (31, 89, 0), (33, 88, 4), (28, 90, 0), (7, 94, 0), (0, 94, 4), (31, 89, 1), (57, 72, 13), (28, 90, 1),
+    (7, 94, 1), (5, 94, 3), (51, 79, 4), (53, 78, 0), (20, 92, 3), (36, 87, 3), (30, 89, 5), (31, 89, 2), (53, 78, 1), (28, 90, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk088_size : windowChunk088.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk088_checked : checkRows 8800 windowChunk088 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `8900` through `8999`. -/
+private def windowChunk089 : List (ℕ × ℕ × ℕ) :=
+  [
+    (8, 94, 0), (56, 75, 7), (6, 94, 3), (43, 82, 11), (15, 93, 3), (16, 93, 0), (25, 91, 0), (24, 91, 4), (53, 78, 2), (20, 88, 17),
+    (16, 93, 1), (25, 91, 1), (56, 76, 0), (63, 67, 13), (45, 83, 0), (8, 94, 2), (26, 90, 7), (9, 94, 0), (43, 83, 8), (45, 83, 1),
+    (16, 93, 2), (25, 91, 2), (9, 94, 1), (53, 78, 3), (15, 93, 4), (42, 84, 6), (30, 89, 6), (56, 76, 2), (18, 92, 7), (60, 73, 0),
+    (8, 94, 3), (40, 84, 10), (9, 94, 2), (47, 82, 0), (60, 73, 1), (16, 93, 3), (10, 94, 0), (66, 66, 9), (17, 93, 0), (20, 92, 5),
+    (36, 87, 5), (29, 90, 0), (56, 76, 3), (17, 93, 1), (60, 73, 2), (32, 89, 0), (29, 90, 1), (9, 94, 3), (22, 92, 0), (15, 93, 5),
+    (32, 89, 1), (10, 94, 2), (46, 81, 10), (22, 92, 1), (55, 77, 0), (16, 93, 4), (29, 90, 2), (11, 94, 0), (13, 93, 7), (55, 77, 1),
+    (32, 89, 2), (30, 89, 7), (49, 81, 0), (22, 92, 2), (45, 83, 4), (19, 92, 7), (10, 94, 3), (49, 81, 1), (17, 93, 3), (35, 88, 0),
+    (36, 87, 6), (29, 90, 3), (11, 94, 2), (18, 93, 0), (35, 88, 1), (32, 89, 3), (0, 94, 7), (49, 81, 2), (67, 67, 0), (60, 73, 4),
+    (12, 94, 0), (25, 91, 5), (51, 79, 7), (67, 67, 1), (35, 88, 2), (12, 94, 1), (65, 69, 0), (11, 94, 3), (18, 93, 2), (42, 85, 0),
+    (7, 94, 6), (65, 69, 1), (44, 84, 0), (23, 92, 0), (42, 85, 1), (12, 94, 2), (40, 86, 0), (44, 84, 1), (23, 92, 1), (35, 88, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk089_size : windowChunk089.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk089_checked : checkRows 8900 windowChunk089 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `9000` through `9099`. -/
+private def windowChunk090 : List (ℕ × ℕ × ℕ) :=
+  [
+    (30, 90, 0), (51, 80, 0), (56, 74, 12), (18, 93, 3), (42, 85, 2), (13, 94, 0), (51, 80, 1), (44, 84, 2), (23, 92, 2), (63, 70, 7),
+    (19, 93, 0), (40, 86, 2), (49, 81, 4), (38, 87, 0), (15, 93, 7), (19, 93, 1), (51, 80, 2), (56, 76, 6), (38, 87, 1), (42, 85, 3),
+    (13, 94, 2), (39, 85, 10), (44, 84, 3), (23, 92, 3), (28, 90, 7), (0, 95, 0), (1, 95, 0), (51, 74, 19), (48, 82, 0), (2, 95, 0),
+    (0, 95, 1), (1, 95, 1), (14, 94, 0), (48, 82, 1), (3, 95, 0), (13, 94, 3), (65, 69, 4), (14, 94, 1), (47, 82, 6), (3, 95, 1),
+    (24, 92, 0), (4, 95, 0), (44, 84, 4), (48, 82, 2), (2, 95, 2), (24, 92, 1), (4, 95, 1), (14, 94, 2), (18, 93, 5), (20, 93, 0),
+    (5, 95, 0), (51, 80, 4), (56, 76, 7), (67, 67, 5), (20, 93, 1), (5, 95, 1), (4, 95, 2), (9, 94, 7), (48, 82, 3), (2, 95, 3),
+    (19, 93, 4), (6, 95, 0), (14, 94, 3), (38, 87, 4), (20, 93, 2), (28, 91, 0), (6, 95, 1), (44, 84, 5), (23, 92, 5), (60, 73, 7),
+    (28, 91, 1), (4, 95, 3), (54, 74, 16), (47, 82, 7), (7, 95, 0), (0, 95, 4), (60, 74, 0), (34, 89, 0), (48, 82, 4), (7, 95, 1),
+    (28, 91, 2), (45, 84, 0), (34, 89, 1), (67, 67, 6), (3, 95, 4), (19, 93, 5), (45, 84, 1), (1, 84, 28), (38, 87, 5), (8, 95, 0),
+    (21, 93, 0), (60, 74, 2), (16, 94, 0), (13, 93, 10), (8, 95, 1), (21, 93, 1), (45, 84, 2), (16, 94, 1), (47, 83, 0), (20, 93, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk090_size : windowChunk090.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk090_checked : checkRows 9000 windowChunk090 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `9100` through `9199`. -/
+private def windowChunk091 : List (ℕ × ℕ × ℕ) :=
+  [
+    (5, 95, 4), (1, 95, 5), (49, 81, 7), (47, 83, 1), (52, 80, 0), (21, 93, 2), (9, 95, 0), (16, 94, 2), (33, 88, 10), (55, 78, 0),
+    (13, 94, 6), (9, 95, 1), (1, 94, 10), (37, 88, 0), (55, 78, 1), (28, 91, 4), (4, 95, 5), (66, 69, 0), (37, 88, 1), (52, 80, 2),
+    (21, 93, 3), (9, 95, 2), (29, 91, 0), (12, 93, 11), (32, 90, 0), (10, 95, 0), (60, 74, 4), (29, 91, 1), (37, 88, 2), (32, 90, 1),
+    (10, 95, 1), (45, 84, 4), (66, 69, 2), (22, 93, 0), (52, 80, 3), (21, 88, 19), (9, 95, 3), (64, 71, 0), (22, 93, 1), (32, 90, 2),
+    (26, 92, 0), (51, 80, 7), (64, 71, 1), (37, 88, 3), (63, 70, 10), (26, 92, 1), (11, 95, 0), (66, 69, 3), (22, 93, 2), (7, 95, 5),
+    (19, 93, 7), (11, 95, 1), (64, 71, 2), (63, 72, 0), (32, 90, 3), (26, 92, 2), (9, 95, 4), (54, 79, 0), (63, 72, 1), (55, 78, 4),
+    (18, 94, 0), (44, 85, 0), (51, 81, 0), (22, 93, 3), (8, 95, 5), (18, 94, 1), (44, 85, 1), (51, 81, 1), (63, 72, 2), (12, 95, 0),
+    (26, 92, 3), (11, 90, 19), (46, 84, 0), (62, 73, 0), (12, 95, 1), (18, 94, 2), (44, 85, 2), (46, 84, 1), (23, 93, 0), (52, 80, 5),
+    (24, 92, 7), (30, 91, 0), (34, 89, 6), (23, 93, 1), (12, 95, 2), (13, 94, 8), (30, 91, 1), (46, 84, 2), (38, 88, 0), (33, 90, 0),
+    (18, 94, 3), (44, 85, 3), (51, 81, 3), (27, 92, 0), (13, 95, 0), (21, 93, 6), (30, 91, 2), (19, 94, 0), (27, 92, 1), (13, 95, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk091_size : windowChunk091.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk091_checked : checkRows 9100 windowChunk091 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `9200` through `9299`. -/
+private def windowChunk092 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 95, 5), (6, 95, 7), (19, 94, 1), (38, 88, 2), (33, 90, 2), (28, 91, 7), (1, 95, 8), (54, 79, 4), (27, 92, 2), (53, 80, 0),
+    (18, 94, 4), (30, 91, 3), (19, 94, 2), (17, 93, 10), (53, 80, 1), (26, 92, 5), (0, 96, 0), (1, 96, 0), (38, 88, 3), (33, 90, 3),
+    (2, 96, 0), (14, 95, 0), (1, 96, 1), (27, 92, 3), (50, 82, 0), (3, 96, 0), (14, 95, 1), (19, 94, 3), (23, 93, 4), (50, 82, 1),
+    (3, 96, 1), (0, 96, 2), (4, 96, 0), (13, 92, 15), (30, 87, 17), (2, 96, 2), (20, 94, 0), (4, 96, 1), (38, 88, 4), (50, 82, 2),
+    (3, 96, 2), (5, 96, 0), (31, 91, 0), (27, 92, 4), (13, 95, 4), (43, 86, 0), (5, 96, 1), (31, 91, 1), (28, 92, 0), (55, 78, 7),
+    (15, 95, 0), (20, 94, 2), (6, 96, 0), (28, 92, 1), (50, 82, 3), (15, 95, 1), (34, 90, 0), (59, 76, 0), (63, 72, 6), (53, 80, 4),
+    (43, 86, 2), (34, 90, 1), (59, 76, 1), (28, 92, 2), (33, 90, 5), (7, 96, 0), (55, 79, 0), (6, 96, 2), (27, 92, 5), (13, 95, 5),
+    (7, 96, 1), (55, 79, 1), (59, 76, 2), (22, 93, 7), (25, 93, 0), (43, 86, 3), (51, 80, 10), (21, 94, 0), (28, 92, 3), (25, 93, 1),
+    (8, 96, 0), (16, 95, 0), (21, 94, 1), (23, 93, 6), (53, 80, 5), (8, 96, 1), (16, 95, 1), (59, 76, 3), (38, 87, 10), (25, 93, 2),
+    (37, 89, 0), (5, 96, 4), (21, 94, 2), (58, 77, 0), (33, 90, 6), (37, 89, 1), (16, 95, 2), (9, 96, 0), (63, 73, 0), (50, 82, 5)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk092_size : windowChunk092.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk092_checked : checkRows 9200 windowChunk092 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `9300` through `9399`. -/
+private def windowChunk093 : List (ℕ × ℕ × ℕ) :=
+  [
+    (15, 95, 4), (44, 85, 7), (9, 96, 1), (63, 73, 1), (25, 93, 3), (29, 92, 0), (34, 90, 4), (21, 94, 3), (58, 77, 2), (12, 95, 7),
+    (29, 92, 1), (16, 95, 3), (9, 96, 2), (63, 73, 2), (17, 95, 0), (7, 96, 4), (10, 96, 0), (31, 91, 5), (23, 93, 7), (17, 95, 1),
+    (22, 94, 0), (10, 96, 1), (1, 96, 6), (58, 77, 3), (25, 93, 4), (26, 93, 0), (14, 95, 6), (9, 96, 3), (63, 73, 3), (17, 95, 2),
+    (26, 93, 1), (10, 96, 2), (44, 86, 0), (42, 87, 0), (13, 95, 7), (22, 94, 2), (6, 95, 10), (11, 96, 0), (42, 87, 1), (28, 90, 13),
+    (26, 93, 2), (46, 85, 0), (11, 96, 1), (58, 77, 4), (40, 88, 0), (42, 84, 14), (61, 75, 0), (44, 86, 2), (42, 87, 2), (18, 95, 0),
+    (22, 94, 3), (61, 75, 1), (11, 96, 2), (28, 92, 6), (18, 95, 1), (26, 93, 3), (46, 85, 2), (6, 96, 6), (23, 93, 8), (40, 88, 2),
+    (12, 96, 0), (61, 75, 2), (44, 86, 3), (42, 87, 3), (30, 92, 0), (23, 94, 0), (10, 96, 4), (11, 96, 3), (58, 77, 5), (30, 92, 1),
+    (33, 91, 0), (46, 85, 3), (9, 96, 5), (63, 73, 5), (40, 88, 3), (33, 91, 1), (60, 76, 0), (56, 79, 0), (27, 93, 0), (30, 92, 2),
+    (23, 94, 2), (60, 76, 1), (56, 79, 1), (27, 93, 1), (55, 78, 10), (13, 96, 0), (19, 95, 0), (11, 96, 4), (28, 92, 7), (50, 83, 0),
+    (13, 96, 1), (19, 95, 1), (56, 79, 2), (27, 93, 2), (50, 83, 1), (23, 94, 3), (36, 90, 0), (66, 71, 0), (58, 77, 6), (18, 95, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk093_size : windowChunk093.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk093_checked : checkRows 9300 windowChunk093 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `9400` through `9499`. -/
+private def windowChunk094 : List (ℕ × ℕ × ℕ) :=
+  [
+    (13, 96, 2), (36, 90, 1), (66, 71, 1), (63, 73, 6), (50, 83, 2), (7, 96, 7), (60, 76, 3), (56, 79, 3), (27, 93, 3), (0, 97, 0),
+    (1, 97, 0), (36, 90, 2), (14, 96, 0), (2, 97, 0), (0, 97, 1), (1, 97, 1), (19, 95, 3), (14, 96, 1), (3, 97, 0), (50, 83, 3),
+    (33, 91, 4), (45, 86, 0), (31, 91, 8), (3, 97, 1), (0, 97, 2), (4, 97, 0), (45, 86, 1), (14, 96, 2), (52, 82, 0), (27, 90, 15),
+    (4, 97, 1), (4, 95, 12), (6, 96, 8), (28, 93, 0), (5, 97, 0), (13, 96, 4), (45, 86, 2), (34, 91, 0), (28, 93, 1), (5, 97, 1),
+    (4, 97, 2), (15, 96, 0), (39, 89, 0), (52, 82, 2), (12, 95, 10), (6, 97, 0), (15, 96, 1), (39, 89, 1), (58, 78, 0), (5, 97, 2),
+    (6, 97, 1), (45, 86, 3), (34, 91, 2), (58, 78, 1), (18, 95, 6), (4, 97, 3), (15, 96, 2), (49, 84, 0), (7, 97, 0), (0, 97, 4),
+    (6, 97, 2), (25, 94, 0), (49, 84, 1), (7, 97, 1), (5, 97, 3), (12, 96, 6), (21, 95, 0), (34, 91, 3), (3, 97, 4), (37, 90, 0),
+    (23, 94, 6), (21, 95, 1), (16, 96, 0), (8, 97, 0), (37, 90, 1), (6, 97, 3), (25, 94, 2), (54, 81, 0), (8, 97, 1), (8, 95, 12),
+    (21, 93, 12), (21, 95, 2), (54, 81, 1), (28, 93, 4), (37, 90, 2), (1, 97, 5), (61, 75, 7), (16, 96, 2), (32, 92, 0), (18, 95, 7),
+    (9, 97, 0), (25, 94, 3), (54, 81, 2), (32, 92, 1), (50, 83, 6), (9, 97, 1), (21, 95, 3), (61, 76, 0), (58, 78, 4), (37, 90, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk094_size : windowChunk094.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk094_checked : checkRows 9400 windowChunk094 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `9500` through `9599`. -/
+private def windowChunk095 : List (ℕ × ℕ × ℕ) :=
+  [
+    (4, 97, 5), (36, 90, 6), (61, 76, 1), (32, 92, 2), (30, 92, 7), (17, 96, 0), (35, 91, 0), (54, 81, 3), (42, 88, 0), (10, 97, 0),
+    (17, 96, 1), (35, 91, 1), (26, 94, 0), (42, 88, 1), (10, 97, 1), (1, 97, 6), (21, 95, 4), (26, 94, 1), (32, 92, 3), (37, 90, 4),
+    (17, 96, 2), (40, 89, 0), (69, 69, 0), (42, 88, 2), (68, 70, 0), (13, 96, 7), (40, 89, 1), (69, 69, 1), (57, 73, 19), (48, 85, 0),
+    (11, 97, 0), (34, 90, 10), (49, 84, 5), (53, 82, 0), (48, 85, 1), (11, 97, 1), (56, 80, 0), (69, 69, 2), (53, 82, 1), (68, 70, 2),
+    (18, 96, 0), (56, 80, 1), (26, 94, 3), (63, 72, 12), (38, 90, 0), (18, 96, 1), (15, 96, 6), (61, 76, 4), (53, 82, 2), (30, 93, 0),
+    (6, 97, 6), (56, 80, 2), (69, 69, 3), (12, 97, 0), (23, 95, 0), (18, 96, 2), (50, 84, 0), (56, 79, 8), (12, 97, 1), (23, 95, 1),
+    (11, 97, 3), (50, 84, 1), (26, 94, 4), (53, 82, 3), (30, 93, 2), (27, 94, 0), (56, 80, 3), (66, 66, 18), (12, 97, 2), (23, 95, 2),
+    (27, 94, 1), (50, 84, 2), (64, 74, 0), (28, 93, 7), (38, 90, 3), (43, 86, 11), (36, 90, 8), (19, 96, 0), (13, 97, 0), (30, 93, 3),
+    (27, 94, 2), (35, 91, 5), (19, 96, 1), (13, 97, 1), (23, 95, 3), (6, 97, 7), (55, 81, 0), (64, 74, 2), (58, 78, 7), (0, 97, 8),
+    (18, 96, 4), (55, 81, 1), (19, 96, 2), (43, 88, 0), (45, 87, 0), (27, 94, 3), (40, 89, 5), (69, 69, 5), (43, 88, 1), (45, 87, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk095_size : windowChunk095.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk095_checked : checkRows 9500 windowChunk095 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `9600` through `9699`. -/
+private def windowChunk096 : List (ℕ × ℕ × ℕ) :=
+  [
+    (26, 93, 10), (24, 95, 0), (41, 89, 0), (12, 97, 4), (0, 98, 0), (1, 98, 0), (24, 95, 1), (41, 89, 1), (2, 98, 0), (0, 98, 1),
+    (31, 93, 0), (56, 80, 5), (16, 96, 7), (3, 98, 0), (10, 97, 6), (31, 93, 1), (20, 96, 0), (41, 89, 2), (3, 98, 1), (0, 98, 2),
+    (4, 98, 0), (39, 90, 0), (64, 74, 4), (2, 98, 2), (45, 87, 3), (4, 98, 1), (49, 85, 0), (19, 96, 4), (3, 98, 2), (5, 98, 0),
+    (9, 97, 7), (49, 85, 1), (41, 89, 3), (23, 93, 13), (15, 97, 0), (4, 98, 2), (39, 90, 2), (61, 76, 7), (2, 98, 3), (15, 97, 1),
+    (6, 98, 0), (49, 85, 2), (6, 96, 12), (3, 98, 3), (5, 98, 2), (6, 98, 1), (20, 96, 3), (64, 74, 5), (42, 88, 7), (57, 80, 0),
+    (25, 95, 0), (39, 90, 3), (41, 89, 4), (7, 98, 0), (57, 80, 1), (25, 95, 1), (49, 85, 3), (21, 96, 0), (7, 98, 1), (5, 98, 3),
+    (31, 93, 4), (69, 70, 0), (21, 96, 1), (3, 98, 4), (57, 80, 2), (16, 97, 0), (69, 70, 1), (39, 89, 9), (8, 98, 0), (45, 87, 5),
+    (16, 97, 1), (39, 90, 4), (21, 96, 2), (32, 93, 0), (40, 88, 11), (2, 96, 13), (69, 70, 2), (29, 94, 0), (32, 93, 1), (57, 80, 3),
+    (44, 88, 0), (45, 84, 15), (29, 94, 1), (8, 98, 2), (60, 78, 0), (9, 98, 0), (35, 91, 8), (21, 96, 3), (32, 93, 2), (35, 92, 0),
+    (9, 98, 1), (69, 70, 3), (29, 94, 2), (12, 97, 7), (35, 92, 1), (44, 88, 2), (39, 90, 5), (56, 81, 0), (17, 97, 0), (60, 78, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk096_size : windowChunk096.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk096_checked : checkRows 9600 windowChunk096 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `9700` through `9799`. -/
+private def windowChunk097 : List (ℕ × ℕ × ℕ) :=
+  [
+    (22, 96, 0), (26, 95, 0), (56, 81, 1), (17, 97, 1), (10, 98, 0), (22, 96, 1), (26, 95, 1), (29, 94, 3), (28, 93, 10), (10, 98, 1),
+    (44, 88, 3), (69, 70, 4), (56, 81, 2), (17, 97, 2), (60, 78, 3), (22, 96, 2), (26, 95, 2), (19, 96, 7), (8, 98, 4), (10, 98, 2),
+    (18, 96, 8), (64, 75, 0), (59, 79, 0), (32, 93, 4), (57, 80, 5), (11, 98, 0), (64, 75, 1), (59, 79, 1), (17, 97, 3), (30, 93, 8),
+    (11, 98, 1), (26, 95, 3), (21, 96, 5), (18, 97, 0), (10, 98, 3), (9, 98, 4), (30, 94, 0), (59, 79, 2), (33, 93, 0), (35, 92, 4),
+    (11, 98, 2), (30, 94, 1), (41, 89, 7), (33, 93, 1), (0, 98, 7), (23, 96, 0), (40, 89, 9), (56, 81, 4), (12, 98, 0), (55, 82, 0),
+    (23, 96, 1), (30, 94, 2), (59, 79, 3), (12, 98, 1), (27, 95, 0), (11, 98, 3), (20, 96, 7), (19, 96, 8), (7, 98, 6), (27, 95, 1),
+    (36, 92, 0), (39, 90, 7), (21, 96, 6), (12, 98, 2), (58, 80, 0), (36, 92, 1), (30, 94, 3), (34, 91, 11), (33, 93, 3), (45, 88, 0),
+    (19, 97, 0), (64, 75, 4), (59, 79, 4), (13, 98, 0), (45, 88, 1), (19, 97, 1), (26, 95, 5), (6, 96, 14), (47, 87, 0), (58, 80, 2),
+    (6, 98, 7), (41, 90, 0), (29, 94, 6), (47, 87, 1), (45, 88, 2), (19, 97, 2), (41, 90, 1), (26, 94, 10), (13, 98, 2), (60, 78, 6),
+    (36, 92, 3), (25, 94, 11), (24, 96, 0), (47, 87, 2), (58, 80, 3), (23, 96, 4), (41, 90, 2), (31, 94, 0), (12, 98, 4), (45, 88, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk097_size : windowChunk097.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk097_checked : checkRows 9700 windowChunk097 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `9800` through `9899`. -/
+private def windowChunk098 : List (ℕ × ℕ × ℕ) :=
+  [
+    (14, 98, 0), (0, 99, 0), (1, 99, 0), (13, 98, 3), (27, 95, 4), (2, 99, 0), (0, 99, 1), (1, 99, 1), (68, 72, 0), (20, 97, 0),
+    (3, 99, 0), (41, 90, 3), (31, 94, 2), (68, 72, 1), (20, 97, 1), (3, 99, 1), (0, 99, 2), (4, 99, 0), (67, 73, 0), (45, 88, 4),
+    (2, 99, 2), (14, 95, 15), (4, 99, 1), (67, 73, 1), (20, 97, 2), (3, 99, 2), (5, 99, 0), (31, 94, 3), (47, 87, 4), (15, 98, 0),
+    (14, 98, 3), (5, 99, 1), (66, 74, 0), (37, 92, 0), (15, 98, 1), (2, 99, 3), (35, 91, 11), (6, 99, 0), (37, 92, 1), (20, 97, 3),
+    (3, 99, 3), (25, 96, 0), (6, 99, 1), (33, 93, 6), (15, 98, 2), (19, 97, 5), (25, 96, 1), (66, 74, 2), (37, 92, 2), (12, 95, 16),
+    (7, 99, 0), (0, 99, 4), (6, 99, 2), (47, 87, 5), (55, 82, 6), (7, 99, 1), (25, 96, 2), (44, 89, 0), (68, 72, 4), (15, 98, 3),
+    (16, 98, 0), (64, 75, 7), (44, 89, 1), (37, 92, 3), (42, 90, 0), (8, 99, 0), (29, 95, 0), (6, 99, 3), (67, 73, 4), (42, 90, 1),
+    (8, 99, 1), (29, 95, 1), (64, 76, 0), (48, 87, 0), (35, 93, 0), (16, 98, 2), (5, 99, 4), (64, 76, 1), (48, 87, 1), (35, 93, 1),
+    (8, 99, 2), (40, 91, 0), (9, 99, 0), (37, 92, 4), (20, 97, 5), (3, 99, 5), (40, 91, 1), (9, 99, 1), (48, 87, 2), (35, 93, 2),
+    (16, 98, 3), (25, 96, 4), (26, 96, 0), (17, 98, 0), (42, 90, 3), (8, 99, 3), (50, 86, 0), (26, 96, 1), (63, 77, 0), (10, 97, 12)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk098_size : windowChunk098.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk098_checked : checkRows 9800 windowChunk098 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `9900` through `9999`. -/
+private def windowChunk099 : List (ℕ × ℕ × ℕ) :=
+  [
+    (7, 99, 4), (10, 99, 0), (64, 76, 3), (63, 77, 1), (35, 93, 3), (14, 98, 6), (10, 99, 1), (26, 96, 2), (38, 92, 0), (45, 88, 7),
+    (16, 98, 4), (50, 86, 2), (9, 99, 3), (38, 92, 1), (55, 83, 0), (8, 99, 4), (10, 99, 2), (29, 89, 21), (47, 87, 7), (55, 83, 1),
+    (11, 97, 12), (41, 90, 7), (11, 99, 0), (38, 92, 2), (35, 93, 4), (30, 95, 0), (50, 86, 3), (11, 99, 1), (18, 98, 0), (52, 85, 0),
+    (30, 95, 1), (10, 99, 3), (9, 99, 4), (18, 98, 1), (52, 85, 1), (16, 98, 5), (69, 70, 10), (11, 99, 2), (23, 97, 0), (42, 90, 5),
+    (30, 95, 2), (70, 71, 0), (26, 96, 4), (23, 97, 1), (52, 85, 2), (12, 99, 0), (45, 89, 0), (64, 76, 5), (63, 77, 4), (43, 90, 0),
+    (12, 99, 1), (45, 89, 1), (11, 99, 3), (47, 88, 0), (43, 90, 1), (30, 95, 3), (70, 71, 2), (9, 99, 5), (47, 88, 1), (52, 85, 3),
+    (12, 99, 2), (45, 89, 2), (41, 91, 0), (33, 93, 9), (43, 90, 2), (19, 98, 0), (5, 99, 7), (41, 91, 1), (47, 88, 2), (42, 90, 6),
+    (13, 99, 0), (70, 71, 3), (54, 84, 0), (57, 82, 0), (55, 82, 9), (13, 99, 1), (45, 89, 3), (54, 84, 1), (57, 82, 1), (43, 90, 3),
+    (19, 98, 2), (66, 75, 0), (1, 99, 8), (47, 88, 3), (45, 87, 12), (24, 97, 0), (31, 95, 0), (54, 84, 2), (57, 82, 2), (55, 83, 5),
+    (24, 97, 1), (31, 95, 1), (34, 94, 0), (33, 77, 34), (45, 88, 9), (19, 98, 3), (66, 75, 2), (14, 99, 0), (17, 98, 6), (43, 90, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk099_size : windowChunk099.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk099_checked : checkRows 9900 windowChunk099 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `10000` through `10099`. -/
+private def windowChunk100 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 100, 0), (1, 100, 0), (14, 99, 1), (57, 82, 3), (2, 100, 0), (0, 100, 1), (1, 100, 1), (34, 94, 2), (18, 97, 10), (3, 100, 0),
+    (44, 88, 11), (66, 75, 3), (14, 99, 2), (23, 97, 5), (3, 100, 1), (0, 100, 2), (4, 100, 0), (6, 99, 8), (37, 93, 0), (2, 100, 2),
+    (13, 99, 4), (4, 100, 1), (34, 94, 3), (37, 93, 1), (3, 100, 2), (5, 100, 0), (15, 99, 0), (14, 99, 3), (47, 88, 5), (27, 95, 10),
+    (5, 100, 1), (15, 99, 1), (26, 96, 7), (37, 93, 2), (25, 97, 0), (24, 97, 4), (6, 100, 0), (46, 89, 0), (63, 77, 7), (25, 97, 1),
+    (5, 100, 2), (6, 100, 1), (59, 81, 0), (23, 97, 6), (42, 90, 8), (21, 98, 0), (4, 100, 3), (59, 81, 1), (48, 88, 0), (7, 100, 0),
+    (21, 98, 1), (6, 100, 2), (46, 89, 2), (63, 78, 0), (7, 100, 1), (5, 100, 3), (15, 99, 3), (16, 99, 0), (63, 78, 1), (3, 100, 4),
+    (21, 98, 2), (35, 94, 0), (16, 99, 1), (48, 88, 2), (8, 100, 0), (30, 95, 7), (35, 94, 1), (46, 89, 3), (63, 78, 2), (50, 87, 0),
+    (19, 98, 6), (20, 96, 13), (16, 99, 2), (17, 98, 8), (50, 87, 1), (21, 98, 3), (35, 94, 2), (54, 84, 6), (48, 88, 3), (8, 100, 2),
+    (2, 99, 10), (9, 100, 0), (71, 71, 0), (63, 78, 3), (70, 72, 0), (26, 97, 0), (9, 100, 1), (71, 71, 1), (22, 98, 0), (70, 72, 1),
+    (17, 99, 0), (35, 94, 3), (59, 81, 4), (38, 93, 0), (8, 100, 3), (17, 99, 1), (9, 100, 2), (71, 71, 2), (38, 93, 1), (70, 72, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk100_size : windowChunk100.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk100_checked : checkRows 10000 windowChunk100 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `10100` through `10199`. -/
+private def windowChunk101 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 100, 0), (15, 99, 5), (14, 99, 6), (22, 98, 2), (15, 98, 10), (10, 100, 1), (1, 100, 6), (16, 99, 4), (38, 93, 2), (25, 97, 5),
+    (13, 99, 7), (9, 100, 3), (71, 71, 3), (57, 82, 7), (33, 95, 0), (10, 100, 2), (30, 96, 0), (59, 81, 5), (22, 98, 3), (33, 95, 1),
+    (17, 99, 3), (11, 100, 0), (24, 96, 11), (38, 93, 3), (7, 100, 5), (18, 99, 0), (11, 100, 1), (31, 94, 11), (63, 78, 5), (33, 95, 2),
+    (43, 91, 0), (30, 96, 2), (36, 94, 0), (23, 98, 0), (70, 72, 4), (43, 91, 1), (11, 100, 2), (36, 94, 1), (27, 97, 0), (8, 100, 5),
+    (18, 99, 2), (54, 85, 0), (46, 89, 6), (27, 97, 1), (12, 100, 0), (41, 92, 0), (54, 85, 1), (36, 94, 2), (23, 98, 2), (12, 100, 1),
+    (41, 92, 1), (11, 100, 3), (54, 84, 8), (27, 97, 2), (65, 77, 0), (18, 99, 3), (54, 85, 2), (71, 71, 5), (63, 78, 6), (65, 77, 1),
+    (41, 92, 2), (60, 81, 0), (19, 99, 0), (23, 98, 3), (33, 95, 4), (17, 99, 5), (60, 81, 1), (19, 99, 1), (27, 97, 3), (13, 100, 0),
+    (39, 93, 0), (54, 85, 3), (34, 94, 8), (63, 77, 10), (13, 100, 1), (39, 93, 1), (60, 81, 2), (31, 96, 0), (47, 88, 9), (45, 83, 22),
+    (24, 98, 0), (34, 95, 0), (31, 96, 1), (23, 98, 4), (13, 100, 2), (24, 98, 1), (34, 95, 1), (71, 71, 6), (27, 97, 4), (33, 95, 5),
+    (26, 97, 6), (60, 81, 3), (56, 84, 0), (28, 97, 0), (12, 100, 4), (24, 98, 2), (14, 100, 0), (56, 84, 1), (28, 97, 1), (13, 100, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk101_size : windowChunk101.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk101_checked : checkRows 10100 windowChunk101 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `10200` through `10299`. -/
+private def windowChunk102 : List (ℕ × ℕ × ℕ) :=
+  [
+    (39, 93, 3), (0, 101, 0), (1, 101, 0), (18, 98, 10), (65, 77, 4), (2, 101, 0), (0, 101, 1), (1, 101, 1), (28, 97, 2), (50, 87, 7),
+    (3, 101, 0), (14, 100, 2), (19, 99, 4), (27, 97, 5), (25, 97, 8), (3, 101, 1), (46, 90, 0), (4, 101, 0), (32, 87, 25), (13, 100, 4),
+    (2, 101, 2), (46, 90, 1), (4, 101, 1), (28, 97, 3), (70, 72, 7), (15, 100, 0), (5, 101, 0), (31, 96, 4), (42, 92, 0), (25, 98, 0),
+    (15, 100, 1), (5, 101, 1), (4, 101, 2), (42, 92, 1), (25, 98, 1), (2, 101, 3), (60, 81, 5), (6, 101, 0), (23, 98, 6), (33, 90, 20),
+    (32, 96, 0), (5, 101, 2), (21, 99, 0), (42, 92, 2), (50, 88, 0), (32, 96, 1), (46, 90, 3), (21, 99, 1), (57, 82, 10), (40, 93, 0),
+    (7, 101, 0), (0, 101, 4), (6, 101, 2), (58, 83, 0), (40, 93, 1), (7, 101, 1), (16, 100, 0), (21, 99, 2), (58, 83, 1), (50, 88, 2),
+    (3, 101, 4), (16, 100, 1), (71, 71, 8), (48, 87, 12), (40, 93, 2), (8, 101, 0), (46, 90, 4), (6, 101, 3), (58, 83, 2), (30, 88, 25),
+    (8, 101, 1), (16, 100, 2), (21, 99, 3), (52, 87, 0), (50, 88, 3), (15, 100, 4), (5, 101, 4), (1, 101, 5), (52, 87, 1), (40, 93, 3),
+    (26, 98, 0), (54, 85, 7), (9, 101, 0), (58, 83, 3), (12, 100, 7), (22, 99, 0), (16, 100, 3), (9, 101, 1), (52, 87, 2), (17, 100, 0),
+    (22, 99, 1), (46, 90, 5), (21, 99, 4), (37, 93, 10), (17, 100, 1), (26, 98, 2), (30, 96, 8), (9, 101, 2), (28, 97, 6), (40, 93, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk102_size : windowChunk102.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk102_checked : checkRows 10200 windowChunk102 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `10300` through `10399`. -/
+private def windowChunk103 : List (ℕ × ℕ × ℕ) :=
+  [
+    (22, 99, 2), (10, 101, 0), (19, 99, 7), (52, 87, 3), (17, 100, 2), (33, 96, 0), (45, 91, 0), (1, 101, 6), (63, 72, 21), (30, 97, 0),
+    (33, 96, 1), (45, 91, 1), (54, 86, 0), (43, 92, 0), (30, 97, 1), (22, 99, 3), (10, 101, 2), (54, 86, 1), (43, 92, 1), (17, 100, 3),
+    (33, 96, 2), (36, 95, 0), (11, 101, 0), (52, 87, 4), (18, 100, 0), (7, 101, 5), (36, 95, 1), (11, 101, 1), (43, 92, 2), (18, 100, 1),
+    (23, 99, 0), (10, 101, 3), (9, 101, 4), (27, 98, 0), (25, 98, 6), (23, 99, 1), (36, 95, 2), (64, 79, 0), (27, 98, 1), (18, 100, 2),
+    (8, 101, 5), (0, 101, 7), (64, 79, 1), (43, 92, 3), (50, 87, 10), (12, 101, 0), (11, 100, 9), (21, 99, 6), (27, 98, 2), (50, 88, 6),
+    (12, 101, 1), (36, 95, 3), (64, 79, 2), (63, 77, 13), (18, 100, 3), (33, 96, 4), (45, 91, 4), (39, 94, 0), (58, 83, 6), (30, 97, 4),
+    (12, 101, 2), (19, 100, 0), (39, 94, 1), (27, 98, 3), (17, 100, 5), (15, 100, 7), (19, 100, 1), (64, 79, 3), (72, 72, 0), (63, 80, 0),
+    (13, 101, 0), (36, 95, 4), (34, 96, 0), (72, 72, 1), (63, 80, 1), (13, 101, 1), (70, 74, 0), (24, 99, 0), (53, 87, 0), (65, 77, 9),
+    (23, 99, 4), (70, 74, 1), (24, 99, 1), (53, 87, 1), (63, 80, 2), (13, 101, 2), (69, 75, 0), (34, 96, 2), (28, 98, 0), (40, 93, 7),
+    (22, 99, 6), (69, 75, 1), (24, 99, 2), (28, 98, 1), (37, 95, 0), (12, 101, 4), (36, 95, 5), (14, 101, 0), (72, 72, 3), (37, 95, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk103_size : windowChunk103.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk103_checked : checkRows 10300 windowChunk103 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `10400` through `10499`. -/
+private def windowChunk104 : List (ℕ × ℕ × ℕ) :=
+  [
+    (20, 100, 0), (69, 75, 2), (14, 101, 1), (28, 98, 2), (0, 102, 0), (1, 102, 0), (70, 74, 3), (24, 99, 3), (2, 102, 0), (0, 102, 1),
+    (1, 102, 1), (19, 100, 4), (14, 101, 2), (3, 102, 0), (30, 97, 6), (20, 100, 2), (69, 75, 3), (54, 86, 6), (67, 77, 0), (0, 102, 2),
+    (4, 102, 0), (50, 89, 0), (34, 96, 4), (67, 77, 1), (37, 95, 3), (4, 102, 1), (15, 101, 0), (14, 101, 3), (3, 102, 2), (5, 102, 0),
+    (20, 100, 3), (15, 101, 1), (39, 94, 5), (32, 97, 0), (5, 102, 1), (4, 102, 2), (40, 94, 0), (19, 99, 10), (32, 97, 1), (7, 100, 12),
+    (6, 102, 0), (21, 100, 0), (64, 79, 6), (3, 102, 3), (5, 102, 2), (29, 98, 0), (21, 100, 1), (14, 101, 4), (52, 88, 0), (30, 97, 7),
+    (29, 98, 1), (40, 94, 2), (24, 99, 5), (7, 102, 0), (0, 102, 4), (6, 102, 2), (21, 100, 2), (16, 101, 0), (7, 102, 1), (5, 102, 3),
+    (29, 98, 2), (69, 75, 5), (16, 101, 1), (52, 88, 2), (18, 100, 7), (22, 99, 8), (65, 79, 0), (21, 99, 9), (8, 102, 0), (38, 95, 0),
+    (6, 102, 3), (65, 79, 1), (16, 101, 2), (8, 102, 1), (57, 85, 0), (29, 98, 3), (15, 101, 4), (26, 99, 0), (52, 88, 3), (57, 85, 1),
+    (1, 102, 5), (65, 79, 2), (26, 99, 1), (8, 102, 2), (22, 100, 0), (9, 102, 0), (40, 94, 4), (16, 101, 3), (3, 102, 5), (45, 92, 0),
+    (17, 101, 0), (21, 100, 4), (26, 99, 2), (67, 77, 5), (45, 92, 1), (17, 101, 1), (64, 80, 0), (39, 94, 7), (33, 97, 0), (22, 100, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk104_size : windowChunk104.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk104_checked : checkRows 10400 windowChunk104 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `10500` through `10599`. -/
+private def windowChunk105 : List (ℕ × ℕ × ℕ) :=
+  [
+    (9, 102, 2), (49, 90, 0), (14, 101, 6), (33, 97, 1), (10, 102, 0), (17, 101, 2), (49, 90, 1), (26, 99, 3), (32, 97, 5), (10, 102, 1),
+    (1, 102, 6), (64, 80, 2), (36, 96, 0), (72, 73, 0), (22, 100, 3), (9, 102, 3), (49, 90, 2), (41, 94, 0), (72, 73, 1), (10, 102, 2),
+    (17, 101, 3), (25, 96, 16), (51, 89, 0), (52, 88, 5), (57, 85, 4), (11, 102, 0), (64, 80, 3), (51, 89, 1), (72, 73, 2), (23, 100, 0),
+    (27, 99, 0), (49, 90, 3), (56, 86, 0), (27, 93, 21), (23, 100, 1), (27, 99, 1), (9, 100, 13), (59, 84, 0), (32, 97, 6), (45, 92, 4),
+    (11, 102, 2), (65, 79, 5), (59, 84, 1), (72, 73, 3), (23, 100, 2), (27, 99, 2), (39, 95, 0), (56, 86, 2), (12, 102, 0), (57, 85, 5),
+    (29, 98, 6), (39, 95, 1), (59, 84, 2), (53, 88, 0), (10, 102, 4), (11, 102, 3), (70, 74, 8), (24, 99, 8), (53, 88, 1), (23, 100, 3),
+    (27, 99, 3), (39, 95, 2), (19, 101, 0), (12, 102, 2), (45, 92, 5), (31, 98, 0), (15, 101, 7), (19, 101, 1), (62, 82, 0), (5, 102, 7),
+    (31, 98, 1), (64, 80, 5), (51, 89, 4), (13, 102, 0), (38, 95, 6), (11, 102, 4), (24, 100, 0), (19, 101, 2), (13, 102, 1), (23, 100, 4),
+    (46, 92, 0), (24, 100, 1), (56, 86, 4), (62, 82, 2), (0, 102, 8), (28, 99, 0), (19, 100, 9), (59, 84, 4), (13, 102, 2), (58, 85, 0),
+    (28, 99, 1), (24, 100, 2), (19, 101, 3), (7, 102, 7), (55, 87, 0), (46, 92, 2), (39, 95, 4), (66, 79, 0), (62, 82, 3), (55, 87, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk105_size : windowChunk105.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk105_checked : checkRows 10500 windowChunk105 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `10600` through `10699`. -/
+private def windowChunk106 : List (ℕ × ℕ × ℕ) :=
+  [
+    (14, 102, 0), (20, 101, 0), (66, 79, 1), (13, 102, 3), (58, 85, 2), (14, 102, 1), (20, 101, 1), (56, 86, 5), (8, 102, 7), (0, 103, 0),
+    (1, 103, 0), (69, 75, 9), (66, 79, 2), (2, 103, 0), (0, 103, 1), (1, 103, 1), (20, 101, 2), (36, 96, 6), (3, 103, 0), (58, 85, 3),
+    (6, 102, 8), (39, 95, 5), (41, 94, 6), (3, 103, 1), (0, 103, 2), (4, 103, 0), (24, 100, 4), (66, 79, 3), (32, 98, 0), (15, 102, 0),
+    (4, 103, 1), (20, 101, 3), (39, 94, 10), (32, 98, 1), (5, 103, 0), (28, 99, 4), (64, 80, 7), (19, 101, 5), (33, 97, 7), (5, 103, 1),
+    (4, 103, 2), (49, 90, 7), (21, 101, 0), (32, 98, 2), (15, 102, 2), (6, 103, 0), (65, 79, 8), (21, 101, 1), (3, 103, 3), (5, 103, 2),
+    (6, 103, 1), (20, 101, 4), (36, 96, 7), (12, 102, 6), (57, 85, 8), (4, 103, 3), (60, 84, 0), (64, 81, 0), (7, 103, 0), (15, 102, 3),
+    (16, 102, 0), (60, 84, 1), (64, 81, 1), (7, 103, 1), (5, 103, 3), (16, 102, 1), (71, 75, 0), (19, 101, 6), (3, 103, 4), (55, 87, 5),
+    (31, 98, 6), (71, 75, 1), (64, 81, 2), (8, 103, 0), (45, 93, 0), (16, 102, 2), (26, 100, 0), (59, 84, 7), (8, 103, 1), (45, 93, 1),
+    (1, 102, 10), (26, 100, 1), (49, 91, 0), (2, 102, 10), (5, 103, 4), (22, 101, 0), (60, 84, 3), (49, 91, 1), (8, 103, 2), (45, 93, 2),
+    (9, 103, 0), (26, 100, 2), (21, 101, 4), (17, 102, 0), (58, 85, 6), (9, 103, 1), (71, 75, 3), (49, 91, 2), (17, 102, 1), (55, 87, 6)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk106_size : windowChunk106.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk106_checked : checkRows 10600 windowChunk106 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `10700` through `10799`. -/
+private def windowChunk107 : List (ℕ × ℕ × ℕ) :=
+  [
+    (22, 101, 2), (30, 99, 0), (66, 79, 6), (8, 103, 3), (45, 93, 3), (36, 97, 0), (41, 95, 0), (64, 81, 4), (68, 78, 0), (10, 103, 0),
+    (36, 97, 1), (41, 95, 1), (49, 91, 3), (68, 78, 1), (10, 103, 1), (22, 101, 3), (30, 99, 2), (21, 101, 5), (2, 103, 6), (42, 90, 18),
+    (36, 97, 2), (41, 95, 2), (59, 81, 16), (68, 78, 2), (10, 103, 2), (28, 99, 7), (26, 100, 4), (14, 101, 11), (18, 102, 0), (27, 100, 0),
+    (11, 103, 0), (30, 99, 3), (49, 91, 4), (62, 83, 0), (27, 100, 1), (11, 103, 1), (41, 95, 3), (39, 96, 0), (62, 83, 1), (10, 103, 3),
+    (9, 103, 4), (71, 75, 5), (39, 96, 1), (18, 102, 2), (27, 100, 2), (11, 103, 2), (66, 75, 17), (21, 101, 6), (62, 83, 2), (45, 93, 5),
+    (6, 103, 6), (30, 99, 4), (39, 96, 2), (12, 103, 0), (23, 100, 9), (36, 97, 4), (66, 80, 0), (49, 91, 5), (12, 103, 1), (27, 100, 3),
+    (34, 98, 0), (66, 80, 1), (31, 99, 0), (62, 83, 3), (45, 92, 10), (19, 102, 0), (40, 94, 11), (31, 99, 1), (48, 92, 0), (55, 88, 0),
+    (19, 102, 1), (66, 80, 2), (44, 94, 0), (48, 92, 1), (55, 88, 1), (34, 98, 2), (30, 99, 5), (24, 101, 0), (13, 103, 0), (27, 100, 4),
+    (19, 102, 2), (50, 91, 0), (24, 101, 1), (13, 103, 1), (28, 100, 0), (6, 103, 7), (65, 81, 0), (44, 94, 2), (72, 73, 10), (42, 95, 0),
+    (34, 98, 3), (65, 81, 1), (24, 101, 2), (13, 103, 2), (42, 95, 1), (19, 102, 3), (50, 91, 2), (64, 81, 7), (48, 92, 3), (28, 100, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk107_size : windowChunk107.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk107_checked : checkRows 10700 windowChunk107 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `10800` through `10899`. -/
+private def windowChunk108 : List (ℕ × ℕ × ℕ) :=
+  [
+    (16, 102, 7), (65, 81, 2), (44, 94, 3), (12, 103, 4), (20, 102, 0), (14, 103, 0), (66, 80, 4), (24, 101, 3), (13, 103, 3), (72, 75, 0),
+    (14, 103, 1), (50, 91, 3), (31, 99, 4), (68, 78, 6), (72, 75, 1), (19, 102, 4), (0, 104, 0), (1, 104, 0), (57, 87, 0), (20, 102, 2),
+    (2, 104, 0), (0, 104, 1), (1, 104, 1), (57, 87, 1), (72, 75, 2), (3, 104, 0), (25, 101, 0), (24, 101, 4), (13, 103, 4), (35, 98, 0),
+    (3, 104, 1), (25, 101, 1), (4, 104, 0), (57, 87, 2), (15, 103, 0), (2, 104, 2), (65, 81, 4), (54, 89, 0), (62, 83, 6), (15, 103, 1),
+    (3, 104, 2), (5, 104, 0), (54, 89, 1), (48, 92, 5), (35, 98, 2), (21, 102, 0), (5, 104, 1), (4, 104, 2), (57, 87, 3), (15, 103, 2),
+    (21, 102, 1), (24, 100, 10), (6, 104, 0), (38, 97, 0), (20, 102, 4), (3, 104, 3), (5, 104, 2), (6, 104, 1), (47, 93, 0), (35, 98, 3),
+    (21, 102, 2), (45, 94, 0), (4, 104, 3), (47, 93, 1), (15, 103, 3), (7, 104, 0), (45, 94, 1), (6, 104, 2), (38, 97, 2), (27, 100, 7),
+    (7, 104, 1), (5, 104, 3), (66, 79, 10), (47, 93, 2), (43, 95, 0), (21, 102, 3), (45, 94, 2), (26, 101, 0), (12, 102, 11), (43, 95, 1),
+    (8, 104, 0), (30, 99, 8), (51, 91, 0), (38, 97, 3), (15, 103, 4), (8, 104, 1), (50, 91, 6), (51, 91, 1), (22, 102, 0), (67, 80, 0),
+    (33, 99, 0), (45, 94, 3), (26, 101, 2), (22, 102, 1), (67, 80, 1), (33, 99, 1), (66, 80, 7), (9, 104, 0), (17, 103, 0), (45, 93, 9)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk108_size : windowChunk108.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk108_checked : checkRows 10800 windowChunk108 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `10900` through `10999`. -/
+private def windowChunk109 : List (ℕ × ℕ × ℕ) :=
+  [
+    (30, 100, 0), (25, 101, 5), (9, 104, 1), (17, 103, 1), (67, 80, 2), (30, 100, 1), (24, 100, 11), (26, 101, 3), (47, 93, 4), (53, 90, 0),
+    (8, 104, 3), (45, 94, 4), (9, 104, 2), (17, 103, 2), (53, 90, 1), (30, 100, 2), (10, 104, 0), (66, 81, 0), (22, 102, 3), (67, 80, 3),
+    (33, 99, 3), (10, 104, 1), (66, 81, 1), (57, 87, 6), (53, 90, 2), (2, 104, 6), (65, 81, 7), (9, 104, 3), (17, 103, 3), (42, 95, 7),
+    (27, 101, 0), (10, 104, 2), (66, 81, 2), (18, 103, 0), (35, 98, 6), (27, 101, 1), (45, 94, 5), (11, 104, 0), (18, 103, 1), (53, 90, 3),
+    (33, 99, 4), (71, 75, 10), (11, 104, 1), (2, 103, 11), (20, 102, 7), (27, 101, 2), (55, 89, 0), (66, 81, 3), (18, 103, 2), (65, 82, 0),
+    (30, 100, 4), (55, 89, 1), (46, 94, 0), (48, 93, 0), (73, 75, 0), (8, 104, 5), (0, 104, 7), (34, 99, 0), (48, 93, 1), (73, 75, 1),
+    (12, 104, 0), (31, 100, 0), (34, 99, 1), (18, 103, 3), (50, 92, 0), (12, 104, 1), (31, 100, 1), (46, 94, 2), (48, 93, 2), (50, 92, 1),
+    (19, 103, 0), (30, 96, 18), (34, 99, 2), (37, 98, 0), (15, 103, 7), (19, 103, 1), (31, 100, 2), (54, 89, 7), (37, 98, 1), (50, 92, 2),
+    (24, 102, 0), (5, 104, 7), (46, 94, 3), (48, 93, 3), (70, 78, 0), (13, 104, 0), (60, 84, 11), (34, 99, 3), (37, 98, 2), (70, 78, 1),
+    (13, 104, 1), (31, 100, 3), (66, 81, 5), (57, 88, 0), (50, 92, 3), (24, 102, 2), (60, 86, 0), (1, 104, 8), (57, 88, 1), (70, 78, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk109_size : windowChunk109.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk109_checked : checkRows 10900 windowChunk109 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `11000` through `11099`. -/
+private def windowChunk110 : List (ℕ × ℕ × ℕ) :=
+  [
+    (13, 104, 2), (60, 86, 1), (69, 79, 0), (37, 98, 3), (73, 75, 4), (27, 101, 5), (25, 101, 8), (69, 79, 1), (57, 88, 2), (20, 103, 0),
+    (24, 102, 3), (60, 86, 2), (14, 104, 0), (3, 102, 15), (20, 103, 1), (13, 104, 3), (54, 90, 0), (14, 104, 1), (32, 98, 12), (15, 102, 12),
+    (19, 103, 4), (54, 90, 1), (66, 81, 6), (57, 88, 3), (32, 100, 0), (0, 105, 0), (1, 105, 0), (14, 104, 2), (48, 93, 5), (2, 105, 0),
+    (0, 105, 1), (1, 105, 1), (69, 79, 3), (38, 97, 8), (3, 105, 0), (13, 104, 4), (31, 100, 5), (9, 104, 7), (18, 103, 6), (3, 105, 1),
+    (0, 105, 2), (4, 105, 0), (29, 101, 0), (57, 88, 4), (2, 105, 2), (47, 94, 0), (4, 105, 1), (29, 101, 1), (38, 98, 0), (3, 105, 2),
+    (5, 105, 0), (55, 89, 6), (69, 79, 4), (38, 98, 1), (32, 100, 3), (5, 105, 1), (4, 105, 2), (56, 89, 0), (48, 93, 6), (2, 105, 3),
+    (47, 94, 2), (6, 105, 0), (56, 89, 1), (38, 98, 2), (3, 105, 3), (43, 96, 0), (6, 105, 1), (39, 96, 11), (57, 88, 5), (62, 85, 0),
+    (43, 96, 1), (4, 105, 3), (16, 104, 0), (18, 103, 7), (7, 105, 0), (47, 94, 3), (6, 105, 2), (16, 104, 1), (38, 98, 3), (7, 105, 1),
+    (26, 102, 0), (5, 101, 18), (36, 94, 19), (47, 93, 9), (62, 85, 2), (26, 102, 1), (55, 89, 7), (16, 104, 2), (2, 102, 16), (8, 105, 0),
+    (41, 97, 0), (6, 105, 3), (29, 101, 4), (22, 103, 0), (8, 105, 1), (41, 97, 1), (10, 104, 8), (36, 99, 0), (22, 103, 1), (62, 85, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk110_size : windowChunk110.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk110_checked : checkRows 11000 windowChunk110 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `11100` through `11199`. -/
+private def windowChunk111 : List (ℕ × ℕ × ℕ) :=
+  [
+    (5, 105, 4), (30, 101, 0), (36, 99, 1), (63, 78, 20), (8, 105, 2), (17, 104, 0), (9, 105, 0), (56, 89, 4), (58, 88, 0), (3, 105, 5),
+    (17, 104, 1), (9, 105, 1), (36, 99, 2), (72, 77, 0), (65, 83, 0), (43, 96, 4), (30, 101, 2), (61, 86, 0), (72, 77, 1), (65, 83, 1),
+    (17, 104, 2), (9, 105, 2), (61, 86, 1), (58, 88, 2), (7, 105, 4), (10, 105, 0), (55, 89, 8), (36, 99, 3), (72, 77, 2), (65, 83, 2),
+    (10, 105, 1), (30, 101, 3), (61, 86, 2), (27, 102, 0), (2, 105, 6), (17, 104, 3), (9, 105, 3), (34, 99, 8), (23, 103, 0), (8, 105, 4),
+    (18, 104, 0), (46, 95, 0), (69, 79, 7), (23, 103, 1), (65, 83, 3), (18, 104, 1), (11, 105, 0), (61, 86, 3), (27, 102, 2), (50, 93, 0),
+    (47, 94, 6), (11, 105, 1), (44, 96, 0), (23, 103, 2), (50, 93, 1), (18, 104, 2), (34, 100, 0), (44, 96, 1), (58, 88, 4), (35, 98, 11),
+    (24, 102, 8), (69, 80, 0), (31, 101, 0), (27, 102, 3), (50, 93, 2), (41, 97, 5), (69, 80, 1), (31, 101, 1), (52, 92, 0), (12, 105, 0),
+    (37, 99, 0), (34, 100, 2), (36, 99, 5), (42, 97, 0), (12, 105, 1), (37, 99, 1), (69, 80, 2), (19, 104, 0), (42, 97, 1), (50, 93, 3),
+    (17, 104, 5), (9, 105, 5), (19, 104, 1), (52, 92, 2), (12, 105, 2), (24, 103, 0), (34, 100, 3), (6, 101, 19), (28, 102, 0), (65, 83, 5),
+    (24, 103, 1), (69, 80, 3), (19, 104, 2), (28, 102, 1), (13, 105, 0), (41, 97, 6), (11, 105, 4), (54, 91, 0), (52, 92, 3), (13, 105, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk111_size : windowChunk111.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk111_checked : checkRows 11100 windowChunk111 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `11200` through `11299`. -/
+private def windowChunk112 : List (ℕ × ℕ × ℕ) :=
+  [
+    (24, 103, 2), (6, 105, 7), (54, 91, 1), (28, 102, 2), (40, 98, 0), (43, 96, 7), (34, 100, 4), (19, 104, 3), (27, 102, 5), (40, 98, 1),
+    (17, 104, 6), (69, 80, 4), (54, 91, 2), (67, 82, 0), (7, 105, 7), (24, 103, 3), (20, 104, 0), (31, 99, 13), (67, 82, 1), (40, 98, 2),
+    (37, 99, 4), (14, 105, 0), (61, 86, 6), (42, 97, 4), (13, 105, 3), (32, 101, 0), (14, 105, 1), (54, 91, 3), (67, 82, 2), (8, 105, 7),
+    (32, 101, 1), (20, 104, 2), (34, 99, 10), (22, 103, 7), (25, 103, 0), (24, 103, 4), (0, 106, 0), (1, 106, 0), (28, 102, 4), (25, 103, 1),
+    (2, 106, 0), (45, 96, 0), (1, 106, 1), (67, 82, 3), (13, 105, 4), (3, 106, 0), (45, 96, 1), (54, 91, 4), (42, 97, 5), (25, 103, 2),
+    (15, 105, 0), (0, 106, 2), (4, 106, 0), (72, 77, 7), (40, 98, 4), (15, 105, 1), (45, 96, 2), (21, 104, 0), (43, 97, 0), (3, 105, 9),
+    (3, 106, 2), (5, 106, 0), (21, 104, 1), (43, 97, 1), (25, 103, 3), (15, 105, 2), (5, 106, 1), (4, 106, 2), (72, 78, 0), (13, 105, 5),
+    (2, 106, 3), (45, 96, 3), (6, 106, 0), (53, 92, 0), (12, 105, 6), (3, 106, 3), (5, 106, 2), (6, 106, 1), (53, 92, 1), (40, 98, 5),
+    (15, 105, 3), (16, 105, 0), (71, 79, 0), (72, 78, 2), (25, 103, 4), (7, 106, 0), (16, 105, 1), (71, 79, 1), (53, 92, 2), (50, 93, 7),
+    (33, 101, 0), (5, 106, 3), (44, 96, 7), (28, 102, 6), (65, 83, 8), (33, 101, 1), (36, 100, 0), (71, 79, 2), (72, 78, 3), (13, 105, 6)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk112_size : windowChunk112.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk112_checked : checkRows 11200 windowChunk112 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `11300` through `11399`. -/
+private def windowChunk113 : List (ℕ × ℕ × ℕ) :=
+  [
+    (8, 106, 0), (36, 100, 1), (6, 106, 3), (53, 92, 3), (30, 102, 0), (8, 106, 1), (55, 91, 0), (21, 104, 4), (43, 97, 4), (30, 102, 1),
+    (37, 99, 7), (55, 91, 1), (71, 79, 3), (42, 97, 7), (17, 105, 0), (8, 106, 2), (45, 96, 5), (9, 106, 0), (72, 78, 4), (17, 105, 1),
+    (33, 101, 3), (64, 85, 0), (39, 99, 0), (53, 92, 4), (38, 95, 18), (15, 105, 5), (64, 85, 1), (39, 99, 1), (28, 102, 7), (48, 95, 0),
+    (8, 106, 3), (16, 105, 4), (46, 96, 0), (43, 97, 5), (48, 95, 1), (7, 106, 4), (10, 106, 0), (46, 96, 1), (27, 103, 0), (25, 103, 6),
+    (33, 101, 4), (10, 106, 1), (1, 106, 6), (27, 103, 1), (60, 88, 0), (23, 104, 0), (36, 100, 4), (46, 96, 2), (68, 82, 0), (18, 105, 0),
+    (23, 104, 1), (10, 106, 2), (39, 99, 3), (52, 93, 0), (18, 105, 1), (15, 105, 6), (55, 91, 4), (11, 106, 0), (52, 93, 1), (60, 88, 2),
+    (23, 104, 2), (14, 105, 7), (11, 106, 1), (68, 82, 2), (18, 105, 2), (31, 102, 0), (10, 106, 3), (9, 106, 4), (42, 98, 0), (37, 100, 0),
+    (31, 102, 1), (64, 85, 4), (11, 106, 2), (42, 98, 1), (37, 100, 1), (23, 104, 3), (0, 106, 7), (6, 106, 6), (67, 83, 0), (18, 105, 3),
+    (12, 106, 0), (55, 91, 5), (46, 96, 4), (67, 83, 1), (37, 100, 2), (12, 106, 1), (19, 105, 0), (11, 106, 3), (27, 103, 4), (17, 105, 5),
+    (7, 106, 6), (19, 105, 1), (24, 104, 0), (28, 103, 0), (60, 88, 4), (12, 106, 2), (64, 85, 5), (24, 104, 1), (28, 103, 1), (37, 100, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk113_size : windowChunk113.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk113_checked : checkRows 11300 windowChunk113 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `11400` through `11499`. -/
+private def windowChunk114 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 105, 10), (40, 99, 0), (59, 89, 0), (52, 93, 4), (48, 95, 5), (13, 106, 0), (40, 99, 1), (59, 89, 1), (28, 103, 2), (30, 102, 6),
+    (13, 106, 1), (10, 106, 5), (66, 84, 0), (62, 87, 0), (25, 103, 8), (31, 102, 4), (40, 99, 2), (56, 91, 0), (62, 87, 1), (37, 100, 4),
+    (13, 106, 2), (16, 105, 7), (56, 91, 1), (28, 103, 3), (18, 105, 5), (20, 105, 0), (35, 101, 0), (66, 84, 2), (32, 102, 0), (40, 98, 9),
+    (20, 105, 1), (35, 101, 1), (14, 106, 0), (32, 102, 1), (45, 97, 0), (13, 106, 3), (19, 105, 4), (51, 94, 0), (43, 97, 8), (45, 97, 1),
+    (20, 105, 2), (25, 104, 0), (51, 94, 1), (32, 102, 2), (38, 100, 0), (37, 99, 10), (25, 104, 1), (14, 106, 2), (72, 78, 8), (0, 107, 0),
+    (1, 107, 0), (40, 99, 4), (51, 94, 2), (2, 107, 0), (0, 107, 1), (1, 107, 1), (25, 104, 2), (9, 106, 7), (3, 107, 0), (38, 100, 2),
+    (24, 103, 10), (15, 106, 0), (14, 106, 3), (3, 107, 1), (58, 90, 0), (4, 107, 0), (21, 105, 0), (51, 94, 3), (2, 107, 2), (58, 90, 1),
+    (4, 107, 1), (21, 105, 1), (46, 96, 7), (3, 107, 2), (5, 107, 0), (20, 105, 4), (15, 106, 2), (59, 89, 5), (32, 102, 4), (5, 107, 1),
+    (4, 107, 2), (21, 105, 2), (41, 99, 0), (2, 107, 3), (45, 97, 4), (6, 107, 0), (55, 91, 8), (41, 99, 1), (3, 107, 3), (55, 92, 0),
+    (6, 107, 1), (15, 106, 3), (16, 106, 0), (33, 102, 0), (55, 92, 1), (4, 107, 3), (21, 105, 3), (36, 101, 0), (7, 107, 0), (0, 107, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk114_size : windowChunk114.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk114_checked : checkRows 11400 windowChunk114 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `11500` through `11599`. -/
+private def windowChunk115 : List (ℕ × ℕ × ℕ) :=
+  [
+    (6, 107, 2), (35, 101, 5), (36, 101, 1), (7, 107, 1), (55, 92, 2), (31, 102, 7), (40, 99, 6), (16, 106, 2), (33, 102, 2), (22, 105, 0),
+    (13, 106, 6), (15, 106, 4), (36, 101, 2), (8, 107, 0), (22, 105, 1), (6, 107, 3), (21, 105, 4), (66, 84, 6), (8, 107, 1), (55, 92, 3),
+    (48, 96, 0), (39, 100, 0), (16, 106, 3), (33, 102, 3), (22, 105, 2), (17, 106, 0), (39, 100, 1), (36, 101, 3), (8, 107, 2), (18, 105, 8),
+    (9, 107, 0), (35, 101, 6), (41, 99, 4), (3, 107, 5), (40, 98, 11), (9, 107, 1), (39, 100, 2), (14, 106, 6), (63, 87, 0), (22, 105, 3),
+    (44, 98, 0), (21, 105, 5), (16, 106, 4), (63, 87, 1), (8, 105, 13), (27, 104, 0), (25, 104, 6), (36, 101, 4), (7, 107, 4), (10, 107, 0),
+    (27, 104, 1), (39, 100, 3), (76, 76, 0), (63, 87, 2), (23, 105, 0), (44, 98, 2), (16, 105, 10), (76, 76, 1), (2, 107, 6), (23, 105, 1),
+    (18, 106, 0), (10, 106, 9), (51, 91, 16), (8, 107, 4), (10, 107, 2), (42, 99, 0), (15, 106, 6), (76, 76, 2), (63, 87, 3), (23, 105, 2),
+    (11, 107, 0), (39, 100, 4), (36, 101, 5), (7, 107, 5), (45, 97, 7), (11, 107, 1), (50, 89, 21), (51, 94, 7), (52, 93, 9), (10, 107, 3),
+    (42, 99, 2), (59, 90, 0), (76, 76, 3), (57, 87, 17), (72, 80, 0), (11, 107, 2), (59, 90, 1), (41, 99, 6), (62, 88, 0), (72, 80, 1),
+    (18, 106, 3), (5, 106, 11), (66, 84, 8), (12, 107, 0), (55, 92, 6), (42, 99, 3), (59, 90, 2), (19, 106, 0), (12, 107, 1), (72, 80, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk115_size : windowChunk115.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk115_checked : checkRows 11500 windowChunk115 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `11600` through `11699`. -/
+private def windowChunk116 : List (ℕ × ℕ × ℕ) :=
+  [
+    (28, 104, 0), (24, 105, 0), (71, 81, 0), (62, 88, 2), (23, 105, 4), (28, 104, 1), (24, 105, 1), (71, 81, 1), (12, 107, 2), (20, 103, 15),
+    (18, 106, 4), (59, 90, 3), (19, 106, 2), (63, 87, 5), (72, 80, 3), (28, 104, 2), (24, 105, 2), (49, 96, 0), (13, 107, 0), (60, 88, 10),
+    (11, 107, 4), (65, 86, 0), (49, 96, 1), (13, 107, 1), (70, 82, 0), (48, 96, 6), (51, 95, 0), (19, 106, 3), (52, 93, 10), (35, 102, 0),
+    (28, 104, 3), (51, 95, 1), (49, 96, 2), (32, 103, 0), (35, 102, 1), (18, 106, 5), (20, 106, 0), (36, 101, 7), (32, 103, 1), (70, 82, 2),
+    (42, 99, 5), (20, 106, 1), (61, 89, 0), (12, 107, 4), (35, 102, 2), (14, 107, 0), (21, 105, 8), (61, 89, 1), (32, 103, 2), (22, 105, 7),
+    (25, 105, 0), (20, 106, 2), (71, 81, 4), (8, 107, 7), (70, 82, 3), (25, 105, 1), (51, 95, 3), (29, 104, 0), (72, 78, 12), (35, 102, 3),
+    (14, 107, 2), (39, 100, 7), (29, 104, 1), (32, 103, 3), (0, 108, 0), (1, 108, 0), (20, 106, 3), (49, 96, 4), (2, 108, 0), (0, 108, 1),
+    (1, 108, 1), (65, 86, 4), (29, 104, 2), (3, 108, 0), (15, 107, 0), (14, 107, 3), (51, 95, 4), (21, 106, 0), (3, 108, 1), (15, 107, 1),
+    (4, 108, 0), (41, 100, 0), (21, 106, 1), (2, 108, 2), (35, 98, 18), (4, 108, 1), (41, 100, 1), (29, 104, 3), (3, 108, 2), (5, 108, 0),
+    (4, 107, 9), (21, 105, 9), (21, 106, 2), (13, 107, 5), (5, 108, 1), (4, 108, 2), (41, 100, 2), (36, 99, 15), (33, 103, 0), (70, 82, 5)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk116_size : windowChunk116.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk116_checked : checkRows 11600 windowChunk116 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `11700` through `11799`. -/
+private def windowChunk117 : List (ℕ × ℕ × ℕ) :=
+  [
+    (6, 108, 0), (26, 105, 0), (19, 106, 6), (33, 103, 1), (5, 108, 2), (16, 107, 0), (26, 105, 1), (21, 106, 3), (32, 103, 5), (75, 78, 0),
+    (16, 107, 1), (41, 100, 3), (51, 94, 10), (7, 108, 0), (67, 85, 0), (6, 108, 2), (30, 104, 0), (74, 79, 0), (7, 108, 1), (67, 85, 1),
+    (22, 106, 0), (30, 104, 1), (39, 101, 0), (3, 108, 4), (75, 78, 2), (22, 106, 1), (65, 86, 6), (39, 101, 1), (8, 108, 0), (52, 95, 0),
+    (6, 108, 3), (30, 104, 2), (74, 79, 2), (8, 108, 1), (52, 95, 1), (22, 106, 2), (15, 106, 10), (44, 99, 0), (17, 107, 0), (75, 78, 3),
+    (1, 108, 5), (20, 106, 6), (44, 99, 1), (17, 107, 1), (52, 95, 2), (9, 108, 0), (30, 104, 3), (74, 79, 3), (33, 103, 4), (15, 107, 5),
+    (9, 108, 1), (26, 105, 4), (54, 94, 0), (17, 107, 2), (27, 105, 0), (16, 107, 4), (41, 100, 5), (54, 94, 1), (8, 108, 3), (27, 105, 1),
+    (9, 108, 2), (65, 86, 7), (59, 91, 0), (7, 108, 4), (10, 108, 0), (23, 106, 0), (30, 104, 4), (59, 91, 1), (17, 107, 3), (10, 108, 1),
+    (23, 106, 1), (25, 104, 11), (39, 101, 4), (18, 107, 0), (10, 107, 9), (9, 108, 3), (26, 105, 5), (31, 104, 0), (18, 107, 1), (10, 108, 2),
+    (23, 106, 2), (24, 105, 8), (31, 104, 1), (2, 107, 11), (27, 105, 3), (11, 108, 0), (41, 100, 6), (44, 99, 4), (18, 107, 2), (70, 83, 0),
+    (11, 108, 1), (30, 104, 5), (31, 104, 2), (27, 103, 13), (65, 87, 0), (23, 106, 3), (39, 100, 10), (39, 101, 5), (13, 107, 8), (65, 87, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk117_size : windowChunk117.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk117_checked : checkRows 11700 windowChunk117 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `11800` through `11899`. -/
+private def windowChunk118 : List (ℕ × ℕ × ℕ) :=
+  [
+    (11, 108, 2), (40, 101, 0), (54, 94, 4), (18, 107, 3), (70, 83, 2), (6, 108, 6), (40, 101, 1), (31, 104, 3), (12, 108, 0), (28, 105, 0),
+    (19, 107, 0), (45, 94, 19), (24, 106, 0), (47, 98, 0), (28, 105, 1), (19, 107, 1), (40, 101, 2), (51, 96, 0), (47, 98, 1), (70, 83, 3),
+    (9, 108, 5), (61, 90, 0), (51, 96, 1), (12, 108, 2), (28, 105, 2), (19, 107, 2), (45, 99, 0), (24, 106, 2), (58, 92, 0), (27, 105, 5),
+    (25, 105, 8), (45, 99, 1), (51, 96, 2), (13, 108, 0), (35, 103, 0), (11, 108, 4), (61, 90, 2), (59, 91, 5), (13, 108, 1), (35, 103, 1),
+    (32, 104, 0), (45, 99, 2), (24, 106, 3), (58, 92, 2), (65, 87, 4), (32, 104, 1), (65, 86, 9), (51, 96, 3), (38, 102, 0), (20, 107, 0),
+    (9, 108, 6), (61, 90, 3), (31, 104, 5), (38, 102, 1), (20, 107, 1), (32, 104, 2), (45, 99, 3), (54, 94, 6), (77, 77, 0), (28, 105, 4),
+    (14, 108, 0), (25, 106, 0), (24, 106, 4), (77, 77, 1), (20, 107, 2), (14, 108, 1), (29, 105, 0), (51, 96, 4), (8, 108, 7), (65, 87, 5),
+    (32, 104, 3), (29, 105, 1), (19, 106, 10), (77, 77, 2), (18, 105, 14), (14, 108, 2), (74, 80, 0), (44, 99, 7), (38, 102, 3), (20, 107, 3),
+    (6, 108, 8), (0, 109, 0), (1, 109, 0), (13, 108, 4), (35, 103, 4), (2, 109, 0), (0, 109, 1), (1, 109, 1), (77, 77, 3), (15, 108, 0),
+    (3, 109, 0), (74, 80, 2), (51, 96, 5), (7, 108, 8), (15, 108, 1), (3, 109, 1), (0, 109, 2), (4, 109, 0), (57, 93, 0), (20, 107, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk118_size : windowChunk118.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk118_checked : checkRows 11800 windowChunk118 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `11900` through `11999`. -/
+private def windowChunk119 : List (ℕ × ℕ × ℕ) :=
+  [
+    (2, 109, 2), (45, 99, 5), (4, 109, 1), (57, 93, 1), (15, 108, 2), (33, 104, 0), (5, 109, 0), (34, 99, 19), (48, 98, 0), (50, 97, 0),
+    (33, 104, 1), (5, 109, 1), (26, 106, 0), (48, 98, 1), (50, 97, 1), (2, 109, 3), (29, 105, 4), (6, 109, 0), (47, 98, 6), (15, 108, 3),
+    (16, 108, 0), (5, 109, 2), (6, 109, 1), (48, 98, 2), (50, 97, 2), (30, 105, 0), (74, 80, 4), (26, 106, 2), (57, 93, 3), (70, 83, 7),
+    (7, 109, 0), (0, 109, 4), (6, 109, 2), (22, 107, 0), (65, 87, 7), (7, 109, 1), (44, 100, 0), (41, 99, 13), (22, 107, 1), (50, 97, 3),
+    (30, 105, 2), (54, 95, 0), (26, 106, 3), (2, 108, 10), (62, 90, 0), (8, 109, 0), (54, 95, 1), (6, 109, 3), (22, 107, 2), (62, 90, 1),
+    (8, 109, 1), (44, 100, 2), (24, 106, 7), (17, 108, 0), (20, 107, 6), (30, 105, 3), (70, 84, 0), (1, 109, 5), (17, 108, 1), (62, 90, 2),
+    (8, 109, 2), (70, 84, 1), (9, 109, 0), (22, 107, 3), (15, 108, 5), (27, 106, 0), (44, 100, 3), (9, 109, 1), (17, 108, 2), (65, 88, 0),
+    (27, 106, 1), (70, 84, 2), (34, 104, 0), (57, 93, 5), (65, 88, 1), (8, 109, 3), (26, 105, 10), (34, 104, 1), (23, 107, 0), (27, 105, 9),
+    (27, 106, 2), (10, 109, 0), (39, 94, 25), (23, 107, 1), (65, 88, 2), (9, 107, 13), (31, 105, 0), (34, 104, 2), (18, 108, 0), (20, 107, 7),
+    (2, 109, 6), (31, 105, 1), (9, 109, 3), (18, 108, 1), (62, 90, 4), (27, 106, 3), (10, 109, 2), (51, 96, 8), (77, 77, 7), (65, 88, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk119_size : windowChunk119.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk119_checked : checkRows 11900 windowChunk119 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `12000` through `12099`. -/
+private def windowChunk120 : List (ℕ × ℕ × ℕ) :=
+  [
+    (30, 105, 5), (31, 105, 2), (11, 109, 0), (18, 108, 2), (40, 102, 0), (49, 98, 0), (70, 84, 4), (11, 109, 1), (23, 107, 3), (40, 102, 1),
+    (47, 99, 0), (10, 109, 3), (9, 109, 4), (58, 93, 0), (50, 97, 6), (47, 99, 1), (31, 105, 3), (64, 89, 0), (58, 93, 1), (40, 102, 2),
+    (28, 106, 0), (0, 109, 7), (64, 89, 1), (32, 103, 12), (60, 88, 16), (12, 109, 0), (40, 101, 9), (54, 94, 10), (58, 93, 2), (15, 108, 7),
+    (12, 109, 1), (10, 109, 4), (64, 89, 2), (12, 108, 9), (40, 102, 3), (28, 106, 2), (31, 105, 4), (74, 81, 0), (18, 108, 4), (10, 108, 10),
+    (12, 109, 2), (35, 104, 0), (74, 81, 1), (58, 93, 3), (65, 88, 5), (33, 104, 7), (35, 104, 1), (64, 89, 3), (48, 98, 7), (32, 105, 0),
+    (13, 109, 0), (45, 99, 9), (74, 81, 2), (38, 103, 0), (32, 105, 1), (13, 109, 1), (35, 104, 2), (6, 109, 7), (67, 87, 0), (35, 103, 9),
+    (47, 99, 4), (31, 105, 5), (1, 109, 8), (67, 87, 1), (20, 108, 0), (13, 109, 2), (21, 105, 15), (74, 81, 3), (38, 103, 2), (63, 90, 0),
+    (28, 106, 4), (35, 104, 3), (49, 96, 13), (72, 83, 0), (25, 107, 0), (12, 109, 4), (44, 100, 7), (14, 109, 0), (72, 83, 1), (25, 107, 1),
+    (13, 109, 3), (54, 95, 7), (14, 109, 1), (38, 103, 3), (63, 90, 2), (41, 102, 0), (10, 109, 6), (74, 81, 4), (72, 83, 2), (25, 107, 2),
+    (41, 102, 1), (35, 104, 4), (14, 109, 2), (18, 108, 6), (20, 108, 3), (28, 106, 5), (70, 84, 7), (71, 84, 0), (7, 107, 15), (63, 90, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk120_size : windowChunk120.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk120_checked : checkRows 12000 windowChunk120 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `12100` through `12199`. -/
+private def windowChunk121 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 110, 0), (1, 110, 0), (71, 84, 1), (72, 83, 3), (2, 110, 0), (21, 108, 0), (15, 109, 0), (14, 109, 3), (67, 87, 4), (3, 110, 0),
+    (21, 108, 1), (15, 109, 1), (36, 104, 0), (52, 97, 0), (33, 105, 0), (0, 110, 2), (4, 110, 0), (36, 104, 1), (52, 97, 1), (33, 105, 1),
+    (21, 108, 2), (4, 110, 1), (64, 89, 6), (72, 83, 4), (3, 110, 2), (5, 110, 0), (31, 105, 7), (36, 104, 2), (52, 97, 2), (33, 105, 2),
+    (39, 103, 0), (4, 110, 2), (54, 96, 0), (67, 87, 5), (2, 110, 3), (39, 103, 1), (6, 110, 0), (16, 109, 0), (12, 108, 11), (3, 110, 3),
+    (5, 110, 2), (6, 110, 1), (16, 109, 1), (52, 97, 3), (33, 105, 3), (39, 103, 2), (65, 89, 0), (54, 96, 2), (22, 108, 0), (7, 110, 0),
+    (0, 110, 4), (65, 89, 1), (16, 109, 2), (22, 108, 1), (7, 110, 1), (5, 110, 3), (15, 109, 4), (69, 86, 0), (38, 103, 6), (3, 110, 4),
+    (39, 103, 3), (56, 95, 0), (69, 86, 1), (22, 108, 2), (8, 110, 0), (12, 109, 7), (56, 95, 1), (16, 109, 3), (42, 102, 0), (8, 110, 1),
+    (17, 109, 0), (30, 104, 13), (69, 86, 2), (42, 102, 1), (63, 90, 6), (17, 109, 1), (76, 80, 0), (74, 81, 7), (27, 107, 0), (8, 110, 2),
+    (39, 103, 4), (9, 110, 0), (54, 96, 4), (27, 107, 1), (3, 110, 5), (37, 104, 0), (75, 81, 0), (69, 86, 3), (52, 97, 5), (33, 105, 5),
+    (37, 104, 1), (75, 81, 1), (6, 109, 10), (23, 108, 0), (8, 110, 3), (16, 108, 10), (64, 90, 0), (31, 106, 0), (23, 108, 1), (7, 110, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk121_size : windowChunk121.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk121_checked : checkRows 12100 windowChunk121 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `12200` through `12299`. -/
+private def windowChunk122 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 110, 0), (64, 90, 1), (49, 99, 0), (23, 107, 9), (20, 108, 7), (18, 109, 0), (76, 80, 3), (49, 99, 1), (23, 108, 2), (40, 103, 0),
+    (18, 109, 1), (64, 90, 2), (31, 106, 2), (72, 83, 7), (40, 103, 1), (10, 110, 2), (75, 81, 3), (49, 99, 2), (53, 97, 0), (33, 105, 6),
+    (18, 109, 2), (11, 110, 0), (6, 106, 19), (53, 97, 1), (40, 103, 2), (41, 102, 7), (45, 101, 0), (31, 106, 3), (27, 107, 4), (32, 105, 8),
+    (10, 110, 3), (45, 101, 1), (49, 99, 3), (28, 107, 0), (75, 78, 14), (18, 109, 3), (11, 110, 2), (54, 96, 6), (28, 107, 1), (40, 103, 3),
+    (24, 108, 0), (55, 96, 0), (19, 109, 0), (23, 108, 4), (12, 110, 0), (24, 108, 1), (55, 96, 1), (19, 109, 1), (28, 107, 2), (60, 93, 0),
+    (35, 105, 0), (11, 110, 3), (49, 99, 4), (43, 102, 0), (60, 93, 1), (35, 105, 1), (55, 96, 2), (19, 109, 2), (43, 102, 1), (12, 110, 2),
+    (32, 106, 0), (75, 81, 5), (69, 86, 6), (28, 107, 3), (60, 93, 2), (32, 106, 1), (71, 85, 0), (24, 106, 13), (43, 102, 2), (13, 110, 0),
+    (24, 108, 3), (71, 85, 1), (19, 109, 3), (42, 102, 6), (57, 95, 0), (32, 106, 2), (45, 101, 4), (66, 89, 0), (38, 103, 9), (57, 95, 1),
+    (35, 105, 3), (20, 109, 0), (66, 89, 1), (43, 102, 3), (13, 110, 2), (21, 108, 8), (20, 109, 1), (4, 109, 12), (22, 108, 7), (25, 108, 0),
+    (29, 107, 0), (55, 96, 4), (66, 89, 2), (53, 97, 5), (25, 108, 1), (29, 107, 1), (14, 110, 0), (69, 86, 7), (23, 108, 6), (13, 110, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk122_size : windowChunk122.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk122_checked : checkRows 12200 windowChunk122 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `12300` through `12399`. -/
+private def windowChunk123 : List (ℕ × ℕ × ℕ) :=
+  [
+    (35, 105, 4), (50, 99, 0), (31, 106, 6), (43, 102, 4), (48, 100, 0), (29, 107, 2), (50, 99, 1), (66, 89, 3), (52, 98, 0), (48, 100, 1),
+    (32, 106, 4), (14, 110, 2), (54, 96, 8), (52, 98, 1), (40, 103, 6), (24, 108, 5), (50, 99, 2), (46, 101, 0), (27, 107, 7), (48, 100, 2),
+    (29, 107, 3), (0, 111, 0), (1, 111, 0), (52, 98, 2), (57, 95, 4), (2, 111, 0), (0, 111, 1), (1, 111, 1), (43, 102, 5), (77, 80, 0),
+    (3, 111, 0), (50, 99, 3), (46, 101, 2), (23, 108, 7), (77, 80, 1), (3, 111, 1), (0, 111, 2), (4, 111, 0), (52, 98, 3), (25, 108, 4),
+    (26, 108, 0), (71, 85, 5), (4, 111, 1), (58, 93, 11), (77, 80, 2), (26, 108, 1), (5, 111, 0), (46, 101, 3), (42, 102, 8), (30, 107, 0),
+    (17, 109, 8), (5, 111, 1), (56, 96, 0), (57, 93, 13), (30, 107, 1), (26, 108, 2), (16, 110, 0), (6, 111, 0), (52, 98, 4), (77, 80, 3),
+    (3, 111, 3), (16, 110, 1), (6, 111, 1), (48, 98, 13), (30, 107, 2), (22, 109, 0), (45, 101, 7), (56, 96, 2), (68, 88, 0), (5, 108, 16),
+    (7, 111, 0), (16, 110, 2), (6, 111, 2), (42, 103, 0), (13, 110, 6), (7, 111, 1), (5, 111, 3), (64, 91, 0), (42, 103, 1), (30, 107, 3),
+    (22, 109, 2), (55, 96, 7), (64, 91, 1), (68, 88, 2), (12, 110, 7), (8, 111, 0), (16, 110, 3), (6, 111, 3), (42, 103, 2), (17, 110, 0),
+    (8, 111, 1), (4, 110, 10), (34, 106, 0), (27, 108, 0), (37, 105, 0), (22, 109, 3), (5, 111, 4), (34, 106, 1), (27, 108, 1), (37, 105, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk123_size : windowChunk123.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk123_checked : checkRows 12300 windowChunk123 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `12400` through `12499`. -/
+private def windowChunk124 : List (ℕ × ℕ × ℕ) :=
+  [
+    (8, 111, 2), (49, 100, 0), (9, 111, 0), (42, 103, 3), (17, 110, 2), (3, 111, 5), (49, 100, 1), (9, 111, 1), (27, 108, 2), (72, 85, 0),
+    (23, 109, 0), (75, 81, 9), (4, 111, 5), (53, 98, 0), (72, 85, 1), (23, 109, 1), (40, 104, 0), (9, 111, 2), (53, 98, 1), (17, 110, 3),
+    (7, 111, 4), (10, 111, 0), (34, 106, 3), (27, 108, 3), (18, 110, 0), (23, 109, 2), (10, 111, 1), (64, 91, 4), (53, 98, 2), (45, 102, 0),
+    (2, 111, 6), (40, 104, 2), (9, 111, 3), (63, 92, 0), (55, 97, 0), (8, 111, 4), (60, 94, 0), (71, 86, 0), (63, 92, 1), (55, 97, 1),
+    (23, 109, 3), (60, 94, 1), (11, 111, 0), (53, 98, 3), (45, 102, 2), (7, 111, 5), (40, 104, 3), (11, 111, 1), (28, 108, 0), (55, 97, 2),
+    (30, 105, 14), (60, 94, 2), (71, 86, 2), (28, 108, 1), (18, 110, 3), (5, 110, 11), (66, 90, 0), (24, 109, 0), (43, 103, 0), (45, 102, 3),
+    (23, 109, 4), (19, 110, 0), (24, 109, 1), (43, 103, 1), (55, 97, 3), (12, 111, 0), (19, 110, 1), (71, 86, 3), (27, 108, 5), (38, 105, 0),
+    (12, 111, 1), (66, 90, 2), (24, 109, 2), (32, 107, 0), (38, 105, 1), (7, 111, 6), (19, 110, 2), (9, 111, 5), (32, 107, 1), (45, 102, 4),
+    (12, 111, 2), (50, 99, 8), (79, 79, 0), (63, 92, 4), (78, 80, 0), (23, 109, 5), (66, 90, 3), (79, 79, 1), (32, 107, 2), (78, 80, 1),
+    (13, 111, 0), (19, 110, 3), (11, 111, 4), (62, 93, 0), (17, 110, 6), (13, 111, 1), (10, 111, 5), (41, 104, 0), (62, 93, 1), (78, 80, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk124_size : windowChunk124.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk124_checked : checkRows 12400 windowChunk124 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `12500` through `12599`. -/
+private def windowChunk125 : List (ℕ × ℕ × ℕ) :=
+  [
+    (20, 110, 0), (0, 111, 8), (41, 104, 1), (32, 107, 3), (45, 102, 5), (29, 108, 0), (25, 109, 0), (24, 109, 4), (62, 93, 2), (55, 97, 5),
+    (29, 108, 1), (25, 109, 1), (41, 104, 2), (42, 103, 7), (75, 83, 0), (20, 110, 2), (55, 96, 10), (14, 111, 0), (53, 98, 6), (75, 83, 1),
+    (46, 102, 0), (25, 109, 2), (14, 111, 1), (62, 93, 3), (60, 93, 10), (46, 102, 1), (10, 111, 6), (41, 104, 3), (43, 102, 10), (75, 83, 2),
+    (20, 110, 3), (66, 90, 5), (36, 106, 0), (43, 103, 5), (78, 80, 4), (46, 102, 2), (25, 109, 3), (36, 106, 1), (33, 107, 0), (55, 97, 6),
+    (13, 111, 4), (21, 110, 0), (71, 86, 6), (33, 107, 1), (0, 112, 0), (1, 112, 0), (15, 111, 0), (36, 106, 2), (2, 112, 0), (0, 112, 1),
+    (1, 112, 1), (15, 111, 1), (66, 89, 10), (3, 112, 0), (73, 85, 0), (29, 108, 4), (21, 110, 2), (26, 109, 0), (3, 112, 1), (73, 85, 1),
+    (4, 112, 0), (15, 111, 2), (26, 109, 1), (2, 112, 2), (30, 108, 0), (4, 112, 1), (19, 110, 6), (14, 111, 4), (3, 112, 2), (5, 112, 0),
+    (46, 102, 4), (21, 110, 3), (26, 109, 2), (63, 92, 7), (5, 112, 1), (4, 112, 2), (15, 111, 3), (16, 111, 0), (2, 112, 3), (30, 108, 2),
+    (6, 112, 0), (25, 109, 5), (16, 111, 1), (3, 112, 3), (22, 110, 0), (6, 112, 1), (64, 90, 12), (26, 109, 3), (33, 107, 4), (67, 90, 0),
+    (4, 112, 3), (21, 110, 4), (16, 111, 2), (7, 112, 0), (67, 90, 1), (6, 112, 2), (15, 111, 4), (24, 109, 7), (7, 112, 1), (22, 110, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk125_size : windowChunk125.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk125_checked : checkRows 12500 windowChunk125 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `12600` through `12699`. -/
+private def windowChunk126 : List (ℕ × ℕ × ℕ) :=
+  [
+    (2, 111, 10), (51, 100, 0), (49, 101, 0), (3, 112, 4), (67, 90, 2), (34, 107, 0), (51, 100, 1), (49, 101, 1), (8, 112, 0), (38, 105, 7),
+    (17, 111, 0), (25, 109, 6), (4, 111, 10), (47, 102, 0), (22, 110, 3), (17, 111, 1), (51, 100, 2), (49, 101, 2), (63, 93, 0), (67, 90, 3),
+    (34, 107, 2), (15, 111, 5), (14, 111, 6), (63, 93, 1), (78, 80, 7), (9, 112, 0), (49, 100, 9), (16, 111, 4), (47, 102, 2), (23, 110, 0),
+    (9, 112, 1), (51, 100, 3), (49, 101, 3), (63, 93, 2), (45, 103, 0), (34, 107, 3), (66, 90, 8), (66, 91, 0), (8, 112, 3), (45, 103, 1),
+    (9, 112, 2), (79, 80, 0), (66, 91, 1), (47, 102, 3), (10, 112, 0), (18, 111, 0), (79, 80, 1), (46, 101, 11), (63, 93, 3), (10, 112, 1),
+    (18, 111, 1), (51, 100, 4), (66, 91, 2), (77, 82, 0), (75, 83, 7), (9, 112, 3), (79, 80, 2), (14, 111, 7), (57, 97, 0), (10, 112, 2),
+    (18, 111, 2), (60, 94, 9), (26, 109, 6), (57, 97, 1), (45, 103, 3), (11, 112, 0), (31, 105, 16), (66, 91, 3), (77, 82, 2), (30, 108, 6),
+    (11, 112, 1), (79, 80, 3), (36, 106, 7), (57, 97, 2), (35, 107, 0), (18, 111, 3), (24, 110, 0), (49, 101, 5), (33, 107, 7), (35, 107, 1),
+    (38, 106, 0), (75, 84, 0), (19, 111, 0), (77, 82, 3), (45, 103, 4), (38, 106, 1), (75, 84, 1), (19, 111, 1), (12, 112, 0), (65, 92, 0),
+    (12, 111, 9), (24, 110, 2), (61, 89, 20), (12, 112, 1), (65, 92, 1), (38, 106, 2), (75, 84, 2), (59, 96, 0), (7, 112, 6), (18, 110, 10)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk126_size : windowChunk126.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk126_checked : checkRows 12600 windowChunk126 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `12700` through `12799`. -/
+private def windowChunk127 : List (ℕ × ℕ × ℕ) :=
+  [
+    (9, 112, 5), (50, 101, 0), (59, 96, 1), (12, 112, 2), (52, 100, 0), (35, 105, 13), (41, 105, 0), (49, 101, 6), (48, 102, 0), (52, 100, 1),
+    (38, 106, 3), (41, 105, 1), (59, 96, 2), (13, 112, 0), (33, 105, 15), (11, 112, 4), (50, 101, 2), (54, 99, 0), (13, 112, 1), (52, 100, 2),
+    (18, 111, 5), (20, 111, 0), (29, 109, 0), (48, 102, 2), (68, 90, 0), (25, 110, 0), (20, 111, 1), (29, 109, 1), (13, 112, 2), (68, 90, 1),
+    (25, 110, 1), (50, 101, 3), (54, 99, 2), (57, 97, 5), (52, 100, 3), (11, 108, 19), (20, 111, 2), (29, 109, 2), (48, 102, 3), (68, 90, 2),
+    (14, 112, 0), (51, 100, 7), (66, 91, 6), (13, 112, 3), (30, 108, 8), (36, 107, 0), (61, 95, 0), (54, 99, 3), (8, 112, 7), (35, 107, 5),
+    (36, 107, 1), (61, 95, 1), (44, 104, 0), (33, 108, 0), (68, 90, 3), (14, 112, 2), (41, 105, 4), (39, 106, 0), (33, 108, 1), (78, 80, 10),
+    (36, 107, 2), (61, 95, 2), (21, 111, 0), (13, 112, 4), (65, 92, 5), (9, 112, 7), (21, 110, 9), (21, 111, 1), (33, 108, 2), (0, 113, 0),
+    (1, 113, 0), (20, 111, 4), (39, 106, 2), (2, 113, 0), (0, 113, 1), (1, 113, 1), (26, 110, 0), (21, 111, 2), (3, 113, 0), (52, 100, 5),
+    (29, 108, 10), (30, 109, 0), (44, 104, 3), (3, 113, 1), (0, 113, 2), (4, 113, 0), (30, 109, 1), (39, 106, 3), (2, 113, 2), (42, 105, 0),
+    (4, 113, 1), (26, 110, 2), (21, 111, 3), (3, 113, 2), (5, 113, 0), (36, 107, 4), (30, 109, 2), (29, 109, 5), (57, 97, 7), (5, 113, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk127_size : windowChunk127.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk127_checked : checkRows 12700 windowChunk127 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `12800` through `12899`. -/
+private def windowChunk128 : List (ℕ × ℕ × ℕ) :=
+  [
+    (16, 112, 0), (5, 111, 13), (51, 101, 0), (2, 113, 3), (42, 105, 2), (6, 113, 0), (26, 110, 3), (51, 101, 1), (78, 82, 0), (53, 100, 0),
+    (6, 113, 1), (30, 109, 3), (21, 111, 4), (78, 82, 1), (53, 100, 1), (16, 112, 2), (60, 96, 0), (51, 101, 2), (7, 113, 0), (42, 105, 3),
+    (34, 108, 0), (70, 89, 0), (54, 99, 6), (7, 113, 1), (53, 100, 2), (34, 108, 1), (55, 99, 0), (44, 104, 5), (3, 113, 4), (27, 110, 0),
+    (16, 112, 3), (55, 99, 1), (76, 84, 0), (8, 113, 0), (27, 110, 1), (34, 108, 2), (40, 106, 0), (76, 84, 1), (8, 113, 1), (53, 100, 3),
+    (8, 111, 13), (45, 104, 0), (31, 109, 0), (63, 93, 9), (27, 110, 2), (1, 113, 5), (45, 104, 1), (31, 109, 1), (8, 113, 2), (37, 105, 13),
+    (9, 113, 0), (40, 106, 2), (51, 101, 4), (57, 98, 0), (35, 107, 8), (9, 113, 1), (45, 104, 2), (31, 109, 2), (57, 98, 1), (27, 110, 3),
+    (4, 113, 5), (69, 90, 0), (76, 84, 3), (8, 113, 3), (42, 105, 5), (9, 113, 2), (69, 90, 1), (21, 111, 6), (18, 112, 0), (10, 113, 0),
+    (34, 108, 4), (45, 104, 3), (74, 86, 0), (18, 112, 1), (43, 105, 0), (16, 112, 5), (69, 90, 2), (74, 86, 1), (2, 113, 6), (43, 105, 1),
+    (9, 113, 3), (26, 110, 6), (76, 84, 4), (18, 112, 2), (28, 110, 0), (36, 107, 7), (40, 106, 4), (74, 86, 2), (48, 102, 8), (35, 108, 0),
+    (11, 113, 0), (69, 90, 3), (31, 109, 4), (38, 107, 0), (35, 108, 1), (11, 113, 1), (70, 89, 5), (24, 111, 0), (73, 87, 0), (28, 110, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk128_size : windowChunk128.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk128_checked : checkRows 12800 windowChunk128 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `12900` through `12999`. -/
+private def windowChunk129 : List (ℕ × ℕ × ℕ) :=
+  [
+    (9, 113, 4), (55, 99, 5), (24, 111, 1), (73, 87, 1), (50, 102, 0), (19, 112, 0), (75, 84, 9), (76, 84, 5), (38, 107, 2), (50, 102, 1),
+    (19, 112, 1), (69, 90, 4), (24, 111, 2), (12, 113, 0), (28, 110, 3), (27, 106, 19), (54, 100, 0), (41, 106, 0), (12, 113, 1), (50, 102, 2),
+    (19, 112, 2), (54, 100, 1), (41, 106, 1), (38, 107, 3), (43, 105, 4), (9, 113, 5), (70, 89, 6), (24, 111, 3), (72, 88, 0), (42, 105, 7),
+    (3, 111, 15), (54, 100, 2), (46, 104, 0), (72, 88, 1), (50, 102, 3), (19, 112, 3), (69, 90, 5), (56, 99, 0), (13, 113, 0), (35, 108, 4),
+    (11, 113, 4), (29, 110, 0), (56, 99, 1), (13, 113, 1), (20, 112, 0), (6, 113, 7), (25, 111, 0), (46, 104, 2), (73, 87, 4), (20, 112, 1),
+    (1, 113, 8), (25, 111, 1), (56, 99, 2), (67, 92, 0), (50, 102, 4), (19, 112, 4), (29, 110, 2), (19, 111, 10), (67, 92, 1), (20, 112, 2),
+    (36, 108, 0), (44, 105, 0), (71, 89, 0), (12, 113, 4), (35, 108, 5), (14, 113, 0), (44, 105, 1), (71, 89, 1), (58, 98, 0), (27, 110, 7),
+    (33, 109, 0), (29, 110, 3), (24, 111, 5), (78, 83, 0), (20, 112, 3), (33, 109, 1), (44, 105, 2), (71, 89, 2), (78, 83, 1), (50, 102, 5),
+    (14, 113, 2), (45, 104, 7), (46, 104, 4), (58, 98, 2), (48, 100, 16), (21, 112, 0), (19, 110, 14), (56, 99, 4), (78, 83, 2), (28, 110, 6),
+    (21, 112, 1), (44, 105, 3), (71, 89, 3), (57, 98, 7), (15, 113, 0), (14, 113, 3), (0, 114, 0), (1, 114, 0), (58, 98, 3), (15, 113, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk129_size : windowChunk129.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk129_checked : checkRows 12900 windowChunk129 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `13000` through `13099`. -/
+private def windowChunk130 : List (ℕ × ℕ × ℕ) :=
+  [
+    (2, 114, 0), (76, 85, 0), (1, 114, 1), (78, 83, 3), (35, 107, 11), (3, 114, 0), (76, 85, 1), (46, 104, 5), (18, 112, 7), (60, 97, 0),
+    (49, 103, 0), (0, 114, 2), (4, 114, 0), (13, 113, 5), (60, 97, 1), (49, 103, 1), (76, 85, 2), (4, 114, 1), (58, 98, 4), (20, 112, 5),
+    (3, 114, 2), (5, 114, 0), (41, 106, 6), (78, 83, 4), (60, 97, 2), (16, 113, 0), (5, 114, 1), (4, 114, 2), (22, 112, 0), (35, 108, 7),
+    (16, 113, 1), (76, 85, 3), (6, 114, 0), (37, 108, 0), (53, 100, 9), (3, 114, 3), (5, 114, 2), (34, 109, 0), (37, 108, 1), (60, 97, 3),
+    (16, 113, 2), (69, 90, 8), (69, 91, 0), (22, 112, 2), (15, 113, 4), (7, 114, 0), (0, 114, 4), (69, 91, 1), (37, 108, 2), (40, 107, 0),
+    (27, 111, 0), (5, 114, 3), (34, 109, 2), (12, 113, 7), (40, 107, 1), (27, 111, 1), (54, 100, 7), (69, 91, 2), (17, 113, 0), (60, 97, 4),
+    (8, 114, 0), (31, 110, 0), (6, 114, 3), (17, 113, 1), (40, 107, 2), (8, 114, 1), (31, 110, 1), (34, 109, 3), (72, 88, 7), (15, 113, 5),
+    (14, 113, 6), (5, 114, 4), (69, 91, 3), (23, 112, 0), (37, 105, 16), (8, 114, 2), (31, 110, 2), (9, 114, 0), (23, 112, 1), (40, 107, 3),
+    (27, 111, 3), (29, 110, 7), (9, 114, 1), (37, 108, 4), (60, 97, 5), (43, 106, 0), (25, 111, 7), (34, 109, 4), (68, 92, 0), (45, 103, 13),
+    (43, 106, 1), (31, 110, 3), (9, 114, 2), (18, 113, 0), (10, 113, 9), (7, 114, 4), (10, 114, 0), (41, 106, 8), (18, 113, 1), (40, 107, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk130_size : windowChunk130.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk130_checked : checkRows 13000 windowChunk130 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `13100` through `13199`. -/
+private def windowChunk131 : List (ℕ × ℕ × ℕ) :=
+  [
+    (43, 106, 2), (10, 114, 1), (1, 114, 6), (68, 92, 2), (27, 110, 10), (28, 111, 0), (35, 109, 0), (9, 114, 3), (38, 108, 0), (50, 103, 0),
+    (28, 111, 1), (35, 109, 1), (34, 109, 5), (38, 108, 1), (50, 103, 1), (43, 106, 3), (45, 104, 10), (11, 114, 0), (68, 92, 3), (42, 105, 11),
+    (24, 112, 0), (64, 95, 0), (81, 81, 0), (38, 108, 2), (32, 110, 0), (24, 112, 1), (64, 95, 1), (81, 81, 1), (57, 98, 10), (32, 110, 1),
+    (19, 113, 0), (24, 110, 13), (11, 114, 2), (17, 113, 5), (15, 113, 7), (19, 113, 1), (56, 100, 0), (81, 81, 2), (67, 93, 0), (32, 110, 2),
+    (12, 114, 0), (46, 105, 0), (34, 109, 6), (67, 93, 1), (10, 113, 10), (12, 114, 1), (46, 105, 1), (11, 114, 3), (23, 112, 5), (60, 97, 7),
+    (24, 112, 3), (56, 100, 2), (81, 81, 3), (67, 93, 2), (77, 85, 0), (12, 114, 2), (46, 105, 2), (46, 104, 9), (38, 108, 4), (77, 85, 1),
+    (19, 113, 3), (5, 114, 7), (29, 111, 0), (68, 92, 5), (35, 108, 10), (13, 114, 0), (56, 100, 3), (29, 111, 1), (67, 93, 3), (20, 113, 0),
+    (13, 114, 1), (46, 105, 3), (44, 106, 0), (37, 108, 7), (20, 113, 1), (4, 113, 12), (0, 114, 8), (36, 109, 0), (23, 112, 6), (50, 102, 10),
+    (13, 114, 2), (70, 91, 0), (36, 109, 1), (38, 108, 5), (20, 113, 2), (39, 108, 0), (70, 91, 1), (44, 106, 2), (67, 93, 4), (33, 110, 0),
+    (39, 108, 1), (46, 105, 4), (14, 114, 0), (68, 92, 6), (75, 87, 0), (13, 114, 3), (70, 91, 2), (14, 114, 1), (18, 113, 6), (75, 87, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk131_size : windowChunk131.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk131_checked : checkRows 13100 windowChunk131 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `13200` through `13299`. -/
+private def windowChunk132 : List (ℕ × ℕ × ℕ) :=
+  [
+    (39, 108, 2), (10, 114, 6), (44, 106, 3), (72, 88, 10), (60, 98, 0), (19, 113, 5), (60, 96, 12), (14, 114, 2), (22, 112, 8), (60, 98, 1),
+    (21, 113, 0), (70, 91, 3), (29, 111, 4), (42, 107, 0), (50, 103, 6), (21, 113, 1), (46, 105, 5), (49, 104, 0), (42, 107, 1), (60, 98, 2),
+    (26, 112, 0), (15, 114, 0), (49, 104, 1), (38, 107, 11), (75, 87, 3), (0, 115, 0), (1, 115, 0), (36, 109, 4), (42, 107, 2), (2, 115, 0),
+    (0, 115, 1), (1, 115, 1), (49, 104, 2), (18, 113, 7), (3, 115, 0), (26, 112, 2), (15, 114, 2), (29, 111, 5), (17, 113, 8), (3, 115, 1),
+    (0, 115, 2), (4, 115, 0), (14, 114, 4), (42, 107, 3), (2, 115, 2), (12, 114, 6), (4, 115, 1), (49, 104, 3), (38, 108, 7), (57, 100, 0),
+    (5, 115, 0), (15, 114, 3), (16, 114, 0), (22, 113, 0), (57, 100, 1), (5, 115, 1), (34, 110, 0), (16, 114, 1), (22, 113, 1), (2, 115, 3),
+    (21, 113, 4), (6, 115, 0), (81, 81, 7), (42, 107, 4), (40, 108, 0), (5, 115, 2), (6, 115, 1), (16, 114, 2), (22, 113, 2), (40, 108, 1),
+    (26, 112, 4), (34, 110, 2), (1, 114, 10), (27, 112, 0), (7, 115, 0), (0, 115, 4), (6, 115, 2), (44, 106, 6), (27, 112, 1), (7, 115, 1),
+    (5, 115, 3), (46, 105, 7), (31, 111, 0), (22, 113, 3), (72, 90, 0), (17, 114, 0), (34, 110, 3), (31, 111, 1), (27, 112, 2), (8, 115, 0),
+    (17, 114, 1), (6, 115, 3), (49, 104, 5), (47, 102, 16), (8, 115, 1), (26, 112, 5), (15, 114, 5), (79, 84, 0), (23, 113, 0), (72, 90, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk132_size : windowChunk132.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk132_checked : checkRows 13200 windowChunk132 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `13300` through `13399`. -/
+private def windowChunk133 : List (ℕ × ℕ × ℕ) :=
+  [
+    (17, 114, 2), (1, 115, 5), (79, 84, 1), (23, 113, 1), (8, 115, 2), (13, 114, 7), (9, 115, 0), (6, 114, 10), (37, 108, 10), (78, 85, 0),
+    (19, 113, 8), (9, 115, 1), (64, 96, 0), (52, 103, 0), (78, 85, 1), (17, 114, 3), (50, 104, 0), (64, 96, 1), (52, 103, 1), (8, 115, 3),
+    (18, 114, 0), (50, 104, 1), (71, 91, 0), (27, 112, 4), (78, 85, 2), (10, 115, 0), (15, 114, 6), (71, 91, 1), (28, 112, 0), (48, 105, 0),
+    (10, 115, 1), (50, 104, 2), (31, 111, 4), (28, 112, 1), (48, 105, 1), (18, 114, 2), (9, 115, 3), (56, 101, 0), (57, 97, 16), (78, 85, 3),
+    (10, 115, 2), (60, 96, 14), (56, 101, 1), (28, 112, 2), (48, 105, 2), (24, 113, 0), (11, 115, 0), (79, 84, 4), (23, 113, 4), (7, 115, 5),
+    (24, 113, 1), (11, 115, 1), (46, 106, 0), (42, 107, 7), (57, 100, 6), (10, 115, 3), (9, 115, 4), (19, 114, 0), (28, 112, 3), (48, 105, 3),
+    (24, 113, 2), (11, 115, 2), (19, 114, 1), (52, 103, 4), (58, 100, 0), (0, 115, 7), (50, 104, 4), (46, 106, 2), (18, 113, 10), (12, 115, 0),
+    (18, 114, 4), (10, 114, 10), (19, 114, 2), (23, 113, 5), (12, 115, 1), (24, 113, 3), (11, 115, 3), (59, 96, 16), (63, 97, 0), (58, 100, 2),
+    (28, 111, 10), (66, 95, 0), (46, 106, 3), (63, 97, 1), (12, 115, 2), (29, 112, 0), (66, 95, 1), (19, 114, 3), (52, 103, 5), (72, 90, 6),
+    (29, 112, 1), (50, 104, 5), (16, 114, 7), (63, 97, 2), (13, 115, 0), (24, 113, 4), (20, 114, 0), (74, 89, 0), (28, 108, 19), (13, 115, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk133_size : windowChunk133.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk133_checked : checkRows 13300 windowChunk133 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `13400` through `13499`. -/
+private def windowChunk134 : List (ℕ × ℕ × ℕ) :=
+  [
+    (29, 112, 2), (60, 99, 0), (39, 109, 0), (28, 112, 5), (48, 105, 5), (0, 115, 8), (60, 99, 1), (39, 109, 1), (63, 97, 3), (13, 115, 2),
+    (33, 111, 0), (20, 114, 2), (74, 89, 2), (27, 112, 7), (58, 100, 4), (33, 111, 1), (60, 99, 2), (51, 104, 0), (53, 103, 0), (12, 115, 4),
+    (24, 113, 5), (14, 115, 0), (51, 104, 1), (53, 103, 1), (13, 115, 3), (33, 111, 2), (49, 105, 0), (74, 89, 3), (42, 108, 0), (55, 102, 0),
+    (10, 115, 6), (49, 105, 1), (51, 104, 2), (42, 108, 1), (55, 102, 1), (29, 112, 4), (14, 115, 2), (21, 114, 0), (23, 113, 7), (58, 100, 5),
+    (33, 111, 3), (65, 96, 0), (21, 114, 1), (42, 108, 2), (30, 112, 0), (26, 113, 0), (65, 96, 1), (51, 104, 3), (62, 98, 0), (30, 112, 1),
+    (15, 115, 0), (14, 115, 3), (21, 114, 2), (62, 98, 1), (7, 115, 8), (15, 115, 1), (0, 116, 0), (1, 116, 0), (42, 108, 3), (30, 112, 2),
+    (2, 116, 0), (0, 116, 1), (1, 116, 1), (62, 98, 2), (72, 90, 8), (3, 116, 0), (79, 85, 0), (21, 114, 3), (53, 103, 4), (37, 110, 0),
+    (3, 116, 1), (79, 85, 1), (4, 116, 0), (48, 102, 17), (45, 107, 0), (2, 116, 2), (49, 105, 4), (34, 111, 0), (62, 98, 3), (45, 107, 1),
+    (22, 114, 0), (5, 116, 0), (34, 111, 1), (63, 97, 6), (37, 110, 2), (22, 114, 1), (5, 116, 1), (4, 116, 2), (42, 107, 10), (45, 107, 2),
+    (2, 116, 3), (65, 96, 4), (6, 116, 0), (53, 103, 5), (30, 112, 4), (22, 114, 2), (5, 116, 2), (6, 116, 1), (27, 113, 0), (37, 110, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk134_size : windowChunk134.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk134_checked : checkRows 13400 windowChunk134 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `13500` through `13599`. -/
+private def windowChunk135 : List (ℕ × ℕ × ℕ) :=
+  [
+    (15, 115, 4), (49, 105, 5), (4, 116, 3), (27, 113, 1), (45, 107, 3), (7, 116, 0), (0, 116, 4), (6, 116, 2), (28, 112, 8), (12, 115, 7),
+    (7, 116, 1), (5, 116, 3), (21, 114, 5), (43, 108, 0), (17, 115, 0), (3, 116, 4), (79, 85, 4), (56, 101, 8), (43, 108, 1), (17, 115, 1),
+    (8, 116, 0), (66, 95, 7), (61, 99, 0), (62, 98, 5), (45, 107, 4), (23, 114, 0), (14, 115, 6), (61, 99, 1), (43, 108, 2), (17, 115, 2),
+    (23, 114, 1), (5, 116, 4), (1, 116, 5), (42, 108, 6), (55, 102, 6), (8, 116, 2), (20, 114, 7), (9, 116, 0), (52, 103, 9), (40, 108, 10),
+    (48, 106, 0), (79, 85, 5), (9, 116, 1), (43, 108, 3), (38, 110, 0), (48, 106, 1), (35, 111, 0), (4, 116, 5), (27, 113, 4), (18, 115, 0),
+    (8, 116, 3), (35, 111, 1), (9, 116, 2), (28, 113, 0), (18, 115, 1), (48, 106, 2), (10, 116, 0), (51, 104, 7), (28, 113, 1), (38, 110, 2),
+    (17, 114, 10), (10, 116, 1), (41, 109, 0), (43, 108, 4), (18, 115, 2), (46, 107, 0), (49, 105, 7), (41, 109, 1), (32, 112, 0), (55, 102, 7),
+    (46, 107, 1), (10, 116, 2), (24, 114, 0), (63, 98, 0), (38, 110, 3), (23, 114, 4), (74, 90, 0), (11, 116, 0), (63, 98, 1), (18, 115, 3),
+    (46, 107, 2), (74, 90, 1), (11, 116, 1), (32, 112, 2), (30, 112, 7), (22, 114, 6), (19, 115, 0), (24, 114, 2), (63, 98, 2), (17, 115, 5),
+    (48, 106, 4), (19, 115, 1), (11, 116, 2), (67, 93, 13), (38, 110, 4), (46, 107, 3), (35, 111, 4), (69, 94, 0), (32, 112, 3), (18, 115, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk135_size : windowChunk135.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk135_checked : checkRows 13500 windowChunk135 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `13600` through `13699`. -/
+private def windowChunk136 : List (ℕ × ℕ × ℕ) :=
+  [
+    (12, 116, 0), (19, 115, 2), (69, 94, 1), (63, 98, 3), (48, 105, 10), (12, 116, 1), (74, 90, 3), (11, 116, 3), (42, 108, 8), (37, 110, 7),
+    (29, 113, 0), (15, 114, 12), (69, 94, 2), (82, 83, 0), (45, 107, 7), (29, 113, 1), (19, 115, 3), (36, 111, 0), (82, 83, 1), (38, 110, 5),
+    (22, 114, 7), (25, 114, 0), (36, 111, 1), (63, 98, 4), (18, 115, 5), (13, 116, 0), (51, 105, 0), (69, 94, 3), (82, 83, 2), (60, 93, 23),
+    (13, 116, 1), (51, 105, 1), (36, 111, 2), (33, 112, 0), (55, 103, 0), (33, 111, 9), (25, 114, 2), (49, 106, 0), (33, 112, 1), (55, 103, 1),
+    (13, 116, 2), (51, 105, 2), (49, 106, 1), (82, 83, 3), (12, 115, 10), (42, 109, 0), (79, 85, 8), (36, 111, 3), (72, 92, 0), (68, 95, 0),
+    (42, 109, 1), (25, 114, 3), (14, 116, 0), (57, 102, 0), (68, 95, 1), (13, 116, 3), (51, 105, 3), (14, 116, 1), (47, 107, 0), (48, 105, 11),
+    (42, 109, 2), (19, 115, 5), (61, 99, 7), (47, 107, 1), (68, 95, 2), (23, 114, 7), (21, 115, 0), (14, 116, 2), (57, 102, 2), (30, 113, 0),
+    (46, 107, 6), (21, 115, 1), (26, 114, 0), (77, 88, 0), (30, 113, 1), (42, 109, 3), (51, 105, 4), (26, 114, 1), (77, 88, 1), (68, 95, 3),
+    (48, 106, 7), (15, 116, 0), (59, 101, 0), (57, 102, 3), (30, 113, 2), (29, 113, 5), (15, 116, 1), (59, 101, 1), (77, 88, 2), (0, 117, 0),
+    (1, 117, 0), (19, 115, 6), (36, 111, 5), (2, 117, 0), (0, 117, 1), (1, 117, 1), (15, 116, 2), (76, 89, 0), (3, 117, 0), (30, 113, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk136_size : windowChunk136.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk136_checked : checkRows 13600 windowChunk136 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `13700` through `13799`. -/
+private def windowChunk137 : List (ℕ × ℕ × ℕ) :=
+  [
+    (34, 112, 0), (51, 105, 5), (76, 89, 1), (3, 117, 1), (0, 117, 2), (4, 117, 0), (5, 116, 9), (16, 114, 13), (2, 117, 2), (22, 115, 0),
+    (4, 117, 1), (15, 116, 3), (16, 116, 0), (3, 117, 2), (5, 117, 0), (34, 112, 2), (21, 115, 4), (16, 116, 1), (82, 83, 6), (5, 117, 1),
+    (4, 117, 2), (61, 100, 0), (26, 114, 4), (2, 117, 3), (22, 115, 2), (6, 117, 0), (61, 100, 1), (16, 116, 2), (3, 117, 3), (52, 105, 0),
+    (31, 113, 0), (15, 116, 4), (54, 104, 0), (47, 107, 5), (52, 105, 1), (31, 113, 1), (50, 106, 0), (54, 104, 1), (7, 117, 0), (22, 115, 3),
+    (6, 117, 2), (50, 106, 1), (16, 116, 3), (7, 117, 1), (52, 105, 2), (17, 116, 0), (15, 114, 14), (54, 104, 2), (3, 117, 4), (45, 107, 10),
+    (17, 116, 1), (50, 106, 2), (24, 114, 8), (8, 117, 0), (23, 115, 0), (6, 117, 3), (15, 116, 5), (74, 91, 0), (8, 117, 1), (23, 115, 1),
+    (17, 116, 2), (25, 114, 7), (74, 91, 1), (47, 107, 6), (5, 117, 4), (38, 111, 0), (50, 106, 3), (6, 116, 10), (58, 102, 0), (35, 112, 0),
+    (9, 117, 0), (61, 100, 4), (74, 91, 2), (58, 102, 1), (35, 112, 1), (9, 117, 1), (10, 114, 16), (26, 114, 6), (83, 83, 0), (52, 105, 4),
+    (18, 116, 0), (41, 110, 0), (54, 104, 4), (83, 83, 1), (35, 112, 2), (18, 116, 1), (69, 95, 0), (74, 91, 3), (7, 117, 4), (10, 117, 0),
+    (29, 113, 8), (69, 95, 1), (14, 116, 7), (32, 113, 0), (10, 117, 1), (18, 116, 2), (80, 86, 0), (36, 111, 8), (32, 113, 1), (35, 112, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk137_size : windowChunk137.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk137_checked : checkRows 13700 windowChunk137 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `13800` through `13899`. -/
+private def windowChunk138 : List (ℕ × ℕ × ℕ) :=
+  [
+    (9, 117, 3), (24, 115, 0), (76, 89, 6), (8, 117, 4), (10, 117, 2), (31, 113, 5), (24, 115, 1), (74, 91, 4), (32, 113, 2), (30, 113, 7),
+    (11, 117, 0), (80, 86, 2), (26, 114, 7), (7, 117, 5), (22, 115, 6), (11, 117, 1), (24, 115, 2), (19, 116, 0), (58, 102, 4), (10, 117, 3),
+    (9, 117, 4), (15, 116, 7), (19, 116, 1), (32, 113, 3), (18, 115, 10), (11, 117, 2), (80, 86, 3), (21, 114, 12), (78, 88, 0), (65, 98, 0),
+    (18, 116, 4), (24, 115, 3), (19, 116, 2), (12, 117, 0), (53, 105, 0), (31, 113, 6), (69, 95, 4), (29, 114, 0), (12, 117, 1), (53, 105, 1),
+    (36, 112, 0), (55, 104, 0), (39, 111, 0), (78, 88, 2), (62, 100, 0), (36, 112, 1), (55, 104, 1), (39, 111, 1), (12, 117, 2), (62, 100, 1),
+    (25, 115, 0), (24, 115, 4), (29, 114, 2), (83, 83, 5), (5, 117, 7), (25, 115, 1), (20, 116, 0), (39, 111, 2), (13, 117, 0), (62, 100, 2),
+    (11, 117, 4), (20, 116, 1), (74, 91, 6), (13, 117, 1), (42, 110, 0), (25, 115, 2), (54, 100, 19), (29, 114, 3), (32, 113, 5), (42, 110, 1),
+    (36, 112, 3), (20, 116, 2), (39, 111, 3), (47, 108, 0), (62, 100, 3), (9, 117, 6), (76, 90, 0), (71, 94, 0), (47, 108, 1), (42, 110, 2),
+    (25, 115, 3), (76, 90, 1), (71, 94, 1), (12, 117, 4), (53, 105, 4), (14, 117, 0), (20, 116, 3), (29, 114, 4), (47, 108, 2), (22, 115, 8),
+    (14, 117, 1), (76, 90, 2), (71, 94, 2), (8, 117, 7), (42, 110, 3), (46, 107, 11), (30, 114, 0), (21, 116, 0), (67, 97, 0), (30, 112, 13)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk138_size : windowChunk138.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk138_checked : checkRows 13800 windowChunk138 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `13900` through `13999`. -/
+private def windowChunk139 : List (ℕ × ℕ × ℕ) :=
+  [
+    (14, 117, 2), (26, 115, 0), (21, 116, 1), (67, 97, 1), (65, 98, 5), (38, 111, 7), (45, 109, 0), (71, 94, 3), (13, 117, 4), (53, 105, 5),
+    (9, 117, 7), (45, 109, 1), (21, 116, 2), (37, 112, 0), (15, 117, 0), (14, 117, 3), (26, 115, 2), (39, 111, 5), (37, 112, 1), (15, 117, 1),
+    (18, 116, 7), (40, 111, 0), (61, 101, 0), (47, 108, 4), (0, 118, 0), (1, 118, 0), (40, 111, 1), (61, 101, 1), (2, 118, 0), (0, 118, 1),
+    (1, 118, 1), (26, 115, 3), (34, 111, 13), (3, 118, 0), (65, 98, 6), (14, 117, 4), (40, 111, 2), (61, 101, 2), (3, 118, 1), (0, 118, 2),
+    (4, 118, 0), (54, 105, 0), (29, 114, 6), (2, 118, 2), (15, 117, 3), (16, 117, 0), (54, 105, 1), (21, 116, 4), (3, 118, 2), (5, 118, 0),
+    (16, 117, 1), (40, 111, 3), (56, 104, 0), (27, 113, 13), (27, 115, 0), (4, 118, 2), (54, 105, 2), (31, 114, 0), (2, 118, 3), (27, 115, 1),
+    (6, 118, 0), (20, 116, 6), (31, 114, 1), (3, 118, 3), (5, 118, 2), (6, 118, 1), (69, 95, 8), (56, 104, 2), (48, 108, 0), (63, 100, 0),
+    (4, 118, 3), (54, 105, 3), (31, 114, 2), (7, 118, 0), (63, 100, 1), (6, 118, 2), (26, 115, 5), (69, 96, 0), (17, 117, 0), (5, 118, 3),
+    (36, 112, 7), (45, 109, 5), (69, 96, 1), (17, 117, 1), (63, 100, 2), (23, 116, 0), (9, 115, 16), (31, 114, 3), (8, 118, 0), (15, 117, 5),
+    (23, 116, 1), (54, 105, 4), (69, 96, 2), (8, 118, 1), (35, 113, 0), (16, 117, 4), (40, 111, 5), (46, 109, 0), (48, 108, 3), (35, 113, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk139_size : windowChunk139.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk139_checked : checkRows 13900 windowChunk139 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `14000` through `14099`. -/
+private def windowChunk140 : List (ℕ × ℕ × ℕ) :=
+  [
+    (23, 116, 2), (30, 114, 6), (41, 111, 0), (8, 118, 2), (60, 102, 0), (9, 118, 0), (26, 115, 6), (41, 111, 1), (17, 117, 3), (28, 115, 0),
+    (9, 118, 1), (45, 109, 6), (46, 109, 2), (18, 117, 0), (28, 115, 1), (23, 116, 3), (54, 105, 5), (41, 111, 2), (18, 117, 1), (60, 102, 2),
+    (32, 114, 0), (55, 104, 8), (39, 111, 8), (7, 118, 4), (10, 118, 0), (32, 114, 1), (65, 99, 0), (46, 109, 3), (18, 117, 2), (77, 90, 0),
+    (1, 118, 6), (65, 99, 1), (24, 116, 0), (68, 97, 0), (77, 90, 1), (32, 114, 2), (44, 110, 0), (24, 116, 1), (68, 97, 1), (10, 118, 2),
+    (38, 111, 10), (44, 110, 1), (19, 116, 9), (18, 117, 3), (77, 90, 2), (11, 118, 0), (54, 105, 6), (24, 116, 2), (68, 97, 2), (12, 115, 16),
+    (19, 117, 0), (44, 110, 2), (41, 111, 4), (17, 117, 5), (10, 118, 3), (19, 117, 1), (65, 99, 3), (76, 91, 0), (12, 117, 9), (77, 90, 3),
+    (11, 118, 2), (40, 111, 7), (76, 91, 1), (68, 97, 3), (0, 118, 7), (36, 113, 0), (29, 115, 0), (39, 111, 9), (12, 118, 0), (35, 113, 5),
+    (36, 113, 1), (29, 115, 1), (76, 91, 2), (12, 118, 1), (10, 118, 4), (11, 118, 3), (65, 99, 4), (41, 111, 5), (7, 118, 6), (77, 90, 4),
+    (36, 113, 2), (25, 116, 0), (24, 116, 4), (12, 118, 2), (28, 115, 5), (33, 114, 0), (25, 116, 1), (76, 91, 3), (18, 117, 5), (20, 117, 0),
+    (47, 109, 0), (46, 105, 19), (56, 104, 7), (13, 118, 0), (20, 117, 1), (47, 109, 1), (64, 100, 0), (31, 114, 7), (13, 118, 1), (10, 118, 5)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk140_size : windowChunk140.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk140_checked : checkRows 14000 windowChunk140 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `14100` through `14199`. -/
+private def windowChunk141 : List (ℕ × ℕ × ℕ) :=
+  [
+    (33, 114, 2), (64, 100, 1), (46, 109, 6), (78, 88, 10), (20, 117, 2), (47, 109, 2), (49, 105, 16), (76, 91, 4), (13, 118, 2), (60, 102, 6),
+    (9, 118, 6), (64, 100, 2), (84, 84, 0), (7, 118, 7), (83, 85, 0), (33, 114, 3), (70, 96, 0), (84, 84, 1), (12, 118, 4), (83, 85, 1),
+    (14, 118, 0), (70, 96, 1), (21, 116, 9), (13, 118, 3), (30, 113, 13), (30, 115, 0), (64, 100, 3), (84, 84, 2), (8, 118, 7), (83, 85, 2),
+    (21, 117, 0), (70, 96, 2), (26, 116, 0), (13, 117, 10), (77, 90, 6), (21, 117, 1), (15, 116, 13), (26, 116, 1), (37, 113, 0), (20, 117, 4),
+    (30, 115, 2), (29, 115, 5), (84, 84, 3), (37, 113, 1), (40, 112, 0), (21, 117, 2), (70, 96, 3), (26, 116, 2), (48, 108, 8), (15, 118, 0),
+    (14, 118, 3), (76, 90, 10), (34, 114, 0), (52, 107, 0), (15, 118, 1), (30, 115, 3), (25, 116, 5), (66, 99, 0), (52, 107, 1), (40, 112, 2),
+    (21, 117, 3), (0, 119, 0), (1, 119, 0), (12, 117, 11), (50, 108, 0), (2, 119, 0), (0, 119, 1), (1, 119, 1), (52, 107, 2), (50, 108, 1),
+    (3, 119, 0), (64, 100, 5), (66, 99, 2), (22, 117, 0), (40, 112, 3), (3, 119, 1), (0, 119, 2), (4, 119, 0), (22, 117, 1), (50, 108, 2),
+    (16, 118, 0), (45, 109, 10), (4, 119, 1), (52, 107, 3), (78, 90, 0), (27, 116, 0), (5, 119, 0), (66, 99, 3), (22, 117, 2), (78, 90, 1),
+    (27, 116, 1), (5, 119, 1), (4, 119, 2), (18, 117, 8), (50, 108, 3), (16, 118, 2), (40, 111, 10), (6, 119, 0), (13, 118, 6), (78, 90, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk141_size : windowChunk141.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk141_checked : checkRows 14100 windowChunk141 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `14200` through `14299`. -/
+private def windowChunk142 : List (ℕ × ℕ × ℕ) :=
+  [
+    (27, 116, 2), (5, 119, 2), (6, 119, 1), (22, 117, 3), (10, 118, 8), (21, 117, 5), (29, 115, 7), (4, 119, 3), (12, 118, 7), (60, 103, 0),
+    (7, 119, 0), (0, 119, 4), (6, 119, 2), (17, 118, 0), (60, 103, 1), (7, 119, 1), (46, 110, 0), (84, 84, 6), (23, 117, 0), (40, 112, 5),
+    (3, 119, 4), (35, 114, 0), (46, 109, 9), (23, 117, 1), (60, 103, 2), (8, 119, 0), (35, 114, 1), (6, 119, 3), (68, 98, 0), (20, 117, 7),
+    (8, 119, 1), (46, 110, 2), (66, 99, 5), (68, 98, 1), (78, 90, 4), (27, 116, 4), (35, 114, 2), (1, 119, 5), (18, 117, 9), (60, 103, 3),
+    (28, 116, 0), (69, 95, 13), (9, 119, 0), (68, 98, 2), (63, 100, 10), (28, 116, 1), (46, 110, 3), (9, 119, 1), (18, 118, 0), (32, 115, 0),
+    (6, 117, 14), (35, 114, 3), (4, 119, 5), (18, 118, 1), (32, 115, 1), (28, 116, 2), (70, 96, 7), (44, 111, 0), (53, 107, 0), (60, 103, 4),
+    (7, 119, 4), (10, 119, 0), (44, 111, 1), (53, 107, 1), (32, 115, 2), (24, 117, 0), (10, 119, 1), (1, 119, 6), (23, 117, 4), (50, 108, 6),
+    (24, 117, 1), (35, 114, 4), (44, 111, 2), (53, 107, 2), (57, 105, 0), (8, 119, 4), (10, 119, 2), (41, 111, 10), (18, 118, 3), (57, 105, 1),
+    (24, 117, 2), (84, 85, 0), (11, 119, 0), (78, 88, 13), (60, 103, 5), (19, 118, 0), (84, 85, 1), (11, 119, 1), (53, 107, 3), (57, 105, 2),
+    (39, 113, 0), (10, 119, 3), (36, 114, 0), (82, 87, 0), (83, 85, 8), (39, 113, 1), (84, 85, 2), (29, 116, 0), (82, 87, 1), (32, 115, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk142_size : windowChunk142.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk142_checked : checkRows 14200 windowChunk142 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `14300` through `14399`. -/
+private def windowChunk143 : List (ℕ × ℕ × ℕ) :=
+  [
+    (19, 118, 2), (0, 119, 7), (29, 116, 1), (68, 98, 5), (57, 105, 3), (12, 119, 0), (25, 116, 9), (36, 114, 2), (42, 112, 0), (47, 110, 0),
+    (12, 119, 1), (84, 85, 3), (74, 94, 0), (42, 112, 1), (25, 117, 0), (19, 118, 3), (60, 96, 24), (74, 94, 1), (17, 118, 6), (25, 117, 1),
+    (12, 119, 2), (80, 89, 0), (36, 114, 3), (42, 112, 2), (20, 118, 0), (27, 116, 7), (80, 89, 1), (74, 94, 2), (47, 108, 13), (20, 118, 1),
+    (13, 119, 0), (84, 85, 4), (11, 119, 4), (53, 107, 5), (60, 102, 11), (13, 119, 1), (80, 89, 2), (6, 119, 7), (42, 112, 3), (20, 118, 2),
+    (39, 113, 4), (79, 90, 0), (74, 94, 3), (82, 87, 4), (25, 117, 3), (13, 119, 2), (45, 111, 0), (29, 116, 4), (23, 113, 20), (57, 105, 5),
+    (7, 119, 7), (45, 111, 1), (21, 116, 13), (18, 118, 6), (73, 95, 0), (12, 119, 4), (30, 116, 0), (14, 119, 0), (42, 112, 4), (73, 95, 1),
+    (13, 119, 3), (30, 116, 1), (14, 119, 1), (53, 107, 6), (25, 117, 4), (21, 118, 0), (10, 119, 6), (36, 114, 5), (52, 108, 0), (40, 113, 0),
+    (21, 118, 1), (30, 116, 2), (56, 106, 0), (63, 102, 0), (40, 113, 1), (11, 118, 11), (45, 111, 3), (56, 106, 1), (63, 102, 1), (57, 105, 6),
+    (21, 118, 2), (34, 115, 0), (9, 119, 7), (52, 108, 2), (40, 113, 2), (4, 117, 16), (15, 119, 0), (56, 106, 2), (63, 102, 2), (58, 105, 0),
+    (19, 118, 6), (15, 119, 1), (41, 111, 12), (43, 112, 0), (58, 105, 1), (21, 118, 3), (34, 115, 2), (36, 114, 6), (43, 112, 1), (40, 113, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk143_size : windowChunk143.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk143_checked : checkRows 14300 windowChunk143 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `14400` through `14499`. -/
+private def windowChunk144 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 120, 0), (1, 120, 0), (56, 106, 3), (63, 102, 3), (2, 120, 0), (0, 120, 1), (1, 120, 1), (14, 119, 4), (22, 118, 0), (3, 120, 0),
+    (12, 119, 6), (34, 115, 3), (31, 114, 13), (22, 118, 1), (3, 120, 1), (0, 120, 2), (4, 120, 0), (16, 119, 0), (27, 117, 0), (2, 120, 2),
+    (28, 116, 8), (4, 120, 1), (16, 119, 1), (27, 117, 1), (3, 120, 2), (5, 120, 0), (65, 101, 0), (34, 114, 10), (18, 118, 8), (73, 95, 5),
+    (5, 120, 1), (65, 101, 1), (16, 119, 2), (27, 117, 2), (2, 120, 3), (13, 119, 6), (6, 120, 0), (46, 111, 0), (22, 118, 3), (3, 120, 3),
+    (38, 114, 0), (6, 120, 1), (46, 111, 1), (43, 112, 4), (40, 113, 5), (38, 114, 1), (4, 120, 3), (16, 119, 3), (27, 117, 3), (7, 120, 0),
+    (17, 119, 0), (6, 120, 2), (84, 86, 0), (23, 118, 0), (7, 120, 1), (17, 119, 1), (65, 101, 3), (84, 86, 1), (83, 87, 0), (3, 120, 4),
+    (27, 116, 10), (75, 94, 0), (14, 119, 6), (83, 87, 1), (8, 120, 0), (17, 119, 2), (75, 94, 1), (84, 86, 2), (82, 88, 0), (8, 120, 1),
+    (38, 114, 3), (25, 116, 12), (36, 114, 8), (28, 117, 0), (55, 107, 0), (5, 120, 4), (75, 94, 2), (56, 106, 6), (28, 117, 1), (55, 107, 1),
+    (32, 116, 0), (9, 120, 0), (51, 109, 0), (82, 88, 2), (3, 120, 5), (18, 119, 0), (9, 120, 1), (51, 109, 1), (28, 117, 2), (67, 100, 0),
+    (18, 119, 1), (75, 94, 3), (16, 119, 5), (27, 117, 5), (67, 100, 1), (32, 116, 2), (9, 120, 2), (51, 109, 2), (82, 88, 3), (7, 120, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk144_size : windowChunk144.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk144_checked : checkRows 14400 windowChunk144 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `14500` through `14599`. -/
+private def windowChunk145 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 120, 0), (49, 110, 0), (84, 86, 4), (28, 117, 3), (70, 98, 0), (10, 120, 1), (59, 105, 0), (11, 119, 9), (83, 87, 4), (70, 98, 1),
+    (32, 116, 3), (59, 105, 1), (51, 109, 3), (22, 118, 6), (8, 120, 4), (10, 120, 2), (49, 110, 2), (39, 114, 0), (82, 88, 4), (70, 98, 2),
+    (21, 117, 12), (11, 120, 0), (19, 119, 0), (28, 117, 4), (55, 107, 4), (17, 119, 5), (11, 120, 1), (19, 119, 1), (23, 118, 5), (58, 105, 7),
+    (29, 117, 0), (49, 110, 3), (39, 114, 2), (42, 113, 0), (70, 98, 3), (29, 117, 1), (11, 120, 2), (61, 104, 0), (42, 113, 1), (67, 100, 4),
+    (0, 120, 7), (6, 120, 6), (61, 104, 1), (82, 88, 5), (12, 120, 0), (33, 116, 0), (80, 89, 9), (39, 114, 3), (78, 92, 0), (25, 118, 0),
+    (33, 116, 1), (11, 120, 3), (61, 104, 2), (78, 92, 1), (25, 118, 1), (32, 116, 5), (59, 105, 4), (66, 101, 0), (23, 118, 6), (12, 120, 2),
+    (33, 116, 2), (20, 119, 0), (69, 99, 0), (78, 92, 2), (25, 118, 2), (5, 120, 7), (20, 119, 1), (69, 99, 1), (82, 87, 10), (13, 120, 0),
+    (28, 116, 11), (11, 120, 4), (66, 101, 2), (82, 88, 6), (13, 120, 1), (33, 116, 3), (20, 119, 2), (69, 99, 2), (63, 103, 0), (25, 118, 3),
+    (54, 108, 0), (59, 105, 5), (14, 119, 9), (63, 103, 1), (13, 120, 2), (52, 109, 0), (9, 120, 6), (66, 101, 3), (22, 118, 8), (30, 117, 0),
+    (52, 109, 1), (20, 119, 3), (69, 99, 3), (72, 97, 0), (37, 115, 0), (54, 108, 2), (14, 120, 0), (19, 119, 5), (72, 97, 1), (37, 115, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk145_size : windowChunk145.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk145_checked : checkRows 14500 windowChunk145 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `14600` through `14699`. -/
+private def windowChunk146 : List (ℕ × ℕ × ℕ) :=
+  [
+    (26, 118, 0), (14, 120, 1), (21, 119, 0), (17, 118, 12), (30, 117, 2), (26, 118, 1), (49, 110, 6), (21, 119, 1), (72, 97, 2), (37, 115, 2),
+    (54, 108, 3), (14, 120, 2), (34, 116, 0), (28, 117, 7), (55, 107, 7), (26, 118, 2), (6, 120, 8), (34, 116, 1), (43, 113, 0), (30, 117, 3),
+    (33, 116, 5), (85, 86, 0), (39, 114, 6), (43, 113, 1), (68, 100, 0), (15, 120, 0), (85, 86, 1), (34, 116, 2), (63, 103, 4), (65, 102, 0),
+    (15, 120, 1), (30, 116, 10), (21, 119, 3), (83, 88, 0), (65, 102, 1), (52, 109, 4), (85, 86, 2), (69, 99, 5), (83, 88, 1), (68, 100, 2),
+    (15, 120, 2), (0, 121, 0), (1, 121, 0), (72, 97, 4), (65, 102, 2), (2, 121, 0), (0, 121, 1), (1, 121, 1), (83, 88, 2), (12, 120, 6),
+    (3, 121, 0), (85, 86, 3), (21, 119, 4), (27, 118, 0), (68, 100, 3), (3, 121, 1), (16, 120, 0), (4, 121, 0), (27, 118, 1), (65, 102, 3),
+    (46, 112, 0), (81, 90, 0), (4, 121, 1), (83, 88, 3), (30, 117, 5), (46, 112, 1), (5, 121, 0), (69, 99, 6), (27, 118, 2), (38, 115, 0),
+    (29, 117, 7), (5, 121, 1), (4, 121, 2), (42, 113, 7), (38, 115, 1), (46, 112, 2), (81, 90, 2), (6, 121, 0), (23, 118, 9), (65, 102, 4),
+    (3, 121, 3), (35, 116, 0), (6, 121, 1), (27, 118, 3), (38, 115, 2), (54, 108, 6), (35, 116, 1), (4, 121, 3), (78, 92, 7), (17, 120, 0),
+    (7, 121, 0), (81, 90, 3), (74, 96, 0), (43, 113, 5), (17, 120, 1), (7, 121, 1), (35, 116, 2), (74, 96, 1), (57, 107, 0), (38, 115, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk146_size : windowChunk146.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk146_checked : checkRows 14600 windowChunk146 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `14700` through `14799`. -/
+private def windowChunk147 : List (ℕ × ℕ × ℕ) :=
+  [
+    (3, 121, 4), (51, 110, 0), (69, 99, 7), (57, 107, 1), (17, 120, 2), (8, 121, 0), (51, 110, 1), (74, 96, 2), (28, 118, 0), (13, 120, 7),
+    (8, 121, 1), (35, 116, 3), (46, 111, 10), (32, 117, 0), (67, 100, 9), (38, 114, 10), (51, 110, 2), (59, 106, 0), (32, 117, 1), (17, 120, 3),
+    (8, 121, 2), (0, 116, 22), (9, 121, 0), (28, 118, 2), (18, 120, 0), (3, 121, 5), (85, 86, 6), (9, 121, 1), (32, 117, 2), (18, 120, 1),
+    (15, 120, 6), (51, 110, 3), (59, 106, 2), (78, 93, 0), (65, 102, 6), (8, 121, 3), (81, 90, 5), (24, 119, 0), (73, 97, 0), (18, 120, 2),
+    (7, 121, 4), (10, 121, 0), (24, 119, 1), (73, 97, 1), (38, 115, 5), (39, 113, 13), (39, 115, 0), (59, 106, 3), (78, 93, 2), (13, 120, 8),
+    (2, 121, 6), (39, 115, 1), (36, 116, 0), (47, 112, 0), (18, 120, 3), (8, 121, 4), (10, 121, 2), (36, 116, 1), (47, 112, 1), (40, 113, 12),
+    (42, 114, 0), (19, 120, 0), (11, 121, 0), (78, 93, 3), (17, 120, 5), (29, 118, 0), (19, 120, 1), (11, 121, 1), (47, 112, 2), (65, 102, 7),
+    (29, 118, 1), (10, 121, 3), (9, 121, 4), (57, 107, 5), (18, 120, 4), (42, 114, 2), (19, 120, 2), (11, 121, 2), (33, 117, 0), (70, 98, 10),
+    (29, 118, 2), (0, 121, 7), (36, 116, 3), (33, 117, 1), (78, 90, 15), (12, 121, 0), (25, 119, 0), (24, 119, 4), (72, 98, 0), (10, 118, 17),
+    (12, 121, 1), (25, 119, 1), (86, 86, 0), (72, 98, 1), (45, 113, 0), (29, 118, 3), (39, 115, 4), (54, 109, 0), (43, 113, 8), (45, 113, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk147_size : windowChunk147.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk147_checked : checkRows 14700 windowChunk147 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `14800` through `14899`. -/
+private def windowChunk148 : List (ℕ × ℕ × ℕ) :=
+  [
+    (20, 120, 0), (76, 95, 0), (54, 109, 1), (72, 98, 2), (52, 110, 0), (20, 120, 1), (76, 95, 1), (86, 86, 2), (33, 117, 3), (52, 110, 1),
+    (13, 121, 0), (19, 120, 4), (54, 109, 2), (58, 107, 0), (30, 117, 9), (13, 121, 1), (76, 95, 2), (6, 121, 7), (58, 107, 1), (52, 110, 2),
+    (33, 116, 10), (50, 111, 0), (86, 86, 3), (78, 92, 10), (30, 118, 0), (37, 116, 0), (50, 111, 1), (54, 109, 3), (58, 107, 2), (30, 118, 1),
+    (37, 116, 1), (76, 95, 3), (74, 96, 7), (27, 118, 8), (65, 103, 0), (12, 121, 4), (60, 106, 0), (14, 121, 0), (72, 98, 4), (65, 103, 1),
+    (37, 116, 2), (21, 120, 0), (71, 99, 0), (58, 107, 3), (45, 113, 4), (34, 117, 0), (21, 120, 1), (71, 99, 1), (48, 112, 0), (65, 103, 2),
+    (34, 117, 1), (60, 106, 2), (14, 121, 2), (48, 112, 1), (30, 118, 3), (37, 116, 3), (21, 120, 2), (71, 99, 2), (47, 112, 6), (2, 120, 13),
+    (34, 117, 2), (25, 119, 5), (9, 121, 7), (48, 112, 2), (80, 92, 0), (42, 114, 6), (15, 121, 0), (14, 121, 3), (72, 97, 10), (62, 105, 0),
+    (29, 118, 6), (15, 121, 1), (71, 99, 3), (78, 93, 7), (62, 105, 1), (34, 117, 3), (76, 95, 5), (24, 119, 7), (48, 112, 3), (80, 92, 2),
+    (5, 120, 13), (15, 121, 2), (4, 121, 9), (33, 117, 6), (0, 122, 0), (1, 122, 0), (60, 106, 4), (14, 121, 4), (2, 122, 0), (0, 122, 1),
+    (27, 119, 0), (21, 120, 4), (71, 99, 4), (3, 122, 0), (80, 92, 3), (27, 119, 1), (15, 121, 3), (16, 121, 0), (3, 122, 1), (0, 122, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk148_size : windowChunk148.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk148_checked : checkRows 14800 windowChunk148 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `14900` through `14999`. -/
+private def windowChunk149 : List (ℕ × ℕ × ℕ) :=
+  [
+    (4, 122, 0), (19, 120, 7), (16, 121, 1), (2, 122, 2), (18, 120, 8), (4, 122, 1), (41, 115, 0), (39, 114, 12), (3, 122, 2), (5, 122, 0),
+    (54, 108, 11), (41, 115, 1), (64, 104, 0), (57, 108, 0), (35, 117, 0), (4, 122, 2), (15, 121, 4), (64, 104, 1), (57, 108, 1), (35, 117, 1),
+    (6, 122, 0), (41, 115, 2), (51, 111, 0), (3, 122, 3), (5, 122, 2), (6, 122, 1), (50, 111, 6), (51, 111, 1), (57, 108, 2), (23, 120, 0),
+    (17, 121, 0), (16, 120, 10), (44, 114, 0), (7, 122, 0), (23, 120, 1), (17, 121, 1), (41, 115, 3), (44, 114, 1), (7, 122, 1), (5, 122, 3),
+    (27, 119, 4), (15, 121, 5), (64, 104, 3), (57, 108, 3), (23, 120, 2), (28, 119, 0), (21, 120, 6), (44, 114, 2), (8, 122, 0), (18, 120, 9),
+    (28, 119, 1), (85, 86, 11), (51, 111, 3), (8, 122, 1), (77, 95, 0), (15, 120, 11), (41, 115, 4), (61, 106, 0), (33, 117, 8), (77, 95, 1),
+    (28, 119, 2), (50, 111, 7), (69, 101, 0), (8, 122, 2), (35, 117, 4), (9, 122, 0), (25, 119, 8), (69, 101, 1), (3, 122, 5), (85, 88, 0),
+    (9, 122, 1), (15, 121, 6), (61, 106, 2), (57, 107, 10), (85, 88, 1), (28, 119, 3), (24, 120, 0), (39, 116, 0), (47, 113, 0), (23, 120, 4),
+    (9, 122, 2), (24, 120, 1), (39, 116, 1), (47, 113, 1), (10, 122, 0), (36, 117, 0), (19, 120, 9), (61, 106, 3), (57, 108, 5), (42, 115, 0),
+    (36, 117, 1), (24, 120, 2), (76, 96, 0), (47, 113, 2), (63, 105, 0), (9, 122, 3), (5, 121, 11), (76, 96, 1), (8, 122, 4), (63, 105, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk149_size : windowChunk149.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk149_checked : checkRows 14900 windowChunk149 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `15000` through `15099`. -/
+private def windowChunk150 : List (ℕ × ℕ × ℕ) :=
+  [
+    (36, 117, 2), (50, 111, 8), (19, 121, 0), (33, 117, 9), (42, 115, 2), (11, 122, 0), (24, 120, 3), (19, 121, 1), (47, 113, 3), (63, 105, 2),
+    (11, 122, 1), (41, 115, 6), (69, 101, 4), (33, 118, 0), (10, 122, 3), (36, 117, 3), (54, 110, 0), (56, 109, 0), (33, 118, 1), (42, 115, 3),
+    (11, 122, 2), (45, 114, 0), (56, 109, 1), (8, 122, 5), (63, 105, 3), (25, 120, 0), (45, 114, 1), (39, 116, 4), (12, 122, 0), (77, 95, 5),
+    (25, 120, 1), (54, 110, 2), (56, 109, 2), (12, 122, 1), (75, 97, 0), (11, 122, 3), (45, 114, 2), (69, 101, 5), (7, 122, 6), (75, 97, 1),
+    (25, 120, 2), (20, 121, 0), (76, 96, 4), (12, 122, 2), (50, 112, 0), (21, 118, 16), (20, 121, 1), (56, 109, 3), (72, 97, 13), (60, 107, 0),
+    (28, 119, 6), (45, 114, 3), (19, 121, 4), (13, 122, 0), (60, 107, 1), (25, 120, 3), (40, 116, 0), (21, 119, 13), (37, 117, 0), (50, 112, 2),
+    (36, 117, 5), (30, 119, 0), (61, 106, 6), (37, 117, 1), (60, 107, 2), (1, 122, 8), (30, 119, 1), (56, 109, 4), (13, 122, 2), (63, 105, 5),
+    (9, 122, 6), (40, 116, 2), (44, 114, 7), (48, 113, 0), (43, 115, 0), (25, 120, 4), (26, 120, 0), (79, 94, 0), (48, 113, 1), (43, 115, 1),
+    (14, 122, 0), (26, 120, 1), (21, 121, 0), (13, 122, 3), (75, 97, 4), (14, 122, 1), (40, 116, 3), (21, 121, 1), (48, 113, 2), (43, 115, 2),
+    (36, 117, 6), (26, 120, 2), (79, 94, 2), (57, 108, 8), (50, 112, 4), (14, 122, 2), (45, 114, 5), (21, 121, 2), (67, 103, 0), (60, 107, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk150_size : windowChunk150.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk150_checked : checkRows 15000 windowChunk150 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `15100` through `15199`. -/
+private def windowChunk151 : List (ℕ × ℕ × ℕ) :=
+  [
+    (25, 120, 5), (70, 101, 0), (69, 101, 7), (67, 103, 1), (43, 115, 3), (9, 122, 7), (70, 101, 1), (79, 94, 3), (37, 117, 4), (15, 122, 0),
+    (14, 122, 3), (30, 119, 4), (46, 114, 0), (67, 103, 2), (15, 122, 1), (27, 119, 9), (70, 101, 2), (46, 114, 1), (33, 118, 6), (50, 112, 5),
+    (34, 117, 10), (64, 105, 0), (31, 119, 0), (48, 113, 4), (15, 122, 2), (22, 121, 0), (64, 105, 1), (31, 119, 1), (67, 103, 3), (0, 123, 0),
+    (1, 123, 0), (70, 101, 3), (21, 121, 4), (2, 123, 0), (0, 123, 1), (1, 123, 1), (64, 105, 2), (41, 116, 0), (3, 123, 0), (15, 122, 3),
+    (16, 122, 0), (15, 121, 10), (41, 116, 1), (3, 123, 1), (0, 123, 2), (4, 123, 0), (85, 89, 0), (51, 111, 9), (2, 123, 2), (35, 118, 0),
+    (4, 123, 1), (85, 89, 1), (41, 116, 2), (3, 123, 2), (5, 123, 0), (16, 122, 2), (84, 90, 0), (21, 121, 5), (13, 122, 6), (5, 123, 1),
+    (4, 123, 2), (44, 115, 0), (46, 114, 4), (2, 123, 3), (35, 118, 2), (6, 123, 0), (44, 115, 1), (41, 116, 3), (3, 123, 3), (5, 123, 2),
+    (23, 121, 0), (84, 90, 2), (66, 104, 0), (17, 122, 0), (75, 97, 7), (23, 121, 1), (44, 115, 2), (66, 104, 1), (7, 123, 0), (35, 118, 3),
+    (6, 123, 2), (26, 120, 6), (79, 94, 6), (7, 123, 1), (28, 120, 0), (32, 119, 0), (84, 90, 3), (66, 104, 2), (82, 92, 0), (28, 120, 1),
+    (32, 119, 1), (44, 115, 3), (24, 119, 13), (8, 123, 0), (85, 88, 9), (6, 123, 3), (85, 89, 4), (31, 119, 5), (8, 123, 1), (28, 120, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk151_size : windowChunk151.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk151_checked : checkRows 15100 windowChunk151 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `15200` through `15299`. -/
+private def windowChunk152 : List (ℕ × ℕ × ℕ) :=
+  [
+    (32, 119, 2), (30, 119, 7), (66, 104, 3), (82, 92, 2), (5, 123, 4), (47, 114, 0), (84, 90, 4), (44, 114, 10), (18, 122, 0), (10, 122, 9),
+    (9, 123, 0), (44, 115, 4), (41, 116, 5), (18, 122, 1), (28, 120, 3), (9, 123, 1), (26, 120, 7), (24, 121, 0), (82, 92, 3), (63, 105, 9),
+    (36, 118, 0), (85, 89, 5), (24, 121, 1), (18, 122, 2), (35, 118, 5), (36, 118, 1), (64, 105, 6), (31, 119, 6), (7, 123, 4), (10, 123, 0),
+    (22, 121, 6), (84, 90, 5), (24, 121, 2), (68, 103, 0), (10, 123, 1), (36, 118, 2), (56, 110, 0), (54, 111, 0), (68, 103, 1), (5, 122, 11),
+    (9, 123, 3), (29, 120, 0), (71, 101, 0), (8, 123, 4), (10, 123, 2), (19, 122, 0), (29, 120, 1), (71, 101, 1), (52, 112, 0), (15, 122, 7),
+    (11, 123, 0), (56, 110, 2), (54, 111, 2), (52, 112, 1), (35, 118, 6), (11, 123, 1), (29, 120, 2), (71, 101, 2), (18, 122, 4), (10, 123, 3),
+    (19, 122, 2), (84, 90, 6), (31, 119, 7), (52, 112, 2), (60, 108, 0), (11, 123, 2), (25, 121, 0), (54, 111, 3), (8, 123, 5), (50, 113, 0),
+    (36, 118, 4), (25, 121, 1), (71, 101, 3), (12, 123, 0), (50, 113, 1), (19, 122, 3), (50, 111, 13), (74, 99, 0), (12, 123, 1), (60, 108, 2),
+    (11, 123, 3), (25, 121, 2), (74, 99, 1), (68, 103, 4), (20, 122, 0), (9, 123, 5), (56, 110, 4), (54, 111, 4), (12, 123, 2), (40, 117, 0),
+    (32, 119, 6), (29, 120, 4), (74, 99, 2), (37, 118, 0), (40, 117, 1), (19, 122, 4), (25, 121, 3), (71, 99, 13), (13, 123, 0), (20, 122, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk152_size : windowChunk152.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk152_checked : checkRows 15200 windowChunk152 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `15300` through `15399`. -/
+private def windowChunk153 : List (ℕ × ℕ × ℕ) :=
+  [
+    (30, 120, 0), (44, 115, 7), (31, 119, 8), (13, 123, 1), (70, 102, 0), (43, 116, 0), (24, 120, 11), (74, 99, 3), (37, 118, 2), (70, 102, 1),
+    (43, 116, 1), (56, 110, 5), (54, 111, 5), (87, 88, 0), (20, 122, 3), (30, 120, 2), (25, 121, 4), (26, 121, 0), (87, 88, 1), (70, 102, 2),
+    (43, 116, 2), (15, 121, 13), (26, 121, 1), (37, 118, 3), (28, 120, 7), (14, 123, 0), (85, 89, 8), (74, 99, 4), (87, 88, 2), (73, 100, 0),
+    (14, 123, 1), (40, 116, 10), (64, 106, 0), (8, 123, 7), (73, 100, 1), (43, 116, 3), (84, 90, 8), (84, 91, 0), (77, 97, 0), (40, 117, 4),
+    (14, 123, 2), (46, 115, 0), (84, 91, 1), (77, 97, 1), (73, 100, 2), (47, 114, 7), (55, 111, 0), (64, 106, 2), (13, 123, 4), (57, 110, 0),
+    (30, 120, 4), (55, 111, 1), (84, 91, 2), (53, 112, 0), (15, 123, 0), (14, 123, 3), (46, 115, 2), (24, 121, 7), (53, 112, 1), (15, 123, 1),
+    (36, 118, 7), (31, 120, 0), (59, 109, 0), (87, 88, 4), (57, 110, 2), (32, 119, 8), (31, 120, 1), (59, 109, 1), (22, 122, 0), (15, 123, 2),
+    (27, 121, 0), (46, 115, 3), (74, 96, 16), (82, 93, 0), (50, 113, 6), (27, 121, 1), (0, 124, 0), (1, 124, 0), (82, 93, 1), (57, 110, 3),
+    (2, 124, 0), (66, 105, 0), (1, 124, 1), (22, 122, 2), (15, 123, 3), (3, 124, 0), (35, 119, 0), (84, 91, 4), (82, 93, 2), (20, 122, 6),
+    (3, 124, 1), (35, 119, 1), (4, 124, 0), (32, 117, 16), (40, 117, 6), (2, 124, 2), (66, 105, 2), (49, 114, 0), (22, 122, 3), (57, 110, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk153_size : windowChunk153.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk153_checked : checkRows 15300 windowChunk153 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `15400` through `15499`. -/
+private def windowChunk154 : List (ℕ × ℕ × ℕ) :=
+  [
+    (3, 124, 2), (5, 124, 0), (49, 114, 1), (82, 93, 3), (15, 123, 4), (30, 120, 6), (5, 124, 1), (4, 124, 2), (2, 123, 10), (70, 102, 6),
+    (2, 124, 3), (66, 105, 3), (6, 124, 0), (23, 122, 0), (8, 120, 19), (3, 124, 3), (5, 124, 2), (6, 124, 1), (17, 123, 0), (40, 113, 20),
+    (27, 121, 4), (55, 111, 5), (4, 124, 3), (17, 123, 1), (32, 120, 0), (7, 124, 0), (75, 99, 0), (6, 124, 2), (23, 122, 2), (32, 120, 1),
+    (7, 124, 1), (75, 99, 1), (39, 116, 13), (17, 123, 2), (47, 115, 0), (3, 124, 4), (35, 119, 4), (59, 109, 5), (13, 123, 7), (47, 115, 1),
+    (8, 124, 0), (75, 99, 2), (6, 124, 3), (23, 122, 3), (70, 102, 7), (39, 118, 0), (46, 115, 6), (49, 114, 4), (17, 123, 3), (47, 115, 2),
+    (39, 118, 1), (5, 124, 4), (1, 124, 5), (18, 123, 0), (32, 120, 3), (8, 124, 2), (75, 99, 3), (9, 124, 0), (18, 123, 1), (15, 123, 6),
+    (24, 122, 0), (65, 106, 0), (9, 124, 1), (23, 122, 4), (58, 110, 0), (24, 122, 1), (65, 106, 1), (4, 124, 5), (18, 123, 2), (58, 110, 1),
+    (8, 124, 3), (54, 110, 13), (9, 124, 2), (52, 113, 0), (32, 120, 4), (24, 122, 2), (10, 124, 0), (84, 91, 7), (52, 113, 1), (58, 110, 2),
+    (30, 120, 8), (45, 116, 0), (29, 121, 0), (18, 123, 3), (47, 115, 4), (2, 124, 6), (45, 116, 1), (29, 121, 1), (88, 88, 0), (33, 120, 0),
+    (19, 123, 0), (10, 124, 2), (24, 121, 10), (78, 97, 0), (33, 120, 1), (19, 123, 1), (50, 114, 0), (11, 124, 0), (78, 97, 1), (32, 120, 5)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk154_size : windowChunk154.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk154_checked : checkRows 15400 windowChunk154 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `15500` through `15599`. -/
+private def windowChunk155 : List (ℕ × ℕ × ℕ) :=
+  [
+    (7, 124, 5), (50, 114, 1), (11, 124, 1), (88, 88, 2), (33, 120, 2), (19, 123, 2), (85, 91, 0), (9, 124, 4), (62, 108, 0), (25, 122, 0),
+    (24, 122, 4), (85, 91, 1), (11, 124, 2), (62, 108, 1), (67, 105, 0), (8, 124, 5), (0, 124, 7), (6, 124, 6), (88, 88, 3), (67, 105, 1),
+    (12, 124, 0), (85, 91, 2), (51, 111, 15), (62, 108, 2), (40, 118, 0), (12, 124, 1), (50, 114, 3), (11, 124, 3), (18, 123, 5), (20, 123, 0),
+    (37, 119, 0), (45, 116, 4), (29, 121, 4), (77, 98, 0), (20, 123, 1), (37, 119, 1), (85, 91, 3), (49, 114, 7), (43, 117, 0), (40, 118, 2),
+    (19, 123, 4), (30, 121, 0), (59, 109, 8), (43, 117, 1), (20, 123, 2), (13, 124, 0), (30, 121, 1), (11, 124, 4), (77, 98, 2), (62, 105, 16),
+    (13, 124, 1), (10, 124, 5), (6, 124, 7), (43, 117, 2), (40, 118, 3), (6, 123, 12), (34, 120, 0), (29, 121, 5), (62, 108, 4), (20, 123, 3),
+    (26, 122, 0), (34, 120, 1), (9, 124, 6), (77, 98, 3), (67, 105, 4), (26, 122, 1), (65, 106, 6), (54, 111, 11), (43, 117, 3), (55, 112, 0),
+    (21, 123, 0), (34, 120, 2), (14, 124, 0), (13, 123, 10), (55, 112, 1), (21, 123, 1), (64, 105, 13), (69, 104, 0), (53, 113, 0), (20, 123, 4),
+    (37, 119, 4), (59, 110, 0), (69, 104, 1), (53, 113, 1), (55, 112, 2), (21, 123, 2), (81, 95, 0), (14, 124, 2), (72, 102, 0), (67, 105, 5),
+    (26, 122, 3), (81, 95, 1), (66, 106, 0), (72, 102, 1), (33, 120, 6), (13, 124, 4), (59, 110, 2), (51, 114, 0), (78, 97, 6), (55, 112, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk155_size : windowChunk155.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk155_checked : checkRows 15500 windowChunk155 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `15600` through `15699`. -/
+private def windowChunk156 : List (ℕ × ℕ × ℕ) :=
+  [
+    (21, 123, 3), (15, 124, 0), (31, 121, 0), (72, 102, 2), (20, 123, 5), (38, 119, 0), (15, 124, 1), (31, 121, 1), (53, 113, 3), (5, 123, 13),
+    (38, 119, 1), (59, 110, 3), (51, 114, 2), (22, 123, 0), (25, 122, 6), (42, 114, 18), (80, 96, 0), (31, 121, 2), (22, 123, 1), (55, 112, 4),
+    (38, 119, 2), (80, 96, 1), (66, 106, 3), (37, 118, 11), (57, 110, 10), (0, 125, 0), (1, 125, 0), (51, 114, 3), (22, 123, 2), (2, 125, 0),
+    (0, 125, 1), (1, 125, 1), (16, 124, 0), (63, 108, 0), (3, 125, 0), (38, 119, 3), (81, 95, 4), (16, 124, 1), (63, 108, 1), (3, 125, 1),
+    (0, 125, 2), (4, 125, 0), (66, 106, 4), (22, 123, 3), (2, 125, 2), (21, 123, 5), (4, 125, 1), (16, 124, 2), (63, 108, 2), (68, 105, 0),
+    (5, 125, 0), (15, 124, 4), (31, 121, 4), (53, 113, 5), (68, 105, 1), (5, 125, 1), (4, 125, 2), (39, 116, 16), (23, 123, 0), (2, 125, 3),
+    (12, 124, 7), (6, 125, 0), (16, 124, 3), (23, 123, 1), (68, 105, 2), (17, 124, 0), (6, 125, 1), (66, 106, 5), (28, 122, 0), (87, 90, 0),
+    (17, 124, 1), (4, 125, 3), (51, 114, 5), (28, 122, 1), (7, 125, 0), (0, 125, 4), (6, 125, 2), (74, 101, 0), (43, 117, 7), (7, 125, 1),
+    (56, 112, 0), (30, 121, 7), (39, 119, 0), (28, 122, 2), (87, 90, 2), (54, 113, 0), (59, 110, 6), (39, 119, 1), (42, 118, 0), (8, 125, 0),
+    (54, 113, 1), (6, 125, 3), (74, 101, 2), (42, 118, 1), (8, 125, 1), (56, 112, 2), (36, 120, 0), (39, 119, 2), (28, 122, 3), (87, 90, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk156_size : windowChunk156.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk156_checked : checkRows 15600 windowChunk156 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `15700` through `15799`. -/
+private def windowChunk157 : List (ℕ × ℕ × ℕ) :=
+  [
+    (18, 124, 0), (36, 120, 1), (51, 114, 6), (42, 118, 2), (8, 125, 2), (24, 123, 0), (9, 125, 0), (74, 101, 3), (23, 123, 4), (3, 125, 5),
+    (24, 123, 1), (9, 125, 1), (39, 119, 3), (77, 98, 8), (45, 117, 0), (18, 124, 2), (70, 104, 0), (69, 104, 7), (42, 118, 3), (45, 117, 1),
+    (24, 123, 2), (70, 104, 1), (11, 124, 9), (83, 87, 22), (7, 125, 4), (10, 125, 0), (36, 120, 3), (74, 101, 4), (72, 102, 7), (45, 117, 2),
+    (33, 121, 0), (70, 104, 2), (39, 119, 4), (73, 102, 0), (2, 125, 6), (33, 121, 1), (9, 125, 3), (19, 124, 0), (73, 102, 1), (8, 125, 4),
+    (10, 125, 2), (15, 124, 7), (19, 124, 1), (28, 122, 5), (45, 117, 3), (33, 121, 2), (11, 125, 0), (54, 109, 19), (73, 102, 2), (82, 95, 0),
+    (18, 124, 4), (11, 125, 1), (19, 124, 2), (22, 123, 7), (25, 123, 0), (10, 125, 3), (9, 125, 4), (39, 119, 5), (53, 113, 8), (25, 123, 1),
+    (48, 116, 0), (40, 119, 0), (54, 111, 14), (73, 102, 3), (82, 95, 2), (48, 116, 1), (40, 119, 1), (19, 124, 3), (72, 102, 8), (12, 125, 0),
+    (17, 124, 6), (36, 120, 5), (16, 124, 7), (43, 118, 0), (12, 125, 1), (48, 116, 2), (20, 124, 0), (81, 96, 0), (43, 118, 1), (82, 95, 3),
+    (33, 121, 4), (20, 124, 1), (81, 96, 1), (73, 102, 4), (30, 122, 0), (56, 112, 6), (69, 105, 0), (19, 124, 4), (43, 118, 2), (30, 122, 1),
+    (48, 116, 3), (69, 105, 1), (81, 96, 2), (57, 112, 0), (13, 125, 0), (21, 123, 9), (11, 125, 4), (34, 121, 0), (57, 112, 1), (13, 125, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk157_size : windowChunk157.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk157_checked : checkRows 15700 windowChunk157 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `15800` through `15899`. -/
+private def windowChunk158 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 125, 5), (69, 105, 2), (59, 111, 0), (43, 118, 3), (25, 123, 4), (26, 123, 0), (20, 124, 3), (59, 111, 1), (57, 112, 2), (80, 97, 0),
+    (26, 123, 1), (40, 119, 4), (34, 121, 2), (63, 108, 8), (80, 97, 1), (7, 124, 12), (69, 105, 3), (21, 124, 0), (88, 88, 11), (12, 125, 4),
+    (26, 123, 2), (14, 125, 0), (21, 124, 1), (57, 112, 3), (80, 97, 2), (54, 113, 7), (51, 115, 0), (34, 121, 3), (42, 118, 7), (25, 123, 5),
+    (10, 125, 6), (51, 115, 1), (21, 124, 2), (68, 103, 15), (30, 122, 4), (26, 123, 3), (14, 125, 2), (54, 111, 15), (73, 102, 6), (80, 97, 3),
+    (18, 124, 7), (51, 115, 2), (41, 119, 0), (57, 112, 4), (38, 120, 0), (31, 122, 0), (9, 125, 7), (41, 119, 1), (43, 118, 5), (38, 120, 1),
+    (15, 125, 0), (14, 125, 3), (59, 111, 4), (53, 113, 10), (82, 95, 6), (15, 125, 1), (51, 115, 3), (49, 116, 0), (27, 123, 0), (38, 120, 2),
+    (22, 124, 0), (69, 105, 5), (49, 116, 1), (27, 123, 1), (60, 108, 15), (22, 124, 1), (35, 121, 0), (21, 124, 4), (57, 112, 5), (13, 125, 5),
+    (33, 121, 7), (35, 121, 1), (49, 116, 2), (27, 123, 2), (85, 93, 0), (22, 124, 2), (0, 126, 0), (1, 126, 0), (43, 118, 6), (85, 93, 1),
+    (2, 126, 0), (16, 125, 0), (1, 126, 1), (23, 123, 9), (80, 97, 5), (3, 126, 0), (16, 125, 1), (49, 116, 3), (27, 123, 3), (65, 108, 0),
+    (3, 126, 1), (0, 126, 2), (4, 126, 0), (28, 122, 9), (65, 108, 1), (2, 126, 2), (16, 125, 2), (4, 126, 1), (47, 117, 0), (13, 125, 6)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk158_size : windowChunk158.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk158_checked : checkRows 15800 windowChunk158 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `15900` through `15999`. -/
+private def windowChunk159 : List (ℕ × ℕ × ℕ) :=
+  [
+    (3, 126, 2), (5, 126, 0), (34, 121, 6), (47, 117, 1), (65, 108, 2), (23, 124, 0), (5, 126, 1), (4, 126, 2), (32, 122, 0), (12, 125, 7),
+    (23, 124, 1), (16, 125, 3), (6, 126, 0), (28, 123, 0), (17, 125, 0), (3, 126, 3), (5, 126, 2), (6, 126, 1), (28, 123, 1), (17, 125, 1),
+    (23, 124, 2), (39, 120, 0), (4, 126, 3), (32, 122, 2), (85, 93, 4), (7, 126, 0), (39, 120, 1), (6, 126, 2), (28, 123, 2), (52, 115, 0),
+    (7, 126, 1), (5, 126, 3), (49, 116, 5), (27, 123, 5), (52, 115, 1), (23, 124, 3), (39, 120, 2), (36, 121, 0), (67, 107, 0), (65, 108, 4),
+    (8, 126, 0), (35, 121, 5), (36, 121, 1), (67, 107, 1), (62, 110, 0), (8, 126, 1), (80, 96, 11), (41, 119, 6), (47, 117, 4), (18, 125, 0),
+    (31, 122, 6), (39, 120, 3), (24, 124, 0), (67, 107, 2), (18, 125, 1), (8, 126, 2), (50, 116, 0), (9, 126, 0), (32, 122, 4), (62, 110, 2),
+    (3, 126, 5), (50, 116, 1), (9, 126, 1), (28, 123, 4), (18, 125, 2), (22, 124, 6), (51, 115, 7), (24, 124, 2), (67, 107, 3), (67, 105, 13),
+    (29, 123, 0), (50, 116, 2), (9, 126, 2), (33, 122, 0), (62, 110, 3), (29, 123, 1), (10, 126, 0), (64, 109, 0), (33, 122, 1), (18, 125, 3),
+    (23, 124, 5), (10, 126, 1), (64, 109, 1), (32, 122, 5), (38, 120, 7), (29, 123, 2), (19, 125, 0), (9, 126, 3), (33, 122, 2), (17, 125, 5),
+    (8, 126, 4), (19, 125, 1), (64, 109, 2), (48, 117, 0), (62, 110, 4), (17, 124, 11), (39, 120, 5), (11, 126, 0), (48, 117, 1), (18, 125, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk159_size : windowChunk159.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk159_checked : checkRows 15900 windowChunk159 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `16000` through `16099`. -/
+private def windowChunk160 : List (ℕ × ℕ × ℕ) :=
+  [
+    (40, 120, 0), (25, 124, 0), (11, 126, 1), (33, 122, 3), (80, 98, 0), (40, 120, 1), (25, 124, 1), (64, 109, 3), (48, 117, 2), (80, 98, 1),
+    (37, 121, 0), (69, 105, 9), (11, 126, 2), (67, 107, 5), (85, 93, 7), (37, 121, 1), (25, 124, 2), (6, 126, 6), (57, 113, 0), (80, 98, 2),
+    (12, 126, 0), (55, 114, 0), (41, 119, 8), (57, 113, 1), (18, 125, 5), (20, 125, 0), (55, 114, 1), (11, 126, 3), (17, 122, 18), (30, 123, 0),
+    (20, 125, 1), (25, 124, 3), (9, 126, 5), (87, 92, 0), (53, 115, 0), (12, 126, 2), (55, 114, 2), (49, 116, 8), (87, 92, 1), (53, 115, 1),
+    (34, 122, 0), (5, 126, 7), (61, 111, 0), (48, 117, 4), (30, 123, 2), (13, 126, 0), (35, 121, 8), (61, 111, 1), (87, 92, 2), (53, 115, 2),
+    (13, 126, 1), (55, 114, 3), (26, 124, 0), (28, 123, 7), (80, 98, 4), (34, 122, 2), (0, 126, 8), (51, 116, 0), (28, 122, 12), (30, 123, 3),
+    (13, 126, 2), (85, 94, 0), (51, 116, 1), (87, 92, 3), (53, 115, 3), (7, 126, 7), (21, 125, 0), (26, 124, 2), (57, 113, 4), (63, 110, 0),
+    (34, 122, 3), (21, 125, 1), (14, 126, 0), (68, 107, 0), (63, 110, 1), (13, 126, 3), (85, 94, 2), (14, 126, 1), (68, 107, 1), (30, 123, 4),
+    (8, 126, 7), (41, 120, 0), (26, 124, 3), (87, 92, 4), (78, 100, 0), (38, 121, 0), (41, 120, 1), (14, 126, 2), (68, 107, 2), (78, 100, 1),
+    (31, 123, 0), (85, 94, 3), (61, 111, 4), (57, 113, 5), (17, 125, 8), (31, 123, 1), (41, 120, 2), (44, 119, 0), (48, 117, 6), (78, 100, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk160_size : windowChunk160.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk160_checked : checkRows 16000 windowChunk160 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `16100` through `16199`. -/
+private def windowChunk161 : List (ℕ × ℕ × ℕ) :=
+  [
+    (38, 121, 2), (15, 126, 0), (44, 119, 1), (68, 107, 3), (30, 123, 5), (27, 124, 0), (65, 109, 0), (51, 116, 4), (87, 92, 5), (22, 125, 0),
+    (27, 124, 1), (65, 109, 1), (44, 119, 2), (33, 122, 7), (22, 125, 1), (38, 121, 3), (15, 126, 2), (61, 111, 5), (67, 107, 8), (63, 110, 4),
+    (27, 124, 2), (65, 109, 2), (14, 126, 4), (68, 107, 4), (22, 125, 2), (12, 126, 6), (55, 114, 6), (44, 119, 3), (12, 123, 18), (0, 127, 0),
+    (1, 127, 0), (15, 126, 3), (16, 126, 0), (2, 127, 0), (0, 127, 1), (1, 127, 1), (70, 106, 0), (16, 126, 1), (3, 127, 0), (22, 125, 3),
+    (31, 123, 4), (54, 115, 0), (1, 124, 17), (3, 127, 1), (60, 112, 0), (4, 127, 0), (54, 115, 1), (16, 126, 2), (2, 127, 2), (60, 112, 1),
+    (4, 127, 1), (70, 106, 2), (1, 126, 10), (32, 123, 0), (5, 127, 0), (27, 124, 4), (54, 115, 2), (26, 124, 6), (32, 123, 1), (5, 127, 1),
+    (28, 124, 0), (55, 114, 7), (39, 121, 0), (2, 127, 3), (42, 120, 0), (6, 127, 0), (70, 106, 3), (39, 121, 1), (32, 123, 2), (42, 120, 1),
+    (6, 127, 1), (54, 115, 3), (44, 119, 5), (87, 92, 7), (60, 112, 3), (28, 124, 2), (15, 126, 5), (39, 121, 2), (7, 127, 0), (42, 120, 2),
+    (36, 122, 0), (65, 109, 5), (16, 126, 4), (7, 127, 1), (5, 127, 3), (36, 122, 1), (45, 119, 0), (6, 126, 10), (3, 127, 4), (50, 117, 0),
+    (28, 124, 3), (45, 119, 1), (39, 121, 3), (8, 127, 0), (50, 117, 1), (36, 122, 2), (64, 110, 0), (51, 116, 7), (8, 127, 1), (80, 97, 12)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk161_size : windowChunk161.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk161_checked : checkRows 16100 windowChunk161 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `16200` through `16299`. -/
+private def windowChunk162 : List (ℕ × ℕ × ℕ) :=
+  [
+    (18, 126, 0), (24, 125, 0), (89, 91, 0), (32, 123, 4), (50, 117, 2), (18, 126, 1), (24, 125, 1), (89, 91, 1), (88, 92, 0), (72, 105, 0),
+    (9, 127, 0), (64, 110, 2), (39, 121, 4), (88, 92, 1), (72, 105, 1), (9, 127, 1), (24, 125, 2), (29, 124, 0), (33, 123, 0), (50, 117, 3),
+    (4, 127, 5), (41, 120, 7), (29, 124, 1), (33, 123, 1), (72, 105, 2), (9, 127, 2), (64, 110, 3), (24, 124, 10), (48, 118, 0), (10, 127, 0),
+    (18, 126, 3), (24, 125, 3), (86, 94, 0), (48, 118, 1), (75, 103, 0), (28, 124, 5), (45, 119, 4), (19, 126, 0), (88, 92, 3), (75, 103, 1),
+    (9, 127, 3), (40, 121, 0), (19, 126, 1), (48, 118, 2), (10, 127, 2), (57, 114, 0), (40, 121, 1), (86, 94, 2), (33, 123, 3), (43, 120, 0),
+    (11, 127, 0), (24, 125, 4), (19, 126, 2), (37, 122, 0), (43, 120, 1), (11, 127, 1), (40, 121, 2), (59, 111, 13), (37, 122, 1), (10, 127, 3),
+    (57, 114, 2), (45, 119, 5), (86, 94, 3), (87, 88, 19), (43, 120, 2), (53, 116, 0), (0, 126, 12), (19, 126, 3), (37, 122, 2), (42, 120, 6),
+    (53, 116, 1), (40, 121, 3), (84, 96, 0), (12, 127, 0), (62, 110, 11), (57, 114, 3), (20, 126, 0), (46, 119, 0), (12, 127, 1), (43, 120, 3),
+    (53, 116, 2), (20, 126, 1), (46, 119, 1), (37, 122, 3), (75, 103, 4), (34, 123, 0), (65, 109, 8), (84, 96, 2), (68, 108, 0), (22, 125, 8),
+    (51, 117, 0), (20, 126, 2), (74, 104, 0), (68, 108, 1), (50, 117, 6), (51, 117, 1), (55, 114, 10), (74, 104, 1), (13, 127, 0), (43, 120, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk162_size : windowChunk162.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk162_checked : checkRows 16200 windowChunk162 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `16300` through `16399`. -/
+private def windowChunk163 : List (ℕ × ℕ × ℕ) :=
+  [
+    (34, 123, 2), (26, 125, 0), (84, 96, 3), (13, 127, 1), (10, 127, 5), (51, 117, 2), (26, 125, 1), (74, 104, 2), (87, 92, 10), (75, 103, 5),
+    (1, 127, 8), (39, 120, 12), (19, 126, 5), (13, 127, 2), (72, 105, 6), (34, 123, 3), (26, 125, 2), (21, 126, 0), (68, 108, 3), (52, 115, 12),
+    (51, 117, 3), (54, 115, 8), (41, 121, 0), (12, 127, 4), (43, 120, 5), (14, 127, 0), (20, 126, 4), (41, 121, 1), (38, 122, 0), (50, 117, 7),
+    (14, 127, 1), (26, 125, 3), (21, 126, 2), (77, 102, 0), (10, 127, 6), (34, 123, 4), (44, 120, 0), (31, 124, 0), (77, 102, 1), (75, 103, 6),
+    (14, 127, 2), (44, 120, 1), (31, 124, 1), (38, 122, 2), (42, 120, 8), (6, 127, 8), (40, 121, 6), (21, 126, 3), (77, 102, 2), (70, 107, 0),
+    (57, 114, 6), (44, 120, 2), (31, 124, 2), (47, 117, 13), (15, 127, 0), (14, 127, 3), (41, 120, 10), (29, 124, 7), (38, 122, 3), (15, 127, 1),
+    (22, 126, 0), (56, 115, 0), (81, 99, 0), (77, 102, 3), (70, 107, 2), (22, 126, 1), (56, 115, 1), (81, 99, 1), (48, 118, 7), (60, 113, 0),
+    (47, 119, 0), (39, 115, 25), (54, 116, 0), (13, 127, 5), (60, 113, 1), (47, 119, 1), (56, 115, 2), (54, 116, 1), (38, 122, 4), (70, 107, 3),
+    (18, 126, 8), (90, 91, 0), (46, 119, 6), (77, 102, 4), (0, 128, 0), (1, 128, 0), (90, 91, 1), (54, 116, 2), (2, 128, 0), (0, 128, 1),
+    (1, 128, 1), (56, 115, 3), (81, 99, 3), (3, 128, 0), (80, 98, 12), (51, 117, 6), (90, 91, 2), (41, 121, 5), (3, 128, 1), (0, 128, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk163_size : windowChunk163.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk163_checked : checkRows 16300 windowChunk163 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `16400` through `16499`. -/
+private def windowChunk164 : List (ℕ × ℕ × ℕ) :=
+  [
+    (4, 128, 0), (0, 126, 14), (54, 116, 3), (2, 128, 2), (15, 127, 4), (23, 126, 0), (26, 125, 6), (16, 126, 10), (3, 128, 2), (5, 128, 0),
+    (23, 126, 1), (90, 91, 3), (81, 99, 4), (12, 127, 7), (5, 128, 1), (4, 128, 2), (20, 126, 7), (64, 111, 0), (17, 127, 0), (60, 113, 4),
+    (6, 128, 0), (86, 95, 0), (64, 111, 1), (17, 127, 1), (50, 118, 0), (36, 123, 0), (86, 95, 1), (41, 121, 6), (68, 108, 7), (50, 118, 1),
+    (36, 123, 1), (90, 91, 4), (64, 111, 2), (7, 128, 0), (0, 128, 4), (6, 128, 2), (86, 95, 2), (81, 99, 5), (7, 128, 1), (50, 118, 2),
+    (36, 123, 2), (75, 104, 0), (79, 101, 0), (3, 128, 4), (60, 113, 5), (47, 119, 5), (75, 104, 1), (79, 101, 1), (8, 128, 0), (12, 125, 16),
+    (6, 128, 3), (86, 95, 3), (24, 126, 0), (18, 127, 0), (50, 118, 3), (36, 123, 3), (66, 110, 0), (24, 126, 1), (18, 127, 1), (5, 128, 4),
+    (1, 128, 5), (66, 110, 1), (41, 121, 7), (8, 128, 2), (50, 117, 10), (9, 128, 0), (29, 125, 0), (24, 126, 2), (18, 127, 2), (62, 110, 14),
+    (9, 128, 1), (29, 125, 1), (79, 101, 3), (77, 102, 7), (57, 115, 0), (36, 123, 4), (44, 120, 7), (59, 114, 0), (8, 128, 3), (57, 115, 1),
+    (9, 128, 2), (55, 116, 0), (59, 114, 1), (18, 127, 3), (10, 128, 0), (9, 127, 10), (55, 116, 1), (44, 119, 12), (78, 102, 0), (10, 128, 1),
+    (19, 127, 0), (75, 104, 4), (59, 114, 2), (83, 98, 0), (15, 127, 7), (19, 127, 1), (55, 116, 2), (21, 126, 8), (37, 123, 0), (10, 128, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk164_size : windowChunk164.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk164_checked : checkRows 16400 windowChunk164 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `16500` through `16599`. -/
+private def windowChunk165 : List (ℕ × ℕ × ℕ) :=
+  [
+    (36, 123, 5), (25, 126, 0), (24, 126, 4), (37, 123, 1), (57, 115, 3), (11, 128, 0), (25, 126, 1), (59, 114, 3), (83, 98, 2), (60, 113, 7),
+    (11, 128, 1), (55, 116, 3), (54, 116, 7), (63, 112, 0), (10, 128, 3), (9, 128, 4), (46, 120, 0), (79, 101, 5), (63, 112, 1), (50, 117, 11),
+    (11, 128, 2), (46, 120, 1), (64, 111, 6), (83, 98, 3), (57, 115, 4), (30, 125, 0), (86, 95, 6), (59, 114, 4), (12, 128, 0), (20, 127, 0),
+    (30, 125, 1), (46, 120, 2), (34, 124, 0), (12, 128, 1), (20, 127, 1), (11, 128, 3), (41, 120, 13), (34, 124, 1), (77, 103, 0), (72, 105, 11),
+    (30, 125, 2), (29, 125, 5), (81, 99, 8), (77, 103, 1), (20, 127, 2), (23, 126, 7), (65, 111, 0), (34, 124, 2), (37, 123, 4), (57, 115, 5),
+    (47, 119, 8), (65, 111, 1), (26, 126, 0), (13, 128, 0), (42, 120, 12), (30, 125, 3), (55, 116, 5), (26, 126, 1), (13, 128, 1), (20, 127, 3),
+    (6, 128, 7), (81, 100, 0), (49, 119, 0), (63, 112, 4), (70, 108, 0), (41, 122, 0), (81, 100, 1), (49, 119, 1), (13, 128, 2), (70, 108, 1),
+    (21, 127, 0), (29, 125, 6), (4, 126, 16), (38, 123, 0), (70, 107, 9), (21, 127, 1), (81, 100, 2), (44, 121, 0), (38, 123, 1), (70, 108, 2),
+    (14, 128, 0), (75, 104, 7), (44, 121, 1), (13, 128, 3), (0, 127, 13), (14, 128, 1), (31, 125, 0), (81, 99, 9), (38, 123, 2), (58, 115, 0),
+    (18, 126, 12), (31, 125, 1), (56, 116, 0), (78, 102, 6), (87, 95, 0), (14, 128, 2), (60, 114, 0), (56, 116, 1), (83, 98, 6), (87, 95, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk165_size : windowChunk165.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk165_checked : checkRows 16500 windowChunk165 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `16600` through `16699`. -/
+private def windowChunk166 : List (ℕ × ℕ × ℕ) :=
+  [
+    (21, 127, 3), (35, 124, 0), (26, 126, 4), (38, 123, 3), (58, 115, 2), (27, 126, 0), (35, 124, 1), (56, 116, 2), (77, 102, 10), (15, 128, 0),
+    (27, 126, 1), (60, 114, 2), (86, 96, 0), (22, 127, 0), (15, 128, 1), (41, 122, 4), (35, 124, 2), (86, 96, 1), (22, 127, 1), (58, 115, 3),
+    (27, 126, 2), (65, 111, 5), (56, 116, 3), (38, 123, 4), (15, 128, 2), (4, 128, 9), (60, 114, 3), (86, 96, 2), (52, 118, 0), (15, 127, 10),
+    (14, 128, 4), (35, 124, 3), (24, 126, 8), (72, 107, 0), (85, 97, 0), (27, 126, 3), (31, 125, 4), (49, 119, 5), (72, 107, 1), (85, 97, 1),
+    (16, 128, 0), (0, 129, 0), (1, 129, 0), (52, 118, 2), (87, 95, 4), (2, 129, 0), (0, 129, 1), (1, 129, 1), (42, 122, 0), (32, 125, 0),
+    (3, 129, 0), (35, 124, 4), (44, 121, 5), (42, 122, 1), (32, 125, 1), (3, 129, 1), (0, 129, 2), (4, 129, 0), (23, 127, 0), (15, 128, 4),
+    (28, 126, 0), (50, 119, 0), (4, 129, 1), (23, 127, 1), (32, 125, 2), (28, 126, 1), (5, 129, 0), (56, 116, 5), (12, 128, 7), (87, 95, 5),
+    (16, 128, 3), (5, 129, 1), (36, 124, 0), (17, 128, 0), (60, 107, 25), (28, 126, 2), (50, 119, 2), (6, 129, 0), (17, 128, 1), (32, 125, 3),
+    (3, 129, 3), (5, 129, 2), (6, 129, 1), (72, 107, 4), (85, 97, 4), (14, 128, 6), (65, 111, 7), (36, 124, 2), (17, 128, 2), (75, 103, 13),
+    (7, 129, 0), (50, 119, 3), (6, 129, 2), (78, 103, 0), (58, 115, 6), (7, 129, 1), (5, 129, 3), (56, 116, 6), (78, 103, 1), (32, 125, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk166_size : windowChunk166.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk166_checked : checkRows 16600 windowChunk166 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `16700` through `16799`. -/
+private def windowChunk167 : List (ℕ × ℕ × ℕ) :=
+  [
+    (3, 129, 4), (60, 114, 6), (36, 124, 3), (17, 128, 3), (48, 120, 0), (8, 129, 0), (59, 115, 0), (6, 129, 3), (18, 128, 0), (48, 120, 1),
+    (8, 129, 1), (59, 115, 1), (74, 106, 0), (18, 128, 1), (33, 125, 0), (16, 128, 5), (5, 129, 4), (29, 126, 0), (22, 127, 6), (33, 125, 1),
+    (8, 129, 2), (59, 115, 2), (9, 129, 0), (18, 128, 2), (68, 110, 0), (3, 129, 5), (31, 125, 7), (9, 129, 1), (18, 127, 10), (40, 123, 0),
+    (11, 128, 9), (66, 110, 10), (29, 126, 2), (43, 122, 0), (40, 123, 1), (8, 129, 3), (59, 115, 3), (9, 129, 2), (63, 113, 0), (68, 110, 2),
+    (7, 129, 4), (10, 129, 0), (74, 106, 3), (63, 113, 1), (40, 123, 2), (19, 128, 0), (10, 129, 1), (29, 126, 3), (43, 122, 2), (90, 93, 0),
+    (19, 128, 1), (86, 95, 11), (9, 129, 3), (63, 113, 2), (25, 127, 0), (8, 129, 4), (10, 129, 2), (46, 121, 0), (18, 128, 4), (25, 127, 1),
+    (19, 128, 2), (41, 120, 16), (11, 129, 0), (43, 122, 3), (90, 93, 2), (7, 129, 5), (50, 119, 6), (11, 129, 1), (63, 113, 3), (65, 112, 0),
+    (57, 114, 14), (10, 129, 3), (46, 121, 2), (72, 107, 7), (65, 112, 1), (19, 128, 3), (30, 126, 0), (11, 129, 2), (73, 107, 0), (90, 93, 3),
+    (8, 129, 5), (34, 125, 0), (6, 129, 6), (73, 107, 1), (20, 128, 0), (12, 129, 0), (34, 125, 1), (46, 121, 3), (63, 113, 4), (20, 128, 1),
+    (12, 129, 1), (30, 126, 2), (11, 129, 3), (73, 107, 2), (30, 123, 17), (19, 128, 4), (34, 125, 2), (9, 129, 5), (78, 103, 6), (20, 128, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk167_size : windowChunk167.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk167_checked : checkRows 16700 windowChunk167 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `16800` through `16899`. -/
+private def windowChunk168 : List (ℕ × ℕ × ℕ) :=
+  [
+    (12, 129, 2), (49, 120, 0), (44, 121, 9), (12, 128, 10), (80, 102, 0), (26, 127, 0), (49, 120, 1), (46, 121, 4), (73, 107, 3), (80, 102, 1),
+    (13, 129, 0), (34, 125, 3), (11, 129, 4), (63, 113, 5), (20, 128, 3), (13, 129, 1), (49, 120, 2), (74, 106, 6), (78, 102, 11), (80, 102, 2),
+    (38, 124, 0), (0, 129, 8), (29, 126, 6), (83, 98, 11), (90, 93, 5), (21, 128, 0), (30, 126, 4), (9, 129, 6), (73, 107, 4), (85, 98, 0),
+    (21, 128, 1), (49, 120, 3), (46, 121, 5), (78, 103, 7), (85, 98, 1), (38, 124, 2), (81, 100, 10), (14, 129, 0), (43, 122, 6), (70, 108, 10),
+    (54, 118, 0), (50, 119, 8), (14, 129, 1), (63, 113, 6), (85, 98, 2), (54, 118, 1), (10, 129, 6), (41, 121, 14), (72, 108, 0), (43, 120, 15),
+    (35, 125, 0), (49, 120, 4), (14, 129, 2), (72, 108, 1), (80, 102, 4), (35, 125, 1), (34, 125, 5), (84, 99, 0), (27, 127, 0), (85, 98, 3),
+    (13, 129, 4), (69, 110, 0), (84, 99, 1), (27, 127, 1), (68, 110, 7), (52, 119, 0), (15, 129, 0), (14, 129, 3), (22, 128, 0), (40, 123, 7),
+    (52, 119, 1), (15, 129, 1), (84, 99, 2), (22, 128, 1), (65, 112, 6), (21, 128, 4), (69, 110, 2), (46, 119, 15), (72, 108, 3), (85, 98, 4),
+    (52, 119, 2), (15, 129, 2), (4, 129, 9), (22, 128, 2), (48, 120, 8), (13, 129, 5), (34, 125, 6), (84, 99, 3), (27, 127, 3), (83, 100, 0),
+    (54, 118, 4), (69, 110, 3), (74, 106, 8), (42, 123, 0), (83, 100, 1), (52, 119, 3), (15, 129, 3), (16, 129, 0), (42, 123, 1), (18, 125, 19)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk168_size : windowChunk168.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk168_checked : checkRows 16800 windowChunk168 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `16900` through `16999`. -/
+private def windowChunk169 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 130, 0), (1, 130, 0), (16, 129, 1), (52, 118, 10), (2, 130, 0), (0, 130, 1), (1, 130, 1), (84, 99, 4), (42, 123, 2), (3, 130, 0),
+    (26, 127, 6), (69, 110, 4), (16, 129, 2), (23, 128, 0), (3, 130, 1), (0, 130, 2), (4, 130, 0), (1, 129, 10), (23, 128, 1), (2, 130, 2),
+    (2, 129, 10), (36, 125, 0), (71, 109, 0), (42, 123, 3), (3, 130, 2), (5, 130, 0), (36, 125, 1), (71, 109, 1), (92, 92, 0), (90, 93, 8),
+    (17, 129, 0), (4, 130, 2), (84, 99, 5), (92, 92, 1), (2, 130, 3), (17, 129, 1), (6, 130, 0), (59, 116, 0), (57, 117, 0), (3, 130, 3),
+    (5, 130, 2), (6, 130, 1), (59, 116, 1), (57, 117, 1), (80, 102, 7), (48, 121, 0), (61, 115, 0), (16, 129, 4), (17, 128, 10), (7, 130, 0),
+    (48, 121, 1), (61, 115, 1), (59, 116, 2), (57, 117, 2), (77, 105, 0), (5, 130, 3), (30, 126, 8), (46, 119, 16), (92, 92, 3), (77, 105, 1),
+    (24, 128, 0), (61, 115, 2), (84, 99, 6), (23, 128, 4), (8, 130, 0), (18, 129, 0), (6, 130, 3), (59, 116, 3), (57, 117, 3), (8, 130, 1),
+    (29, 127, 0), (36, 125, 4), (71, 109, 4), (22, 128, 6), (90, 93, 9), (29, 127, 1), (40, 124, 0), (14, 129, 7), (43, 123, 0), (8, 130, 2),
+    (18, 129, 2), (9, 130, 0), (46, 121, 9), (43, 123, 1), (77, 105, 3), (29, 127, 2), (9, 130, 1), (59, 116, 4), (57, 117, 4), (33, 125, 10),
+    (24, 128, 3), (40, 124, 2), (29, 126, 10), (73, 108, 0), (37, 125, 0), (18, 129, 3), (9, 130, 2), (71, 109, 5), (73, 108, 1), (37, 125, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk169_size : windowChunk169.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk169_checked : checkRows 16900 windowChunk169 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `17000` through `17099`. -/
+private def windowChunk170 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 130, 0), (51, 120, 0), (19, 129, 0), (92, 92, 5), (77, 105, 4), (10, 130, 1), (51, 120, 1), (19, 129, 1), (73, 108, 2), (25, 128, 0),
+    (24, 128, 4), (9, 130, 3), (76, 106, 0), (57, 117, 5), (25, 128, 1), (10, 130, 2), (51, 120, 2), (76, 106, 1), (23, 128, 6), (70, 108, 13),
+    (29, 127, 4), (11, 130, 0), (14, 126, 19), (73, 108, 3), (25, 128, 2), (21, 127, 13), (85, 99, 0), (76, 106, 2), (43, 123, 4), (30, 127, 0),
+    (10, 130, 3), (85, 99, 1), (34, 126, 0), (67, 112, 0), (30, 127, 1), (24, 128, 5), (11, 130, 2), (34, 126, 1), (67, 112, 1), (25, 128, 3),
+    (18, 129, 5), (20, 129, 0), (49, 121, 0), (73, 108, 4), (12, 130, 0), (29, 127, 5), (20, 129, 1), (49, 121, 1), (67, 112, 2), (12, 130, 1),
+    (10, 130, 4), (11, 130, 3), (19, 129, 4), (58, 117, 0), (7, 130, 6), (51, 117, 17), (60, 116, 0), (41, 124, 0), (58, 117, 1), (12, 130, 2),
+    (26, 128, 0), (60, 116, 1), (41, 124, 1), (67, 112, 3), (15, 128, 13), (44, 123, 0), (29, 125, 15), (6, 129, 12), (58, 117, 2), (13, 130, 0),
+    (44, 123, 1), (60, 116, 2), (41, 124, 2), (42, 123, 8), (75, 107, 0), (26, 128, 2), (85, 99, 4), (54, 119, 0), (57, 117, 7), (75, 107, 1),
+    (44, 123, 2), (40, 124, 6), (21, 129, 0), (58, 117, 3), (13, 130, 2), (48, 121, 7), (60, 116, 3), (21, 129, 1), (72, 107, 13), (75, 107, 2),
+    (31, 127, 0), (20, 129, 4), (64, 114, 0), (47, 122, 0), (12, 130, 4), (31, 127, 1), (14, 130, 0), (64, 114, 1), (47, 122, 1), (13, 130, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk170_size : windowChunk170.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk170_checked : checkRows 17000 windowChunk170 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `17100` through `17199`. -/
+private def windowChunk171 : List (ℕ × ℕ × ℕ) :=
+  [
+    (24, 128, 7), (35, 126, 0), (71, 109, 8), (58, 117, 4), (52, 120, 0), (31, 127, 2), (35, 126, 1), (64, 114, 2), (47, 122, 2), (78, 105, 0),
+    (26, 128, 4), (14, 130, 2), (21, 129, 3), (27, 128, 0), (78, 105, 1), (44, 123, 4), (35, 126, 2), (91, 94, 0), (27, 128, 1), (52, 120, 2),
+    (31, 127, 3), (9, 130, 7), (91, 94, 1), (47, 122, 3), (78, 105, 2), (15, 130, 0), (14, 130, 3), (54, 119, 4), (82, 102, 0), (7, 130, 8),
+    (15, 130, 1), (35, 126, 3), (91, 94, 2), (82, 102, 1), (52, 120, 3), (26, 128, 5), (69, 110, 10), (89, 96, 0), (67, 112, 6), (78, 105, 3),
+    (42, 124, 0), (50, 121, 0), (89, 96, 1), (82, 102, 2), (13, 130, 5), (42, 124, 1), (39, 125, 0), (91, 94, 3), (78, 103, 13), (75, 107, 5),
+    (29, 127, 8), (39, 125, 1), (89, 96, 2), (32, 127, 0), (45, 123, 0), (42, 124, 2), (16, 130, 0), (21, 129, 5), (32, 127, 1), (45, 123, 1),
+    (8, 129, 13), (0, 131, 0), (1, 131, 0), (27, 128, 4), (83, 100, 10), (2, 131, 0), (0, 131, 1), (1, 131, 1), (28, 128, 0), (45, 123, 2),
+    (3, 131, 0), (16, 130, 2), (36, 126, 0), (57, 118, 0), (13, 130, 6), (3, 131, 1), (0, 131, 2), (4, 131, 0), (57, 118, 1), (52, 120, 5),
+    (2, 131, 2), (20, 129, 7), (4, 131, 1), (28, 128, 2), (45, 123, 3), (3, 131, 2), (5, 131, 0), (36, 126, 2), (48, 122, 0), (17, 130, 0),
+    (42, 124, 4), (5, 131, 1), (4, 131, 2), (48, 122, 1), (63, 115, 0), (2, 131, 3), (39, 125, 4), (6, 131, 0), (28, 128, 3), (63, 115, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk171_size : windowChunk171.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk171_checked : checkRows 17100 windowChunk171 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `17200` through `17299`. -/
+private def windowChunk172 : List (ℕ × ℕ × ℕ) :=
+  [
+    (3, 131, 3), (5, 131, 2), (6, 131, 1), (48, 122, 2), (17, 130, 2), (44, 123, 7), (16, 130, 4), (4, 131, 3), (12, 128, 16), (53, 120, 0),
+    (7, 131, 0), (0, 131, 4), (6, 131, 2), (67, 112, 8), (53, 120, 1), (7, 131, 1), (80, 104, 0), (24, 129, 0), (33, 127, 0), (17, 130, 3),
+    (3, 131, 4), (65, 114, 0), (24, 129, 1), (33, 127, 1), (18, 130, 0), (8, 131, 0), (65, 114, 1), (6, 131, 3), (32, 127, 5), (18, 130, 1),
+    (8, 131, 1), (80, 104, 2), (24, 129, 2), (33, 127, 2), (25, 128, 9), (24, 128, 10), (65, 114, 2), (1, 131, 5), (48, 122, 4), (18, 130, 2),
+    (8, 131, 2), (35, 126, 7), (9, 131, 0), (28, 128, 5), (63, 115, 4), (37, 126, 0), (80, 104, 3), (9, 131, 1), (33, 127, 3), (78, 105, 7),
+    (37, 126, 1), (65, 114, 3), (4, 131, 5), (27, 128, 7), (18, 130, 3), (8, 131, 3), (9, 130, 10), (84, 101, 0), (67, 113, 0), (53, 120, 4),
+    (37, 126, 2), (10, 131, 0), (84, 101, 1), (67, 113, 1), (17, 130, 5), (15, 130, 7), (25, 129, 0), (24, 129, 4), (33, 127, 4), (63, 115, 5),
+    (2, 131, 6), (25, 129, 1), (84, 101, 2), (67, 113, 2), (18, 130, 4), (37, 126, 3), (10, 131, 2), (36, 126, 6), (57, 118, 6), (7, 130, 11),
+    (42, 124, 7), (25, 129, 2), (11, 131, 0), (42, 123, 12), (30, 128, 0), (34, 127, 0), (39, 125, 7), (11, 131, 1), (58, 118, 0), (60, 117, 0),
+    (34, 127, 1), (10, 131, 3), (9, 131, 4), (83, 102, 0), (60, 117, 1), (37, 126, 4), (25, 129, 3), (56, 119, 0), (93, 93, 0), (30, 128, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk172_size : windowChunk172.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk172_checked : checkRows 17200 windowChunk172 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `17300` through `17399`. -/
+private def windowChunk173 : List (ℕ × ℕ × ℕ) :=
+  [
+    (20, 130, 0), (0, 131, 7), (56, 119, 1), (93, 93, 1), (60, 117, 2), (12, 131, 0), (41, 125, 0), (84, 101, 4), (83, 102, 2), (20, 128, 14),
+    (12, 131, 1), (41, 125, 1), (44, 124, 0), (93, 93, 2), (30, 128, 3), (20, 130, 2), (54, 120, 0), (26, 129, 0), (58, 118, 3), (60, 117, 3),
+    (38, 126, 0), (64, 115, 0), (26, 129, 1), (83, 102, 3), (37, 125, 11), (38, 126, 1), (64, 115, 1), (44, 124, 2), (93, 93, 3), (18, 130, 6),
+    (13, 131, 0), (54, 120, 2), (26, 129, 2), (82, 103, 0), (30, 128, 4), (13, 131, 1), (64, 115, 2), (6, 131, 7), (47, 123, 0), (60, 117, 4),
+    (44, 123, 10), (21, 130, 0), (44, 124, 3), (47, 123, 1), (13, 130, 10), (31, 128, 0), (21, 130, 1), (26, 129, 3), (88, 98, 0), (53, 120, 7),
+    (31, 128, 1), (64, 115, 3), (66, 114, 0), (88, 98, 1), (35, 127, 0), (12, 131, 4), (21, 130, 2), (14, 131, 0), (33, 127, 7), (35, 127, 1),
+    (31, 128, 2), (65, 114, 7), (71, 111, 0), (88, 98, 2), (60, 117, 5), (8, 131, 7), (54, 120, 4), (71, 111, 1), (47, 123, 3), (35, 127, 2),
+    (27, 129, 0), (21, 130, 3), (14, 131, 2), (93, 93, 5), (63, 115, 8), (27, 129, 1), (35, 126, 10), (81, 104, 0), (77, 107, 0), (45, 123, 9),
+    (13, 131, 4), (41, 125, 5), (81, 104, 1), (77, 107, 1), (22, 130, 0), (27, 129, 2), (15, 131, 0), (14, 131, 3), (47, 123, 4), (42, 125, 0),
+    (34, 127, 6), (15, 131, 1), (81, 104, 2), (68, 113, 0), (42, 125, 1), (31, 128, 4), (86, 100, 0), (39, 126, 0), (68, 113, 1), (22, 130, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk173_size : windowChunk173.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk173_checked : checkRows 17300 windowChunk173 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `17400` through `17499`. -/
+private def windowChunk174 : List (ℕ × ℕ × ℕ) :=
+  [
+    (27, 129, 3), (45, 124, 0), (39, 126, 1), (93, 93, 6), (42, 125, 2), (59, 118, 0), (45, 124, 1), (81, 104, 3), (32, 128, 0), (77, 105, 13),
+    (57, 119, 0), (86, 100, 2), (39, 126, 2), (32, 128, 1), (22, 130, 3), (57, 119, 1), (45, 124, 2), (16, 131, 0), (42, 123, 14), (42, 125, 3),
+    (59, 118, 2), (54, 120, 6), (16, 131, 1), (32, 128, 2), (0, 132, 0), (1, 132, 0), (85, 101, 0), (39, 126, 3), (2, 132, 0), (23, 130, 0),
+    (1, 132, 1), (85, 101, 1), (16, 131, 2), (3, 132, 0), (23, 130, 1), (59, 118, 3), (15, 131, 4), (71, 111, 5), (3, 132, 1), (0, 132, 2),
+    (4, 132, 0), (85, 101, 2), (24, 129, 9), (2, 132, 2), (70, 112, 0), (4, 132, 1), (86, 100, 4), (16, 131, 3), (3, 132, 2), (5, 132, 0),
+    (17, 131, 0), (45, 124, 4), (81, 104, 5), (77, 107, 5), (5, 132, 1), (17, 131, 1), (85, 101, 3), (66, 114, 6), (2, 132, 3), (70, 112, 2),
+    (6, 132, 0), (15, 131, 5), (14, 131, 6), (3, 132, 3), (5, 132, 2), (6, 132, 1), (15, 129, 15), (16, 131, 4), (68, 113, 5), (60, 117, 8),
+    (4, 132, 3), (86, 100, 5), (39, 126, 5), (7, 132, 0), (43, 125, 0), (6, 132, 2), (24, 130, 0), (79, 106, 0), (7, 132, 1), (43, 125, 1),
+    (17, 131, 3), (24, 130, 1), (29, 129, 0), (3, 132, 4), (53, 120, 10), (18, 131, 0), (41, 125, 8), (29, 129, 1), (8, 132, 0), (92, 95, 0),
+    (18, 131, 1), (24, 130, 2), (46, 124, 0), (8, 132, 1), (92, 95, 1), (2, 131, 11), (54, 120, 8), (91, 96, 0), (37, 127, 0), (5, 132, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk174_size : windowChunk174.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk174_checked : checkRows 17400 windowChunk174 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `17500` through `17599`. -/
+private def windowChunk175 : List (ℕ × ℕ × ℕ) :=
+  [
+    (18, 131, 2), (85, 101, 5), (91, 96, 1), (37, 127, 1), (92, 95, 2), (9, 132, 0), (75, 109, 0), (46, 124, 2), (3, 132, 5), (90, 97, 0),
+    (9, 132, 1), (75, 109, 1), (91, 96, 2), (37, 127, 2), (90, 97, 1), (18, 131, 3), (5, 131, 11), (81, 104, 7), (8, 132, 3), (92, 95, 3),
+    (9, 132, 2), (75, 109, 2), (19, 131, 0), (7, 132, 4), (10, 132, 0), (25, 130, 0), (24, 130, 4), (19, 131, 1), (37, 127, 3), (10, 132, 1),
+    (49, 123, 0), (85, 101, 6), (29, 129, 4), (62, 117, 0), (23, 130, 6), (49, 123, 1), (56, 120, 0), (19, 131, 2), (62, 117, 1), (10, 132, 2),
+    (34, 128, 0), (30, 129, 0), (46, 124, 4), (32, 127, 12), (45, 123, 12), (11, 132, 0), (30, 129, 1), (91, 96, 4), (62, 117, 2), (43, 125, 5),
+    (11, 132, 1), (56, 120, 2), (64, 116, 0), (68, 108, 22), (10, 132, 3), (34, 128, 2), (30, 129, 2), (41, 126, 0), (77, 107, 8), (90, 97, 4),
+    (11, 132, 2), (20, 131, 0), (41, 126, 1), (62, 117, 3), (92, 95, 5), (6, 132, 6), (20, 131, 1), (64, 116, 2), (12, 132, 0), (87, 100, 0),
+    (34, 128, 3), (30, 129, 3), (41, 126, 2), (38, 127, 0), (87, 100, 1), (11, 132, 3), (26, 130, 0), (39, 126, 8), (38, 127, 1), (43, 125, 6),
+    (49, 123, 4), (66, 115, 0), (64, 116, 3), (12, 132, 2), (87, 100, 2), (47, 124, 0), (81, 105, 0), (41, 126, 3), (52, 122, 0), (5, 132, 7),
+    (47, 124, 1), (81, 105, 1), (26, 129, 10), (13, 132, 0), (92, 95, 6), (11, 132, 4), (66, 115, 2), (86, 101, 0), (13, 132, 1), (87, 100, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk175_size : windowChunk175.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk175_checked : checkRows 17500 windowChunk175 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `17600` through `17699`. -/
+private def windowChunk176 : List (ℕ × ℕ × ℕ) :=
+  [
+    (47, 124, 2), (81, 105, 2), (21, 131, 0), (52, 122, 2), (0, 132, 8), (49, 123, 5), (26, 130, 3), (21, 131, 1), (13, 132, 2), (35, 128, 0),
+    (9, 132, 6), (66, 115, 3), (86, 101, 2), (7, 132, 7), (35, 128, 1), (47, 124, 3), (81, 105, 3), (21, 131, 2), (52, 122, 3), (87, 100, 4),
+    (14, 132, 0), (86, 100, 9), (29, 129, 7), (13, 132, 3), (35, 128, 2), (14, 132, 1), (26, 130, 4), (86, 101, 3), (8, 132, 7), (27, 130, 0),
+    (25, 130, 6), (66, 115, 4), (21, 131, 3), (32, 128, 9), (27, 130, 1), (14, 132, 2), (80, 106, 0), (91, 96, 7), (52, 122, 4), (35, 128, 3),
+    (42, 126, 0), (80, 106, 1), (59, 119, 0), (13, 132, 4), (27, 130, 2), (22, 131, 0), (30, 129, 6), (59, 119, 1), (38, 127, 5), (15, 132, 0),
+    (39, 127, 0), (80, 106, 2), (21, 131, 4), (7, 132, 8), (15, 132, 1), (39, 127, 1), (66, 115, 5), (76, 109, 0), (63, 117, 0), (27, 130, 3),
+    (22, 131, 2), (81, 105, 5), (76, 109, 1), (63, 117, 1), (15, 132, 2), (32, 129, 0), (55, 121, 0), (29, 126, 19), (13, 132, 5), (70, 113, 0),
+    (32, 129, 1), (55, 121, 1), (94, 94, 0), (63, 117, 2), (93, 95, 0), (22, 131, 3), (56, 120, 7), (94, 94, 1), (38, 127, 6), (93, 95, 1),
+    (16, 132, 0), (65, 116, 0), (66, 114, 11), (32, 128, 10), (28, 130, 0), (16, 132, 1), (65, 116, 1), (94, 94, 2), (63, 117, 3), (0, 133, 0),
+    (1, 133, 0), (81, 105, 6), (59, 119, 4), (2, 133, 0), (0, 133, 1), (1, 133, 1), (65, 116, 2), (41, 126, 7), (3, 133, 0), (28, 130, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk176_size : windowChunk176.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk176_checked : checkRows 17600 windowChunk176 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `17700` through `17799`. -/
+private def windowChunk177 : List (ℕ × ℕ × ℕ) :=
+  [
+    (39, 127, 4), (20, 131, 7), (94, 94, 3), (3, 133, 1), (90, 98, 0), (4, 133, 0), (54, 120, 12), (76, 109, 4), (2, 133, 2), (90, 98, 1),
+    (4, 133, 1), (65, 116, 3), (84, 101, 13), (17, 132, 0), (5, 133, 0), (32, 129, 4), (55, 121, 4), (59, 119, 5), (17, 132, 1), (5, 133, 1),
+    (4, 133, 2), (66, 115, 7), (89, 99, 0), (2, 133, 3), (93, 95, 4), (6, 133, 0), (81, 105, 7), (89, 99, 1), (72, 112, 0), (40, 127, 0),
+    (33, 129, 0), (65, 116, 4), (76, 109, 5), (72, 112, 1), (40, 127, 1), (33, 129, 1), (60, 116, 16), (24, 131, 0), (7, 133, 0), (0, 133, 4),
+    (6, 133, 2), (29, 130, 0), (24, 131, 1), (7, 133, 1), (88, 100, 0), (33, 129, 2), (29, 130, 1), (94, 94, 5), (18, 132, 0), (82, 105, 0),
+    (22, 131, 6), (24, 130, 10), (24, 131, 2), (8, 133, 0), (82, 105, 1), (6, 133, 3), (29, 130, 2), (69, 114, 0), (8, 133, 1), (88, 100, 2),
+    (33, 129, 3), (60, 119, 0), (69, 114, 1), (18, 132, 2), (58, 120, 0), (1, 133, 5), (60, 119, 1), (24, 131, 3), (62, 118, 0), (58, 120, 1),
+    (9, 133, 0), (29, 130, 3), (69, 114, 2), (62, 118, 1), (88, 100, 3), (9, 133, 1), (60, 119, 2), (49, 124, 0), (18, 132, 3), (58, 120, 2),
+    (33, 129, 4), (75, 109, 10), (49, 124, 1), (62, 118, 2), (90, 97, 10), (19, 132, 0), (25, 131, 0), (69, 114, 3), (7, 133, 4), (10, 133, 0),
+    (19, 132, 1), (25, 131, 1), (49, 124, 2), (12, 132, 9), (10, 133, 1), (1, 133, 6), (21, 130, 13), (34, 129, 0), (62, 118, 3), (82, 105, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk177_size : windowChunk177.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk177_checked : checkRows 17700 windowChunk177 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `17800` through `17899`. -/
+private def windowChunk178 : List (ℕ × ℕ × ℕ) :=
+  [
+    (30, 130, 0), (25, 131, 2), (34, 129, 1), (8, 133, 4), (10, 133, 2), (30, 130, 1), (55, 121, 7), (49, 124, 3), (62, 117, 10), (90, 98, 6),
+    (11, 133, 0), (60, 119, 4), (44, 126, 0), (7, 133, 5), (58, 120, 4), (11, 133, 1), (25, 131, 3), (44, 126, 1), (62, 118, 4), (10, 133, 3),
+    (9, 133, 4), (65, 116, 7), (59, 119, 8), (18, 132, 5), (20, 132, 0), (11, 133, 2), (39, 125, 16), (44, 126, 2), (38, 128, 0), (20, 132, 1),
+    (30, 130, 3), (41, 125, 14), (69, 114, 5), (12, 133, 0), (47, 125, 0), (19, 132, 4), (25, 131, 4), (26, 131, 0), (12, 133, 1), (47, 125, 1),
+    (11, 133, 3), (15, 131, 13), (26, 131, 1), (38, 128, 2), (90, 98, 7), (9, 133, 5), (29, 130, 6), (34, 129, 4), (12, 133, 2), (68, 115, 0),
+    (30, 130, 4), (26, 130, 10), (26, 131, 2), (18, 132, 6), (68, 115, 1), (25, 130, 11), (66, 115, 10), (84, 101, 15), (13, 133, 0), (3, 130, 19),
+    (11, 133, 4), (31, 130, 0), (44, 126, 4), (13, 133, 1), (68, 115, 2), (21, 132, 0), (35, 129, 0), (26, 131, 3), (72, 112, 7), (58, 120, 6),
+    (21, 132, 1), (35, 129, 1), (84, 104, 0), (73, 112, 0), (20, 132, 4), (30, 130, 5), (50, 124, 0), (84, 104, 1), (73, 112, 1), (68, 115, 3),
+    (21, 132, 2), (59, 120, 0), (61, 119, 0), (12, 133, 4), (47, 125, 4), (14, 133, 0), (59, 120, 1), (61, 119, 1), (73, 112, 2), (82, 105, 7),
+    (27, 131, 0), (50, 124, 2), (6, 124, 31), (42, 127, 0), (10, 133, 6), (27, 131, 1), (70, 114, 0), (61, 119, 2), (42, 127, 1), (68, 115, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk178_size : windowChunk178.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk178_checked : checkRows 17800 windowChunk178 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `17900` through `17999`. -/
+private def windowChunk179 : List (ℕ × ℕ × ℕ) :=
+  [
+    (14, 133, 2), (45, 126, 0), (84, 104, 3), (73, 112, 3), (58, 120, 7), (39, 128, 0), (45, 126, 1), (84, 99, 20), (22, 132, 0), (55, 122, 0),
+    (39, 128, 1), (70, 114, 2), (61, 119, 3), (22, 132, 1), (15, 133, 0), (14, 133, 3), (45, 126, 2), (44, 126, 6), (7, 133, 8), (15, 133, 1),
+    (39, 128, 2), (89, 100, 0), (84, 104, 4), (22, 132, 2), (32, 130, 0), (19, 132, 7), (89, 100, 1), (86, 101, 11), (18, 132, 8), (48, 125, 0),
+    (4, 133, 9), (45, 126, 3), (61, 119, 4), (13, 133, 5), (48, 125, 1), (39, 128, 3), (89, 100, 2), (36, 129, 0), (53, 123, 0), (32, 130, 2),
+    (27, 131, 4), (35, 129, 5), (36, 129, 1), (53, 123, 1), (48, 125, 2), (16, 133, 0), (75, 111, 0), (84, 104, 5), (73, 112, 5), (93, 95, 10),
+    (16, 133, 1), (75, 111, 1), (36, 129, 2), (23, 132, 0), (32, 130, 3), (39, 128, 4), (0, 134, 0), (1, 134, 0), (23, 132, 1), (48, 125, 3),
+    (2, 134, 0), (0, 134, 1), (1, 134, 1), (13, 133, 6), (15, 133, 4), (3, 134, 0), (31, 130, 6), (36, 129, 3), (23, 132, 2), (10, 133, 8),
+    (3, 134, 1), (0, 134, 2), (4, 134, 0), (87, 102, 0), (32, 130, 4), (2, 134, 2), (75, 111, 3), (51, 124, 0), (17, 133, 0), (48, 125, 4),
+    (3, 134, 2), (5, 134, 0), (51, 124, 1), (17, 133, 1), (40, 128, 0), (49, 123, 13), (69, 115, 0), (4, 134, 2), (87, 102, 2), (33, 130, 0),
+    (2, 134, 3), (69, 115, 1), (6, 134, 0), (17, 133, 2), (33, 130, 1), (3, 134, 3), (5, 134, 2), (6, 134, 1), (42, 127, 6), (40, 128, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk179_size : windowChunk179.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk179_checked : checkRows 17900 windowChunk179 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `18000` through `18099`. -/
+private def windowChunk180 : List (ℕ × ℕ × ℕ) :=
+  [
+    (24, 132, 0), (69, 115, 2), (29, 131, 0), (87, 102, 3), (33, 130, 2), (7, 134, 0), (0, 134, 4), (29, 131, 1), (17, 133, 3), (45, 123, 18),
+    (37, 129, 0), (5, 134, 3), (36, 129, 5), (18, 133, 0), (40, 128, 3), (37, 129, 1), (69, 115, 3), (29, 131, 2), (18, 133, 1), (33, 130, 3),
+    (8, 134, 0), (75, 111, 5), (6, 134, 3), (87, 102, 4), (82, 105, 10), (8, 134, 1), (49, 125, 0), (51, 124, 4), (18, 133, 2), (77, 110, 0),
+    (24, 132, 3), (49, 125, 1), (29, 131, 3), (42, 127, 7), (77, 110, 1), (8, 134, 2), (69, 115, 4), (9, 134, 0), (13, 133, 8), (33, 130, 4),
+    (37, 129, 3), (85, 104, 0), (9, 134, 1), (18, 133, 3), (77, 110, 2), (54, 123, 0), (85, 104, 1), (4, 134, 5), (87, 102, 5), (25, 132, 0),
+    (19, 133, 0), (75, 111, 6), (94, 96, 0), (17, 133, 5), (25, 132, 1), (19, 133, 1), (10, 134, 0), (94, 96, 1), (93, 97, 0), (77, 110, 3),
+    (54, 123, 2), (30, 131, 0), (1, 134, 6), (93, 97, 1), (80, 108, 0), (41, 128, 0), (30, 131, 1), (94, 96, 2), (92, 98, 0), (80, 108, 1),
+    (41, 128, 1), (10, 134, 2), (34, 129, 10), (92, 98, 1), (68, 115, 9), (54, 123, 3), (30, 131, 2), (11, 134, 0), (87, 102, 6), (80, 108, 2),
+    (52, 124, 0), (84, 105, 0), (91, 99, 0), (92, 98, 2), (27, 130, 13), (38, 129, 0), (84, 105, 1), (91, 99, 1), (93, 97, 3), (20, 133, 0),
+    (38, 129, 1), (30, 131, 3), (11, 134, 2), (23, 132, 7), (20, 133, 1), (52, 124, 2), (84, 105, 2), (76, 111, 0), (73, 113, 0), (25, 132, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk180_size : windowChunk180.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk180_checked : checkRows 18000 windowChunk180 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `18100` through `18199`. -/
+private def windowChunk181 : List (ℕ × ℕ × ℕ) :=
+  [
+    (12, 134, 0), (49, 125, 5), (76, 111, 1), (73, 113, 1), (20, 133, 2), (12, 134, 1), (10, 134, 4), (11, 134, 3), (93, 97, 4), (48, 125, 8),
+    (52, 124, 3), (84, 105, 3), (76, 111, 2), (73, 113, 2), (80, 108, 4), (12, 134, 2), (85, 104, 5), (51, 124, 7), (92, 98, 4), (20, 133, 3),
+    (54, 123, 5), (61, 120, 0), (31, 131, 0), (57, 118, 19), (25, 132, 5), (13, 134, 0), (61, 120, 1), (31, 131, 1), (73, 113, 3), (33, 130, 7),
+    (21, 133, 0), (84, 105, 4), (91, 99, 4), (57, 122, 0), (77, 110, 6), (21, 133, 1), (61, 120, 2), (31, 131, 2), (57, 122, 1), (20, 133, 4),
+    (13, 134, 2), (35, 129, 10), (9, 134, 6), (92, 98, 5), (0, 133, 13), (21, 133, 2), (85, 104, 6), (76, 111, 4), (42, 128, 0), (65, 118, 0),
+    (12, 134, 4), (61, 120, 3), (14, 134, 0), (27, 132, 0), (45, 127, 0), (13, 134, 3), (84, 105, 5), (14, 134, 1), (27, 132, 1), (45, 127, 1),
+    (21, 133, 3), (10, 134, 6), (39, 129, 0), (42, 128, 2), (65, 118, 2), (27, 131, 10), (30, 131, 6), (39, 129, 1), (27, 132, 2), (75, 112, 0),
+    (41, 128, 6), (61, 120, 4), (31, 131, 4), (22, 133, 0), (75, 112, 1), (13, 134, 4), (45, 126, 10), (39, 129, 2), (67, 117, 0), (65, 118, 3),
+    (48, 126, 0), (15, 134, 0), (14, 134, 3), (67, 117, 1), (78, 110, 0), (32, 131, 0), (15, 134, 1), (91, 99, 6), (22, 133, 2), (78, 110, 1),
+    (32, 131, 1), (31, 130, 11), (39, 129, 3), (67, 117, 2), (20, 133, 6), (48, 126, 2), (36, 130, 0), (31, 131, 5), (42, 128, 4), (78, 110, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk181_size : windowChunk181.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk181_checked : checkRows 18100 windowChunk181 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `18200` through `18299`. -/
+private def windowChunk182 : List (ℕ × ℕ × ℕ) :=
+  [
+    (32, 131, 2), (36, 130, 1), (14, 134, 4), (22, 133, 3), (45, 127, 4), (21, 133, 5), (49, 125, 8), (66, 114, 18), (28, 132, 0), (77, 110, 8),
+    (48, 126, 3), (36, 130, 2), (16, 134, 0), (28, 132, 1), (78, 110, 3), (32, 131, 3), (60, 119, 13), (69, 116, 0), (23, 133, 0), (75, 112, 4),
+    (52, 124, 7), (84, 105, 7), (69, 116, 1), (23, 133, 1), (65, 118, 5), (0, 135, 0), (1, 135, 0), (16, 134, 2), (67, 117, 4), (2, 135, 0),
+    (0, 135, 1), (1, 135, 1), (69, 116, 2), (43, 128, 0), (3, 135, 0), (32, 131, 4), (10, 134, 8), (39, 129, 5), (43, 128, 1), (3, 135, 1),
+    (0, 135, 2), (4, 135, 0), (16, 134, 3), (83, 102, 19), (62, 120, 0), (17, 134, 0), (4, 135, 1), (69, 116, 3), (58, 122, 0), (62, 120, 1),
+    (5, 135, 0), (49, 125, 9), (51, 124, 10), (93, 98, 0), (65, 118, 6), (5, 135, 1), (4, 135, 2), (64, 119, 0), (93, 98, 1), (62, 120, 2),
+    (17, 134, 2), (6, 135, 0), (64, 119, 1), (58, 122, 2), (3, 135, 3), (24, 133, 0), (71, 115, 0), (69, 116, 4), (93, 98, 2), (37, 130, 0),
+    (24, 133, 1), (71, 115, 1), (64, 119, 2), (57, 122, 7), (7, 135, 0), (17, 134, 3), (6, 135, 2), (49, 126, 0), (58, 122, 3), (7, 135, 1),
+    (18, 134, 0), (80, 109, 0), (49, 126, 1), (93, 98, 3), (37, 130, 2), (18, 134, 1), (80, 109, 1), (64, 119, 3), (42, 128, 7), (8, 135, 0),
+    (32, 131, 6), (6, 135, 3), (54, 124, 0), (23, 133, 5), (8, 135, 1), (18, 134, 2), (80, 109, 2), (54, 124, 1), (58, 122, 4), (37, 130, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk182_size : windowChunk182.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk182_checked : checkRows 18200 windowChunk182 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `18300` through `18399`. -/
+private def windowChunk183 : List (ℕ × ℕ × ℕ) :=
+  [
+    (5, 135, 4), (90, 101, 0), (39, 129, 7), (93, 98, 4), (8, 135, 2), (13, 134, 8), (9, 135, 0), (54, 124, 2), (43, 128, 5), (3, 135, 5),
+    (18, 134, 3), (9, 135, 1), (9, 134, 10), (68, 117, 0), (25, 133, 0), (24, 133, 4), (90, 101, 2), (19, 134, 0), (68, 117, 1), (25, 133, 1),
+    (44, 128, 0), (9, 135, 2), (41, 129, 0), (58, 122, 5), (30, 132, 0), (10, 135, 0), (20, 131, 17), (41, 129, 1), (68, 117, 2), (52, 125, 0),
+    (10, 135, 1), (90, 101, 3), (19, 134, 2), (27, 132, 8), (52, 125, 1), (44, 128, 2), (9, 135, 3), (41, 129, 2), (47, 127, 0), (30, 132, 2),
+    (10, 135, 2), (79, 110, 0), (54, 124, 4), (47, 127, 1), (38, 130, 0), (27, 131, 13), (11, 135, 0), (19, 134, 3), (28, 132, 7), (38, 130, 1),
+    (44, 128, 3), (11, 135, 1), (41, 129, 3), (88, 103, 0), (30, 132, 3), (10, 135, 3), (20, 134, 0), (69, 116, 7), (88, 103, 1), (38, 130, 2),
+    (48, 126, 8), (20, 134, 1), (61, 121, 0), (68, 117, 4), (25, 133, 4), (26, 133, 0), (6, 135, 6), (61, 121, 1), (88, 103, 2), (12, 135, 0),
+    (26, 133, 1), (20, 134, 2), (41, 129, 4), (43, 128, 7), (12, 135, 1), (10, 135, 4), (50, 126, 0), (61, 121, 2), (57, 123, 0), (52, 125, 4),
+    (26, 133, 2), (50, 126, 1), (49, 126, 6), (57, 123, 1), (12, 135, 2), (31, 132, 0), (35, 131, 0), (39, 129, 9), (82, 108, 0), (25, 133, 5),
+    (31, 132, 1), (35, 131, 1), (61, 121, 3), (82, 108, 1), (13, 135, 0), (26, 133, 3), (11, 135, 4), (21, 134, 0), (23, 133, 8), (13, 135, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk183_size : windowChunk183.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk183_checked : checkRows 18300 windowChunk183 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `18400` through `18499`. -/
+private def windowChunk184 : List (ℕ × ℕ × ℕ) :=
+  [
+    (31, 132, 2), (55, 124, 0), (21, 134, 1), (82, 108, 2), (52, 125, 5), (42, 129, 0), (55, 124, 1), (11, 134, 11), (57, 123, 3), (45, 128, 0),
+    (42, 129, 1), (9, 135, 6), (21, 134, 2), (67, 118, 0), (45, 128, 1), (31, 132, 3), (55, 124, 2), (49, 126, 7), (27, 133, 0), (12, 135, 4),
+    (42, 129, 2), (14, 135, 0), (19, 134, 6), (27, 133, 1), (45, 128, 2), (44, 128, 6), (14, 135, 1), (21, 134, 3), (67, 118, 2), (30, 132, 6),
+    (10, 135, 6), (55, 124, 3), (96, 96, 0), (48, 127, 0), (53, 125, 0), (42, 129, 3), (14, 135, 2), (96, 96, 1), (48, 127, 1), (53, 125, 1),
+    (22, 134, 0), (90, 101, 7), (81, 109, 0), (67, 118, 3), (13, 135, 4), (22, 134, 1), (79, 110, 6), (81, 109, 1), (32, 132, 0), (53, 125, 2),
+    (15, 135, 0), (14, 135, 3), (31, 131, 11), (32, 132, 1), (25, 133, 7), (15, 135, 1), (15, 134, 10), (36, 131, 0), (88, 103, 6), (45, 128, 4),
+    (31, 132, 5), (85, 106, 0), (36, 131, 1), (32, 132, 2), (92, 100, 0), (15, 135, 2), (85, 106, 1), (61, 121, 6), (27, 133, 4), (92, 100, 1),
+    (22, 134, 3), (14, 135, 4), (74, 114, 0), (28, 133, 0), (12, 135, 6), (5, 135, 9), (85, 106, 2), (51, 126, 0), (28, 133, 1), (92, 100, 2),
+    (15, 135, 3), (16, 135, 0), (91, 101, 0), (48, 127, 4), (60, 122, 0), (23, 134, 0), (16, 135, 1), (91, 101, 1), (28, 133, 2), (60, 122, 1),
+    (43, 129, 0), (85, 106, 3), (51, 126, 2), (58, 123, 0), (92, 100, 3), (43, 129, 1), (0, 136, 0), (1, 136, 0), (58, 123, 1), (60, 122, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk184_size : windowChunk184.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk184_checked : checkRows 18400 windowChunk184 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `18500` through `18599`. -/
+private def windowChunk185 : List (ℕ × ℕ × ℕ) :=
+  [
+    (2, 136, 0), (0, 136, 1), (1, 136, 1), (28, 133, 3), (90, 102, 0), (3, 136, 0), (55, 124, 6), (51, 126, 3), (58, 123, 2), (90, 102, 1),
+    (3, 136, 1), (0, 136, 2), (4, 136, 0), (33, 132, 0), (17, 135, 0), (2, 136, 2), (50, 126, 7), (66, 119, 0), (33, 132, 1), (17, 135, 1),
+    (3, 136, 2), (5, 136, 0), (66, 119, 1), (58, 123, 3), (38, 130, 8), (15, 135, 5), (5, 136, 1), (4, 136, 2), (33, 132, 2), (17, 135, 2),
+    (29, 133, 0), (16, 135, 4), (6, 136, 0), (88, 103, 8), (90, 102, 3), (29, 133, 1), (5, 136, 2), (6, 136, 1), (48, 127, 6), (92, 100, 5),
+    (43, 129, 4), (54, 125, 0), (4, 136, 3), (33, 132, 3), (17, 135, 3), (7, 136, 0), (54, 125, 1), (6, 136, 2), (68, 118, 0), (18, 135, 0),
+    (7, 136, 1), (5, 136, 3), (51, 126, 5), (83, 108, 0), (73, 115, 0), (3, 136, 4), (54, 125, 2), (91, 101, 5), (83, 108, 1), (73, 115, 1),
+    (8, 136, 0), (14, 135, 7), (79, 111, 0), (68, 118, 2), (18, 135, 2), (8, 136, 1), (85, 106, 6), (79, 111, 1), (83, 108, 2), (73, 115, 2),
+    (48, 126, 12), (54, 125, 3), (1, 136, 5), (48, 127, 7), (53, 125, 7), (8, 136, 2), (90, 101, 10), (9, 136, 0), (68, 118, 3), (18, 135, 3),
+    (34, 132, 0), (25, 134, 0), (9, 136, 1), (83, 108, 3), (73, 115, 3), (34, 132, 1), (19, 135, 0), (4, 136, 5), (33, 132, 5), (30, 133, 0),
+    (8, 136, 3), (19, 135, 1), (9, 136, 2), (47, 128, 0), (87, 105, 0), (34, 132, 2), (10, 136, 0), (36, 131, 7), (47, 128, 1), (87, 105, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk185_size : windowChunk185.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk185_checked : checkRows 18500 windowChunk185 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `18600` through `18699`. -/
+private def windowChunk186 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 135, 10), (10, 136, 1), (1, 136, 6), (83, 108, 4), (30, 133, 2), (38, 131, 0), (84, 105, 14), (9, 136, 3), (47, 128, 2), (87, 105, 2),
+    (59, 123, 0), (10, 136, 2), (79, 111, 4), (28, 133, 7), (53, 125, 8), (59, 123, 1), (19, 135, 3), (11, 136, 0), (33, 132, 6), (30, 133, 3),
+    (38, 131, 2), (75, 114, 0), (11, 136, 1), (47, 128, 3), (87, 105, 3), (20, 135, 0), (75, 114, 1), (9, 136, 4), (78, 112, 0), (50, 127, 0),
+    (20, 135, 1), (25, 134, 4), (26, 134, 0), (78, 112, 1), (50, 127, 1), (38, 131, 3), (75, 114, 2), (94, 99, 0), (67, 118, 9), (30, 133, 4),
+    (12, 136, 0), (85, 106, 8), (94, 99, 1), (78, 112, 2), (50, 127, 2), (12, 136, 1), (10, 136, 4), (26, 134, 2), (3, 133, 19), (35, 132, 0),
+    (31, 133, 0), (75, 114, 3), (94, 99, 2), (68, 118, 6), (35, 132, 1), (31, 133, 1), (25, 134, 5), (66, 119, 7), (78, 112, 3), (50, 127, 3),
+    (59, 123, 4), (81, 110, 0), (26, 134, 3), (82, 108, 10), (42, 130, 0), (13, 136, 0), (21, 135, 0), (94, 99, 3), (47, 128, 5), (42, 130, 1),
+    (13, 136, 1), (21, 135, 1), (6, 136, 7), (58, 123, 8), (85, 107, 0), (20, 135, 4), (81, 110, 2), (1, 136, 8), (78, 112, 4), (85, 107, 1),
+    (13, 136, 2), (21, 135, 2), (39, 131, 0), (88, 103, 11), (90, 102, 8), (27, 134, 0), (25, 134, 6), (39, 131, 1), (48, 128, 0), (85, 107, 2),
+    (27, 134, 1), (81, 110, 3), (14, 136, 0), (48, 128, 1), (42, 130, 3), (13, 136, 3), (21, 135, 3), (14, 136, 1), (77, 113, 0), (35, 132, 4)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk186_size : windowChunk186.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk186_checked : checkRows 18600 windowChunk186 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `18700` through `18799`. -/
+private def windowChunk187 : List (ℕ × ℕ × ℕ) :=
+  [
+    (27, 134, 2), (74, 115, 0), (79, 111, 7), (77, 113, 1), (85, 107, 3), (5, 135, 13), (74, 115, 1), (14, 136, 2), (48, 127, 10), (22, 135, 0),
+    (38, 131, 6), (81, 110, 4), (39, 131, 3), (32, 133, 0), (22, 135, 1), (27, 134, 3), (74, 115, 2), (9, 136, 7), (32, 133, 1), (52, 125, 12),
+    (36, 132, 0), (15, 136, 0), (14, 136, 3), (32, 132, 10), (22, 135, 2), (36, 132, 1), (15, 136, 1), (21, 134, 11), (62, 122, 0), (60, 123, 0),
+    (51, 127, 0), (74, 115, 3), (39, 131, 4), (62, 122, 1), (60, 123, 1), (51, 127, 1), (15, 136, 2), (64, 121, 0), (48, 128, 4), (22, 135, 3),
+    (28, 134, 0), (21, 135, 5), (64, 121, 1), (62, 122, 2), (60, 123, 2), (28, 134, 1), (5, 136, 9), (74, 114, 10), (77, 113, 4), (43, 130, 0),
+    (36, 132, 3), (15, 136, 3), (16, 136, 0), (27, 132, 15), (23, 135, 0), (28, 134, 2), (66, 120, 0), (46, 129, 0), (62, 122, 3), (23, 135, 1),
+    (51, 127, 3), (40, 131, 0), (46, 129, 1), (32, 133, 4), (43, 130, 2), (20, 135, 7), (40, 131, 1), (16, 136, 2), (78, 112, 7), (0, 137, 0),
+    (1, 137, 0), (66, 120, 2), (76, 114, 0), (2, 137, 0), (0, 137, 1), (1, 137, 1), (40, 131, 2), (76, 114, 1), (3, 137, 0), (43, 130, 3),
+    (51, 127, 4), (15, 134, 15), (16, 136, 3), (3, 137, 1), (0, 137, 2), (4, 137, 0), (66, 120, 3), (76, 114, 2), (2, 137, 2), (35, 132, 7),
+    (4, 137, 1), (40, 131, 3), (54, 126, 0), (37, 132, 0), (5, 137, 0), (36, 132, 5), (15, 136, 5), (29, 134, 0), (37, 132, 1), (5, 137, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk187_size : windowChunk187.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk187_checked : checkRows 18700 windowChunk187 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `18800` through `18899`. -/
+private def windowChunk188 : List (ℕ × ℕ × ℕ) :=
+  [
+    (4, 137, 2), (24, 135, 0), (29, 134, 1), (2, 137, 3), (23, 135, 4), (6, 137, 0), (24, 135, 1), (54, 126, 2), (37, 132, 2), (5, 137, 2),
+    (6, 137, 1), (40, 131, 4), (29, 134, 2), (57, 122, 16), (22, 135, 6), (4, 137, 3), (24, 135, 2), (94, 99, 8), (7, 137, 0), (0, 137, 4),
+    (18, 136, 0), (10, 136, 9), (54, 126, 3), (7, 137, 1), (70, 118, 0), (18, 136, 1), (95, 99, 0), (29, 134, 3), (3, 137, 4), (70, 118, 1),
+    (31, 133, 8), (95, 99, 1), (46, 129, 5), (8, 137, 0), (60, 123, 6), (18, 136, 2), (44, 130, 0), (79, 111, 10), (8, 137, 1), (70, 118, 2),
+    (15, 135, 12), (44, 130, 1), (41, 131, 0), (37, 132, 4), (5, 137, 4), (34, 133, 0), (21, 135, 8), (41, 131, 1), (8, 137, 2), (22, 135, 7),
+    (9, 137, 0), (44, 130, 2), (9, 136, 10), (63, 122, 0), (70, 118, 3), (9, 137, 1), (30, 134, 0), (19, 136, 0), (63, 122, 1), (23, 135, 6),
+    (34, 133, 2), (30, 134, 1), (19, 136, 1), (8, 137, 3), (30, 133, 10), (9, 137, 2), (65, 121, 0), (54, 126, 5), (38, 132, 0), (10, 137, 0),
+    (18, 136, 4), (65, 121, 1), (19, 136, 2), (72, 117, 0), (57, 125, 0), (34, 133, 3), (95, 99, 4), (76, 114, 6), (72, 117, 1), (57, 125, 1),
+    (9, 137, 3), (65, 121, 2), (81, 111, 0), (38, 132, 2), (50, 128, 0), (59, 123, 10), (30, 134, 3), (81, 111, 1), (72, 117, 2), (67, 120, 0),
+    (11, 137, 0), (21, 135, 9), (41, 131, 4), (7, 137, 5), (67, 120, 1), (11, 137, 1), (20, 136, 0), (81, 111, 2), (38, 132, 3), (50, 128, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk188_size : windowChunk188.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk188_checked : checkRows 18800 windowChunk188 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `18900` through `18999`. -/
+private def windowChunk189 : List (ℕ × ℕ × ℕ) :=
+  [
+    (9, 137, 4), (26, 135, 0), (29, 134, 6), (72, 117, 3), (67, 120, 2), (11, 137, 2), (26, 135, 1), (19, 136, 4), (8, 137, 5), (0, 137, 7),
+    (6, 137, 6), (20, 136, 2), (81, 111, 3), (12, 137, 0), (35, 133, 0), (12, 136, 10), (90, 104, 0), (31, 134, 0), (12, 137, 1), (35, 133, 1),
+    (11, 137, 3), (90, 104, 1), (69, 119, 0), (72, 117, 4), (57, 125, 4), (42, 131, 0), (20, 136, 3), (69, 119, 1), (12, 137, 2), (35, 133, 2),
+    (42, 131, 1), (90, 104, 2), (74, 116, 0), (37, 132, 7), (50, 128, 4), (38, 131, 11), (66, 120, 8), (21, 136, 0), (13, 137, 0), (67, 120, 4),
+    (42, 131, 2), (65, 121, 5), (21, 136, 1), (13, 137, 1), (80, 112, 0), (39, 132, 0), (89, 105, 0), (74, 116, 2), (72, 117, 5), (80, 112, 1),
+    (39, 132, 1), (89, 105, 1), (21, 136, 2), (13, 137, 2), (27, 135, 0), (42, 131, 3), (20, 134, 15), (81, 111, 5), (63, 122, 6), (27, 135, 1),
+    (39, 132, 2), (89, 105, 2), (74, 116, 3), (12, 137, 4), (35, 133, 4), (14, 137, 0), (90, 104, 4), (21, 136, 3), (13, 137, 3), (27, 135, 2),
+    (14, 137, 1), (20, 136, 5), (69, 119, 4), (62, 123, 0), (80, 112, 3), (39, 132, 3), (60, 124, 0), (29, 134, 8), (62, 123, 1), (57, 125, 6),
+    (22, 136, 0), (60, 124, 1), (74, 116, 4), (47, 128, 12), (27, 135, 3), (36, 133, 0), (40, 131, 9), (21, 136, 4), (62, 123, 2), (58, 125, 0),
+    (36, 133, 1), (60, 124, 2), (31, 134, 5), (63, 122, 7), (15, 137, 0), (22, 136, 2), (89, 105, 4), (66, 121, 0), (7, 137, 8), (15, 137, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk189_size : windowChunk189.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk189_checked : checkRows 18900 windowChunk189 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `19000` through `19099`. -/
+private def windowChunk190 : List (ℕ × ℕ × ℕ) :=
+  [
+    (36, 133, 2), (76, 115, 0), (66, 121, 1), (62, 123, 3), (58, 125, 2), (51, 127, 10), (76, 115, 1), (74, 116, 5), (38, 132, 7), (28, 135, 0),
+    (43, 131, 0), (75, 114, 12), (56, 126, 0), (97, 98, 0), (28, 135, 1), (43, 131, 1), (46, 130, 0), (96, 99, 0), (73, 117, 0), (58, 125, 3),
+    (39, 132, 5), (46, 130, 1), (96, 99, 1), (73, 117, 1), (40, 132, 0), (16, 137, 0), (60, 124, 4), (56, 126, 2), (97, 98, 2), (40, 132, 1),
+    (16, 137, 1), (46, 130, 2), (96, 99, 2), (73, 117, 2), (53, 125, 15), (36, 133, 4), (20, 136, 7), (94, 101, 0), (33, 132, 14), (40, 132, 2),
+    (16, 137, 2), (26, 135, 7), (49, 129, 0), (97, 98, 3), (0, 138, 0), (1, 138, 0), (46, 130, 3), (49, 129, 1), (2, 138, 0), (0, 138, 1),
+    (1, 138, 1), (76, 115, 4), (94, 101, 2), (3, 138, 0), (40, 132, 3), (16, 137, 3), (90, 104, 7), (49, 129, 2), (17, 137, 0), (0, 138, 2),
+    (4, 138, 0), (70, 119, 0), (56, 126, 4), (17, 137, 1), (58, 125, 5), (4, 138, 1), (29, 135, 0), (94, 101, 3), (3, 138, 2), (5, 138, 0),
+    (14, 137, 6), (29, 135, 1), (24, 136, 0), (92, 103, 0), (5, 138, 1), (4, 138, 2), (70, 119, 2), (24, 136, 1), (92, 103, 1), (43, 130, 11),
+    (6, 138, 0), (75, 116, 0), (19, 136, 9), (3, 138, 3), (5, 138, 2), (6, 138, 1), (75, 116, 1), (24, 136, 2), (52, 128, 0), (45, 128, 16),
+    (4, 138, 3), (70, 119, 3), (49, 129, 4), (7, 138, 0), (0, 138, 4), (6, 138, 2), (75, 116, 2), (44, 131, 0), (63, 123, 0), (5, 138, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk190_size : windowChunk190.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk190_checked : checkRows 19000 windowChunk190 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `19100` through `19199`. -/
+private def windowChunk191 : List (ℕ × ℕ × ℕ) :=
+  [
+    (16, 137, 5), (95, 99, 10), (44, 131, 1), (63, 123, 1), (35, 132, 13), (41, 132, 0), (59, 125, 0), (81, 111, 9), (8, 138, 0), (47, 130, 0),
+    (41, 132, 1), (59, 125, 1), (34, 134, 0), (8, 138, 1), (47, 130, 1), (43, 131, 6), (29, 135, 4), (34, 134, 1), (52, 128, 3), (5, 138, 4),
+    (41, 132, 2), (25, 136, 0), (24, 136, 4), (8, 138, 2), (47, 130, 2), (9, 138, 0), (25, 136, 1), (34, 134, 2), (63, 123, 3), (40, 132, 6),
+    (19, 137, 0), (75, 116, 4), (19, 136, 10), (38, 133, 0), (15, 137, 7), (19, 137, 1), (25, 136, 2), (66, 121, 7), (38, 133, 1), (47, 130, 3),
+    (9, 138, 2), (50, 129, 0), (34, 134, 3), (7, 138, 4), (10, 138, 0), (19, 137, 2), (50, 129, 1), (44, 131, 4), (38, 133, 2), (10, 138, 1),
+    (1, 138, 6), (25, 136, 3), (56, 126, 7), (2, 138, 6), (55, 127, 0), (9, 138, 3), (84, 110, 0), (89, 106, 0), (8, 138, 4), (55, 127, 1),
+    (19, 137, 3), (69, 120, 0), (89, 106, 1), (38, 133, 3), (40, 132, 7), (11, 138, 0), (69, 120, 1), (69, 116, 19), (7, 138, 5), (20, 137, 0),
+    (11, 138, 1), (84, 110, 2), (26, 136, 0), (63, 123, 5), (20, 137, 1), (9, 138, 4), (69, 120, 2), (26, 136, 1), (92, 103, 6), (27, 135, 9),
+    (11, 138, 2), (35, 134, 0), (49, 129, 7), (38, 133, 4), (20, 137, 2), (6, 138, 6), (31, 135, 0), (26, 136, 2), (12, 138, 0), (28, 135, 8),
+    (43, 131, 8), (31, 135, 1), (56, 126, 8), (53, 128, 0), (10, 138, 4), (11, 138, 3), (35, 134, 2), (96, 99, 8), (53, 128, 1), (20, 137, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk191_size : windowChunk191.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk191_checked : checkRows 19100 windowChunk191 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `19200` through `19299`. -/
+private def windowChunk192 : List (ℕ × ℕ × ℕ) :=
+  [
+    (9, 138, 5), (31, 135, 2), (71, 119, 0), (12, 138, 2), (48, 130, 0), (19, 137, 5), (84, 110, 4), (71, 119, 1), (98, 98, 0), (48, 130, 1),
+    (21, 137, 0), (35, 134, 3), (24, 136, 7), (13, 138, 0), (47, 130, 6), (21, 137, 1), (96, 100, 0), (71, 119, 2), (13, 138, 1), (48, 130, 2),
+    (62, 124, 0), (96, 100, 1), (26, 136, 4), (98, 98, 2), (0, 138, 8), (27, 136, 0), (95, 101, 0), (76, 114, 13), (13, 138, 2), (55, 127, 5),
+    (27, 136, 1), (95, 101, 1), (76, 116, 0), (87, 108, 0), (48, 130, 3), (62, 124, 2), (31, 135, 4), (79, 114, 0), (87, 108, 1), (8, 135, 19),
+    (14, 138, 0), (95, 101, 2), (51, 129, 0), (13, 138, 3), (20, 137, 5), (14, 138, 1), (96, 100, 3), (51, 129, 1), (87, 108, 2), (32, 135, 0),
+    (62, 124, 3), (60, 124, 10), (36, 134, 0), (22, 137, 0), (32, 135, 1), (14, 138, 2), (95, 101, 3), (36, 134, 1), (93, 103, 0), (55, 127, 6),
+    (21, 137, 4), (31, 135, 5), (76, 116, 3), (93, 103, 1), (32, 135, 2), (56, 127, 0), (96, 100, 4), (36, 134, 2), (82, 112, 0), (15, 138, 0),
+    (56, 127, 1), (14, 130, 29), (51, 129, 3), (43, 132, 0), (15, 138, 1), (27, 136, 4), (95, 101, 4), (46, 131, 0), (43, 132, 1), (32, 135, 3),
+    (28, 136, 0), (50, 129, 7), (46, 131, 1), (82, 112, 2), (15, 138, 2), (28, 136, 1), (35, 134, 6), (79, 114, 4), (43, 132, 2), (40, 133, 0),
+    (14, 138, 4), (96, 100, 5), (46, 131, 2), (12, 138, 6), (40, 133, 1), (28, 136, 2), (84, 110, 7), (89, 106, 7), (23, 137, 0), (15, 138, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk192_size : windowChunk192.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk192_checked : checkRows 19200 windowChunk192 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `19300` through `19399`. -/
+private def windowChunk193 : List (ℕ × ℕ × ℕ) :=
+  [
+    (16, 138, 0), (49, 130, 0), (36, 134, 4), (23, 137, 1), (40, 133, 2), (16, 138, 1), (91, 105, 0), (46, 131, 3), (93, 103, 4), (78, 115, 0),
+    (28, 136, 3), (91, 105, 1), (79, 114, 5), (23, 137, 2), (33, 135, 0), (16, 138, 2), (49, 130, 2), (51, 129, 5), (82, 112, 4), (33, 135, 1),
+    (1, 138, 10), (0, 139, 0), (1, 139, 0), (43, 132, 4), (78, 115, 2), (2, 139, 0), (0, 139, 1), (1, 139, 1), (23, 137, 3), (33, 135, 2),
+    (3, 139, 0), (49, 130, 3), (51, 126, 18), (17, 138, 0), (55, 127, 8), (3, 139, 1), (90, 106, 0), (4, 139, 0), (17, 138, 1), (78, 115, 3),
+    (2, 139, 2), (90, 106, 1), (4, 139, 1), (82, 112, 5), (33, 135, 3), (24, 137, 0), (5, 139, 0), (51, 129, 6), (17, 138, 2), (20, 137, 8),
+    (24, 137, 1), (5, 139, 1), (4, 139, 2), (13, 138, 7), (65, 123, 0), (2, 139, 3), (91, 105, 4), (6, 139, 0), (22, 137, 6), (65, 123, 1),
+    (44, 132, 0), (5, 139, 2), (6, 139, 1), (17, 138, 3), (33, 135, 4), (44, 132, 1), (90, 106, 3), (4, 139, 3), (18, 138, 0), (65, 123, 2),
+    (7, 139, 0), (0, 139, 4), (6, 139, 2), (67, 122, 0), (15, 138, 6), (7, 139, 1), (5, 139, 3), (84, 111, 0), (57, 127, 0), (55, 127, 9),
+    (3, 139, 4), (34, 135, 0), (84, 111, 1), (57, 127, 1), (65, 123, 3), (8, 139, 0), (34, 135, 1), (6, 139, 3), (67, 122, 2), (33, 135, 5),
+    (8, 139, 1), (70, 119, 11), (84, 111, 2), (57, 127, 2), (25, 137, 0), (24, 137, 4), (30, 136, 0), (1, 139, 5), (18, 138, 3), (25, 137, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk193_size : windowChunk193.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk193_checked : checkRows 19300 windowChunk193 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `19400` through `19499`. -/
+private def windowChunk194 : List (ℕ × ℕ × ℕ) :=
+  [
+    (38, 134, 0), (30, 136, 1), (9, 139, 0), (67, 122, 3), (65, 123, 4), (19, 138, 0), (49, 130, 6), (9, 139, 1), (88, 108, 0), (55, 128, 0),
+    (19, 138, 1), (30, 136, 2), (4, 139, 5), (88, 108, 1), (55, 128, 1), (38, 134, 2), (50, 129, 10), (96, 101, 0), (18, 138, 4), (33, 135, 6),
+    (19, 138, 2), (10, 139, 0), (96, 101, 1), (88, 108, 2), (55, 128, 2), (54, 123, 23), (10, 139, 1), (84, 111, 4), (57, 127, 4), (95, 102, 0),
+    (38, 134, 3), (34, 135, 4), (96, 101, 2), (83, 112, 0), (95, 102, 1), (19, 138, 3), (10, 139, 2), (46, 129, 16), (83, 112, 1), (55, 128, 3),
+    (16, 138, 7), (71, 120, 0), (11, 139, 0), (18, 138, 5), (20, 138, 0), (26, 137, 0), (71, 120, 1), (11, 139, 1), (83, 112, 2), (45, 132, 0),
+    (35, 135, 0), (10, 139, 3), (9, 139, 4), (42, 133, 0), (45, 132, 1), (35, 135, 1), (71, 120, 2), (31, 136, 0), (42, 133, 1), (20, 138, 2),
+    (26, 137, 2), (0, 139, 7), (31, 136, 1), (83, 112, 3), (45, 132, 2), (12, 139, 0), (79, 115, 0), (96, 101, 4), (42, 133, 2), (62, 125, 0),
+    (12, 139, 1), (79, 115, 1), (64, 124, 0), (18, 138, 6), (62, 125, 1), (26, 137, 3), (60, 126, 0), (39, 134, 0), (67, 122, 6), (45, 132, 3),
+    (12, 139, 2), (60, 126, 1), (39, 134, 1), (42, 133, 3), (62, 125, 2), (21, 138, 0), (34, 135, 6), (64, 124, 2), (13, 138, 10), (92, 105, 0),
+    (13, 139, 0), (60, 126, 2), (39, 134, 2), (58, 127, 0), (92, 105, 1), (13, 139, 1), (86, 110, 0), (6, 139, 7), (27, 137, 0), (62, 125, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk194_size : windowChunk194.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk194_checked : checkRows 19400 windowChunk194 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `19500` through `19599`. -/
+private def windowChunk195 : List (ℕ × ℕ × ℕ) :=
+  [
+    (21, 138, 2), (51, 130, 0), (64, 124, 3), (27, 137, 1), (92, 105, 2), (13, 139, 2), (51, 130, 1), (39, 134, 3), (68, 122, 0), (62, 120, 22),
+    (19, 138, 6), (86, 110, 2), (79, 114, 10), (68, 122, 1), (55, 128, 6), (21, 138, 3), (51, 130, 2), (14, 139, 0), (57, 127, 7), (92, 105, 3),
+    (32, 136, 0), (36, 135, 0), (14, 139, 1), (68, 122, 2), (45, 132, 5), (32, 136, 1), (36, 135, 1), (39, 134, 4), (22, 138, 0), (85, 107, 18),
+    (9, 137, 16), (51, 130, 3), (14, 139, 2), (22, 138, 1), (95, 102, 6), (32, 136, 2), (36, 135, 2), (6, 139, 8), (43, 133, 0), (92, 105, 4),
+    (46, 132, 0), (70, 121, 0), (9, 139, 7), (43, 133, 1), (62, 125, 5), (46, 132, 1), (15, 139, 0), (14, 139, 3), (27, 137, 4), (75, 118, 0),
+    (32, 136, 3), (15, 139, 1), (39, 134, 5), (28, 137, 0), (75, 118, 1), (46, 132, 2), (40, 134, 0), (54, 129, 0), (28, 137, 1), (20, 137, 12),
+    (21, 138, 5), (40, 134, 1), (49, 131, 0), (87, 108, 11), (75, 118, 2), (13, 139, 5), (24, 135, 17), (49, 131, 1), (28, 137, 2), (95, 102, 7),
+    (46, 132, 3), (40, 134, 2), (54, 129, 2), (23, 138, 0), (62, 125, 6), (16, 138, 10), (15, 139, 3), (16, 139, 0), (23, 138, 1), (75, 118, 3),
+    (38, 134, 8), (60, 126, 6), (16, 139, 1), (28, 137, 3), (72, 120, 0), (33, 136, 0), (40, 134, 3), (54, 129, 3), (23, 138, 2), (72, 120, 1),
+    (33, 136, 1), (70, 121, 4), (16, 139, 2), (42, 133, 7), (37, 135, 0), (32, 136, 5), (15, 139, 4), (61, 126, 0), (58, 127, 6), (37, 135, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk195_size : windowChunk195.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk195_checked : checkRows 19500 windowChunk195 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `19600` through `19699`. -/
+private def windowChunk196 : List (ℕ × ℕ × ℕ) :=
+  [
+    (0, 140, 0), (1, 140, 0), (99, 99, 0), (23, 138, 3), (2, 140, 0), (0, 140, 1), (1, 140, 1), (99, 99, 1), (17, 138, 10), (3, 140, 0),
+    (17, 139, 0), (90, 106, 10), (61, 126, 2), (43, 133, 5), (3, 140, 1), (17, 139, 1), (4, 140, 0), (99, 99, 2), (67, 123, 0), (2, 140, 2),
+    (24, 138, 0), (4, 140, 1), (14, 139, 6), (67, 123, 1), (3, 140, 2), (5, 140, 0), (36, 135, 6), (61, 126, 3), (28, 137, 5), (92, 105, 7),
+    (5, 140, 1), (4, 140, 2), (99, 99, 3), (47, 132, 0), (95, 103, 0), (24, 138, 2), (6, 140, 0), (41, 134, 0), (47, 132, 1), (95, 103, 1),
+    (5, 140, 2), (6, 140, 1), (41, 134, 1), (43, 133, 6), (37, 135, 4), (18, 139, 0), (4, 140, 3), (61, 126, 4), (47, 132, 2), (7, 140, 0),
+    (18, 139, 1), (6, 140, 2), (34, 136, 0), (57, 127, 10), (7, 140, 1), (5, 140, 3), (60, 126, 8), (34, 136, 1), (83, 113, 0), (3, 140, 4),
+    (18, 139, 2), (50, 131, 0), (54, 129, 6), (83, 113, 1), (8, 140, 0), (21, 138, 8), (55, 129, 0), (34, 136, 2), (67, 123, 4), (25, 138, 0),
+    (24, 138, 4), (55, 129, 1), (61, 126, 5), (83, 113, 2), (93, 105, 0), (18, 139, 3), (50, 131, 2), (99, 99, 5), (23, 138, 6), (93, 105, 1),
+    (46, 132, 7), (9, 140, 0), (19, 139, 0), (47, 132, 4), (25, 138, 2), (17, 139, 5), (9, 140, 1), (19, 139, 1), (83, 113, 3), (93, 105, 2),
+    (33, 136, 6), (50, 131, 3), (96, 101, 10), (67, 123, 5), (8, 140, 3), (18, 139, 4), (9, 140, 2), (79, 116, 0), (18, 138, 11), (25, 138, 3)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk196_size : windowChunk196.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk196_checked : checkRows 19600 windowChunk196 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `19700` through `19799`. -/
+private def windowChunk197 : List (ℕ × ℕ × ℕ) :=
+  [
+    (10, 140, 0), (36, 135, 8), (79, 116, 1), (67, 122, 11), (93, 105, 3), (10, 140, 1), (1, 140, 6), (99, 99, 6), (83, 113, 4), (53, 130, 0),
+    (21, 138, 9), (9, 140, 3), (79, 116, 2), (23, 138, 7), (45, 133, 0), (10, 140, 2), (55, 129, 4), (86, 111, 0), (43, 133, 8), (45, 133, 1),
+    (26, 138, 0), (11, 140, 0), (86, 111, 1), (67, 123, 6), (53, 130, 2), (26, 138, 1), (11, 140, 1), (79, 116, 3), (48, 132, 0), (60, 127, 0),
+    (31, 137, 0), (9, 140, 4), (66, 124, 0), (48, 132, 1), (60, 127, 1), (31, 137, 1), (11, 140, 2), (66, 124, 1), (47, 132, 6), (53, 130, 3),
+    (0, 140, 7), (55, 129, 5), (41, 134, 6), (48, 132, 2), (12, 140, 0), (31, 137, 2), (39, 135, 0), (66, 124, 2), (58, 128, 0), (12, 140, 1),
+    (26, 138, 3), (39, 135, 1), (39, 134, 10), (68, 123, 0), (7, 140, 6), (16, 138, 13), (9, 140, 5), (19, 139, 5), (68, 123, 1), (12, 140, 2),
+    (31, 137, 3), (39, 135, 2), (21, 139, 0), (58, 128, 2), (90, 108, 0), (5, 140, 7), (50, 131, 6), (21, 139, 1), (68, 123, 2), (13, 140, 0),
+    (26, 138, 4), (11, 140, 4), (79, 116, 5), (27, 138, 0), (13, 140, 1), (10, 140, 5), (39, 135, 3), (56, 129, 0), (27, 138, 1), (90, 108, 2),
+    (31, 137, 4), (1, 140, 8), (56, 129, 1), (68, 123, 3), (70, 122, 0), (18, 139, 7), (75, 119, 0), (19, 139, 6), (27, 138, 2), (70, 122, 1),
+    (17, 139, 8), (75, 119, 1), (36, 136, 0), (32, 137, 0), (90, 108, 3), (26, 138, 5), (14, 140, 0), (36, 136, 1), (32, 137, 1), (70, 122, 2)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk197_size : windowChunk197.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk197_checked : checkRows 19700 windowChunk197 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `19800` through `19899`. -/
+private def windowChunk198 : List (ℕ × ℕ × ℕ) :=
+  [
+    (24, 138, 8), (99, 100, 0), (89, 109, 0), (27, 138, 3), (60, 127, 5), (22, 139, 0), (99, 100, 1), (89, 109, 1), (32, 137, 2), (25, 138, 7),
+    (22, 139, 1), (14, 140, 2), (21, 139, 4), (97, 102, 0), (70, 122, 3), (46, 132, 10), (54, 130, 0), (89, 109, 2), (97, 102, 1), (13, 140, 4),
+    (22, 139, 2), (54, 130, 1), (36, 136, 3), (32, 137, 3), (75, 118, 10), (15, 140, 0), (14, 140, 3), (56, 129, 4), (28, 138, 0), (7, 140, 8),
+    (15, 140, 1), (54, 130, 2), (89, 109, 3), (28, 138, 1), (70, 122, 4), (22, 139, 3), (75, 119, 4), (21, 139, 5), (83, 113, 8), (90, 108, 5),
+    (15, 140, 2), (95, 104, 0), (36, 136, 4), (28, 138, 2), (88, 110, 0), (63, 126, 0), (95, 104, 1), (14, 139, 11), (27, 138, 5), (88, 110, 1),
+    (23, 139, 0), (99, 100, 4), (89, 109, 4), (77, 118, 0), (45, 133, 7), (23, 139, 1), (16, 140, 0), (86, 111, 7), (33, 137, 0), (88, 110, 2),
+    (63, 126, 2), (94, 105, 0), (19, 139, 8), (33, 137, 1), (55, 128, 13), (37, 136, 0), (94, 105, 1), (36, 136, 5), (77, 118, 2), (90, 108, 6),
+    (37, 136, 1), (16, 140, 2), (66, 124, 7), (33, 137, 2), (88, 110, 3), (63, 126, 3), (74, 120, 0), (89, 109, 5), (28, 138, 4), (2, 140, 10),
+    (37, 136, 2), (0, 141, 0), (1, 141, 0), (77, 118, 3), (12, 140, 7), (2, 141, 0), (0, 141, 1), (1, 141, 1), (33, 137, 3), (17, 140, 0),
+    (3, 141, 0), (74, 120, 2), (44, 134, 0), (68, 123, 7), (17, 140, 1), (3, 141, 1), (0, 141, 2), (4, 141, 0), (47, 133, 0), (93, 105, 9)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk198_size : windowChunk198.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk198_checked : checkRows 19800 windowChunk198 = true := by
+  decide +kernel
+
+/-- Witness rows for consecutive indices `19900` through `19999`. -/
+private def windowChunk199 : List (ℕ × ℕ × ℕ) :=
+  [
+    (2, 141, 2), (14, 140, 6), (4, 141, 1), (47, 133, 1), (17, 140, 2), (3, 141, 2), (5, 141, 0), (44, 134, 2), (33, 137, 4), (13, 140, 7),
+    (22, 139, 6), (5, 141, 1), (4, 141, 2), (92, 107, 0), (72, 120, 11), (2, 141, 3), (95, 104, 5), (6, 141, 0), (92, 107, 1), (17, 140, 3),
+    (3, 141, 3), (5, 141, 2), (6, 141, 1), (62, 123, 19), (18, 140, 0), (34, 137, 0), (74, 120, 4), (4, 141, 3), (92, 107, 2), (18, 140, 1),
+    (7, 141, 0), (0, 141, 4), (6, 141, 2), (33, 137, 5), (53, 130, 9), (7, 141, 1), (5, 141, 3), (76, 119, 0), (93, 103, 16), (18, 140, 2),
+    (38, 136, 0), (99, 100, 7), (76, 119, 1), (92, 107, 3), (30, 138, 0), (8, 141, 0), (25, 139, 0), (6, 141, 3), (47, 133, 4), (82, 115, 0),
+    (8, 141, 1), (25, 139, 1), (76, 119, 2), (97, 102, 7), (82, 115, 1), (38, 136, 2), (5, 141, 4), (1, 141, 5), (77, 118, 6), (30, 138, 2),
+    (8, 141, 2), (19, 140, 0), (9, 141, 0), (92, 107, 4), (82, 115, 2), (3, 141, 5), (19, 140, 1), (9, 141, 1), (28, 138, 7), (12, 140, 9),
+    (53, 131, 0), (39, 135, 9), (64, 126, 0), (62, 127, 0), (30, 138, 3), (53, 131, 1), (19, 140, 2), (64, 126, 1), (62, 127, 1), (82, 115, 3),
+    (7, 141, 4), (10, 141, 0), (89, 109, 8), (22, 138, 13), (60, 128, 0), (53, 131, 2), (10, 141, 1), (64, 126, 2), (62, 127, 2), (42, 135, 0),
+    (38, 136, 4), (19, 140, 3), (9, 141, 3), (48, 133, 0), (35, 137, 0), (8, 141, 4), (10, 141, 2), (26, 139, 0), (48, 133, 1), (35, 137, 1)
+  ]
+
+/-- This certificate chunk contains exactly 100 rows. -/
+private theorem windowChunk199_size : windowChunk199.length = 100 := by
+  decide +kernel
+
+/-- Every row of this chunk is kernel-checked at its intended index. -/
+private theorem windowChunk199_checked : checkRows 19900 windowChunk199 = true := by
+  decide +kernel
+
+/-- The original window certificate, assembled from individually checked 100-row chunks. -/
+private def windowRows : List (List (ℕ × ℕ × ℕ)) :=
+  [
+    windowChunk000, windowChunk001, windowChunk002, windowChunk003, windowChunk004, windowChunk005, windowChunk006, windowChunk007, windowChunk008, windowChunk009,
+    windowChunk010, windowChunk011, windowChunk012, windowChunk013, windowChunk014, windowChunk015, windowChunk016, windowChunk017, windowChunk018, windowChunk019,
+    windowChunk020, windowChunk021, windowChunk022, windowChunk023, windowChunk024, windowChunk025, windowChunk026, windowChunk027, windowChunk028, windowChunk029,
+    windowChunk030, windowChunk031, windowChunk032, windowChunk033, windowChunk034, windowChunk035, windowChunk036, windowChunk037, windowChunk038, windowChunk039,
+    windowChunk040, windowChunk041, windowChunk042, windowChunk043, windowChunk044, windowChunk045, windowChunk046, windowChunk047, windowChunk048, windowChunk049,
+    windowChunk050, windowChunk051, windowChunk052, windowChunk053, windowChunk054, windowChunk055, windowChunk056, windowChunk057, windowChunk058, windowChunk059,
+    windowChunk060, windowChunk061, windowChunk062, windowChunk063, windowChunk064, windowChunk065, windowChunk066, windowChunk067, windowChunk068, windowChunk069,
+    windowChunk070, windowChunk071, windowChunk072, windowChunk073, windowChunk074, windowChunk075, windowChunk076, windowChunk077, windowChunk078, windowChunk079,
+    windowChunk080, windowChunk081, windowChunk082, windowChunk083, windowChunk084, windowChunk085, windowChunk086, windowChunk087, windowChunk088, windowChunk089,
+    windowChunk090, windowChunk091, windowChunk092, windowChunk093, windowChunk094, windowChunk095, windowChunk096, windowChunk097, windowChunk098, windowChunk099,
+    windowChunk100, windowChunk101, windowChunk102, windowChunk103, windowChunk104, windowChunk105, windowChunk106, windowChunk107, windowChunk108, windowChunk109,
+    windowChunk110, windowChunk111, windowChunk112, windowChunk113, windowChunk114, windowChunk115, windowChunk116, windowChunk117, windowChunk118, windowChunk119,
+    windowChunk120, windowChunk121, windowChunk122, windowChunk123, windowChunk124, windowChunk125, windowChunk126, windowChunk127, windowChunk128, windowChunk129,
+    windowChunk130, windowChunk131, windowChunk132, windowChunk133, windowChunk134, windowChunk135, windowChunk136, windowChunk137, windowChunk138, windowChunk139,
+    windowChunk140, windowChunk141, windowChunk142, windowChunk143, windowChunk144, windowChunk145, windowChunk146, windowChunk147, windowChunk148, windowChunk149,
+    windowChunk150, windowChunk151, windowChunk152, windowChunk153, windowChunk154, windowChunk155, windowChunk156, windowChunk157, windowChunk158, windowChunk159,
+    windowChunk160, windowChunk161, windowChunk162, windowChunk163, windowChunk164, windowChunk165, windowChunk166, windowChunk167, windowChunk168, windowChunk169,
+    windowChunk170, windowChunk171, windowChunk172, windowChunk173, windowChunk174, windowChunk175, windowChunk176, windowChunk177, windowChunk178, windowChunk179,
+    windowChunk180, windowChunk181, windowChunk182, windowChunk183, windowChunk184, windowChunk185, windowChunk186, windowChunk187, windowChunk188, windowChunk189,
+    windowChunk190, windowChunk191, windowChunk192, windowChunk193, windowChunk194, windowChunk195, windowChunk196, windowChunk197, windowChunk198, windowChunk199
+  ]
+
+set_option maxRecDepth 8192 in
+/-- The supplied certificate has exactly the original assertion's window size. -/
+private theorem windowRows_size : certificateSize windowRows = 20000 := by
+  simp only [windowRows, certificateSize,
+    windowChunk000_size, windowChunk001_size, windowChunk002_size, windowChunk003_size, windowChunk004_size,
+    windowChunk005_size, windowChunk006_size, windowChunk007_size, windowChunk008_size, windowChunk009_size,
+    windowChunk010_size, windowChunk011_size, windowChunk012_size, windowChunk013_size, windowChunk014_size,
+    windowChunk015_size, windowChunk016_size, windowChunk017_size, windowChunk018_size, windowChunk019_size,
+    windowChunk020_size, windowChunk021_size, windowChunk022_size, windowChunk023_size, windowChunk024_size,
+    windowChunk025_size, windowChunk026_size, windowChunk027_size, windowChunk028_size, windowChunk029_size,
+    windowChunk030_size, windowChunk031_size, windowChunk032_size, windowChunk033_size, windowChunk034_size,
+    windowChunk035_size, windowChunk036_size, windowChunk037_size, windowChunk038_size, windowChunk039_size,
+    windowChunk040_size, windowChunk041_size, windowChunk042_size, windowChunk043_size, windowChunk044_size,
+    windowChunk045_size, windowChunk046_size, windowChunk047_size, windowChunk048_size, windowChunk049_size,
+    windowChunk050_size, windowChunk051_size, windowChunk052_size, windowChunk053_size, windowChunk054_size,
+    windowChunk055_size, windowChunk056_size, windowChunk057_size, windowChunk058_size, windowChunk059_size,
+    windowChunk060_size, windowChunk061_size, windowChunk062_size, windowChunk063_size, windowChunk064_size,
+    windowChunk065_size, windowChunk066_size, windowChunk067_size, windowChunk068_size, windowChunk069_size,
+    windowChunk070_size, windowChunk071_size, windowChunk072_size, windowChunk073_size, windowChunk074_size,
+    windowChunk075_size, windowChunk076_size, windowChunk077_size, windowChunk078_size, windowChunk079_size,
+    windowChunk080_size, windowChunk081_size, windowChunk082_size, windowChunk083_size, windowChunk084_size,
+    windowChunk085_size, windowChunk086_size, windowChunk087_size, windowChunk088_size, windowChunk089_size,
+    windowChunk090_size, windowChunk091_size, windowChunk092_size, windowChunk093_size, windowChunk094_size,
+    windowChunk095_size, windowChunk096_size, windowChunk097_size, windowChunk098_size, windowChunk099_size,
+    windowChunk100_size, windowChunk101_size, windowChunk102_size, windowChunk103_size, windowChunk104_size,
+    windowChunk105_size, windowChunk106_size, windowChunk107_size, windowChunk108_size, windowChunk109_size,
+    windowChunk110_size, windowChunk111_size, windowChunk112_size, windowChunk113_size, windowChunk114_size,
+    windowChunk115_size, windowChunk116_size, windowChunk117_size, windowChunk118_size, windowChunk119_size,
+    windowChunk120_size, windowChunk121_size, windowChunk122_size, windowChunk123_size, windowChunk124_size,
+    windowChunk125_size, windowChunk126_size, windowChunk127_size, windowChunk128_size, windowChunk129_size,
+    windowChunk130_size, windowChunk131_size, windowChunk132_size, windowChunk133_size, windowChunk134_size,
+    windowChunk135_size, windowChunk136_size, windowChunk137_size, windowChunk138_size, windowChunk139_size,
+    windowChunk140_size, windowChunk141_size, windowChunk142_size, windowChunk143_size, windowChunk144_size,
+    windowChunk145_size, windowChunk146_size, windowChunk147_size, windowChunk148_size, windowChunk149_size,
+    windowChunk150_size, windowChunk151_size, windowChunk152_size, windowChunk153_size, windowChunk154_size,
+    windowChunk155_size, windowChunk156_size, windowChunk157_size, windowChunk158_size, windowChunk159_size,
+    windowChunk160_size, windowChunk161_size, windowChunk162_size, windowChunk163_size, windowChunk164_size,
+    windowChunk165_size, windowChunk166_size, windowChunk167_size, windowChunk168_size, windowChunk169_size,
+    windowChunk170_size, windowChunk171_size, windowChunk172_size, windowChunk173_size, windowChunk174_size,
+    windowChunk175_size, windowChunk176_size, windowChunk177_size, windowChunk178_size, windowChunk179_size,
+    windowChunk180_size, windowChunk181_size, windowChunk182_size, windowChunk183_size, windowChunk184_size,
+    windowChunk185_size, windowChunk186_size, windowChunk187_size, windowChunk188_size, windowChunk189_size,
+    windowChunk190_size, windowChunk191_size, windowChunk192_size, windowChunk193_size, windowChunk194_size,
+    windowChunk195_size, windowChunk196_size, windowChunk197_size, windowChunk198_size, windowChunk199_size, Nat.reduceAdd]
+
+set_option maxRecDepth 8192 in
+/-- Combine the individually kernel-checked chunks, without reducing all witness data again. -/
+private theorem windowRows_checked : checkBlocks 0 windowRows = true := by
+  simp only [windowRows, checkBlocks,
+    windowChunk000_size, windowChunk000_checked, windowChunk001_size, windowChunk001_checked, windowChunk002_size, windowChunk002_checked,
+    windowChunk003_size, windowChunk003_checked, windowChunk004_size, windowChunk004_checked, windowChunk005_size, windowChunk005_checked,
+    windowChunk006_size, windowChunk006_checked, windowChunk007_size, windowChunk007_checked, windowChunk008_size, windowChunk008_checked,
+    windowChunk009_size, windowChunk009_checked, windowChunk010_size, windowChunk010_checked, windowChunk011_size, windowChunk011_checked,
+    windowChunk012_size, windowChunk012_checked, windowChunk013_size, windowChunk013_checked, windowChunk014_size, windowChunk014_checked,
+    windowChunk015_size, windowChunk015_checked, windowChunk016_size, windowChunk016_checked, windowChunk017_size, windowChunk017_checked,
+    windowChunk018_size, windowChunk018_checked, windowChunk019_size, windowChunk019_checked, windowChunk020_size, windowChunk020_checked,
+    windowChunk021_size, windowChunk021_checked, windowChunk022_size, windowChunk022_checked, windowChunk023_size, windowChunk023_checked,
+    windowChunk024_size, windowChunk024_checked, windowChunk025_size, windowChunk025_checked, windowChunk026_size, windowChunk026_checked,
+    windowChunk027_size, windowChunk027_checked, windowChunk028_size, windowChunk028_checked, windowChunk029_size, windowChunk029_checked,
+    windowChunk030_size, windowChunk030_checked, windowChunk031_size, windowChunk031_checked, windowChunk032_size, windowChunk032_checked,
+    windowChunk033_size, windowChunk033_checked, windowChunk034_size, windowChunk034_checked, windowChunk035_size, windowChunk035_checked,
+    windowChunk036_size, windowChunk036_checked, windowChunk037_size, windowChunk037_checked, windowChunk038_size, windowChunk038_checked,
+    windowChunk039_size, windowChunk039_checked, windowChunk040_size, windowChunk040_checked, windowChunk041_size, windowChunk041_checked,
+    windowChunk042_size, windowChunk042_checked, windowChunk043_size, windowChunk043_checked, windowChunk044_size, windowChunk044_checked,
+    windowChunk045_size, windowChunk045_checked, windowChunk046_size, windowChunk046_checked, windowChunk047_size, windowChunk047_checked,
+    windowChunk048_size, windowChunk048_checked, windowChunk049_size, windowChunk049_checked, windowChunk050_size, windowChunk050_checked,
+    windowChunk051_size, windowChunk051_checked, windowChunk052_size, windowChunk052_checked, windowChunk053_size, windowChunk053_checked,
+    windowChunk054_size, windowChunk054_checked, windowChunk055_size, windowChunk055_checked, windowChunk056_size, windowChunk056_checked,
+    windowChunk057_size, windowChunk057_checked, windowChunk058_size, windowChunk058_checked, windowChunk059_size, windowChunk059_checked,
+    windowChunk060_size, windowChunk060_checked, windowChunk061_size, windowChunk061_checked, windowChunk062_size, windowChunk062_checked,
+    windowChunk063_size, windowChunk063_checked, windowChunk064_size, windowChunk064_checked, windowChunk065_size, windowChunk065_checked,
+    windowChunk066_size, windowChunk066_checked, windowChunk067_size, windowChunk067_checked, windowChunk068_size, windowChunk068_checked,
+    windowChunk069_size, windowChunk069_checked, windowChunk070_size, windowChunk070_checked, windowChunk071_size, windowChunk071_checked,
+    windowChunk072_size, windowChunk072_checked, windowChunk073_size, windowChunk073_checked, windowChunk074_size, windowChunk074_checked,
+    windowChunk075_size, windowChunk075_checked, windowChunk076_size, windowChunk076_checked, windowChunk077_size, windowChunk077_checked,
+    windowChunk078_size, windowChunk078_checked, windowChunk079_size, windowChunk079_checked, windowChunk080_size, windowChunk080_checked,
+    windowChunk081_size, windowChunk081_checked, windowChunk082_size, windowChunk082_checked, windowChunk083_size, windowChunk083_checked,
+    windowChunk084_size, windowChunk084_checked, windowChunk085_size, windowChunk085_checked, windowChunk086_size, windowChunk086_checked,
+    windowChunk087_size, windowChunk087_checked, windowChunk088_size, windowChunk088_checked, windowChunk089_size, windowChunk089_checked,
+    windowChunk090_size, windowChunk090_checked, windowChunk091_size, windowChunk091_checked, windowChunk092_size, windowChunk092_checked,
+    windowChunk093_size, windowChunk093_checked, windowChunk094_size, windowChunk094_checked, windowChunk095_size, windowChunk095_checked,
+    windowChunk096_size, windowChunk096_checked, windowChunk097_size, windowChunk097_checked, windowChunk098_size, windowChunk098_checked,
+    windowChunk099_size, windowChunk099_checked, windowChunk100_size, windowChunk100_checked, windowChunk101_size, windowChunk101_checked,
+    windowChunk102_size, windowChunk102_checked, windowChunk103_size, windowChunk103_checked, windowChunk104_size, windowChunk104_checked,
+    windowChunk105_size, windowChunk105_checked, windowChunk106_size, windowChunk106_checked, windowChunk107_size, windowChunk107_checked,
+    windowChunk108_size, windowChunk108_checked, windowChunk109_size, windowChunk109_checked, windowChunk110_size, windowChunk110_checked,
+    windowChunk111_size, windowChunk111_checked, windowChunk112_size, windowChunk112_checked, windowChunk113_size, windowChunk113_checked,
+    windowChunk114_size, windowChunk114_checked, windowChunk115_size, windowChunk115_checked, windowChunk116_size, windowChunk116_checked,
+    windowChunk117_size, windowChunk117_checked, windowChunk118_size, windowChunk118_checked, windowChunk119_size, windowChunk119_checked,
+    windowChunk120_size, windowChunk120_checked, windowChunk121_size, windowChunk121_checked, windowChunk122_size, windowChunk122_checked,
+    windowChunk123_size, windowChunk123_checked, windowChunk124_size, windowChunk124_checked, windowChunk125_size, windowChunk125_checked,
+    windowChunk126_size, windowChunk126_checked, windowChunk127_size, windowChunk127_checked, windowChunk128_size, windowChunk128_checked,
+    windowChunk129_size, windowChunk129_checked, windowChunk130_size, windowChunk130_checked, windowChunk131_size, windowChunk131_checked,
+    windowChunk132_size, windowChunk132_checked, windowChunk133_size, windowChunk133_checked, windowChunk134_size, windowChunk134_checked,
+    windowChunk135_size, windowChunk135_checked, windowChunk136_size, windowChunk136_checked, windowChunk137_size, windowChunk137_checked,
+    windowChunk138_size, windowChunk138_checked, windowChunk139_size, windowChunk139_checked, windowChunk140_size, windowChunk140_checked,
+    windowChunk141_size, windowChunk141_checked, windowChunk142_size, windowChunk142_checked, windowChunk143_size, windowChunk143_checked,
+    windowChunk144_size, windowChunk144_checked, windowChunk145_size, windowChunk145_checked, windowChunk146_size, windowChunk146_checked,
+    windowChunk147_size, windowChunk147_checked, windowChunk148_size, windowChunk148_checked, windowChunk149_size, windowChunk149_checked,
+    windowChunk150_size, windowChunk150_checked, windowChunk151_size, windowChunk151_checked, windowChunk152_size, windowChunk152_checked,
+    windowChunk153_size, windowChunk153_checked, windowChunk154_size, windowChunk154_checked, windowChunk155_size, windowChunk155_checked,
+    windowChunk156_size, windowChunk156_checked, windowChunk157_size, windowChunk157_checked, windowChunk158_size, windowChunk158_checked,
+    windowChunk159_size, windowChunk159_checked, windowChunk160_size, windowChunk160_checked, windowChunk161_size, windowChunk161_checked,
+    windowChunk162_size, windowChunk162_checked, windowChunk163_size, windowChunk163_checked, windowChunk164_size, windowChunk164_checked,
+    windowChunk165_size, windowChunk165_checked, windowChunk166_size, windowChunk166_checked, windowChunk167_size, windowChunk167_checked,
+    windowChunk168_size, windowChunk168_checked, windowChunk169_size, windowChunk169_checked, windowChunk170_size, windowChunk170_checked,
+    windowChunk171_size, windowChunk171_checked, windowChunk172_size, windowChunk172_checked, windowChunk173_size, windowChunk173_checked,
+    windowChunk174_size, windowChunk174_checked, windowChunk175_size, windowChunk175_checked, windowChunk176_size, windowChunk176_checked,
+    windowChunk177_size, windowChunk177_checked, windowChunk178_size, windowChunk178_checked, windowChunk179_size, windowChunk179_checked,
+    windowChunk180_size, windowChunk180_checked, windowChunk181_size, windowChunk181_checked, windowChunk182_size, windowChunk182_checked,
+    windowChunk183_size, windowChunk183_checked, windowChunk184_size, windowChunk184_checked, windowChunk185_size, windowChunk185_checked,
+    windowChunk186_size, windowChunk186_checked, windowChunk187_size, windowChunk187_checked, windowChunk188_size, windowChunk188_checked,
+    windowChunk189_size, windowChunk189_checked, windowChunk190_size, windowChunk190_checked, windowChunk191_size, windowChunk191_checked,
+    windowChunk192_size, windowChunk192_checked, windowChunk193_size, windowChunk193_checked, windowChunk194_size, windowChunk194_checked,
+    windowChunk195_size, windowChunk195_checked, windowChunk196_size, windowChunk196_checked, windowChunk197_size, windowChunk197_checked,
+    windowChunk198_size, windowChunk198_checked, windowChunk199_size, windowChunk199_checked, Nat.reduceAdd, Bool.true_and]
+
+/-- The original finite window assertion, obtained from the checked witness certificate. -/
+private theorem window_checked : ∀ n ∈ Finset.range 20000, ¬ Representable n → n ∈ exceptions := by
+  intro n hn hnot
+  have hbound : n < certificateSize windowRows := by
+    rw [windowRows_size]
+    exact Finset.mem_range.mp hn
+  have hrow := checkBlocks_sound windowRows 0 windowRows_checked n hbound
+  simp only [Nat.zero_add] at hrow
+  rcases hrow with hexc | hrep
+  · exact hexc
+  · exact False.elim (hnot hrep)
+
 example : ∀ n ∈ Finset.range 20000, ¬ Representable n → n ∈ exceptions := by
-  native_decide
-
-/-! ## Notes for a follow-up card
-
-Literature check done (see Status): open unconditionally, GRH-conditionally
-decidable per Kane–Sun arXiv:0808.2761.  The `8n + 5 = 8u² + 8v² + 5w²`
-reduction (verified above at `n = 3`) is what puts it in the ternary
-quadratic-forms setting where that conditional argument lives.
-
-The provable-today deliverables are:
-1. `two_mul_tri` and `representable_iff_tri` — the doubling audit, ~10 lines.
-2. The `8n + 5` reduction as a lemma:
-   `Representable n ↔ ∃ u v w, Odd w ∧ 8*n + 5 = 8*u^2 + 8*v^2 + 5*w^2`.
-   This is `ring`-plus-parity and turns the problem into a standard form. -/
-
-/-!
-## Adversarial review verdict — **PASS-WITH-NOTES**
-
-Independent re-pull of A141386 plus a literature sweep, 2026-08-05.
-
-Confirmed:
-* NAME and TERMS verbatim; the entry really has **no** `%C` line.
-* **Convention audit reproduced**: `x, y ≥ 0` and `t ≥ 0` gives exactly
-  `3, 11, 12, 27, 129, 138, 273` below `20000`.  The `x, y ≥ 1` and `t ≥ 1`
-  readings both produce extra exceptions and do not match the DATA.
-* **The `8n + 5 = 8u² + 8v² + 5w²` (`w` odd) reduction is correct**, and at
-  `n = 3` gives `29`, which is not so representable.
-* `2 * tri t = t * (t + 1)` holds in `ℕ` (consecutive integers, so the division
-  is exact), and the doubled predicate is equivalent to the literal one.
-* The search bounds `t ≤ n` and `x, y ≤ √n` are sound (loose for `t`, but they
-  cannot miss a representation).
-
-Defects raised, both **FIXED**:
-1. The attribution hedge was too vague.  `%A A141386 _N. J. A. Sloane_,
-   Sep 05 2008` — Sloane *submitted* it; the mathematical source is the `%H`
-   link to **Kane & Sun, arXiv:0808.2761**, whose Example 1.1 lists exactly this
-   exception set as a *computational* finding.  Header now says so.
-2. "Most likely to already be a theorem in the literature" was unsupported.  A
-   literature sweep found **no unconditional proof**, but did find the
-   GRH-conditional route in Kane–Sun §1 (Waldspurger + Ono–Soundararajan).
-   Status is now "open unconditionally; conditionally decidable under GRH", and
-   the recommended target is the *conditional* theorem.
--/
+  exact window_checked
 
 end Candidates.A141386
