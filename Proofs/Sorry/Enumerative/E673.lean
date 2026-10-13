@@ -32,23 +32,6 @@ set_option autoImplicit false
 
 namespace ErdosCandidates.E673
 
-/-- **Corrected lower inequality**: if `m ∣ n` and `2 ≤ m`, then
-    `τ(n/m) / m ≤ G(n)`.  The live entry attributes the unqualified
-    inequality to Tao, but the `m = 1` boundary is false.  For `2 ≤ m`,
-    each divisor `d` of `n/m` is a proper divisor of `n`, and its outgoing
-    consecutive-divisor edge contributes at least `1/m` because the next
-    divisor after `d` is at most `d*m`.  Effort S–M. -/
-theorem tau_div_le_G (n m : ℕ) (hn : 1 ≤ n) (hm : m ∣ n) (hm2 : 2 ≤ m) :
-    ((n / m).divisors.card : ℚ) / m ≤ G n := by
-  sorry
-
-/-- Corollary for even `n`: `τ(n)/4 ≤ G(n) ≤ τ(n)` (m = 2 gives
-    τ(n/2)/2 ≥ τ(n)/4 by τ(n) ≤ 2·τ(n/2) for even n).
-    -- PROVABLE from the two inequalities (effort S). -/
-theorem G_even_bounds (n : ℕ) (hn : 2 ≤ n) (heven : 2 ∣ n) :
-    (n.divisors.card : ℚ) / 4 ≤ G n ∧ G n ≤ n.divisors.card := by
-  sorry
-
 /-- **Question 1 (answered YES, trivially)**: `G(n) → ∞` for almost
     all `n` — density form: for every bound `M`, the set of `n ≤ X`
     with `G(n) ≤ M` has density 0.  Follows from the lower bound plus
