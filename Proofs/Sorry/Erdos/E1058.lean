@@ -36,11 +36,49 @@ namespace ErdosCandidates.E1058
 noncomputable def nextPrime (n : ℕ) : ℕ :=
   sInf {p : ℕ | p.Prime ∧ n < p}
 
+private theorem nextPrime_eq_of_least (n p : ℕ) (hp : p.Prime) (hn : n < p)
+    (hsmall : ∀ q : Fin p, ¬ (q.val.Prime ∧ n < q.val)) :
+    nextPrime n = p := by
+  apply IsLeast.csInf_eq
+  refine ⟨⟨hp, hn⟩, ?_⟩
+  intro q hq
+  by_contra h
+  exact hsmall ⟨q, Nat.lt_of_not_ge h⟩ hq
+
+private theorem nextPrime_one : nextPrime 1 = 2 :=
+  nextPrime_eq_of_least 1 2 (by decide) (by decide) (by decide)
+
+private theorem nextPrime_two : nextPrime 2 = 3 :=
+  nextPrime_eq_of_least 2 3 (by decide) (by decide) (by decide)
+
+private theorem nextPrime_three : nextPrime 3 = 5 :=
+  nextPrime_eq_of_least 3 5 (by decide) (by decide) (by decide)
+
+private theorem nextPrime_four : nextPrime 4 = 5 :=
+  nextPrime_eq_of_least 4 5 (by decide) (by decide) (by decide)
+
+private theorem nextPrime_five : nextPrime 5 = 7 :=
+  nextPrime_eq_of_least 5 7 (by decide) (by decide) (by decide)
+
+private theorem nextPrime_six : nextPrime 6 = 7 :=
+  nextPrime_eq_of_least 6 7 (by decide) (by decide) (by decide)
+
+private theorem nextPrime_seven : nextPrime 7 = 11 :=
+  nextPrime_eq_of_least 7 11 (by decide) (by decide) (by decide)
+
+private theorem nextPrime_thirteen : nextPrime 13 = 17 :=
+  nextPrime_eq_of_least 13 17 (by decide) (by decide) (by decide)
+
+/-- The least primes above 1, 4, 5, and 13 are 2, 5, 7, and 17. -/
+theorem nextPrime_sanity : nextPrime 1 = 2 ∧ nextPrime 4 = 5 ∧
+    nextPrime 5 = 7 ∧ nextPrime 13 = 17 :=
+  ⟨nextPrime_one, nextPrime_four, nextPrime_five, nextPrime_thirteen⟩
+
 /-- Ground-truth checks for `nextPrime`.
     -- PROVABLE (via `Nat.sInf_eq` characterization + decide). -/
 example : nextPrime 1 = 2 ∧ nextPrime 4 = 5 ∧ nextPrime 5 = 7 ∧
     nextPrime 13 = 17 := by
-  sorry
+  exact nextPrime_sanity
 
 /-- `ErdosStewart n`: every prime divisor of `n! + 1` is one of the two
     smallest primes exceeding `n`.  For `n ∈ [p_{k-1}, p_k)` these two
@@ -50,17 +88,50 @@ def ErdosStewart (n : ℕ) : Prop :=
   ∀ q ∈ (n.factorial + 1).primeFactors,
     q = nextPrime n ∨ q = nextPrime (nextPrime n)
 
+/-- The five known positive cases satisfy the Erdős–Stewart property. -/
+theorem erdosStewart_sanity : ErdosStewart 1 ∧ ErdosStewart 2 ∧
+    ErdosStewart 3 ∧ ErdosStewart 4 ∧ ErdosStewart 5 := by
+  unfold ErdosStewart
+  rw [nextPrime_one, nextPrime_two, nextPrime_three, nextPrime_four,
+    nextPrime_five, nextPrime_seven]
+  have h25 : (25 : ℕ).primeFactors = {5} := by
+    change (5 ^ 2 : ℕ).primeFactors = {5}
+    exact Nat.primeFactors_prime_pow (by decide) (by decide)
+  have h121 : (121 : ℕ).primeFactors = {11} := by
+    change (11 ^ 2 : ℕ).primeFactors = {11}
+    exact Nat.primeFactors_prime_pow (by decide) (by decide)
+  change (∀ q ∈ (2 : ℕ).primeFactors, q = 2 ∨ q = 3) ∧
+    (∀ q ∈ (3 : ℕ).primeFactors, q = 3 ∨ q = 5) ∧
+    (∀ q ∈ (7 : ℕ).primeFactors, q = 5 ∨ q = 7) ∧
+    (∀ q ∈ (25 : ℕ).primeFactors, q = 5 ∨ q = 7) ∧
+    (∀ q ∈ (121 : ℕ).primeFactors, q = 7 ∨ q = 11)
+  rw [Nat.Prime.primeFactors (by decide : Nat.Prime 2),
+    Nat.Prime.primeFactors (by decide : Nat.Prime 3),
+    Nat.Prime.primeFactors (by decide : Nat.Prime 7), h25, h121]
+  simp
+
 /-- Satisfiability: the five known cases.
     n=1: 2 = p₁ ✓;  n=2: 3 ✓;  n=3: 7 = p₄ = nextPrime(nextPrime 3) ✓;
     n=4: 25 = 5² ✓;  n=5: 121 = 11² and nextPrime(nextPrime 5) = 11 ✓.
     -- PROVABLE (decide, after rewriting `nextPrime` values). -/
 example : ErdosStewart 1 ∧ ErdosStewart 2 ∧ ErdosStewart 3 ∧
     ErdosStewart 4 ∧ ErdosStewart 5 := by
-  sorry
+  exact erdosStewart_sanity
+
+/-- Six fails the Erdős–Stewart property, with prime divisor 103. -/
+theorem not_erdosStewart_six : ¬ ErdosStewart 6 := by
+  unfold ErdosStewart
+  rw [nextPrime_six, nextPrime_seven]
+  intro h
+  have h103 : 103 ∈ ((6 : ℕ).factorial + 1).primeFactors :=
+    Nat.mem_primeFactors.mpr ⟨by decide, by decide, by decide⟩
+  have hchoices : 103 = 7 ∨ 103 = 11 := h 103 h103
+  norm_num at hchoices
 
 /-- Non-degeneracy: `n = 6` fails (6! + 1 = 721 = 7 · 103, and
     103 is not among {7, 11}).  -- PROVABLE (decide). -/
-example : ¬ ErdosStewart 6 := by sorry
+example : ¬ ErdosStewart 6 := by
+  exact not_erdosStewart_six
 
 /-- **Erdős #1058, Luca's theorem** (Lu01): the only `n ≥ 1` with the
     Erdős–Stewart property are `n = 1, 2, 3, 4, 5`.  In particular the
