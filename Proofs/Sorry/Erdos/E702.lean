@@ -73,7 +73,55 @@ theorem sharpness_pinned_pair (n k : ℕ) (hk : 4 ≤ k) (hkn : k ≤ n) :
       (∀ A ∈ F, A.card = k) ∧
       F.card = (n - 2).choose (k - 2) ∧
       ∀ A ∈ F, ∀ B ∈ F, 2 ≤ (A ∩ B).card := by
-  sorry
+  have hn : 4 ≤ n := hk.trans hkn
+  let a : Fin n := ⟨0, by omega⟩
+  let b : Fin n := ⟨1, by omega⟩
+  let P : Finset (Fin n) := {a, b}
+  have hab : a ≠ b := by
+    intro h
+    have hv := congrArg Fin.val h
+    change 0 = 1 at hv
+    omega
+  have hP : P.card = 2 := by simp [P, hab]
+  let C : Finset (Fin n) := Finset.univ \ P
+  have hC : C.card = n - 2 := by
+    rw [Finset.card_sdiff_of_subset (Finset.subset_univ P)]
+    simp [hP]
+  let S := C.powersetCard (k - 2)
+  have hdis : ∀ X ∈ S, Disjoint P X := by
+    intro X hX
+    have hsub : X ⊆ C := (Finset.mem_powersetCard.mp hX).1
+    apply Finset.disjoint_left.mpr
+    intro x hxP hxX
+    exact (Finset.mem_sdiff.mp (hsub hxX)).2 hxP
+  have hinj : Set.InjOn (fun X => P ∪ X) S := by
+    intro X hX Y hY hXY
+    have hdiff := congrArg (fun T => T \ P) hXY
+    simpa only [Finset.union_sdiff_cancel_left (hdis X hX),
+      Finset.union_sdiff_cancel_left (hdis Y hY)] using hdiff
+  refine ⟨S.image (fun X => P ∪ X), ?_, ?_, ?_⟩
+  · intro A hA
+    obtain ⟨X, hX, rfl⟩ := Finset.mem_image.mp hA
+    have hXcard : X.card = k - 2 := (Finset.mem_powersetCard.mp hX).2
+    rw [Finset.card_union_of_disjoint (hdis X hX), hP, hXcard]
+    omega
+  · rw [Finset.card_image_of_injOn hinj, Finset.card_powersetCard, hC]
+  · intro A hA B hB
+    obtain ⟨X, hX, rfl⟩ := Finset.mem_image.mp hA
+    obtain ⟨Y, hY, rfl⟩ := Finset.mem_image.mp hB
+    have hsub : P ⊆ (P ∪ X) ∩ (P ∪ Y) := by
+      intro x hx
+      exact Finset.mem_inter.mpr ⟨Finset.mem_union_left X hx,
+        Finset.mem_union_left Y hx⟩
+    simpa only [hP] using Finset.card_le_card hsub
+
+/-- The explicit four-element sets `{0,1,2,3}` and `{3,4,5,6}`
+    in `Fin 7` belong to their two-member family and meet in one point. -/
+theorem fin7_singleton_certificate :
+    ∃ A ∈ ({{0,1,2,3}, {3,4,5,6}} : Finset (Finset (Fin 7))),
+    ∃ B ∈ ({{0,1,2,3}, {3,4,5,6}} : Finset (Finset (Fin 7))),
+      (A ∩ B).card = 1 := by
+  refine ⟨{0, 1, 2, 3}, ?_, {3, 4, 5, 6}, ?_, ?_⟩ <;> decide
 
 /-- Satisfiability of the conclusion at a small model: in the family
     `{{0,1,2,3}, {3,4,5,6}}` (k = 4, n = 7) the two members meet
@@ -82,7 +130,7 @@ example :
     ∃ A ∈ ({{0,1,2,3}, {3,4,5,6}} : Finset (Finset (Fin 7))),
     ∃ B ∈ ({{0,1,2,3}, {3,4,5,6}} : Finset (Finset (Fin 7))),
       (A ∩ B).card = 1 := by
-  sorry
+  exact fin7_singleton_certificate
 
 /-- The `k = 3` boundary is genuinely different (why the problem says
     k ≥ 4): for k = 3 one can beat `C(n−2, 1) = n − 2` without a
@@ -97,7 +145,8 @@ theorem k3_boundary :
       (∀ A ∈ F, A.card = 3) ∧
       (n - 2).choose 1 < F.card ∧
       ∀ A ∈ F, ∀ B ∈ F, (A ∩ B).card ≠ 1 := by
-  sorry
+  refine ⟨4, (Finset.univ : Finset (Fin 4)).powersetCard 3, ?_⟩
+  decide
 
 end ErdosCandidates.E702
 
