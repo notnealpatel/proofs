@@ -16,13 +16,29 @@ by ambient n >= 16, equivalently r > 12. Casting and finite triangular
 uniqueness identify residues, not integer lifts. Even p > n is insufficient:
 coefficient(1,4) = -8 and -8 is congruent to 2 modulo 5, with 5 > 4.
 
-Remaining source closure requires reconciling the source's integer/residue
-interpretation and indexing, and separately certifying Barker's empirical
-generating function if claimed. Integer recovery would need a chosen lift and
-coefficient bound. A minimum-complexity result would need a genuine circuit
-model and optimization proof; that is not a prerequisite to the already proved
-coefficient identities. No new formal admission or source-closure proof is
-provided by this documentation.
+The current source reconciliation uses van Heesch's 2014 thesis
+(http://alexandria.tue.nl/extra1/afstversl/wsk-i/heesch2014.pdf). Printed p. 3
+says that for odd "large enough" p the mod-p calculation agrees with Z, but
+gives no quantified bound. Theorem 1 on p. 4 gives the integer triangular
+recurrence, and Remark 3 on p. 5 says the coefficients are independent of
+ambient n. This identifies the source's integer-recursion interpretation
+with the independent integer coefficients already proved in Blomberg.lean,
+backed by its integer triangular reconstruction and uniqueness; it is not
+recovery of arbitrary residues, and the residue caveat above remains.
+
+Table 3 on printed p. 8, column x = 3, lists a^N_{i,i+3} for i >= 1,
+beginning -8, 0, -20, -20, -64, -48, -120, -120, -232. The source indexing
+is therefore reconciled as OEIS a(r) = coefficient(r,r+3) = diagonal(r+3),
+r >= 1. This is source identification using the existing integer coefficient
+results, not a new formal proof claim.
+
+Barker's generating function remains empirical source metadata, uncertified
+here. A minimum-complexity theorem would require a genuine circuit model and
+optimization proof; it is not a prerequisite to the proved coefficient
+identities. The verbatim card below is preserved historical state: its pending
+integer/residue and indexing reconciliation is superseded by the present
+source reconciliation. This documentation adds no admission or proof and
+makes no blanket claim of full source closure.
 
 ## Formalize/A250109-blomberg-recurrence.md (verbatim)
 
