@@ -67,6 +67,7 @@ Data check on the `3^m + 4` speculation: `3^5 + 4 = 247` (the first term) and
 so the DATA neither confirms nor refutes it.
 -/
 import Mathlib
+import Combinatorics.SelfridgeLacampagne
 
 set_option autoImplicit false
 
@@ -98,27 +99,25 @@ invariant rather than over `ℕ` with a silent truncation. -/
 
 /-- Value of a balanced-ternary trit string, little-endian, `true ↦ +1`,
 `false ↦ −1`.  No `0` trit is representable, which is the point. -/
-def btVal : List Bool → ℤ
-  | [] => 0
-  | b :: t => (if b then 1 else -1) + 3 * btVal t
+abbrev btVal : List Bool → ℤ := SelfridgeLacampagne.btVal
 
 /-- Membership in A147991 (balanced-ternary characterization): `n` is a positive
 integer writable in balanced ternary with no `0` trit. -/
-def MemA147991 (n : ℕ) : Prop := ∃ L : List Bool, L ≠ [] ∧ btVal L = (n : ℤ)
+abbrev MemA147991 (n : ℕ) : Prop := SelfridgeLacampagne.MemA147991 n
 
 /-- Membership in A147991 (generative characterization, the OEIS NAME).  Stated
 over `ℤ` so that `3x − 1` is honest subtraction; positivity of every member is
 then a lemma (`genA147991_pos`) rather than an implicit assumption. -/
-inductive GenA147991 : ℤ → Prop
-  | one : GenA147991 1
-  | lo {x : ℤ} : GenA147991 x → GenA147991 (3 * x - 1)
-  | hi {x : ℤ} : GenA147991 x → GenA147991 (3 * x + 1)
+abbrev GenA147991 : ℤ → Prop := SelfridgeLacampagne.GenA147991
+
+namespace GenA147991
+export SelfridgeLacampagne.GenA147991 (one lo hi)
+end GenA147991
 
 /-- `k` is a Selfridge–Lacampagne **counterexample**: `k` is a positive integer
 not divisible by `3` that is *not* the quotient of two A147991 terms.  Note the
 quotient is stated multiplicatively (`a = k * b`), so no division appears. -/
-def IsSLCounterexample (k : ℕ) : Prop :=
-  0 < k ∧ ¬ (3 ∣ k) ∧ ¬ ∃ a b : ℕ, MemA147991 a ∧ MemA147991 b ∧ a = k * b
+abbrev IsSLCounterexample (k : ℕ) : Prop := SelfridgeLacampagne.IsSLCounterexample k
 
 /-! ## The statements -/
 
@@ -130,17 +129,20 @@ be written as the quotient of two terms chosen from A147991."
 Stated as a `theorem … : ¬ (…)` because the source says it is *false*; stating
 it positively would archive a known falsehood.  A card that discharges this
 `sorry` proves the refutation, whose content is exactly `247` being a
-counterexample.  Shallit et al. resolved the original conjecture negatively
-(see the entry's automaton comment, which describes their decision procedure).
+counterexample. Bai, Meleshko, Riasat and Shallit (arXiv:2202.13694) record
+`247` as a counterexample, also previously found by Coppersmith.
+The production proof below uses finite closed carry sets and suffix induction,
+not a bounded word search.
 
 **Mathlib primitives available.**  `Nat.digits` (wrong tool here — see the
 definition layer), `List`, `Finset.filter`, `Decidable` machinery.  The
 decision procedure the OEIS describes is a **finite automaton** on base-3
 digits; Mathlib has `Computability.DFA` (`DFA`, `DFA.accepts`,
 `DFA.evalFrom`) and `Language`, so the automaton could in principle be built
-and its emptiness decided.  That is the honest route to a *proof* of
-counterexample-hood; the bounded search below is only a certificate for a
-bounded range.
+and its emptiness decided. This is one route to a *proof* of counterexample-hood;
+the production extraction instead checks finite closed carry sets and proves
+suffix impossibility by list induction. The bounded statement below is now a
+consequence of that unbounded proof.
 
 **Sketch of the refutation.**  For fixed `k`, the pairs `(b, kb)` with both in
 A147991 are recognized by a DFA reading `b` in base `3` least-significant-digit
@@ -159,12 +161,12 @@ predicates, but on the *ordinary* ternary expansion.  The two must not be
 confused (that confusion is what this card's header corrects). -/
 theorem selfridgeLacampagne_false :
     ¬ ∀ k : ℕ, 0 < k → ¬ (3 ∣ k) → ∃ a b : ℕ, MemA147991 a ∧ MemA147991 b ∧ a = k * b := by
-  sorry
+  exact SelfridgeLacampagne.selfridgeLacampagne_false
 
 /-- `247` is a counterexample — the first term of A351243, and the content of the
 refutation.  Not open: this is a finite (automaton-decidable) fact. -/
 theorem isSLCounterexample_247 : IsSLCounterexample 247 := by
-  sorry
+  exact SelfridgeLacampagne.isSLCounterexample_247
 
 /-- **The open question (A351243).**
 
@@ -191,16 +193,14 @@ theorem slCounterexample_three_pow_add_four (m : ℕ) (hm : 5 ≤ m) (hodd : Odd
 
 /-! ## Sanity layer -/
 
--- PROVABLE: the two characterizations of A147991 agree.  This is the
--- definitional audit that the balanced-ternary reading is the right one.
+/-- The two characterizations agree at every positive natural number. -/
 theorem memA147991_iff_gen (n : ℕ) (hn : 0 < n) :
     MemA147991 n ↔ GenA147991 (n : ℤ) := by
-  sorry
+  exact SelfridgeLacampagne.memA147991_iff_gen n hn
 
--- PROVABLE: every member of the generative set is positive, so the `ℕ`-level
--- `3x − 1` in the OEIS NAME never truncates.
+/-- Every generated integer is positive, so subtraction in the NAME is honest. -/
 theorem genA147991_pos {x : ℤ} (h : GenA147991 x) : 0 < x := by
-  sorry
+  exact SelfridgeLacampagne.genA147991_pos h
 
 -- PROVABLE: the head of the A147991 DATA line, via `btVal`.
 --   1 = [T], 2 = [F,T], 4 = [T,T], 5 = [F,F,T], 7 = [T,F,T], 11 = [F,T,T],
@@ -214,13 +214,9 @@ example : btVal [false, true, true] = 11 := by decide
 example : btVal [true, true, true] = 13 := by decide
 example : btVal [false, false, false, true] = 14 := by decide
 
--- PROVABLE: `3` is **not** in A147991, which is the discriminating case against
--- the "base-3 digits in {0,1}" misreading (`3 = 10₃` *is* in A005836).
--- Search bound: `|btVal L| ≥ (3^len − 1)/2 · 0 + …` — concretely,
--- `btVal L ≥ 3^(len−1) − (3^(len−1) − 1)/2 > 3` once `len ≥ 3`, and lengths
--- `1, 2` give only `±1, ±2, ±4`.  So a length-`≤ 3` enumeration suffices.
+/-- Three is excluded by the nonzero residue of every nonempty expansion. -/
 theorem three_not_memA147991 : ¬ MemA147991 3 := by
-  sorry
+  exact SelfridgeLacampagne.three_not_memA147991
 
 -- PROVABLE: `247` and `2191` are `3^m + 4` for odd `m ≥ 5`, matching the DATA.
 example : (3 : ℕ) ^ 5 + 4 = 247 := by norm_num
@@ -230,39 +226,22 @@ example : (3 : ℕ) ^ 7 + 4 = 2191 := by norm_num
 -- by `3` (so they are legitimate candidates for the conjecture's scope).
 example : ¬ (3 ∣ 247) ∧ ¬ (3 ∣ 2191) := by decide
 
--- PROVABLE (bounded certificate): no `b` in A147991 with at most `14` trits has
--- `247 * b` also in A147991.  This is a *bounded* certificate, not a proof of
--- `isSLCounterexample_247`; the unbounded statement needs the automaton.
--- Verified externally (python enumeration over all sign vectors of length ≤ 14):
--- for every `b ∈ A147991` with `b < 3^14`, `247 * b ∉ A147991`; likewise for
--- `k = 277` and `k = 2191`.  For contrast, `k = 4` has 13 such representations
--- and `k = 13` has 100, so the search is not vacuously empty.
--- The `0 < btVal L` guard is load-bearing: without it `L = M = []` gives
--- `0 = 247 * 0` and the statement is false for a trivial reason.
+/-- The length-14 certificate is a consequence of the full unbounded obstruction.
+The positivity guard excludes the empty input of value zero. -/
 theorem no_small_witness_247 :
     ∀ L M : List Bool, L.length ≤ 14 → M.length ≤ 14 → 0 < btVal L →
       btVal M ≠ 247 * btVal L := by
-  sorry
+  exact SelfridgeLacampagne.no_small_witness_247
 
-/-! ## Notes for a follow-up card
+/-! ## Extraction status
 
-The genuinely tractable deliverable is the **automaton**:
+`SelfridgeLacampagne` supplies the exact definitions and the established results.
+Its finite closed carry certificates cover both simultaneous and unequal-length
+suffixes; list induction excludes all nonempty expansion pairs in ratio `247`.
+The archived length-14 assertion is only a corollary of this full obstruction.
 
-```lean
-def slDFA (k : ℕ) : DFA (Fin 3) (State k)   -- carry-tracking product automaton
-theorem slDFA_accepts_iff (k b : ℕ) :
-    b ∈ (slDFA k).accepts ↔ MemA147991 b ∧ MemA147991 (k * b)
-theorem slDFA_empty_247 : (slDFA 247).accepts = ∅
-```
-
-with the last line by `decide` over the reachable state set.  That chain gives
-`isSLCounterexample_247` unconditionally, which in turn gives
-`selfridgeLacampagne_false` — i.e. it formalizes the *refutation* of a named
-conjecture, which is a stronger and more novel artifact than archiving the open
-part.  Mathlib's `Computability.DFA` supplies `DFA`, `DFA.accepts`,
-`DFA.evalFrom`, `DFA.mem_accepts`.
-
-The `3^m + 4` family and the infinitude question stay open. -/
+The `3^m + 4` family and the infinitude question remain open and are deliberately
+left as `sorry` above, with their original statements unchanged. -/
 
 /-!
 ## Adversarial review verdict — **PASS-WITH-NOTES**
