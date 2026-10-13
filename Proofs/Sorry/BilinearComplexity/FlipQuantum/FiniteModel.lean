@@ -1,6 +1,6 @@
-/- Retained native-backed finite flip-graph evidence.
-This cohesive package preserves the original finite checks; it is not
-a standard-axiom production theorem package. -/
+/- A kernel-checked two-label model of reducibility marking for one concrete tensor.
+The independence certificates enumerate only the equal-factor classes,
+not arbitrary subsets or unbounded coefficient families. -/
 import BilinearComplexity.FlipQuantum.Phase4FiniteQuery
 
 set_option autoImplicit false
@@ -40,31 +40,24 @@ example : reducibleScheme.term 0 = (vectorA, vectorA, vectorA) ∧
     reducibleScheme.term 1 = (vectorA, vectorB, vectorA) ∧
     reducibleScheme.term 2 = (vectorC, vectorB, vectorC) := by
   norm_num [reducibleScheme]
-  -- This closed fallback enlarges the trust surface; kernel reduction does not
-  -- simplify the final `Fin 3` vector index.
-  native_decide
+  decide
 
 example : irreducibleScheme.term 0 = (vectorA, vectorA, vectorA) ∧
     irreducibleScheme.term 1 = (vectorA, vectorB, vectorB) ∧
     irreducibleScheme.term 2 = (vectorB, vectorB, vectorC) := by
   norm_num [irreducibleScheme]
-  -- This closed fallback enlarges the trust surface; kernel reduction does not
-  -- simplify the final `Fin 3` vector index.
-  native_decide
+  decide
 
 private def tensor : BilinearComplexity.Tensor F 2 2 2 :=
   reducibleScheme.sumTensor
 
--- This closed computation checks the advertised lexicographic tensor
--- coordinates. `native_decide` enlarges the trust surface, but is used here
--- because kernel reduction gets stuck on characteristic-two residual numerals
--- after ordinary simplification.
+-- Kernel reduction checks the eight advertised tensor coordinates.
 example :
     tensor 0 0 0 = 1 ∧ tensor 0 0 1 = 1 ∧
       tensor 0 1 0 = 0 ∧ tensor 0 1 1 = 0 ∧
       tensor 1 0 0 = 1 ∧ tensor 1 0 1 = 0 ∧
       tensor 1 1 0 = 0 ∧ tensor 1 1 1 = 1 := by
-  native_decide
+  decide
 
 private theorem reducibleScheme_valid : reducibleScheme.Valid tensor := by
   refine ⟨rfl, ?_, ?_⟩
@@ -110,9 +103,7 @@ private theorem irreducibleScheme_valid : irreducibleScheme.Valid tensor := by
       norm_num [irreducibleScheme, tensor, reducibleScheme, Scheme.sumTensor,
         vectorA, vectorB, vectorC, BilinearComplexity.TriadData.eval,
         BilinearComplexity.triad, Fin.sum_univ_succ]
-    -- This closed fallback enlarges the trust surface; kernel reduction stalls
-    -- on the remaining characteristic-two numeral equality.
-    all_goals native_decide
+    all_goals decide
   · intro s hzero
     fin_cases s
     · have hentry := congrFun (congrFun (congrFun hzero 1) 1) 1
@@ -187,52 +178,82 @@ private def reducibleFamilyDecidable
     infer_instance
   exact Fintype.decidableExistsFintype
 
--- These six closed computations exhaust the six ordered mode pairs in
--- `Scheme.Reducible`. The decision procedure unfolds projective equality and
--- uses `Fintype.linearIndependent_iff`. These `native_decide` calls enlarge
--- the trust surface, but kernel reduction of the resulting finite `ZMod 2`
--- searches is infeasible.
+/-- Over the two-element field, projective equality is literal vector equality. -/
+private theorem projectivelyEqual_iff_eq (x y : Fin 2 → F) :
+    ProjectivelyEqual x y ↔ x = y := by
+  constructor
+  · rintro ⟨q, hq, hy⟩
+    have hq1 : q = 1 := by
+      have hv := ZMod.val_lt q
+      have he := ZMod.natCast_zmod_val q
+      interval_cases h : q.val <;> simp_all
+    simpa [hq1] using hy.symm
+  · exact projectivelyEqual_of_eq
+
+/-- Independence on each equal-factor class implies nonreducibility on every
+selected subfamily, since projective equality over `ZMod 2` is equality. -/
+private theorem not_reducible_of_classes
+    (x y : Fin 3 → Fin 2 → F)
+    (h : ∀ p, LinearIndependent F (fun i : {i : Fin 3 // x i = x p} => y i.1)) :
+    ¬ Scheme.ReducibleFamily x y := by
+  rintro ⟨I, hI, ⟨p, hp, hcommon⟩, hdep⟩
+  let f : {i : Fin 3 // i ∈ I} → {i : Fin 3 // x i = x p} :=
+    fun i => ⟨i.1, ((projectivelyEqual_iff_eq _ _).mp (hcommon i.1 i.2)).symm⟩
+  have hf : Function.Injective f := by
+    intro i j hij
+    exact Subtype.ext (congrArg (fun t : {i : Fin 3 // x i = x p} => t.1) hij)
+  exact hdep ((h p).comp f hf)
+
+-- Each coefficient certificate has at most two indices. The three `p` cases
+-- select the concrete equal-factor classes; `decide` uses kernel reduction.
+
 private theorem irreducibleScheme_not_reducible_12 :
     ¬ Scheme.ReducibleFamily
       (fun s => (irreducibleScheme.term s).1)
-      (fun s => (irreducibleScheme.term s).2.1) :=
-  @of_decide_eq_true _
-    (@instDecidableNot _ (reducibleFamilyDecidable _ _)) (by native_decide)
+      (fun s => (irreducibleScheme.term s).2.1) := by
+  apply not_reducible_of_classes
+  intro p
+  fin_cases p <;> rw [Fintype.linearIndependent_iff] <;> decide
 
 private theorem irreducibleScheme_not_reducible_13 :
     ¬ Scheme.ReducibleFamily
       (fun s => (irreducibleScheme.term s).1)
-      (fun s => (irreducibleScheme.term s).2.2) :=
-  @of_decide_eq_true _
-    (@instDecidableNot _ (reducibleFamilyDecidable _ _)) (by native_decide)
+      (fun s => (irreducibleScheme.term s).2.2) := by
+  apply not_reducible_of_classes
+  intro p
+  fin_cases p <;> rw [Fintype.linearIndependent_iff] <;> decide
 
 private theorem irreducibleScheme_not_reducible_21 :
     ¬ Scheme.ReducibleFamily
       (fun s => (irreducibleScheme.term s).2.1)
-      (fun s => (irreducibleScheme.term s).1) :=
-  @of_decide_eq_true _
-    (@instDecidableNot _ (reducibleFamilyDecidable _ _)) (by native_decide)
+      (fun s => (irreducibleScheme.term s).1) := by
+  apply not_reducible_of_classes
+  intro p
+  fin_cases p <;> rw [Fintype.linearIndependent_iff] <;> decide
 
 private theorem irreducibleScheme_not_reducible_23 :
     ¬ Scheme.ReducibleFamily
       (fun s => (irreducibleScheme.term s).2.1)
-      (fun s => (irreducibleScheme.term s).2.2) :=
-  @of_decide_eq_true _
-    (@instDecidableNot _ (reducibleFamilyDecidable _ _)) (by native_decide)
+      (fun s => (irreducibleScheme.term s).2.2) := by
+  apply not_reducible_of_classes
+  intro p
+  fin_cases p <;> rw [Fintype.linearIndependent_iff] <;> decide
 
 private theorem irreducibleScheme_not_reducible_31 :
     ¬ Scheme.ReducibleFamily
       (fun s => (irreducibleScheme.term s).2.2)
-      (fun s => (irreducibleScheme.term s).1) :=
-  @of_decide_eq_true _
-    (@instDecidableNot _ (reducibleFamilyDecidable _ _)) (by native_decide)
+      (fun s => (irreducibleScheme.term s).1) := by
+  apply not_reducible_of_classes
+  intro p
+  fin_cases p <;> rw [Fintype.linearIndependent_iff] <;> decide
 
 private theorem irreducibleScheme_not_reducible_32 :
     ¬ Scheme.ReducibleFamily
       (fun s => (irreducibleScheme.term s).2.2)
-      (fun s => (irreducibleScheme.term s).2.1) :=
-  @of_decide_eq_true _
-    (@instDecidableNot _ (reducibleFamilyDecidable _ _)) (by native_decide)
+      (fun s => (irreducibleScheme.term s).2.1) := by
+  apply not_reducible_of_classes
+  intro p
+  fin_cases p <;> rw [Fintype.linearIndependent_iff] <;> decide
 
 private theorem irreducibleScheme_irreducible :
     ¬ irreducibleScheme.Reducible tensor := by
@@ -311,7 +332,9 @@ private theorem amplitude_normalized_support :
     have hsqrt : (0 : ℝ) < Real.sqrt 2 / 2 := by positivity
     exact_mod_cast hsqrt.ne'
 
-example :
+/-- The two concrete schemes represent one tensor, with exactly the reducible scheme marked
+and a normalized state supported on both distinct labels. -/
+theorem same_tensor_marked_package :
     Scheme.MarksReducible tensor decode marked ∧
       decode 0 ≠ decode 1 ∧
       (decode 0).GraphVertex tensor ∧
