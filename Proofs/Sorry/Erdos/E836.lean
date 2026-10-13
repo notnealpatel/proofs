@@ -72,8 +72,57 @@ def fano : Finset (Finset (Fin 7)) :=
   { {0, 1, 2}, {0, 3, 4}, {0, 5, 6}, {1, 3, 5}, {1, 4, 6}, {2, 3, 6},
     {2, 4, 5} }
 
+set_option maxRecDepth 4096 in
+/-- Each of the seven encoded Fano lines has three points. -/
+private theorem fano_uniform_certificate : Uniform 3 fano := by
+  unfold Uniform fano
+  decide
+
+set_option maxRecDepth 4096 in
+/-- All 49 ordered pairs of encoded Fano lines meet, including self-pairs. -/
+private theorem fano_intersecting_certificate : Intersecting fano := by
+  unfold Intersecting fano
+  decide
+
+set_option maxRecDepth 4096 in
+/-- Distinct encoded Fano lines meet in precisely one point. -/
+private theorem fano_distinct_intersection_certificate :
+    ∀ e ∈ fano, ∀ f ∈ fano, e ≠ f → (e ∩ f).card = 1 := by
+  decide
+
+set_option maxRecDepth 4096 in
+/-- The explicit coloring with colors 2,1,1,0,0,0,0 is proper. -/
+private theorem fano_three_coloring_certificate :
+    ProperColoring fano (![2, 1, 1, 0, 0, 0, 0] : Fin 7 → Fin 3) := by
+  unfold ProperColoring fano
+  decide
+
+set_option maxRecDepth 4096 in
+/-- None of the 128 binary assignments is a proper Fano coloring. -/
+private theorem fano_binary_certificate :
+    ∀ a b c d e f g : Fin 2,
+      ¬ ProperColoring fano (![a, b, c, d, e, f, g] : Fin 7 → Fin 2) := by
+  unfold ProperColoring fano
+  decide
+
+/-- Every function on the seven points is represented by its seven values. -/
+private theorem fano_coloring_values (c : Fin 7 → Fin 2) :
+    (![c 0, c 1, c 2, c 3, c 4, c 5, c 6] : Fin 7 → Fin 2) = c := by
+  funext x
+  fin_cases x <;> rfl
+
+/-- The binary certificate excludes an arbitrary two-coloring. -/
+private theorem fano_not_two_colorable :
+    ¬ ∃ c : Fin 7 → Fin 2, ProperColoring fano c := by
+  rintro ⟨c, hc⟩
+  have hbad := fano_binary_certificate (c 0) (c 1) (c 2) (c 3) (c 4) (c 5) (c 6)
+  rw [fano_coloring_values c] at hbad
+  exact hbad hc
+
 example : Uniform 3 fano ∧ Intersecting fano ∧ ChromaticThree fano := by
-  sorry
+  refine ⟨fano_uniform_certificate, fano_intersecting_certificate, ?_⟩
+  exact ⟨⟨![2, 1, 1, 0, 0, 0, 0], fano_three_coloring_certificate⟩,
+    fano_not_two_colorable⟩
 
 /-- **Erdős #836, first question — REFUTED by Alon** (DB remarks): it is
     NOT true that every intersecting 3-chromatic `r`-uniform hypergraph
@@ -128,7 +177,7 @@ theorem second_question :
     lines meet in exactly one point — so `r − 1 = 2`-point intersections
     are NOT forced (the DB's Fano remark).  -- PROVABLE (decide). -/
 example : ∀ e ∈ fano, ∀ f ∈ fano, e ≠ f → (e ∩ f).card = 1 := by
-  sorry
+  exact fano_distinct_intersection_certificate
 
 end ErdosCandidates.E836
 
