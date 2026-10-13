@@ -43,12 +43,26 @@ def exceptions : Finset (ℕ × ℕ) :=
 def SmallLeastFactor (n k : ℕ) : Prop :=
   (n.choose k).minFac ≤ k ∨ (n.choose k).minFac * k ≤ n
 
+/-- The least-factor bound holds for C(10,4), but fails for C(62,6). -/
+theorem smallLeastFactor_sanity :
+    SmallLeastFactor 10 4 ∧ ¬ SmallLeastFactor 62 6 := by
+  have h10 : Nat.choose 10 4 = 210 := by
+    rw [Nat.choose_eq_descFactorial_div_factorial]
+    decide
+  have h62 : Nat.choose 62 6 = 61474519 := by
+    rw [Nat.choose_eq_descFactorial_div_factorial]
+    decide
+  have hmin10 : Nat.minFac 210 = 2 := by decide
+  have hmin62 : Nat.minFac 61474519 = 19 := by norm_num
+  unfold SmallLeastFactor
+  rw [h10, h62, hmin10, hmin62]
+  decide
+
 /-- Ground truth: C(10,4) = 210 has minFac 2 ≤ 4 ✓; the exception
     C(62,6): C(62,6) = 61474519, whose least prime factor is 19, and
-    19 > 6 with 19·6 = 114 > 62 — genuinely exceptional.
-    -- PROVABLE (decide). -/
+    19 > 6 with 19·6 = 114 > 62 — genuinely exceptional. -/
 example : SmallLeastFactor 10 4 ∧ ¬ SmallLeastFactor 62 6 := by
-  sorry
+  exact smallLeastFactor_sanity
 
 /-- **Erdős #1094 (OPEN)**: for all `n ≥ 2k`, `k ≥ 2`, outside the 14
     listed exceptions, the least prime factor of `C(n,k)` is
