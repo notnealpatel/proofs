@@ -1,3 +1,6 @@
+/- Historical/source claims below are retained verbatim, not independently paper-audited.
+   A fresh `erdos fetch 86` matched the current statement and reported literature bounds;
+   that source check does not establish primary-paper verification. -/
 /-
   Erdős Problem #86 — C₄-free subgraphs of the hypercube.
   Status: open; $100.  Tier B archive target with certificate layer.
@@ -26,7 +29,7 @@
   `SimpleGraph.edgeFinset.card` for edge counts.  Q_n defined fresh
   below on `Fin n → Bool`.
 -/
-import Mathlib
+import Combinatorics.HypercubeGraph
 
 set_option autoImplicit false
 
@@ -38,46 +41,33 @@ open SimpleGraph
     the points differ in exactly one coordinate.  (Fresh def; leandoc
     confirms no Mathlib hypercube graph.  `Finset.filter` over `univ`
     keeps it decidable.) -/
-def hypercube (n : ℕ) : SimpleGraph (Fin n → Bool) where
-  Adj x y := (Finset.univ.filter (fun i => x i ≠ y i)).card = 1
-  symm := by
-    intro x y h
-    simpa [ne_comm] using h
-  loopless := by
-    intro x h
-    simp at h
+abbrev hypercube (n : ℕ) : SimpleGraph (Fin n → Bool) := HypercubeGraph.hypercube n
 
 /-- Ground truth: `Q_n` has `2^n` vertices and `n·2^{n-1}` edges (the
     DB's own parenthetical).  -- PROVABLE (double counting; or decide
     for n ≤ 3). -/
 theorem hypercube_card_verts (n : ℕ) :
-    Fintype.card (Fin n → Bool) = 2 ^ n := by
-  sorry
+    Fintype.card (Fin n → Bool) = 2 ^ n :=
+  HypercubeGraph.hypercube_card_verts n
 
+/-- The finite hypercube edge count, now proved in the production unit. -/
 theorem hypercube_card_edges (n : ℕ) [DecidableRel (hypercube n).Adj] :
-    (hypercube n).edgeFinset.card = n * 2 ^ (n - 1) := by
-  sorry
+    (hypercube n).edgeFinset.card = n * 2 ^ (n - 1) :=
+  HypercubeGraph.hypercube_card_edges n
 
 /-- `C4Free H`: `H` contains no 4-cycle, via Mathlib's `Free`
     (no copy of `cycleGraph 4`). -/
-def C4Free {V : Type*} (H : SimpleGraph V) : Prop :=
-  (cycleGraph 4).Free H
+abbrev C4Free {V : Type*} (H : SimpleGraph V) : Prop := HypercubeGraph.C4Free H
 
 /-- Sanity: `Q_2` is itself a 4-cycle, so `Q_2` is NOT C₄-free, and
     deleting any edge of `Q_2` leaves a C₄-free graph with 3 edges.
     -- PROVABLE (decide-scale). -/
-example : ¬ C4Free (hypercube 2) := by
-  sorry
+example : ¬ C4Free (hypercube 2) := HypercubeGraph.not_c4Free_hypercube_two
 
 /-- `maxC4FreeEdges n`: the extremal count `f(n)` — the largest number
     of edges of a C₄-free subgraph of `Q_n`.  Encoded as a sup over
     subgraphs `H ≤ hypercube n` (classical choice for the filter). -/
-open scoped Classical in
-noncomputable def maxC4FreeEdges (n : ℕ) : ℕ :=
-  Finset.sup
-    (Finset.univ.filter
-      (fun H : SimpleGraph (Fin n → Bool) => H ≤ hypercube n ∧ C4Free H))
-    (fun H => H.edgeFinset.card)
+noncomputable abbrev maxC4FreeEdges (n : ℕ) : ℕ := HypercubeGraph.maxC4FreeEdges n
 
 /-- **Erdős #86 (OPEN, $100)**: `f(n) ≤ (1/2 + o(1))·n·2^{n-1}` —
     every subgraph of `Q_n` with `(1/2 + ε)·n·2^{n-1}` edges contains a
@@ -117,10 +107,11 @@ theorem certificate_q9 : 1505 ≤ maxC4FreeEdges 9 := by
     4-cycle).  -- PROVABLE (decide over subgraphs of Q₂, 2⁴ edge
     subsets).  Pins `maxC4FreeEdges` against off-by-one in the sup
     encoding. -/
-theorem maxC4FreeEdges_two : maxC4FreeEdges 2 = 3 := by
-  sorry
+theorem maxC4FreeEdges_two : maxC4FreeEdges 2 = 3 := HypercubeGraph.maxC4FreeEdges_two
 
 end ErdosCandidates.E86
+
+/- Historical source review follows; its claims are not an independent primary-paper audit. -/
 
 /- SOURCE-FIDELITY REVIEW (flash, 2026-08-05)
    Verdict: PASS
