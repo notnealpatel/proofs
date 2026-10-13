@@ -55,7 +55,16 @@ example : CoversWith 12 1 := by
     -- PROVABLE (weaken the prime pool; effort S). -/
 theorem coversWith_mono (n T T' : ℕ) (hTT : T ≤ T')
     (h : CoversWith n T') : CoversWith n T := by
-  sorry
+  rcases h with ⟨a, ha⟩
+  refine ⟨a, ?_⟩
+  intro m hm
+  rcases ha m hm with ⟨p, hp, heq⟩
+  rcases Finset.mem_filter.mp hp with ⟨hpIcc, hpPrime⟩
+  rcases Finset.mem_Icc.mp hpIcc with ⟨hpLower, hpUpper⟩
+  have hpLower' : T + 1 ≤ p :=
+    (Nat.add_le_add_right hTT 1).trans hpLower
+  exact ⟨p, Finset.mem_filter.mpr
+    ⟨Finset.mem_Icc.mpr ⟨hpLower', hpUpper⟩, hpPrime⟩, heq⟩
 
 /-- `minCutoff n`: the largest admissible cutoff — we track
     `sSup {T | CoversWith n T}`; `ε_n = log(minCutoff n)/log n` in
