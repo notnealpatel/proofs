@@ -41,7 +41,10 @@ def SharedLargePrime (n i j : ℕ) : Prop :=
 /-- Satisfiability at a small model: `n = 10, i = 2, j = 5`:
     `C(10,2) = 45`, `C(10,5) = 252`, `gcd = 9`, and `p = 3 ≥ 2` works.
     -- PROVABLE (decide). -/
-example : SharedLargePrime 10 2 5 := by sorry
+example : SharedLargePrime 10 2 5 := by
+  refine ⟨3, by norm_num, by norm_num, ?_⟩
+  rw [Nat.choose_eq_descFactorial_div_factorial, Nat.choose_eq_descFactorial_div_factorial]
+  norm_num [Nat.descFactorial, Nat.factorial, Nat.gcd]
 
 /-- **Erdős #699, headline (OPEN)**: for all `1 ≤ i < j` with `2j ≤ n`,
     some prime `p ≥ i` divides `gcd(C(n,i), C(n,j))`.
@@ -88,7 +91,28 @@ theorem strict_variant_fails_28_5_14 :
     Nat.gcd (Nat.choose 28 5) (Nat.choose 28 14) = 1080 ∧
     (∀ p : ℕ, p.Prime → 5 < p → ¬ p ∣ 1080) ∧
     SharedLargePrime 28 5 14 := by
-  sorry
+  have hgcd : Nat.gcd (Nat.choose 28 5) (Nat.choose 28 14) = 1080 := by
+    rw [Nat.choose_eq_descFactorial_div_factorial, Nat.choose_eq_descFactorial_div_factorial]
+    norm_num [Nat.descFactorial, Nat.factorial, Nat.gcd]
+  refine ⟨hgcd, ?_, ?_⟩
+  · intro p hp hgt hdvd
+    have hfactor : 1080 = 2 ^ 3 * 3 ^ 3 * 5 := by norm_num
+    rw [hfactor] at hdvd
+    rcases hp.dvd_mul.mp hdvd with h23 | h5
+    · rcases hp.dvd_mul.mp h23 with h2 | h3
+      · have heq : 2 = p := (Nat.prime_two.dvd_iff_eq hp.ne_one).mp
+          (hp.dvd_of_dvd_pow h2)
+        omega
+      · have hprime3 : Nat.Prime 3 := by norm_num
+        have heq : 3 = p := (hprime3.dvd_iff_eq hp.ne_one).mp
+          (hp.dvd_of_dvd_pow h3)
+        omega
+    · have hprime5 : Nat.Prime 5 := by norm_num
+      have heq : 5 = p := (hprime5.dvd_iff_eq hp.ne_one).mp h5
+      omega
+  · refine ⟨5, by norm_num, le_rfl, ?_⟩
+    rw [hgcd]
+    norm_num
 
 /-- Sanity window: the headline verified for all `n ≤ 60` and all
     admissible `(i, j)`.  -- PROVABLE (decide; small search space). -/
