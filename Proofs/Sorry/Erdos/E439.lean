@@ -45,13 +45,29 @@ theorem khalfalah_szemeredi (K : ℕ) (hK : 1 ≤ K) (c : ℕ → Fin K) :
     MonoSquarePair c := by
   sorry
 
+/-- The five positive vertices 1, 3, 6, 10, 15 contain a monochromatic
+    square-sum edge under any two-coloring. -/
+theorem two_color_cycle_pair (c : ℕ → Fin 2) :
+    ∃ x y : ℕ, 1 ≤ x ∧ x ≤ 100 ∧ 1 ≤ y ∧ y ≤ 100 ∧ x ≠ y ∧
+      c x = c y ∧ IsSquare (x + y) := by
+  have hedge : c 1 = c 3 ∨ c 3 = c 6 ∨ c 6 = c 10 ∨
+      c 10 = c 15 ∨ c 15 = c 1 := by
+    omega
+  rcases hedge with h | h | h | h | h
+  · exact ⟨1, 3, by decide, by decide, by decide, by decide, by decide, h, 2, rfl⟩
+  · exact ⟨3, 6, by decide, by decide, by decide, by decide, by decide, h, 3, rfl⟩
+  · exact ⟨6, 10, by decide, by decide, by decide, by decide, by decide, h, 4, rfl⟩
+  · exact ⟨10, 15, by decide, by decide, by decide, by decide, by decide, h, 5, rfl⟩
+  · exact ⟨15, 1, by decide, by decide, by decide, by decide, by decide, h, 4, rfl⟩
+
 /-- **ESS89 (2 and 3 colors)**, archived separately — proved much
     earlier and possibly within reach of an elementary treatment:
     the 2-color case is a finite check on a suitable interval (see
     the finite instance below); the 3-color case is genuinely
     harder. -/
 theorem ess_two_colors (c : ℕ → Fin 2) : MonoSquarePair c := by
-  sorry
+  obtain ⟨x, y, hx, _, hy, _, hxy, hc, hs⟩ := two_color_cycle_pair c
+  exact ⟨x, y, hx, hy, hxy, hc, hs⟩
 
 /-- **Finite 2-color instance (the decide target)**: there is an `N`
     such that every 2-coloring of `{1, …, N}` has a monochromatic
@@ -64,7 +80,7 @@ theorem ess_two_colors (c : ℕ → Fin 2) : MonoSquarePair c := by
 theorem finite_instance_100 (c : ℕ → Fin 2) :
     ∃ x y : ℕ, 1 ≤ x ∧ x ≤ 100 ∧ 1 ≤ y ∧ y ≤ 100 ∧ x ≠ y ∧
       c x = c y ∧ IsSquare (x + y) := by
-  sorry
+  exact two_color_cycle_pair c
 
 /-- Sharpness floor: small intervals DO admit square-sum-free
     2-colorings — on `{1, …, 10}` the coloring {1,2,4,6,9} vs
@@ -75,7 +91,15 @@ theorem finite_instance_100 (c : ℕ → Fin 2) :
 theorem small_interval_escape :
     ∃ c : ℕ → Fin 2, ∀ x y : ℕ, 1 ≤ x → x ≤ 10 → 1 ≤ y → y ≤ 10 →
       x ≠ y → c x = c y → ¬ IsSquare (x + y) := by
-  sorry
+  let c : ℕ → Fin 2 := fun n => if n ∈ ({1, 2, 4, 6, 9} : Finset ℕ) then 0 else 1
+  refine ⟨c, ?_⟩
+  intro x y hx hx10 hy hy10 hxy hc hs
+  obtain ⟨r, hr⟩ := hs
+  have hr4 : r ≤ 4 := by nlinarith
+  have hexclude : x + y ≠ 4 ∧ x + y ≠ 9 ∧ x + y ≠ 16 := by
+    interval_cases x <;> interval_cases y <;>
+      norm_num [c] at *
+  interval_cases r <;> omega
 
 /-- **The k-th power generalization** (also resolved by [KhSz06] via
     the f(z) = z^k form when the parity condition holds — note
