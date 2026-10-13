@@ -14,6 +14,7 @@ are archived in `Sorry.NumberComplexity.GiugaDerivative`. This façade preserves
 the historical `Candidates.A007850` API; it does not certify the conjecture.
 -/
 import Sorry.NumberComplexity.GiugaDerivative
+import NumberComplexity.GiugaCharacterization
 
 set_option autoImplicit false
 
@@ -38,12 +39,11 @@ This wrapper depends on the canonical archive's admission, not a proof. -/
 theorem ad_eq_succ_of_isGiuga (n : ℕ) (h : IsGiuga n) : ad n = n + 1 :=
   GiugaDerivative.ad_eq_succ_of_isGiuga h
 
-/-- Grau–Oller-Marcén's characterization with a positive multiplier.
-Temporary admission pending the separate worker's formalization; unlike the
-multiplier-one converse, this is a theorem in the cited literature. -/
+/-- Grau–Oller-Marcén's characterization with a positive multiplier,
+proved by reuse of the canonical characterization theorem. -/
 theorem grauRibas_isGiuga_iff (n : ℕ) (hn : 1 < n) :
-    IsGiuga n ↔ ∃ a : ℕ, 0 < a ∧ ad n = a * n + 1 := by
-  sorry
+    IsGiuga n ↔ ∃ a : ℕ, 0 < a ∧ ad n = a * n + 1 :=
+  GiugaDerivative.grauRibas_isGiuga_iff n hn
 
 /-- The arithmetic derivative of a prime is one. -/
 theorem ad_prime {p : ℕ} (hp : p.Prime) : ad p = 1 :=
@@ -61,10 +61,9 @@ theorem ad_eq_sum_of_dvd (n : ℕ) :
   intro p hp
   exact Nat.dvd_of_mem_primeFactors hp
 
-/-- Giuga numbers are squarefree. Temporary admission pending the separate
-worker's proof; this is not the genuinely open Lava converse. -/
-theorem isGiuga_squarefree {n : ℕ} (h : IsGiuga n) : Squarefree n := by
-  sorry
+/-- Giuga numbers are squarefree, proved by reuse of the canonical structural theorem. -/
+theorem isGiuga_squarefree {n : ℕ} (h : IsGiuga n) : Squarefree n :=
+  GiugaDerivative.isGiuga_squarefree h
 
 -- Ground truth for the aliases and joint satisfiability of the API hypotheses.
 example : ad = GiugaDerivative.ad := rfl
