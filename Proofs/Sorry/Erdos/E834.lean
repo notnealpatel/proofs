@@ -32,6 +32,8 @@
 import Mathlib
 
 set_option autoImplicit false
+set_option maxRecDepth 4096
+set_option maxHeartbeats 1000000
 
 namespace ErdosCandidates.E834
 
@@ -55,12 +57,119 @@ def ChromaticallyThreeCritical (H : Finset (Finset V)) : Prop :=
 def degree (H : Finset (Finset V)) (v : V) : ℕ :=
   (H.filter (fun e => v ∈ e)).card
 
+/-- The seven specified lines of the Fano plane on `Fin 7`. -/
+def fano : Finset (Finset (Fin 7)) :=
+  {{0,1,2}, {0,3,4}, {0,5,6}, {1,3,5}, {1,4,6}, {2,3,6}, {2,4,5}}
+
+example : fano =
+    ({{0,1,2}, {0,3,4}, {0,5,6}, {1,3,5}, {1,4,6}, {2,3,6},
+      {2,4,5}} : Finset (Finset (Fin 7))) := rfl
+
+/-- The explicit three-coloring: point zero has color two, points one and
+    two have color one, and the other four points have color zero. -/
+def fanoThreeColor (v : Fin 7) : Fin 3 :=
+  if v = 0 then 2 else if v = 1 ∨ v = 2 then 1 else 0
+
+example : (fanoThreeColor 0, fanoThreeColor 1, fanoThreeColor 2,
+    fanoThreeColor 3, fanoThreeColor 4, fanoThreeColor 5, fanoThreeColor 6) =
+    (2, 1, 1, 0, 0, 0, 0) := by decide
+
+/-- Checking the seven lines proves that the explicit three-coloring is proper. -/
+theorem fano_three_color_proper : ProperColoring fano fanoThreeColor := by
+  unfold ProperColoring
+  decide
+
+/-- Every binary assignment has a monochromatic Fano line. This kernel
+    certificate checks only the 128 binary assignments and the seven lines. -/
+theorem fano_binary_certificate :
+    ∀ c : Fin 7 → Fin 2, ∃ e ∈ fano, ∀ x ∈ e, ∀ y ∈ e, c x = c y := by
+  decide
+
+/-- No binary coloring of the Fano plane is proper. -/
+theorem fano_not_two_colorable : ¬ ∃ c : Fin 7 → Fin 2, ProperColoring fano c := by
+  rintro ⟨c, hc⟩
+  obtain ⟨e, he, hmono⟩ := fano_binary_certificate c
+  obtain ⟨x, hx, y, hy, hxy⟩ := hc e he
+  exact hxy (hmono x hx y hy)
+
+/-- Distinct Fano lines meet in exactly one point, and each has a point
+    inside and a point outside the other. Only the seven-by-seven pairs are checked. -/
+theorem fano_line_pair_certificate :
+    ∀ e ∈ fano, ∀ f ∈ fano, f ≠ e →
+      (f ∩ e).card = 1 ∧ ∃ x ∈ f, ∃ y ∈ f, x ∈ e ∧ y ∉ e := by
+  decide
+
+/-- Every point is on a Fano line. -/
+theorem fano_incident_line : ∀ v : Fin 7, ∃ e ∈ fano, v ∈ e := by
+  decide
+
+/-- Every Fano line is nonempty, including those through the boundary points. -/
+theorem fano_lines_nonempty : ∀ e ∈ fano, e.Nonempty := by
+  decide
+
+omit [DecidableEq V] [Fintype V] in
+/-- Proper colorings remain proper when lines are removed. -/
+theorem properColoring_mono {k : ℕ} {H K : Finset (Finset V)}
+    {c : V → Fin k} (hKH : K ⊆ H) (hc : ProperColoring H c) :
+    ProperColoring K c := by
+  intro e he
+  exact hc e (hKH he)
+
+/-- Coloring a deleted line one and its complement zero properly colors
+    every retained Fano line. -/
+theorem fano_edge_color_proper (e : Finset (Fin 7)) (he : e ∈ fano) :
+    ProperColoring (fano.erase e) (fun v => if v ∈ e then (1 : Fin 2) else 0) := by
+  intro f hf
+  obtain ⟨hne, hmem⟩ := Finset.mem_erase.mp hf
+  obtain ⟨_, x, hx, y, hy, hxe, hye⟩ := fano_line_pair_certificate e he f hmem hne
+  refine ⟨x, hx, y, hy, ?_⟩
+  simp [hxe, hye]
+
+/-- Deleting any Fano line leaves a binary-colorable hypergraph. -/
+theorem fano_edge_two_colorable :
+    ∀ e ∈ fano, ∃ c : Fin 7 → Fin 2, ProperColoring (fano.erase e) c := by
+  intro e he
+  exact ⟨_, fano_edge_color_proper e he⟩
+
+/-- Deleting a point removes an incident line, so the coloring for deletion
+    of that line also colors all lines avoiding the point. -/
+theorem fano_vertex_two_colorable :
+    ∀ v : Fin 7, ∃ c : Fin 7 → Fin 2,
+      ProperColoring (fano.filter (fun e => v ∉ e)) c := by
+  intro v
+  obtain ⟨e, he, hve⟩ := fano_incident_line v
+  refine ⟨(fun w => if w ∈ e then 1 else 0),
+    properColoring_mono ?_ (fano_edge_color_proper e he)⟩
+  intro f hf
+  obtain ⟨hfH, hvf⟩ := Finset.mem_filter.mp hf
+  apply Finset.mem_erase.mpr
+  refine ⟨?_, hfH⟩
+  intro hfe
+  exact hvf (hfe ▸ hve)
+
+/-- The specified Fano plane satisfies all four clauses of chromatic
+    three-criticality, with explicit coloring and deletion witnesses. -/
+theorem fano_chromatically_three_critical : ChromaticallyThreeCritical fano := by
+  exact ⟨⟨fanoThreeColor, fano_three_color_proper⟩, fano_not_two_colorable,
+    fano_edge_two_colorable, fano_vertex_two_colorable⟩
+
+example : (0 : Fin 7) ≠ 6 := by decide
+example : degree fano 0 = 3 ∧ degree fano 6 = 3 := by decide
+example : ∃ c : Fin 7 → Fin 3, ProperColoring fano c :=
+  ⟨fanoThreeColor, fano_three_color_proper⟩
+example : ∃ c : Fin 7 → Fin 2, ProperColoring (fano.erase {0,1,2}) c := by
+  apply fano_edge_two_colorable
+  decide
+example : ∃ c : Fin 7 → Fin 2,
+    ProperColoring (fano.filter (fun e => (6 : Fin 7) ∉ e)) c :=
+  fano_vertex_two_colorable 6
+
 /-- Ground truth for the degree def: in the Fano plane every point has
     degree 3.  -- PROVABLE (decide). -/
 example :
     degree ({{0,1,2}, {0,3,4}, {0,5,6}, {1,3,5}, {1,4,6}, {2,3,6},
       {2,4,5}} : Finset (Finset (Fin 7))) 0 = 3 := by
-  sorry
+  decide
 
 /-- **Erdős #834, chromatic reading — Li's construction** ([Li25]):
     there is a 3-uniform, chromatically 3-critical hypergraph on 9
@@ -112,7 +221,7 @@ theorem li_transversal_negative (n : ℕ) (H : Finset (Finset (Fin n)))
 example : ChromaticallyThreeCritical
     ({{0,1,2}, {0,3,4}, {0,5,6}, {1,3,5}, {1,4,6}, {2,3,6},
       {2,4,5}} : Finset (Finset (Fin 7))) := by
-  sorry
+  exact fano_chromatically_three_critical
 
 end ErdosCandidates.E834
 
