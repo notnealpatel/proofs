@@ -46,14 +46,29 @@ def divisorList (n : ℕ) : List ℕ := n.divisors.sort (· ≤ ·)
 /-- `tauPerp n`: the number of adjacent coprime pairs in the sorted
     divisor list — the `τ⊥(n)` of the problem. -/
 def tauPerp (n : ℕ) : ℕ :=
-  (List.zipWith (fun a b => Nat.gcd a b = 1) (divisorList n)
+  (List.zipWith (fun a b => decide (Nat.gcd a b = 1)) (divisorList n)
     (divisorList n).tail).count true
+
+/-- At 12 the adjacent coprime divisor count is three and there are two distinct prime factors. -/
+theorem tauPerp_twelve_and_primeFactors_card :
+    tauPerp 12 = 3 ∧ (12 : ℕ).primeFactors.card = 2 := by
+  have hdivisors : (12 : ℕ).divisors = [1, 2, 3, 4, 6, 12].toFinset := by
+    rw [← Nat.filter_dvd_eq_divisors (by decide : (12 : ℕ) ≠ 0)]
+    decide
+  have hlist : divisorList 12 = [1, 2, 3, 4, 6, 12] := by
+    unfold divisorList
+    rw [hdivisors]
+    exact (List.toFinset_sort (· ≤ ·) (by decide)).2 (by decide)
+  unfold tauPerp
+  rw [hlist]
+  unfold Nat.primeFactors Nat.primeFactorsList
+  decide +kernel
 
 /-- Ground truth: divisors of 12: 1,2,3,4,6,12 — adjacent gcds:
     (1,2)=1 ✓, (2,3)=1 ✓, (3,4)=1 ✓, (4,6)=2, (6,12)=6 → τ⊥(12) = 3.
     ω(12) = 2.  -- PROVABLE (decide). -/
 example : tauPerp 12 = 3 ∧ (12 : ℕ).primeFactors.card = 2 := by
-  sorry
+  exact tauPerp_twelve_and_primeFactors_card
 
 /-- **Trivial lower bound (first landing)**: `ω(n) ≤ τ⊥(n)` for
     `n ≥ 2` — below each prime power block boundary the divisors
@@ -111,12 +126,32 @@ theorem erdos_hall_max_order (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1) :
         Real.exp (Real.log (Real.log x) ^ (2 - ε)) < (tauPerp n : ℝ) := by
   sorry
 
+/-- The adjacent coprime divisor counts at two and thirty are one and four, respectively. -/
+theorem tauPerp_two_and_thirty : tauPerp 2 = 1 ∧ tauPerp 30 = 4 := by
+  have hdivisors2 : (2 : ℕ).divisors = [1, 2].toFinset := by
+    rw [← Nat.filter_dvd_eq_divisors (by decide : (2 : ℕ) ≠ 0)]
+    decide
+  have hlist2 : divisorList 2 = [1, 2] := by
+    unfold divisorList
+    rw [hdivisors2]
+    exact (List.toFinset_sort (· ≤ ·) (by decide)).2 (by decide)
+  have hdivisors30 : (30 : ℕ).divisors = [1, 2, 3, 5, 6, 10, 15, 30].toFinset := by
+    rw [← Nat.filter_dvd_eq_divisors (by decide : (30 : ℕ) ≠ 0)]
+    decide
+  have hlist30 : divisorList 30 = [1, 2, 3, 5, 6, 10, 15, 30] := by
+    unfold divisorList
+    rw [hdivisors30]
+    exact (List.toFinset_sort (· ≤ ·) (by decide)).2 (by decide)
+  unfold tauPerp
+  rw [hlist2, hlist30]
+  decide
+
 /-- Sanity: equality τ⊥ = ω happens — `n = 2`: divisors 1, 2;
     τ⊥ = 1 = ω(2).  And a squarefree table entry: τ⊥(30) — divisors
     1,2,3,5,6,10,15,30: coprime adjacent pairs (1,2),(2,3),(3,5),
     (5,6) → τ⊥(30) = 4 with ω = 3.  -- PROVABLE (decide). -/
 example : tauPerp 2 = 1 ∧ tauPerp 30 = 4 := by
-  sorry
+  exact tauPerp_two_and_thirty
 
 end ErdosCandidates.E1100
 

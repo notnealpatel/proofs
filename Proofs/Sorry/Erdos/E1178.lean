@@ -42,15 +42,23 @@ def ContainsConfig {V : Type*} [DecidableEq V] (H : Finset (Finset V))
     (d e : ℕ) : Prop :=
   ∃ S ⊆ H, S.card = e ∧ (S.sup id).card ≤ d
 
+open scoped Classical in
 /-- `exr n r d e`: the Turán number — the maximal number of edges of
     an `r`-uniform hypergraph on `Fin n` containing no `(d, e)`
     configuration. -/
-open scoped Classical in
 noncomputable def exr (n r d e : ℕ) : ℕ :=
   Finset.sup
     ((((Finset.univ : Finset (Fin n)).powersetCard r).powerset).filter
       (fun H => ¬ ContainsConfig H d e))
     Finset.card
+
+/-- The three literal edges on `Fin 6` contain a configuration with three edges
+and at most six vertices. -/
+theorem six_three_config : ContainsConfig
+    ({{0,1,2}, {2,3,4}, {4,5,0}} : Finset (Finset (Fin 6))) 6 3 := by
+  refine ⟨{{0,1,2}, {2,3,4}, {4,5,0}}, Finset.Subset.refl _, ?_, ?_⟩
+  · decide
+  · decide
 
 /-- Ground truth ((6,3)-shape): a 3-uniform hypergraph with 3 edges
     on ≤ 6 vertices is exactly the forbidden configuration of the
@@ -59,7 +67,7 @@ noncomputable def exr (n r d e : ℕ) : ℕ :=
     -- PROVABLE (decide). -/
 example : ContainsConfig
     ({{0,1,2}, {2,3,4}, {4,5,0}} : Finset (Finset (Fin 6))) 6 3 := by
-  sorry
+  exact six_three_config
 
 /-- **Erdős #1178, the Brown–Erdős–Sós conjecture (OPEN)**:
     `d_r(e) = (r−2)e + 3` — stated as the two-sided quantitative
