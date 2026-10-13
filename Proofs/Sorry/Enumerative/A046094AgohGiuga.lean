@@ -34,11 +34,14 @@ reproduces the DATA is: reduce the rational `−n·B_{n−1}` in `ℤ/n`, using 
 inverse of its denominator.  That is well-defined **because of von
 Staudt–Clausen**:
 
-* `B_{2k} + Σ_{p−1 ∣ 2k} 1/p ∈ ℤ`, so `den(B_{n−1}) = ∏_{p−1 ∣ n−1} p` is
-  squarefree.
-* Multiplying by `n` cancels exactly the primes `p ∣ n` that appear (each to the
-  first power), leaving `den(n·B_{n−1}) = ∏{p : p−1 ∣ n−1, p ∤ n}`, which is
-  **coprime to `n`**.
+* For positive even index `n−1` (odd `n ≥ 3`),
+  `B_{2k} + Σ_{p−1 ∣ 2k} 1/p ∈ ℤ` gives
+  `den(B_{n−1}) = ∏_{p−1 ∣ n−1} p`, which is squarefree.
+* In that case, multiplying by `n` cancels exactly the primes `p ∣ n` that
+  appear (each to the first power), leaving
+  `den(n·B_{n−1}) = ∏{p : p−1 ∣ n−1, p ∤ n}`, which is **coprime to `n`**.
+* For even `n ≥ 4`, `B_{n−1} = 0`; `n = 2` is handled separately using
+  `B_1 = −1/2`.
 
 So `n·B_{n−1}` is a well-defined element of `ℤ/n` with no junk.  Worked checks
 against the DATA line (offset `1`):
@@ -60,8 +63,9 @@ discriminate; `bernoulli` is used below because it is Mathlib normal form.
 
 `a(1) = 0`, and `1` is not prime, so the DATA is consistent.  But in the
 congruence form `n ∣ num + den`, `n = 1` divides everything, so `1` would
-*satisfy* the congruence.  Every statement below therefore carries `2 ≤ n`.
-Omitting it makes the conjecture false at `n = 1`.
+*satisfy* the congruence.  The conjecture and its converse therefore restrict
+`n` by `2 ≤ n`; the definitions and the intentional `n = 1` witness remain
+unguarded.  Omitting the guard makes the conjecture false at `n = 1`.
 
 ## Status
 
@@ -69,7 +73,7 @@ Open.  Agoh's conjecture is equivalent to Giuga's 1950 conjecture (a proved
 equivalence — Borwein–Borwein–Borwein–Girgensohn 1996), so this is the
 Bernoulli-side twin of `A007850LavaGiuga.lean` in this directory.
 -/
-import Mathlib
+import Enumerative.AgohGiuga
 
 set_option autoImplicit false
 
@@ -110,20 +114,6 @@ value on non-units, exactly the trap STYLE.md warns about), the congruence
 ```
 
 which is division-free and carries its own well-posedness certificate. -/
-
-/-- The rational `n · B_{n−1}` whose reduction mod `n` Agoh's congruence is
-about.  `n − 1` uses `ℕ` subtraction, guarded by `2 ≤ n` at every use site;
-`bernoulli 0 = 1` is the value at the guard boundary. -/
-def agohRat (n : ℕ) : ℚ := (n : ℚ) * bernoulli (n - 1)
-
-/-- **Agoh's congruence** `n · B_{n−1} ≡ −1 (mod n)`, written division-free.
-
-`q ≡ −1 (mod n)` for `q = a/b` in lowest terms with `gcd(b, n) = 1` means
-`a ≡ −b (mod n)`, i.e. `n ∣ a + b`.  The coprimality conjunct is not decoration:
-without it the congruence is not well-posed, and it is exactly what von
-Staudt–Clausen supplies. -/
-def AgohCongruence (n : ℕ) : Prop :=
-  Nat.Coprime (agohRat n).den n ∧ (n : ℤ) ∣ (agohRat n).num + ((agohRat n).den : ℤ)
 
 /-! ## The conjecture -/
 
@@ -172,37 +162,68 @@ the "Giuga number" notion.  A card proving the BBBG equivalence
 theorem agoh_giuga (n : ℕ) (hn : 2 ≤ n) : AgohCongruence n ↔ n.Prime := by
   sorry
 
-/-- The **provable** direction: primes satisfy Agoh's congruence.  This should be
-discharged, not archived. -/
-theorem agohCongruence_of_prime {p : ℕ} (hp : p.Prime) : AgohCongruence p := by
-  sorry
-
 /-- The **open** direction: only primes satisfy it. -/
 theorem prime_of_agohCongruence {n : ℕ} (hn : 2 ≤ n) (h : AgohCongruence n) :
     n.Prime := by
   sorry
 
-/-- **Well-posedness (von Staudt–Clausen consequence).**
+private theorem sanity_bernoulli_four : bernoulli 4 = -1/30 := by
+  have h := sum_bernoulli 5
+  have h3 : bernoulli 3 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  norm_num [Nat.choose, Finset.sum_range_succ, bernoulli_zero, bernoulli_one, bernoulli_two, h3] at h
+  linarith
 
-`den(n · B_{n−1})` is coprime to `n`.  This is *not* a side condition to be
-assumed — it is a theorem, and it is what makes `AgohCongruence` a statement
-about a number rather than about a junk value.  It follows from Mathlib's
-`Bernoulli.vonStaudt_clausen`: that theorem says `B_{2k} + Σ_{p−1 ∣ 2k} 1/p`
-is an integer, so `den(B_{n−1})` is the squarefree product `∏_{p−1 ∣ n−1} p`,
-and multiplying by `n` cancels exactly the primes of that product dividing `n`.
-Verified computationally for `2 ≤ n ≤ 60`: `gcd(den(n·B_{n−1}), n) = 1`
-throughout. -/
-theorem agohRat_den_coprime (n : ℕ) (hn : 2 ≤ n) :
-    Nat.Coprime (agohRat n).den n := by
-  sorry
+private theorem sanity_bernoulli_6 : bernoulli 6 = 1/42 := by
+  have h := sum_bernoulli 7
+  have h3 : bernoulli 3 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h5 : bernoulli 5 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  norm_num [Nat.choose, Finset.sum_range_succ, bernoulli_zero, bernoulli_one, bernoulli_two, sanity_bernoulli_four, h3, h5] at h
+  linarith
 
+private theorem sanity_bernoulli_8 : bernoulli 8 = -1/30 := by
+  have h := sum_bernoulli 9
+  have h3 : bernoulli 3 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h5 : bernoulli 5 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h7 : bernoulli 7 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  norm_num [Nat.choose, Finset.sum_range_succ, bernoulli_zero, bernoulli_one, bernoulli_two, sanity_bernoulli_four, sanity_bernoulli_6, h3, h5, h7] at h
+  linarith
+
+private theorem sanity_bernoulli_10 : bernoulli 10 = 5/66 := by
+  have h := sum_bernoulli 11
+  have h3 : bernoulli 3 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h5 : bernoulli 5 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h7 : bernoulli 7 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h9 : bernoulli 9 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  norm_num [Nat.choose, Finset.sum_range_succ, bernoulli_zero, bernoulli_one, bernoulli_two, sanity_bernoulli_four, sanity_bernoulli_6, sanity_bernoulli_8, h3, h5, h7, h9] at h
+  linarith
+
+private theorem sanity_bernoulli_12 : bernoulli 12 = -691/2730 := by
+  have h := sum_bernoulli 13
+  have h3 : bernoulli 3 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h5 : bernoulli 5 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h7 : bernoulli 7 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h9 : bernoulli 9 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h11 : bernoulli 11 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  norm_num [Nat.choose, Finset.sum_range_succ, bernoulli_zero, bernoulli_one, bernoulli_two, sanity_bernoulli_four, sanity_bernoulli_6, sanity_bernoulli_8, sanity_bernoulli_10, h3, h5, h7, h9, h11] at h
+  linarith
+
+private theorem sanity_bernoulli_14 : bernoulli 14 = 7/6 := by
+  have h := sum_bernoulli 15
+  have h3 : bernoulli 3 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h5 : bernoulli 5 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h7 : bernoulli 7 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h9 : bernoulli 9 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h11 : bernoulli 11 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  have h13 : bernoulli 13 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  norm_num [Nat.choose, Finset.sum_range_succ, bernoulli_zero, bernoulli_one, bernoulli_two, sanity_bernoulli_four, sanity_bernoulli_6, sanity_bernoulli_8, sanity_bernoulli_10, sanity_bernoulli_12, h3, h5, h7, h9, h11, h13] at h
+  linarith
 /-! ## Sanity layer -/
 
 -- PROVABLE: `bernoulli` ground truth at the values used above.
 example : bernoulli 1 = -1/2 := by simp [bernoulli_one]
-example : bernoulli 2 = 1/6 := by decide
-example : bernoulli 4 = -1/30 := by decide
-example : bernoulli 8 = -1/30 := by decide
+example : bernoulli 2 = 1/6 := by norm_num [bernoulli_two]
+example : bernoulli 4 = -1/30 := by exact sanity_bernoulli_four
+example : bernoulli 8 = -1/30 := by exact sanity_bernoulli_8
 
 -- PROVABLE: `agohRat` ground truth.  NOTE the sign: `agohRat n = n · B_{n−1}`,
 -- whereas the header table's third column is `−n · B_{n−1}` (the OEIS `%F`
@@ -213,58 +234,61 @@ example : bernoulli 8 = -1/30 := by decide
 --   agohRat 5 = 5·(−1/30) = −1/6
 --   agohRat 9 = 9·(−1/30) = −3/10
 --   agohRat 15 = 15·(7/6) = 35/2
-example : agohRat 2 = -1 := by decide
-example : agohRat 3 = 1/2 := by decide
-example : agohRat 5 = -1/6 := by decide
-example : agohRat 9 = -3/10 := by decide
+example : agohRat 2 = -1 := by norm_num [agohRat, bernoulli_zero, bernoulli_one, bernoulli_two, sanity_bernoulli_four, sanity_bernoulli_8, sanity_bernoulli_14]
+example : agohRat 3 = 1/2 := by norm_num [agohRat, bernoulli_zero, bernoulli_one, bernoulli_two, sanity_bernoulli_four, sanity_bernoulli_8, sanity_bernoulli_14]
+example : agohRat 5 = -1/6 := by norm_num [agohRat, bernoulli_zero, bernoulli_one, bernoulli_two, sanity_bernoulli_four, sanity_bernoulli_8, sanity_bernoulli_14]
+example : agohRat 9 = -3/10 := by norm_num [agohRat, bernoulli_zero, bernoulli_one, bernoulli_two, sanity_bernoulli_four, sanity_bernoulli_8, sanity_bernoulli_14]
 
 -- PROVABLE: the congruence holds at small primes, so `agoh_giuga` is not
 -- vacuous on the `←` side.
-example : AgohCongruence 2 := by decide
-example : AgohCongruence 3 := by decide
-example : AgohCongruence 5 := by decide
-example : AgohCongruence 7 := by decide
+example : AgohCongruence 2 := by exact agohCongruence_of_prime (by norm_num)
+example : AgohCongruence 3 := by exact agohCongruence_of_prime (by norm_num)
+example : AgohCongruence 5 := by exact agohCongruence_of_prime (by norm_num)
+example : AgohCongruence 7 := by exact agohCongruence_of_prime (by norm_num)
 
 -- PROVABLE: and fails at small composites, so it is not vacuous on the `→` side.
-example : ¬ AgohCongruence 4 := by decide
-example : ¬ AgohCongruence 9 := by decide
+example : ¬ AgohCongruence 4 := by 
+  have h3 : bernoulli 3 = 0 := bernoulli_eq_zero_of_odd (by decide) (by decide)
+  norm_num [AgohCongruence, agohRat, h3]
+example : ¬ AgohCongruence 9 := by norm_num [AgohCongruence, agohRat, bernoulli_zero, sanity_bernoulli_8]
 
 -- PROVABLE: the `2 ≤ n` guard is load-bearing.  `agohRat 1 = 1 * bernoulli 0 = 1`,
 -- so `num + den = 2` and `1 ∣ 2`: the congruence holds at `n = 1` while `1` is
 -- not prime.  Without the guard `agoh_giuga` is FALSE.
-example : AgohCongruence 1 ∧ ¬ Nat.Prime 1 := by decide
+example : AgohCongruence 1 ∧ ¬ Nat.Prime 1 := by norm_num [AgohCongruence, agohRat, bernoulli_zero, sanity_bernoulli_8]
 
 -- PROVABLE: the DATA line at the odd composites where `a(n) ≠ 1` is
 -- interesting.  `a(9) = 3`, `a(15) = 5`, `a(21) = 7`, `a(25) = 5`, `a(45) = 24`.
--- Recorded here as the residue values, which is what `agohRat` reduces to.
-example : (agohRat 15) = 35/2 := by decide
+-- These OEIS residues come from reducing `−agohRat n`, not `agohRat n`.
+-- The sanity assertion below records the rational value `agohRat 15` itself.
+example : (agohRat 15) = 35/2 := by norm_num [agohRat, bernoulli_zero, bernoulli_one, bernoulli_two, sanity_bernoulli_four, sanity_bernoulli_8, sanity_bernoulli_14]
 
 -- PROVABLE: well-posedness at the checked values — denominators really are
 -- coprime to `n`, as von Staudt–Clausen predicts.
-example : Nat.Coprime (agohRat 9).den 9 := by decide
-example : Nat.Coprime (agohRat 15).den 15 := by decide
-example : Nat.Coprime (agohRat 21).den 21 := by decide
+example : Nat.Coprime (agohRat 9).den 9 := by exact agohRat_den_coprime 9 (by norm_num)
+example : Nat.Coprime (agohRat 15).den 15 := by exact agohRat_den_coprime 15 (by norm_num)
+example : Nat.Coprime (agohRat 21).den 21 := by exact agohRat_den_coprime 21 (by norm_num)
 
 /-! ## Notes for a follow-up card
 
-The blocking infrastructure is **von Staudt–Clausen**:
+Mathlib already provides `Bernoulli.vonStaudt_clausen`.  The production
+module `Enumerative.AgohGiuga` uses its integer-valued Bernoulli-plus-prime-
+reciprocals sum directly.  After multiplying by `n`, terms whose prime divides
+`n` become integers; the other terms have reduced denominators dividing a
+prime coprime to `n`.  Denominator divisibility for finite sums and subtraction
+then proves `agohRat_den_coprime`, without needing an exact denominator formula.
 
-```lean
-theorem bernoulli_den (k : ℕ) (hk : 0 < k) :
-    (bernoulli (2 * k)).den = ∏ p ∈ (primesDividing (2 * k)), p
-```
+For a prime `p`, the filtered sum at index `p - 1` contains `p` itself.
+Separating its `1/p` term gives `agohRat p = p * T - 1`, with `T.den`
+coprime to `p`.  Integer cross-multiplication and Euclid's lemma give the
+numerator-plus-denominator divisibility in `agohCongruence_of_prime`.
+These two results are imported above under their original namespace and names.
 
-Mathlib has neither it nor the Kummer congruences.  Landing von Staudt–Clausen
-would be a contribution to Mathlib in its own right, independent of this
-conjecture, and it is the prerequisite for `agohRat_den_coprime`.
-
-After that:
-1. `agohCongruence_of_prime` — the forward direction, via `sum_range_pow`
-   (Faulhaber, already in Mathlib) and Fermat's little theorem.  Real work but
-   bounded, and it converts half of a named conjecture into a theorem.
-2. The BBBG equivalence Agoh ⟺ Giuga — connects this card to
-   `A007850LavaGiuga.lean`.  Proved in the literature, formalizable.
-3. `prime_of_agohCongruence` — open.
+Remaining directions:
+1. The BBBG equivalence Agoh ⟺ Giuga connects this card to
+   `A007850LavaGiuga.lean`; it is proved in the literature but not established
+   by these two production results.
+2. `prime_of_agohCongruence` — open, as is the full `agoh_giuga` equivalence.
 
 Reference: D. Borwein, J. M. Borwein, P. B. Borwein, R. Girgensohn,
 *Giuga's conjecture on primality*, Amer. Math. Monthly 103 (1996) 40–50. -/
