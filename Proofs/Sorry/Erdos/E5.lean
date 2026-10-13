@@ -39,11 +39,29 @@ noncomputable def p (n : ℕ) : ℕ := Nat.nth Nat.Prime n
 noncomputable def gap (n : ℕ) : ℝ :=
   ((p (n + 1) : ℝ) - (p n : ℝ)) / Real.log n
 
+/-- The zero-indexed prime prefix needed for the forward gap at index four. -/
+theorem prime_prefix : p 0 = 2 ∧ p 1 = 3 ∧ p 4 = 11 ∧ p 5 = 13 := by
+  have htwo : Nat.count Nat.Prime 2 = 0 := by decide
+  have hthree : Nat.count Nat.Prime 3 = 1 := by decide
+  have heleven : Nat.count Nat.Prime 11 = 4 := by decide
+  have hthirteen : Nat.count Nat.Prime 13 = 5 := by decide
+  have hp0 : p 0 = 2 := by
+    simpa only [p, htwo] using Nat.nth_count (by norm_num : Nat.Prime 2)
+  have hp1 : p 1 = 3 := by
+    simpa only [p, hthree] using Nat.nth_count (by norm_num : Nat.Prime 3)
+  have hp4 : p 4 = 11 := by
+    simpa only [p, heleven] using Nat.nth_count (by norm_num : Nat.Prime 11)
+  have hp5 : p 5 = 13 := by
+    simpa only [p, hthirteen] using Nat.nth_count (by norm_num : Nat.Prime 13)
+  exact ⟨hp0, hp1, hp4, hp5⟩
+
 /-- Ground truth: `p 0 = 2`, `p 1 = 3`, `p 4 = 11`; first gaps
     (A001223): 1, 2, 2, 4, 2, ….  -- PROVABLE
     (`Nat.nth_count` / `Nat.count_eq` evaluation lemmas). -/
 example : p 0 = 2 ∧ p 1 = 3 ∧ p 4 = 11 ∧ p 5 - p 4 = 2 := by
-  sorry
+  rcases prime_prefix with ⟨hp0, hp1, hp4, hp5⟩
+  refine ⟨hp0, hp1, hp4, ?_⟩
+  norm_num [hp4, hp5]
 
 /-- **Erdős #5 (OPEN)**: every `C ≥ 0` is a limit point of the
     normalized prime gaps — i.e. `S = [0, ∞]` (the finite part; the
@@ -93,7 +111,32 @@ theorem merikoski_density :
     closed — `isClosed_setOf_clusterPt` in Mathlib). -/
 theorem clusterPt_set_closed :
     IsClosed {C : ℝ | MapClusterPt C Filter.atTop gap} := by
-  sorry
+  exact isClosed_setOfPred_clusterPt
+
+/-- At index four the normalized forward prime gap lies strictly between one and two. -/
+theorem gap_four_bracket : 1 < gap 4 ∧ gap 4 < 2 := by
+  have hupper : Real.log 2 < 1 := by
+    have h := Real.log_lt_sub_one_of_pos (x := (2 : ℝ)) (by norm_num) (by norm_num)
+    linarith
+  have hlower : (1 : ℝ) / 2 < Real.log 2 := by
+    have h := Real.log_lt_sub_one_of_pos (x := (2 : ℝ)⁻¹) (by norm_num) (by norm_num)
+    rw [Real.log_inv] at h
+    norm_num at h
+    linarith
+  have hfour : Real.log 4 = Real.log 2 + Real.log 2 := by
+    rw [show (4 : ℝ) = 2 * 2 by norm_num, Real.log_mul (by norm_num) (by norm_num)]
+  have hlog_lower : 1 < Real.log 4 := by linarith
+  have hlog_upper : Real.log 4 < 2 := by linarith
+  have hlog_pos : 0 < Real.log 4 := lt_trans zero_lt_one hlog_lower
+  have hgap : gap 4 = 2 / Real.log 4 := by
+    rcases prime_prefix with ⟨hp0, hp1, hp4, hp5⟩
+    norm_num [gap, hp4, hp5]
+  rw [hgap]
+  constructor
+  · apply (lt_div_iff₀ hlog_pos).2
+    simpa only [one_mul] using hlog_upper
+  · apply (div_lt_iff₀ hlog_pos).2
+    linarith
 
 /-- Computational sanity layer: normalized-gap values at moderate n are
     near small rationals — e.g. `gap` at the 4th prime (p₄ = 11,
@@ -102,7 +145,7 @@ theorem clusterPt_set_closed :
     the INDEX n, not of p_n — a classic transcription hazard; the DB
     uses log n_i).  -- PROVABLE (interval arithmetic on log). -/
 example : 1 < gap 4 ∧ gap 4 < 2 := by
-  sorry
+  exact gap_four_bracket
 
 end ErdosCandidates.E5
 
