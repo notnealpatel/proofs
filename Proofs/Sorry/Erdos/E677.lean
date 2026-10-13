@@ -32,12 +32,17 @@ namespace ErdosCandidates.E677
 /-- `M n k`: the lcm of the block `{n+1, …, n+k}`. -/
 def M (n k : ℕ) : ℕ := (Finset.Icc (n + 1) (n + k)).lcm id
 
+/-- The five original concrete block-lcm values. -/
+theorem original_lcm_values : M 0 2 = 2 ∧ M 4 3 = 210 ∧ M 13 2 = 210 ∧
+    M 3 4 = 420 ∧ M 19 2 = 420 := by
+  decide
+
 /-- Ground truth: `M 0 2 = lcm{1,2} = 2`, `M 4 3 = lcm{5,6,7} = 210`,
     `M 13 2 = lcm{14,15} = 210`, `M 3 4 = lcm{4,5,6,7} = 420`,
     `M 19 2 = lcm{20,21} = 420`.  -- PROVABLE (decide). -/
 example : M 0 2 = 2 ∧ M 4 3 = 210 ∧ M 13 2 = 210 ∧ M 3 4 = 420 ∧
     M 19 2 = 420 := by
-  sorry
+  exact original_lcm_values
 
 /-- **Erdős #677 (OPEN)**: same-`k` blocks never repeat their lcm:
     for `k ≥ 2` (k = 1 is trivially injective) and `n + k ≤ m`,
@@ -54,6 +59,10 @@ theorem erdos_677 (n m k : ℕ) (hk : 2 ≤ k) (hm : n + k ≤ m) :
     M n k ≠ M m k := by
   sorry
 
+/-- The original coincidence uses distinct block lengths. -/
+theorem original_cross_k : M 4 3 = M 13 2 ∧ (3 : ℕ) ≠ 2 := by
+  decide
+
 /-- Sanity guard for the statement's honesty: the `k = 1` case is
     trivially true (`M n 1 = n + 1` is injective), so the content is at
     `k ≥ 2`; and the cross-k coincidences do NOT contradict the
@@ -61,7 +70,7 @@ theorem erdos_677 (n m k : ℕ) (hk : 2 ≤ k) (hm : n + k ≤ m) :
     explicit non-example shape: `M 4 3 = M 13 2` with different k.
     -- PROVABLE (decide). -/
 example : M 4 3 = M 13 2 ∧ (3 : ℕ) ≠ 2 := by
-  sorry
+  exact original_cross_k
 
 /-- Verified window: no same-`k` coincidence with `k = 2, 3` and
     `n, m ≤ 300`.  -- PROVABLE (decide; lcms stay small). -/
