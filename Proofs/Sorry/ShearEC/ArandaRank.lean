@@ -3,10 +3,10 @@
 
 ## Current archive status
 
-Documentation-only archive of the unpaid rank/sequence bridge. No imports,
-definitions, theorem statements, or admissions are added here. A curve-group
-isomorphism prerequisite exists in production, but this archive is not a formal
-rank theorem and does not turn the empirical OEIS claim into a proved sequence
+Documentation-only archive of the unpaid finite-rank/sequence bridge. No imports,
+definitions, theorem statements, or admissions are added here. Production now
+provides both a curve-group isomorphism and an intrinsic cardinal-rank equality.
+This archive does not turn the empirical OEIS claim into a proved sequence
 identity.
 
 ## Remaining target and hypotheses/representation
@@ -15,8 +15,10 @@ For the congruent-number family `E_n : y² = x³ - n²x`, deduce the equality of
 Mordell–Weil ranks over `ℚ` at `n` and `4n`, and identify these ranks with exactly
 A319510's indexing convention. The intended sequence parameters are positive
 integers, embedded into `ℚ`; no squarefree normalization, reindexing, or index
-shift may replace that target. A genuine rank of `E_n(ℚ)`, its finite-generation
-foundation, and invariance under additive point-group equivalence are required.
+shift may replace that target. The intrinsic algebraic group rank is now
+represented by `Module.rank ℤ` of the point group, without assuming finite
+generation. Its identification with a finite natural-valued Mordell–Weil rank
+and the finite-generation/finiteness foundation remain unpaid.
 
 ## Known prerequisites and named blocker
 
@@ -27,14 +29,31 @@ The inspected production header `Proofs/ShearEC/ShortCurveScaling.lean` records
 The map covers the nonsingular locus even at the singular parameter `n = 0`;
 that fact does **not** make the singular member an elliptic Mordell–Weil-rank
 instance. Positive sequence parameters keep the intended elliptic models
-nondegenerate. The header's reference to functorial rank surrogates is not the
-rank identification required by this card, and no surrogate is introduced here.
+nondegenerate.
 
-Named blocker: **genuine Mordell–Weil rank invariant and exact OEIS indexing
-identification**. The existing additive equivalence is the known prerequisite,
-not the missing rank theorem. This task neither rebuilds that prerequisite nor
-claims a new audit of it. No rank definition, rank computation, or sequence
-identity is claimed by compiling this documentation module.
+`Proofs/ShearEC/CongruentCurveRank.lean` proves
+`ShearEC.CongruentCurveRank.congrCurve_rank_eq`: for every `n : ℚ`,
+`Module.rank ℤ (congrCurve n).Point = Module.rank ℤ (congrCurve (4 * n)).Point`.
+This is genuine intrinsic cardinal rank, defined by Mathlib using the supremum
+of cardinalities of linearly independent subsets, not a surrogate rank parameter.
+The proof converts `congrCurveIso n` to an integer-linear equivalence with
+`AddEquiv.toIntLinearEquiv` and applies `LinearEquiv.rank_eq`; no finite-generation
+hypothesis or natural-number conversion is used. Independent subsets transport
+along the inverse equivalence with the same cardinalities. The equality also
+holds at `n = 0` for the nonsingular-locus group without asserting ellipticity.
+
+Named blocker: **finite natural-valued Mordell–Weil rank foundation and exact
+OEIS identification**. The new cardinal-rank theorem is an archive prerequisite,
+not sequence completion. The exact OEIS OFFSET has not been exposed here, so
+no precise sequence-index identification is asserted. The algebraic/analytic
+rank identification is also unpaid: A319510 names ranks of `y² = x³ - n²x`
+and records the empirical `a(n) = a(4n)`, but its PARI program uses
+`ellanalyticrank`. PARI's primary documentation describes that routine as
+computing the analytic order of vanishing, using `eps` as a numerical zero
+threshold (https://pari.math.u-bordeaux.fr/dochtml/html/Elliptic_curves.html#ellanalyticrank).
+No BSD claim, certified analytic-rank computation, sequence identity, or new
+audit of the existing isomorphism is supplied here. Compiling this documentation
+module establishes none of those missing bridges.
 
 ## Historical/source-card subsection (verbatim)
 
