@@ -74,7 +74,65 @@ def actualTwoStepPath {a b c : ℕ} (D E S₀ T₀ S₁ T₁ : State RF3 a b c)
   let second : StrictNativeStep D₁ D₂ :=
     actualStrictStep D₁ S₁ T₁ native₁ hendpoints₁ hsource₁ hfresh₁ hne₁
   let path : StrictNativePath D D₂ := .cons first (.cons second (.nil D₂))
-  exact FieldNativeExecutablePath.castPath rfl hfinish path
+  exact hfinish ▸ path
+
+/-- The two-step constructor retains exactly two edges under endpoint transport. -/
+theorem length_actualTwoStepPath {a b c : ℕ} (D E S₀ T₀ S₁ T₁ : State RF3 a b c)
+    (native₀ : NativeReplacement S₀ T₀) (native₁ : NativeReplacement S₁ T₁)
+    (hendpoints₀ : Disjoint S₀ T₀) (hendpoints₁ : Disjoint S₁ T₁)
+    (hsource₀ : S₀ ⊆ D)
+    (hfresh₀ : Disjoint T₀ (ComputedState.difference D S₀))
+    (hne₀ : D ≠ ComputedState.union (ComputedState.difference D S₀) T₀)
+    (hsource₁ : S₁ ⊆ ComputedState.union (ComputedState.difference D S₀) T₀)
+    (hfresh₁ : Disjoint T₁ (ComputedState.difference
+      (ComputedState.union (ComputedState.difference D S₀) T₀) S₁))
+    (hne₁ : ComputedState.union (ComputedState.difference D S₀) T₀ ≠
+      ComputedState.union (ComputedState.difference
+        (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁)
+    (hfinish : ComputedState.union (ComputedState.difference
+      (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁ = E) :
+    FieldNativePairBridge.Path.length (actualTwoStepPath D E S₀ T₀ S₁ T₁ native₀ native₁ hendpoints₀ hendpoints₁ hsource₀ hfresh₀ hne₀ hsource₁ hfresh₁ hne₁ hfinish) = 2 := by
+  subst E
+  rfl
+
+/-- The two-step constructor records its computed middle and transported terminal state. -/
+theorem stateTrace_actualTwoStepPath {a b c : ℕ} (D E S₀ T₀ S₁ T₁ : State RF3 a b c)
+    (native₀ : NativeReplacement S₀ T₀) (native₁ : NativeReplacement S₁ T₁)
+    (hendpoints₀ : Disjoint S₀ T₀) (hendpoints₁ : Disjoint S₁ T₁)
+    (hsource₀ : S₀ ⊆ D)
+    (hfresh₀ : Disjoint T₀ (ComputedState.difference D S₀))
+    (hne₀ : D ≠ ComputedState.union (ComputedState.difference D S₀) T₀)
+    (hsource₁ : S₁ ⊆ ComputedState.union (ComputedState.difference D S₀) T₀)
+    (hfresh₁ : Disjoint T₁ (ComputedState.difference
+      (ComputedState.union (ComputedState.difference D S₀) T₀) S₁))
+    (hne₁ : ComputedState.union (ComputedState.difference D S₀) T₀ ≠
+      ComputedState.union (ComputedState.difference
+        (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁)
+    (hfinish : ComputedState.union (ComputedState.difference
+      (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁ = E) :
+    FieldNativeExecutablePath.stateTrace D (actualTwoStepPath D E S₀ T₀ S₁ T₁ native₀ native₁ hendpoints₀ hendpoints₁ hsource₀ hfresh₀ hne₀ hsource₁ hfresh₁ hne₁ hfinish) =
+      [D, ComputedState.union (ComputedState.difference D S₀) T₀, E] := by
+  subst E
+  rfl
+
+/-- The two-step constructor retains both local replacement endpoints under transport. -/
+theorem localEndpointTrace_actualTwoStepPath {a b c : ℕ} (D E S₀ T₀ S₁ T₁ : State RF3 a b c)
+    (native₀ : NativeReplacement S₀ T₀) (native₁ : NativeReplacement S₁ T₁)
+    (hendpoints₀ : Disjoint S₀ T₀) (hendpoints₁ : Disjoint S₁ T₁)
+    (hsource₀ : S₀ ⊆ D)
+    (hfresh₀ : Disjoint T₀ (ComputedState.difference D S₀))
+    (hne₀ : D ≠ ComputedState.union (ComputedState.difference D S₀) T₀)
+    (hsource₁ : S₁ ⊆ ComputedState.union (ComputedState.difference D S₀) T₀)
+    (hfresh₁ : Disjoint T₁ (ComputedState.difference
+      (ComputedState.union (ComputedState.difference D S₀) T₀) S₁))
+    (hne₁ : ComputedState.union (ComputedState.difference D S₀) T₀ ≠
+      ComputedState.union (ComputedState.difference
+        (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁)
+    (hfinish : ComputedState.union (ComputedState.difference
+      (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁ = E) :
+    FieldNativeExecutablePath.localEndpointTrace (actualTwoStepPath D E S₀ T₀ S₁ T₁ native₀ native₁ hendpoints₀ hendpoints₁ hsource₀ hfresh₀ hne₀ hsource₁ hfresh₁ hne₁ hfinish) = [(S₀, T₀), (S₁, T₁)] := by
+  subst E
+  rfl
 
 /-- Computed source of a canonical one/three residual. -/
 def oneThreeStart {a b c : ℕ} {I : DisplayedF3PairTriple a b c}
@@ -114,8 +172,17 @@ def oneThreePath {a b c : ℕ} {I : DisplayedF3PairTriple a b c}
         (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁ = E) :
     StrictNativePath (oneThreeStart B) (oneThreeFinish B) := by
   dsimp only at hchecks
-  rcases hchecks with ⟨hne₀, hne₁, hend₀, hend₁, hsource₀, hfresh₀, hstep₀,
-    hsource₁, hfresh₁, hstep₁, hfinish⟩
+  have hne₀ := hchecks.1
+  have hne₁ := hchecks.2.1
+  have hend₀ := hchecks.2.2.1
+  have hend₁ := hchecks.2.2.2.1
+  have hsource₀ := hchecks.2.2.2.2.1
+  have hfresh₀ := hchecks.2.2.2.2.2.1
+  have hstep₀ := hchecks.2.2.2.2.2.2.1
+  have hsource₁ := hchecks.2.2.2.2.2.2.2.1
+  have hfresh₁ := hchecks.2.2.2.2.2.2.2.2.1
+  have hstep₁ := hchecks.2.2.2.2.2.2.2.2.2.1
+  have hfinish := hchecks.2.2.2.2.2.2.2.2.2.2
   let S₀ := ComputedState.singleton (B.signedResidualAtom 0)
   let T₀ := ComputedState.pair (B.signedResidualAtom 1) middle
   let S₁ := ComputedState.singleton middle
@@ -165,8 +232,17 @@ def twoTwoPath {a b c : ℕ} {I : DisplayedF3PairTriple a b c}
         (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁ = E) :
     StrictNativePath (twoTwoStart B) (twoTwoFinish B) := by
   dsimp only at hchecks
-  rcases hchecks with ⟨hne₀, hne₁, hend₀, hend₁, hsource₀, hfresh₀, hstep₀,
-    hsource₁, hfresh₁, hstep₁, hfinish⟩
+  have hne₀ := hchecks.1
+  have hne₁ := hchecks.2.1
+  have hend₀ := hchecks.2.2.1
+  have hend₁ := hchecks.2.2.2.1
+  have hsource₀ := hchecks.2.2.2.2.1
+  have hfresh₀ := hchecks.2.2.2.2.2.1
+  have hstep₀ := hchecks.2.2.2.2.2.2.1
+  have hsource₁ := hchecks.2.2.2.2.2.2.2.1
+  have hfresh₁ := hchecks.2.2.2.2.2.2.2.2.1
+  have hstep₁ := hchecks.2.2.2.2.2.2.2.2.2.1
+  have hfinish := hchecks.2.2.2.2.2.2.2.2.2.2
   let S₀ := ComputedState.singleton (B.signedResidualAtom 0)
   let T₀ := ComputedState.pair (B.signedResidualAtom 2) middle
   let S₁ := ComputedState.pair middle (B.signedResidualAtom 1)
@@ -197,138 +273,179 @@ def bridgeThird02 := certifiedFiveToFour third02
 /-- Total third-mode reverse-opposite bridge. -/
 def bridgeThird12 := certifiedFiveToFour third12
 
+/-- Expose the finite validity decision procedure of the public scanner for kernel reduction. -/
+theorem residual_scan_eq {a b c : ℕ} (x : Fin 5 → Fin a → RF3)
+    (y : Fin 5 → Fin b → RF3) (z : Fin 5 → Fin c → RF3) :
+    FieldTernaryFiveCircuitPair.scan x y z =
+      FieldTernaryFiveCircuitPair.candidates.find? (fun candidate =>
+        @decide (candidate.Valid x y z) (by
+          unfold FieldTernaryFiveCircuitPair.Candidate.Valid
+          cases candidate.orientation <;> infer_instance)) := by
+  unfold FieldTernaryFiveCircuitPair.scan
+  congr 1
+
+macro "residual_decide" : tactic =>
+  `(tactic|
+    (simp only [CertifiedFiveToFour.signedResidualAtom,
+       EffectiveDisplayedF3PairTriple.signedResidualAtom,
+       bridgeFirst01, bridgeFirst23, bridgeFirst02, bridgeFirst12,
+       bridgeSecond01, bridgeSecond23, bridgeSecond02, bridgeSecond12,
+       bridgeThird01, bridgeThird23, bridgeThird02, bridgeThird12,
+       certifiedFiveToFour, FieldNativePairBridge.certifiedScanGauge,
+       effectiveDisplayedF3PairTriple, FieldTernaryFiveCircuitPair.certifiedScan,
+       residual_scan_eq]
+     decide +kernel))
+
 /-- First-mode one/three intermediate. -/
 def middleFirst01 : Atom RF3 5 1 1 :=
   firstVectorAtom (fun p => (bridgeFirst01.signedResidualAtom 2).val p 0 0 +
-    (bridgeFirst01.signedResidualAtom 3).val p 0 0) (by decide)
+    (bridgeFirst01.signedResidualAtom 3).val p 0 0) (by residual_decide)
 
 /-- First-mode target/target intermediate. -/
 def middleFirst23 : Atom RF3 5 1 1 :=
   firstVectorAtom (fun p => (bridgeFirst23.signedResidualAtom 0).val p 0 0 -
-    (bridgeFirst23.signedResidualAtom 2).val p 0 0) (by decide)
+    (bridgeFirst23.signedResidualAtom 2).val p 0 0) (by residual_decide)
 
 /-- First-mode forward-opposite intermediate. -/
 def middleFirst02 : Atom RF3 5 1 1 :=
   firstVectorAtom (fun p => (bridgeFirst02.signedResidualAtom 0).val p 0 0 -
-    (bridgeFirst02.signedResidualAtom 2).val p 0 0) (by decide)
+    (bridgeFirst02.signedResidualAtom 2).val p 0 0) (by residual_decide)
 
 /-- First-mode reverse-opposite intermediate. -/
 def middleFirst12 : Atom RF3 5 1 1 :=
   firstVectorAtom (fun p => (bridgeFirst12.signedResidualAtom 0).val p 0 0 -
-    (bridgeFirst12.signedResidualAtom 2).val p 0 0) (by decide)
+    (bridgeFirst12.signedResidualAtom 2).val p 0 0) (by residual_decide)
 
 /-- Second-mode one/three intermediate. -/
 def middleSecond01 : Atom RF3 1 5 1 :=
   secondVectorAtom (fun q => (bridgeSecond01.signedResidualAtom 2).val 0 q 0 +
-    (bridgeSecond01.signedResidualAtom 3).val 0 q 0) (by decide)
+    (bridgeSecond01.signedResidualAtom 3).val 0 q 0) (by residual_decide)
 
 /-- Second-mode target/target intermediate. -/
 def middleSecond23 : Atom RF3 1 5 1 :=
   secondVectorAtom (fun q => (bridgeSecond23.signedResidualAtom 0).val 0 q 0 -
-    (bridgeSecond23.signedResidualAtom 2).val 0 q 0) (by decide)
+    (bridgeSecond23.signedResidualAtom 2).val 0 q 0) (by residual_decide)
 
 /-- Second-mode forward-opposite intermediate. -/
 def middleSecond02 : Atom RF3 1 5 1 :=
   secondVectorAtom (fun q => (bridgeSecond02.signedResidualAtom 0).val 0 q 0 -
-    (bridgeSecond02.signedResidualAtom 2).val 0 q 0) (by decide)
+    (bridgeSecond02.signedResidualAtom 2).val 0 q 0) (by residual_decide)
 
 /-- Second-mode reverse-opposite intermediate. -/
 def middleSecond12 : Atom RF3 1 5 1 :=
   secondVectorAtom (fun q => (bridgeSecond12.signedResidualAtom 0).val 0 q 0 -
-    (bridgeSecond12.signedResidualAtom 2).val 0 q 0) (by decide)
+    (bridgeSecond12.signedResidualAtom 2).val 0 q 0) (by residual_decide)
 
 /-- Third-mode one/three intermediate. -/
 def middleThird01 : Atom RF3 1 1 5 :=
   thirdVectorAtom (fun s => (bridgeThird01.signedResidualAtom 2).val 0 0 s +
-    (bridgeThird01.signedResidualAtom 3).val 0 0 s) (by decide)
+    (bridgeThird01.signedResidualAtom 3).val 0 0 s) (by residual_decide)
 
 /-- Third-mode target/target intermediate. -/
 def middleThird23 : Atom RF3 1 1 5 :=
   thirdVectorAtom (fun s => (bridgeThird23.signedResidualAtom 0).val 0 0 s -
-    (bridgeThird23.signedResidualAtom 2).val 0 0 s) (by decide)
+    (bridgeThird23.signedResidualAtom 2).val 0 0 s) (by residual_decide)
 
 /-- Third-mode forward-opposite intermediate. -/
 def middleThird02 : Atom RF3 1 1 5 :=
   thirdVectorAtom (fun s => (bridgeThird02.signedResidualAtom 0).val 0 0 s -
-    (bridgeThird02.signedResidualAtom 2).val 0 0 s) (by decide)
+    (bridgeThird02.signedResidualAtom 2).val 0 0 s) (by residual_decide)
 
 /-- Third-mode reverse-opposite intermediate. -/
 def middleThird12 : Atom RF3 1 1 5 :=
   thirdVectorAtom (fun s => (bridgeThird12.signedResidualAtom 0).val 0 0 s -
-    (bridgeThird12.signedResidualAtom 2).val 0 0 s) (by decide)
+    (bridgeThird12.signedResidualAtom 2).val 0 0 s) (by residual_decide)
+
+macro "residual_path_decide" : tactic =>
+  `(tactic|
+    (simp only [oneThreeStart, oneThreeFinish, twoTwoStart, twoTwoFinish,
+    middleFirst01, middleFirst23, middleFirst02, middleFirst12, middleSecond01, middleSecond23, middleSecond02, middleSecond12, middleThird01, middleThird23, middleThird02, middleThird12]
+     residual_decide))
 
 /-- Actual first-mode one/three path. -/
 def pathFirst01 := oneThreePath bridgeFirst01 middleFirst01
-  (splitFormula_of_val_add_eq _ _ _ (by decide))
-  (splitFormula_of_val_add_eq _ _ _ (by decide)) (by decide)
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide))
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide)) (by residual_path_decide)
 
 /-- Actual first-mode target/target path. -/
 def pathFirst23 := twoTwoPath bridgeFirst23 middleFirst23
-  (splitFormula_of_val_add_eq _ _ _ (by decide))
-  (splitFormula_of_val_add_eq _ _ _ (by decide)) (by decide)
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide))
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide)) (by residual_path_decide)
 
 /-- Actual first-mode forward-opposite path. -/
 def pathFirst02 := twoTwoPath bridgeFirst02 middleFirst02
-  (splitFormula_of_val_add_eq _ _ _ (by decide))
-  (splitFormula_of_val_add_eq _ _ _ (by decide)) (by decide)
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide))
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide)) (by residual_path_decide)
 
 /-- Actual first-mode reverse-opposite path. -/
 def pathFirst12 := twoTwoPath bridgeFirst12 middleFirst12
-  (splitFormula_of_val_add_eq _ _ _ (by decide))
-  (splitFormula_of_val_add_eq _ _ _ (by decide)) (by decide)
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide))
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide)) (by residual_path_decide)
 
 /-- Actual second-mode one/three path. -/
 def pathSecond01 := oneThreePath bridgeSecond01 middleSecond01
-  (splitFormula_of_val_add_eq _ _ _ (by decide))
-  (splitFormula_of_val_add_eq _ _ _ (by decide)) (by decide)
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide))
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide)) (by residual_path_decide)
 
 /-- Actual second-mode target/target path. -/
 def pathSecond23 := twoTwoPath bridgeSecond23 middleSecond23
-  (splitFormula_of_val_add_eq _ _ _ (by decide))
-  (splitFormula_of_val_add_eq _ _ _ (by decide)) (by decide)
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide))
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide)) (by residual_path_decide)
 
 /-- Actual second-mode forward-opposite path. -/
 def pathSecond02 := twoTwoPath bridgeSecond02 middleSecond02
-  (splitFormula_of_val_add_eq _ _ _ (by decide))
-  (splitFormula_of_val_add_eq _ _ _ (by decide)) (by decide)
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide))
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide)) (by residual_path_decide)
 
 /-- Actual second-mode reverse-opposite path. -/
 def pathSecond12 := twoTwoPath bridgeSecond12 middleSecond12
-  (splitFormula_of_val_add_eq _ _ _ (by decide))
-  (splitFormula_of_val_add_eq _ _ _ (by decide)) (by decide)
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide))
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide)) (by residual_path_decide)
 
 /-- Actual third-mode one/three path. -/
 def pathThird01 := oneThreePath bridgeThird01 middleThird01
-  (splitFormula_of_val_add_eq _ _ _ (by decide))
-  (splitFormula_of_val_add_eq _ _ _ (by decide)) (by decide)
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide))
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide)) (by residual_path_decide)
 
 /-- Actual third-mode target/target path. -/
 def pathThird23 := twoTwoPath bridgeThird23 middleThird23
-  (splitFormula_of_val_add_eq _ _ _ (by decide))
-  (splitFormula_of_val_add_eq _ _ _ (by decide)) (by decide)
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide))
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide)) (by residual_path_decide)
 
 /-- Actual third-mode forward-opposite path. -/
 def pathThird02 := twoTwoPath bridgeThird02 middleThird02
-  (splitFormula_of_val_add_eq _ _ _ (by decide))
-  (splitFormula_of_val_add_eq _ _ _ (by decide)) (by decide)
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide))
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide)) (by residual_path_decide)
 
 /-- Actual third-mode reverse-opposite path. -/
 def pathThird12 := twoTwoPath bridgeThird12 middleThird12
-  (splitFormula_of_val_add_eq _ _ _ (by decide))
-  (splitFormula_of_val_add_eq _ _ _ (by decide)) (by decide)
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide))
+  (splitFormula_of_val_add_eq _ _ _ (by residual_path_decide)) (by residual_path_decide)
 
-example : FieldNativePairBridge.Path.length pathFirst01 = 2 := rfl
-example : FieldNativePairBridge.Path.length pathFirst23 = 2 := rfl
-example : FieldNativePairBridge.Path.length pathFirst02 = 2 := rfl
-example : FieldNativePairBridge.Path.length pathFirst12 = 2 := rfl
-example : FieldNativePairBridge.Path.length pathSecond01 = 2 := rfl
-example : FieldNativePairBridge.Path.length pathSecond23 = 2 := rfl
-example : FieldNativePairBridge.Path.length pathSecond02 = 2 := rfl
-example : FieldNativePairBridge.Path.length pathSecond12 = 2 := rfl
-example : FieldNativePairBridge.Path.length pathThird01 = 2 := rfl
-example : FieldNativePairBridge.Path.length pathThird23 = 2 := rfl
-example : FieldNativePairBridge.Path.length pathThird02 = 2 := rfl
-example : FieldNativePairBridge.Path.length pathThird12 = 2 := rfl
+example : FieldNativePairBridge.Path.length pathFirst01 = 2 := by
+  simp only [pathFirst01, oneThreePath, length_actualTwoStepPath]
+example : FieldNativePairBridge.Path.length pathFirst23 = 2 := by
+  simp only [pathFirst23, twoTwoPath, length_actualTwoStepPath]
+example : FieldNativePairBridge.Path.length pathFirst02 = 2 := by
+  simp only [pathFirst02, twoTwoPath, length_actualTwoStepPath]
+example : FieldNativePairBridge.Path.length pathFirst12 = 2 := by
+  simp only [pathFirst12, twoTwoPath, length_actualTwoStepPath]
+example : FieldNativePairBridge.Path.length pathSecond01 = 2 := by
+  simp only [pathSecond01, oneThreePath, length_actualTwoStepPath]
+example : FieldNativePairBridge.Path.length pathSecond23 = 2 := by
+  simp only [pathSecond23, twoTwoPath, length_actualTwoStepPath]
+example : FieldNativePairBridge.Path.length pathSecond02 = 2 := by
+  simp only [pathSecond02, twoTwoPath, length_actualTwoStepPath]
+example : FieldNativePairBridge.Path.length pathSecond12 = 2 := by
+  simp only [pathSecond12, twoTwoPath, length_actualTwoStepPath]
+example : FieldNativePairBridge.Path.length pathThird01 = 2 := by
+  simp only [pathThird01, oneThreePath, length_actualTwoStepPath]
+example : FieldNativePairBridge.Path.length pathThird23 = 2 := by
+  simp only [pathThird23, twoTwoPath, length_actualTwoStepPath]
+example : FieldNativePairBridge.Path.length pathThird02 = 2 := by
+  simp only [pathThird02, twoTwoPath, length_actualTwoStepPath]
+example : FieldNativePairBridge.Path.length pathThird12 = 2 := by
+  simp only [pathThird12, twoTwoPath, length_actualTwoStepPath]
 
 /-- Executable packet exposing the source/source path states and local native endpoints. -/
 def packetFirst01 : FieldNativeExecutablePath.Packet RF3 5 1 1 :=
@@ -338,34 +455,43 @@ def packetFirst01 : FieldNativeExecutablePath.Packet RF3 5 1 1 :=
 def packetFirst23 : FieldNativeExecutablePath.Packet RF3 5 1 1 :=
   ⟨twoTwoStart bridgeFirst23, twoTwoFinish bridgeFirst23, pathFirst23⟩
 
+macro "residual_trace_decide" : tactic =>
+  `(tactic|
+    (simp only [packetFirst01, packetFirst23,
+       FieldNativeExecutablePath.Packet.stateTrace,
+       FieldNativeExecutablePath.Packet.localEndpointTrace,
+       pathFirst01, pathFirst23, oneThreePath, twoTwoPath,
+       stateTrace_actualTwoStepPath, localEndpointTrace_actualTwoStepPath]
+     all_goals residual_path_decide))
+
 example : packetFirst01.stateTrace = [oneThreeStart bridgeFirst01,
     ComputedState.pair (bridgeFirst01.signedResidualAtom 1) middleFirst01,
-    oneThreeFinish bridgeFirst01] := by decide
+    oneThreeFinish bridgeFirst01] := by residual_trace_decide
 
 example : packetFirst01.localEndpointTrace = [
     (ComputedState.singleton (bridgeFirst01.signedResidualAtom 0),
       ComputedState.pair (bridgeFirst01.signedResidualAtom 1) middleFirst01),
     (ComputedState.singleton middleFirst01,
       ComputedState.pair (bridgeFirst01.signedResidualAtom 2)
-        (bridgeFirst01.signedResidualAtom 3))] := by decide
+        (bridgeFirst01.signedResidualAtom 3))] := by residual_trace_decide
 
 example : packetFirst23.stateTrace = [twoTwoStart bridgeFirst23,
     ComputedState.union
       (ComputedState.singleton (bridgeFirst23.signedResidualAtom 1))
       (ComputedState.pair (bridgeFirst23.signedResidualAtom 2) middleFirst23),
-    twoTwoFinish bridgeFirst23] := by decide
+    twoTwoFinish bridgeFirst23] := by residual_trace_decide
 
 example : packetFirst23.localEndpointTrace = [
     (ComputedState.singleton (bridgeFirst23.signedResidualAtom 0),
       ComputedState.pair (bridgeFirst23.signedResidualAtom 2) middleFirst23),
     (ComputedState.pair middleFirst23 (bridgeFirst23.signedResidualAtom 1),
-      ComputedState.singleton (bridgeFirst23.signedResidualAtom 3))] := by decide
+      ComputedState.singleton (bridgeFirst23.signedResidualAtom 3))] := by residual_trace_decide
 
 example : packetFirst01.localEndpointTrace.map (fun edge => (edge.1.card, edge.2.card)) =
-    [(1, 2), (1, 2)] := by decide
+    [(1, 2), (1, 2)] := by residual_trace_decide
 
 example : packetFirst23.localEndpointTrace.map (fun edge => (edge.1.card, edge.2.card)) =
-    [(1, 2), (2, 1)] := by decide
+    [(1, 2), (2, 1)] := by residual_trace_decide
 
 end FieldFiveToFourResidualRegression
 end BilinearComplexity

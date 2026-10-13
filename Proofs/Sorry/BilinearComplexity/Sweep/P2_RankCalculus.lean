@@ -27,13 +27,14 @@
 
   The original vocabulary and p2_c1, p2_c2, p2_c4 are now provided by
   BilinearComplexity.Sandwich; InfStab, p2_c3, and p2_c9 are provided by
-  BilinearComplexity.P2MovingTriad. The five remaining conjectures
-  (p2_c5, p2_c6, p2_c7, p2_c8, p2_c10) retain `sorry`;
+  BilinearComplexity.P2MovingTriad; p2_c8 is provided by
+  BilinearComplexity.P2ResidualStabilizer. The four remaining conjectures
+  (p2_c5, p2_c6, p2_c7, p2_c10) retain `sorry`;
   their historical computational evidence below is not a proof.
   AI disclosure: produced with AI assistance (see Proofs/README).
 -/
 import Mathlib.Data.ZMod.Basic
-import BilinearComplexity.P2MovingTriad
+import BilinearComplexity.P2ResidualStabilizer
 
 set_option autoImplicit false
 
@@ -137,10 +138,7 @@ theorem p2_c7 :
    211-orbit sweep skipped for time under the 60 s budget).
    (b) [concrete]
    (c) sampled evidence for n=3, exhaustive only for the n=2 analogue. -/
-theorem p2_c8 (u v w : Fin (3 * 3) → ZMod 2) :
-    ∃ (X₁ X₂ X₃ : Matrix (Fin (3 * 3)) (Fin (3 * 3)) (ZMod 2)),
-      InfStab X₁ X₂ X₃ (matMulTensor (ZMod 2) 3 3 3 - triad u v w) ∧
-      ¬ ∃ α β : ZMod 2, X₁ = α • 1 ∧ X₂ = β • 1 ∧ X₃ = (α + β) • 1 := sorry
+-- `p2_c8` is now proved in `BilinearComplexity.P2ResidualStabilizer`.
 
 /- (a) …but the infinitesimal stabilizer never survives a peel intact:
    for every nonzero rank-1 `t`, some derivation of `⟨2,2,2⟩`/F₂ fails on

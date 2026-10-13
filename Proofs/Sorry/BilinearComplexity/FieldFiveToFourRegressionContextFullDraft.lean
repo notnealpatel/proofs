@@ -419,10 +419,12 @@ def first01PresentContext : State F3 5 1 1 := ComputedState.singleton bridgeFirs
 
 macro "first01_decide" : tactic =>
   `(tactic|
-    (unfold bridgeFirst01 certifiedFiveToFour FieldNativePairBridge.certifiedScanGauge
-     simp only [FieldTernaryFiveCircuitPair.certifiedScan, first01_scan_execution,
-       Option.get_some]
-     decide))
+    (simp only [CertifiedFiveToFour.signedResidualAtom,
+       EffectiveDisplayedF3PairTriple.signedResidualAtom, CertifiedFiveToFour.q,
+       bridgeFirst01, certifiedFiveToFour, FieldNativePairBridge.certifiedScanGauge,
+       effectiveDisplayedF3PairTriple, FieldTernaryFiveCircuitPair.certifiedScan,
+       first01_scan_execution, Option.get_some]
+     decide +kernel))
 
 /-- In a one/three signed residual, the first term is the sum of the other three. -/
 theorem oneThree_signed_relation {k V : Type*} [Field k] [AddCommGroup V] [Module k V]
@@ -489,7 +491,170 @@ def actualTwoStepPath {a b c : ℕ} (D E S₀ T₀ S₁ T₁ : State F3 a b c)
   let second : StrictNativeStep D₁ D₂ :=
     actualStrictStep D₁ S₁ T₁ native₁ hendpoints₁ hsource₁ hfresh₁ hne₁
   let path : StrictNativePath D D₂ := .cons first (.cons second (.nil D₂))
-  exact FieldFiveToFourContext.CertifiedFiveToFour.Executable.castPath rfl hfinish path
+  exact hfinish ▸ path
+
+/-- The two-step constructor retains exactly two edges under endpoint transport. -/
+theorem length_actualTwoStepPath {a b c : ℕ} (D E S₀ T₀ S₁ T₁ : State F3 a b c)
+    (native₀ : NativeReplacement S₀ T₀) (native₁ : NativeReplacement S₁ T₁)
+    (hendpoints₀ : Disjoint S₀ T₀) (hendpoints₁ : Disjoint S₁ T₁)
+    (hsource₀ : S₀ ⊆ D)
+    (hfresh₀ : Disjoint T₀ (ComputedState.difference D S₀))
+    (hne₀ : D ≠ ComputedState.union (ComputedState.difference D S₀) T₀)
+    (hsource₁ : S₁ ⊆ ComputedState.union (ComputedState.difference D S₀) T₀)
+    (hfresh₁ : Disjoint T₁ (ComputedState.difference
+      (ComputedState.union (ComputedState.difference D S₀) T₀) S₁))
+    (hne₁ : ComputedState.union (ComputedState.difference D S₀) T₀ ≠
+      ComputedState.union (ComputedState.difference
+        (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁)
+    (hfinish : ComputedState.union (ComputedState.difference
+      (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁ = E) :
+    FieldNativePairBridge.Path.length (actualTwoStepPath D E S₀ T₀ S₁ T₁ native₀ native₁ hendpoints₀ hendpoints₁ hsource₀ hfresh₀ hne₀ hsource₁ hfresh₁ hne₁ hfinish) = 2 := by
+  subst E
+  rfl
+
+/-- The actual vertex trace of the generic computed two-step constructor. -/
+theorem stateTrace_actualTwoStepPath {a b c : ℕ}
+    (D E S₀ T₀ S₁ T₁ : State F3 a b c)
+    (native₀ : NativeReplacement S₀ T₀) (native₁ : NativeReplacement S₁ T₁)
+    (hendpoints₀ : Disjoint S₀ T₀) (hendpoints₁ : Disjoint S₁ T₁)
+    (hsource₀ : S₀ ⊆ D)
+    (hfresh₀ : Disjoint T₀ (ComputedState.difference D S₀))
+    (hne₀ : D ≠ ComputedState.union (ComputedState.difference D S₀) T₀)
+    (hsource₁ : S₁ ⊆ ComputedState.union (ComputedState.difference D S₀) T₀)
+    (hfresh₁ : Disjoint T₁ (ComputedState.difference
+      (ComputedState.union (ComputedState.difference D S₀) T₀) S₁))
+    (hne₁ : ComputedState.union (ComputedState.difference D S₀) T₀ ≠
+      ComputedState.union (ComputedState.difference
+        (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁)
+    (hfinish : ComputedState.union (ComputedState.difference
+      (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁ = E) :
+    FieldNativeExecutablePath.stateTrace D
+      (actualTwoStepPath D E S₀ T₀ S₁ T₁ native₀ native₁ hendpoints₀ hendpoints₁
+        hsource₀ hfresh₀ hne₀ hsource₁ hfresh₁ hne₁ hfinish) =
+      [D, ComputedState.union (ComputedState.difference D S₀) T₀, E] := by
+  subst E
+  rfl
+
+/-- The local endpoint trace of the generic computed two-step constructor. -/
+theorem localEndpointTrace_actualTwoStepPath {a b c : ℕ}
+    (D E S₀ T₀ S₁ T₁ : State F3 a b c)
+    (native₀ : NativeReplacement S₀ T₀) (native₁ : NativeReplacement S₁ T₁)
+    (hendpoints₀ : Disjoint S₀ T₀) (hendpoints₁ : Disjoint S₁ T₁)
+    (hsource₀ : S₀ ⊆ D)
+    (hfresh₀ : Disjoint T₀ (ComputedState.difference D S₀))
+    (hne₀ : D ≠ ComputedState.union (ComputedState.difference D S₀) T₀)
+    (hsource₁ : S₁ ⊆ ComputedState.union (ComputedState.difference D S₀) T₀)
+    (hfresh₁ : Disjoint T₁ (ComputedState.difference
+      (ComputedState.union (ComputedState.difference D S₀) T₀) S₁))
+    (hne₁ : ComputedState.union (ComputedState.difference D S₀) T₀ ≠
+      ComputedState.union (ComputedState.difference
+        (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁)
+    (hfinish : ComputedState.union (ComputedState.difference
+      (ComputedState.union (ComputedState.difference D S₀) T₀) S₁) T₁ = E) :
+    FieldNativeExecutablePath.localEndpointTrace
+      (actualTwoStepPath D E S₀ T₀ S₁ T₁ native₀ native₁ hendpoints₀ hendpoints₁
+        hsource₀ hfresh₀ hne₀ hsource₁ hfresh₁ hne₁ hfinish) =
+      [(S₀, T₀), (S₁, T₁)] := by
+  subst E
+  rfl
+
+namespace TraceTransport
+
+open FieldFiveToFourContext.CertifiedFiveToFour.Executable
+
+/-- Endpoint transport preserves the local trace. -/
+theorem regression_localTrace_cast {a b c : ℕ} {D E D' E' : State F3 a b c}
+    (hD : D = D') (hE : E = E') (p : StrictNativePath D E) :
+    localEndpointTrace (castPath hD hE p) = localEndpointTrace p := by
+  subst D'; subst E'; rfl
+/-- Endpoint transport preserves the state trace. -/
+theorem regression_stateTrace_cast {a b c : ℕ} {D E D' E' : State F3 a b c}
+    (hD : D = D') (hE : E = E') (p : StrictNativePath D E) :
+    stateTrace D' (castPath hD hE p) = stateTrace D p := by
+  subst D'; subst E'; rfl
+/-- Appending one primitive appends its local endpoints to the trace. -/
+theorem regression_localTrace_snoc {a b c : ℕ} {D E F : State F3 a b c}
+    (p : StrictNativePath D E) (last : StrictNativeStep E F) :
+    localEndpointTrace (FieldNativeExecutablePath.snoc p last) =
+      localEndpointTrace p ++ [(last.step.source, last.step.target)] := by
+  induction p with
+  | nil D => rfl
+  | cons first tail ih =>
+    simp only [FieldNativeExecutablePath.snoc, FieldNativeExecutablePath.append,
+      localEndpointTrace, List.cons_append] at ih ⊢
+    rw [ih]
+/-- Appending one primitive appends its terminal state to the vertex trace. -/
+theorem regression_stateTrace_snoc {a b c : ℕ} {D E F : State F3 a b c}
+    (p : StrictNativePath D E) (last : StrictNativeStep E F) :
+    stateTrace D (FieldNativeExecutablePath.snoc p last) = stateTrace D p ++ [F] := by
+  induction p with
+  | nil D => rfl
+  | cons first tail ih =>
+    simp only [FieldNativeExecutablePath.snoc, FieldNativeExecutablePath.append,
+      stateTrace, List.cons_append] at ih ⊢
+    rw [ih]
+open FieldFiveToFourContext.CertifiedFiveToFour (OuterSchedule)
+/-- A known after-residual schedule selects its dependent branch. -/
+theorem regression_after_cases {β : Sort*} (s : OuterSchedule)
+    (f : s = .beforeResidual → β) (g : s = .afterResidual → β)
+    (h : s = .afterResidual) :
+    OuterSchedule.rec (motive := fun t => s = t → β) f g s rfl = g h := by
+  cases s
+  · contradiction
+  · rfl
+/-- Transporting a proof-indexed function only transports its proof argument. -/
+theorem regression_apply_cast {α : Sort*} {x y : α} (h : x = y)
+    {P : α → Prop} {β : Sort*} (f : P x → β) (p : P y) :
+    (h ▸ f) p = f (h.symm ▸ p) := by
+  cases h
+  rfl
+/-- On the after-residual schedule, the packet local trace appends the outer endpoints. -/
+theorem regression_localTrace_after {a b c : ℕ} {I : DisplayedF3PairTriple a b c}
+    (B : CertifiedFiveToFour I) (C : State F3 a b c)
+    (hC : Disjoint C (displayedCarrier I))
+    (p : StrictNativePath (requestStart B C) (requestFinish B C))
+    (hs : schedule B C = .afterResidual) :
+    (execCompose B C hC p).localEndpointTrace =
+      localEndpointTrace p ++ [(outerSource B, outerTarget B)] := by
+  unfold execCompose
+  run_tac do
+    let n := (Lean.Name.num `_private.BilinearComplexity.FieldFiveToFourContext 0).append
+      `BilinearComplexity.FieldFiveToFourContext.CertifiedFiveToFour.Executable.execComposeWithLength
+    Lean.Elab.Tactic.evalTactic (← `(tactic| unfold $(Lean.mkIdent n):ident))
+  dsimp only
+  rw [regression_after_cases _ _ _ hs]
+  simp only [regression_apply_cast]
+  simp only [Packet.localEndpointTrace, regression_localTrace_snoc,
+    regression_localTrace_cast, outerStepTo, reverseStep,
+    FieldNativeMoves.NativeStep.reverse_source, FieldNativeMoves.NativeStep.reverse_target]
+/-- On the after-residual schedule, the packet state trace appends the full terminal state. -/
+theorem regression_stateTrace_after {a b c : ℕ} {I : DisplayedF3PairTriple a b c}
+    (B : CertifiedFiveToFour I) (C : State F3 a b c)
+    (hC : Disjoint C (displayedCarrier I))
+    (p : StrictNativePath (requestStart B C) (requestFinish B C))
+    (hs : schedule B C = .afterResidual) :
+    (execCompose B C hC p).stateTrace = stateTrace (requestStart B C) p ++ [fullFinish (I := I) C] := by
+  unfold execCompose
+  run_tac do
+    let n := (Lean.Name.num `_private.BilinearComplexity.FieldFiveToFourContext 0).append
+      `BilinearComplexity.FieldFiveToFourContext.CertifiedFiveToFour.Executable.execComposeWithLength
+    Lean.Elab.Tactic.evalTactic (← `(tactic| unfold $(Lean.mkIdent n):ident))
+  dsimp only
+  rw [regression_after_cases _ _ _ hs]
+  simp only [regression_apply_cast]
+  simp only [Packet.stateTrace, regression_stateTrace_snoc, regression_stateTrace_cast]
+/-- Edges are consecutive pairs of the vertex trace. -/
+theorem regression_edgeTrace_zip {a b c : ℕ} {D E : State F3 a b c}
+    (p : StrictNativePath D E) : edgeTrace D p = (stateTrace D p).zip (stateTrace D p).tail := by
+  induction p with
+  | nil D => rfl
+  | cons first tail ih =>
+    cases tail with
+    | nil E => rfl
+    | cons next rest =>
+      simpa only [edgeTrace, stateTrace, List.tail_cons, List.zip_cons_cons] using congrArg (List.cons _) ih
+
+end TraceTransport
 
 /-- Explicit pure intermediate for the source/source residual path. -/
 def first01Middle : Atom F3 5 1 1 :=
@@ -612,6 +777,13 @@ theorem first01Split₁ : SplitFormula first01Middle
   apply FieldThreeProductCircuit.splitFormula_of_val_add_eq
   exact first01Middle_val.symm
 
+macro "first01_fixture_decide" : tactic =>
+  `(tactic|
+    (try simp only [first01Middle, first01PresentContext,
+       FieldFiveToFourContext.CertifiedFiveToFour.Executable.requestStart,
+       FieldFiveToFourContext.CertifiedFiveToFour.Executable.requestFinish]
+     first01_decide))
+
 /-- Actual two-Split residual path with the contraction atom absent from the context. -/
 def first01ResidualAbsent : StrictNativePath
     (FieldFiveToFourContext.CertifiedFiveToFour.Executable.requestStart bridgeFirst01
@@ -629,20 +801,20 @@ def first01ResidualAbsent : StrictNativePath
     (bridgeFirst01.signedResidualAtom 3)
   have native₀ : NativeReplacement S₀ T₀ := by
     simpa only [S₀, T₀, ComputedState.singleton_eq_spec, ComputedState.pair_eq_spec] using
-      NativeReplacement.split first01Split₀ (by first01_decide)
+      NativeReplacement.split first01Split₀ (by first01_fixture_decide)
   have native₁ : NativeReplacement S₁ T₁ := by
     simpa only [S₁, T₁, ComputedState.singleton_eq_spec, ComputedState.pair_eq_spec] using
-      NativeReplacement.split first01Split₁ (by first01_decide)
+      NativeReplacement.split first01Split₁ (by first01_fixture_decide)
   exact actualTwoStepPath D E S₀ T₀ S₁ T₁ native₀ native₁
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
 
 /-- Actual two-Split residual path with the contraction atom present in the context. -/
 def first01ResidualPresent : StrictNativePath
@@ -661,20 +833,20 @@ def first01ResidualPresent : StrictNativePath
     (bridgeFirst01.signedResidualAtom 3)
   have native₀ : NativeReplacement S₀ T₀ := by
     simpa only [S₀, T₀, ComputedState.singleton_eq_spec, ComputedState.pair_eq_spec] using
-      NativeReplacement.split first01Split₀ (by first01_decide)
+      NativeReplacement.split first01Split₀ (by first01_fixture_decide)
   have native₁ : NativeReplacement S₁ T₁ := by
     simpa only [S₁, T₁, ComputedState.singleton_eq_spec, ComputedState.pair_eq_spec] using
-      NativeReplacement.split first01Split₁ (by first01_decide)
+      NativeReplacement.split first01Split₁ (by first01_fixture_decide)
   exact actualTwoStepPath D E S₀ T₀ S₁ T₁ native₀ native₁
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
-    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
+    (by dsimp only [D, E, S₀, T₀, S₁, T₁]; first01_fixture_decide)
 
 
 /-- Full executable source/source splice with the contraction atom absent initially. -/
@@ -687,26 +859,29 @@ def first01PacketPresent : FieldNativeExecutablePath.Packet F3 5 1 1 :=
   FieldFiveToFourContext.CertifiedFiveToFour.Executable.execCompose bridgeFirst01
     first01PresentContext (by
       simp only [first01PresentContext]
-      first01_decide) first01ResidualPresent
+      first01_fixture_decide) first01ResidualPresent
 
 macro "first01_packet_decide" : tactic =>
   `(tactic|
     (simp only [first01PacketAbsent, first01PacketPresent,
-       first01ResidualAbsent, first01ResidualPresent, first01PresentContext]
-     first01_decide))
+       first01ResidualAbsent, first01ResidualPresent, first01PresentContext,
+       FieldFiveToFourContext.CertifiedFiveToFour.Executable.execCompose]
+     first01_fixture_decide))
 
-example : FieldNativePairBridge.Path.length first01ResidualAbsent = 2 := rfl
-example : FieldNativePairBridge.Path.length first01ResidualPresent = 2 := rfl
+example : FieldNativePairBridge.Path.length first01ResidualAbsent = 2 := by
+  simp only [first01ResidualAbsent, length_actualTwoStepPath]
+example : FieldNativePairBridge.Path.length first01ResidualPresent = 2 := by
+  simp only [first01ResidualPresent, length_actualTwoStepPath]
 
 example : FieldNativePairBridge.Path.length first01PacketAbsent.path = 3 := by
   rw [first01PacketAbsent,
     FieldFiveToFourContext.CertifiedFiveToFour.Executable.length_execCompose]
-  rfl
+  simp only [first01ResidualAbsent, first01ResidualPresent, length_actualTwoStepPath]
 
 example : FieldNativePairBridge.Path.length first01PacketPresent.path = 3 := by
   rw [first01PacketPresent,
     FieldFiveToFourContext.CertifiedFiveToFour.Executable.length_execCompose]
-  rfl
+  simp only [first01ResidualAbsent, first01ResidualPresent, length_actualTwoStepPath]
 
 example : first01PacketAbsent.start =
     FieldFiveToFourContext.CertifiedFiveToFour.Executable.fullStart
@@ -738,13 +913,22 @@ example : first01PacketPresent.localEndpointTrace = [
       ComputedState.pair (bridgeFirst01.signedResidualAtom 2)
         (bridgeFirst01.signedResidualAtom 3)),
     (FieldFiveToFourContext.CertifiedFiveToFour.Executable.outerSource bridgeFirst01,
-      FieldFiveToFourContext.CertifiedFiveToFour.Executable.outerTarget bridgeFirst01)] := by first01_packet_decide
+      FieldFiveToFourContext.CertifiedFiveToFour.Executable.outerTarget bridgeFirst01)] := by
+  rw [first01PacketPresent,
+    TraceTransport.regression_localTrace_after _ _ _ _ (by first01_fixture_decide)]
+  simp only [first01ResidualPresent, localEndpointTrace_actualTwoStepPath,
+    List.cons_append, List.nil_append]
 
 example : first01PacketAbsent.localEndpointTrace.map
     (fun edge => (edge.1.card, edge.2.card)) = [(2, 1), (1, 2), (1, 2)] := by first01_packet_decide
 
 example : first01PacketPresent.localEndpointTrace.map
-    (fun edge => (edge.1.card, edge.2.card)) = [(1, 2), (1, 2), (2, 1)] := by first01_packet_decide
+    (fun edge => (edge.1.card, edge.2.card)) = [(1, 2), (1, 2), (2, 1)] := by
+  rw [first01PacketPresent,
+    TraceTransport.regression_localTrace_after _ _ _ _ (by first01_fixture_decide)]
+  simp only [first01ResidualPresent, localEndpointTrace_actualTwoStepPath,
+    List.cons_append, List.nil_append, List.map_cons, List.map_nil]
+  first01_fixture_decide
 
 example : first01PacketAbsent.stateTrace = [
     FieldFiveToFourContext.CertifiedFiveToFour.Executable.fullStart
@@ -772,15 +956,21 @@ example : first01PacketPresent.stateTrace = [
     FieldFiveToFourContext.CertifiedFiveToFour.Executable.requestFinish bridgeFirst01
       first01PresentContext,
     FieldFiveToFourContext.CertifiedFiveToFour.Executable.fullFinish
-      (I := first01) first01PresentContext] := by first01_packet_decide
+      (I := first01) first01PresentContext] := by
+  rw [first01PacketPresent,
+    TraceTransport.regression_stateTrace_after _ _ _ _ (by first01_fixture_decide)]
+  simp only [first01ResidualPresent, stateTrace_actualTwoStepPath,
+    List.cons_append, List.nil_append]
+  first01_fixture_decide
 
 example : first01PacketAbsent.edgeTrace =
     List.zip first01PacketAbsent.stateTrace first01PacketAbsent.stateTrace.tail := by first01_packet_decide
 
 example : first01PacketPresent.edgeTrace =
-    List.zip first01PacketPresent.stateTrace first01PacketPresent.stateTrace.tail := by first01_packet_decide
+    List.zip first01PacketPresent.stateTrace first01PacketPresent.stateTrace.tail := by
+  exact TraceTransport.regression_edgeTrace_zip first01PacketPresent.path
 
-example : bridgeFirst01.normalized.placement = .sourceSource := by first01_decide
+example : bridgeFirst01.normalized.placement = .sourceSource := by first01_fixture_decide
 
 
 end FieldFiveToFourRegression
