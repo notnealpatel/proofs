@@ -33,12 +33,19 @@ namespace ErdosCandidates.E683
     leandoc confirms Mathlib has none. -/
 def maxPrimeFac (n : ℕ) : ℕ := n.primeFactors.sup id
 
+/-- Kernel-checked ground truths for the largest prime factor at 35, C(10,5), and 1. -/
+theorem maxPrimeFac_sanity : maxPrimeFac 35 = 7 ∧
+    maxPrimeFac (Nat.choose 10 5) = 7 ∧ maxPrimeFac 1 = 0 := by
+  rw [Nat.choose_eq_descFactorial_div_factorial]
+  norm_num [Nat.descFactorial, Nat.factorial]
+  decide +kernel
+
 /-- Ground truth: `maxPrimeFac 35 = 7`, `maxPrimeFac (C(10,5)) =
     maxPrimeFac 252 = 7`, `maxPrimeFac 1 = 0`.
     -- PROVABLE (decide). -/
 example : maxPrimeFac 35 = 7 ∧ maxPrimeFac (Nat.choose 10 5) = 7 ∧
     maxPrimeFac 1 = 0 := by
-  sorry
+  exact maxPrimeFac_sanity
 
 /-- **Sylvester–Schur theorem (the lemma-mine prize)**: for `1 ≤ k`
     and `2k ≤ n`, `C(n,k)` has a prime factor `> k` — i.e.
@@ -80,19 +87,27 @@ theorem erdos_683 :
         (maxPrimeFac (n.choose k) : ℝ) := by
   sorry
 
+set_option maxHeartbeats 800000 in
 /-- Sanity window for Sylvester–Schur: verified for all `n ≤ 40`.
     -- PROVABLE (decide). -/
 theorem sylvester_schur_window :
     ∀ n ∈ Finset.range 41, ∀ k ∈ Finset.range 21,
       1 ≤ k → 2 * k ≤ n → k < maxPrimeFac (n.choose k) := by
-  sorry
+  simp_rw [Nat.choose_eq_descFactorial_div_factorial]
+  decide +kernel
+
+/-- Kernel-checked largest prime factor of C(10,9). -/
+theorem maxPrimeFac_choose_ten_nine : maxPrimeFac (Nat.choose 10 9) = 5 := by
+  rw [Nat.choose_eq_descFactorial_div_factorial]
+  norm_num [Nat.descFactorial, Nat.factorial]
+  decide +kernel
 
 /-- Non-degeneracy of the `min`: at `(n, k) = (10, 9)`,
     `C(10,9) = 10 = 2·5`, `maxPrimeFac = 5`, and `n − k + 1 = 2 ≤ 5` —
     the first component of the min is the binding one near the
     diagonal.  -- PROVABLE (decide). -/
 example : maxPrimeFac (Nat.choose 10 9) = 5 := by
-  sorry
+  exact maxPrimeFac_choose_ten_nine
 
 end ErdosCandidates.E683
 
