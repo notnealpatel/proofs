@@ -26,12 +26,14 @@
       dim ≥ 4 (> the 2-dimensional trivial space).
 
   The original vocabulary and p2_c1, p2_c2, p2_c4 are now provided by
-  BilinearComplexity.Sandwich. The seven remaining conjectures retain `sorry`;
+  BilinearComplexity.Sandwich; InfStab, p2_c3, and p2_c9 are provided by
+  BilinearComplexity.P2MovingTriad. The five remaining conjectures
+  (p2_c5, p2_c6, p2_c7, p2_c8, p2_c10) retain `sorry`;
   their historical computational evidence below is not a proof.
   AI disclosure: produced with AI assistance (see Proofs/README).
 -/
 import Mathlib.Data.ZMod.Basic
-import BilinearComplexity.Sandwich
+import BilinearComplexity.P2MovingTriad
 
 set_option autoImplicit false
 
@@ -47,14 +49,10 @@ open Matrix
 def matOf {k : Type*} {n : ℕ} (x : Fin (n * n) → k) : Matrix (Fin n) (Fin n) k :=
   fun i j => x (finProdFinEquiv (i, j))
 
-/-- Infinitesimal (Lie-algebra) stabilizer condition: `(X₁,X₂,X₃)` is a
+/- Infinitesimal (Lie-algebra) stabilizer condition: `(X₁,X₂,X₃)` is a
 derivation annihilating `T`. Over F₂ the triple `(α•1, β•1, (α+β)•1)`
 satisfies this for every tensor — the 2-dimensional trivial space. -/
-def InfStab {k : Type*} [CommSemiring k] {a b c : ℕ}
-    (X₁ : Matrix (Fin a) (Fin a) k) (X₂ : Matrix (Fin b) (Fin b) k)
-    (X₃ : Matrix (Fin c) (Fin c) k) (T : Tensor k a b c) : Prop :=
-  ∀ i j l, (∑ i', X₁ i i' * T i' j l) + (∑ j', X₂ j j' * T i j' l)
-    + (∑ l', X₃ l l' * T i j l') = 0
+-- `InfStab` is now provided by `BilinearComplexity.P2MovingTriad`.
 
 /-! ### Historical sweep: imported results and remaining conjectures -/
 
@@ -84,12 +82,7 @@ def InfStab {k : Type*} [CommSemiring k] {a b c : ℕ}
    FLAG: n ≥ 4 is extrapolation beyond the data.
    (b) [concrete]
    (c) exact-tier for n=2,3; extrapolated beyond. -/
-theorem p2_c3 (n : ℕ) (hn : 2 ≤ n) (u v w : Fin (n * n) → ZMod 2)
-    (ht : triad u v w ≠ 0) :
-    ∃ (M₁ M₂ M₃ : Matrix (Fin (n * n)) (Fin (n * n)) (ZMod 2)),
-      IsUnit M₁ ∧ IsUnit M₂ ∧ IsUnit M₃ ∧
-      sandwich M₁ M₂ M₃ (matMulTensor (ZMod 2) n n n) = matMulTensor (ZMod 2) n n n ∧
-      sandwich M₁ M₂ M₃ (triad u v w) ≠ triad u v w := sorry
+-- `p2_c3` is now proved in `BilinearComplexity.P2MovingTriad`.
 
 /- (a) The diagonal sandwich `(P,P,P)` fixes the residual
    `⟨n,n,n⟩ − vec(I)⊗vec(I)⊗vec(I)`: the Strassen stabilizer (order 36,
@@ -157,10 +150,7 @@ theorem p2_c8 (u v w : Fin (3 * 3) → ZMod 2) :
    sampled ≤ 25) is unverified — n=2 stated only.
    (b) [concrete]
    (c) exact-tier, exhaustive for n=2. -/
-theorem p2_c9 (u v w : Fin (2 * 2) → ZMod 2) (ht : triad u v w ≠ 0) :
-    ∃ (X₁ X₂ X₃ : Matrix (Fin (2 * 2)) (Fin (2 * 2)) (ZMod 2)),
-      InfStab X₁ X₂ X₃ (matMulTensor (ZMod 2) 2 2 2) ∧
-      ¬ InfStab X₁ X₂ X₃ (matMulTensor (ZMod 2) 2 2 2 - triad u v w) := sorry
+-- `p2_c9` is now proved in `BilinearComplexity.P2MovingTriad`.
 
 /- (a) Any cyclically symmetric rank-23 decomposition of `⟨3,3,3⟩`/F₂
    (an order-3 term permutation π intertwining the `cyc` rotation, which
