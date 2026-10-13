@@ -196,7 +196,9 @@ private theorem residualSource_eq_singleton_of_sourceSource
           sourceState_eq_pairState I, targetState_eq_tripleState I,
           pairState, singletonState, stateUnion, stateDifference,
           atomAt_slots_eq_iff I, atomAt_slot_ne_q B, q_ne_atomAt B,
-          Fin.ext_iff] <;> aesop
+          q_eq_atomAt_iff_false B, atomAt_eq_q_iff_false B, Fin.ext_iff] <;> aesop <;>
+        simp_all [atomAt_slots_eq_iff I, q_eq_atomAt_iff_false B,
+          atomAt_eq_q_iff_false B, Fin.ext_iff] <;> exact huv rfl
   | targetTarget => simp [Q, EffectiveDisplayedF3PairTriple.placement] at hp
   | oppositeForward => simp [Q, EffectiveDisplayedF3PairTriple.placement] at hp
   | oppositeReverse => simp [Q, EffectiveDisplayedF3PairTriple.placement] at hp
@@ -217,7 +219,9 @@ private theorem residualSource_eq_sourceState_of_targetTarget
           sourceState_eq_pairState I, targetState_eq_tripleState I,
           pairState, singletonState, stateUnion, stateDifference,
           atomAt_slots_eq_iff I, atomAt_slot_ne_q B, q_ne_atomAt B,
-          Fin.ext_iff] <;> aesop
+          q_eq_atomAt_iff_false B, atomAt_eq_q_iff_false B, Fin.ext_iff] <;> aesop <;>
+        simp_all [atomAt_slots_eq_iff I, q_eq_atomAt_iff_false B,
+          atomAt_eq_q_iff_false B, Fin.ext_iff]
   | oppositeForward => simp [Q, EffectiveDisplayedF3PairTriple.placement] at hp
   | oppositeReverse => simp [Q, EffectiveDisplayedF3PairTriple.placement] at hp
 
@@ -239,7 +243,9 @@ private theorem residualSource_eq_pair_of_opposite_left_zero
           sourceState_eq_pairState I, targetState_eq_tripleState I,
           pairState, singletonState, stateUnion, stateDifference,
           atomAt_slots_eq_iff I, atomAt_slot_ne_q B, q_ne_atomAt B,
-          Fin.ext_iff] <;> aesop
+          q_eq_atomAt_iff_false B, atomAt_eq_q_iff_false B, Fin.ext_iff] <;> aesop <;>
+        simp_all [atomAt_slots_eq_iff I, q_eq_atomAt_iff_false B,
+          atomAt_eq_q_iff_false B, Fin.ext_iff]
   | oppositeReverse u v hfirst hsecond pair =>
       fin_cases u <;> fin_cases v <;>
         simp_all [residualSource, outerSource, outerTarget, Q,
@@ -249,7 +255,9 @@ private theorem residualSource_eq_pair_of_opposite_left_zero
           sourceState_eq_pairState I, targetState_eq_tripleState I,
           pairState, singletonState, stateUnion, stateDifference,
           atomAt_slots_eq_iff I, atomAt_slot_ne_q B, q_ne_atomAt B,
-          Fin.ext_iff] <;> aesop
+          q_eq_atomAt_iff_false B, atomAt_eq_q_iff_false B, Fin.ext_iff] <;> aesop <;>
+        simp_all [atomAt_slots_eq_iff I, q_eq_atomAt_iff_false B,
+          atomAt_eq_q_iff_false B, Fin.ext_iff]
 
 private theorem residualSource_eq_pair_of_opposite_left_one
     {I : DisplayedF3PairTriple a b c} (B : CertifiedFiveToFour I)
@@ -269,7 +277,9 @@ private theorem residualSource_eq_pair_of_opposite_left_one
           sourceState_eq_pairState I, targetState_eq_tripleState I,
           pairState, singletonState, stateUnion, stateDifference,
           atomAt_slots_eq_iff I, atomAt_slot_ne_q B, q_ne_atomAt B,
-          Fin.ext_iff] <;> aesop
+          q_eq_atomAt_iff_false B, atomAt_eq_q_iff_false B, Fin.ext_iff] <;> aesop <;>
+        simp_all [atomAt_slots_eq_iff I, q_eq_atomAt_iff_false B,
+          atomAt_eq_q_iff_false B, Fin.ext_iff]
   | oppositeReverse u v hfirst hsecond pair =>
       fin_cases u <;> fin_cases v <;>
         simp_all [residualSource, outerSource, outerTarget, Q,
@@ -279,7 +289,9 @@ private theorem residualSource_eq_pair_of_opposite_left_one
           sourceState_eq_pairState I, targetState_eq_tripleState I,
           pairState, singletonState, stateUnion, stateDifference,
           atomAt_slots_eq_iff I, atomAt_slot_ne_q B, q_ne_atomAt B,
-          Fin.ext_iff] <;> aesop
+          q_eq_atomAt_iff_false B, atomAt_eq_q_iff_false B, Fin.ext_iff] <;> aesop <;>
+        simp_all [atomAt_slots_eq_iff I, q_eq_atomAt_iff_false B,
+          atomAt_eq_q_iff_false B, Fin.ext_iff]
 
 private theorem signedResidualSource_eq_sourceState_of_targetTarget
     {I : DisplayedF3PairTriple a b c} (B : CertifiedFiveToFour I)
