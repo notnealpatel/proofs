@@ -53,6 +53,8 @@ parity split, which is provable and is stated below.
 -/
 import Mathlib
 import Enumerative.Practical
+import Enumerative.SymmetricPractical
+import Enumerative.StewartCriterion
 
 set_option autoImplicit false
 
@@ -131,7 +133,7 @@ theorem sun_a209312_pos (n : ℕ) (hn : 2 < n) : 0 < a209312 n := by
 theorem sun_a209312_exists (n : ℕ) (hn : 2 < n) : ∃ p : ℕ, A209312Cond n p := by
   sorry
 
-/-- **Hasler's parity split (A209312, M. F. Hasler, Jan 19 2013) — provable.**
+/-- **Hasler's parity split (A209312, M. F. Hasler, Jan 19 2013) — proved.**
 
 Verbatim: "Except for p=1, all practical numbers are even. Thus, (n-p,n+p) prime
 is possible only if n is odd, and (n-p,n+p) can be practical only if n is even
@@ -145,9 +147,33 @@ genuinely useful lemma this card contributes over `A005153Switkay.lean`. -/
 theorem hasler_parity {n p : ℕ} (hp : p.Practical) (hp1 : 1 < p) (hpn : p < n) :
     ((n - p).Prime ∧ (n + p).Prime ∧ 2 < n + p → Odd n) ∧
     ((n - p).Practical ∧ (n + p).Practical ∧ 1 < n + p → Even n) := by
-  sorry
+  exact SymmetricPractical.hasler_parity hp hp1 hpn
 
 /-! ## Sanity layer -/
+
+/-- Computable Stewart criterion, using prime-factor-list multiplicities. -/
+private def checkPractical (n : ℕ) : Prop :=
+  0 < n ∧ ∀ p ∈ n.primeFactors,
+    p ≤ 1 + ∑ d ∈ (∏ q ∈ n.primeFactors.filter (fun q => q < p),
+      q ^ n.primeFactorsList.count q).divisors, d
+private instance : DecidablePred checkPractical := fun n => by
+  unfold checkPractical
+  infer_instance
+private theorem checkPractical_iff (n : ℕ) : checkPractical n ↔ n.Practical := by
+  unfold checkPractical
+  simp_rw [Nat.primeFactorsList_count_eq]
+  change (0 < n ∧ ∀ p ∈ n.primeFactors,
+    p ≤ 1 + ∑ d ∈ (Nat.stewartPrefix n p).divisors, d) ↔ n.Practical
+  constructor
+  · intro h
+    exact (Nat.practical_iff_stewart h.1).mpr h.2
+  · intro h
+    exact ⟨h.pos, (Nat.practical_iff_stewart h.pos).mp h⟩
+
+example : ¬ checkPractical 0 := by decide
+example : checkPractical 1 := by decide +kernel
+example : checkPractical 6 := by decide +kernel
+
 
 -- PROVABLE: the DATA head `a(1..10) = 0,0,1,2,2,2,2,1,2,3`, which pins the
 -- counting convention (practical `p` with `p < n`, inclusive disjunction).
@@ -174,12 +200,21 @@ example : Nat.Practical 1 ∧ ¬ Even 1 := ⟨Nat.practical_one, by decide⟩
 
 -- PROVABLE: and every practical `p > 1` is even (repo lemma), which is what
 -- drives `hasler_parity`.
-example : ∀ p ∈ Finset.Icc 2 100, p.Practical → Even p := by decide
+example : ∀ p ∈ Finset.Icc 2 100, p.Practical → Even p := by
+  intro p hp_mem hp
+  have hp1 : 1 < p := by
+    have hp_lower := (Finset.mem_Icc.mp hp_mem).1
+    omega
+  have hp_two : 2 ∣ p := hp.two_dvd hp1
+  exact Nat.even_iff.mpr (by omega)
 
 -- PROVABLE (window check): `a(n) > 0` for every `3 ≤ n ≤ 5000`.  The candidates
 -- document proposed `n ≤ 2000`; `5000` is still comfortable, but time it before
 -- raising further — `A209312Cond` calls `Nat.Practical` three times per `p`.
-example : ∀ n ∈ Finset.Icc 3 5000, 0 < a209312 n := by native_decide
+example : ∀ n ∈ Finset.Icc 3 5000, 0 < a209312 n := by
+  simp only [a209312, Finset.card_pos, Finset.filter_nonempty_iff, A209312Cond]
+  simp_rw [← checkPractical_iff]
+  native_decide
 
 -- PROVABLE: A209321 ("Indices for which a(n)=2") cross-check — `a(26) = 2`,
 -- `a(38) = 2`, `a(46) = 2`, read off the DATA line.
@@ -189,9 +224,8 @@ example : a209312 26 = 2 ∧ a209312 38 = 2 ∧ a209312 46 = 2 := by native_deci
 
 Only one item is worth doing:
 
-* `hasler_parity` — provable today from `Nat.Practical.two_dvd` and parity, ~30
-  lines.  It is a real (small) theorem about the sequence and it is the reason
-  to keep this card at all.
+* `hasler_parity` is now proved in `Enumerative.SymmetricPractical` and exposed
+  here by an exact-statement wrapper. The two Sun conjectures remain unpaid.
 
 The conjecture itself is strictly harder than Switkay's (`A005153Switkay.lean`)
 and should be ranked below it, as the candidates document already says. -/
