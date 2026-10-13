@@ -76,6 +76,7 @@ an archive card; it is stated below as `somuTran_thm1_practical_add_triangular`.
 import Mathlib
 import Enumerative.Practical
 import Enumerative.StewartCriterion
+import Enumerative.SomuTranTriangular
 
 set_option autoImplicit false
 
@@ -184,14 +185,82 @@ The triangular number is written division-free as `2 * T = t * (t + 1)` to keep
 the statement off `Nat` division, per STYLE.md. -/
 theorem somuTran_thm1_practical_add_triangular (n : ℕ) (hn : 0 < n) :
     ∃ q t : ℕ, q.Practical ∧ 2 * n = 2 * q + t * (t + 1) := by
-  sorry
+  exact Nat.exists_practical_add_triangular n hn
+
+/-- An archive-local practical-number decision procedure, certified by Stewart's
+criterion, avoiding the subset-sum search in the original decision procedure. -/
+local instance practicalStewartDecidable : DecidablePred Nat.Practical := fun n =>
+  decidable_of_iff (0 < n ∧ ∀ p ∈ n.primeFactors,
+    p ≤ 1 + ∑ d ∈ (Nat.stewartPrefix n p).divisors, d) (by
+      constructor
+      · rintro ⟨hn, h⟩
+        exact (Nat.practical_iff_stewart hn).mpr h
+      · intro h
+        exact ⟨h.1, (Nat.practical_iff_stewart h.1).mp h⟩)
+
+/-- An exact-count computational mirror using Stewart's decision procedure.
+Only the decision implementation differs from `numRepsA373686`. -/
+private def numRepsStewart (n : ℕ) : ℕ :=
+  ((Finset.Icc 1 n ×ˢ (Finset.range (n.sqrt + 1) ×ˢ Finset.range (n.sqrt + 1))).filter
+    (fun t => t.1.Practical ∧ t.2.1 ≤ t.2.2 ∧ t.1 + t.2.1 ^ 2 + t.2.2 ^ 2 = n)).card
+
+/-- The fast exact-count mirror has precisely the original counting semantics. -/
+private theorem numRepsStewart_eq (n : ℕ) : numRepsStewart n = numRepsA373686 n := by
+  have hdec : practicalStewartDecidable = Nat.decidablePredPractical := Subsingleton.elim _ _
+  unfold numRepsStewart numRepsA373686
+  rw [hdec]
+
+/-- Short-circuit search for an unordered two-square representation with a
+practical summand. The residual is used only together with its nontruncation guard. -/
+private def hasTwoSquaresWitness (n : ℕ) : Bool :=
+  (List.range (n+1)).any fun q => decide q.Practical &&
+    (List.range (n.sqrt+1)).any fun x =>
+      let y := (n-q-x^2).sqrt
+      decide (q+x^2 ≤ n ∧ x ≤ y ∧ q+x^2+y^2 = n)
+
+-- This remains archive-only native evaluation, with the same enlarged native
+-- trust surface as the pre-existing numerical sanity checks.
+example : hasTwoSquaresWitness 1 = true := by native_decide
+example : hasTwoSquaresWitness 0 = false := by decide
+
+/-- A successful fast search gives an element of the original representation
+finset, hence strictly positive cardinality. No completeness premise is needed. -/
+private theorem numReps_pos_of_witness (n : ℕ) (h : hasTwoSquaresWitness n = true) :
+    0 < numRepsA373686 n := by
+  obtain ⟨q, hqrange, hq⟩ := List.any_eq_true.mp h
+  have hqb : decide q.Practical = true ∧
+      (List.range (n.sqrt+1)).any (fun x =>
+        decide (q+x^2 ≤ n ∧ x ≤ (n-q-x^2).sqrt ∧
+          q+x^2+((n-q-x^2).sqrt)^2 = n)) = true := by
+    simpa only [Bool.and_eq_true] using hq
+  have hpr : q.Practical := of_decide_eq_true hqb.1
+  obtain ⟨x, hxrange, hx⟩ := List.any_eq_true.mp hqb.2
+  have hvalid : q+x^2 ≤ n ∧ x ≤ (n-q-x^2).sqrt ∧
+      q+x^2+((n-q-x^2).sqrt)^2 = n := of_decide_eq_true hx
+  let y := (n-q-x^2).sqrt
+  have heq : q+x^2+y^2 = n := hvalid.2.2
+  have hyle : y ≤ n.sqrt := Nat.le_sqrt.mpr (by nlinarith)
+  have hxle : x < n.sqrt+1 := List.mem_range.mp hxrange
+  have hqle : q ≤ n := by have hqr := List.mem_range.mp hqrange; omega
+  rw [← numRepsStewart_eq]
+  apply Finset.card_pos.mpr
+  refine ⟨(q,x,y), ?_⟩
+  exact Finset.mem_filter.mpr ⟨by
+    simp only [Finset.mem_product, Finset.mem_Icc, Finset.mem_range]
+    exact ⟨⟨hpr.1, hqle⟩, hxle, by omega⟩,
+    hpr, hvalid.2.1, heq⟩
+
 
 /-! ## Sanity layer -/
 
 -- PROVABLE: the counting function reproduces the OEIS DATA line on its head.
 -- a(1..10) = 1, 2, 2, 2, 2, 4, 2, 3, 3, 4.
 example : List.map numRepsA373686 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    = [1, 2, 2, 2, 2, 4, 2, 3, 3, 4] := by native_decide
+    = [1, 2, 2, 2, 2, 4, 2, 3, 3, 4] := by
+  have heq : numRepsA373686 = numRepsStewart :=
+    funext fun n => (numRepsStewart_eq n).symm
+  rw [heq]
+  native_decide
 
 -- PROVABLE: satisfiability — the existential is instantiable at `n = 1`
 -- (`1 = 1 + 0² + 0²`), so the conjecture is not vacuous.
@@ -208,16 +277,28 @@ example : ¬ ∃ q x y : ℕ, q.Practical ∧ q + x ^ 2 + y ^ 2 = 0 := by
 -- PROVABLE: the counting convention is `x ≤ y` (unordered pairs).  If ordered
 -- pairs were counted, `a(6)` would be `1 + 1 + 1 + 1 + 1 = 5`, not `4`
 -- (the pair `(1,2)` would be counted twice).  This example pins the convention.
-example : numRepsA373686 6 = 4 := by native_decide
+example : numRepsA373686 6 = 4 := by
+  rw [← numRepsStewart_eq]
+  native_decide
+
+/-- The short-circuit witness search succeeds throughout the unchanged finite
+sanity window. This certificate is archive-only native evaluation. -/
+private theorem hasTwoSquaresWitness_window :
+    ∀ n ∈ Finset.Icc 1 20000, hasTwoSquaresWitness n = true := by
+  native_decide
 
 -- PROVABLE (window check): a representation exists for every `1 ≤ n ≤ 20000`.
-example : ∀ n ∈ Finset.Icc 1 20000, 0 < numRepsA373686 n := by native_decide
+example : ∀ n ∈ Finset.Icc 1 20000, 0 < numRepsA373686 n := by
+  intro n hn
+  exact numReps_pos_of_witness n (hasTwoSquaresWitness_window n hn)
 
 -- PROVABLE: the practical summand really has to range over more than `{1, 2}`.
 -- `n = 23` has `a(23) = 2`; both representations use practical `q ∈ {4, 22?}` —
 -- checking the actual witnesses guards against a degenerate reading in which the
 -- conjecture is secretly about powers of two.
-example : numRepsA373686 23 = 2 := by native_decide
+example : numRepsA373686 23 = 2 := by
+  rw [← numRepsStewart_eq]
+  native_decide
 
 /-! ## Notes for a follow-up card
 
