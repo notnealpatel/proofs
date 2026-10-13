@@ -1,10 +1,12 @@
 /-
   Erdős Problem #993 — unimodality of the independent-set sequence of
   trees and forests.
-  Status: falsifiable (open for trees; false for general graphs by
-  AMSE 1987).  Tier B archive target with a computational sweep lane.
+  Historical archive metadata described the tree case as open and attributed
+  the general-graph negative result to AMSE 1987. These status and attribution
+  claims have not been freshly checked against primary sources in this episode.
 
-  Verbatim statement (`goof erdos fetch 993`, pulled 2026-08-05):
+  Archived DB wording (the inherited record cites `goof erdos fetch 993`
+  and 2026-08-05; not verified here as a verbatim primary-source quotation):
 
     "The independent set sequence of any tree or forest is unimodal.
 
@@ -14,24 +16,25 @@
     $$i_{0}(T)\leq i_{1}(T)\leq\cdots\leq i_{m}(T)\geq i_{m+1}(T)\geq
     i_{m+2}(T)\geq\cdots.$$"
 
-  DB remarks: question of Alavi–Malde–Schwenk–Erdős [AMSE87], who showed
-  unimodality is false for general graphs (every inequality pattern is
-  achieved).  Comment thread (2026): verified for all trees on ≤ 29
-  vertices (JakeMallen, BrettRey — 5.4·10⁹ trees at n = 29, zero
-  failures); PatternBoost sampling to 101 vertices; log-concavity DOES
-  fail from 26 vertices (Kadrawi–Levit 2023), and Hoggar's theorem
-  (products of log-concave sequences) reduces the forest case to
-  non-log-concave tree components (Will Blair's comment).
+  Historical DB remarks attributed the question to Alavi–Malde–Schwenk–Erdős
+  [AMSE87] and reported that general graphs realize every inequality pattern.
+  The inherited comment summary reported exhaustive checks through 29 vertices
+  (JakeMallen, BrettRey; 5.4·10⁹ trees at n = 29), PatternBoost sampling to 101
+  vertices, log-concavity failures from 26 vertices (Kadrawi–Levit 2023), and
+  a Hoggar-based forest reduction (Will Blair's comment). These are historical
+  reports, not primary-source or computational verification performed here;
+  no current tree-conjecture status or exhaustive-check claim is certified.
 
-  Mathlib inventory (leandoc 2026-08-05):
-  * independent sets of size k = k-cliques of the complement:
-    `SimpleGraph.cliqueFinset` on `Gᶜ` (DecidableRel required);
-  * `SimpleGraph.IsTree` (structure, Acyclic.lean), `IsAcyclic` for
-    forests;
-  * no unimodality predicate for ℕ-sequences (leandoc miss "unimodal
-    sequence") — fresh def below.
+  The formalization counts independent sets via `SimpleGraph.cliqueFinset`
+  on the complement and uses `SimpleGraph.IsTree` from Acyclic.lean.
+  Its `Unimodal` predicate is defined in the production module. An inherited
+  unsuccessful leandoc search does not establish absence of a Mathlib notion.
+  The constructive P₄ check, canonical convolution, and explicit general-graph
+  counterexample are independent of the historical attribution. The latter is
+  not identified with the original AMSE witness.
 -/
-import Mathlib
+import Combinatorics.IndependencePolynomial
+import Mathlib.Combinatorics.SimpleGraph.Acyclic
 
 set_option autoImplicit false
 
@@ -41,78 +44,49 @@ open SimpleGraph
 
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
-/-- `indepCount G k`: the number of independent vertex sets of size `k`
-    in `G` — realized as `k`-cliques of the complement, reusing
-    Mathlib's `cliqueFinset`. -/
-def indepCount (G : SimpleGraph V) [DecidableRel G.Adj] (k : ℕ) : ℕ :=
-  ((Gᶜ).cliqueFinset k).card
-
-/-- `Unimodal a`: the ℕ-sequence rises to some peak `m` then falls.
-    (Fresh def; leandoc confirms no Mathlib unimodality predicate.) -/
-def Unimodal (a : ℕ → ℕ) : Prop :=
-  ∃ m : ℕ, (∀ i j, i ≤ j → j ≤ m → a i ≤ a j) ∧
-    (∀ i j, m ≤ i → i ≤ j → a j ≤ a i)
-
 /-- Ground truth: the path P₄ (4 vertices, 3 edges) has independent-set
     sequence 1, 4, 3, 0, 0, … — unimodal with peak m = 1.  (Corrected
     per review: no 3 vertices of P₄ are pairwise non-adjacent, so
-    i₃ = 0.)  -- PROVABLE (decide on `pathGraph 4` — Mathlib has
-    `SimpleGraph.pathGraph`). -/
+    i₃ = 0.) Checked by ordinary kernel `decide`. -/
 example :
     indepCount (pathGraph 4) 0 = 1 ∧ indepCount (pathGraph 4) 1 = 4 ∧
     indepCount (pathGraph 4) 2 = 3 ∧ indepCount (pathGraph 4) 3 = 0 := by
-  sorry
+  decide
 
-/-- **Erdős #993, tree case (OPEN — the conjecture)**: the
+/-- **Erdős #993, archived tree conjecture (unproved here)**: the
     independent-set sequence of any finite tree is unimodal.
 
-    Sanity-scale evidence: verified for all trees on ≤ 29 vertices
-    (comment-sourced computations, 2026); the repo lane here is a
-    `native_decide` unimodality sweep over all trees on ≤ 15 vertices
-    (either outcome is progress — a counterexample resolves #993, a
-    clean sweep is a verified partial result).  Note: exhaustive
-    enumeration of trees needs a verified generator (Prüfer sequences:
-    `Fintype` on `Fin (n-2) → Fin n` codes, decode via Mathlib-free
-    construction) — the natural infrastructure piece. -/
+    This remains an admission: the finite production episode does not
+    resolve the tree conjecture. -/
 theorem tree_unimodal (G : SimpleGraph V) [DecidableRel G.Adj]
     (hT : G.IsTree) :
     Unimodal (indepCount G) := by
   sorry
 
-/-- **Forest reduction (Hoggar route)**: the independence polynomial of
-    a disjoint union is the product, and products of log-concave
-    positive sequences are log-concave (Hoggar 1974); a forest whose
-    tree components all have log-concave sequences has unimodal
-    sequence.  Stated as the polynomial product identity — the
-    formalizable slice feeding the Blair reduction.
-    `G ⊔ H` on `V ⊕ W` is `SimpleGraph.sum`? — Mathlib spells disjoint
-    union of graphs as `G ⊕g H`?? (check: `SimpleGraph.disjUnion`-like
-    API; leandoc probe needed at campaign start).  Stated here via a
-    sum over antidiagonal. -/
+/-- The disjoint-union convolution, with the existential witness fixed to
+    the canonical graph sum. This is the polynomial-product slice of the
+    forest reduction, not a proof of the archived unimodality conjecture. -/
 theorem indepCount_disjoint_union {W : Type*} [Fintype W] [DecidableEq W]
     (G : SimpleGraph V) (H : SimpleGraph W)
     [DecidableRel G.Adj] [DecidableRel H.Adj] (k : ℕ) :
     ∃ (U : SimpleGraph (V ⊕ W)) (_ : DecidableRel U.Adj),
       indepCount U k =
         ∑ p ∈ Finset.antidiagonal k, indepCount G p.1 * indepCount H p.2 := by
-  sorry
+  exact ⟨G ⊕g H, inferInstance, indepCount_sum G H k⟩
 
-/-- **AMSE 1987 negative result for general graphs**, archived: there
-    is a finite graph whose independent-set sequence is NOT unimodal.
-    (Every inequality pattern is realizable; the standard small witness
-    is K_m plus isolated-vertex tricks — e.g. `K₄ ⊔ (3·K₁)`-shaped
-    graphs give 1, 7, 3, ... valleys.  Probe for the smallest witness,
-    then `decide`.)  -- PROVABLE (decide once the witness is pinned). -/
+/-- General graphs need not have unimodal independent-set sequences.
+    The explicit witness here is the join of K₁₀ with an edgeless six-vertex
+    graph. Its counts at sizes 1, 2, 3 are 16, 15, 20. This is not a claim
+    of minimality or identification with the original AMSE witness.
+    The former K₄-plus-isolated-vertices anecdote was arithmetically wrong:
+    a disjoint union is not this join construction. -/
 theorem amse_general_graphs_fail :
     ∃ (n : ℕ) (G : SimpleGraph (Fin n)) (_ : DecidableRel G.Adj),
       ¬ Unimodal (indepCount G) := by
-  sorry
+  exact ⟨16, valleyGraph, inferInstance, valleyGraph_not_unimodal⟩
 
-/-- Sweep target for the repo lane: every tree on ≤ 15 vertices has
-    unimodal independent-set sequence.  -- PROVABLE-in-principle
-    (native_decide over Prüfer codes; ~10¹⁴ naive at n = 15 is too
-    big — restrict to n ≤ 10 (10⁸ codes) for the first landing, or
-    quotient by isomorphism offline). -/
+/-- Unimplemented small-tree sweep target (at most ten vertices).
+    No graph enumeration or sweep is performed in this episode. -/
 theorem tree_sweep_small (n : ℕ) (hn : n ≤ 10) (G : SimpleGraph (Fin n))
     [DecidableRel G.Adj] (hT : G.IsTree) :
     Unimodal (indepCount G) := by
@@ -120,26 +94,17 @@ theorem tree_sweep_small (n : ℕ) (hn : n ≤ 10) (G : SimpleGraph (Fin n))
 
 end ErdosCandidates.E993
 
-/- SOURCE-FIDELITY REVIEW (flash, 2026-08-05)
-   Verdict: FLAG
-   - Statement matches source verbatim. AMSE87 attribution correct.
-   - Mathlib inventory verified: SimpleGraph.pathGraph exists (Hasse.lean:108),
-     SimpleGraph.cliqueFinset exists (Clique.lean:793). Claims correct.
-   - FLAG (arithmetic error): the ground-truth example claims
-       indepCount (pathGraph 4) 3 = 1
-     but the correct value is 0. P4 has vertices {0,1,2,3} with edges {01,12,23};
-     no triple of vertices is mutually non-adjacent. The independent-set sequence
-     of P4 is 1, 4, 3, 0, 0, ... not 1, 4, 3, 1, 0, ... The example statement
-     must be corrected to `indepCount (pathGraph 4) 3 = 0`.
-   - Unimodal def is non-standard in one respect: it quantifies over all j
-     (including beyond the vertex count), but since indepCount returns 0 for
-     k > |V|, the tail is constant-0 and does not break unimodality. Acceptable.
-   - Comment-sourced claims (JakeMallen/BrettRey n<=29, Kadrawi-Levit LC failures,
-     Will Blair Hoggar reduction, PatternBoost) correctly flagged as comment-sourced.
-   - indepCount via complement cliques is mathematically correct.
+/- HISTORICAL REVIEW NOTE
+   The inherited review was labelled "flash, 2026-08-05". Its assertions of
+   verbatim source fidelity, attribution correctness, and an eventual PASS
+   are not retained as source certification: primary sources were not freshly
+   verified in this episode.
+
+   The arithmetic issue recorded there was i₃(P₄) = 1 rather than 0. The current
+   example kernel-checks the corrected counts 1, 4, 3, 0. `Unimodal` retains
+   its existential peak and inequalities over all natural-number indices;
+   `indepCount` retains cardinality of complement cliques. These formal results
+   do not certify the historical DB quotation, computational comment reports,
+   current conjecture status, or identification of an original AMSE witness.
 -/
 
-/- RESOLUTION (prover, 2026-08-05): the FLAG above (indepCount
-   (pathGraph 4) 3 = 1 vs correct value 0) was fixed in the example
-   statement and docstring immediately after review; P₄'s sequence is
-   1, 4, 3, 0.  Effective verdict after fix: PASS. -/
