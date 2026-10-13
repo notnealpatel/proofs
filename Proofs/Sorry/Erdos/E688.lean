@@ -40,6 +40,25 @@ def CoversWith (n T : ℕ) : Prop :=
   ∃ a : ℕ → ℕ, ∀ m ∈ Finset.Icc 1 n,
     ∃ p ∈ (Finset.Icc (T + 1) n).filter Nat.Prime, m % p = a p % p
 
+/-- The interval `[1, 12]` is covered by the primes `2, 3, 5, 7, 11`,
+    with residues `0, 0, 1, 0, 5` respectively. The witnesses for
+    `m = 1, …, 12` are `5, 2, 3, 2, 11, 2, 7, 2, 3, 2, 5, 2`. -/
+theorem coversWith_twelve_one : CoversWith 12 1 := by
+  let a : ℕ → ℕ := fun p => if p = 5 then 1 else if p = 11 then 5 else 0
+  have hpool : (Finset.Icc (1 + 1) 12).filter Nat.Prime =
+      ({2, 3, 5, 7, 11} : Finset ℕ) := by decide
+  have hcert : ∀ m : Fin 13, 1 ≤ m.val →
+      ∃ p : Fin 13, p.val ∈ ({2, 3, 5, 7, 11} : Finset ℕ) ∧
+        m.val % p.val = a p.val % p.val := by decide
+  refine ⟨a, ?_⟩
+  intro m hm
+  rcases Finset.mem_Icc.mp hm with ⟨hmLower, hmUpper⟩
+  let mFin : Fin 13 := ⟨m, Nat.lt_succ_of_le hmUpper⟩
+  rcases hcert mFin hmLower with ⟨p, hp, heq⟩
+  refine ⟨p.val, ?_, heq⟩
+  rw [hpool]
+  exact hp
+
 /-- Ground truth probe shape: with `T = 1` (all primes `≤ n`
     available, including 2 and 3) covering `[1, 12]` is easy —
     e.g. a₂ = 0 (evens), a₃ = 1 ({1,4,7,10}), a₅ = 3 ({3}), a₇ = 5
@@ -48,7 +67,7 @@ def CoversWith (n T : ℕ) : Prop :=
     residue table is pinned; the table above needs re-checking —
     that is exactly what the stub is for). -/
 example : CoversWith 12 1 := by
-  sorry
+  exact coversWith_twelve_one
 
 /-- Monotonicity in `T` (smaller cutoff = more primes = easier):
     `CoversWith n T'` implies `CoversWith n T` for `T ≤ T'`.
