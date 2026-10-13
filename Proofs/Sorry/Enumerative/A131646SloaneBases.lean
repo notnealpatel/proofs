@@ -120,7 +120,8 @@ are automatic and only `b ∈ [11,18]` carry content.  See
 
 **Tactic families.** `decide` for individual small terms; `native_decide` for
 the two 19-digit terms (`Nat.digits` on `9439829801208141318 ≈ 9.4·10^18`
-overflows `UInt64` but `Nat` bignums handle it — note the enlarged trust surface
+fits `UInt64` (it is less than `2^64`), and `Nat` still provides arbitrary
+precision — note the enlarged trust surface
 at the `native_decide` site); `simp [Nat.digits]` unfolds only for literal bases;
 `interval_cases b` for the base range; `omega` for digit-bound arithmetic.
 
@@ -141,9 +142,23 @@ theorem sloane_a131646_finite : {n : ℕ | MemA131646 n}.Finite := by
 
 -- PROVABLE: the base reduction.  Bases `2..10` impose no condition, because
 -- `Nat.digits_lt_base` already forces every digit `< b ≤ 10`.
+/-- Membership in A131646 is equivalent to checking only bases `11..18`, since
+bases `2..10` automatically have every digit at most `9`. -/
 theorem memA131646_iff_high_bases (n : ℕ) :
     MemA131646 n ↔ ∀ b ∈ Finset.Icc 11 18, LowDigits b n := by
-  sorry
+  constructor
+  · intro h b hb
+    have hb_bounds := Finset.mem_Icc.mp hb
+    exact h b (Finset.mem_Icc.mpr ⟨by omega, hb_bounds.2⟩)
+  · intro h b hb
+    have hb_bounds := Finset.mem_Icc.mp hb
+    by_cases hlow : b ≤ 10
+    · intro d hd
+      have hb_gt_one : 1 < b := by omega
+      have hd_lt : d < b := Nat.digits_lt_base hb_gt_one hd
+      omega
+    · have hb_high : 11 ≤ b := by omega
+      exact h b (Finset.mem_Icc.mpr ⟨hb_high, hb_bounds.2⟩)
 
 -- PROVABLE: `0` is a term, and it is a term *vacuously* (`Nat.digits b 0 = []`).
 -- Flagged explicitly because a vacuous membership is exactly the kind of
