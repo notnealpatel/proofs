@@ -39,28 +39,48 @@ namespace ErdosCandidates.E1140
 def AllPrimeMinusTwoSq (n : ℕ) : Prop :=
   ∀ x : ℕ, 2 * x ^ 2 < n → (n - 2 * x ^ 2).Prime
 
-/-- Decidability: `2x² < n` forces `x < n`, so the quantifier is
-    bounded.  Route: `decidable_of_iff` against
-    `∀ x < n, 2 * x ^ 2 < n → (n - 2 * x ^ 2).Prime`
-    (`Nat.decidableBallLT`).  -- PROVABLE. -/
+/-- The raw predicate is equivalent to checking only natural numbers below `n`. -/
+theorem allPrimeMinusTwoSq_iff_bounded (n : ℕ) :
+    AllPrimeMinusTwoSq n ↔
+      ∀ x < n, 2 * x ^ 2 < n → (n - 2 * x ^ 2).Prime := by
+  constructor
+  · intro h x _ hx
+    exact h x hx
+  · intro h x hx
+    have hx_sq : x ≤ x ^ 2 := Nat.le_self_pow (by decide) x
+    have hx_twice_sq : x ≤ 2 * x ^ 2 := by omega
+    exact h x (lt_of_le_of_lt hx_twice_sq hx) hx
+
+example : AllPrimeMinusTwoSq 0 := by
+  intro x hx
+  exact False.elim (Nat.not_lt_zero _ hx)
+
+/-- Decidability: `2x² < n` forces `x < n`, so the quantifier is bounded. -/
 instance (n : ℕ) : Decidable (AllPrimeMinusTwoSq n) :=
   decidable_of_iff (∀ x < n, 2 * x ^ 2 < n → (n - 2 * x ^ 2).Prime)
-    (by sorry)
+    (allPrimeMinusTwoSq_iff_bounded n).symm
 
-/-- The eight known members, as decide certificates.
-    Trace for 13: 13, 11, 5 (x = 0, 1, 2) all prime ✓.
-    -- PROVABLE (decide). -/
+set_option maxRecDepth 4096 in
+/-- The eight known members, as kernel decide certificates.
+    Trace for 13: 13, 11, 5 (x = 0, 1, 2) all prime. -/
 theorem cert_known_members :
     AllPrimeMinusTwoSq 2 ∧ AllPrimeMinusTwoSq 5 ∧ AllPrimeMinusTwoSq 7 ∧
     AllPrimeMinusTwoSq 13 ∧ AllPrimeMinusTwoSq 31 ∧ AllPrimeMinusTwoSq 61 ∧
     AllPrimeMinusTwoSq 181 ∧ AllPrimeMinusTwoSq 199 := by
-  sorry
+  decide
 
-/-- Non-degeneracy: 3 fails (3 − 2 = 1 not prime), 11 fails
-    (11 − 8 = 3 prime, 11 − 2 = 9 = 3² not prime).
-    -- PROVABLE (decide). -/
-example : ¬ AllPrimeMinusTwoSq 3 ∧ ¬ AllPrimeMinusTwoSq 11 := by
-  sorry
+/-- Negative controls: 3 and 11 fail at `x = 1`, producing 1 and 9. -/
+theorem cert_negative_controls : ¬ AllPrimeMinusTwoSq 3 ∧ ¬ AllPrimeMinusTwoSq 11 := by
+  constructor
+  · intro h
+    have hprime : Nat.Prime 1 := h 1 (by decide)
+    exact (by decide : ¬ Nat.Prime 1) hprime
+  · intro h
+    have hprime : Nat.Prime 9 := h 1 (by decide)
+    exact (by decide : ¬ Nat.Prime 9) hprime
+
+example : ¬ AllPrimeMinusTwoSq 3 ∧ ¬ AllPrimeMinusTwoSq 11 :=
+  cert_negative_controls
 
 /-- Finite window: no further members up to 10⁶.
     -- PROVABLE (native_decide; the per-n check is O(√n) primality
