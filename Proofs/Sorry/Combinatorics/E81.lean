@@ -18,13 +18,9 @@
   (github.com/Woett/Lean-files/ErdosProblem81.lean, via ChatGPT 5.5
   Pro + Aristotle) — check that repo before duplicating anything.
 
-  Mathlib inventory (leandoc 2026-08-05): `SimpleGraph.IsClique`,
-  `SimpleGraph.edgeFinset`; NO chordality predicate (leandoc miss
-  "chordal") and no induced-cycle API — the def below goes through
-  induced subgraphs on vertex subsets via `SimpleGraph.induce` and
-  graph isomorphism to `cycleGraph m`.
 -/
 import Mathlib
+import Combinatorics.ChordalBasics
 
 set_option autoImplicit false
 
@@ -34,37 +30,15 @@ open SimpleGraph
 
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
-/-- `Chordal G`: no induced cycle of length greater than 3 — for every
-    vertex subset `s` of size `m ≥ 4`, the induced subgraph on `s` is
-    not isomorphic to the `m`-cycle.  (Fresh def; leandoc confirms no
-    Mathlib chordality.) -/
-def Chordal (G : SimpleGraph V) : Prop :=
-  ∀ (s : Finset V), 4 ≤ s.card →
-    IsEmpty ((G.induce (s : Set V)) ≃g cycleGraph s.card)
+/-- Ground truth: complete graphs are chordal. -/
+example : Chordal (⊤ : SimpleGraph (Fin 5)) := chordal_top_fin5
 
-/-- Ground truth: complete graphs are chordal (no induced C_m for
-    m ≥ 4 — every 4-subset induces K₄ ≇ C₄).  -- PROVABLE. -/
-example : Chordal (⊤ : SimpleGraph (Fin 5)) := by
-  sorry
+/-- Non-degeneracy: the four-cycle is not chordal. -/
+example : ¬ Chordal (cycleGraph 4) := not_chordal_cycleGraph_four
 
-/-- Non-degeneracy: `C₄` itself is not chordal.
-    -- PROVABLE (the full vertex set induces C₄). -/
-example : ¬ Chordal (cycleGraph 4) := by
-  sorry
-
-/-- `CliqueEdgePartition G P`: `P` is a family of vertex-cliques of `G`
-    such that every edge of `G` lies inside exactly one member of `P`.
-    ("Partition of the edges into cliques"; members of size ≤ 1 carry
-    no edges and are excluded for cleanliness.) -/
-def CliqueEdgePartition (G : SimpleGraph V) (P : Finset (Finset V)) : Prop :=
-  (∀ s ∈ P, G.IsClique (s : Set V) ∧ 2 ≤ s.card) ∧
-  ∀ e ∈ G.edgeFinset, ∃! s, s ∈ P ∧ ∀ v ∈ e, v ∈ s
-
-/-- Satisfiability: the single-triangle partition of `K₃`.
-    -- PROVABLE (decide). -/
+/-- Satisfiability: the single-triangle partition of the complete graph on three vertices. -/
 example : CliqueEdgePartition (⊤ : SimpleGraph (Fin 3))
-    {(Finset.univ : Finset (Fin 3))} := by
-  sorry
+    {(Finset.univ : Finset (Fin 3))} := cliqueEdgePartition_top_fin3
 
 /-- **Erdős #81 (OPEN)**: every chordal graph on `n` vertices admits a
     clique edge-partition into at most `n²/6 + C·n` cliques, for some
@@ -84,7 +58,15 @@ theorem erdos_81 :
     chordal graphs on `n ≥ 3` vertices partition into at most
     `(1/4 − 1/133)·n²` cliques.  ⚠ An external Lean formalization
     already exists (Woett, Jun 2026) — cite, do not duplicate;
-    this restatement is for in-repo reference only. -/
+    this restatement is for in-repo reference only.
+
+    Parent primary-source inspection: Woett/Lean-files revision
+    0dd69298bc5870970257f002ed376ac35aa8fa8c, ErdosProblem81.lean,
+    theorem Erdos81.erdos81. That source uses walk-based IsChordal and
+    an infimum clique-partition count (`cp = sInf`); a bridge to
+    the induced-cycle and explicit-family definitions here remains unpaid.
+    The external source has not been compiled or axiom-audited locally;
+    this archive statement remains admitted, not imported or implemented. -/
 theorem eoz_woett_bound (n : ℕ) (hn : 3 ≤ n) (G : SimpleGraph (Fin n))
     [DecidableRel G.Adj] (hG : Chordal G) :
     ∃ P : Finset (Finset (Fin n)),
@@ -92,12 +74,11 @@ theorem eoz_woett_bound (n : ℕ) (hn : 3 ≤ n) (G : SimpleGraph (Fin n))
       (P.card : ℚ) ≤ (1 / 4 - 1 / 133) * n ^ 2 := by
   sorry
 
-/-- **Sharpness witness family** (EOZ93): the complete split graph
-    (all edges between a clique on ⌈n/3⌉ vertices and an independent
-    set on the rest, plus the clique edges) needs `n²/6 + O(n)`
-    cliques — the natural provable slice for the lower-bound side.
-    Stated for the witness at a general `n` with the explicit
-    `n²/6 − C·n` lower bound on every partition. -/
+/-- **Existential chordal lower-bound target**, inspired by the EOZ93
+    complete split-graph witness: for each `n ≥ 3`, some chordal graph
+    requires `n²/6 − C·n` cliques in every edge partition.
+    The current type does not specify a split decomposition or a particular
+    graph. Exact witness realization and attribution require a separate bridge. -/
 theorem sharpness_split_witness :
     ∃ C : ℕ, ∀ n : ℕ, 3 ≤ n →
       ∃ (G : SimpleGraph (Fin n)) (_ : DecidableRel G.Adj),
@@ -108,22 +89,13 @@ theorem sharpness_split_witness :
 
 end ErdosCandidates.E81
 
-/- SOURCE-FIDELITY REVIEW (flash, 2026-08-05)
-   Verdict: PASS
-   - Verbatim statement matches DB exactly.
-   - Chordal def (no induced C_m for m>=4 over all subsets of size m)
-     is faithful to "no induced cycles of length greater than 3".
-   - CliqueEdgePartition correctly encodes edge partition into cliques
-     (each edge in exactly one clique, each part is a clique of size >=2).
-   - Main conjecture restated as 6*|P| <= n^2 + C*n, faithful to
-     n^2/6 + O(n) with the multiplicative clearing.
-   - EOZ upper bound (1/4 - epsilon)n^2 matches DB.
-   - Woett formalization (1/4 - 1/133)n^2 for n>=3 matches DB comment
-     (Woett, 19 Jun 2026); correctly flagged as comment-sourced and
-     external (github.com/Woett/Lean-files).  Attribution to ChatGPT 5.5
-     Pro + Aristotle matches the comment.
-   - CEO split graph bound 3n^2/16 + O(n) matches DB.
-   - Sharpness witness (K_{n/3} + empty 2n/3) matches DB lower bound
-     description.
-   - No Mathlib chordality predicate confirmed.
+/- VERIFICATION STATUS
+   The three basic examples are kernel checked via Combinatorics.ChordalBasics.
+   The three research targets remain admitted. The existential sharpness target
+   does not specify the claimed split-graph family; exact realization and
+   attribution require a separate bridge.
+   The external Woett primary source was inspected at revision
+   0dd69298bc5870970257f002ed376ac35aa8fa8c. Its representation bridge and local
+   external compilation and axiom audit remain unpaid.
+   This is not a whole-archive source-fidelity certification.
 -/
