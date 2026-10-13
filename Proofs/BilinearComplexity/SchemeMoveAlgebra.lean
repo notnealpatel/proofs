@@ -1,13 +1,14 @@
 import BilinearComplexity.SchemeReplacement
 import Mathlib.Data.Multiset.Basic
 import Mathlib.Logic.Relation
+import Mathlib.Data.Set.Finite.List
 
 set_option autoImplicit false
 
 /-!
 # Exact move algebra for rank-one tensor decompositions
 
-This file is a theorem-oriented scaffold for a future completeness theory of local moves on
+This file supplies the generic exact move algebra for a future completeness theory of local moves on
 rank-one tensor decompositions.  It deliberately separates four notions that are easy to
 conflate in implementations and in the flip-graph literature:
 
@@ -51,8 +52,8 @@ normalized, distinct, or term-count-bounded decomposition states.
 No declaration in this file claims that Flip, Split, Plus, or shared-factor reduction is a
 complete operation set.  `SupportFiveClassificationGoal`, `PresentsKernel`, and the bounded M4
 goals package those missing claims as propositions to be proved or refuted.  The generic
-lemmas are intentionally left as `sorry` obligations so the file can serve as a durable map of
-the theory before implementation choices harden.
+lemmas establish the algebraic prerequisites; the concrete classification, kernel-presentation,
+and bounded-connectivity goals remain separate obligations.
 
 Relevant primary sources include Kauers--Moosbauer, *Flip Graphs for Matrix Multiplication*,
 arXiv:2212.01175, and Arai--Ichikawa--Hukushima, *Adaptive Flip Graph Algorithm for Matrix
@@ -86,24 +87,30 @@ def termCount (D : Decomposition k a b c) : ℕ :=
 /-- The empty decomposition evaluates to the zero tensor. -/
 @[simp] theorem evaluate_zero [CommSemiring k] :
     evaluate (0 : Decomposition k a b c) = 0 := by
-  sorry
+  simp [evaluate]
 
 /-- Multiset addition is interpreted as addition of represented tensors. -/
 @[simp] theorem evaluate_add [CommSemiring k] (L R : Decomposition k a b c) :
     evaluate (L + R) = evaluate L + evaluate R := by
-  sorry
+  simp [evaluate]
 
 /-- Displayed term count is additive under multiset addition. -/
 @[simp] theorem termCount_add (L R : Decomposition k a b c) :
     termCount (L + R) = termCount L + termCount R := by
-  sorry
+  simp [termCount]
 
 /-- The decomposition monoid is conical: two positive multisets cannot add to the empty
 multiset unless both were already empty.  This is the precise inverse-free fact that would be
 lost by replacing decompositions with a free abelian group. -/
 theorem add_eq_zero_iff (L R : Decomposition k a b c) :
     L + R = 0 ↔ L = 0 ∧ R = 0 := by
-  sorry
+  constructor
+  · intro h
+    have hc := congrArg Multiset.card h
+    simp only [Multiset.card_add, Multiset.card_zero] at hc
+    exact ⟨Multiset.card_eq_zero.mp (by omega), Multiset.card_eq_zero.mp (by omega)⟩
+  · rintro ⟨rfl, rfl⟩
+    rfl
 
 /-- Tensor evaluation as an additive-monoid homomorphism.  This packages the semantic map whose
 kernel congruence a complete move family must present. -/
@@ -145,7 +152,8 @@ def converse (W : ExactRelation k a b c) : ExactRelation k a b c where
 /-- Reversing the orientation twice recovers the original relation witness. -/
 @[simp] theorem converse_converse (W : ExactRelation k a b c) :
     W.converse.converse = W := by
-  sorry
+  cases W
+  rfl
 
 /-- Number of terms on the source side of the chosen orientation. -/
 def inputArity (W : ExactRelation k a b c) : ℕ :=
@@ -209,7 +217,8 @@ def inContext (C : Decomposition k a b c) (W : ExactRelation k a b c) :
   left := C + W.left
   right := C + W.right
   tensor_eq := by
-    sorry
+    simp only [evaluate_add]
+    rw [W.tensor_eq]
 
 /-- Independent exact relations can be applied in parallel by adding their two source and
 target fragments. -/
@@ -217,17 +226,19 @@ def parallel (W Q : ExactRelation k a b c) : ExactRelation k a b c where
   left := W.left + Q.left
   right := W.right + Q.right
   tensor_eq := by
-    sorry
+    simp only [evaluate_add]
+    rw [W.tensor_eq, Q.tensor_eq]
 
 /-- Converse exchanges input and output arities. -/
 @[simp] theorem inputArity_converse (W : ExactRelation k a b c) :
     W.converse.inputArity = W.outputArity := by
-  sorry
+  rfl
 
 /-- Converse negates displayed term-count change. -/
 @[simp] theorem termCountChange_converse (W : ExactRelation k a b c) :
     W.converse.termCountChange = -W.termCountChange := by
-  sorry
+  change (W.inputArity : ℤ) - W.outputArity = -((W.outputArity : ℤ) - W.inputArity)
+  omega
 
 end ExactRelation
 
@@ -242,12 +253,16 @@ def ofScheme {r : ℕ} (S : Scheme k a b c r) : Decomposition k a b c :=
 /-- The multiset bridge evaluates to the existing ordered scheme tensor. -/
 theorem evaluate_ofScheme [CommSemiring k] {r : ℕ} (S : Scheme k a b c r) :
     evaluate (ofScheme S) = S.sumTensor := by
-  sorry
+  classical
+  unfold evaluate ofScheme
+  rw [Multiset.map_coe, Multiset.sum_coe, ← List.ofFn_comp', List.sum_ofFn]
+  funext x y z
+  simp [sumTensor]
 
 /-- Forgetting order preserves the displayed number of occurrences. -/
 @[simp] theorem termCount_ofScheme {r : ℕ} (S : Scheme k a b c r) :
     termCount (ofScheme S) = r := by
-  sorry
+  simp [termCount, ofScheme]
 
 /-- The multiset of terms selected by concrete ordered slots. -/
 def selectedDecomposition {r : ℕ} (S : Scheme k a b c r) (I : Finset (Fin r)) :
@@ -262,13 +277,16 @@ def insertedDecomposition (L : List (TriadData k a b c)) : Decomposition k a b c
 theorem evaluate_selectedDecomposition [CommSemiring k] {r : ℕ}
     (S : Scheme k a b c r) (I : Finset (Fin r)) :
     evaluate (selectedDecomposition S I) = Replacement.selectedTensor S I := by
-  sorry
+  classical
+  unfold evaluate selectedDecomposition Replacement.selectedTensor
+  rw [Multiset.map_map]
+  rfl
 
 /-- The insertion-list bridge agrees with `Replacement.insertedTensor`. -/
 theorem evaluate_insertedDecomposition [CommSemiring k]
     (L : List (TriadData k a b c)) :
     evaluate (insertedDecomposition L) = Replacement.insertedTensor L := by
-  sorry
+  rfl
 
 /-- The exact local relation carried by an existing replacement certificate.  Slot and list
 order are forgotten only at this semantic boundary; the certificate itself remains available
@@ -278,19 +296,20 @@ def relationOfCertificate [CommSemiring k] {r : ℕ} {S : Scheme k a b c r}
   left := selectedDecomposition S C.removed
   right := insertedDecomposition C.inserted
   tensor_eq := by
-    sorry
+    rw [evaluate_selectedDecomposition, evaluate_insertedDecomposition]
+    exact C.local_eq
 
 /-- Certificate removal count is the source arity of its induced relation. -/
 @[simp] theorem inputArity_relationOfCertificate [CommSemiring k]
     {r : ℕ} {S : Scheme k a b c r} (C : Replacement.Certificate S) :
     (relationOfCertificate C).inputArity = C.removed.card := by
-  sorry
+  simp [ExactRelation.inputArity, relationOfCertificate, termCount, selectedDecomposition]
 
 /-- Certificate insertion-list length is the target arity of its induced relation. -/
 @[simp] theorem outputArity_relationOfCertificate [CommSemiring k]
     {r : ℕ} {S : Scheme k a b c r} (C : Replacement.Certificate S) :
     (relationOfCertificate C).outputArity = C.inserted.length := by
-  sorry
+  simp [ExactRelation.outputArity, relationOfCertificate, termCount, insertedDecomposition]
 
 /-- The untouched context of a certificate consists of the terms in complementary source
 slots. -/
@@ -303,14 +322,44 @@ fragment.  The equality is multiset equality, so no survivor-order statement is 
 theorem ofScheme_eq_context_add_removed [CommSemiring k]
     {r : ℕ} {S : Scheme k a b c r} (C : Replacement.Certificate S) :
     ofScheme S = contextOfCertificate C + (relationOfCertificate C).left := by
-  sorry
+  classical
+  have hpartition : C.removedᶜ ∪ C.removed = Finset.univ := by
+    ext i
+    simp only [Finset.mem_union, Finset.mem_compl, Finset.mem_univ, iff_true]
+    exact em' _
+  have hdisjoint : Disjoint C.removedᶜ.val C.removed.val :=
+    Finset.disjoint_val.mpr (by exact disjoint_compl_left)
+  have hval : (Finset.univ : Finset (Fin r)).val = C.removedᶜ.val + C.removed.val := by
+    rw [← hpartition, Finset.union_val, ← Multiset.add_eq_union_iff_disjoint.mpr hdisjoint]
+  change (List.ofFn S.term : Multiset _) =
+    C.removedᶜ.val.map S.term + C.removed.val.map S.term
+  rw [List.ofFn_eq_map, ← Multiset.map_coe, ← Finset.val_univ_fin, hval,
+    Multiset.map_add]
 
 /-- Forgetting order decomposes deterministic certificate output into the same untouched
 context and the inserted fragment. -/
 theorem ofScheme_output_eq_context_add_inserted [CommSemiring k]
     {r : ℕ} {S : Scheme k a b c r} (C : Replacement.Certificate S) :
     ofScheme C.output = contextOfCertificate C + (relationOfCertificate C).right := by
-  sorry
+  classical
+  let e : Fin (r - C.removed.card) ↪ Fin r := ⟨C.survivor, C.survivor_injective⟩
+  have hmap : Finset.univ.map e = C.removedᶜ := by
+    ext s
+    simp only [Finset.mem_map, Finset.mem_univ, true_and, Finset.mem_compl]
+    constructor
+    · rintro ⟨i, rfl⟩
+      exact C.survivor_not_mem i
+    · intro hs
+      exact C.survivor_surjective s hs
+  have hsurvivors : (List.ofFn C.survivor : Multiset (Fin r)) = C.removedᶜ.val := by
+    have hv := congrArg Finset.val hmap
+    rw [Fin.univ_map_def] at hv
+    exact hv
+  change (List.ofFn (Fin.append (fun i => S.term (C.survivor i))
+    (fun j => C.inserted.get j)) : Multiset _) =
+      C.removedᶜ.val.map S.term + (C.inserted : Multiset _)
+  rw [List.ofFn_fin_append, ← Multiset.coe_add, List.ofFn_comp',
+    ← Multiset.map_coe, hsurvivors, List.ofFn_get]
 
 /-! ## Move families, contextual steps, and path length -/
 
@@ -355,14 +404,18 @@ def certificateMoves [CommSemiring k] : MoveFamily k a b c :=
 /-- Every certificate-realized local relation is exact. -/
 theorem sound_certificateMoves [CommSemiring k] :
     Sound (certificateMoves : MoveFamily k a b c) := by
-  sorry
+  rintro L R ⟨r, S, C, rfl, rfl⟩
+  exact (relationOfCertificate C).tensor_eq
 
 /-- Replaying an existing certificate induces one contextual move after forgetting slot order.
 This is the principal bridge from `Replacement.Certificate` to the abstract move algebra. -/
 theorem certificate_contextualStep [CommSemiring k]
     {r : ℕ} {S : Scheme k a b c r} (C : Replacement.Certificate S) :
     ContextualStep certificateMoves (ofScheme S) (ofScheme C.output) := by
-  sorry
+  refine ⟨contextOfCertificate C, (relationOfCertificate C).left,
+    (relationOfCertificate C).right, ?_, ofScheme_eq_context_add_removed C,
+    ofScheme_output_eq_context_add_inserted C⟩
+  exact ⟨r, S, C, rfl, rfl⟩
 
 /-- An exact-length path counts edges, not states or participating circuit terms.  A path of
 length four has five successive states. -/
@@ -381,7 +434,8 @@ theorem certificate_composition_path [CommSemiring k]
     {r : ℕ} {S : Scheme k a b c r} (C₁ : Replacement.Certificate S)
     (C₂ : Replacement.Certificate C₁.output) :
     Path certificateMoves 2 (ofScheme S) (ofScheme C₂.output) := by
-  sorry
+  exact Path.tail (Path.tail (Path.refl _) (certificate_contextualStep C₁))
+    (certificate_contextualStep C₂)
 
 /-- Reachability forgets the exact number of edges. -/
 def Reachable (G : MoveFamily k a b c)
@@ -391,35 +445,53 @@ def Reachable (G : MoveFamily k a b c)
 /-- Every exact-length path gives ordinary reflexive-transitive reachability. -/
 theorem Path.reachable {G : MoveFamily k a b c} {n : ℕ}
     {S T : Decomposition k a b c} (h : Path G n S T) : Reachable G S T := by
-  sorry
+  induction h with
+  | refl => exact Relation.ReflTransGen.refl
+  | tail h edge ih => exact ih.tail edge
 
 /-- Every finite reachable path has some edge count. -/
 theorem reachable_iff_exists_path {G : MoveFamily k a b c}
     {S T : Decomposition k a b c} :
     Reachable G S T ↔ ∃ n, Path G n S T := by
-  sorry
+  constructor
+  · intro h
+    induction h with
+    | refl => exact ⟨0, Path.refl _⟩
+    | tail h edge ih =>
+      obtain ⟨n, hn⟩ := ih
+      exact ⟨n + 1, hn.tail edge⟩
+  · rintro ⟨n, hn⟩
+    exact hn.reachable
 
 /-- Soundness survives reversal of orientation because exact tensor equality is symmetric. -/
 theorem Sound.converseFamily [CommSemiring k] {G : MoveFamily k a b c}
     (hG : Sound G) : Sound (converseFamily G) := by
-  sorry
+  intro L R h
+  exact (hG h).symm
 
 /-- Soundness survives exposing both orientations. -/
 theorem Sound.symmetrize [CommSemiring k] {G : MoveFamily k a b c}
     (hG : Sound G) : Sound (symmetrize G) := by
-  sorry
+  intro L R h
+  rcases h with h | h
+  · exact hG h
+  · exact (hG h).symm
 
 /-- A contextual application of a sound local family preserves the represented tensor. -/
 theorem Sound.contextualStep [CommSemiring k] {G : MoveFamily k a b c}
     (hG : Sound G) {S T : Decomposition k a b c}
     (hstep : ContextualStep G S T) : evaluate S = evaluate T := by
-  sorry
+  rcases hstep with ⟨C, L, R, h, rfl, rfl⟩
+  simp only [evaluate_add]
+  rw [hG h]
 
 /-- Every path generated by sound moves preserves the represented tensor. -/
 theorem Sound.reachable [CommSemiring k] {G : MoveFamily k a b c}
     (hG : Sound G) {S T : Decomposition k a b c}
     (hpath : Reachable G S T) : evaluate S = evaluate T := by
-  sorry
+  induction hpath with
+  | refl => rfl
+  | tail h edge ih => exact ih.trans (hG.contextualStep edge)
 
 /-- A macro family factors through two atomic families when every macro edge has an
 intermediate decomposition reached by a contextual `G` step followed by a contextual `H`
@@ -434,7 +506,11 @@ theorem path_two_of_factorsThrough {Macro G H : MoveFamily k a b c}
     (hfactor : FactorsThrough Macro G H) {L R : Decomposition k a b c}
     (hmove : Macro L R) :
     Path (fun S T => G S T ∨ H S T) 2 L R := by
-  sorry
+  obtain ⟨M, h₁, h₂⟩ := hfactor hmove
+  rcases h₁ with ⟨C₁, A₁, B₁, h₁, hs₁, ht₁⟩
+  rcases h₂ with ⟨C₂, A₂, B₂, h₂, hs₂, ht₂⟩
+  exact Path.tail (Path.tail (Path.refl L) ⟨C₁, A₁, B₁, Or.inl h₁, hs₁, ht₁⟩)
+    ⟨C₂, A₂, B₂, Or.inr h₂, hs₂, ht₂⟩
 
 /-! ## Kernel presentations and local completeness -/
 
@@ -456,24 +532,57 @@ def IsMonoidCongruence (E : MoveFamily k a b c) : Prop :=
 /-- The operationally generated relation is a decomposition-monoid congruence. -/
 theorem isMonoidCongruence_congruenceGenerated (G : MoveFamily k a b c) :
     IsMonoidCongruence (congruenceGenerated G) := by
-  sorry
+  refine ⟨fun _ => Relation.ReflTransGen.refl, ?_, ?_, ?_⟩
+  · intro L R h
+    induction h with
+    | refl => exact Relation.ReflTransGen.refl
+    | tail h edge ih =>
+      rcases edge with ⟨C, A, B, hab, rfl, rfl⟩
+      have hreverse : ContextualStep (symmetrize G) (C + B) (C + A) :=
+        ⟨C, B, A, hab.elim Or.inr Or.inl, rfl, rfl⟩
+      exact (Relation.ReflTransGen.single hreverse).trans ih
+  · intro L R Q h₁ h₂
+    exact h₁.trans h₂
+  · intro Q L R h
+    induction h with
+    | refl => exact Relation.ReflTransGen.refl
+    | tail h edge ih =>
+      rcases edge with ⟨C, A, B, hab, rfl, rfl⟩
+      exact ih.tail ⟨Q + C, A, B, hab, (add_assoc Q C A).symm,
+        (add_assoc Q C B).symm⟩
 
 /-- Every generator edge belongs to its generated congruence. -/
 theorem generator_le_congruenceGenerated {G : MoveFamily k a b c}
     {L R : Decomposition k a b c} (h : G L R) :
     congruenceGenerated G L R := by
-  sorry
+  exact Relation.ReflTransGen.single ⟨0, L, R, Or.inl h, (zero_add L).symm,
+    (zero_add R).symm⟩
 
 /-- Generated congruence is least among monoid congruences containing the generators. -/
 theorem congruenceGenerated_least {G E : MoveFamily k a b c}
     (hE : IsMonoidCongruence E) (hcontains : FamilyContained G E)
     {L R : Decomposition k a b c} (h : congruenceGenerated G L R) : E L R := by
-  sorry
+  rcases hE with ⟨hrefl, hsymm, htrans, hcontext⟩
+  induction h with
+  | refl => exact hrefl _
+  | tail h edge ih =>
+    rcases edge with ⟨C, A, B, hab, rfl, rfl⟩
+    have he : E A B := by
+      rcases hab with hab | hba
+      · exact hcontains hab
+      · exact hsymm (hcontains hba)
+    exact htrans ih (hcontext C he)
 
 /-- Equality under tensor evaluation is a decomposition-monoid congruence. -/
 theorem isMonoidCongruence_kernel [CommSemiring k] :
     IsMonoidCongruence (KernelRelated : MoveFamily k a b c) := by
-  sorry
+  refine ⟨fun _ => rfl, fun {_ _} h => h.symm,
+    fun {_ _ _} h₁ h₂ => h₁.trans h₂, ?_⟩
+  intro C L R h
+  change evaluate (C + L) = evaluate (C + R)
+  change evaluate L = evaluate R at h
+  simp only [evaluate_add]
+  rw [h]
 
 /-- A family presents the evaluation kernel when generated contextual equivalence is exactly
 equality of represented tensors.  This is the strongest global move-completeness goal. -/
@@ -509,14 +618,20 @@ def LocallyComplete [CommSemiring k] (G : MoveFamily k a b c) (q : ℕ) : Prop :
 /-- One-step completeness implies path completeness for the same relation class. -/
 theorem OneStepCompleteFor.pathComplete {G C : MoveFamily k a b c}
     (h : OneStepCompleteFor G C) : PathCompleteFor G C := by
-  sorry
+  intro L R hLR
+  exact Relation.ReflTransGen.single ⟨0, L, R, h hLR, (zero_add L).symm,
+    (zero_add R).symm⟩
 
 /-- A sound family presents the kernel exactly when its symmetrized paths are complete for all
 exact relations. -/
 theorem presentsKernel_iff [CommSemiring k] {G : MoveFamily k a b c}
     (hG : Sound G) :
     PresentsKernel G ↔ PathCompleteFor (symmetrize G) allExactMoves := by
-  sorry
+  constructor
+  · intro hp L R heq
+    exact (hp L R).mpr heq
+  · intro hp L R
+    exact ⟨fun h => hG.symmetrize.reachable h, fun h => hp h⟩
 
 /-! ## Circuits and low-support classification goals -/
 
@@ -529,7 +644,8 @@ def circuitMoves [CommSemiring k] : MoveFamily k a b c :=
 /-- Circuit moves are sound by construction. -/
 theorem sound_circuitMoves [CommSemiring k] :
     Sound (circuitMoves : MoveFamily k a b c) := by
-  sorry
+  rintro L R ⟨W, rfl, rfl, _⟩
+  exact W.tensor_eq
 
 /-- Every recognized relation in a family has the stated source and target arity. -/
 def HasArity (G : MoveFamily k a b c) (input output : ℕ) : Prop :=
@@ -638,7 +754,16 @@ injectivity without pretending that the multiset retains slot order. -/
 theorem Valid.ofScheme_mem_searchSpace [CommSemiring k]
     {r : ℕ} {T : Tensor k a b c} {S : Scheme k a b c r}
     (hS : S.Valid T) : ofScheme S ∈ SearchSpace T r := by
-  sorry
+  refine ⟨⟨(evaluate_ofScheme S).trans hS.1, ?_, ?_⟩, ?_⟩
+  · exact le_of_eq (termCount_ofScheme S)
+  · intro t ht
+    change t ∈ (List.ofFn S.term : Multiset _) at ht
+    obtain ⟨i, rfl⟩ := List.mem_ofFn.mp ht
+    exact hS.2.1 i
+  · change ((List.ofFn S.term : Multiset (TriadData k a b c)).map
+      fun t => t.eval).Nodup
+    rw [Multiset.map_coe, ← List.ofFn_comp']
+    exact List.nodup_ofFn.mpr hS.2.2
 
 /-- Restrict a contextual step by demanding that both endpoints lie in the chosen state space. -/
 def RestrictedStep (Ω : Set (Decomposition k a b c))
@@ -693,7 +818,11 @@ theorem completeOn_iff_connectedOn_of_constantEvaluation [CommSemiring k]
     {target : Tensor k a b c}
     (hΩ : ∀ ⦃S⦄, S ∈ Ω → evaluate S = target) :
     CompleteOn Ω G ↔ ConnectedOn Ω G := by
-  sorry
+  constructor
+  · intro h S T hS hT
+    exact h hS hT ((hΩ hS).trans (hΩ hT).symm)
+  · intro h S T hS hT _
+    exact h hS hT
 
 /-- Closure upgrades an unrestricted generated path from a state in `Ω` to a path all of whose
 recorded endpoints remain in `Ω`. -/
@@ -702,14 +831,21 @@ theorem restrictedReachable_of_reachable_of_closed
     (hclosed : ClosedUnder Ω G) {S T : Decomposition k a b c}
     (hS : S ∈ Ω) (hpath : Reachable G S T) :
     RestrictedReachable Ω G S T := by
-  sorry
+  have result : T ∈ Ω ∧ RestrictedReachable Ω G S T := by
+    induction hpath with
+    | refl => exact ⟨hS, Relation.ReflTransGen.refl⟩
+    | @tail R T h edge ih =>
+      have hT : T ∈ Ω := hclosed ih.1 edge
+      exact ⟨hT, ih.2.tail ⟨ih.1, edge, hT⟩⟩
+  exact result.2
 
 /-- Global kernel completeness implies completeness on every generator-closed subspace. -/
 theorem completeOn_of_presentsKernel [CommSemiring k]
     {Ω : Set (Decomposition k a b c)} {G : MoveFamily k a b c}
     (hpresent : PresentsKernel G) (hclosed : ClosedUnder Ω (symmetrize G)) :
     CompleteOn Ω (symmetrize G) := by
-  sorry
+  intro S T hS _ heq
+  exact restrictedReachable_of_reachable_of_closed hclosed hS ((hpresent S T).mpr heq)
 
 /-! ## Successor enumeration and goal-directed completeness -/
 
@@ -752,7 +888,9 @@ theorem exactEnumerator_replays_reachability
     {G : MoveFamily k a b c} (hexact : ExactEnumerator next Ω G)
     {S T : Decomposition k a b c} (hpath : RestrictedReachable Ω G S T) :
     Relation.ReflTransGen (fun R Q => Q ∈ next R) S T := by
-  sorry
+  induction hpath with
+  | refl => exact Relation.ReflTransGen.refl
+  | tail h edge ih => exact ih.tail (hexact.2 edge)
 
 /-! ## Concrete characteristic-two M4 goals -/
 
@@ -770,7 +908,17 @@ a finiteness statement only, not a feasible-enumeration or termination bound. -/
 theorem m4F2SearchSpace_finite
     (normalForm : Set (Decomposition (ZMod 2) (4 * 4) (4 * 4) (4 * 4)))
     (bound : ℕ) : (M4F2SearchSpace normalForm bound).Finite := by
-  sorry
+  classical
+  let α := TriadData (ZMod 2) (4 * 4) (4 * 4) (4 * 4)
+  have hfinite : {D : Multiset α | D.card ≤ bound}.Finite := by
+    have himage := (List.finite_length_le α bound).image
+      (fun L : List α => (L : Multiset α))
+    apply himage.subset
+    intro D hD
+    exact ⟨D.toList, by simpa using hD, Multiset.coe_toList D⟩
+  apply hfinite.subset
+  intro D hD
+  exact hD.1.1.2.1
 
 /-- Bounded undirected connectivity target for a proposed characteristic-two M4 move family.
 The conjunction keeps generator soundness separate from path completeness.  Every intermediate

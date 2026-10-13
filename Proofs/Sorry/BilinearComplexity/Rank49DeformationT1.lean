@@ -13,11 +13,14 @@ mathematical assertion or external certificate. No numerical replay was performe
 
 ## Exact target, production foundations, and conventions
 
-The acceptance target remains a complete standard-action witness: invertible sandwich
-matrices, product-one term gauges, one common slot permutation, and all six physical outer
-orientations; then certificate transport/composition and completeness of repeated-factor
-enumeration for ordinary nontrivial two-term binary flips. Ordinary flip completeness in
-that local class is not completeness of Plus, of all exact relations, or of bounded paths.
+The acceptance target remains a complete standard-action witness and its validity transport,
+certificate transport/composition, and completeness of repeated-factor enumeration for
+ordinary nontrivial two-term binary flips. Existing production APIs already provide replay
+witnesses for invertible sandwiches, product-one gauges, a common slot permutation, and all
+six physical orientations, as well as certificate transport/composition and repeated-factor
+indexing results. This archive update does not certify additional closure of the full T1
+acceptance target. Ordinary flip completeness in that local class is not completeness of
+Plus, of all exact relations, or of bounded paths.
 For native trace coordinates the sandwich action is
 `(U,V,W) -> (P U Q^-1, Q V R^-1, R W P^-1)`; reflections transpose and reverse
 legs, not merely permute slots. A gauge uses three units with product one.
@@ -39,13 +42,18 @@ The historical card's accepted-revision identity is preserved below without reva
 
 ## Remaining blocker and limits
 
-`Proofs/BilinearComplexity/SchemeMoveAlgebra.lean` is an independent production scaffold:
-its decomposition, evaluation, inverse-free multiset semantics, moves, paths, and goal
-propositions remain there unchanged. Its admitted generic lemmas are not promoted to proved
-foundations by this archive, and its definitions are neither moved nor duplicated here.
+`Proofs/BilinearComplexity/SchemeMoveAlgebra.lean` now proves all 41 generic move-algebra
+prerequisite lemmas, with its original definitions and theorem contracts retained. These
+include evaluation and occurrence-count laws, certificate-to-multiset contextual replay,
+path soundness and generated-congruence laws, conditional completeness and restricted-path
+bridges, successor replay, and finiteness of the normalized bounded characteristic-two M4
+space. This is a generic algebraic discharge, not a concrete historical-family specification,
+support-five classification, kernel presentation for a concrete proper move family, bounded
+connectivity, or rank improvement. Abstract goal propositions are not proofs of those goals.
 A multiset carries multiplicity even when evaluated occurrences cancel in characteristic two;
-a reversed relation is not a group inverse of a decomposition. A replayed concrete action/
-replacement example and the complete transport and enumeration obligations remain unpaid.
+a reversed relation is not a group inverse of a decomposition. No additional full
+standard-action validity-transport or ordinary-flip enumeration closure is certified by this
+change; those acceptance obligations remain outside this generic prerequisite discharge.
 One finite native witness cannot establish universal completeness or a rank lower bound.
 
 ## Historical/source-card subsection — complete verbatim current card
