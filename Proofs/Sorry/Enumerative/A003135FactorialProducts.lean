@@ -46,7 +46,7 @@ Open.  Classical (Guy, *UPINT* B23 territory); the entry's own attribution is
 thin — the `%A` is Sloane and the only dated comment is McCranie's 2005
 computation to `10^5`.
 -/
-import Mathlib
+import Enumerative.FactorialProducts
 
 set_option autoImplicit false
 
@@ -82,12 +82,10 @@ integers `≥ 2`, each **strictly below `n − 1`** (McCranie's condition, writt
 
 The multiset must be nonempty; `L = 0` would give the empty product `1 ≠ n !`
 for `n ≥ 2`, so that is automatic, but it is asserted for clarity. -/
-def IsNontrivialFactorialProduct (n : ℕ) : Prop :=
-  ∃ L : Multiset ℕ, L ≠ 0 ∧ (∀ x ∈ L, 2 ≤ x) ∧ (∀ x ∈ L, x + 1 < n) ∧
-    (L.map Nat.factorial).prod = n !
+abbrev IsNontrivialFactorialProduct := FactorialProducts.IsNontrivialFactorialProduct
 
 /-- The three known terms. -/
-def knownTerms : Finset ℕ := {9, 10, 16}
+abbrev knownTerms := FactorialProducts.knownTerms
 
 /-! ## The conjecture -/
 
@@ -145,31 +143,34 @@ theorem a003135_finite : {n : ℕ | IsNontrivialFactorialProduct n}.Finite := by
 /-- The **provable** search bound: in any nontrivial factorization, the largest
 factor `x` satisfies `n ≤ 2 * x + 2`.
 
-Reason: pick a prime `p` with `n/2 < p ≤ n` (Bertrand).  Then `p ∣ n!`, so `p`
-divides some `x!` in the product, so `p ≤ x`.  Hence `x > n/2`, i.e.
-`n < 2x + 2`.  This makes the search for each `n` finite and small, and it is
-provable today. -/
+Reason: apply Bertrand to `n / 2`, obtaining `n / 2 < p ≤ 2 * (n / 2) ≤ n`.
+Then `p ∣ n!`, so `p` divides some `x!` in the product, and `p ≤ x`.
+Natural division and these inequalities give `n ≤ 2 * x + 1`, hence the stated
+bound. This necessary condition alone is not a decidable search certificate. -/
 theorem largest_factor_lower_bound {n : ℕ} (hn : 2 ≤ n)
     (L : Multiset ℕ) (hL : L ≠ 0) (h2 : ∀ x ∈ L, 2 ≤ x)
     (hprod : (L.map Nat.factorial).prod = n !) :
     ∃ x ∈ L, n ≤ 2 * x + 2 := by
-  sorry
+  exact FactorialProducts.largest_factor_lower_bound hn L hL h2 hprod
 
 /-! ## Sanity layer -/
 
 -- PROVABLE: the three witnesses, arithmetically.
 example : (9 : ℕ)! = 7! * 3! * 3! * 2! := by decide
 example : (10 : ℕ)! = 7! * 6! := by decide
-example : (16 : ℕ)! = 14! * 5! * 2! := by native_decide
+example : (16 : ℕ)! = 14! * 5! * 2! := by norm_num [Nat.factorial]
 
 -- PROVABLE: satisfiability — each known term really is a nontrivial factorial
 -- product, so `a003135_complete`'s hypothesis is instantiable and the theorem
 -- is not vacuous.
 example : IsNontrivialFactorialProduct 9 :=
-  ⟨{7, 3, 3, 2}, by decide, by decide, by decide, by decide⟩
+  FactorialProducts.isNontrivialFactorialProduct_nine
 
 example : IsNontrivialFactorialProduct 10 :=
-  ⟨{7, 6}, by decide, by decide, by decide, by decide⟩
+  FactorialProducts.isNontrivialFactorialProduct_ten
+
+example : IsNontrivialFactorialProduct 16 :=
+  FactorialProducts.isNontrivialFactorialProduct_sixteen
 
 -- PROVABLE: the nontriviality condition is load-bearing.  `6! = 5! · 3!` is a
 -- factorial product, but `5 = 6 − 1` violates `x + 1 < n`, so `6` is correctly
@@ -182,17 +183,16 @@ example : ¬ (5 + 1 < 6) := by decide
 example : (4 : ℕ)! = 24 := by decide
 
 -- PROVABLE: `6` is genuinely not a term under the correct definition.
-example : ¬ IsNontrivialFactorialProduct 6 := by
-  sorry  -- bounded search: factors ≤ 4, and 6! = 720 has no such factorization
+example : ¬ IsNontrivialFactorialProduct 6 :=
+  FactorialProducts.not_isNontrivialFactorialProduct_six
 
 -- PROVABLE: the factor multiset really may repeat — `9!` needs `3!` twice — so
 -- `Multiset` (not `Finset`) is the right type.  This example pins that.
 example : ({7, 3, 3, 2} : Multiset ℕ).card = 4 := by decide
 
 -- PROVABLE (window check): no `n ≤ 60` outside `{9, 10, 16}` is a nontrivial
--- factorial product.  Search is bounded by `largest_factor_lower_bound`
--- (largest factor `x ≥ (n − 2)/2`), and `60!` is a 82-digit bignum — feasible
--- for `native_decide` but not for kernel `decide`.
+-- factorial product. The proved largest-factor bound is a necessary constraint,
+-- not a finite search certificate; a decidable reformulation is still needed.
 example : ∀ n ∈ Finset.Icc 2 60, IsNontrivialFactorialProduct n → n ∈ knownTerms := by
   sorry  -- needs a decidable reformulation with the search bound made explicit
 
@@ -206,12 +206,13 @@ multisets and is not decidable as stated.
 
 Order of attack:
 1. A decidable mirror `IsNontrivialFactorialProductB (n : ℕ) : Bool` that
-   enumerates factor multisets greedily from the largest factor down, justified
-   by `largest_factor_lower_bound`.  Gating item.
-2. `largest_factor_lower_bound` — provable today from Bertrand
+   enumerates factor multisets greedily from the largest factor down. A finite
+   enumeration needs an upper bound on multiplicities in addition to the
+   largest-factor constraint. Gating item.
+2. `largest_factor_lower_bound` — now proved in `FactorialProducts` from Bertrand
    (`Nat.exists_prime_lt_and_le_two_mul`, in Mathlib) plus
-   `Nat.Prime.dvd_factorial`.  ~50 lines, and it is the lemma that makes the
-   whole search finite.
+   `Nat.Prime.dvd_factorial`. It supplies a necessary largest-factor constraint,
+   not by itself finiteness of the search.
 3. The `n ≤ 60` sweep.
 4. `a003135_finite` — open; would need the valuation cascade made effective.
 5. `a003135_complete` — open.
@@ -232,14 +233,12 @@ Confirmed:
 * **The nontriviality rendering is right**: `x < n − 1 ⟺ x + 1 < n` for
   naturals, and `9, 10, 16` satisfy it (`max x = 7, 7, 14` vs `n − 1 = 8, 9, 15`)
   while `6` does not (`max x = 5 = n − 1`).
-* **The Bertrand search-bound reasoning is sound**: `p ∣ x!` for prime `p` gives
-  `p ≤ x`, so `x > n/2`.
+* **The Bertrand lower-bound mechanism is sound**: `p ∣ x!` for prime `p` gives
+  `p ≤ x`. Applying Bertrand to the natural floor `n / 2` yields
+  `n ≤ 2 * x + 1`, not an unconditional strict `n < 2 * x`.
 
-One note (no change made):
-* `largest_factor_lower_bound` states `n ≤ 2x + 2`, which is safe but three
-  units looser than the tight `n < 2x` the argument actually gives.  Left as is
-  deliberately — the bound exists only to make the search finite, and slack in
-  the safe direction costs nothing.  A follow-up may tighten it.
+The archived signature `n ≤ 2 * x + 2` is retained exactly. The lower bound
+alone does not bound factor multiplicities or certify a finite search.
 -/
 
 end Candidates.A003135
