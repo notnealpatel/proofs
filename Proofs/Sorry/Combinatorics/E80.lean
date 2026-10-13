@@ -52,10 +52,14 @@ def EveryEdgeInTriangle (G : SimpleGraph (Fin n)) [DecidableRel G.Adj] :
     Prop :=
   ∀ u v : Fin n, G.Adj u v → 1 ≤ bookSize G u v
 
+/-- In `K₄`, the edge joining vertices `0` and `1` has two common neighbours. -/
+theorem k4_bookSize_zero_one : bookSize (⊤ : SimpleGraph (Fin 4)) 0 1 = 2 := by
+  decide
+
 /-- Ground truth: in `K₄` every edge is in exactly 2 triangles.
     -- PROVABLE (decide). -/
 example : bookSize (⊤ : SimpleGraph (Fin 4)) 0 1 = 2 := by
-  sorry
+  exact k4_bookSize_zero_one
 
 /-- **Edwards / Khadzhiivanov–Nikiforov** (the c > 1/4 slice — the
     clean target): if `G` has more than `n²/4` edges and every edge is
@@ -105,12 +109,19 @@ theorem szemeredi_book_unbounded (c : ℝ) (hc : 0 < c) (m : ℕ) :
         ∃ u v : Fin n, G.Adj u v ∧ m ≤ bookSize G u v := by
   sorry
 
+/-- `K₄` satisfies the density and triangle hypotheses jointly. -/
+theorem k4_dense_everyEdgeInTriangle :
+    (4 : ℕ) ^ 2 < 4 * (⊤ : SimpleGraph (Fin 4)).edgeFinset.card ∧
+      EveryEdgeInTriangle (⊤ : SimpleGraph (Fin 4)) := by
+  unfold EveryEdgeInTriangle
+  decide
+
 /-- Sanity: the hypothesis pair is jointly satisfiable at a nontrivial
     model — `K₄` has 6 > 4²/4 = 4 edges, every edge in a triangle.
     -- PROVABLE (decide). -/
 example : (4 : ℕ) ^ 2 < 4 * (⊤ : SimpleGraph (Fin 4)).edgeFinset.card ∧
     EveryEdgeInTriangle (⊤ : SimpleGraph (Fin 4)) := by
-  sorry
+  exact k4_dense_everyEdgeInTriangle
 
 end ErdosCandidates.E80
 
