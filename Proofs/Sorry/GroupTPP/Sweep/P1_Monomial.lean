@@ -1,4 +1,5 @@
 import GroupTPP.MonomialRealization
+import GroupTPP.MonomialInterface
 
 set_option autoImplicit false
 
@@ -44,7 +45,8 @@ rotated data realize `⟨m, p, n⟩` matmul over the same group.
 (b) [theory]
 (c) Self-contained. -/
 theorem p1_c2 (h : IsMonomialRealization a b c α β γ) :
-    IsMonomialRealization b c a β γ α := sorry
+    IsMonomialRealization b c a β γ α := by
+  exact h.rotate
 
 /-- (a) Hidden injectivity: the index maps are injective as maps on index
 pairs — a collision `a i j = a i' j'` propagates through a diagonal identity
@@ -56,7 +58,8 @@ theorem p1_c3 (hn : 0 < n) (hm : 0 < m) (hp : 0 < p)
     (h : IsMonomialRealization a b c α β γ) :
     Function.Injective (fun q : Fin n × Fin m => a q.1 q.2) ∧
     Function.Injective (fun q : Fin m × Fin p => b q.1 q.2) ∧
-    Function.Injective (fun q : Fin p × Fin n => c q.1 q.2) := sorry
+    Function.Injective (fun q : Fin p × Fin n => c q.1 q.2) := by
+  exact index_maps_injective hn hm hp h
 
 /-- (a) Quantitative consequence of `p1_c3`: a monomial realization of
 `⟨n, m, p⟩` needs a group of size at least `max(nm, mp, pn)`.
@@ -65,8 +68,8 @@ theorem p1_c3 (hn : 0 < n) (hm : 0 < m) (hp : 0 < p)
 it survives even if only one injectivity conjunct holds. -/
 theorem p1_c4 [Fintype G] (hn : 0 < n) (hm : 0 < m) (hp : 0 < p)
     (h : IsMonomialRealization a b c α β γ) :
-    n * m ≤ Fintype.card G ∧ m * p ≤ Fintype.card G ∧ p * n ≤ Fintype.card G :=
-  sorry
+    n * m ≤ Fintype.card G ∧ m * p ≤ Fintype.card G ∧ p * n ≤ Fintype.card G := by
+  exact index_card_bounds hn hm hp h
 
 /-- (a) Scalar rigidity: the coefficient matrices are multiplicatively rank
 one — every 2×2 "minor" is balanced. Derivation: `diagonal_coeff` gives

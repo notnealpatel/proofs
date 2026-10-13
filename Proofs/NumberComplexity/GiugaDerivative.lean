@@ -81,8 +81,8 @@ coprime case is what is proved below (`ad_mul_coprime`); the general case is
 true but not formalized here.  The `ℕ`-division `n / p` is exact, never a
 junk value: `p ∈ n.primeFactors` forces `p ∣ n`.  Mathlib has no arithmetic
 derivative (`grep -ri` over `.lake/packages`, 2026-08-20); fresh minimal
-reusable infrastructure, definition shape shared with
-`Scratch/Candidates/A007850LavaGiuga.lean`. -/
+reusable infrastructure, exposed through the compatibility façade
+`Proofs/Sorry/Enumerative/A007850LavaGiuga.lean`. -/
 def ad (n : ℕ) : ℕ := ∑ p ∈ n.primeFactors, n / p * n.factorization p
 
 /-- `ad 0 = 0`, matching A003415's `a(0) = 0`. -/
