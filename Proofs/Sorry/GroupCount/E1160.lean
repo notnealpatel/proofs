@@ -30,6 +30,7 @@
 -/
 import Mathlib
 import GroupCount.SmallCases
+import GroupCount.OrderEightBound
 
 set_option autoImplicit false
 
@@ -60,15 +61,13 @@ theorem erdos_1160_m2 (n : ℕ) (hn : 1 ≤ n) (h : n ≤ 2 ^ 2) :
   simpa only [show (2 : ℕ) ^ 2 = 4 by decide, gnu_four] using
     gnu_le_two_of_le_four n hn hfour
 
-/-- The `m = 3` instance: needs `gnu 8 = 5` (certified classification
-    of order-8 groups — C₈, C₄×C₂, C₂³, D₄, Q₈) and `gnu n ≤ 5` for
-    n ≤ 8; gnu 8 = 5 is the natural next GroupCount target (the
-    `card_eq_gnu_of_classification` machinery is built for exactly
-    this).  -- PROVABLE-with-work (effort M, per the repo's gnu
-    range caveat). -/
+/-- The `m = 3` instance: the counts at orders one through seven are at most two,
+    and `gnu 8` is at least two, witnessed by the nonisomorphic groups `C₈` and
+    `C₄ × C₂`. At order eight the comparison is reflexive. No classification
+    establishing `gnu 8 = 5` is required. -/
 theorem erdos_1160_m3 (n : ℕ) (hn : 1 ≤ n) (h : n ≤ 2 ^ 3) :
     gnu n ≤ gnu (2 ^ 3) := by
-  sorry
+  exact gnu_le_gnu_two_pow_three n hn h
 
 /-- **Pantelidakis** ([Pa03], archived; thesis reported via [BNV07] —
     the original is not independently verified, flagged in the DB
