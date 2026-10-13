@@ -61,11 +61,13 @@ Realistic scope: `a(1)`, `a(2)`, `a(3)` fully; `a(4)`, `a(5)` lower bounds only;
 `a(6) ≥ 536` and `a(7) ≥ 1696` as `native_decide` certificates *if* the witness
 colorings can be obtained from Fredricksen–Sweet / Rowley.
 -/
-import Mathlib
+import Combinatorics.SchurNumbers
 
 set_option autoImplicit false
 
 namespace Candidates.A045652
+
+open SchurNumbers
 
 /-! ## Definition layer
 
@@ -87,35 +89,21 @@ namespace Candidates.A045652
 `card = n`, because the statements are about a *specific* `n` and `Fin n` keeps
 `decide` in reach. -/
 
-/-- A `Finset ℕ` is **sum-free** if it contains no solution of `x + y = z`.
-Note `x = y` is *allowed*, so `{1, 2}` is not sum-free (`1 + 1 = 2`).  This is
-the "strong"/classical Schur condition, matching Greathouse's comment. -/
-def SumFree (S : Finset ℕ) : Prop := ∀ x ∈ S, ∀ y ∈ S, ∀ z ∈ S, x + y ≠ z
-
-instance (S : Finset ℕ) : Decidable (SumFree S) := by unfold SumFree; infer_instance
-
-/-- The `i`-th color class of a coloring `c` restricted to `{1, …, m}`. -/
-def colorClass (m : ℕ) (n : ℕ) (c : ℕ → Fin n) (i : Fin n) : Finset ℕ :=
-  (Finset.Icc 1 m).filter (fun k => c k = i)
-
-/-- `{1, …, m}` admits an `n`-coloring with every color class sum-free. -/
-def SchurColorable (n m : ℕ) : Prop :=
-  ∃ c : ℕ → Fin n, ∀ i : Fin n, SumFree (colorClass m n c i)
 
 /-! ## The statements -/
 
 /-- **`a(1) = 1`.**  `{1}` is sum-free; `{1, 2}` is not (`1 + 1 = 2`).
 Fully provable — this is the smallest case and it is the one that pins the
 `x = y`-allowed convention. -/
-theorem schur_one : IsGreatest {m : ℕ | SchurColorable 1 m} 1 := by
-  sorry
+theorem schur_one : IsGreatest {m : ℕ | SchurColorable 1 m} 1 :=
+  SchurNumbers.schur_one
 
 /-- **`a(2) = 4`.**  Witness: color `{1, 4}` red and `{2, 3}` blue.
 `{1,4}`: `1+1=2 ∉`, `1+4=5 ∉`, `4+4=8 ∉`.  `{2,3}`: `2+2=4 ∉`, `2+3=5 ∉`,
 `3+3=6 ∉`.  Upper bound: `decide` over `2^5 = 32` colorings of `{1,…,5}`.
 Fully provable. -/
-theorem schur_two : IsGreatest {m : ℕ | SchurColorable 2 m} 4 := by
-  sorry
+theorem schur_two : IsGreatest {m : ℕ | SchurColorable 2 m} 4 :=
+  SchurNumbers.schur_two
 
 /-- **`a(3) = 13`.**  Witness (classical):
 `{1, 4, 10, 13}`, `{2, 3, 11, 12}`, `{5, 6, 7, 8, 9}`.
@@ -189,16 +177,6 @@ theorem schur_finite (n : ℕ) (hn : 0 < n) : {m : ℕ | SchurColorable n m}.Fin
 
 /-! ## Sanity layer -/
 
--- PROVABLE: `SumFree` is monotone under subsets — the basic structural fact.
-theorem SumFree.subset {S T : Finset ℕ} (hT : SumFree T) (h : S ⊆ T) : SumFree S := by
-  intro x hx y hy z hz
-  exact hT x (h hx) y (h hy) z (h hz)
-
--- PROVABLE: `SchurColorable` is a down-set in `m`, which is what makes
--- `IsGreatest` the right frame (and what makes `Nat.findGreatest` usable).
-theorem SchurColorable.mono {n m m' : ℕ} (h : SchurColorable n m) (hm : m' ≤ m) :
-    SchurColorable n m' := by
-  sorry
 
 -- PROVABLE: the convention pin.  `{1, 2}` is NOT sum-free because `1 + 1 = 2`.
 -- Under the "weak" (`x ≠ y`) reading it *would* be, and the sequence would be
@@ -226,12 +204,10 @@ example : Disjoint ({1, 4, 10, 13} : Finset ℕ) ({2, 3, 11, 12} : Finset ℕ) �
 
 -- PROVABLE: satisfiability — `SchurColorable 3 13` holds, so `schur_three` is
 -- not vacuous on the lower-bound side.
-example : SchurColorable 3 13 := by
-  sorry  -- assemble from the three witness classes above
+example : SchurColorable 3 13 := schur_three_lower
 
--- PROVABLE: `SumFree ∅` and `SchurColorable n 0` — the degenerate cases that
--- make `{m | SchurColorable n m}` nonempty, so `IsGreatest` is not asserting
--- greatest-of-empty.
+-- PROVABLE: `SumFree ∅`. For positive n, `SchurColorable n 0` also holds;
+-- zero colors are impossible because the coloring is a total function.
 example : SumFree (∅ : Finset ℕ) := by decide
 
 /-! ## Notes for a follow-up card
@@ -274,7 +250,8 @@ Confirmed:
   3-coloring of `{1..14}` exists.
 * Mathlib has no sum-free predicate, no Schur's theorem, and no Ramsey numbers
   (only the word "Ramsey" in `HalesJewett`/`Hindman` docstrings).
-* `SchurColorable n 0` is true, so `IsGreatest` is not greatest-of-empty.
+* For positive `n`, `SchurColorable n 0` is true, so `IsGreatest` is not
+  greatest-of-empty. For `n = 0`, the total coloring function is impossible.
 * The `a(n) < R_n(3)` Ramsey sketch is correct.
 
 One defect, **FIXED**:
