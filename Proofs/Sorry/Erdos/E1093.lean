@@ -51,7 +51,12 @@ instance (k m : ℕ) : Decidable (KSmooth k m) := by
     (`Nat.mem_smoothNumbers` + `Nat.lt_succ_iff`). -/
 theorem kSmooth_iff_mem_smoothNumbers (k m : ℕ) (hm : m ≠ 0) :
     KSmooth k m ↔ m ∈ Nat.smoothNumbers (k + 1) := by
-  sorry
+  simp only [KSmooth, Nat.mem_smoothNumbers, Nat.primeFactors, List.mem_toFinset]
+  constructor
+  · intro h
+    exact ⟨hm, fun p hp => Nat.lt_succ_of_le (h p hp)⟩
+  · intro h p hp
+    exact Nat.le_of_lt_succ (h.2 p hp)
 
 /-- `DeficiencyDefined n k`: no prime `≤ k` divides `C(n,k)` — the
     condition under which the deficiency is defined. -/
@@ -64,21 +69,63 @@ def DeficiencyDefined (n k : ℕ) : Prop :=
 def deficiency (n k : ℕ) : ℕ :=
   ((Finset.range k).filter (fun i => KSmooth k (n - i))).card
 
+/-- Definedness can be checked over the finite set of natural numbers at most `k`. -/
+private theorem deficiencyDefined_iff_bounded (n k : ℕ) :
+    DeficiencyDefined n k ↔
+      ∀ p : Fin (k + 1), p.val.Prime → ¬ p.val ∣ n.choose k := by
+  constructor
+  · intro h p hp
+    exact h p.val hp (Nat.le_of_lt_succ p.isLt)
+  · intro h p hp hpk
+    exact h ⟨p, Nat.lt_succ_of_le hpk⟩ hp
+
+/-- The coefficient `C(7,3)` is defined and has deficiency one. -/
+theorem sanity_seven_three : DeficiencyDefined 7 3 ∧ deficiency 7 3 = 1 := by
+  constructor
+  · rw [deficiencyDefined_iff_bounded, Nat.choose_eq_descFactorial_div_factorial]
+    decide
+  · unfold deficiency KSmooth
+    decide +kernel
+
+/-- The coefficient `C(44,8)` is defined and has deficiency two. -/
+theorem sanity_fortyFour_eight : DeficiencyDefined 44 8 ∧ deficiency 44 8 = 2 := by
+  constructor
+  · rw [deficiencyDefined_iff_bounded, Nat.choose_eq_descFactorial_div_factorial]
+    decide
+  · unfold deficiency KSmooth
+    decide +kernel
+
+/-- The coefficient `C(10,3)` is not defined, since two divides it. -/
+theorem sanity_ten_three : ¬ DeficiencyDefined 10 3 := by
+  rw [deficiencyDefined_iff_bounded, Nat.choose_eq_descFactorial_div_factorial]
+  decide
+
+/-- The coefficient `C(5,4)` is defined with deficiency three, outside the size guard. -/
+theorem sanity_five_four :
+    DeficiencyDefined 5 4 ∧ deficiency 5 4 = 3 ∧ ¬ (2 * 4 ≤ 5) := by
+  constructor
+  · rw [deficiencyDefined_iff_bounded, Nat.choose_eq_descFactorial_div_factorial]
+    decide
+  · constructor
+    · unfold deficiency KSmooth
+      decide +kernel
+    · decide
+
 /-- Ground truth at C(7,3) = 35: defined (2, 3 ∤ 35), and among
     7, 6, 5 only 6 is 3-smooth — deficiency 1.  -- PROVABLE (decide). -/
 example : DeficiencyDefined 7 3 ∧ deficiency 7 3 = 1 := by
-  sorry
+  exact sanity_seven_three
 
 /-- Ground truth at C(44,8): defined, deficiency 2 (the smallest
     deficiency-2 example).  -- PROVABLE (decide; C(44,8) =
     177232627? — kernel-computable). -/
 example : DeficiencyDefined 44 8 ∧ deficiency 44 8 = 2 := by
-  sorry
+  exact sanity_fortyFour_eight
 
 /-- Non-degeneracy: C(10,3) = 120 is divisible by 2 ≤ 3, so its
     deficiency is undefined.  -- PROVABLE (decide). -/
 example : ¬ DeficiencyDefined 10 3 := by
-  sorry
+  exact sanity_ten_three
 
 /-- **Erdős #1093, question 1 (OPEN)**: infinitely many binomial
     coefficients have (defined) deficiency exactly 1.  Encoded on the
@@ -114,7 +161,7 @@ theorem els93_bound :
     (Barreto's comment).  Recorded as the explicit small instance
     deficiency C(5,4) = 3 with definedness.  -- PROVABLE (decide). -/
 example : DeficiencyDefined 5 4 ∧ deficiency 5 4 = 3 ∧ ¬ (2 * 4 ≤ 5) := by
-  sorry
+  exact sanity_five_four
 
 end ErdosCandidates.E1093
 
