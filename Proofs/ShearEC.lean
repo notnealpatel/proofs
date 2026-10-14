@@ -4,6 +4,7 @@ import ShearEC.ShearAdditionEC
 import ShearEC.ShearAdditionChains
 import ShearEC.ShearInversionLB
 import ShearEC.ShearQuadraticRank
+import ShearEC.SplitQuadraticRank
 import ShearEC.Secp256k1Prime
 import ShearEC.ShortCurveScaling
 import ShearEC.VariableChangePointEquiv
