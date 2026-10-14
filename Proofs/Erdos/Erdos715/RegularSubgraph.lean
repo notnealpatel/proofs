@@ -20,7 +20,15 @@
     edge contains a 3-regular subgraph", J. Combin. Theory Ser. B 37 (1984),
     92–93 (the note cited by erdosproblems.com/715).
 
-  EXACT CLAIM BOUNDARY. We formalize the Chevalley–Warning core of the AFK
+  EXACT CLAIM BOUNDARY. The symbolic prime theorem
+  `exists_prime_regular_submultiset` formalizes [AFK84a] Theorem 2.1
+  with d_j = 1 and the divisible-subgraph threshold of Theorem 3.1,
+  followed by degree pinning: maximum degree ≤ 2p−1 and m > (p−1)n
+  yield a nonempty submultigraph with all degrees zero or p. This is
+  not an identification with Theorem 4.1, which is a type-(k,k+1) result.
+  The original p = 3 consumers and polynomial APIs are retained.
+
+  We also formalize the Chevalley–Warning core of the AFK
   argument for the prime q = 3 (their §2–§3 route, [AFK84a] Theorem 3.1
   specialized to p = 3, d = 1), in the strongest local form:
 
@@ -78,6 +86,8 @@
 
 import Mathlib.FieldTheory.ChevalleyWarning
 import Mathlib.Combinatorics.SimpleGraph.Finite
+
+set_option autoImplicit false
 
 open Finset MvPolynomial
 
@@ -157,37 +167,85 @@ lemma sq_eq_one_of_ne_zero : ∀ a : ZMod 3, a ≠ 0 → a ^ 2 = 1 := by decide
 -- §3 THE CORE ARGUMENT
 -- ════════════════════════════════════════════════════════════════════
 
-/-- Core of the AFK theorem, on an edge list (no looplessness needed):
-if every vertex lies on at most 5 of the `l.length > 2·#V` listed edges,
-some nonempty sub-multiset of edges has all degrees 0 or 3. -/
-lemma exists_support_list [Fintype V] (l : List (Sym2 V))
-    (hdeg : ∀ v, deg (l : Multiset (Sym2 V)) v ≤ 5)
-    (hcard : 2 * Fintype.card V < l.length) :
-    ∃ S ≤ (l : Multiset (Sym2 V)), S ≠ 0 ∧ ∀ v, deg S v = 0 ∨ deg S v = 3 := by
-  -- Chevalley–Warning over F₃: Σ_v deg f_v ≤ 2n < m = #variables
-  have hsum : (∑ v : V, (vertexPoly l v).totalDegree) < Fintype.card (Fin l.length) := by
-    calc ∑ v : V, (vertexPoly l v).totalDegree
-        ≤ ∑ _v : V, 2 := Finset.sum_le_sum fun v _ => totalDegree_vertexPoly l v
-      _ = 2 * Fintype.card V := by simp [Finset.sum_const, mul_comm]
+/-- Vertex polynomial over the prime field, with one variable per edge occurrence. -/
+noncomputable def primeVertexPoly (p : ℕ) (l : List (Sym2 V)) (v : V) :
+    MvPolynomial (Fin l.length) (ZMod p) :=
+  ∑ i ∈ {j | v ∈ l.get j}, X i ^ (p - 1)
+
+/-- Evaluation of the prime vertex polynomial is the sum of incident powers. -/
+lemma eval_primeVertexPoly (p : ℕ) (l : List (Sym2 V))
+    (x : Fin l.length → ZMod p) (v : V) :
+    eval x (primeVertexPoly p l v) = ∑ i ∈ {j | v ∈ l.get j}, x i ^ (p - 1) := by
+  simp [primeVertexPoly]
+
+/-- Each prime vertex polynomial has total degree at most `p - 1`. -/
+lemma totalDegree_primeVertexPoly (p : ℕ) (hp : Nat.Prime p)
+    (l : List (Sym2 V)) (v : V) :
+    (primeVertexPoly p l v).totalDegree ≤ p - 1 := by
+  letI : Fact (Nat.Prime p) := ⟨hp⟩
+  exact totalDegree_finsetSum_le fun _ _ => le_of_eq (totalDegree_X_pow _ _)
+
+/-- The new polynomial agrees with the original polynomial at prime three. -/
+example (l : List (Sym2 V)) (v : V) : primeVertexPoly 3 l v = vertexPoly l v := rfl
+
+/-- At prime two each incident variable occurs to the first power. -/
+example (l : List (Sym2 V)) (v : V) :
+    primeVertexPoly 2 l v = ∑ i ∈ {j | v ∈ l.get j}, X i := by
+  simp [primeVertexPoly]
+
+/-- Fermat's identity in the prime field for a nonzero element. -/
+lemma prime_pow_eq_one (p : ℕ) (hp : Nat.Prime p) (x : ZMod p) (hx : x ≠ 0) :
+    x ^ (p - 1) = 1 := by
+  letI : Fact (Nat.Prime p) := ⟨hp⟩
+  simpa only [ZMod.card] using FiniteField.pow_card_sub_one_eq_one x hx
+
+/-- A multiple of a prime below twice that prime is zero or the prime itself. -/
+lemma prime_degree_pinning (p : ℕ) (hp : Nat.Prime p) (d : ℕ)
+    (hd : p ∣ d) (hb : d ≤ 2 * p - 1) : d = 0 ∨ d = p := by
+  have hp2 := hp.two_le
+  obtain ⟨k, rfl⟩ := hd
+  have hk : k < 2 := by
+    by_contra hn
+    have hmul : p * 2 ≤ p * k := Nat.mul_le_mul_left p (by omega)
+    omega
+  have hk01 : k = 0 ∨ k = 1 := by omega
+  rcases hk01 with rfl | rfl <;> simp
+
+/-- AFK's prime Chevalley–Warning core on an occurrence-indexed edge list:
+more than `(p - 1) * #V` edges and degrees at most `2*p - 1` yield a
+nonempty submultiset with degrees zero or `p`. Looplessness is not needed here. -/
+lemma exists_prime_support_list [Fintype V] (p : ℕ) (hp : Nat.Prime p) (l : List (Sym2 V))
+    (hdeg : ∀ v, deg (l : Multiset (Sym2 V)) v ≤ 2 * p - 1)
+    (hcard : (p - 1) * Fintype.card V < l.length) :
+    ∃ S ≤ (l : Multiset (Sym2 V)), S ≠ 0 ∧ ∀ v, deg S v = 0 ∨ deg S v = p := by
+  classical
+  letI : Fact (Nat.Prime p) := ⟨hp⟩
+  have hp2 : 2 ≤ p := hp.two_le
+  have hexp : p - 1 ≠ 0 := by omega
+  -- Chevalley–Warning over the prime field: sum of degrees is less than the variable count.
+  have hsum : (∑ v : V, (primeVertexPoly p l v).totalDegree) < Fintype.card (Fin l.length) := by
+    calc ∑ v : V, (primeVertexPoly p l v).totalDegree
+        ≤ ∑ _v : V, (p - 1) := Finset.sum_le_sum fun v _ => totalDegree_primeVertexPoly p hp l v
+      _ = (p - 1) * Fintype.card V := by simp [Finset.sum_const, mul_comm]
       _ < l.length := hcard
       _ = Fintype.card (Fin l.length) := (Fintype.card_fin _).symm
-  have hdvd : 3 ∣ Fintype.card
-      {x : Fin l.length → ZMod 3 // ∀ v, eval x (vertexPoly l v) = 0} :=
-    char_dvd_card_solutions_of_fintype_sum_lt 3 hsum
-  -- x = 0 is a common zero, and 3 ∤ 1, so a nonzero common zero exists
-  have h0 : ∀ v, eval (0 : Fin l.length → ZMod 3) (vertexPoly l v) = 0 := by
+  have hdvd : p ∣ Fintype.card
+      {x : Fin l.length → ZMod p // ∀ v, eval x (primeVertexPoly p l v) = 0} :=
+    char_dvd_card_solutions_of_fintype_sum_lt p hsum
+  -- Zero is a common zero, but a prime cannot divide one.
+  have h0 : ∀ v, eval (0 : Fin l.length → ZMod p) (primeVertexPoly p l v) = 0 := by
     intro v
-    rw [eval_vertexPoly]
-    simp
+    rw [eval_primeVertexPoly]
+    simp [hexp]
   obtain ⟨x, hxsol, hxne⟩ :
-      ∃ x : Fin l.length → ZMod 3, (∀ v, eval x (vertexPoly l v) = 0) ∧ x ≠ 0 := by
+      ∃ x : Fin l.length → ZMod p, (∀ v, eval x (primeVertexPoly p l v) = 0) ∧ x ≠ 0 := by
     by_contra hcon
     push Not at hcon
     have hone : Fintype.card
-        {x : Fin l.length → ZMod 3 // ∀ v, eval x (vertexPoly l v) = 0} = 1 :=
+        {x : Fin l.length → ZMod p // ∀ v, eval x (primeVertexPoly p l v) = 0} = 1 :=
       Fintype.card_eq_one_iff.mpr ⟨⟨0, h0⟩, fun y => Subtype.ext (hcon y.1 y.2)⟩
     rw [hone] at hdvd
-    omega
+    exact hp.not_dvd_one hdvd
   -- the support of x, as a sub-multiset of the edge multiset
   set T : Finset (Fin l.length) := {i | x i ≠ 0} with hT
   have hSle : T.val.map l.get ≤ (l : Multiset (Sym2 V)) := by
@@ -207,30 +265,69 @@ lemma exists_support_list [Fintype V] (l : List (Sym2 V))
       Multiset.mem_map_of_mem _ (Finset.mem_val.mpr hiT)
     rw [hS0] at this
     exact Multiset.notMem_zero _ this
-  · -- every degree is ≡ 0 mod 3 and ≤ 5, hence 0 or 3
+  · -- Divisibility and the strict twice-prime bound pin each support degree.
     intro v
-    have hdvd3 : 3 ∣ deg (T.val.map l.get) v := by
+    have hdvdp : p ∣ deg (T.val.map l.get) v := by
       have hcount : deg (T.val.map l.get) v = #(T.filter (fun i => v ∈ l.get i)) := by
         rw [deg, Multiset.countP_map]
         rfl
-      rw [← ZMod.natCast_eq_zero_iff, hcount]
+      rw [← ZMod.natCast_eq_zero_iff _ p, hcount]
       have hfilter : T.filter (fun i => v ∈ l.get i)
           = ({i | v ∈ l.get i} : Finset (Fin l.length)).filter (fun i => x i ≠ 0) := by
         rw [hT, Finset.filter_comm]
       rw [hfilter]
-      calc (#(({i | v ∈ l.get i} : Finset (Fin l.length)).filter (fun i => x i ≠ 0)) : ZMod 3)
+      calc (#(({i | v ∈ l.get i} : Finset (Fin l.length)).filter (fun i => x i ≠ 0)) : ZMod p)
           = ∑ i ∈ ({i | v ∈ l.get i} : Finset (Fin l.length)).filter (fun i => x i ≠ 0),
-              (1 : ZMod 3) := by simp
+              (1 : ZMod p) := by simp
         _ = ∑ i ∈ ({i | v ∈ l.get i} : Finset (Fin l.length)).filter (fun i => x i ≠ 0),
-              x i ^ 2 :=
+              x i ^ (p - 1) :=
             Finset.sum_congr rfl fun i hi =>
-              (sq_eq_one_of_ne_zero _ (Finset.mem_filter.mp hi).2).symm
-        _ = ∑ i ∈ ({i | v ∈ l.get i} : Finset (Fin l.length)), x i ^ 2 :=
-            Finset.sum_filter_of_ne fun i _ h hxi => h (by rw [hxi]; exact zero_pow two_ne_zero)
-        _ = eval x (vertexPoly l v) := (eval_vertexPoly l x v).symm
+              (prime_pow_eq_one p hp _ (Finset.mem_filter.mp hi).2).symm
+        _ = ∑ i ∈ ({i | v ∈ l.get i} : Finset (Fin l.length)), x i ^ (p - 1) :=
+            Finset.sum_filter_of_ne fun i _ h hxi => h (by rw [hxi]; exact zero_pow hexp)
+        _ = eval x (primeVertexPoly p l v) := (eval_primeVertexPoly p l x v).symm
         _ = 0 := hxsol v
-    have hd5 : deg (T.val.map l.get) v ≤ 5 := (deg_mono hSle v).trans (hdeg v)
-    omega
+    have hbound : deg (T.val.map l.get) v ≤ 2 * p - 1 := (deg_mono hSle v).trans (hdeg v)
+    exact prime_degree_pinning p hp _ hdvdp hbound
+
+/-- Core of the AFK theorem at prime three, preserving the original list API. -/
+lemma exists_support_list [Fintype V] (l : List (Sym2 V))
+    (hdeg : ∀ v, deg (l : Multiset (Sym2 V)) v ≤ 5)
+    (hcard : 2 * Fintype.card V < l.length) :
+    ∃ S ≤ (l : Multiset (Sym2 V)), S ≠ 0 ∧ ∀ v, deg S v = 0 ∨ deg S v = 3 := by
+  exact exists_prime_support_list 3 (by decide) l hdeg hcard
+
+/-- AFK's prime regular-subgraph theorem: a loopless multigraph with degrees
+at most `2*p - 1` and more than `(p - 1) * #V` edges contains a nonempty
+loopless submultigraph whose touched vertices all have degree `p`.
+This is the prime case of AFK1984 §2–§3 (Theorems 2.1 and 3.1), with degree pinning. -/
+theorem exists_prime_regular_submultiset [Fintype V] (p : ℕ) (hp : Nat.Prime p)
+    (E : Multiset (Sym2 V)) (hE : ∀ e ∈ E, ¬ e.IsDiag)
+    (hdeg : ∀ v, deg E v ≤ 2 * p - 1)
+    (hcard : (p - 1) * Fintype.card V < Multiset.card E) :
+    ∃ S ≤ E, S ≠ 0 ∧ (∀ e ∈ S, ¬ e.IsDiag) ∧ ∀ v, deg S v = 0 ∨ deg S v = p := by
+  obtain ⟨l, rfl⟩ : ∃ l : List (Sym2 V), (l : Multiset (Sym2 V)) = E :=
+    ⟨E.toList, E.coe_toList⟩
+  obtain ⟨S, hSle, hSne, hSdeg⟩ :=
+    exists_prime_support_list p hp l hdeg (by simpa using hcard)
+  exact ⟨S, hSle, hSne, fun e he => hE e (Multiset.mem_of_le hSle he), hSdeg⟩
+
+/-- Prime two is jointly satisfiable on three parallel non-loop edges. -/
+example : Nat.Prime 2 ∧
+    (∀ e ∈ ({s(0, 1), s(0, 1), s(0, 1)} : Multiset (Sym2 (Fin 2))), ¬ e.IsDiag) ∧
+    (∀ v, deg ({s(0, 1), s(0, 1), s(0, 1)} : Multiset (Sym2 (Fin 2))) v ≤ 2 * 2 - 1) ∧
+    (2 - 1) * Fintype.card (Fin 2) <
+      ({s(0, 1), s(0, 1), s(0, 1)} : Multiset (Sym2 (Fin 2))).card := by decide
+
+/-- Prime three is jointly satisfiable on five parallel non-loop edges. -/
+example : Nat.Prime 3 ∧
+    (∀ e ∈ ({s(0, 1), s(0, 1), s(0, 1), s(0, 1), s(0, 1)} :
+      Multiset (Sym2 (Fin 2))), ¬ e.IsDiag) ∧
+    (∀ v, deg ({s(0, 1), s(0, 1), s(0, 1), s(0, 1), s(0, 1)} :
+      Multiset (Sym2 (Fin 2))) v ≤ 2 * 3 - 1) ∧
+    (3 - 1) * Fintype.card (Fin 2) <
+      ({s(0, 1), s(0, 1), s(0, 1), s(0, 1), s(0, 1)} :
+        Multiset (Sym2 (Fin 2))).card := by decide
 
 -- ════════════════════════════════════════════════════════════════════
 -- §4 MAIN THEOREM AND THE 4-REGULAR-PLUS-EDGE COROLLARIES
