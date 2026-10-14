@@ -23,6 +23,7 @@ import GroupTPP.MurthyPrimeIndex
 import GroupTPP.MurthySmallPGroups
 import GroupTPP.WreathNg
 import GroupTPP.IsoclinismInvariants
+import GroupTPP.IsoclinismHigherCommProb
 import GroupTPP.ExtraspecialLattice
 import GroupTPP.GeomArithInequality
 import GroupTPP.DihedralTPP.Basic
