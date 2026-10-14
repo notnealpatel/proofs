@@ -1,4 +1,5 @@
 import NumberComplexity.AdditionChain
+import NumberComplexity.AdditionChainStability
 import NumberComplexity.ComplexityPatterns
 import NumberComplexity.ComplexityDefect
 import NumberComplexity.DoublingConjecture
