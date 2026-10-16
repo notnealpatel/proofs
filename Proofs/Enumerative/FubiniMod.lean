@@ -438,7 +438,7 @@ private lemma poonen_binomial (k n : ℕ) :
 `(2^k - 1) · fubini n ≡ ∑_{j < k} 2^{k-1-j} · jⁿ (mod k)`, for every `k` and
 every `n`.  Proved by strong induction on `n`: both sides obey the Fubini
 recurrence `x n = ∑_{m < n} C(n,m) · x m` modulo `k` and agree at `n = 0`. -/
-private lemma poonen_congr (k : ℕ) : ∀ n : ℕ,
+lemma poonen_congr (k : ℕ) : ∀ n : ℕ,
     ((2 : ZMod k) ^ k - 1) * (fubini n : ZMod k)
       = ∑ j ∈ Finset.range k, (2 : ZMod k) ^ (k - 1 - j) * (j : ZMod k) ^ n := by
   intro n
