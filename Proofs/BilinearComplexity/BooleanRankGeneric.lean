@@ -36,9 +36,9 @@
                              and `1`).
 
   Novelty status (literature sweep 2026-07-30,
-  `.tasks/main/docs/novelty-BooleanRankGeneric.md`): NO-REFERENCE-FOUND —
-  first recorded proof of the A354741 comment (unattributed, "it appears
-  from some empirical computations"). The ingredients (union bound, the
+  `.tasks/main/docs/novelty-BooleanRankGeneric.md`): NO-REFERENCE-FOUND.
+  A negative search does not establish novelty or priority; no first-proof claim is made here.
+  The ingredients (union bound, the
   `(3/4)ⁿ` dominated-pair probability, antichain ⟹ full row rank) are
   individually standard; the contribution is the combination and the
   machine-checked proof. Related but DISTINCT results: Komlós 1967 /
@@ -589,13 +589,13 @@ set_option maxRecDepth 100000 in
 set_option maxHeartbeats 8000000 in
 example : fullRowRankCount 3 = 156 := by
   rw [fullRowRankCount_eq_card_filter_not (by omega)]
-  decide
+  decide +kernel
 
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 8000000 in
 example : (Finset.univ.filter fun A : Fin 3 → Fin 3 → ZMod 2 =>
     ∀ T : Finset (Fin 3), (∀ j, (∑ x ∈ T, A x j) = 0) → T = ∅).card = 168 := by
-  decide
+  decide +kernel
 
 -- Satisfiability: every hypothesis above is jointly instantiable.
 example : BoolRankLE (boolId 2) (Finset.univ : Finset (Fin 2)).card :=

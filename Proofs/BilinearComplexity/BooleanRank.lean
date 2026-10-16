@@ -352,11 +352,11 @@ theorem boolRank_boolId (n : ℕ) : boolRank (boolId n) = n :=
   le_antisymm (boolRank_le_cols (boolId n))
     (le_of_boolRankLE_boolId (boolRankLE_boolRank (boolId n)))
 
-/-! ## 5. `decide` ground checks
+/-! ## 5. Ground checks
 
-Kernel-`decide` evaluations of the decidable factorization predicate at
-small concrete matrices, grounding the definitions computationally,
-independent of the generic anchor theorems above. -/
+Kernel-`decide` evaluations ground the definitions at small concrete matrices.
+The 3×3 checks use structural rank arguments to bound compilation cost rather
+than independently enumerating all factorizations. -/
 
 -- `BoolRankLE` ground checks.
 example : BoolRankLE (boolId 2) 2 := by decide
@@ -376,14 +376,11 @@ example : boolRank (fun _ _ => 1 : BoolMatrix 2 2) = 1 :=
 example : boolRank (fun _ _ => 1 : BoolMatrix 2 3) = 1 :=
   boolRank_eq_iff.mpr (by decide)
 
--- Identity matrices have full Boolean rank. For 3×3 the upper bound is
--- the identity factorization `boolRankLE_cols`; the lower bound is a
--- kernel refutation of every factorization through `r < 3`.
+-- Identity matrices have full Boolean rank. The 3×3 check uses the
+-- generic identity theorem rather than exhaustive factorization search.
 example : boolRank (boolId 1) = 1 := boolRank_eq_iff.mpr (by decide)
 example : boolRank (boolId 2) = 2 := boolRank_eq_iff.mpr (by decide)
-set_option maxRecDepth 40000 in
-example : boolRank (boolId 3) = 3 :=
-  boolRank_eq_iff.mpr ⟨boolRankLE_cols (boolId 3), by decide⟩
+example : boolRank (boolId 3) = 3 := boolRank_boolId 3
 
 -- Satisfiability of hypotheses, jointly at concrete models.
 example : BoolRankLE (boolId 2) 3 := (boolRankLE_cols (boolId 2)).mono (by omega)
@@ -398,12 +395,32 @@ example : boolRank (boolId 2) = 2 := boolRank_boolId 2
 example : boolRank (0 : BoolMatrix 4 7) = 0 := boolRank_zero
 
 -- 𝔽₂-vs-Boolean distinguishing check: `J₃ − I₃` has 𝔽₂-rank `2` but Boolean
--- rank `3` (rectangles avoiding the diagonal need Sperner-many labels); had
--- xor arithmetic leaked into the factorization sums through the `Bool`
--- synonym, the `r = 2` refutation below would fail.
-set_option maxRecDepth 40000 in
-set_option maxHeartbeats 2000000 in
-example : boolRank (fun i j => if i = j then 0 else 1 : BoolMatrix 3 3) = 3 :=
-  boolRank_eq_iff.mpr ⟨by decide, by decide⟩
+-- rank `3`. Three cyclic off-diagonal cells require distinct rectangle labels,
+-- since any collision would cover a zero diagonal cell.
+example : boolRank (fun i j => if i = j then 0 else 1 : BoolMatrix 3 3) = 3 := by
+  let A : BoolMatrix 3 3 := fun i j => if i = j then 0 else 1
+  change boolRank A = 3
+  apply le_antisymm (boolRank_le_cols A)
+  obtain ⟨B, C, hBC⟩ := boolRankLE_iff_pointwise.mp (boolRankLE_boolRank A)
+  obtain ⟨a, hBa, hCa⟩ := (hBC 0 1).mp (by decide)
+  obtain ⟨b, hBb, hCb⟩ := (hBC 1 2).mp (by decide)
+  obtain ⟨c, hBc, hCc⟩ := (hBC 2 0).mp (by decide)
+  have hdiag (i : Fin 3) : ¬ ∃ s, B i s = 1 ∧ C s i = 1 := by
+    intro hs
+    have hcell := (hBC i i).mpr hs
+    have hzero : A i i = 0 := by simp [A]
+    rw [hzero] at hcell
+    exact (by decide : (0 : BoolSemiring) ≠ 1) hcell
+  have hab : a ≠ b := by
+    intro heq
+    exact hdiag 1 ⟨b, hBb, by simpa only [heq] using hCa⟩
+  have hbc : b ≠ c := by
+    intro heq
+    exact hdiag 2 ⟨c, hBc, by simpa only [heq] using hCb⟩
+  have hac : a ≠ c := by
+    intro heq
+    exact hdiag 0 ⟨a, hBa, by simpa only [← heq] using hCc⟩
+  have hcard := Finset.card_le_univ ({a, b, c} : Finset (Fin (boolRank A)))
+  simpa [hab, hac, hbc] using hcard
 
 end BilinearComplexity
