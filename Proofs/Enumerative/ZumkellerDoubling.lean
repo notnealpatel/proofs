@@ -1,4 +1,4 @@
-import Enumerative.IsZumkeller
+import Enumerative.HalfZumkeller
 
 set_option autoImplicit false
 
@@ -128,6 +128,62 @@ theorem IsZumkeller.mul_two_pow {n : ℕ} (hn : IsZumkeller n) (k : ℕ) :
 /-- In particular, multiplication by four preserves the Zumkeller property. -/
 theorem IsZumkeller.mul_four {n : ℕ} (hn : IsZumkeller n) : IsZumkeller (n * 4) := by
   simpa only [mul_assoc, show (2 : ℕ) * 2 = 4 from rfl] using hn.mul_two.mul_two
+
+/-- Doubling a Zumkeller number gives a half-Zumkeller number: the partition
+uses all positive proper divisors of `2 * n`, including `n`. -/
+theorem IsZumkeller.isHalfZumkeller_mul_two {n : ℕ} (hz : IsZumkeller n) :
+    IsHalfZumkeller (n * 2) := by
+  obtain ⟨a, m, hm, hfactor⟩ := Nat.exists_eq_two_pow_mul_odd hz.pos.ne'
+  have hn_eq : n = m * 2 ^ a := by rw [hfactor, mul_comm]
+  have hcop : m.Coprime 2 :=
+    (Nat.prime_two.coprime_iff_not_dvd.mpr hm.not_two_dvd_nat).symm
+  let D := n.divisors
+  let U := m.divisors.image (fun d => d * 2 ^ a)
+  let T := U.erase n
+  have hU : U ⊆ D := by
+    intro x hx
+    obtain ⟨d, hd, rfl⟩ := Finset.mem_image.mp hx
+    rw [show D = (m * 2 ^ a).divisors from congrArg Nat.divisors hn_eq]
+    exact mem_blocks.mpr ⟨d, hd, a, le_rfl, rfl⟩
+  have hdisj : Disjoint D (U.image (fun d => d * 2)) := by
+    simpa only [D, U, hn_eq] using blocks_disjoint (a := a) hcop
+  have hT : T ⊆ D := (Finset.erase_subset n U).trans hU
+  have hdisjT : Disjoint D (T.image (fun d => d * 2)) :=
+    hdisj.mono_right (Finset.image_subset_image (Finset.erase_subset n U))
+  have hsplit : (n * 2).divisors = D ∪ U.image (fun d => d * 2) := by
+    have hnext : n * 2 = m * 2 ^ (a + 1) := by rw [hn_eq, pow_succ, mul_assoc]
+    rw [hnext]
+    simpa only [D, U, hn_eq] using blocks_split m a
+  have hnot : n * 2 ∉ D := by
+    intro hx
+    have hle : n * 2 ≤ n := Nat.le_of_dvd hz.pos (Nat.mem_divisors.mp hx).1
+    have hp := hz.pos
+    omega
+  have hproper : (n * 2).divisors.erase (n * 2) =
+      D ∪ T.image (fun d => d * 2) := by
+    rw [hsplit, Finset.erase_union_distrib, Finset.erase_eq_of_notMem hnot]
+    rw [show T.image (fun d => d * 2) =
+      (U.image (fun d => d * 2)).erase (n * 2) from
+      Finset.image_erase (fun x y hxy => by omega) U n]
+  obtain ⟨A, hApow, hhalf⟩ :=
+    (isZumkeller_iff_two_mul_sum_eq_sum_divisors hz.pos).mp hz
+  obtain ⟨B, hB, hbal⟩ := flip_top (D := D) (T := T)
+    (Finset.mem_powerset.mp hApow) hT hdisjT hhalf
+  have hBproper : B ⊆ (n * 2).divisors.erase (n * 2) := by
+    rw [hproper]
+    exact hB
+  refine ⟨Nat.mul_pos hz.pos (by decide), B, hBproper, ?_⟩
+  have hsum := Finset.sum_sdiff (f := fun x : ℕ => x) hBproper
+  rw [hproper] at hsum ⊢
+  omega
+
+/-- Multiplication of a Zumkeller number by a positive power of two gives a
+half-Zumkeller number. -/
+theorem IsZumkeller.isHalfZumkeller_mul_two_pow_succ {n : ℕ}
+    (hz : IsZumkeller n) (k : ℕ) : IsHalfZumkeller (n * 2 ^ (k + 1)) := by
+  simpa only [pow_succ, ← mul_assoc] using (hz.mul_two_pow k).isHalfZumkeller_mul_two
+
+example : IsHalfZumkeller 12 := IsZumkeller.isHalfZumkeller_mul_two (n := 6) (by decide)
 
 example : IsZumkeller 6 := by decide
 example : IsZumkeller (6 * 2 ^ 0) := IsZumkeller.mul_two_pow (by decide) 0
