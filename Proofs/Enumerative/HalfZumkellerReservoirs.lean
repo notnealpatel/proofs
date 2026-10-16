@@ -192,3 +192,149 @@ example : IsZumkeller 280 ∧ 280 ∣ 280 ∧
       refine (isZumkeller_iff_exists_subset 40).mpr ⟨by decide, {40, 5}, ?_, ?_⟩ <;> decide
     simpa using (IsZumkeller.mul_of_coprime (m := 40) (n := 7) h40 (by decide))
   · decide
+
+/-- A Zumkeller multiple of `140` with `70 σ(n) < 223 n` is half-Zumkeller.
+Three overlapping reservoirs give the transversal lower bound `13 k` for `n = 140 k`. -/
+theorem IsZumkeller.isHalfZumkeller_of_one_hundred_forty_dvd {n : ℕ}
+    (hz : IsZumkeller n) (h140 : 140 ∣ n)
+    (hbound : 70 * (∑ d ∈ n.divisors, d) < 223 * n) : IsHalfZumkeller n := by
+  obtain ⟨k, rfl⟩ := h140
+  have hn := hz.pos
+  have hk : 0 < k := by omega
+  have he : Even (140 * k) := ⟨70 * k, by omega⟩
+  have hnd : 140 * k ∈ (140 * k).divisors :=
+    Nat.mem_divisors.mpr ⟨dvd_refl _, hn.ne'⟩
+  have htwo : 2 * (140 * k / 2) = 140 * k := by omega
+  have hne : 140 * k / 2 ≠ 140 * k := by omega
+  obtain ⟨T, hT, hbal⟩ := (isZumkeller_iff_two_mul_sum_eq_sum_divisors hn).mp hz
+  have hTsub := mem_powerset.mp hT
+  have horient : ∃ S ⊆ (140 * k).divisors, 140 * k ∈ S ∧
+      2 * ∑ a ∈ S, a = ∑ d ∈ (140 * k).divisors, d := by
+    by_cases ht : 140 * k ∈ T
+    · exact ⟨T, hTsub, ht, hbal⟩
+    · refine ⟨(140 * k).divisors \ T, sdiff_subset, mem_sdiff.mpr ⟨hnd, ht⟩, ?_⟩
+      have hs := sum_sdiff (f := fun a : ℕ => a) hTsub
+      omega
+  obtain ⟨S, hS, hnS, hsumS⟩ := horient
+  apply (isHalfZumkeller_iff_endpoint_partition hn he).mpr
+  by_cases hhS : 140 * k / 2 ∈ S
+  · let A := (S.erase (140 * k)).erase (140 * k / 2)
+    have hhalf : 140 * k / 2 ∈ S.erase (140 * k) := mem_erase.mpr ⟨hne, hhS⟩
+    have he1 := sum_erase_add (f := fun a : ℕ => a) S hnS
+    have he2 := sum_erase_add (f := fun a : ℕ => a) (S.erase (140 * k)) hhalf
+    have hsumA : 2 * ∑ a ∈ A, a + 420 * k = ∑ d ∈ (140 * k).divisors, d := by
+      dsimp [A]
+      omega
+    have hlt : (∑ a ∈ A, a) < 13 * k := by omega
+    let R1 : Finset ℕ := {7 * k, 28 * k, 35 * k}
+    let R2 : Finset ℕ := {5 * k, 10 * k, 20 * k, 35 * k}
+    let R3 : Finset ℕ := {k, 14 * k, 20 * k, 35 * k}
+    have hsmall : ∀ r ∈ A, r < 13 * k := by
+      intro r hr
+      have hle : r ≤ ∑ a ∈ A, a := single_le_sum (fun x _ => Nat.zero_le x) hr
+      omega
+    have hmissing : ∃ R ∈ ({R1, R2, R3} : Finset (Finset ℕ)), Disjoint A R := by
+      by_cases hd1 : Disjoint A R1
+      · exact ⟨R1, by simp, hd1⟩
+      by_cases hd2 : Disjoint A R2
+      · exact ⟨R2, by simp, hd2⟩
+      by_cases hd3 : Disjoint A R3
+      · exact ⟨R3, by simp, hd3⟩
+      obtain ⟨x, hxA, hxR⟩ := not_disjoint_iff.mp hd1
+      have hxlt := hsmall x hxA
+      have h7 : 7 * k ∈ A := by
+        simp only [R1, mem_insert, mem_singleton] at hxR
+        rcases hxR with rfl | rfl | rfl <;> first | exact hxA | omega
+      obtain ⟨y, hyA, hyR⟩ := not_disjoint_iff.mp hd2
+      have hylt := hsmall y hyA
+      have h10 : 10 * k ∉ A := by
+        intro h10A
+        have hsub : ({7 * k, 10 * k} : Finset ℕ) ⊆ A := by
+          intro r hr
+          simp only [mem_insert, mem_singleton] at hr
+          rcases hr with rfl | rfl
+          · exact h7
+          · exact h10A
+        have hle := sum_le_sum_of_subset (f := fun r : ℕ => r) hsub
+        have hs : (∑ r ∈ ({7 * k, 10 * k} : Finset ℕ), r) = 17 * k := by
+          simp (disch := (simp only [mem_singleton]; omega)) only [sum_insert, sum_singleton]
+          omega
+        omega
+      have h5 : 5 * k ∈ A := by
+        simp only [R2, mem_insert, mem_singleton] at hyR
+        rcases hyR with rfl | rfl | rfl | rfl
+        · exact hyA
+        · exact False.elim (h10 hyA)
+        · omega
+        · omega
+      obtain ⟨z, hzA, hzR⟩ := not_disjoint_iff.mp hd3
+      have hzlt := hsmall z hzA
+      have h1 : k ∈ A := by
+        simp only [R3, mem_insert, mem_singleton] at hzR
+        rcases hzR with rfl | rfl | rfl | rfl <;> first | exact hzA | omega
+      have hsub : ({k, 5 * k, 7 * k} : Finset ℕ) ⊆ A := by
+        intro r hr
+        simp only [mem_insert, mem_singleton] at hr
+        rcases hr with rfl | rfl | rfl
+        · exact h1
+        · exact h5
+        · exact h7
+      have hle := sum_le_sum_of_subset (f := fun r : ℕ => r) hsub
+      have hs : (∑ r ∈ ({k, 5 * k, 7 * k} : Finset ℕ), r) = 13 * k := by
+        simp (disch := (simp only [mem_insert, mem_singleton]; omega)) only
+          [sum_insert, sum_singleton]
+        omega
+      omega
+    obtain ⟨R, hRmem, hd⟩ := hmissing
+    have hcases : R = R1 ∨ R = R2 ∨ R = R3 := by simpa using hRmem
+    have helig : ∀ r ∈ R, r ∣ 140 * k ∧ r ≠ 140 * k ∧ r ≠ 140 * k / 2 := by
+      intro r hr
+      have hvalues : r = k ∨ r = 5 * k ∨ r = 7 * k ∨ r = 10 * k ∨
+          r = 14 * k ∨ r = 20 * k ∨ r = 28 * k ∨ r = 35 * k := by
+        rcases hcases with rfl | rfl | rfl <;>
+          simp only [R1, R2, R3, mem_insert, mem_singleton] at hr <;> omega
+      rcases hvalues with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+      all_goals refine ⟨?_, by omega, by omega⟩
+      · exact ⟨140, by omega⟩
+      · exact ⟨28, by omega⟩
+      · exact ⟨20, by omega⟩
+      · exact ⟨14, by omega⟩
+      · exact ⟨10, by omega⟩
+      · exact ⟨7, by omega⟩
+      · exact ⟨5, by omega⟩
+      · exact ⟨4, by omega⟩
+    have hsumR : 2 * ∑ r ∈ R, r = 140 * k := by
+      rcases hcases with rfl | rfl | rfl <;> dsimp [R1, R2, R3]
+      all_goals
+        simp (disch := (simp only [mem_insert, mem_singleton]; omega)) only
+          [sum_insert, sum_singleton]
+        omega
+    let C := A ∪ R
+    have hsub : C ⊆ (140 * k).divisors := by
+      intro x hx
+      rcases mem_union.mp hx with hx | hx
+      · exact hS (mem_of_mem_erase (mem_of_mem_erase hx))
+      · exact Nat.mem_divisors.mpr ⟨(helig x hx).1, hn.ne'⟩
+    have hnC : 140 * k ∉ C := by
+      intro hx
+      rcases mem_union.mp hx with hx | hx
+      · exact (mem_erase.mp (mem_of_mem_erase hx)).1 rfl
+      · exact (helig _ hx).2.1 rfl
+    have hhC : 140 * k / 2 ∉ C := by
+      intro hx
+      rcases mem_union.mp hx with hx | hx
+      · exact (mem_erase.mp hx).1 rfl
+      · exact (helig _ hx).2.2 rfl
+    have hsumC : 2 * ∑ c ∈ C, c + 2 * (140 * k) = ∑ d ∈ (140 * k).divisors, d := by
+      dsimp [C]
+      rw [sum_union hd]
+      omega
+    have hB : insert (140 * k) C ⊆ (140 * k).divisors := insert_subset hnd hsub
+    refine ⟨insert (140 * k) C, hB, mem_insert_self _ _, ?_, ?_⟩
+    · simpa only [mem_insert, not_or] using And.intro hne hhC
+    · have hiC := sum_insert (f := fun a : ℕ => a) hnC
+      have hs := sum_sdiff (f := fun a : ℕ => a) hB
+      omega
+  · refine ⟨S, hS, hnS, hhS, ?_⟩
+    have hs := sum_sdiff (f := fun a : ℕ => a) hS
+    omega
