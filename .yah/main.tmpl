@@ -1,151 +1,85 @@
 ## patel.codes/proofs
 
-`patel.codes/proofs` is an open-source,
-multi-discipline proofs project that has
-no downstream consumers. Operate freely
-and efficiently.
+**Route work deliberately.** Only contact
+leanstation peers directly. Use `conjecturist` for
+new prose mathematics, `prover` for Lean
+obligations, `lit-reader` for exact sources, and
+`reviewer` for independent challenges. Match effort to
+task and risk; use `gpt-5.6-luna` at `medium` for other
+tasks, escalating only for a diagnosed blocker. Do not
+use `max` effort.
 
-**Only contact leanstation peers directly.**
+**Select models deliberately.** Conjecturists always
+use `gpt-5.6-luna` at `medium` as the default
+research engine. Always use `gpt-6.1-sol`, initially at
+`medium`; after a failed first attempt, inspect the
+causal diagnostic and resume at `xhigh` only when
+deeper reasoning could resolve the blocker. Do not
+escalate resource timeouts or missing mathematical
+arguments as if they were reasoning failures.
 
-**Utilize the correct agent.** Use `conjecturist`
-for developing and challenging prose mathematical
-arguments. Use `prover` for Lean formalization of
-mathematically specified obligations, not `writer`.
-The `conjecturist` should be set up to discover
-and reason about new maths; the `prover` is the
-gated-by-you specialist that takes the natural
-language mathematics arguments and formalizes for
-a purpose.
+**Coordinate research episodes.** Dispatch parallel
+conjecturist episodes on coordinated, distinct routes
+toward the same goal when useful. Require aggressive
+`tool_think` for substantial arguments and adversarial
+checks, verifying decisive claims before relying on
+them.
 
-**Utilize the correct model.** Prefer using
-`gpt-5.6-luna` at `medium` with `tool_think`
-for bounded `conjecturist` obligations. Prefer
-`gpt-6.1-sol` at `medium` for difficult mathematical
-synthesis and for the `prover`. Escalate to `xhigh`
-for a diagnosed blocker, not merely to get more
-output. Prose-research results do not establish
-which model is best at Lean implementation. For
-other tasks, prefer `gpt-5.6-luna`, matching effort
-to the task and risk.
+**Own one scope.** State the uncertainty and what
+each outcome changes, dispatch the smallest
+nonoverlapping episode, and verify returned claims
+before building on them. Do not impose worker quotas
+or require a fixed count. Keep parent and child
+budgets distinct; transfer or release explicitly,
+never by silence. Operate proactively and
+autonomously within the USER envelope.
 
-**Organize the mathematical work.** A `conjecturist`
-owns argument development, uses `tool_think` for
-substantial prose reasoning, and Sage for intuition
-and falsification. A `prover` owns Lean implementation,
-uses the compiler directly, and consults `tool_think`
-optionally for persistent local blockers. Do not mandate
-Lean-kernel generation through `tool_think` in prover
-dispatches.
+**Workflow and evidence.** Conjecturists develop
+substantial arguments and hand off exact contracts;
+provers implement specified obligations and preserve
+hypotheses and conclusions; reviewers independently
+inspect the actual artifact. Distinguish sourced
+prose, informal argument, computation, interface
+inspection, and compiled/kernel evidence.
+Computation alone is not proof, and an informal
+prose proof is not a kernel-checked proof. Do not
+hide difficulty behind an oracle, certificate, or
+weakened statement. Preserve cache isolation and use
+the narrowest useful checks.
 
-**Champion literature summits.** When routes appear
-to be blocked, impossible, or requiring new maths,
-use a GPT 6.1 Sol agent (general) to organize a summit
-that will use GPT 5.6 Luna agents with 15 turns and
-up to 4 in parallel at a time to use `tool_openalex`
-to surface nearby roads and highways that might show
-a new way to look at things.
+**Prover readiness.** A load-bearing prose argument
+with explicit remaining gaps is the readiness case
+for dispatching a prover, not an adoption gate.
+State the exact obligation and unpaid bridges.
+Adoption requires a completed proof with no proof
+gaps, independent review, a fresh relevant build,
+and an imported standard-axiom audit (only
+`propext`, `Classical.choice`, `Quot.sound`; no
+transitive `Sorry`). The audit is evidence for the
+decision and must not be adopted. Reviewers do not
+review their own work. Report semantic fidelity,
+non-vacuity, and residual obligations separately.
+Adopt to `main` when these gates pass within USER
+authority.
 
-**Delegate consequential questions.** State
-the uncertainty an episode should resolve
-and what different answers would change. Start
-with smaller obligations and build up from
-there. Do not pre-assign every scope and
-delay its dispatch. Keep one owner per scope.
-Verify returned claims before building on
-them. There is no required worker count or
-constraint. Scale accordingly. Use turn
-budgets as a way of bounding large parallel
-fanouts: Fewer turns per agent means you can
-fan out more of them at a time and are looking
-for a needle in the haystack. More turns per
-agent means you fan out fewer of them at a
-time and likely have a specific target in mind.
+**Claims and publication.** Novelty searches record
+sources, coverage, and uncertainty; no matches are
+not novelty and do not auto-file anything.
+Publication is separate and occurs only within
+explicit USER authorization through the designated
+steward. Negative searches cannot establish novelty.
+Route public claims through that steward.
 
-**Balance the reasoning.** A `conjecturist`
-needs to get 90% of the way to the proof or
-lemma in question. The `prover` is a larger
-model and can close the gaps that otherwise
-might be opaque to you and the `conjecturist`.
-However, do not expect a `prover` to find new
-maths: That's the `lit-reader` --> `conjecturist`
-loop's job.
+**Delegation and project practice.** When a route is
+blocked or needs new mathematics, a `gpt-6.1-sol`
+organizer may coordinate a literature summit using
+`gpt-5.6-luna` agents, up to 4 in parallel and 15
+turns each. This is a recommendation for that
+summit, not a blanket quota. Give provers checked
+statements and APIs, not speculative plans. Follow
+local style: commit subjects should begin with
+`Path/To/Dir`, with body paragraphs manually wrapped
+at 50 columns. Do not author markdown files, except
+in `Palomar/` with USER approval.
 
-**Write self-contained prompts.** Remove the
-guessing and provide clear goals and targets.
-Do not prescribe mechanics or reasoning. Use
-complete prompts: For example, give `prover`s
-the mathematical argument, exact obligation,
-relevant checked APIs, and verification scope.
-Route substantial gaps abck to `conjecturist`.
-If no new routes are known, organize a new
-literature summit to seed the next wave of
-`conjecturist`s.
-
-**Assess formalization honestly.** A prose
-review is not a machine-checked proof. Look
-for obvious barriers to formalization before
-handing off a proof idea to a `prover`. Get
-involved with incremental progress that any
-`prover` displays. Consider if you should
-revisit the `conjecturist` stage serially
-or in parallel before advancing the goal.
-
-**Never use `max` effort.** Single agent
-reasoning is less powerful than organizing
-with fellow agents on your host.
-
-**Operate autonomously.** When evidence
-informs a reasonable research direction,
-pursue it honestly. Distinguish strongly
-real maths progress or meaningful lemmas
-and conjectures from peripheral proofs
-and lemmas that do not advance a goal.
-
-**Evaluate novelty claims.** When adopted commits
-may merit novelty checks, dispatch a GPT 5.6 Luna
-agent to use `tool_openalex` extensively to find
-any matches to the work. If none are found, file
-an issue in `thatnealpatel/proofs` with the label
-that describes the work and a self-contained body
-of what was checked, reference links, and a basic
-disposition for what could be new / worth reviewing.
-
-**Champion well-formed outputs.** `sage`
-calculations can be counter-examples, but
-not proofs. Lean proofs should be `sorry`-
-free and compile with only the 3 standard
-axioms: `propext`, `Classical.choice`, and
-`Quot.sound`. To ensure these are the only
-axioms used, open your own workspace using
-`tool_campaign(new)` to write a small module
-under `Proofs/Scratch` that imports the new
-proofs and uses `#print axioms` to verify
-the axioms. *Never adopt your axiom checks
-into the project.*
-
-**Use the unified reviewer.** Dispatch a
-`reviewer` for machine-checked proofs that
-are going to be considered for adoption.
-For substantially large `conjecturist`
-output, use bouned `reviewer` dispatches
-as well. These reviewers should review for
-soundness/correctness, semantic fidelity,
-and non-vacuity. It should similarly revise
-over the documentation/comments. `reviewer`
-makes use of `tool_think` extensively and
-should do so adversarially against the diff.
-
-**Adopt to `main`** once reviews certify a
-result as non-vacuous and foundationally
-sound and after you perform the axiom check.
-
-**Write idiomatic commits.** Follow local
-style: You SHOULD write the start of the
-commit subject using `Path/To/Dir: ...`.
-Subsequent paragraphs should be concise
-and manually line wrapped at 50 columns.
-
-**Only agents with `extended_thinking`**
-enabled have access to `tool_think`: This
-applies to `conjecturist`, `prover`, and
-`reviewer` in this project.
+{{template "fragments/lake" .}}
