@@ -208,7 +208,7 @@ private theorem fraction_preimage_uniform_nat {X Y : Type*} [Fintype X] [Fintype
   simpa only [Nat.card_eq_fintype_card] using fraction_preimage_uniform f hu' P
 
 /-- Embed the first and last `K-1` positions into a permutation of length `n`. -/
-def boundaryEmbedding (K n : ℕ) (hK : 4 ≤ K) (hn : 2 * K - 2 ≤ n) :
+def boundaryEmbedding (K n : ℕ) (hK : 2 ≤ K) (hn : 2 * K - 2 ≤ n) :
     Fin (2 * K - 2) ↪ Fin n where
   toFun i := ⟨if i.val < K - 1 then i.val else n - (K - 1) + (i.val - (K - 1)), by
     split_ifs <;> omega⟩
@@ -224,14 +224,14 @@ example : (boundaryEmbedding 4 9 (by decide) (by decide) ⟨3, by decide⟩).val
 example : (boundaryEmbedding 4 6 (by decide) (by decide) ⟨0, by decide⟩).val = 0 := rfl
 
 /-- The boundary embedding sends the first position to the first position. -/
-theorem boundaryEmbedding_zero (K n : ℕ) (hK : 4 ≤ K) (hn : 2 * K - 2 ≤ n)
+theorem boundaryEmbedding_zero (K n : ℕ) (hK : 2 ≤ K) (hn : 2 * K - 2 ≤ n)
     [NeZero n] [NeZero (2 * K - 2)] : boundaryEmbedding K n hK hn 0 = 0 := by
   apply Fin.ext
   change (if 0 < K - 1 then 0 else n - (K - 1) + (0 - (K - 1))) = 0
   rw [if_pos (by omega)]
 
 /-- Every position of a short prefix is embedded without change. -/
-theorem boundaryEmbedding_prefix (K n : ℕ) (hK : 4 ≤ K) (hn : 2 * K - 2 ≤ n)
+theorem boundaryEmbedding_prefix (K n : ℕ) (hK : 2 ≤ K) (hn : 2 * K - 2 ≤ n)
     {k : ℕ} (hk : k < K) (i : Fin k) :
     boundaryEmbedding K n hK hn ⟨i.val, by omega⟩ = ⟨i.val, by omega⟩ := by
   apply Fin.ext
@@ -239,7 +239,7 @@ theorem boundaryEmbedding_prefix (K n : ℕ) (hK : 4 ≤ K) (hn : 2 * K - 2 ≤ 
   rw [if_pos (by omega)]
 
 /-- Every position of a short suffix is embedded in the corresponding suffix. -/
-theorem boundaryEmbedding_suffix (K n : ℕ) (hK : 4 ≤ K) (hn : 2 * K - 2 ≤ n)
+theorem boundaryEmbedding_suffix (K n : ℕ) (hK : 2 ≤ K) (hn : 2 * K - 2 ≤ n)
     {k : ℕ} (hk : k < K) (i : Fin k) :
     boundaryEmbedding K n hK hn ⟨i.val + (2 * K - 2 - k), by omega⟩ =
       ⟨i.val + (n - k), by omega⟩ := by
@@ -250,7 +250,7 @@ theorem boundaryEmbedding_suffix (K n : ℕ) (hK : 4 ≤ K) (hn : 2 * K - 2 ≤ 
   omega
 
 /-- Actual prefix/suffix overlap is unchanged by boundary standardization. -/
-theorem overlap_standardize_iff (K n : ℕ) (hK : 4 ≤ K) (hn : 2 * K - 2 ≤ n)
+theorem overlap_standardize_iff (K n : ℕ) (hK : 2 ≤ K) (hn : 2 * K - 2 ≤ n)
     {k : ℕ} (hk : k < K) (hkn : k < n) (hkL : k < 2 * K - 2)
     (π : Equiv.Perm (Fin n)) :
     PermutationOverlapBound.Overlap hkL (standardize (boundaryEmbedding K n hK hn) π) ↔
@@ -282,7 +282,7 @@ example (π : Equiv.Perm (Fin 1)) : ShortAvoid 4 π := by
   omega
 
 /-- Short avoidance is exactly the preimage of short avoidance on the boundary. -/
-theorem shortAvoid_standardize_iff (K n : ℕ) (hK : 4 ≤ K) (hn : 2 * K - 2 ≤ n)
+theorem shortAvoid_standardize_iff (K n : ℕ) (hK : 2 ≤ K) (hn : 2 * K - 2 ≤ n)
     (π : Equiv.Perm (Fin n)) :
     ShortAvoid K (standardize (boundaryEmbedding K n hK hn) π) ↔ ShortAvoid K π := by
   constructor
@@ -295,7 +295,7 @@ theorem shortAvoid_standardize_iff (K n : ℕ) (hK : 4 ≤ K) (hn : 2 * K - 2 �
 
 /-- For minimum first label, the exact truncated avoidance fraction depends only on
 its boundary of length `2*K-2`, not on the full length `n`. -/
-theorem shortAvoid_fraction (K n : ℕ) (hK : 4 ≤ K) (hn : 2 * K - 2 ≤ n) :
+theorem shortAvoid_fraction (K n : ℕ) (hK : 2 ≤ K) (hn : 2 * K - 2 ≤ n) :
     (Fintype.card {π : FixedFirst (⟨0, by omega⟩ : Fin n) ⟨0, by omega⟩ //
       ShortAvoid K π.val} : ℝ) /
       Fintype.card (FixedFirst (⟨0, by omega⟩ : Fin n) ⟨0, by omega⟩) =
