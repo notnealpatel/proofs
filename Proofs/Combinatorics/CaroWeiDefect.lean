@@ -118,16 +118,18 @@ private theorem sum_le_card_sub {V : Type*} [DecidableEq V] (C : Finset V)
   rw [he] at hs
   linarith
 
-/-- An induced three-vertex path forces a quantitative improvement of the
-Caro–Wei bound, witnessed by an actual independent finite vertex set. -/
-theorem exists_independent_set_defect {V : Type*} [Fintype V]
-    (G : SimpleGraph V) [DecidableRel G.Adj] (D : ℕ) (_hD : 2 ≤ D)
-    (hdegree : ∀ x : V, G.degree x ≤ D)
+/-- An induced three-vertex path supplies a closed-neighborhood removal whose
+residual Caro–Wei weight gains at least `1 / (D * (D + 1))`. -/
+theorem exists_residual_step {V : Type*} [Fintype V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] [DecidableEq V]
+    (D : ℕ) (_hD : 2 ≤ D) (hdegree : ∀ x : V, G.degree x ≤ D)
     (a b c : V) (hab : G.Adj a b) (hbc : G.Adj b c)
     (hac : a ≠ c) (hnac : ¬ G.Adj a c) :
-    ∃ S : Finset V, G.IsIndepSet (S : Set V) ∧
+    ∃ v : V, let C := insert v (G.neighborFinset v)
       (∑ x : V, (1 : ℝ) / ((G.degree x : ℝ) + 1)) +
-        (1 : ℝ) / ((D : ℝ) * ((D : ℝ) + 1)) ≤ (S.card : ℝ) := by
+        1 / ((D : ℝ) * ((D : ℝ) + 1)) ≤
+      1 + ∑ x : {x : V // x ∉ C},
+        (1 : ℝ) / (((G.induce {x | x ∉ C}).degree x : ℝ) + 1) := by
   classical
   obtain ⟨v, hmin, hcases⟩ := local_configuration G a b c hab hbc hac hnac
   let C := insert v (G.neighborFinset v)
@@ -169,6 +171,31 @@ theorem exists_independent_set_defect {V : Type*} [Fintype V]
       have hsum : g z - f z ≤ ∑ x : R, (g x - f x) :=
         Finset.single_le_sum (fun x _ => sub_nonneg.mpr (hmono x)) (Finset.mem_univ z)
       linarith
+  have hpart : (∑ x ∈ C, f x) + (∑ x : R, f x) = ∑ x : V, f x := by
+    rw [Finset.sum_subtype C (fun _ => Iff.rfl)]
+    exact Fintype.sum_subtype_add_sum_subtype (fun x => x ∈ C) f
+  have hdiff : (∑ x : R, (g x - f x)) = (∑ x : R, g x) - ∑ x : R, f x :=
+    by rw [Finset.sum_sub_distrib]
+  refine ⟨v, ?_⟩
+  change (∑ x : V, f x) + δ ≤ 1 + ∑ x : R, g x
+  rw [hdiff] at hgain
+  linarith
+
+/-- An induced three-vertex path forces a quantitative improvement of the
+Caro–Wei bound, witnessed by an actual independent finite vertex set. -/
+theorem exists_independent_set_defect {V : Type*} [Fintype V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] (D : ℕ) (_hD : 2 ≤ D)
+    (hdegree : ∀ x : V, G.degree x ≤ D)
+    (a b c : V) (hab : G.Adj a b) (hbc : G.Adj b c)
+    (hac : a ≠ c) (hnac : ¬ G.Adj a c) :
+    ∃ S : Finset V, G.IsIndepSet (S : Set V) ∧
+      (∑ x : V, (1 : ℝ) / ((G.degree x : ℝ) + 1)) +
+        (1 : ℝ) / ((D : ℝ) * ((D : ℝ) + 1)) ≤ (S.card : ℝ) := by
+  classical
+  obtain ⟨v, hstep⟩ := exists_residual_step G D _hD hdegree a b c hab hbc hac hnac
+  let C := insert v (G.neighborFinset v)
+  let R := {x : V // x ∉ C}
+  let H : SimpleGraph R := G.induce {x | x ∉ C}
   obtain ⟨T, hTind, hTweight⟩ := exists_independent_set H
   let e : R ↪ V := Function.Embedding.subtype (fun x => x ∉ C)
   let U : Finset V := T.map e
@@ -198,16 +225,11 @@ theorem exists_independent_set_defect {V : Type*} [Fintype V]
       · exact hUind hx hy hxy
   have hScard : (insert v U).card = T.card + 1 := by
     rw [Finset.card_insert_of_notMem hvU, Finset.card_map]
-  have hpart : (∑ x ∈ C, f x) + (∑ x : R, f x) = ∑ x : V, f x := by
-    rw [Finset.sum_subtype C (fun _ => Iff.rfl)]
-    exact Fintype.sum_subtype_add_sum_subtype (fun x => x ∈ C) f
-  have hdiff : (∑ x : R, (g x - f x)) = (∑ x : R, g x) - ∑ x : R, f x :=
-    by rw [Finset.sum_sub_distrib]
-  rw [hdiff] at hgain
   refine ⟨insert v U, hSind, ?_⟩
-  change (∑ x : V, f x) + δ ≤ ((insert v U).card : ℝ)
   rw [hScard, Nat.cast_add, Nat.cast_one]
-  change (∑ x : R, g x) ≤ (T.card : ℝ) at hTweight
+  change (∑ x : V, (1 : ℝ) / ((G.degree x : ℝ) + 1)) +
+    1 / ((D : ℝ) * ((D : ℝ) + 1)) ≤
+    1 + ∑ x : R, (1 : ℝ) / ((H.degree x : ℝ) + 1) at hstep
   linarith
 
 example : let G : SimpleGraph (Fin 3) :=
