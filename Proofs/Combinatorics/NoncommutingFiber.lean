@@ -277,6 +277,22 @@ private theorem mixedSum_plane_image (A : Finset (ℤ × ℤ × ℤ)) :
       L2 z,Finset.mem_image_of_mem _ hz, ?_⟩
     ext <;> simp [planeSum,L0,L1,L2]
 
+/-- The product of the three pair-projection cardinalities is bounded by
+    the square of the ordinary mixed-sum cardinality. -/
+theorem pair_projections_le_mixedSum_sq (A : Finset (ℤ × ℤ × ℤ)) :
+    (A.image (fun t => (t.1,t.2.1))).card *
+      (A.image (fun t => (t.1,t.2.2))).card *
+      (A.image (fun t => (t.2.1,t.2.2))).card ≤ (mixedSum A).card ^ 2 := by
+  have hS := plane_sum_card_sq
+    (A.image (fun t => (t.2.1,-t.1)))
+    (A.image (fun t => (t.2.2,-t.1)))
+    (A.image (fun t => (t.2.2,-t.2.1)))
+  rw [rotated_projection_card A (fun t => (t.1,t.2.1)),
+    rotated_projection_card A (fun t => (t.1,t.2.2)),
+    rotated_projection_card A (fun t => (t.2.1,t.2.2)),
+    ← mixedSum_plane_image] at hS
+  exact hS
+
 /-- For every finite subset of `ℤ³`, the sum of its images under the three
 specified noncommuting coordinate maps has at least as many distinct elements. -/
 theorem card_le_mixedSum (A : Finset (ℤ × ℤ × ℤ)) : A.card ≤ (mixedSum A).card := by
