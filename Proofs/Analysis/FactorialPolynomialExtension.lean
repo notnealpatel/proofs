@@ -32,10 +32,11 @@ private theorem summable_growth (a c : ℕ) (R C : ℝ) :
   simpa only [← heq] using (Real.summable_pow_div_factorial A).mul_left K
 
 /-- Factorially accurate, separately polynomial complex approximants with linear degree
- growth give an entire extension of a real profile on the closed unit square. This is
+ growth give an entire extension of a real profile on the closed unit square, together
+ with convergence of the approximants at every complex pair. This is
  conditional on the stated global polynomial representations, not an assertion that a
  particular endpoint profile or Bernstein construction satisfies them. -/
-theorem exists_differentiable_extension
+theorem exists_differentiable_extension_with_tendsto
     (a c : ℕ) (C : ℝ) (hC : 0 ≤ C)
     (b : ℕ → ℂ × ℂ → ℂ) (P : ℝ × ℝ → ℝ)
     (hb : ∀ n, Differentiable ℂ (b n))
@@ -46,6 +47,7 @@ theorem exists_differentiable_extension
     (herr : ∀ n (x y : ℝ), x ∈ Set.Icc 0 1 → y ∈ Set.Icc 0 1 →
       ‖b n ((x : ℂ), (y : ℂ)) - (P (x, y) : ℂ)‖ ≤ C / (n.factorial : ℝ)) :
     ∃ E : ℂ × ℂ → ℂ, Differentiable ℂ E ∧
+      (∀ z, Tendsto (fun n => b n z) atTop (𝓝 (E z))) ∧
       ∀ (x y : ℝ), x ∈ Set.Icc 0 1 → y ∈ Set.Icc 0 1 →
         E ((x : ℂ), (y : ℂ)) = (P (x, y) : ℂ) := by
   let f : ℕ → ℂ × ℂ → ℂ := fun n z => b (n + 1) z - b n z
@@ -93,28 +95,52 @@ theorem exists_differentiable_extension
       (a * (n + 1) + c) R (2 * C / (n.factorial : ℝ)) hR.le (by positivity)
       (fun v w => f n (v, w)) (hpoly hx n) (hpolyY n) (hsquare n)
       z.1 z.2 ((norm_fst_le z).trans hzR) ((norm_snd_le z).trans hzR)
-  refine ⟨fun z => b 0 z + ∑' n, f n z,
-    (hb 0).add (ComplexNormalSeries.differentiable_tsum_of_normal f hf hnormal), ?_⟩
-  intro x y hx0 hy0
-  let z : ℂ × ℂ := ((x : ℂ), (y : ℂ))
-  have hsum : Summable (fun n => f n z) := ComplexNormalSeries.summable_of_normal f hnormal z
-  have htel (n : ℕ) : ∑ k ∈ Finset.range n, f k z = b n z - b 0 z := by
-    induction n with
-    | zero => simp
-    | succ n ih => rw [Finset.sum_range_succ, ih]; dsimp [f]; ring
-  have hlim : Tendsto (fun n => b n z) atTop (𝓝 (b 0 z + ∑' n, f n z)) := by
+  let E : ℂ × ℂ → ℂ := fun z => b 0 z + ∑' n, f n z
+  have hlim (z : ℂ × ℂ) : Tendsto (fun n => b n z) atTop (𝓝 (E z)) := by
+    have hsum := ComplexNormalSeries.summable_of_normal f hnormal z
+    have htel (n : ℕ) : ∑ k ∈ Finset.range n, f k z = b n z - b 0 z := by
+      induction n with
+      | zero => simp
+      | succ n ih => rw [Finset.sum_range_succ, ih]; dsimp [f]; ring
     have ht := hsum.hasSum.tendsto_sum_nat.const_add (b 0 z)
     simpa only [htel, add_sub_cancel] using ht
+  refine ⟨E, (hb 0).add
+    (ComplexNormalSeries.differentiable_tsum_of_normal f hf hnormal), hlim, ?_⟩
+  intro x y hx0 hy0
+  let z : ℂ × ℂ := ((x : ℂ), (y : ℂ))
   have herrlim : Tendsto (fun n : ℕ => C / (n.factorial : ℝ)) atTop (𝓝 0) := by
     simpa [div_eq_mul_inv] using
       ((Real.summable_pow_div_factorial 1).mul_left C).tendsto_atTop_zero
   have hlimP : Tendsto (fun n => b n z) atTop (𝓝 (P (x, y) : ℂ)) := by
     apply tendsto_iff_norm_sub_tendsto_zero.mpr
     exact squeeze_zero (fun n => norm_nonneg _) (fun n => herr n x y hx0 hy0) herrlim
-  exact tendsto_nhds_unique hlim hlimP
+  exact tendsto_nhds_unique (hlim z) hlimP
+
+
+/-- Factorially accurate, separately polynomial complex approximants with linear degree
+ growth give an entire extension of a real profile on the closed unit square. This is
+ conditional on the stated global polynomial representations, not an assertion that a
+ particular endpoint profile or Bernstein construction satisfies them. -/
+theorem exists_differentiable_extension
+    (a c : ℕ) (C : ℝ) (hC : 0 ≤ C)
+    (b : ℕ → ℂ × ℂ → ℂ) (P : ℝ × ℝ → ℝ)
+    (hb : ∀ n, Differentiable ℂ (b n))
+    (hx : ∀ n w, ∃ p : ℂ[X], p.natDegree ≤ a * n + c ∧
+      ∀ z, p.eval z = b n (z, w))
+    (hy : ∀ n z, ∃ p : ℂ[X], p.natDegree ≤ a * n + c ∧
+      ∀ w, p.eval w = b n (z, w))
+    (herr : ∀ n (x y : ℝ), x ∈ Set.Icc 0 1 → y ∈ Set.Icc 0 1 →
+      ‖b n ((x : ℂ), (y : ℂ)) - (P (x, y) : ℂ)‖ ≤ C / (n.factorial : ℝ)) :
+    ∃ E : ℂ × ℂ → ℂ, Differentiable ℂ E ∧
+      ∀ (x y : ℝ), x ∈ Set.Icc 0 1 → y ∈ Set.Icc 0 1 →
+        E ((x : ℂ), (y : ℂ)) = (P (x, y) : ℂ) := by
+  obtain ⟨E, hE, _, hEP⟩ :=
+    exists_differentiable_extension_with_tendsto a c C hC b P hb hx hy herr
+  exact ⟨E, hE, hEP⟩
 
 example :
     ∃ E : ℂ × ℂ → ℂ, Differentiable ℂ E ∧
+      (∀ z, Tendsto (fun _ : ℕ => (1 : ℂ)) atTop (𝓝 (E z))) ∧
       ∀ (x y : ℝ), x ∈ Set.Icc 0 1 → y ∈ Set.Icc 0 1 →
         E ((x : ℂ), (y : ℂ)) = (1 : ℂ) := by
   let b : ℕ → ℂ × ℂ → ℂ := fun _ _ => 1
@@ -134,7 +160,7 @@ example :
     intro n x y hx0 hy0
     simp only [b, P, Complex.ofReal_one, sub_self, norm_zero]
     positivity
-  exact exists_differentiable_extension 0 0 1 hC b P hb hx hy herr
+  exact exists_differentiable_extension_with_tendsto 0 0 1 hC b P hb hx hy herr
 
 example : (0 : ℝ) ∈ Set.Icc 0 1 ∧ (1 : ℝ) ∈ Set.Icc 0 1 := by
   norm_num
