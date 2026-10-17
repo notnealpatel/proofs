@@ -1,5 +1,6 @@
 import Combinatorics.PermutationFixedFirstLimit
 import Combinatorics.PermutationSixMarginal
+import Combinatorics.PermutationTwoAnchorKernel
 
 set_option autoImplicit false
 
@@ -246,8 +247,121 @@ theorem card_earliest_mul_factorial {n k : ℕ} (hk : 2 ≤ k)
   rw [Nat.card_congr e]
   exact card_agreement_prefix_mul_factorial p j a b hp hab FullAvoid
 
+/-- A selected label set with label `j` at rank `r` has the hypergeometric
+count, with zero binomial factors accounting for impossible ranks. -/
+theorem card_ranked_subset {n k : ℕ} (j : Fin n) (r : Fin k) :
+    Nat.card {s : {s : Finset (Fin n) // s.card = k} //
+      s.val.orderEmbOfFin s.property r = j} =
+      Nat.choose j.val r.val * Nat.choose (n - 1 - j.val) (k - 1 - r.val) := by
+  classical
+  let Choices := ↥((Finset.Iio j).powersetCard r.val) ×
+    ↥((Finset.Ioi j).powersetCard (k - 1 - r.val))
+  have stats (A B : Finset (Fin n)) (hA : A ⊆ Finset.Iio j)
+      (hB : B ⊆ Finset.Ioi j) :
+      (insert j (A ∪ B)).card = 1 + A.card + B.card ∧
+      (insert j (A ∪ B)).filter (fun x => x < j) = A ∧
+      (insert j (A ∪ B)).filter (fun x => j < x) = B := by
+    have ha (x) (hx : x ∈ A) : x < j := Finset.mem_Iio.mp (hA hx)
+    have hb (x) (hx : x ∈ B) : j < x := Finset.mem_Ioi.mp (hB hx)
+    have hd : Disjoint A B := by
+      apply Finset.disjoint_left.mpr
+      intro x hx hy
+      exact (lt_asymm (ha x hx) (hb x hy))
+    have hj : j ∉ A ∪ B := by
+      intro h
+      rcases Finset.mem_union.mp h with h | h
+      · exact (lt_irrefl j) (ha j h)
+      · exact (lt_irrefl j) (hb j h)
+    refine ⟨?_, ?_, ?_⟩
+    · rw [Finset.card_insert_of_notMem hj, Finset.card_union_of_disjoint hd]
+      omega
+    · ext x
+      simp only [Finset.mem_filter, Finset.mem_insert, Finset.mem_union]
+      constructor
+      · rintro ⟨(rfl | hx | hx), hlt⟩
+        · exact False.elim (lt_irrefl _ hlt)
+        · exact hx
+        · exact False.elim (lt_asymm hlt (hb x hx))
+      · intro hx
+        exact ⟨Or.inr (Or.inl hx), ha x hx⟩
+    · ext x
+      simp only [Finset.mem_filter, Finset.mem_insert, Finset.mem_union]
+      constructor
+      · rintro ⟨(rfl | hx | hx), hlt⟩
+        · exact False.elim (lt_irrefl _ hlt)
+        · exact False.elim (lt_asymm (ha x hx) hlt)
+        · exact hx
+      · intro hx
+        exact ⟨Or.inr (Or.inr hx), hb x hx⟩
+  let assemble (z : Choices) :
+      {s : {s : Finset (Fin n) // s.card = k} //
+        s.val.orderEmbOfFin s.property r = j} := by
+    have hA := Finset.mem_powersetCard.mp z.1.property
+    have hB := Finset.mem_powersetCard.mp z.2.property
+    have hs := stats z.1.val z.2.val hA.1 hB.1
+    have hc : (insert j (z.1.val ∪ z.2.val)).card = k := by
+      rw [hs.1, hA.2, hB.2]
+      omega
+    refine ⟨⟨insert j (z.1.val ∪ z.2.val), hc⟩, ?_⟩
+    apply (PermutationTwoAnchorKernel.orderEmb_eq_iff_filter_card _ hc r j).mpr
+    exact ⟨Finset.mem_insert_self _ _, by rw [hs.2.1, hA.2]⟩
+  have bij : Function.Bijective assemble := by
+    constructor
+    · intro z w h
+      have he := congrArg (fun s => s.val.val) h
+      have hz := stats z.1.val z.2.val
+        (Finset.mem_powersetCard.mp z.1.property).1
+        (Finset.mem_powersetCard.mp z.2.property).1
+      have hw := stats w.1.val w.2.val
+        (Finset.mem_powersetCard.mp w.1.property).1
+        (Finset.mem_powersetCard.mp w.2.property).1
+      apply Prod.ext
+      · apply Subtype.ext
+        exact hz.2.1.symm.trans ((congrArg (fun s => s.filter (fun x => x < j)) he).trans hw.2.1)
+      · apply Subtype.ext
+        exact hz.2.2.symm.trans ((congrArg (fun s => s.filter (fun x => j < x)) he).trans hw.2.2)
+    · intro s
+      let A := s.val.val.filter (fun x => x < j)
+      let B := s.val.val.filter (fun x => j < x)
+      have hA : A ⊆ Finset.Iio j := by
+        intro x hx
+        exact Finset.mem_Iio.mpr (Finset.mem_filter.mp hx).2
+      have hB : B ⊆ Finset.Ioi j := by
+        intro x hx
+        exact Finset.mem_Ioi.mpr (Finset.mem_filter.mp hx).2
+      have hr := (PermutationTwoAnchorKernel.orderEmb_eq_iff_filter_card
+        s.val.val s.val.property r j).mp s.property
+      have hrec : insert j (A ∪ B) = s.val.val := by
+        ext x
+        simp only [Finset.mem_insert, Finset.mem_union, A, B, Finset.mem_filter]
+        constructor
+        · rintro (rfl | hx | hx)
+          · exact hr.1
+          · exact hx.1
+          · exact hx.1
+        · intro hx
+          rcases lt_trichotomy x j with h | h | h
+          · exact Or.inr (Or.inl ⟨hx, h⟩)
+          · exact Or.inl h
+          · exact Or.inr (Or.inr ⟨hx, h⟩)
+      have hs := (stats A B hA hB).1
+      rw [hrec, s.val.property] at hs
+      have hcA : A.card = r.val := hr.2
+      have hcB : B.card = k - 1 - r.val := by omega
+      refine ⟨(⟨A, Finset.mem_powersetCard.mpr ⟨hA, hcA⟩⟩,
+        ⟨B, Finset.mem_powersetCard.mpr ⟨hB, hcB⟩⟩), ?_⟩
+      exact Subtype.ext (Subtype.ext hrec)
+  rw [← Nat.card_congr (Equiv.ofBijective assemble bij)]
+  simp only [Choices, Nat.card_eq_fintype_card, Fintype.card_prod,
+    Fintype.card_coe, Finset.card_powersetCard, Fin.card_Iio, Fin.card_Ioi]
+
+example : Nat.card {s : {s : Finset (Fin 4) // s.card = 2} //
+    s.val.orderEmbOfFin s.property (0 : Fin 2) = (0 : Fin 4)} = 3 := by
+  rw [card_ranked_subset]
+  decide
+
 /-- Exact row-only conditional count identity. The numerical count of label sets with
-specified first rank, the prefix completion count, and their aggregation remain unpaid. -/
+specified first rank and all prefix completion fibers are counted explicitly. -/
 theorem earliest_fraction {n k : ℕ} (hk : 2 ≤ k) (hn : 2 * k ≤ n) (j : Fin n) :
     (Nat.card {π : FixedFirst (⟨0, by omega⟩ : Fin n) j //
       Earliest (by omega : k < n) π.val} : ℝ) /
@@ -257,7 +371,120 @@ theorem earliest_fraction {n k : ℕ} (hk : 2 ≤ k) (hn : 2 * k ≤ n) (j : Fin
       (Nat.choose (n - 1 - j.val) (k - 1 - r.val) : ℝ)) /
       ((Nat.choose (n - 1) (k - 1) : ℝ) *
         (Nat.factorial (k - 1) : ℝ) * (Nat.factorial k : ℝ)) := by
-  sorry
+  have hpatterns (σ : Equiv.Perm (Fin k)) :
+      Nat.card {b : Fin k ↪ Fin n //
+        b ⟨0, by omega⟩ = j ∧ rank b = σ} =
+      Nat.choose j.val (σ ⟨0, by omega⟩).val *
+        Nat.choose (n - 1 - j.val) (k - 1 - (σ ⟨0, by omega⟩).val) := by
+    rw [card_fixed_pattern, card_ranked_subset]
+  let S : ℕ := ∑ r : Fin k, rowCount k (by omega) r *
+    Nat.choose j.val r.val * Nat.choose (n - 1 - j.val) (k - 1 - r.val)
+  have hcount : Nat.card {π : FixedFirst (⟨0, by omega⟩ : Fin n) j //
+      FullAvoid (standardize (prefixEmbedding (by omega : k ≤ n)) π.val)} =
+      S * (n - k).factorial := by
+    classical
+    let z : Fin k := ⟨0, by omega⟩
+    let e := prefixEmbedding (by omega : k ≤ n)
+    let Rows (r : Fin k) := {σ : Equiv.Perm (Fin k) // σ z = r ∧ FullAvoid σ}
+    let Bs (σ : Equiv.Perm (Fin k)) :=
+      {b : Fin k ↪ Fin n // b z = j ∧ rank b = σ}
+    let C (b : Fin k ↪ Fin n) :=
+      {π : Equiv.Perm (Fin n) // ∀ i, π (e i) = b i}
+    let T := Σ r : Fin k, Σ σ : Rows r, Σ b : Bs σ.val, C b.val
+    let A := {π : FixedFirst (⟨0, by omega⟩ : Fin n) j //
+      FullAvoid (standardize e π.val)}
+    let assemble : T → A := fun x =>
+      ⟨⟨x.2.2.2.val, (x.2.2.2.property z).trans x.2.2.1.property.1⟩, by
+        have hb : e.trans x.2.2.2.val.toEmbedding = x.2.2.1.val := by
+          apply Function.Embedding.ext
+          intro i
+          exact x.2.2.2.property i
+        change FullAvoid (rank (e.trans x.2.2.2.val.toEmbedding))
+        rw [hb, x.2.2.1.property.2]
+        exact x.2.1.property.2⟩
+    have bij : Function.Bijective assemble := by
+      constructor
+      · rintro ⟨r, σ, b, π⟩ ⟨t, τ, c, ρ⟩ h
+        have hp : π.val = ρ.val := congrArg (fun x => x.val.val) h
+        have hb : b.val = c.val := by
+          apply Function.Embedding.ext
+          intro i
+          exact (π.property i).symm.trans
+            ((congrArg (fun p => p (e i)) hp).trans (ρ.property i))
+        have hs : σ.val = τ.val :=
+          b.property.2.symm.trans ((congrArg rank hb).trans c.property.2)
+        have hr : r = t := σ.property.1.symm.trans
+          ((congrArg (fun p => p z) hs).trans τ.property.1)
+        subst t
+        have hστ : σ = τ := Subtype.ext hs
+        subst τ
+        have hbc : b = c := Subtype.ext hb
+        subst c
+        have hπρ : π = ρ := Subtype.ext hp
+        subst ρ
+        rfl
+      · intro π
+        let b := e.trans π.val.val.toEmbedding
+        let σ := rank b
+        refine ⟨⟨σ z, ⟨σ, rfl, π.property⟩,
+          ⟨b, π.val.property, rfl⟩, ⟨π.val.val, fun _ => rfl⟩⟩, ?_⟩
+        rfl
+    have hc : Nat.card A = Nat.card T :=
+      (Nat.card_congr (Equiv.ofBijective assemble bij)).symm
+    change Nat.card A = _
+    rw [hc]
+    simp only [T, Nat.card_eq_fintype_card, Fintype.card_sigma]
+    have hB (σ : Equiv.Perm (Fin k)) : Fintype.card (Bs σ) =
+        Nat.choose j.val (σ z).val *
+          Nat.choose (n - 1 - j.val) (k - 1 - (σ z).val) := by
+      simpa only [Nat.card_eq_fintype_card] using hpatterns σ
+    have hC (b : Fin k ↪ Fin n) : Fintype.card (C b) = (n-k).factorial :=
+      PermutationTwoAnchorKernel.card_completion e b
+    simp_rw [hC, Finset.sum_const, Finset.card_univ, smul_eq_mul, hB]
+    simp only [S, Finset.sum_mul]
+    apply Finset.sum_congr rfl
+    intro r hr
+    have hv (σ : Rows r) : σ.val z = r := σ.property.1
+    simp_rw [hv]
+    simp only [Finset.sum_const, Finset.card_univ, smul_eq_mul]
+    simp only [rowCount, Nat.card_eq_fintype_card, Rows, z, Nat.mul_assoc]
+  have he := card_earliest_mul_factorial hk hn j
+  rw [hcount] at he
+  have heR : (Nat.card {π : FixedFirst (⟨0, by omega⟩ : Fin n) j //
+      Earliest (by omega : k < n) π.val} : ℝ) * (k.factorial : ℝ) =
+      (S : ℝ) * ((n - k).factorial : ℝ) := by exact_mod_cast he
+  have hc : (Nat.choose (n - 1) (k - 1) : ℝ) *
+      ((k - 1).factorial : ℝ) * ((n - k).factorial : ℝ) =
+      ((n - 1).factorial : ℝ) := by
+    have hcN := Nat.choose_mul_factorial_mul_factorial (by omega : k - 1 ≤ n - 1)
+    have hsub : n - 1 - (k - 1) = n - k := by omega
+    rw [hsub] at hcN
+    exact_mod_cast hcN
+  have hden : Nat.card (FixedFirst (⟨0, by omega⟩ : Fin n) j) =
+      (n - 1).factorial := by
+    rw [Nat.card_eq_fintype_card, card_fixedFirst]
+  have hS : (∑ r : Fin k, (rowCount k (by omega) r : ℝ) *
+      (Nat.choose j.val r.val : ℝ) *
+      (Nat.choose (n - 1 - j.val) (k - 1 - r.val) : ℝ)) = (S : ℝ) := by
+    simp [S, Nat.cast_sum, Nat.cast_mul]
+  rw [hden, hS]
+  have hfp : (0 : ℝ) < ((n - 1).factorial : ℝ) := by
+    exact_mod_cast Nat.factorial_pos (n - 1)
+  have hkp : (0 : ℝ) < (k.factorial : ℝ) := by
+    exact_mod_cast Nat.factorial_pos k
+  have hcp : (0 : ℝ) < (Nat.choose (n - 1) (k - 1) : ℝ) := by
+    exact_mod_cast (Nat.choose_pos (by omega : k - 1 ≤ n - 1))
+  have hkm : (0 : ℝ) < ((k - 1).factorial : ℝ) := by
+    exact_mod_cast Nat.factorial_pos (k - 1)
+  apply (div_eq_div_iff (ne_of_gt hfp)
+    (ne_of_gt (mul_pos (mul_pos hcp hkm) hkp))).mpr
+  calc
+    _ = ((Nat.card {π : FixedFirst (⟨0, by omega⟩ : Fin n) j //
+        Earliest (by omega : k < n) π.val} : ℝ) * (k.factorial : ℝ)) *
+        ((Nat.choose (n - 1) (k - 1) : ℝ) * ((k - 1).factorial : ℝ)) := by ring
+    _ = ((S : ℝ) * ((n - k).factorial : ℝ)) *
+        ((Nat.choose (n - 1) (k - 1) : ℝ) * ((k - 1).factorial : ℝ)) := by rw [heR]
+    _ = (S : ℝ) * ((n - 1).factorial : ℝ) := by rw [← hc]; ring
 
 example : 2 ≤ (2 : ℕ) ∧ 2 * 2 ≤ (4 : ℕ) ∧
     Nonempty (FixedFirst (0 : Fin 4) 0) :=
