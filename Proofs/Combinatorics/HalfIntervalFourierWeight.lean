@@ -77,9 +77,10 @@ private lemma norm_hat_neg {p : ℕ} [NeZero p] (C : Finset (ZMod p))
     ring
   rw [hc, Complex.norm_conj]
 
-private lemma coefficient_bound {p j : ℕ} [NeZero p]
+private lemma interval_coefficient_bound {p j r : ℕ} [NeZero p]
+    (hrp : r ≤ p)
     (hp : 0 < p) (hj : 1 ≤ j) (hjp : 2 * j ≤ p) :
-    ‖hatC (halfInterval p) (j : ZMod p)‖ ≤ (2 * (j : ℝ))⁻¹ := by
+    ‖hatC (((Finset.range r).image (fun n : ℕ => (n : ZMod p)))) (j : ZMod p)‖ ≤ (2 * (j : ℝ))⁻¹ := by
   let q : ℂ := ZMod.stdAddChar (-(j : ZMod p))
   have hpR : (0 : ℝ) < p := by exact_mod_cast hp
   have hjR : (0 : ℝ) < j := by exact_mod_cast hj
@@ -89,9 +90,9 @@ private lemma coefficient_bound {p j : ℕ} [NeZero p]
       Complex.norm_conj]
     exact denominator_bound hp hj hjp
   have hq : ‖q‖ = 1 := by simp [q, AddChar.norm_apply]
-  have hsum : (∑ x ∈ halfInterval p, ZMod.stdAddChar (-((j : ZMod p) * x))) =
-      ∑ r ∈ Finset.range ((p - 1) / 2 + 1), q ^ r := by
-    rw [halfInterval, Finset.sum_image]
+  have hsum : (∑ x ∈ ((Finset.range r).image (fun n : ℕ => (n : ZMod p))), ZMod.stdAddChar (-((j : ZMod p) * x))) =
+      ∑ r ∈ Finset.range r, q ^ r := by
+    rw [Finset.sum_image]
     · apply Finset.sum_congr rfl
       intro r hr
       dsimp [q]
@@ -106,11 +107,11 @@ private lemma coefficient_bound {p j : ℕ} [NeZero p]
       have hb' : b < p := by omega
       have hv := congrArg ZMod.val hab
       simpa [ZMod.val_natCast_of_lt ha', ZMod.val_natCast_of_lt hb'] using hv
-  let S : ℂ := ∑ r ∈ Finset.range ((p - 1) / 2 + 1), q ^ r
+  let S : ℂ := ∑ r ∈ Finset.range r, q ^ r
   have hn : ‖S‖ * ‖q - 1‖ ≤ 2 := by
     rw [← norm_mul, geom_sum_mul]
     calc
-      ‖q ^ ((p - 1) / 2 + 1) - 1‖ ≤ ‖q ^ ((p - 1) / 2 + 1)‖ + ‖(1 : ℂ)‖ := norm_sub_le _ _
+      ‖q ^ r - 1‖ ≤ ‖q ^ r‖ + ‖(1 : ℂ)‖ := norm_sub_le _ _
       _ = 2 := by rw [norm_pow, hq]; norm_num
   have hs : ‖S‖ * (4 * (j : ℝ) / p) ≤ 2 :=
     (mul_le_mul_of_nonneg_left hd (norm_nonneg S)).trans hn
@@ -122,10 +123,12 @@ private lemma coefficient_bound {p j : ℕ} [NeZero p]
   field_simp
   nlinarith
 
-/-- For an odd prime, the nonconstant Fourier weight of the half interval is at
-most the harmonic number at its positive endpoint. -/
-theorem weight_le_harmonic (p : ℕ) [Fact p.Prime] (hp : 3 ≤ p) :
-    weight p ≤ (harmonic ((p - 1) / 2) : ℝ) := by
+/-- Every initial interval of length at most the odd prime has nonconstant Fourier
+weight at most the harmonic number at the half-frequency endpoint. -/
+theorem interval_weight_le_harmonic (p r : ℕ) [Fact p.Prime] (hp : 3 ≤ p)
+    (hrp : r ≤ p) :
+    (∑ k ∈ Finset.univ.erase (0 : ZMod p),
+      ‖hatC ((Finset.range r).image (fun n : ℕ => (n : ZMod p))) k‖) ≤ (harmonic ((p - 1) / 2) : ℝ) := by
   let h := (p - 1) / 2
   have hp0 : 0 < p := by omega
   have hodd : p % 2 = 1 := (Fact.out : p.Prime).eq_two_or_odd.resolve_left (by omega)
@@ -188,10 +191,11 @@ theorem weight_le_harmonic (p : ℕ) [Fact p.Prime] (hp : 3 ≤ p) :
       · exact hnz k hk
       · obtain ⟨b, hb, rfl⟩ := Finset.mem_image.mp hk
         exact neg_ne_zero.mpr (hnz b hb)
-  have heq : weight p = 2 * ∑ j ∈ T, ‖hatC (halfInterval p) (j : ZMod p)‖ := by
-    rw [weight, hu, Finset.sum_union hd]
-    have hb : (∑ k ∈ B, ‖hatC (halfInterval p) k‖) =
-        ∑ k ∈ A, ‖hatC (halfInterval p) k‖ := by
+  have heq : (∑ k ∈ Finset.univ.erase (0 : ZMod p),
+      ‖hatC ((Finset.range r).image (fun n : ℕ => (n : ZMod p))) k‖) = 2 * ∑ j ∈ T, ‖hatC (((Finset.range r).image (fun n : ℕ => (n : ZMod p)))) (j : ZMod p)‖ := by
+    rw [hu, Finset.sum_union hd]
+    have hb : (∑ k ∈ B, ‖hatC (((Finset.range r).image (fun n : ℕ => (n : ZMod p)))) k‖) =
+        ∑ k ∈ A, ‖hatC (((Finset.range r).image (fun n : ℕ => (n : ZMod p)))) k‖ := by
       dsimp only [B]
       rw [Finset.sum_image]
       · exact Finset.sum_congr rfl (fun k hk => norm_hat_neg _ k)
@@ -203,13 +207,13 @@ theorem weight_le_harmonic (p : ℕ) [Fact p.Prime] (hp : 3 ≤ p) :
     ring
   rw [heq, harmonic_eq_sum_Icc, Rat.cast_sum]
   calc
-    2 * ∑ j ∈ T, ‖hatC (halfInterval p) (j : ZMod p)‖ ≤
+    2 * ∑ j ∈ T, ‖hatC (((Finset.range r).image (fun n : ℕ => (n : ZMod p)))) (j : ZMod p)‖ ≤
         2 * ∑ j ∈ T, (2 * (j : ℝ))⁻¹ := by
       apply mul_le_mul_of_nonneg_left _ (by norm_num)
       apply Finset.sum_le_sum
       intro j hj
       have hj' := Finset.mem_Icc.mp hj
-      exact coefficient_bound hp0 hj'.1 (by omega)
+      exact interval_coefficient_bound hrp hp0 hj'.1 (by omega)
     _ = ∑ j ∈ Finset.Icc 1 ((p - 1) / 2), (((j : ℚ)⁻¹ : ℚ) : ℝ) := by
       rw [Finset.mul_sum]
       apply Finset.sum_congr rfl
@@ -217,6 +221,12 @@ theorem weight_le_harmonic (p : ℕ) [Fact p.Prime] (hp : 3 ≤ p) :
       push_cast
       rw [mul_inv_rev]
       ring
+
+/-- For an odd prime, the half-interval Fourier weight is at most the harmonic
+number at its positive endpoint. -/
+theorem weight_le_harmonic (p : ℕ) [Fact p.Prime] (hp : 3 ≤ p) :
+    weight p ≤ (harmonic ((p - 1) / 2) : ℝ) := by
+  exact interval_weight_le_harmonic p ((p - 1) / 2 + 1) hp (by omega)
 
 /-- The half-interval Fourier weight is bounded by the harmonic and logarithmic bounds. -/
 theorem weight_le_harmonic_le_log (p : ℕ) [Fact p.Prime] (hp : 3 ≤ p) :
