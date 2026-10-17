@@ -145,4 +145,94 @@ example : (2 ≤ 3) ∧
     Set.InjOn (zeroCoordinates (boolId 3)) ↑(oneZeroRows (boolId 3)) := by
   decide
 
+/-- With a zero in each row, the multi-zero and one-zero row counts partition all rows. -/
+theorem multiZeroRows_card_add_oneZeroRows_card {n : ℕ} (A : BoolMatrix n n)
+    (hzero : ∀ i, ∃ c, A i c = 0) :
+    (multiZeroRows A).card + (oneZeroRows A).card = n := by
+  have hdisj : Disjoint (multiZeroRows A) (oneZeroRows A) := by
+    apply Finset.disjoint_left.mpr
+    intro i hiT hiU
+    have hT := (Finset.mem_filter.mp hiT).2
+    have hU := (Finset.mem_filter.mp hiU).2
+    omega
+  have hunion : multiZeroRows A ∪ oneZeroRows A = Finset.univ := by
+    ext i
+    simp only [Finset.mem_union, Finset.mem_univ, iff_true]
+    exact (row_partition A hzero i).symm
+  calc
+    (multiZeroRows A).card + (oneZeroRows A).card =
+        (multiZeroRows A ∪ oneZeroRows A).card :=
+      (Finset.card_union_of_disjoint hdisj).symm
+    _ = n := by rw [hunion]; exact Finset.card_fin n
+
+/-- On the full dense good event, actual displayed-row OR rank is the number of rows
+minus the number with exactly one zero. -/
+theorem boolRowRank_eq_sub_oneZeroRows_card {n : ℕ} (A : BoolMatrix n n)
+    (hn : 2 ≤ n)
+    (hone : ∀ i, ∃ c, A i c = 1)
+    (hzero : ∀ i, ∃ c, A i c = 0)
+    (hanti : ∀ i ∈ multiZeroRows A, ∀ j, j ≠ i → ¬ RowLE (A j) (A i))
+    (hgen : ∀ u ∈ oneZeroRows A, ∃ W : Finset (Fin n),
+      u ∉ W ∧ rowsSum A W = A u)
+    (hinj : Set.InjOn (zeroCoordinates A) ↑(oneZeroRows A)) :
+    boolRowRank A = n - (oneZeroRows A).card := by
+  have hrank := (boolRowRank_eq_multiZeroRows_card A hn hone hzero hanti hgen hinj).2
+  have hpartition := multiZeroRows_card_add_oneZeroRows_card A hzero
+  omega
+
+/-- Defect of the actual displayed-row OR rank from the number of rows. -/
+def denseDefect {n : ℕ} (A : BoolMatrix n n) : ℕ := n - boolRowRank A
+
+/-- Number of displayed rows with exactly one zero coordinate. -/
+def oneZeroCount {n : ℕ} (A : BoolMatrix n n) : ℕ := (oneZeroRows A).card
+
+/-- The full deterministic dense good event: at least two coordinates, a one and a zero
+in every row, multi-zero non-domination, one-zero redundancy, and distinct zero sets
+among the one-zero rows. -/
+def denseGoodEvent {n : ℕ} (A : BoolMatrix n n) : Prop :=
+  (2 ≤ n) ∧
+    (∀ i, ∃ c, A i c = 1) ∧
+    (∀ i, ∃ c, A i c = 0) ∧
+    (∀ i ∈ multiZeroRows A, ∀ j, j ≠ i → ¬ RowLE (A j) (A i)) ∧
+    (∀ u ∈ oneZeroRows A, ∃ W : Finset (Fin n),
+      u ∉ W ∧ rowsSum A W = A u) ∧
+    Set.InjOn (zeroCoordinates A) ↑(oneZeroRows A)
+
+/-- On the full dense good event, actual rank defect equals the one-zero row count. -/
+theorem denseDefect_eq_oneZeroCount {n : ℕ} (A : BoolMatrix n n)
+    (hG : denseGoodEvent A) : denseDefect A = oneZeroCount A := by
+  obtain ⟨hn, hone, hzero, hanti, hgen, hinj⟩ := hG
+  have hrank := (boolRowRank_eq_multiZeroRows_card A hn hone hzero hanti hgen hinj).2
+  have hpartition := multiZeroRows_card_add_oneZeroRows_card A hzero
+  unfold denseDefect oneZeroCount
+  omega
+
+/-- A mismatch between actual rank defect and the one-zero count excludes the full
+ dense good event. -/
+theorem not_denseGoodEvent_of_denseDefect_ne_oneZeroCount {n : ℕ}
+    (A : BoolMatrix n n) (hne : denseDefect A ≠ oneZeroCount A) :
+    ¬ denseGoodEvent A := by
+  intro hG
+  exact hne (denseDefect_eq_oneZeroCount A hG)
+
+example : denseDefect (boolId 3) = 0 := by
+  have hrank : boolRowRank (boolId 3) = 3 := by
+    exact (boolRowRank_eq_multiZeroRows_card (boolId 3) (by decide)
+      (by decide) (by decide) (by decide) (by decide) (by decide)).2
+  simp [denseDefect, hrank]
+
+example : oneZeroCount (boolId 3) = 0 := by decide
+
+example : denseGoodEvent (boolId 3) := by
+  unfold denseGoodEvent
+  decide
+
+example :
+    let A : BoolMatrix 4 4 := fun i c =>
+      if i = 3 then (if c = 3 then 0 else 1) else (if i = c then 1 else 0)
+    denseGoodEvent A ∧ oneZeroCount A = 1 := by
+  dsimp only
+  unfold denseGoodEvent
+  decide
+
 end BilinearComplexity
