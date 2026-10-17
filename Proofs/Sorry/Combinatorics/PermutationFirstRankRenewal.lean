@@ -1,4 +1,5 @@
 import Combinatorics.PermutationFixedFirstLimit
+import Combinatorics.PermutationSixMarginal
 
 set_option autoImplicit false
 
@@ -138,8 +139,115 @@ theorem card_agreement_prefix_mul_factorial {n t : ℕ} (p m : Fin n)
   simpa only [Nat.card_eq_fintype_card, Fintype.card_prod, Fintype.card_perm,
     Fintype.card_fin] using hc
 
-/-- Exact row-only conditional count identity. The hypergeometric prefixEmbedding count
-and its connection to the paid shuffle/earliest bridges remain unpaid here. -/
+/-- Sorting a chosen label set and then assigning a pattern recovers exactly that pattern. -/
+theorem rank_sorted_pattern {n k : ℕ} (s : Finset (Fin n)) (hs : s.card = k)
+    (σ : Equiv.Perm (Fin k)) :
+    rank (σ.toEmbedding.trans (s.orderEmbOfFin hs).toEmbedding) = σ := by
+  apply rank_unique
+  intro i j
+  exact (s.orderEmbOfFin hs).lt_iff_lt.symm
+
+/-- For a specified pattern, every sorted label set whose label at the first rank is
+`j` gives exactly one injective prefix with first label `j`, and all such prefixes arise. -/
+noncomputable def fixedPatternEquiv {n k : ℕ} (z : Fin k) (j : Fin n)
+    (σ : Equiv.Perm (Fin k)) :
+    {s : {s : Finset (Fin n) // s.card = k} //
+      s.val.orderEmbOfFin s.property (σ z) = j} ≃
+    {b : Fin k ↪ Fin n // b z = j ∧ rank b = σ} := by
+  classical
+  let e := Equiv.ofBijective _ (PermutationSixMarginal.sorted_pattern_bijective n k)
+  refine Equiv.ofBijective (fun s =>
+    (⟨σ.toEmbedding.trans (s.val.val.orderEmbOfFin s.val.property).toEmbedding,
+      s.property, rank_sorted_pattern _ _ σ⟩ :
+      {b : Fin k ↪ Fin n // b z = j ∧ rank b = σ})) ?_
+  constructor
+  · intro s t h
+    have he : e (s.val, σ) = e (t.val, σ) := congrArg Subtype.val h
+    exact Subtype.ext (congrArg Prod.fst (e.injective he))
+  · intro b
+    obtain ⟨⟨s, τ⟩, h⟩ := e.surjective b.val
+    have hr : τ = σ := by
+      have hh := congrArg rank h
+      change rank (τ.toEmbedding.trans (s.val.orderEmbOfFin s.property).toEmbedding) =
+        rank b.val at hh
+      rw [rank_sorted_pattern, b.property.2] at hh
+      exact hh
+    subst τ
+    have hz : s.val.orderEmbOfFin s.property (σ z) = j := by
+      exact (congrArg (fun f : Fin k ↪ Fin n => f z) h).trans b.property.1
+    refine ⟨⟨s, hz⟩, ?_⟩
+    exact Subtype.ext h
+
+example {n k : ℕ} (z : Fin k) (j : Fin n) (σ : Equiv.Perm (Fin k))
+    (s : {s : Finset (Fin n) // s.card = k})
+    (hs : s.val.orderEmbOfFin s.property (σ z) = j) :
+    ((fixedPatternEquiv z j σ) ⟨s, hs⟩).val =
+      σ.toEmbedding.trans (s.val.orderEmbOfFin s.property).toEmbedding := rfl
+
+example : Nonempty {s : {s : Finset (Fin 4) // s.card = 2} //
+    s.val.orderEmbOfFin s.property ((Equiv.refl (Fin 2)) 0) = (0 : Fin 4)} := by
+  let s : {s : Finset (Fin 4) // s.card = 2} := ⟨{0, 1}, by decide⟩
+  refine ⟨⟨s, ?_⟩⟩
+  change s.val.orderEmbOfFin s.property ⟨0, by decide⟩ = 0
+  rw [Finset.orderEmbOfFin_zero s.property (by decide)]
+  apply le_antisymm _ (Fin.zero_le _)
+  exact Finset.min'_le _ _ (by simp [s])
+
+/-- The number of fixed-first injective prefixes of a prescribed pattern is exactly
+the number of label sets having the fixed label at that pattern's first rank. -/
+theorem card_fixed_pattern {n k : ℕ} (z : Fin k) (j : Fin n)
+    (σ : Equiv.Perm (Fin k)) :
+    Nat.card {b : Fin k ↪ Fin n // b z = j ∧ rank b = σ} =
+      Nat.card {s : {s : Finset (Fin n) // s.card = k} //
+        s.val.orderEmbOfFin s.property (σ z) = j} :=
+  (Nat.card_congr (fixedPatternEquiv z j σ)).symm
+
+/-- For separated prefix and suffix blocks, counting earliest overlap reduces exactly
+to counting avoiding prefix patterns, with a suffix-pattern factor of `k!`. -/
+theorem card_earliest_mul_factorial {n k : ℕ} (hk : 2 ≤ k)
+    (hn : 2 * k ≤ n) (j : Fin n) :
+    Nat.card {π : FixedFirst (⟨0, by omega⟩ : Fin n) j //
+      Earliest (by omega : k < n) π.val} * k.factorial =
+    Nat.card {π : FixedFirst (⟨0, by omega⟩ : Fin n) j //
+      FullAvoid (standardize (prefixEmbedding (by omega : k ≤ n)) π.val)} := by
+  let a := suffix (by omega : k ≤ n)
+  let b := prefixEmbedding (by omega : k ≤ n)
+  let p : Fin n := ⟨0, by omega⟩
+  have hp : p ∉ Set.range a := by
+    rintro ⟨i, hi⟩
+    have hv := congrArg Fin.val hi
+    change i.val + (n - k) = 0 at hv
+    omega
+  have hab : Disjoint (Set.range a) (Set.range b) := by
+    rw [Set.disjoint_left]
+    rintro x ⟨i, rfl⟩ ⟨l, hl⟩
+    have hv := congrArg Fin.val hl
+    change l.val = i.val + (n - k) at hv
+    have hi := l.isLt
+    omega
+  have hs (π : Equiv.Perm (Fin n)) :
+      SameOrder π a b ↔ Overlap (by omega : k < n) π := by
+    constructor
+    · intro h i l
+      exact (h i l).symm
+    · intro h i l
+      exact (h i l).symm
+  let e : {π : FixedFirst p j // Earliest (by omega : k < n) π.val} ≃
+      {π : Agreement p j a b // FullAvoid (standardize b π.val)} :=
+    { toFun := fun π =>
+        ⟨⟨π.val.val, π.val.property, (hs π.val.val).mpr π.property.1⟩,
+          ((earliest_iff (by omega) π.val.val).mp π.property).2⟩
+      invFun := fun π =>
+        ⟨⟨π.val.val, π.val.property.1⟩,
+          (earliest_iff (by omega) π.val.val).mpr
+            ⟨(hs π.val.val).mp π.val.property.2, π.property⟩⟩
+      left_inv := by intro π; rfl
+      right_inv := by intro π; rfl }
+  rw [Nat.card_congr e]
+  exact card_agreement_prefix_mul_factorial p j a b hp hab FullAvoid
+
+/-- Exact row-only conditional count identity. The numerical count of label sets with
+specified first rank, the prefix completion count, and their aggregation remain unpaid. -/
 theorem earliest_fraction {n k : ℕ} (hk : 2 ≤ k) (hn : 2 * k ≤ n) (j : Fin n) :
     (Nat.card {π : FixedFirst (⟨0, by omega⟩ : Fin n) j //
       Earliest (by omega : k < n) π.val} : ℝ) /
