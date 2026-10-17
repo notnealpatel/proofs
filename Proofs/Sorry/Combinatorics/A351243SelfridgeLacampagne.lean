@@ -55,7 +55,7 @@ and keeping the positive values reproduces the A147991 DATA line exactly
 (first 20 terms `1, 2, 4, 5, 7, 11, 13, 14, 16, 20, 22, 32, 34, 38, 40, 41, 43,
 47, 49, 59`).
 
-## Status
+## Status recorded at source capture (historical)
 
 The **original** Selfridge–Lacampagne conjecture is **disproved** — A351243 is
 precisely the list of known counterexamples.  What is **open** is whether there
@@ -65,9 +65,16 @@ infinite family of counterexamples.
 Data check on the `3^m + 4` speculation: `3^5 + 4 = 247` (the first term) and
 `3^7 + 4 = 2191` (also a term).  `3^9 + 4 = 19687` is beyond the listed range,
 so the DATA neither confirms nor refutes it.
+
+## Current formal proof status
+
+Both statements recorded as open in the source above are now proved in this
+repository: the entire odd-exponent family and infinitude of the counterexample
+set. The historical source quotations and its original uncertainty are retained
+verbatim; the proofs below reference the production family module.
 -/
 import Mathlib
-import Combinatorics.SelfridgeLacampagne
+import Combinatorics.SelfridgeLacampagneFamilyCounterexample
 
 set_option autoImplicit false
 
@@ -173,9 +180,11 @@ theorem isSLCounterexample_247 : IsSLCounterexample 247 := by
 Verbatim: "It is not known if there are infinitely many counterexamples to the
 conjecture, but perhaps 3^m+4, for m >= 5 and odd, are."
 
-Part one: infinitude of the counterexample set. -/
+Part one: infinitude of the counterexample set. **Formal status: proved** by the
+production family theorem and its injective parametrization. The heading records
+the source's historical status, not a remaining proof obligation. -/
 theorem slCounterexamples_infinite : {k : ℕ | IsSLCounterexample k}.Infinite := by
-  sorry
+  exact SelfridgeLacampagne.slCounterexamples_infinite
 
 /-- **The open question, part two: the `3^m + 4` family.**
 
@@ -186,10 +195,12 @@ entry, not an asserted conjecture, and the card should not upgrade it.  Data
 support: `3^5 + 4 = 247` ✓ (first term) and `3^7 + 4 = 2191` ✓ (a term);
 `3^9 + 4 = 19687` is past the end of the DATA line, so untested.
 
-This statement implies `slCounterexamples_infinite`. -/
+This statement implies `slCounterexamples_infinite`.
+**Formal status: proved** in the production module; the source's speculation and
+historical data commentary above are preserved unchanged. -/
 theorem slCounterexample_three_pow_add_four (m : ℕ) (hm : 5 ≤ m) (hodd : Odd m) :
     IsSLCounterexample (3 ^ m + 4) := by
-  sorry
+  exact SelfridgeLacampagne.isSLCounterexample_three_pow_add_four m hm hodd
 
 /-! ## Sanity layer -/
 
@@ -240,8 +251,9 @@ Its finite closed carry certificates cover both simultaneous and unequal-length
 suffixes; list induction excludes all nonempty expansion pairs in ratio `247`.
 The archived length-14 assertion is only a corollary of this full obstruction.
 
-The `3^m + 4` family and the infinitude question remain open and are deliberately
-left as `sorry` above, with their original statements unchanged. -/
+`SelfridgeLacampagneFamilyCounterexample` now supplies checked proofs of the full
+`3^m + 4` family and infinitude. Both archived statements above are discharged
+by direct production references, with their original statements unchanged. -/
 
 /-!
 ## Adversarial review verdict — **PASS-WITH-NOTES**
