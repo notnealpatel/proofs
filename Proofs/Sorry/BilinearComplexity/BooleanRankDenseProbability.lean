@@ -363,21 +363,182 @@ example :
   unfold singletonZero
   decide
 
-/-- Unpaid exact mass of a dominated ordered pair whose target has at least two
+private theorem constant_row_mass {n : ℕ} (p : ℝ) (i : Fin n) (v : BoolSemiring) :
+    (∑ A : BoolMatrix n n, if ∀ c, A i c = v then matrixWeight p A else 0) =
+      (entryWeight p v)^n := by
+  classical
+  have hf := matrix_column_cylinder p
+    (fun (_ : Fin n) (x : Fin n → BoolSemiring) => x i = v)
+  rw [hf]
+  have hs : (∑ x : Fin n → BoolSemiring,
+      if x i = v then ∏ k, entryWeight p (x k) else 0) = entryWeight p v := by
+    simpa using fixed_entries_mass p {i} v
+  simp [hs]
+
+private theorem singletonZero_dominated_mass {n : ℕ} (p : ℝ) (i j a : Fin n)
+    (hji : j ≠ i) :
+    (∑ A : BoolMatrix n n, if singletonZero A i a ∧ RowLE (A j) (A i)
+      then matrixWeight p A else 0) = (1-p)^2*p^(n-1) := by
+  classical
+  let P := fun c (x : Fin n → BoolSemiring) =>
+    if c = a then x i = 0 ∧ x j = 0 else x i = 1
+  have he (A : BoolMatrix n n) :
+      (singletonZero A i a ∧ RowLE (A j) (A i)) ↔
+        ∀ c, P c (fun k => A k c) := by
+    constructor
+    · rintro ⟨hi, hd⟩ c
+      by_cases hc : c = a
+      · subst c
+        have hia : A i a = 0 := by simpa using hi a
+        have hja : A j a = 0 :=
+          (BoolSemiring.eq_zero_or_eq_one (A j a)).resolve_right (by
+            intro hj
+            have hz := hd a hj
+            rw [hia] at hz
+            exact (by decide : (0 : BoolSemiring) ≠ 1) hz)
+        simpa [P] using And.intro hia hja
+      · simpa [P, hc] using hi c
+    · intro h
+      have ha : A i a = 0 ∧ A j a = 0 := by simpa [P] using h a
+      refine ⟨?_, ?_⟩
+      · intro c
+        by_cases hc : c = a
+        · simpa [hc] using ha.1
+        · simpa [P, hc] using h c
+      · intro c hj
+        by_cases hc : c = a
+        · subst c
+          exact False.elim ((by decide : (0 : BoolSemiring) ≠ 1) (ha.2.symm.trans hj))
+        · simpa [P, hc] using h c
+  simp_rw [he]
+  have hf : (∑ A : BoolMatrix n n,
+      if ∀ c, P c (fun k => A k c) then matrixWeight p A else 0) =
+      ∏ c, ∑ x : Fin n → BoolSemiring,
+        if P c x then ∏ k, entryWeight p (x k) else 0 := by
+    convert matrix_column_cylinder p P using 1
+  rw [hf]
+  have hs (c : Fin n) :
+      (∑ x : Fin n → BoolSemiring, if P c x then ∏ k, entryWeight p (x k) else 0) =
+        if c = a then (1-p)^2 else p := by
+    by_cases hc : c = a
+    · simpa [P, hc, hji, hji.symm, entryWeight] using fixed_entries_mass p {i, j} 0
+    · simpa [P, hc, entryWeight] using fixed_entries_mass p {i} 1
+  simp_rw [hs]
+  rw [← Finset.mul_prod_erase _ _ (Finset.mem_univ a)]
+  simp only [ite_true]
+  congr 1
+  calc
+    _ = ∏ _c ∈ (Finset.univ.erase a : Finset (Fin n)), p := by
+      apply Finset.prod_congr rfl
+      intro c hc
+      simp [Finset.ne_of_mem_erase hc]
+    _ = _ := by simp
+
+example : (1 : Fin 2) ≠ 0 ∧
+    (0 : Fin 2) ∈ multiZeroRows (0 : BoolMatrix 2 2) ∧
+    RowLE ((0 : BoolMatrix 2 2) 1) ((0 : BoolMatrix 2 2) 0) := by
+  decide
+
+/-- Exact mass of a dominated ordered pair whose target has at least two
 zeros. Target `i` dominates `j`; subtracting target zero counts zero and one from
 the full dominated-pair cylinder gives the displayed polynomial. -/
 theorem dominated_multiZero_mass {n : ℕ} (p : ℝ) (i j : Fin n) (hji : j ≠ i) :
     (∑ A : BoolMatrix n n, if i ∈ multiZeroRows A ∧ RowLE (A j) (A i)
       then matrixWeight p A else 0) =
       (p+(1-p)^2)^n-p^n-(n : ℝ)*(1-p)^2*p^(n-1) := by
-  sorry
+  classical
+  have htotal : (∑ A : BoolMatrix n n, if RowLE (A j) (A i)
+      then matrixWeight p A else 0) = (p+(1-p)^2)^n := by
+    have ht := dominated_rows_mass (n := n) p i {j} (by simp [hji.symm])
+    calc
+      _ = ∑ A : BoolMatrix n n,
+          if ∀ k ∈ ({j} : Finset (Fin n)), ∀ c, A k c = 1 → A i c = 1
+          then matrixWeight p A else 0 := by
+        apply Finset.sum_congr rfl
+        intro A hA
+        split_ifs <;> simp_all [RowLE]
+      _ = _ := by simpa using ht
+  have hzero : (∑ A : BoolMatrix n n,
+      if (∀ c, A i c = 1) ∧ RowLE (A j) (A i) then matrixWeight p A else 0) = p^n := by
+    have he (A : BoolMatrix n n) :
+        ((∀ c, A i c = 1) ∧ RowLE (A j) (A i)) ↔ (∀ c, A i c = 1) :=
+      ⟨And.left, fun h => ⟨h, fun c _ => h c⟩⟩
+    simp_rw [he]
+    simpa [entryWeight] using constant_row_mass p i 1
+  have hone : (∑ A : BoolMatrix n n,
+      if i ∈ oneZeroRows A ∧ RowLE (A j) (A i) then matrixWeight p A else 0) =
+        (n : ℝ)*(1-p)^2*p^(n-1) := by
+    have he (A : BoolMatrix n n) :
+        (if i ∈ oneZeroRows A ∧ RowLE (A j) (A i) then matrixWeight p A else 0) =
+        ∑ a : Fin n, if singletonZero A i a ∧ RowLE (A j) (A i)
+          then matrixWeight p A else 0 := by
+      by_cases hi : i ∈ oneZeroRows A
+      · obtain ⟨a, ha⟩ := (mem_oneZeroRows_iff_singletonZero A i).mp hi
+        have hu : ∀ b, singletonZero A i b → b = a := by
+          intro b hb
+          have hs := (singletonZero_iff_zeroCoordinates A i b).mp hb
+          rw [(singletonZero_iff_zeroCoordinates A i a).mp ha] at hs
+          simpa using hs.symm
+        rw [Finset.sum_eq_single a]
+        · simp [hi, ha]
+        · intro b _ hba
+          have hb : ¬ singletonZero A i b := fun hb => hba (hu b hb)
+          simp [hb]
+        · simp
+      · have hnone : ∀ a, ¬ singletonZero A i a :=
+          fun a ha => hi ((mem_oneZeroRows_iff_singletonZero A i).mpr ⟨a, ha⟩)
+        simp [hi, hnone]
+    simp_rw [he]
+    rw [Finset.sum_comm]
+    simp_rw [singletonZero_dominated_mass p i j _ hji]
+    simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+    ring
+  have hsplit (A : BoolMatrix n n) :
+      (if RowLE (A j) (A i) then matrixWeight p A else 0) =
+        (if i ∈ multiZeroRows A ∧ RowLE (A j) (A i) then matrixWeight p A else 0) +
+        (if (∀ c, A i c = 1) ∧ RowLE (A j) (A i) then matrixWeight p A else 0) +
+        (if i ∈ oneZeroRows A ∧ RowLE (A j) (A i) then matrixWeight p A else 0) := by
+    have hz : (zeroCoordinates A i).card = 0 ↔ ∀ c, A i c = 1 := by
+      rw [Finset.card_eq_zero]
+      constructor
+      · intro h c
+        apply (BoolSemiring.eq_zero_or_eq_one (A i c)).resolve_left
+        intro hc
+        have hm : c ∈ zeroCoordinates A i := by simp [zeroCoordinates, hc]
+        rw [h] at hm
+        exact Finset.notMem_empty c hm
+      · intro h
+        simp [zeroCoordinates, h]
+    have hm : i ∈ multiZeroRows A ↔ 2 ≤ (zeroCoordinates A i).card := by
+      simp [multiZeroRows]
+    have ho : i ∈ oneZeroRows A ↔ (zeroCoordinates A i).card = 1 := by
+      simp [oneZeroRows]
+    rcases Nat.eq_zero_or_pos (zeroCoordinates A i).card with hc | hc
+    · simp [hm, ho, hc, hz.mp hc]
+    · by_cases hc1 : (zeroCoordinates A i).card = 1
+      · have hnz : ¬ ∀ c, A i c = 1 := fun h => by have := hz.mpr h; omega
+        simp [hm, ho, hc1, hnz]
+      · have hc2 : 2 ≤ (zeroCoordinates A i).card := by omega
+        have hnz : ¬ ∀ c, A i c = 1 := fun h => by have := hz.mpr h; omega
+        have hn1 : ¬ i ∈ oneZeroRows A := by simpa [ho] using hc1
+        simp [hm.mpr hc2, hnz, hn1]
+  have hsum := congrArg (fun f : BoolMatrix n n → ℝ => ∑ A, f A) (funext hsplit)
+  simp only [Finset.sum_add_distrib] at hsum
+  rw [htotal, hzero, hone] at hsum
+  linarith
 
-/-- Requested four-term finite Bernoulli bound for the actual dense-good-event
-complement. This remains unpaid: the dominated-multi-zero mass lemma above,
-constant-row cylinder masses, and final four-family union/counting assembly
-(including the `choose n 2` unordered row-pair count) are not discharged here.
-The canonical cover, singleton failure mass and its entire union bound, and
-singleton collision mass are proved independently of this placeholder. -/
+private theorem mass_or_le {α : Type*} [Fintype α] (w : α → ℝ)
+    (hw : ∀ a, 0 ≤ w a) (P Q : α → Prop) [DecidablePred P] [DecidablePred Q] :
+    (∑ a, if P a ∨ Q a then w a else 0) ≤
+      (∑ a, if P a then w a else 0) + (∑ a, if Q a then w a else 0) := by
+  rw [← Finset.sum_add_distrib]
+  apply Finset.sum_le_sum
+  intro a ha
+  have hn := hw a
+  by_cases hp : P a <;> by_cases hq : Q a <;> simp [hp, hq, hn]
+
+/-- The four-term finite Bernoulli bound for the actual dense-good-event
+complement, obtained from the four concrete bad-event families. -/
 theorem denseGoodEvent_complement_mass_le (n : ℕ) (p : ℝ)
     (hn : 2 ≤ n) (hp : 0 < p) (hp1 : p < 1) :
     (∑ A : BoolMatrix n n, if ¬ denseGoodEvent A then matrixWeight p A else 0) ≤
@@ -385,6 +546,115 @@ theorem denseGoodEvent_complement_mass_le (n : ℕ) (p : ℝ)
       (n : ℝ)*((n : ℝ)-1)*((p+(1-p)^2)^n-p^n-(n : ℝ)*(1-p)^2*p^(n-1)) +
       (n : ℝ)^2*((n : ℝ)-1)*(1-p)*p^(n-1)*(1-(1-p)*p)^(n-1) +
       (Nat.choose n 2 : ℝ)*(n : ℝ)*((1-p)*p^(n-1))^2 := by
-  sorry
+  classical
+  let C := fun A : BoolMatrix n n => ∃ i, (∀ c, A i c = 0) ∨ (∀ c, A i c = 1)
+  let D := fun A : BoolMatrix n n =>
+    ∃ i j, j ≠ i ∧ i ∈ multiZeroRows A ∧ RowLE (A j) (A i)
+  let F := fun A : BoolMatrix n n => ∃ i a b, b ≠ a ∧ singletonCoverFailure A i a b
+  let K := fun A : BoolMatrix n n =>
+    ∃ i j a, i < j ∧ singletonZero A i a ∧ singletonZero A j a
+  let mass := fun E : BoolMatrix n n → Prop =>
+    ∑ A : BoolMatrix n n, if E A then matrixWeight p A else 0
+  have mass_eq (E : BoolMatrix n n → Prop) [DecidablePred E] :
+      mass E = ∑ A : BoolMatrix n n, if E A then matrixWeight p A else 0 := by
+    apply Finset.sum_congr rfl
+    intro A hA
+    split_ifs <;> rfl
+  let d := (p+(1-p)^2)^n-p^n-(n : ℝ)*(1-p)^2*p^(n-1)
+  let s := ((1-p)*p^(n-1))^2
+  have hw := matrixWeight_nonneg (m := n) (n := n) p hp hp1
+  have hC : mass C ≤ (n : ℝ)*(p^n+(1-p)^n) := by
+    rw [mass_eq C]
+    refine (mass_cover _ hw C Finset.univ
+      (fun i A => (∀ c, A i c = 0) ∨ (∀ c, A i c = 1)) ?_).trans ?_
+    · rintro A ⟨i, hi⟩
+      exact ⟨i, Finset.mem_univ i, hi⟩
+    · have hrow (i : Fin n) :
+          (∑ A : BoolMatrix n n, if (∀ c, A i c = 0) ∨ (∀ c, A i c = 1)
+            then matrixWeight p A else 0) ≤ p^n+(1-p)^n := by
+        have h := mass_or_le _ hw (fun A => ∀ c, A i c = 0) (fun A => ∀ c, A i c = 1)
+        rw [constant_row_mass, constant_row_mass] at h
+        simpa [entryWeight, add_comm] using h
+      calc
+        _ ≤ ∑ _i : Fin n, (p^n+(1-p)^n) := Finset.sum_le_sum (fun i _ => hrow i)
+        _ = _ := by simp [mul_add]
+  have hD : mass D ≤ (n : ℝ)*((n : ℝ)-1)*d := by
+    have hinner (i : Fin n) :
+        (∑ A : BoolMatrix n n,
+          if ∃ j, j ≠ i ∧ i ∈ multiZeroRows A ∧ RowLE (A j) (A i)
+            then matrixWeight p A else 0) ≤ ((n : ℝ)-1)*d := by
+      refine (mass_cover _ hw _ (Finset.univ.erase i)
+        (fun j A => i ∈ multiZeroRows A ∧ RowLE (A j) (A i)) ?_).trans_eq ?_
+      · rintro A ⟨j, hji, hj⟩
+        exact ⟨j, Finset.mem_erase.mpr ⟨hji, Finset.mem_univ j⟩, hj⟩
+      · have he (j : Fin n) (hj : j ∈ Finset.univ.erase i) :
+            (∑ A : BoolMatrix n n, if i ∈ multiZeroRows A ∧ RowLE (A j) (A i)
+              then matrixWeight p A else 0) = d :=
+          dominated_multiZero_mass p i j (Finset.ne_of_mem_erase hj)
+        rw [Finset.sum_congr rfl he]
+        simp [Nat.cast_sub (by omega : 1 ≤ n)]
+    rw [mass_eq D]
+    refine (mass_cover _ hw D Finset.univ
+      (fun i A => ∃ j, j ≠ i ∧ i ∈ multiZeroRows A ∧ RowLE (A j) (A i)) ?_).trans ?_
+    · rintro A ⟨i, hi⟩
+      exact ⟨i, Finset.mem_univ i, hi⟩
+    · calc
+        _ ≤ ∑ _i : Fin n, ((n : ℝ)-1)*d := Finset.sum_le_sum (fun i _ => hinner i)
+        _ = _ := by simp [mul_assoc]
+  have hF : mass F ≤ (n : ℝ)^2*((n : ℝ)-1)*(1-p)*p^(n-1)*
+      (1-(1-p)*p)^(n-1) := by
+    rw [mass_eq F]
+    exact singletonCoverFailure_union_mass_le p hn hp hp1
+  have hK : mass K ≤ (Nat.choose n 2 : ℝ)*(n : ℝ)*s := by
+    let T := (Finset.univ : Finset (Fin n × Fin n)).filter (fun ij => ij.1 < ij.2)
+    have hcard : T.card = Nat.choose n 2 := by
+      simpa [T] using (Fintype.card_product_filter_lt (α := Fin n))
+    have hpair (ij : Fin n × Fin n) (hij : ij ∈ T) :
+        (∑ A : BoolMatrix n n,
+          if ∃ a, singletonZero A ij.1 a ∧ singletonZero A ij.2 a
+            then matrixWeight p A else 0) ≤ (n : ℝ)*s := by
+      have hlt : ij.1 < ij.2 := (Finset.mem_filter.mp hij).2
+      refine (mass_cover _ hw _ Finset.univ
+        (fun a A => singletonZero A ij.1 a ∧ singletonZero A ij.2 a) ?_).trans_eq ?_
+      · rintro A ⟨a, ha⟩
+        exact ⟨a, Finset.mem_univ a, ha⟩
+      · simp_rw [singletonZero_collision_mass p ij.1 ij.2 _ (ne_of_lt hlt)]
+        simp [s]
+    rw [mass_eq K]
+    refine (mass_cover _ hw K T
+      (fun ij A => ∃ a, singletonZero A ij.1 a ∧ singletonZero A ij.2 a) ?_).trans ?_
+    · rintro A ⟨i, j, a, hij, hi, hj⟩
+      exact ⟨(i, j), Finset.mem_filter.mpr ⟨Finset.mem_univ _, hij⟩, a, hi, hj⟩
+    · calc
+        _ ≤ ∑ _ij ∈ T, (n : ℝ)*s := Finset.sum_le_sum (fun ij hij => hpair ij hij)
+        _ = _ := by simp [hcard, mul_assoc]
+  have hcover : (∑ A : BoolMatrix n n,
+      if ¬ denseGoodEvent A then matrixWeight p A else 0) ≤
+        mass (fun A => C A ∨ D A ∨ F A ∨ K A) := by
+    apply Finset.sum_le_sum
+    intro A hA
+    by_cases hbad : ¬ denseGoodEvent A
+    · have hc : C A ∨ D A ∨ F A ∨ K A := not_denseGoodEvent_cover A hn hbad
+      simp only [if_pos hbad, if_pos hc]
+      exact le_refl _
+    · rw [if_neg hbad]
+      split_ifs
+      · exact hw A
+      · exact le_refl 0
+  have hCD : mass (fun A => C A ∨ D A ∨ F A ∨ K A) ≤
+      mass C + mass (fun A => D A ∨ F A ∨ K A) := by
+    rw [mass_eq, mass_eq, mass_eq]
+    exact mass_or_le _ hw C (fun A => D A ∨ F A ∨ K A)
+  have hDF : mass (fun A => D A ∨ F A ∨ K A) ≤
+      mass D + mass (fun A => F A ∨ K A) := by
+    rw [mass_eq, mass_eq, mass_eq]
+    exact mass_or_le _ hw D (fun A => F A ∨ K A)
+  have hFK : mass (fun A => F A ∨ K A) ≤ mass F + mass K := by
+    rw [mass_eq, mass_eq, mass_eq]
+    exact mass_or_le _ hw F K
+  change _ ≤ (n : ℝ)*(p^n+(1-p)^n) + (n : ℝ)*((n : ℝ)-1)*d +
+    (n : ℝ)^2*((n : ℝ)-1)*(1-p)*p^(n-1)*(1-(1-p)*p)^(n-1) +
+    (Nat.choose n 2 : ℝ)*(n : ℝ)*s
+  linarith
 
 end BilinearComplexity
