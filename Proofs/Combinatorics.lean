@@ -1,3 +1,4 @@
 import Combinatorics.DiscreteOptimization
 import Combinatorics.FiniteAffine
 import Combinatorics.NoncommutingFiber
+import Combinatorics.NoncommutingMicroGap
