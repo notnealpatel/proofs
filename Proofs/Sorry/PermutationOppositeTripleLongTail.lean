@@ -110,9 +110,8 @@ theorem card_triple_pos {n : ℕ} (hn : 3 ≤ n) (a r b : Fin n)
   · exact ne_of_gt hab
   · exact ne_of_gt (lt_trans hra hab)
 
-/-- Residue-chain count in the actual three-anchor fiber. Remaining formal gap:
-uniform relative-order counting for the free residue-chain positions, together
-with the overlap-to-chain monotonicity bridge. -/
+/-- Residue-chain count in the actual three-anchor fiber, using capture by a
+block reordering and its monotone orientation. -/
 theorem card_residue_overlap_mul_factorial_le {n d : ℕ} (hd : 2 ≤ d)
     (hlong : 2 * d < n) (a r b : Fin n) :
     Fintype.card {π : FixedThree (⟨0, by omega⟩ : Fin n) ⟨1, by omega⟩
@@ -120,7 +119,138 @@ theorem card_residue_overlap_mul_factorial_le {n d : ℕ} (hd : 2 ≤ d)
         ((n - 3) / d).factorial ≤
       2 * Fintype.card (FixedThree (⟨0, by omega⟩ : Fin n) ⟨1, by omega⟩
         ⟨n - 1, by omega⟩ a r b) := by
-  sorry
+  classical
+  let R := (n - 3) / d
+  have hdpos : 0 < d := by omega
+  have hRd : R * d ≤ n - 3 := Nat.div_mul_le_self _ _
+  have hub (i : Fin R) : 1 + (i.val + 1) * d ≤ n - 2 := by
+    have hm := Nat.mul_le_mul_right d (show i.val + 1 ≤ R by omega)
+    omega
+  let u : Fin R ↪ Fin n := {
+    toFun := fun i => ⟨1 + (i.val + 1) * d, by have h := hub i; omega⟩
+    inj' := by
+      intro i j he
+      have hv := congrArg Fin.val he
+      dsimp at hv
+      have hm : i.val + 1 = j.val + 1 := Nat.eq_of_mul_eq_mul_right hdpos (by omega)
+      exact Fin.ext (by omega) }
+  have hu (i : Fin R) : (u i).val = 1 + (i.val + 1) * d := rfl
+  have hfix (σ : Equiv.Perm (Fin R)) (x : Fin n)
+      (hx : x.val = 0 ∨ x.val = 1 ∨ x.val = n - 1) : blockPerm u σ x = x := by
+    apply blockPerm_apply_of_notMem
+    rintro ⟨i, hi⟩
+    have hv := congrArg Fin.val hi
+    have hb := hub i
+    rw [hu] at hv
+    have hm : d ≤ (i.val + 1) * d := by nlinarith
+    rcases hx with hx | hx | hx <;> omega
+  let T := FixedThree (⟨0, by omega⟩ : Fin n) ⟨1, by omega⟩
+    ⟨n - 1, by omega⟩ a r b
+  let E := {π : T // Overlap (by omega : n - d < n) π.val}
+  have hmono (π : E) : StrictMono (fun i => π.val.val (u i)) ∨
+      StrictAnti (fun i => π.val.val (u i)) := by
+    let f := fun i => π.val.val (u i)
+    have hrec (k : ℕ) (hk : k + 2 < R) :
+        f ⟨k, by omega⟩ < f ⟨k + 1, by omega⟩ ↔
+          f ⟨k + 1, by omega⟩ < f ⟨k + 2, hk⟩ := by
+      have hb := hub (⟨k + 2, hk⟩ : Fin R)
+      have hshift : n - (n - d) = d := by omega
+      have hnd : n - d + d = n := by omega
+      dsimp only [Fin.val_mk] at hb
+      have hb' : 1 + (k + 2 + 1) * d < n := by omega
+      have hc := π.property (⟨1 + (k + 1) * d, by nlinarith⟩ : Fin (n - d))
+        ⟨1 + (k + 2) * d, by nlinarith⟩
+      simpa [f, u, hshift, Nat.add_mul, Nat.add_assoc, Nat.two_mul] using hc
+    have hlocal (k : ℕ) (hk : k + 1 < R) (hR : 1 < R) :
+        f ⟨k, by omega⟩ < f ⟨k + 1, hk⟩ ↔
+          f ⟨0, by omega⟩ < f ⟨1, hR⟩ := by
+      induction k with
+      | zero => rfl
+      | succ k ih =>
+        exact (hrec k (by omega)).symm.trans (ih (by omega))
+    have fi : Function.Injective f := π.val.val.injective.comp u.injective
+    have buildMono (α : Type) [Preorder α] (s : ℕ) (g : Fin s → α)
+        (hg : ∀ k (hk : k + 1 < s), g ⟨k, by omega⟩ < g ⟨k + 1, hk⟩) :
+        StrictMono g := by
+      cases s with
+      | zero => intro i; exact Fin.elim0 i
+      | succ m =>
+        apply Fin.strictMono_iff_lt_succ.mpr
+        intro i
+        exact hg i.val (by omega)
+    by_cases hR : 1 < R
+    · by_cases hf : f ⟨0, by omega⟩ < f ⟨1, hR⟩
+      · exact Or.inl (buildMono (Fin n) R f (fun k hk => (hlocal k hk hR).mpr hf))
+      · right
+        have hadj (k : ℕ) (hk : k + 1 < R) :
+            f ⟨k + 1, hk⟩ < f ⟨k, by omega⟩ := by
+          have hn := mt (hlocal k hk hR).mp hf
+          have hne : f ⟨k, by omega⟩ ≠ f ⟨k + 1, hk⟩ := by
+            intro he
+            have he' := congrArg Fin.val (fi he)
+            change k = k + 1 at he'
+            omega
+          exact lt_of_le_of_ne (le_of_not_gt hn) hne.symm
+        exact buildMono (OrderDual (Fin n)) R (fun i => OrderDual.toDual (f i)) hadj
+    · left
+      intro i j hij
+      have hi := i.isLt
+      have hj := j.isLt
+      have hv : i.val < j.val := hij
+      omega
+  let orient (π : E) : Bool := decide (StrictMono (fun i => π.val.val (u i)))
+  let capture (π : T) (σ : Equiv.Perm (Fin R)) : T :=
+    ⟨(blockPerm u σ).trans π.val, by
+      constructor
+      · constructor
+        · simpa only [Equiv.trans_apply, hfix σ (⟨0, by omega⟩ : Fin n) (Or.inl rfl)] using π.property.1.1
+        · simpa only [Equiv.trans_apply, hfix σ (⟨1, by omega⟩ : Fin n) (Or.inr (Or.inl rfl))] using π.property.1.2
+      · simpa only [Equiv.trans_apply, hfix σ (⟨n - 1, by omega⟩ : Fin n) (Or.inr (Or.inr rfl))] using π.property.2⟩
+  let Φ : E × Equiv.Perm (Fin R) → T × Bool := fun p => (capture p.1.val p.2, orient p.1)
+  have hinj : Function.Injective Φ := by
+    rintro ⟨π, σ⟩ ⟨ρ, τ⟩ he
+    have hc : capture π.val σ = capture ρ.val τ := congrArg Prod.fst he
+    have ho : orient π = orient ρ := congrArg Prod.snd he
+    have hp (x : Fin n) : π.val.val (blockPerm u σ x) = ρ.val.val (blockPerm u τ x) :=
+      congrArg (fun p : T => p.val x) hc
+    let ν := σ.symm.trans τ
+    have hrel (i : Fin R) : π.val.val (u i) = ρ.val.val (u (ν i)) := by
+      simpa only [blockPerm_apply, Equiv.apply_symm_apply, ν, Equiv.trans_apply] using hp (u (σ.symm i))
+    have hν : ν = Equiv.refl _ := by
+      apply perm_eq_refl_of_comparisons
+        (show Fin R ↪ Fin n from ⟨fun i => ρ.val.val (u i), ρ.val.val.injective.comp u.injective⟩)
+      intro i j
+      change ρ.val.val (u (ν i)) < ρ.val.val (u (ν j)) ↔ ρ.val.val (u i) < ρ.val.val (u j)
+      rw [← hrel i, ← hrel j]
+      by_cases hm : StrictMono (fun i => π.val.val (u i))
+      · have hmρ : StrictMono (fun i => ρ.val.val (u i)) := by
+          have hob : orient ρ = true := ho.symm.trans (by simpa only [orient, decide_eq_true_eq] using hm)
+          simpa only [orient, decide_eq_true_eq] using hob
+        exact hm.lt_iff_lt.trans hmρ.lt_iff_lt.symm
+      · have ha : StrictAnti (fun i => π.val.val (u i)) := (hmono π).resolve_left hm
+        have hnρ : ¬ StrictMono (fun i => ρ.val.val (u i)) := by
+          intro hmρ
+          have hob : orient π = true := ho.trans (by simpa only [orient, decide_eq_true_eq] using hmρ)
+          exact hm (by simpa only [orient, decide_eq_true_eq] using hob)
+        have haρ := (hmono ρ).resolve_left hnρ
+        exact ha.lt_iff_gt.trans haρ.lt_iff_gt.symm
+    have hστ : σ = τ := by
+      apply Equiv.ext
+      intro i
+      have hi := congrArg (fun e : Equiv.Perm (Fin R) => e (σ i)) hν
+      simpa only [ν, Equiv.trans_apply, Equiv.symm_apply_apply, Equiv.refl_apply] using hi.symm
+    have hπρ : π = ρ := by
+      apply Subtype.ext
+      apply Subtype.ext
+      apply Equiv.ext
+      intro x
+      obtain ⟨y, hy⟩ := (blockPerm u σ).surjective x
+      subst x
+      simpa only [← hστ] using hp y
+    exact Prod.ext hπρ hστ
+  have hc := Fintype.card_le_of_injective Φ hinj
+  simpa only [Fintype.card_prod, Fintype.card_perm, Fintype.card_fin,
+    Fintype.card_bool, Nat.mul_comm _ 2] using hc
 
 /-- A cross-multiplied finite count bound gives a bound on its actual fraction
 when the fiber and the factorial denominator are positive. -/
