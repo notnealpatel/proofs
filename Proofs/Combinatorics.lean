@@ -103,3 +103,4 @@ import Combinatorics.RelationAlgebraRepresentationsDistance
 import Combinatorics.A298468SloaneNovGreedy
 import Combinatorics.A303639Refutation
 import Combinatorics.A195608TakeSumEvil
+import Combinatorics.A195609SameThreeStructural
