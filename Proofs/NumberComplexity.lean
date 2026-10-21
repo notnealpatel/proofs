@@ -27,3 +27,4 @@ import NumberComplexity.RuzsaPseudoPolynomialNewton
 import NumberComplexity.TamarkinAverageIntegralCube
 import NumberComplexity.ConwayClimbToPrimeFixedPoint
 import NumberComplexity.WeirdNumbersInfinite
+import NumberComplexity.PocklingtonCriterion
