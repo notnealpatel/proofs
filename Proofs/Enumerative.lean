@@ -57,3 +57,4 @@ import Enumerative.FactorialSeparation
 import Enumerative.FilasetaNonreciprocal
 import Enumerative.SingmasterFibonacciFamily
 import Enumerative.FiniteFieldTwoSquares
+import Enumerative.PartitionConjugation
