@@ -35,3 +35,4 @@ import GroupCount.S5IngletonViolator
 import GroupCount.MetacyclicIngleton
 import GroupCount.FuchsProblemTwoGroupUnits
 import GroupCount.TranslatableQuadraticalQuasigroupFamily
+import GroupCount.TranslatableQuadraticalQuasigroupOrders
