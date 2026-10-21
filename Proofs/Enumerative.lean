@@ -31,3 +31,4 @@ import Enumerative.Zumkeller
 import Enumerative.ZumkellerSigmaHalf
 import Enumerative.ZumkellerTauSigma
 import Enumerative.GaussIrreduciblePolynomialCount
+import Enumerative.EulerPentagonalRecurrence
