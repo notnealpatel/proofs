@@ -11,3 +11,4 @@ import GroupCount.SymmetricClassNumber
 import GroupCount.McKayPowerSolutions
 import GroupCount.SambaleCosetComplement
 import GroupCount.DihedralQuandleIdempotents
+import GroupCount.ForcadePollington
