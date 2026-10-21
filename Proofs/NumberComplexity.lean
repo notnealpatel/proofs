@@ -87,3 +87,4 @@ import NumberComplexity.A057015PrimeSatisfies
 import NumberComplexity.A059324CompositeTherePrimes
 import NumberComplexity.A166103SquaresWhosePrime
 import NumberComplexity.A115038PrimeThereExist
+import NumberComplexity.A112041Prime
