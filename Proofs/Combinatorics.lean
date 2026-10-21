@@ -150,3 +150,4 @@ import Combinatorics.SubtractionNimPassRefutation
 import Combinatorics.StronglyConnectedDigraphExtremalTwo
 import Combinatorics.CrumbyColouringRefutation
 import Combinatorics.FewAbelianSquaresFiciSaarela
+import Combinatorics.SubtractionNimReverseMexAdditive
