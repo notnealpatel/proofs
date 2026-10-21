@@ -143,3 +143,4 @@ import Combinatorics.CameronEllisRaynaudCyclicCover
 import Combinatorics.GreedySubsumfreeMetaConjecture
 import Combinatorics.DiceRelabelingSquareSided
 import Combinatorics.HegedusEquidistantCodeBound
+import Combinatorics.TownFamiliesCompositeModulus
