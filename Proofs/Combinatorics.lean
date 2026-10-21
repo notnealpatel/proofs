@@ -34,3 +34,4 @@ import Combinatorics.LovaszThetaPentagon
 import Combinatorics.PrimeCircleFourPrimes
 import Combinatorics.DilworthChainDecomposition
 import Combinatorics.MahonianInversions
+import Combinatorics.A287723FibonacciWordMorphism
