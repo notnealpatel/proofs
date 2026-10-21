@@ -57,6 +57,8 @@ theorem yu_liu_complete :
       {(3, 1, 1), (3, 5, 3), (5, 1, 2)} := by
   sorry
 
+set_option synthInstance.maxSize 100000 in
+set_option synthInstance.maxHeartbeats 400000 in
 /-- Archived sanity window: no other solutions with `p, a, k ≤ 50`.
     This bounded statement remains admitted; no triple sweep is certified. -/
 theorem window_50 :
@@ -64,7 +66,17 @@ theorem window_50 :
       IsSolution p a k →
         (p, a, k) = (3, 1, 1) ∨ (p, a, k) = (3, 5, 3) ∨
         (p, a, k) = (5, 1, 2) := by
-  sorry
+  intro p hp a ha k hk hsol
+  -- Only oddness and the equation are needed: no odd `p < 51`, prime or
+  -- not, has further solutions with `a, k < 51`.
+  obtain ⟨-, hodd, -, -, heq⟩ := hsol
+  rw [Finset.mem_range] at hp ha hk
+  simp only [Prod.mk.injEq]
+  revert a k
+  -- Even `p` contradict `Odd p`; each odd `p` is a kernel-checked
+  -- sweep over `a, k < 51` (the raised instance limits let `Decidable`
+  -- synthesize through the three-way disjunction).
+  interval_cases p <;> first | (exact absurd hodd (by decide)) | decide +kernel
 
 /-- The side remark is a square calculation, but not a solution at
     `(p,a,k) = (7,2,2)`. -/
