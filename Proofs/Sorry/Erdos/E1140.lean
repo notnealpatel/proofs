@@ -82,13 +82,195 @@ theorem cert_negative_controls : ¬ AllPrimeMinusTwoSq 3 ∧ ¬ AllPrimeMinusTwo
 example : ¬ AllPrimeMinusTwoSq 3 ∧ ¬ AllPrimeMinusTwoSq 11 :=
   cert_negative_controls
 
+/-- A divisor witness `p ∣ n - 2x²` with `2 ≤ p < n - 2x²` refutes the predicate. -/
+private theorem not_all_of_dvd {n : ℕ} (p x : ℕ) (hp : 2 ≤ p) (hx : 2 * (x * x) < n)
+    (hd : p ∣ n - 2 * (x * x)) (hlt : p < n - 2 * (x * x)) : ¬ AllPrimeMinusTwoSq n := by
+  intro h
+  have hsq : x ^ 2 = x * x := sq x
+  have hprime : (n - 2 * (x * x)).Prime := by
+    have hx' := h x (by rw [hsq]; exact hx)
+    rwa [hsq] at hx'
+  rcases (Nat.dvd_prime hprime).mp hd with h1 | h2
+  · omega
+  · omega
+
+/-- `n ≥ 200` outside the six residue classes `19, 31, 61, 139, 181, 199 (mod 210)` is
+    refuted by a witness `x ≤ 3` whose `n - 2x²` is divisible by `2`, `3`, `5` or `7`. -/
+private theorem not_all_of_not_survivor {n : ℕ} (h1 : 200 ≤ n)
+    (hs : n % 210 ∉ ({19, 31, 61, 139, 181, 199} : Finset ℕ)) : ¬ AllPrimeMinusTwoSq n := by
+  intro hall
+  have w : ∀ p x : ℕ, 2 ≤ p → 2 * (x * x) < n → (n - 2 * (x * x)) % p = 0 →
+      p < n - 2 * (x * x) → False := fun p x hp hx hm hlt =>
+    not_all_of_dvd p x hp hx (Nat.dvd_of_mod_eq_zero hm) hlt hall
+  have h2 : n % 2 = 1 := by
+    rcases (by omega : n % 2 = 0 ∨ n % 2 = 1) with h | h
+    · exact (w 2 0 le_rfl (by omega) (by omega) (by omega)).elim
+    · exact h
+  have h3 : n % 3 = 1 := by
+    rcases (by omega : n % 3 = 0 ∨ n % 3 = 1 ∨ n % 3 = 2) with h | h | h
+    · exact (w 3 0 (by norm_num) (by omega) (by omega) (by omega)).elim
+    · exact h
+    · exact (w 3 1 (by norm_num) (by omega) (by omega) (by omega)).elim
+  have h5 : n % 5 = 1 ∨ n % 5 = 4 := by
+    rcases (by omega : n % 5 = 0 ∨ n % 5 = 1 ∨ n % 5 = 2 ∨ n % 5 = 3 ∨ n % 5 = 4)
+      with h | h | h | h | h
+    · exact (w 5 0 (by norm_num) (by omega) (by omega) (by omega)).elim
+    · exact Or.inl h
+    · exact (w 5 1 (by norm_num) (by omega) (by omega) (by omega)).elim
+    · exact (w 5 2 (by norm_num) (by omega) (by omega) (by omega)).elim
+    · exact Or.inr h
+  have h7 : n % 7 = 3 ∨ n % 7 = 5 ∨ n % 7 = 6 := by
+    rcases (by omega : n % 7 = 0 ∨ n % 7 = 1 ∨ n % 7 = 2 ∨ n % 7 = 3 ∨ n % 7 = 4 ∨
+      n % 7 = 5 ∨ n % 7 = 6) with h | h | h | h | h | h | h
+    · exact (w 7 0 (by norm_num) (by omega) (by omega) (by omega)).elim
+    · exact (w 7 2 (by norm_num) (by omega) (by omega) (by omega)).elim
+    · exact (w 7 1 (by norm_num) (by omega) (by omega) (by omega)).elim
+    · exact Or.inl h
+    · exact (w 7 3 (by norm_num) (by omega) (by omega) (by omega)).elim
+    · exact Or.inr (Or.inl h)
+    · exact Or.inr (Or.inr h)
+  apply hs
+  simp only [Finset.mem_insert, Finset.mem_singleton]
+  omega
+
+/-- Bool test: `x` and `p` witness `2 ≤ p`, `2x² < n`, `p ∣ n - 2x²`, `p < n - 2x²`. -/
+private def divWitness (n p x : ℕ) : Bool :=
+  decide (2 ≤ p) && (n - 2 * (x * x)) % p == 0 && decide (2 * (x * x) < n) &&
+    decide (p < n - 2 * (x * x))
+
+example : divWitness 229 13 4 = false := by decide
+example : divWitness 233 11 1 = true := by decide
+
+private theorem not_all_of_divWitness {n p x : ℕ} (h : divWitness n p x = true) :
+    ¬ AllPrimeMinusTwoSq n := by
+  simp only [divWitness, Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq] at h
+  obtain ⟨⟨⟨hp, hmod⟩, hx⟩, hlt⟩ := h
+  exact not_all_of_dvd p x hp hx (Nat.dvd_of_mod_eq_zero hmod) hlt
+
+/-- Kernel-reducible search: some `x < c` gives `divWitness n p x`. -/
+private noncomputable def anyX (n p c : ℕ) : Bool :=
+  Nat.rec false (fun x acc => divWitness n p x || acc) c
+
+private theorem not_all_of_anyX {n p c : ℕ} (h : anyX n p c = true) :
+    ¬ AllPrimeMinusTwoSq n := by
+  induction c with
+  | zero => exact absurd h (by simp [anyX])
+  | succ c ih =>
+    have hunfold : anyX n p (c + 1) = (divWitness n p c || anyX n p c) := rfl
+    rw [hunfold, Bool.or_eq_true] at h
+    rcases h with hw | hrest
+    · exact not_all_of_divWitness hw
+    · exact ih hrest
+
+/-- Kernel-reducible search over a list of moduli `p`, with `x ≤ p / 2`
+    (enough to hit every residue `2x² mod p`). -/
+private noncomputable def anyP (n : ℕ) (ps : List ℕ) : Bool :=
+  List.rec false (fun p _ acc => anyX n p (p / 2 + 1) || acc) ps
+
+private theorem not_all_of_anyP {n : ℕ} {ps : List ℕ} (h : anyP n ps = true) :
+    ¬ AllPrimeMinusTwoSq n := by
+  induction ps with
+  | nil => exact absurd h (by simp [anyP])
+  | cons p ps ih =>
+    have hunfold : anyP n (p :: ps) = (anyX n p (p / 2 + 1) || anyP n ps) := rfl
+    rw [hunfold, Bool.or_eq_true] at h
+    rcases h with hw | hrest
+    · exact not_all_of_anyX hw
+    · exact ih hrest
+
+/-- Per-`n` certificate test with the primes `11 … 67` (67 is the largest needed
+    for `n ≤ 10⁶` once `2, 3, 5, 7` are handled by `not_all_of_not_survivor`). -/
+private noncomputable def windowCheck (n : ℕ) : Bool :=
+  anyP n [11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67]
+
+example : windowCheck 199 = false := by decide +kernel
+example : windowCheck 229 = true := by decide +kernel
+
+/-- `windowCheck`, vacuously true outside `[200, 10⁶]`. -/
+private noncomputable def inWin (n : ℕ) : Bool :=
+  decide (n < 200) || decide (1000000 < n) || windowCheck n
+
+private theorem not_all_of_inWin {n : ℕ} (h : inWin n = true) (h1 : 200 ≤ n)
+    (h2 : n ≤ 1000000) : ¬ AllPrimeMinusTwoSq n := by
+  simp only [inWin, Bool.or_eq_true, decide_eq_true_eq] at h
+  rcases h with (h | h) | h
+  · omega
+  · omega
+  · exact not_all_of_anyP h
+
+/-- `inWin` on the six surviving residue classes in the block `210 k + [0, 210)`. -/
+private noncomputable def checkClass (k : ℕ) : Bool :=
+  inWin (210 * k + 19) && inWin (210 * k + 31) && inWin (210 * k + 61) &&
+    inWin (210 * k + 139) && inWin (210 * k + 181) && inWin (210 * k + 199)
+
+private theorem inWin_of_checkClass {k : ℕ} (h : checkClass k = true) (n : ℕ)
+    (hn : n % 210 ∈ ({19, 31, 61, 139, 181, 199} : Finset ℕ)) (hk : n / 210 = k) :
+    inWin n = true := by
+  simp only [checkClass, Bool.and_eq_true] at h
+  obtain ⟨⟨⟨⟨⟨h19, h31⟩, h61⟩, h139⟩, h181⟩, h199⟩ := h
+  have hdiv : n = 210 * k + n % 210 := by rw [← hk]; exact (Nat.div_add_mod n 210).symm
+  simp only [Finset.mem_insert, Finset.mem_singleton] at hn
+  rcases hn with hr | hr | hr | hr | hr | hr <;> rw [hr] at hdiv <;> rw [hdiv]
+  · exact h19
+  · exact h31
+  · exact h61
+  · exact h139
+  · exact h181
+  · exact h199
+
+/-- Linear sweep: `checkClass (lo + i)` for all `i < len`. -/
+private noncomputable def linSweep (lo len : ℕ) : Bool :=
+  Nat.rec true (fun i acc => checkClass (lo + i) && acc) len
+
+private theorem checkClass_of_linSweep {lo len : ℕ} (h : linSweep lo len = true) :
+    ∀ i < len, checkClass (lo + i) = true := by
+  induction len with
+  | zero => intro i hi; omega
+  | succ len ih =>
+    have hunfold : linSweep lo (len + 1) = (checkClass (lo + len) && linSweep lo len) := rfl
+    rw [hunfold, Bool.and_eq_true] at h
+    intro i hi
+    rcases Nat.lt_succ_iff_lt_or_eq.mp hi with hlt | heq
+    · exact ih h.2 i hlt
+    · rw [heq]; exact h.1
+
+/-- Binary-split sweep of depth `d` (keeps kernel recursion depth small). -/
+private noncomputable def treeSweep (d : ℕ) : ℕ → ℕ → Bool :=
+  Nat.rec (fun lo len => linSweep lo len)
+    (fun _ ih lo len => ih lo (len / 2) && ih (lo + len / 2) (len - len / 2)) d
+
+private theorem checkClass_of_treeSweep {d : ℕ} : ∀ {lo len : ℕ}, treeSweep d lo len = true →
+    ∀ i < len, checkClass (lo + i) = true := by
+  induction d with
+  | zero => intro lo len h; exact checkClass_of_linSweep h
+  | succ d ih =>
+    intro lo len h i hi
+    have hunfold : treeSweep (d + 1) lo len =
+        (treeSweep d lo (len / 2) && treeSweep d (lo + len / 2) (len - len / 2)) := rfl
+    rw [hunfold, Bool.and_eq_true] at h
+    by_cases hi2 : i < len / 2
+    · exact ih h.1 i hi2
+    · have hright := ih h.2 (i - len / 2) (by omega)
+      rwa [show lo + len / 2 + (i - len / 2) = lo + i by omega] at hright
+
+/-- The kernel computation: every block `k < 4762` (covering `n ≤ 10⁶`) passes.
+    Ordinary kernel reduction (`decide +kernel`), no `native_decide`. -/
+private theorem treeSweep_window : treeSweep 7 0 4762 = true := by decide +kernel
+
 /-- Finite window: no further members up to 10⁶.
     -- PROVABLE (native_decide; the per-n check is O(√n) primality
     tests — same scaling as the ErdosMinus2k window sweeps.  Kernel
     `decide` will not reach 10⁶; stage at 10⁴ first). -/
 theorem window_1e6 :
     ∀ n ∈ Finset.Icc 200 1000000, ¬ AllPrimeMinusTwoSq n := by
-  sorry
+  intro n hn
+  obtain ⟨h1, h2⟩ := Finset.mem_Icc.mp hn
+  by_cases hs : n % 210 ∈ ({19, 31, 61, 139, 181, 199} : Finset ℕ)
+  · have hk : n / 210 < 4762 := by omega
+    have hc : checkClass (0 + n / 210) = true := checkClass_of_treeSweep treeSweep_window _ hk
+    rw [Nat.zero_add] at hc
+    exact not_all_of_inWin (inWin_of_checkClass hc n hs rfl) h1 h2
+  · exact not_all_of_not_survivor h1 hs
 
 /-- **Erdős #1140, resolution (Mollin–Williams + Epure–Gica)**: the set
     of such `n` is finite — the answer to the problem is NO.
