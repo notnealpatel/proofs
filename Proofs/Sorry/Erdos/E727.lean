@@ -75,6 +75,33 @@ theorem egrs_mixed (k : ℕ) (hk : 1 ≤ k) :
       (2 * n).factorial}.Infinite := by
   sorry
 
+/-- Binary digit sum bound: `s₂(x) ≤ log₂ x + 1`. -/
+private lemma digitSum_two_le_log (x : ℕ) : (Nat.digits 2 x).sum ≤ Nat.log 2 x + 1 := by
+  rcases Nat.eq_zero_or_pos x with rfl | hx
+  · simp
+  have hlen : (Nat.digits 2 x).length = Nat.log 2 x + 1 :=
+    Nat.length_digits 2 x (by norm_num) hx.ne'
+  have hle : (Nat.digits 2 x).sum ≤ (Nat.digits 2 x).length • 1 :=
+    List.sum_le_card_nsmul _ 1 fun d hd =>
+      Nat.le_of_lt_succ (Nat.digits_lt_base (by norm_num) hd)
+  simpa [hlen] using hle
+
+/-- Legendre at `p = 2`: `v₂(x!) + s₂(x) = x`. -/
+private lemma padicValNat_two_factorial_add (x : ℕ) :
+    padicValNat 2 x.factorial + (Nat.digits 2 x).sum = x := by
+  have h := sub_one_mul_padicValNat_factorial (p := 2) x
+  have hs := Nat.digit_sum_le 2 x
+  simp only [Nat.reduceSub, one_mul] at h
+  omega
+
+/-- If `a! ∣ n!` with `0 < n` then `a ≤ n`. -/
+private lemma le_of_factorial_dvd_factorial {a n : ℕ} (hn : 0 < n)
+    (h : a.factorial ∣ n.factorial) : a ≤ n := by
+  by_contra hlt
+  have h1 : n.factorial < a.factorial := (Nat.factorial_lt hn).mpr (not_le.mp hlt)
+  have h2 : a.factorial ≤ n.factorial := Nat.le_of_dvd (Nat.factorial_pos n) h
+  omega
+
 /-- **Erdős's a!b! ∣ n! bound** ([Er68c]), archived lemma-mine target:
     there is `C` such that `a!·b! ∣ n!` (with `a, b ≥ 1, n ≥ 2`)
     forces `a + b ≤ n + C·log n`.  (Stated with `Nat.log 2` for a
@@ -83,7 +110,29 @@ theorem factorial_mul_factorial_dvd_bound :
     ∃ C : ℕ, 1 ≤ C ∧ ∀ a b n : ℕ, 1 ≤ a → 1 ≤ b → 2 ≤ n →
       a.factorial * b.factorial ∣ n.factorial →
       a + b ≤ n + C * Nat.log 2 n := by
-  sorry
+  refine ⟨4, by norm_num, fun a b n _ _ hn hdvd => ?_⟩
+  have hn0 : 0 < n := by omega
+  have ha : a ≤ n :=
+    le_of_factorial_dvd_factorial hn0 (dvd_trans (dvd_mul_right _ _) hdvd)
+  have hb : b ≤ n :=
+    le_of_factorial_dvd_factorial hn0 (dvd_trans (dvd_mul_left _ _) hdvd)
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  -- 2-adic valuations add along `a! * b! ∣ n!`
+  have hv : padicValNat 2 a.factorial + padicValNat 2 b.factorial ≤
+      padicValNat 2 n.factorial := by
+    rw [← padicValNat.mul (Nat.factorial_ne_zero a) (Nat.factorial_ne_zero b)]
+    exact (padicValNat_dvd_iff_le (Nat.factorial_ne_zero n)).mp
+      (dvd_trans pow_padicValNat_dvd hdvd)
+  have hla : Nat.log 2 a ≤ Nat.log 2 n := Nat.log_mono_right ha
+  have hlb : Nat.log 2 b ≤ Nat.log 2 n := Nat.log_mono_right hb
+  have hlog : 1 ≤ Nat.log 2 n := Nat.le_log_of_pow_le (by norm_num) (by simpa using hn)
+  have hsa := digitSum_two_le_log a
+  have hsb := digitSum_two_le_log b
+  have hea := padicValNat_two_factorial_add a
+  have heb := padicValNat_two_factorial_add b
+  have hen := padicValNat_two_factorial_add n
+  -- a + b ≤ n + s₂(a) + s₂(b) ≤ n + 2 log₂ n + 2 ≤ n + 4 log₂ n
+  omega
 
 end ErdosCandidates.E727
 
