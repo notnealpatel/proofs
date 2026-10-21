@@ -180,3 +180,4 @@ import NumberComplexity.A014865OddCorollaryPrime
 import NumberComplexity.A136510ThereSomeBinary
 import NumberComplexity.A037097SumBitFloor
 import NumberComplexity.A066488EldarOrdowskiDec
+import NumberComplexity.A108866PrimeHalfOrdowski
