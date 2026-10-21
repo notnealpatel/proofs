@@ -195,3 +195,4 @@ import Enumerative.DegreeGrowthRationalMaps
 import Enumerative.A293013ExpModPeter
 import Enumerative.A294532FamilyCoveringGuide
 import Enumerative.A130095SumTendsPhi
+import Enumerative.A177430HannaSquareRoots
