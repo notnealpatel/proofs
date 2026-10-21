@@ -48,7 +48,15 @@ def HasCycleWithTripleAttachment (G : SimpleGraph V) [DecidableRel G.Adj] :
     adjacent to all three of its vertices.
     -- PROVABLE (explicit walk + decide). -/
 example : HasCycleWithTripleAttachment (⊤ : SimpleGraph (Fin 4)) := by
-  sorry
+  let c : (⊤ : SimpleGraph (Fin 4)).Walk 0 0 :=
+    .cons (by decide : (⊤ : SimpleGraph (Fin 4)).Adj 0 1)
+      (.cons (by decide : (⊤ : SimpleGraph (Fin 4)).Adj 1 2)
+        (.cons (by decide : (⊤ : SimpleGraph (Fin 4)).Adj 2 0) .nil))
+  refine ⟨0, c, ?_, 3, ?_, ?_⟩
+  · rw [Walk.cons_isCycle_iff, Walk.isPath_def]
+    decide
+  · decide
+  · decide
 
 /-- **Erdős #916, Thomassen's theorem** (Th74): every graph on `n`
     vertices with at least `2n − 2` edges contains a cycle together with
@@ -89,6 +97,40 @@ theorem thomassen_cycle_triple_attachment (G : SimpleGraph V)
     HasCycleWithTripleAttachment G := by
   sorry
 
+/-- A graph all of whose edges pass through one vertex is acyclic. -/
+private lemma isAcyclic_of_forall_adj {W : Type*} (H : SimpleGraph W) (z : W)
+    (h : ∀ a b, H.Adj a b → a = z ∨ b = z) : H.IsAcyclic := by
+  rw [isAcyclic_iff_forall_adj_isBridge]
+  intro a b hab
+  rw [isBridge_iff]
+  rintro ⟨p⟩
+  have hne : a ≠ b := hab.ne
+  -- the endpoint of the deleted edge that is not `z` has no remaining edge
+  have key : ∀ x : W, s(x, z) = s(a, b) → x ≠ z →
+      (H.deleteEdges {s(a, b)}).Walk x z → False := by
+    intro x hxz hx q
+    cases q with
+    | nil => exact hx rfl
+    | @cons _ t _ hq _ =>
+      rw [deleteEdges_adj, Set.mem_singleton_iff] at hq
+      rcases h x t hq.1 with hx' | ht
+      · exact hx hx'
+      · exact hq.2 (ht ▸ hxz)
+  rcases h a b hab with rfl | rfl
+  · exact key b Sym2.eq_swap hne.symm p.reverse
+  · exact key a rfl hne p
+
+/-- The book graph `K₂ + 3K₁` on `Fin 5`: an edge is present exactly when
+    its endpoints are distinct and at least one of them lies in `{0, 1}`. -/
+private def book : SimpleGraph (Fin 5) where
+  Adj a b := a ≠ b ∧ (a.val < 2 ∨ b.val < 2)
+  symm := ⟨fun _ _ h => ⟨h.1.symm, h.2.symm⟩⟩
+  loopless := ⟨fun _ h => h.1 rfl⟩
+
+/-- Adjacency in `book` is decidable. -/
+private instance book.decAdj : DecidableRel book.Adj := fun a b =>
+  inferInstanceAs (Decidable (a ≠ b ∧ (a.val < 2 ∨ b.val < 2)))
+
 /-- Sharpness sanity: `2n − 3` edges do not suffice.  Witness family:
     a theta-graph-free construction — e.g. the "book" `K_{2,n-2}` plus
     an edge... The DB records the bound as tight; the standard witness is
@@ -100,7 +142,35 @@ theorem thomassen_cycle_triple_attachment (G : SimpleGraph V)
 theorem sharpness_five_vertices :
     ∃ G : SimpleGraph (Fin 5), ∃ _ : DecidableRel G.Adj,
       G.edgeFinset.card = 7 ∧ ¬ HasCycleWithTripleAttachment G := by
-  sorry
+  refine ⟨book, book.decAdj, by decide, ?_⟩
+  rintro ⟨w, c, hc, v, hv, hcard⟩
+  by_cases hv2 : 2 ≤ v.val
+  · have hsub : (c.support.toFinset.filter (fun u => book.Adj v u)).card ≤
+        (univ.filter (fun u => book.Adj v u)).card :=
+      card_le_card (filter_subset_filter _ (subset_univ _))
+    have hdeg : ∀ x : Fin 5, 2 ≤ x.val →
+        (univ.filter (fun u => book.Adj x u)).card ≤ 2 := by decide
+    have hv_deg := hdeg v hv2
+    omega
+  · let z : Fin 5 := if v = 0 then 1 else 0
+    let H : SimpleGraph (Fin 5) :=
+      { Adj := fun a b => book.Adj a b ∧ a ≠ v ∧ b ≠ v
+        symm := ⟨fun _ _ h => ⟨h.1.symm, h.2.2, h.2.1⟩⟩
+        loopless := ⟨fun _ h => h.1.1 rfl⟩ }
+    have hz : ∀ a b, H.Adj a b → a = z ∨ b = z := by
+      have hall : ∀ x : Fin 5, ¬ 2 ≤ x.val → ∀ a b : Fin 5, book.Adj a b → a ≠ x → b ≠ x →
+          a = (if x = 0 then 1 else 0) ∨ b = (if x = 0 then 1 else 0) := by decide
+      intro a b hab
+      exact hall v hv2 a b hab.1 hab.2.1 hab.2.2
+    have hq : ∀ e ∈ c.edges, e ∈ H.edgeSet := by
+      intro e he
+      induction e using Sym2.ind with
+      | h a b =>
+        have hab : book.Adj a b := c.edges_subset_edgeSet he
+        have ha : a ∈ c.support := c.fst_mem_support_of_mem_edges he
+        have hb : b ∈ c.support := c.snd_mem_support_of_mem_edges he
+        exact ⟨hab, ne_of_mem_of_not_mem ha hv, ne_of_mem_of_not_mem hb hv⟩
+    exact isAcyclic_of_forall_adj H z hz (c.transfer H hq) (hc.transfer hq)
 
 end ErdosCandidates.E916
 
