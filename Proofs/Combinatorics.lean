@@ -28,3 +28,4 @@ import Combinatorics.LonelyRunnerThree
 import Combinatorics.KnillUnionClosedBound
 import Combinatorics.KneserTwoChromatic
 import Combinatorics.SeymourSecondNeighbourhoodTournament
+import Combinatorics.PrimeSumPairing
