@@ -195,3 +195,4 @@ import NumberComplexity.RosingerSumFactorialNotPolynomial
 import NumberComplexity.SmithGcdDeterminant
 import NumberComplexity.A036284SumBitFib
 import NumberComplexity.A006308OddPrimePrimitive
+import NumberComplexity.A145996JasinskiQuinticRational
