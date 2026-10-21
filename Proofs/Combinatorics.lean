@@ -15,3 +15,4 @@ import Combinatorics.MelnikovValencyBipartite
 import Combinatorics.A295431BalaGamma
 import Combinatorics.A226857FibonacciSumProduct
 import Combinatorics.A317297Boustrophedon
+import Combinatorics.ChvatalLovaszQuasiKernel
