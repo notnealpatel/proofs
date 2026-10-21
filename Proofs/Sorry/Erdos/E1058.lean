@@ -159,7 +159,86 @@ theorem luca_erdos_stewart :
 /-- Finiteness corollary — the literal answer to the question as posed.
     -- PROVABLE from `luca_erdos_stewart` (finite explicit set). -/
 theorem erdos_1058_finite : {n : ℕ | 1 ≤ n ∧ ErdosStewart n}.Finite := by
-  sorry
+  rw [luca_erdos_stewart]
+  exact Set.toFinite _
+
+/-- `nextPrime m` is a prime exceeding `m` (the defining set is nonempty
+    by Euclid). -/
+private theorem nextPrime_spec (m : ℕ) : (nextPrime m).Prime ∧ m < nextPrime m := by
+  obtain ⟨p, hmp, hp⟩ := Nat.exists_infinite_primes (m + 1)
+  exact Nat.sInf_mem (s := {p : ℕ | p.Prime ∧ m < p}) ⟨p, hp, hmp⟩
+
+/-- Bertrand: for `m ≠ 0`, the least prime above `m` is at most `2m`. -/
+private theorem nextPrime_le_two_mul (m : ℕ) (hm : m ≠ 0) : nextPrime m ≤ 2 * m := by
+  obtain ⟨p, hp, hmp, hp2⟩ := Nat.exists_prime_lt_and_le_two_mul m hm
+  exact (Nat.sInf_le (s := {p : ℕ | p.Prime ∧ m < p}) ⟨hp, hmp⟩).trans hp2
+
+/-- For `n ≠ 0`, both candidate primes of the Erdős–Stewart property are
+    at most `4n`. -/
+private theorem nextPrime_nextPrime_le (n : ℕ) (hn : n ≠ 0) :
+    nextPrime n ≤ 4 * n ∧ nextPrime (nextPrime n) ≤ 4 * n := by
+  have h1 : nextPrime n ≤ 2 * n := nextPrime_le_two_mul n hn
+  have h1' : nextPrime n ≠ 0 := (nextPrime_spec n).1.ne_zero
+  have h2 : nextPrime (nextPrime n) ≤ 2 * nextPrime n := nextPrime_le_two_mul _ h1'
+  constructor <;> omega
+
+/-- Certificate criterion: if some `R > 1` divides `n! + 1` and is coprime
+    to `(4n)!`, then `n` fails the Erdős–Stewart property, since the least
+    prime factor of `R` exceeds `4n`. -/
+private theorem not_erdosStewart_of_cert (n R : ℕ) (hn : n ≠ 0) (hR : 1 < R)
+    (hdvd : R ∣ n.factorial + 1) (hcop : Nat.gcd R (4 * n).factorial = 1) :
+    ¬ ErdosStewart n := by
+  intro hES
+  have hℓ : (R.minFac).Prime := Nat.minFac_prime (by omega)
+  have hℓdvd : R.minFac ∣ n.factorial + 1 := (Nat.minFac_dvd R).trans hdvd
+  have hmem : R.minFac ∈ (n.factorial + 1).primeFactors :=
+    Nat.mem_primeFactors.mpr ⟨hℓ, hℓdvd, by positivity⟩
+  have hle : R.minFac ≤ 4 * n := by
+    obtain ⟨hb1, hb2⟩ := nextPrime_nextPrime_le n hn
+    rcases hES _ hmem with h | h <;> omega
+  have hfac : R.minFac ∣ (4 * n).factorial := Nat.dvd_factorial hℓ.pos hle
+  have hone : R.minFac ∣ 1 := hcop ▸ Nat.dvd_gcd (Nat.minFac_dvd R) hfac
+  exact hℓ.one_lt.ne' (Nat.dvd_one.mp hone)
+
+/-- Remove from `x` its common part with `M` (one pass). -/
+private def stripBy (M x : ℕ) : ℕ := x / Nat.gcd x M
+
+private theorem stripBy_dvd (M x : ℕ) : stripBy M x ∣ x :=
+  Nat.div_dvd_of_dvd (Nat.gcd_dvd_left x M)
+
+/-- The two-pass certificate value for `n`: `n! + 1` stripped twice of
+    its common factors with `(4n)!`. -/
+private def certR (n : ℕ) : ℕ :=
+  stripBy (4 * n).factorial (stripBy (4 * n).factorial (n.factorial + 1))
+
+/-- Boolean certificate check for `n`. -/
+private def certOK (n : ℕ) : Bool :=
+  decide (1 < certR n) && Nat.gcd (certR n) (4 * n).factorial == 1
+
+/-- Check `certOK` at `a, a+1, …, a+k-1`. -/
+private def certAll (a : ℕ) : ℕ → Bool
+  | 0 => true
+  | k + 1 => certOK (a + k) && certAll a k
+
+private theorem certAll_spec (a k : ℕ) (h : certAll a k = true) (i : ℕ) (hi : i < k) :
+    certOK (a + i) = true := by
+  induction k with
+  | zero => omega
+  | succ k ih =>
+    simp only [certAll, Bool.and_eq_true] at h
+    rcases Nat.lt_succ_iff_lt_or_eq.mp hi with hi | hi
+    · exact ih h.2 hi
+    · exact hi ▸ h.1
+
+/-- Kernel computation: the certificate check passes for `n = 6, …, 100`. -/
+private theorem certAll_6_95 : certAll 6 95 = true := by
+  decide +kernel
+
+private theorem not_erdosStewart_of_certOK (n : ℕ) (hn : n ≠ 0) (h : certOK n = true) :
+    ¬ ErdosStewart n := by
+  simp only [certOK, Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq] at h
+  refine not_erdosStewart_of_cert n (certR n) hn h.1 ?_ h.2
+  exact (stripBy_dvd _ _).trans (stripBy_dvd _ _)
 
 /-- Sanity window: no further solutions up to 100.  Independent of the
     tail argument; a `decide`/`native_decide` sweep (the factorials get
@@ -168,7 +247,11 @@ theorem erdos_1058_finite : {n : ℕ | 1 ≤ n ∧ ErdosStewart n}.Finite := by
     -- PROVABLE (native_decide-scale). -/
 theorem erdos_stewart_window_100 :
     ∀ n ∈ Finset.Icc 6 100, ¬ ErdosStewart n := by
-  sorry
+  intro n hn
+  obtain ⟨h6, h100⟩ := Finset.mem_Icc.mp hn
+  have hok : certOK (6 + (n - 6)) = true := certAll_spec 6 95 certAll_6_95 (n - 6) (by omega)
+  rw [show 6 + (n - 6) = n by omega] at hok
+  exact not_erdosStewart_of_certOK n (by omega) hok
 
 end ErdosCandidates.E1058
 
