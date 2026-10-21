@@ -19,6 +19,7 @@ import PolynomialClosure.CasasAlveroPrimePower
 import PolynomialClosure.CasasAlveroTwoPrimePower
 import PolynomialClosure.CertainPfaffiansConnectedInverse
 import PolynomialClosure.BoundedRatiosLorentzianMatrices
+import PolynomialClosure.BergExplicitInverseAlpha
 
 set_option autoImplicit false
 
