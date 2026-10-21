@@ -42,3 +42,4 @@ import Combinatorics.A373226Refutation
 import Combinatorics.FranklWilsonModularIntersection
 import Combinatorics.ErdosHeilbronnRestrictedSumset
 import Combinatorics.LiuQianRefutation
+import Combinatorics.ThreeAPCoveringBound
