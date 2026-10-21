@@ -94,3 +94,9 @@ import BilinearComplexity.SliceRank
 import BilinearComplexity.Strassen
 import BilinearComplexity.Support
 import BilinearComplexity.Winograd
+import BilinearComplexity.BooleanRankDenseDefect
+import BilinearComplexity.BooleanRankDenseProbability
+import BilinearComplexity.BooleanRankDenseZero
+import BilinearComplexity.BooleanRankDenseBinomial
+import BilinearComplexity.BooleanRankIrreducibles
+import BilinearComplexity.FlipQuantum.FiniteModel

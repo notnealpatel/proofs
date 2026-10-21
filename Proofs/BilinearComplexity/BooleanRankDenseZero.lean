@@ -1,4 +1,4 @@
-import Sorry.BilinearComplexity.BooleanRankDenseProbability
+import BilinearComplexity.BooleanRankDenseProbability
 
 set_option autoImplicit false
 open scoped BigOperators Classical

@@ -1,4 +1,4 @@
-import Sorry.BilinearComplexity.BooleanRankDenseZero
+import BilinearComplexity.BooleanRankDenseZero
 import Mathlib.Data.Finset.Powerset
 
 set_option autoImplicit false

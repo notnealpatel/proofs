@@ -1,4 +1,4 @@
-import Sorry.BilinearComplexity.BooleanRankDenseDefect
+import BilinearComplexity.BooleanRankDenseDefect
 import BilinearComplexity.BooleanRankProbability
 import Mathlib.Tactic
 
