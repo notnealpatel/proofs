@@ -40,3 +40,4 @@ import Combinatorics.FlexCF8AMesoscopicLowRate
 import Combinatorics.Flex86E1ProfileIdentity
 import Combinatorics.A373226Refutation
 import Combinatorics.FranklWilsonModularIntersection
+import Combinatorics.ErdosHeilbronnRestrictedSumset
