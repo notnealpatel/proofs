@@ -5,6 +5,7 @@
   spaces, not tensors or any topological interpretation of closure.
 -/
 import Mathlib.RingTheory.Nullstellensatz
+import PolynomialClosure.SymmetricIdealNonPrimality
 
 set_option autoImplicit false
 
