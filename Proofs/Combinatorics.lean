@@ -145,3 +145,4 @@ import Combinatorics.DiceRelabelingSquareSided
 import Combinatorics.HegedusEquidistantCodeBound
 import Combinatorics.TownFamiliesCompositeModulus
 import Combinatorics.StanleyDimerDenominatorThirteen
+import Combinatorics.SunPermutationSquareSumMod
