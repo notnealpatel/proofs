@@ -79,7 +79,13 @@ theorem ecklund (n k : ℕ) (hk : 2 ≤ k) (hkn : 2 * k ≤ n)
 theorem erdos_384_db_range (n k : ℕ) (hk1 : 1 < k) (hk2 : k < n - 1)
     (hexc : ¬(n = 7 ∧ (k = 3 ∨ k = 4))) :
     ∃ p : ℕ, p.Prime ∧ p ∣ n.choose k ∧ 2 * p ≤ n := by
-  sorry
+  by_cases hhalf : 2 * k ≤ n
+  · exact ecklund n k (by omega) hhalf (fun h => hexc ⟨h.1, Or.inl h.2⟩)
+  · have hkn : k ≤ n := by omega
+    obtain ⟨p, hp, hdvd, hbound⟩ :=
+      ecklund n (n - k) (by omega) (by omega) (fun h => hexc ⟨h.1, Or.inr (by omega)⟩)
+    rw [Nat.choose_symm hkn] at hdvd
+    exact ⟨p, hp, hdvd, hbound⟩
 
 /-- Sanity window: Ecklund's statement verified for all `n ≤ 30`,
     `2 ≤ k`, `2k ≤ n`, `(n,k) ≠ (7,3)` by kernel computation.
