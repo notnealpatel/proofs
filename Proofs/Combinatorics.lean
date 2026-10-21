@@ -82,3 +82,4 @@ import Combinatorics.AnnihilationCaroWeiBound
 import Combinatorics.LyudogovskiySimplexStratificationPhase
 import Combinatorics.A333637LatticeCellsCovered
 import Combinatorics.A288523LengthIterateParsing
+import Combinatorics.A084189TakeAnyPalindrome
