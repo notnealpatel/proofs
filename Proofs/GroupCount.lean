@@ -46,3 +46,4 @@ import GroupCount.IntersectionNumbersFiniteGroups
 import GroupCount.TarnauceanuZMGroups
 import GroupCount.HallCompleteMappingZ2Z2k
 import GroupCount.OreDistributiveCyclic
+import GroupCount.FarrokhiCommutativityDegreesRefutation
