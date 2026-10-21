@@ -57,3 +57,4 @@ import NumberComplexity.A187941Refutation
 import NumberComplexity.A137328Refutation
 import NumberComplexity.A129454Refutation
 import NumberComplexity.A187716Refutation
+import NumberComplexity.GroupLogarithmRainbowCascade
