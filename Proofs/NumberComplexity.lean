@@ -165,3 +165,4 @@ import NumberComplexity.HercherTotientTwoThirds
 import NumberComplexity.A106303FibonacciStepLeast
 import NumberComplexity.A387724SigmaCompletelyMultiplicative
 import NumberComplexity.A209332Refutation
+import NumberComplexity.A135659MersennePrimeSatisfies
