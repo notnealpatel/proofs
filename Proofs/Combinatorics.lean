@@ -79,3 +79,4 @@ import Combinatorics.A284365Refutation
 import Combinatorics.ManyAntipodalPairsForce
 import Combinatorics.StemockEquitableTotalColouring
 import Combinatorics.AnnihilationCaroWeiBound
+import Combinatorics.LyudogovskiySimplexStratificationPhase
