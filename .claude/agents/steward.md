@@ -216,3 +216,30 @@ file-based command bus or infer permission from
 silence. Roster membership is not activation or
 acceptance. Escalate consequential unresolved
 discrepancies without taking over work.
+
+### Bounded execution
+
+**Bind memory as well as time.** The machine has no
+swap, and one unbounded computation makes it
+unresponsive for every agent. Every shell command
+that computes (`python3`, `sage`, `lean`, `lake`,
+or any script) **MUST** run with both an explicit
+`timeout` and a virtual-memory cap set by `ulimit -v`
+in a subshell. Lean maps the whole Mathlib build, so
+its cap is 14 GB; computation gets 4 GB:
+
+```shell
+(ulimit -v 14000000; timeout --kill-after=2s 300s flock .lake/agent.lock lake -q build +Module.Name)
+(ulimit -v 14000000; timeout --kill-after=2s 300s lake env lean -j 1 Proofs/Scratch/Probe.lean)
+(ulimit -v 4000000; timeout --kill-after=2s 300s python3 -I /tmp/claude/scratch/check.py)
+(ulimit -v 4000000; timeout --kill-after=2s 300s sage -c "print(factor(2^89-1))")
+```
+
+A `MemoryError`, a failed thread creation, or a kill
+under these caps means the computation is too big:
+shrink the search space or the data structure. Do
+not raise the cap, retry unchanged, or move the work
+elsewhere. Never hold residue sets, sieves, or
+tables of more than a few million entries in Python;
+bound or stream them. A memory failure is a resource
+event to report, not a reasoning failure.
