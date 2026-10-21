@@ -211,3 +211,4 @@ import Enumerative.PreTwoEqualsOneCharacterization
 import Enumerative.CanonPermutationPattern1213
 import Enumerative.CanonPermutationPattern1231Recurrence
 import Enumerative.A006231SumMathar
+import Enumerative.A071033RuleSingleCell
