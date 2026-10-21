@@ -20,3 +20,4 @@ import NumberComplexity.A226898HooleyDelta
 import NumberComplexity.A280098SigmaDivisibility
 import NumberComplexity.A394757TwinPrimeSigma
 import NumberComplexity.A211417FactorialRatio
+import NumberComplexity.A060264DistinctSquaresMod
