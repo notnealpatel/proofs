@@ -20,3 +20,4 @@ import Combinatorics.KatonaAlternatingHamilton
 import Combinatorics.LatinCornerDefiningSet
 import Combinatorics.BorgIntersectingPartitions
 import Combinatorics.MelnikovValencyCounterexample
+import Combinatorics.LocalAntimagicLeafCounterexample
