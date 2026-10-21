@@ -128,3 +128,4 @@ import Enumerative.A110734Refutation
 import Enumerative.A110735Refutation
 import Enumerative.A153772ThirdLargestPositive
 import Enumerative.A145047PrimeLeastPositive
+import Enumerative.A143772GcdRangesOver
