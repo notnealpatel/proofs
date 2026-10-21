@@ -41,3 +41,4 @@ import Enumerative.NicolConjectureTwoPrimes
 import Enumerative.NumericalSemigroupLeafInternal
 import Enumerative.FrobeniusCoprimeUnbounded
 import Enumerative.A000139TwoStackParity
+import Enumerative.A055203AllenRelationsMod
