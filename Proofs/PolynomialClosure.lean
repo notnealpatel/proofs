@@ -6,6 +6,7 @@
 -/
 import Mathlib.RingTheory.Nullstellensatz
 import PolynomialClosure.SymmetricIdealNonPrimality
+import PolynomialClosure.ReducedResultantLinear
 
 set_option autoImplicit false
 
