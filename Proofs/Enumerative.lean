@@ -228,3 +228,4 @@ import Enumerative.A144636CompositionalInverseOdd
 import Enumerative.A365771PaulHannaCatalan
 import Enumerative.A155200ExpSumEquivalently
 import Enumerative.A381355PrimeSumUnique
+import Enumerative.A160191LodumoTransformLucas
