@@ -77,3 +77,4 @@ import Combinatorics.A222955BinaryWordCounted
 import Combinatorics.A105596RowSumsSum
 import Combinatorics.A284365Refutation
 import Combinatorics.ManyAntipodalPairsForce
+import Combinatorics.StemockEquitableTotalColouring
