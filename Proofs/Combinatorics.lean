@@ -54,3 +54,4 @@ import Combinatorics.PotapovWeightDegree
 import Combinatorics.MajorityColouringCylinderRowBudget
 import Combinatorics.RootPosetAntichainComplexes
 import Combinatorics.SubindicesPowerSetsDifferenceLength
+import Combinatorics.PrefixReversalGeneration
