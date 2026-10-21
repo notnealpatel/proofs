@@ -58,6 +58,36 @@ private theorem g_eq_of_least (k m : ℕ)
   by_contra h
   exact hbelow ⟨n, Nat.lt_of_not_ge h⟩ hn
 
+/-- For `k ≤ n`, every prime factor of `C(n,k)` exceeds `k` iff `C(n,k)`
+    (computed as `n.descFactorial k / k!`) is coprime to `k!`. -/
+private theorem allFactorsLarge_iff_coprime (n k : ℕ) (hkn : k ≤ n) :
+    AllFactorsLarge n k ↔ Nat.Coprime (n.descFactorial k / k.factorial) k.factorial := by
+  rw [← Nat.choose_eq_descFactorial_div_factorial]
+  have hC : n.choose k ≠ 0 := (Nat.choose_pos hkn).ne'
+  constructor
+  · intro h
+    apply Nat.Coprime.symm
+    apply Nat.coprime_of_dvd
+    intro p hp hpk hpC
+    have hlt : k < p := h p (Nat.mem_primeFactors.mpr ⟨hp, hpC, hC⟩)
+    exact absurd ((Nat.Prime.dvd_factorial hp).mp hpk) (Nat.not_le.mpr hlt)
+  · intro h p hp
+    obtain ⟨hpp, hpC, -⟩ := Nat.mem_primeFactors.mp hp
+    by_contra hle
+    have hpk : p ∣ k.factorial := (Nat.Prime.dvd_factorial hpp).mpr (Nat.not_lt.mp hle)
+    exact hpp.one_lt.ne' (Nat.eq_one_of_dvd_coprimes h hpC hpk)
+
+/-- Coprimality form of `g_eq_of_least`: if `m > k + 1` has `C(m,k)` coprime to `k!`
+    and no `n` with `k + 1 < n < m` does, then `g k = m`. -/
+private theorem g_eq_of_least_coprime (k m : ℕ) (hkm : k + 1 < m)
+    (hm : Nat.Coprime (m.descFactorial k / k.factorial) k.factorial)
+    (hbelow : ∀ n : Fin m, k + 1 < n.val →
+      ¬ Nat.Coprime (n.val.descFactorial k / k.factorial) k.factorial) :
+    g k = m := by
+  refine g_eq_of_least k m ⟨hkm, (allFactorsLarge_iff_coprime m k (by omega)).mpr hm⟩ ?_
+  rintro n ⟨hlt, hA⟩
+  exact hbelow n hlt ((allFactorsLarge_iff_coprime n.val k (by omega)).mp hA)
+
 /-- Ground truth against A003458 (pulled 2026-08-05: 3, 6, 7, 7, 23,
     62, 143, 44, …): `g 1 = 3`, `g 2 = 6`, `g 3 = 7`, `g 4 = 7`,
     `g 5 = 23`, `g 6 = 62`.  Trace for g 2 = 6: C(4,2) = 6 (minFac 2),
@@ -136,7 +166,15 @@ theorem ees_ratio_liminf (ε : ℝ) (hε : 0 < ε) :
     a(n) is our g n)…  verify offsets against OEIS during proof;
     recorded as the decide target `g 8 < g 7`.
     -- PROVABLE (decide). -/
-example : g 8 < g 7 := by sorry
+example : g 8 < g 7 := by
+  have h7 : g 7 = 143 := by
+    refine g_eq_of_least_coprime 7 143 (by norm_num) (by decide +kernel) ?_
+    decide +kernel
+  have h8 : g 8 = 44 := by
+    refine g_eq_of_least_coprime 8 44 (by norm_num) (by decide +kernel) ?_
+    decide +kernel
+  rw [h7, h8]
+  norm_num
 
 end ErdosCandidates.E1095
 
