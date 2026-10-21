@@ -18,3 +18,4 @@ import GroupCount.ZeroSumPropertyCD
 import GroupCount.HarmonicTupleA5
 import GroupCount.KashinaFactorizedExponent
 import GroupCount.ImmaculateGroupQuotient
+import GroupCount.UnionClosedSubgroupLattice
