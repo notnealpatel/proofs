@@ -85,3 +85,4 @@ import NumberComplexity.A259145PhiPrimeCyclic
 import NumberComplexity.A322327AnyFixedOmega
 import NumberComplexity.A057015PrimeSatisfies
 import NumberComplexity.A059324CompositeTherePrimes
+import NumberComplexity.A166103SquaresWhosePrime
