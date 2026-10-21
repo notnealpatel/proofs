@@ -52,6 +52,65 @@ example : divisorDefect 5 2 = 1 ∧ divisorDefect 4 2 = 1 := by decide
 noncomputable def nk (k : ℕ) : ℕ :=
   sInf {n : ℕ | 2 * k ≤ n ∧ divisorDefect n k ≤ 1}
 
+/-- A window of `k` consecutive integers `n - k + 1, …, n` contains a multiple of
+    `q` whenever `q ≤ k` or `q` is at most the carry sum `k % q + (n - k) % q`. -/
+private theorem exists_dvd_sub_of_carry (n k q : ℕ) (hq : 0 < q) (hkn : k ≤ n)
+    (hcarry : q ≤ k ∨ q ≤ k % q + (n - k) % q) :
+    ∃ i, i < k ∧ q ∣ n - i := by
+  have hkmod : k % q ≤ k := Nat.mod_le k q
+  have hr : (n - k) % q < q := Nat.mod_lt _ hq
+  have hdiv : q * ((n - k) / q) + (n - k) % q = n - k := Nat.div_add_mod (n - k) q
+  have hle : q ≤ k + (n - k) % q := by omega
+  refine ⟨k + (n - k) % q - q, by omega, ?_⟩
+  have heq : n - (k + (n - k) % q - q) = q * ((n - k) / q + 1) := by
+    rw [Nat.mul_add, Nat.mul_one]; omega
+  rw [heq]
+  exact Dvd.intro _ rfl
+
+/-- Kummer bound at a prime divisor `p ∣ k`: there is a level `T ≥ 1` with
+    `p ^ T ≤ k` or a carry at level `T`, and `v_p(C(n,k)) < T`. -/
+private theorem exists_level_of_prime_dvd (n k p : ℕ) [hp : Fact p.Prime] (hpk : p ∣ k)
+    (hk : k ≠ 0) (hkn : k ≤ n) :
+    ∃ T, (p ^ T ≤ k ∨ p ^ T ≤ k % p ^ T + (n - k) % p ^ T) ∧
+      padicValNat p (n.choose k) < T := by
+  set S := (Finset.Ico 1 (Nat.log p n + 1)).filter
+    (fun i => p ^ i ≤ k % p ^ i + (n - k) % p ^ i) with hS
+  have hval : padicValNat p (n.choose k) = S.card :=
+    padicValNat_choose hkn (Nat.lt_succ_self _)
+  set T := S.sup id ⊔ 1 with hT
+  have hsub : S ⊆ Finset.Ico 2 (T + 1) := by
+    intro t ht
+    have ht' := Finset.mem_filter.mp ht
+    have ht1 : 1 ≤ t := (Finset.mem_Ico.mp ht'.1).1
+    have htT : t ≤ T := le_sup_of_le_left (Finset.le_sup (f := id) ht)
+    have ht2 : t ≠ 1 := by
+      rintro rfl
+      have hkp : k % p = 0 := Nat.mod_eq_zero_of_dvd hpk
+      have := ht'.2
+      simp only [pow_one, hkp, zero_add] at this
+      exact absurd (Nat.mod_lt (n - k) hp.out.pos) (not_lt.mpr this)
+    rw [Finset.mem_Ico]; omega
+  have hcard : S.card < T := by
+    have := Finset.card_le_card hsub
+    rw [Nat.card_Ico] at this
+    have h1 : 1 ≤ T := le_sup_right
+    omega
+  refine ⟨T, ?_, hval ▸ hcard⟩
+  rcases Nat.eq_zero_or_pos (S.sup id) with h0 | hpos
+  · left
+    have hT1 : T = 1 := by rw [hT, h0]; rfl
+    rw [hT1, pow_one]
+    exact Nat.le_of_dvd (Nat.pos_of_ne_zero hk) hpk
+  · right
+    obtain ⟨t, htS, htsup⟩ := Finset.exists_mem_eq_sup S
+      (Finset.nonempty_of_ne_empty (by rintro hE; rw [hE] at hpos; simp at hpos)) id
+    have hT' : T = t := by
+      rw [hT, htsup]
+      have : 1 ≤ t := (Finset.mem_Ico.mp (Finset.mem_filter.mp htS).1).1
+      simpa using this
+    rw [hT']
+    exact (Finset.mem_filter.mp htS).2
+
 /-- **Erdős–Selfridge non-divisibility lemma** (ErSe83; proof Monier
     Mo85): for `n ≥ 2k`, `k ≥ 2`, at least one `0 ≤ i < k` has
     `(n − i) ∤ C(n,k)` — i.e. the defect is positive, so "all but one"
@@ -69,7 +128,19 @@ noncomputable def nk (k : ℕ) : ℕ :=
 theorem erdos_selfridge_defect_pos (n k : ℕ) (hk : 2 ≤ k)
     (hn : 2 * k ≤ n) :
     1 ≤ divisorDefect n k := by
-  sorry
+  have hkn : k ≤ n := by omega
+  obtain ⟨p, hp, hpk⟩ := Nat.exists_prime_and_dvd (show k ≠ 1 by omega)
+  haveI : Fact p.Prime := ⟨hp⟩
+  obtain ⟨T, hcarry, hlt⟩ := exists_level_of_prime_dvd n k p hpk (by omega) hkn
+  obtain ⟨i, hik, hdvd⟩ := exists_dvd_sub_of_carry n k (p ^ T) (pow_pos hp.pos T) hkn hcarry
+  have hC : n.choose k ≠ 0 := (Nat.choose_pos hkn).ne'
+  have hnot : ¬ (n - i) ∣ n.choose k := by
+    intro hdiv
+    have hpT : p ^ T ∣ n.choose k := hdvd.trans hdiv
+    rw [padicValNat_dvd_iff_le hC] at hpT
+    omega
+  unfold divisorDefect
+  exact Finset.card_pos.mpr ⟨i, Finset.mem_filter.mpr ⟨Finset.mem_range.mpr hik, hnot⟩⟩
 
 /-- A candidate is the least admissible natural if every smaller natural is inadmissible. -/
 private theorem nk_eq_of_least (k w : ℕ)
@@ -123,6 +194,96 @@ theorem nk_five : nk 5 = 12 := by
     intro n hn
     exact hsmall ⟨n, hn⟩
 
+/-- Monier's identity: `C(k!, k) = ∏_{1 ≤ i < k} (k! − i)`, written with `k = k' + 1`. -/
+private theorem choose_factorial_eq_prod (k' : ℕ) :
+    (k' + 1).factorial.choose (k' + 1) =
+      ∏ i ∈ Finset.range k', ((k' + 1).factorial - (i + 1)) := by
+  have h := Nat.descFactorial_eq_factorial_mul_choose (k' + 1).factorial (k' + 1)
+  rw [Nat.descFactorial_eq_prod_range, Finset.prod_range_succ', Nat.sub_zero, mul_comm] at h
+  exact (Nat.eq_of_mul_eq_mul_left (Nat.factorial_pos _) h).symm
+
+/-- The divisor defect of `(k!, k)` is at most one: every `k! − i` with `1 ≤ i < k`
+    divides `C(k!, k)`. -/
+private theorem divisorDefect_factorial_le_one (k : ℕ) :
+    divisorDefect k.factorial k ≤ 1 := by
+  rcases k with _ | k'
+  · simp [divisorDefect]
+  · unfold divisorDefect
+    have hsub : (Finset.range (k' + 1)).filter
+        (fun i => ¬ ((k' + 1).factorial - i) ∣ (k' + 1).factorial.choose (k' + 1)) ⊆ {0} := by
+      intro i hi
+      rw [Finset.mem_filter, Finset.mem_range] at hi
+      rw [Finset.mem_singleton]
+      by_contra hi0
+      apply hi.2
+      obtain ⟨j, rfl⟩ : ∃ j, i = j + 1 := ⟨i - 1, by omega⟩
+      rw [choose_factorial_eq_prod]
+      exact Finset.dvd_prod_of_mem _ (Finset.mem_range.mpr (by omega))
+    simpa using Finset.card_le_card hsub
+
+/-- If every `1 ≤ j ≤ k'` divides `n`, then
+    `(k'+1)! · C(n, k'+1) = n · (k'! · ∏_{i < k'} (n/(i+1) − 1))`. -/
+private theorem factorial_mul_choose_of_dvd (n k' : ℕ)
+    (hdiv : ∀ j, 1 ≤ j → j ≤ k' → j ∣ n) :
+    (k' + 1).factorial * n.choose (k' + 1) =
+      n * (k'.factorial * ∏ i ∈ Finset.range k', (n / (i + 1) - 1)) := by
+  rw [← Nat.descFactorial_eq_factorial_mul_choose, Nat.descFactorial_eq_prod_range,
+    Finset.prod_range_succ', Nat.sub_zero, mul_comm, ← Finset.prod_range_add_one_eq_factorial,
+    ← Finset.prod_mul_distrib]
+  congr 1
+  apply Finset.prod_congr rfl
+  intro i hi
+  rw [Finset.mem_range] at hi
+  obtain ⟨m, hm⟩ := hdiv (i + 1) (by omega) (by omega)
+  have hm' : n / (i + 1) = m := by rw [hm, Nat.mul_div_cancel_left _ (by omega)]
+  rw [hm', hm, Nat.mul_sub_one]
+
+/-- With `L = lcm(2, …, k−1)` and `n = k·L`, every `n − i` with `1 ≤ i < k` divides
+    `C(n, k)`; hence the divisor defect is at most one. -/
+private theorem divisorDefect_mul_lcm_le_one (k : ℕ) (hk : 3 ≤ k) :
+    divisorDefect (k * (Finset.Icc 2 (k - 1)).lcm id) k ≤ 1 := by
+  obtain ⟨k', rfl⟩ : ∃ k', k = k' + 1 := ⟨k - 1, by omega⟩
+  set L := (Finset.Icc 2 (k' + 1 - 1)).lcm id with hL
+  have hjL : ∀ j, 1 ≤ j → j ≤ k' → j ∣ L := by
+    intro j hj1 hjk
+    rcases Nat.eq_or_lt_of_le hj1 with rfl | hj2
+    · exact one_dvd _
+    · exact Finset.dvd_lcm (f := id) (Finset.mem_Icc.mpr ⟨hj2, by omega⟩)
+  have hL0 : L ≠ 0 := by
+    rw [hL, Ne, Finset.lcm_eq_zero_iff]
+    rintro ⟨x, hx, hx0⟩
+    rw [Finset.mem_Icc] at hx
+    simp only [id] at hx0
+    omega
+  set n := (k' + 1) * L with hn
+  have hdiv : ∀ j, 1 ≤ j → j ≤ k' → j ∣ n := fun j h1 h2 =>
+    (hjL j h1 h2).trans (Dvd.intro_left _ rfl)
+  set Q := ∏ i ∈ Finset.range k', (n / (i + 1) - 1) with hQ
+  have hC : n.choose (k' + 1) = L * Q := by
+    have h := factorial_mul_choose_of_dvd n k' hdiv
+    rw [Nat.factorial_succ] at h
+    have h' : ((k' + 1) * k'.factorial) * n.choose (k' + 1) =
+        ((k' + 1) * k'.factorial) * (L * Q) := by
+      rw [h, hn]; ring
+    exact Nat.eq_of_mul_eq_mul_left (Nat.mul_pos (Nat.succ_pos _) (Nat.factorial_pos _)) h'
+  unfold divisorDefect
+  have hsub : (Finset.range (k' + 1)).filter
+      (fun i => ¬ (n - i) ∣ n.choose (k' + 1)) ⊆ {0} := by
+    intro i hi
+    rw [Finset.mem_filter, Finset.mem_range] at hi
+    rw [Finset.mem_singleton]
+    by_contra hi0
+    apply hi.2
+    obtain ⟨j, rfl⟩ : ∃ j, i = j + 1 := ⟨i - 1, by omega⟩
+    obtain ⟨m, hm⟩ := hdiv (j + 1) (by omega) (by omega)
+    have hm' : n / (j + 1) = m := by rw [hm, Nat.mul_div_cancel_left _ (by omega)]
+    have hsplit : n - (j + 1) = (j + 1) * (n / (j + 1) - 1) := by
+      rw [hm', Nat.mul_sub_one, ← hm]
+    rw [hsplit, hC]
+    exact mul_dvd_mul (hjL (j + 1) (by omega) (by omega))
+      (Finset.dvd_prod_of_mem _ (Finset.mem_range.mpr (by omega)))
+  simpa using Finset.card_le_card hsub
+
 /-- **Monier's upper bound**: `n_k ≤ k!` for `3 ≤ k`, witnessed by
     `n = k!`: for `1 ≤ i < k`, `(k! − i) ∣ C(k!, k)`.
     Proof sketch: `C(k!, k) = k!(k!−1)⋯(k!−k+1)/k!`; for `1 ≤ i < k`
@@ -130,14 +291,32 @@ theorem nk_five : nk 5 = 12 := by
     manipulation of factorials; the divisor-defect at `n = k!`
     concentrates at `i = 0`.  -/
 theorem nk_le_factorial (k : ℕ) (hk : 3 ≤ k) : nk k ≤ k.factorial := by
-  sorry
+  apply Nat.sInf_le
+  refine ⟨?_, divisorDefect_factorial_le_one k⟩
+  obtain ⟨k', rfl⟩ : ∃ k', k = k' + 1 := ⟨k - 1, by omega⟩
+  have hk' : k' ≤ k'.factorial := Nat.self_le_factorial k'
+  rw [Nat.factorial_succ]
+  nlinarith
+
 
 /-- **Cambie's improvement** (DB comments): `n_k ≤ k · lcm(2, …, k−1)`,
     giving `n_k ≤ e^{(1+o(1))k}`.  Sits on the repo's Erdos440 lcm
     layer.  Comment-sourced; re-derive the witness before proving. -/
 theorem nk_le_mul_lcm (k : ℕ) (hk : 3 ≤ k) :
     nk k ≤ k * (Finset.Icc 2 (k - 1)).lcm id := by
-  sorry
+  apply Nat.sInf_le
+  refine ⟨?_, divisorDefect_mul_lcm_le_one k hk⟩
+  have h2 : 2 ∣ (Finset.Icc 2 (k - 1)).lcm id :=
+    Finset.dvd_lcm (f := id) (Finset.mem_Icc.mpr ⟨le_refl 2, by omega⟩)
+  have hL0 : (Finset.Icc 2 (k - 1)).lcm id ≠ 0 := by
+    rw [Ne, Finset.lcm_eq_zero_iff]
+    rintro ⟨x, hx, hx0⟩
+    rw [Finset.mem_Icc] at hx
+    simp only [id] at hx0
+    omega
+  have hL2 : 2 ≤ (Finset.Icc 2 (k - 1)).lcm id := Nat.le_of_dvd (Nat.pos_of_ne_zero hL0) h2
+  rw [mul_comm 2 k]
+  exact Nat.mul_le_mul_left k hL2
 
 /-- **rickyc–GPT lower bound** (comments, Jul 2026; comment-sourced,
     unrefereed — verify the valuation argument independently before
