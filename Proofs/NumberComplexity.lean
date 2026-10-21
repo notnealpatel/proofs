@@ -171,3 +171,4 @@ import NumberComplexity.A390088BaseDigitsPrime
 import NumberComplexity.A156834SumPhiPrime
 import NumberComplexity.A328919SigmaModPurely
 import NumberComplexity.A271719GcdPerfectSquare
+import NumberComplexity.A038867ParticularPerfectSquare
