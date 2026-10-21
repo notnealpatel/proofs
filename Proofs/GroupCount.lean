@@ -15,3 +15,4 @@ import GroupCount.ForcadePollington
 import GroupCount.GaoGeroldingerRefutation
 import GroupCount.SmithLocalPresentation
 import GroupCount.ZeroSumPropertyCD
+import GroupCount.HarmonicTupleA5
