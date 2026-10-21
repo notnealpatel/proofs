@@ -8,6 +8,7 @@ import Mathlib.RingTheory.Nullstellensatz
 import PolynomialClosure.SymmetricIdealNonPrimality
 import PolynomialClosure.ReducedResultantLinear
 import PolynomialClosure.FactorialConjectureConstantTerm
+import PolynomialClosure.AlpogeJacobianCounterexampleThree
 
 set_option autoImplicit false
 
