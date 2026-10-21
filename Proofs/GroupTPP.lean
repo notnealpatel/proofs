@@ -31,3 +31,4 @@ import GroupTPP.DihedralTPP.Sharpness
 import GroupTPP.CommutingProbabilitySubgroup
 import GroupTPP.CommutingProbabilityGustafson
 import GroupTPP.ClassNumberGallagher
+import GroupTPP.SolubilizerDivisibility
