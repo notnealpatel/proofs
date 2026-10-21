@@ -1,0 +1,239 @@
+/-
+# Power graph cograph implies enhanced power graph cograph
+
+## Source
+
+D. Bubboloni, F. Fumagalli, C. E. Praeger, *Enhanced power graphs of finite
+groups with cograph structure*, arXiv:2510.18073v1, Section 4, subsection
+"Some comments on power graphs", Conjecture `prob2` (the only Conjecture
+environment of the paper).  Verbatim:
+
+> For every finite group $G$, if the power graph $\mathcal{P}(G)$ is a
+> cograph, then also the enhanced power graph $\mathcal{E}(G)$ is a cograph.
+
+Definitions (paper, Definition `d:EG` and `d:cograph/chordal`):
+* $\mathcal{P}(G)$ has vertex set $G$, and $\{x,y\}$ is an edge iff $x \ne y$
+  and $x = y^m$ or $y = x^m$ for some $m \in \mathbb{N}$;
+* $\mathcal{E}(G)$ has vertex set $G$, and $\{x,y\}$ is an edge iff $x \ne y$
+  and $\langle x, y\rangle$ is cyclic;
+* a graph is a cograph iff it is $P_4$-free, i.e. has no induced subgraph
+  isomorphic to the path on four vertices.
+
+Date: 2026-10-21.  Status in the paper: open (stated as a conjecture).
+Status here: proved (no `sorry`), see
+`isCograph_enhancedPowerGraph_of_isCograph_powerGraph`.
+
+## Argument formalized here
+
+If `w - x - y - z` is an induced `P₄` of `E(G)`, choose `h` with
+`w, x ∈ ⟨h⟩` and `g` with `x, y ∈ ⟨g⟩`.  Then `h - x - g - y` is an induced
+`P₄` of the (`ℤ`-)power graph.  This uses no finiteness; finiteness only
+identifies the `ℕ`-power graph of the paper with the `ℤ`-power graph.
+-/
+import Mathlib
+
+set_option autoImplicit false
+
+namespace PowerGraphCographEnhanced
+
+open SimpleGraph Subgroup
+
+variable {G : Type*} [Group G]
+
+/-- The power graph `𝒫(G)` (paper, Definition `d:EG`(a)): distinct `x, y`
+are adjacent iff one is a natural-number power of the other. -/
+def powerGraph (G : Type*) [Group G] : SimpleGraph G where
+  Adj x y := x ≠ y ∧ (x ∈ Submonoid.powers y ∨ y ∈ Submonoid.powers x)
+  symm := ⟨fun _ _ h => ⟨h.1.symm, h.2.symm⟩⟩
+  loopless := ⟨fun _ h => h.1 rfl⟩
+
+/-- The enhanced power graph `ℰ(G)` (paper, Definition `d:EG`(b)): distinct
+`x, y` are adjacent iff `⟨x, y⟩` is cyclic. -/
+def enhancedPowerGraph (G : Type*) [Group G] : SimpleGraph G where
+  Adj x y := x ≠ y ∧ IsCyclic (closure ({x, y} : Set G))
+  symm := ⟨fun x y h => ⟨h.1.symm, by rw [Set.pair_comm]; exact h.2⟩⟩
+  loopless := ⟨fun _ h => h.1 rfl⟩
+
+/-- A graph is a cograph iff it is `P₄`-free: the path on four vertices is
+not an induced subgraph (paper, Definition `d:cograph/chordal`). -/
+def IsCograph {V : Type*} (Γ : SimpleGraph V) : Prop :=
+  ¬ (pathGraph 4).IsIndContained Γ
+
+/-- `⟨x, y⟩` is cyclic iff `x` and `y` lie in a common cyclic subgroup. -/
+theorem isCyclic_closure_pair_iff (x y : G) :
+    IsCyclic (closure ({x, y} : Set G)) ↔
+      ∃ g : G, x ∈ zpowers g ∧ y ∈ zpowers g := by
+  constructor
+  · intro hcyc
+    obtain ⟨g, hg⟩ := (closure ({x, y} : Set G)).isCyclic_iff_exists_zpowers_eq_top.mp hcyc
+    refine ⟨g, ?_, ?_⟩
+    · rw [hg]; exact subset_closure (by simp)
+    · rw [hg]; exact subset_closure (by simp)
+  · rintro ⟨g, hx, hy⟩
+    have hle : closure ({x, y} : Set G) ≤ zpowers g := by
+      rw [closure_le]
+      intro a ha
+      rcases ha with rfl | rfl
+      · exact hx
+      · exact hy
+    exact isCyclic_of_le hle
+
+/-- Enhanced power graph adjacency in common-cyclic-subgroup form. -/
+theorem enhancedPowerGraph_adj_iff (x y : G) :
+    (enhancedPowerGraph G).Adj x y ↔
+      x ≠ y ∧ ∃ g : G, x ∈ zpowers g ∧ y ∈ zpowers g := by
+  simp only [enhancedPowerGraph, isCyclic_closure_pair_iff]
+
+/-- For a finite group, power graph adjacency in `zpowers` form. -/
+theorem powerGraph_adj_iff [Finite G] (x y : G) :
+    (powerGraph G).Adj x y ↔ x ≠ y ∧ (x ∈ zpowers y ∨ y ∈ zpowers x) := by
+  simp only [powerGraph, mem_powers_iff_mem_zpowers]
+
+/-- Induced `P₄` in a simple graph, in explicit four-vertex form: `a - b - c - d`
+is a path with no chords `ac`, `ad`, `bd`. -/
+theorem pathGraph_four_isIndContained_iff {V : Type*} (Γ : SimpleGraph V) :
+    (pathGraph 4).IsIndContained Γ ↔
+      ∃ a b c d : V, Γ.Adj a b ∧ Γ.Adj b c ∧ Γ.Adj c d ∧
+        ¬ Γ.Adj a c ∧ ¬ Γ.Adj a d ∧ ¬ Γ.Adj b d := by
+  constructor
+  · rintro ⟨f⟩
+    refine ⟨f 0, f 1, f 2, f 3, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
+      simp [f.map_adj_iff, pathGraph_adj]
+  · rintro ⟨a, b, c, d, hab, hbc, hcd, hac, had, hbd⟩
+    have hab' := hab.ne
+    have hbc' := hbc.ne
+    have hcd' := hcd.ne
+    have hac' : a ≠ c := by rintro rfl; exact had hcd
+    have had' : a ≠ d := by rintro rfl; exact hac hcd.symm
+    have hbd' : b ≠ d := by rintro rfl; exact had hab
+    have hca : ¬ Γ.Adj c a := fun h => hac h.symm
+    have hda : ¬ Γ.Adj d a := fun h => had h.symm
+    have hdb : ¬ Γ.Adj d b := fun h => hbd h.symm
+    let f : Fin 4 → V := ![a, b, c, d]
+    have hinj : Function.Injective f := by
+      intro i j hij
+      fin_cases i <;> fin_cases j <;> simp_all [f, eq_comm]
+    refine ⟨⟨⟨f, hinj⟩, ?_⟩⟩
+    intro i j
+    fin_cases i <;> fin_cases j <;>
+      simp [f, pathGraph_adj, hab, hbc, hcd, hab.symm, hbc.symm, hcd.symm, hac, had, hbd,
+        hca, hda, hdb]
+
+/-- Core group-theoretic step, valid in every group.  If `w - x - y - z` is an
+induced `P₄` of the enhanced power graph, and `h, g` satisfy `w, x ∈ ⟨h⟩` and
+`x, y ∈ ⟨g⟩`, then `h - x - g - y` is an induced `P₄` of the `ℤ`-power graph
+(adjacency: distinct and one lies in the cyclic subgroup generated by the
+other). -/
+theorem zpowers_inducedP4_of_enhanced {w x y z : G}
+    (hwx : (enhancedPowerGraph G).Adj w x) (hxy : (enhancedPowerGraph G).Adj x y)
+    (hyz : (enhancedPowerGraph G).Adj y z) (hwy : ¬ (enhancedPowerGraph G).Adj w y)
+    (hwz : ¬ (enhancedPowerGraph G).Adj w z) (hxz : ¬ (enhancedPowerGraph G).Adj x z) :
+    ∃ h g : G,
+      (h ≠ x ∧ (h ∈ zpowers x ∨ x ∈ zpowers h)) ∧
+      (x ≠ g ∧ (x ∈ zpowers g ∨ g ∈ zpowers x)) ∧
+      (g ≠ y ∧ (g ∈ zpowers y ∨ y ∈ zpowers g)) ∧
+      ¬ (h ≠ g ∧ (h ∈ zpowers g ∨ g ∈ zpowers h)) ∧
+      ¬ (h ≠ y ∧ (h ∈ zpowers y ∨ y ∈ zpowers h)) ∧
+      ¬ (x ≠ y ∧ (x ∈ zpowers y ∨ y ∈ zpowers x)) := by
+  rw [enhancedPowerGraph_adj_iff] at hwx hxy hyz hwy hwz hxz
+  obtain ⟨h, hwh, hxh⟩ := hwx.2
+  obtain ⟨g, hxg, hyg⟩ := hxy.2
+  obtain ⟨k, hyk, hzk⟩ := hyz.2
+  have hwy_ne : w ≠ y := by
+    rintro rfl
+    exact hwz hyz
+  have hxz_ne : x ≠ z := by
+    rintro rfl
+    exact hwz hwx
+  -- `w, y` and `x, z` lie in no common cyclic subgroup.
+  have nwy : ∀ c : G, w ∈ zpowers c → y ∈ zpowers c → False :=
+    fun c hw hy => hwy ⟨hwy_ne, c, hw, hy⟩
+  have nxz : ∀ c : G, x ∈ zpowers c → z ∈ zpowers c → False :=
+    fun c hx hz => hxz ⟨hxz_ne, c, hx, hz⟩
+  -- (i) `y ∉ ⟨h⟩`, (ii) `x ∉ ⟨y⟩`, (iii) `y ∉ ⟨x⟩`.
+  have hyh : y ∉ zpowers h := fun hy => nwy h hwh hy
+  have hxy' : x ∉ zpowers y := fun hx => nxz k (zpowers_le.mpr hyk hx) hzk
+  have hyx : y ∉ zpowers x := fun hy => hyh (zpowers_le.mpr hxh hy)
+  refine ⟨h, g, ⟨?_, Or.inr hxh⟩, ⟨?_, Or.inl hxg⟩, ⟨?_, Or.inr hyg⟩, ?_, ?_, ?_⟩
+  · rintro rfl
+    exact nwy g (zpowers_le.mpr hxg hwh) hyg
+  · rintro rfl
+    exact hyx hyg
+  · rintro rfl
+    exact hxy' hxg
+  · rintro ⟨-, hhg | hgh⟩
+    · exact nwy g (zpowers_le.mpr hhg hwh) hyg
+    · exact hyh (zpowers_le.mpr hgh hyg)
+  · rintro ⟨-, hhy | hyh'⟩
+    · exact nwy y (zpowers_le.mpr hhy hwh) (mem_zpowers y)
+    · exact hyh hyh'
+  · rintro ⟨-, hxy'' | hyx'⟩
+    · exact hxy' hxy''
+    · exact hyx hyx'
+
+/-- For a finite group `G`, an induced `P₄` in the enhanced power graph `ℰ(G)`
+yields an induced `P₄` in the power graph `𝒫(G)`. -/
+theorem pathGraph_four_isIndContained_powerGraph_of_enhancedPowerGraph [Finite G]
+    (hE : (pathGraph 4).IsIndContained (enhancedPowerGraph G)) :
+    (pathGraph 4).IsIndContained (powerGraph G) := by
+  obtain ⟨w, x, y, z, hwx, hxy, hyz, hwy, hwz, hxz⟩ :=
+    (pathGraph_four_isIndContained_iff _).mp hE
+  obtain ⟨h, g, hhx, hxg, hgy, hhg, hhy, hxy'⟩ :=
+    zpowers_inducedP4_of_enhanced hwx hxy hyz hwy hwz hxz
+  refine (pathGraph_four_isIndContained_iff _).mpr ⟨h, x, g, y, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
+    simpa only [powerGraph_adj_iff]
+
+/-- **Conjecture `prob2` of Bubboloni–Fumagalli–Praeger (arXiv:2510.18073,
+end of Section 4), proved.**  For every finite group `G`, if the power graph
+`𝒫(G)` is a cograph (`P₄`-free), then the enhanced power graph `ℰ(G)` is a
+cograph. -/
+theorem isCograph_enhancedPowerGraph_of_isCograph_powerGraph [Finite G]
+    (hP : IsCograph (powerGraph G)) : IsCograph (enhancedPowerGraph G) :=
+  fun hE => hP (pathGraph_four_isIndContained_powerGraph_of_enhancedPowerGraph hE)
+
+/-! ### Ground-truth checks and non-vacuity -/
+
+/-- In `C₄ = Multiplicative (ZMod 4)`, the generator and its square are adjacent
+in the power graph. -/
+example : (powerGraph (Multiplicative (ZMod 4))).Adj
+    (Multiplicative.ofAdd 1) (Multiplicative.ofAdd 2) :=
+  ⟨by decide, Or.inr ⟨2, by decide⟩⟩
+
+/-- In `C₄`, the generator and its square are adjacent in the enhanced power
+graph. -/
+example : (enhancedPowerGraph (Multiplicative (ZMod 4))).Adj
+    (Multiplicative.ofAdd 1) (Multiplicative.ofAdd 2) := by
+  rw [enhancedPowerGraph_adj_iff]
+  exact ⟨by decide, Multiplicative.ofAdd 1, mem_zpowers _, ⟨2, by decide⟩⟩
+
+/-- In the Klein four-group `C₂ × C₂`, two distinct involutions do not generate
+a cyclic subgroup, so they are not adjacent in the enhanced power graph. -/
+example : ¬ (enhancedPowerGraph (Multiplicative (ZMod 2 × ZMod 2))).Adj
+    (Multiplicative.ofAdd (1, 0)) (Multiplicative.ofAdd (0, 1)) := by
+  rw [enhancedPowerGraph_adj_iff]
+  rintro ⟨-, g, ha, hb⟩
+  have hsq : ∀ u : Multiplicative (ZMod 2 × ZMod 2), u * u = 1 := by decide
+  have hpow : ∀ n : ℕ, g ^ n = 1 ∨ g ^ n = g := by
+    intro n
+    induction n with
+    | zero => exact Or.inl (pow_zero g)
+    | succ n ih =>
+      rcases ih with h1 | hg
+      · right; rw [pow_succ, h1, one_mul]
+      · left; rw [pow_succ, hg, hsq]
+  rw [← mem_powers_iff_mem_zpowers, Submonoid.mem_powers_iff] at ha hb
+  obtain ⟨m, hm⟩ := ha
+  obtain ⟨n, hn⟩ := hb
+  rcases hpow m with h1 | hg <;> rcases hpow n with h1' | hg'
+  · rw [h1] at hm; exact absurd hm (by decide)
+  · rw [h1] at hm; exact absurd hm (by decide)
+  · rw [h1'] at hn; exact absurd hn (by decide)
+  · rw [hg] at hm; rw [hg', hm] at hn; exact absurd hn (by decide)
+
+/-- Non-vacuity of the hypothesis: the power graph of the trivial group is a
+cograph (it has a single vertex). -/
+example : IsCograph (powerGraph PUnit) := by
+  rintro ⟨f⟩
+  exact absurd (f.injective (Subsingleton.elim (f 0) (f 1))) (by decide)
+
+end PowerGraphCographEnhanced
