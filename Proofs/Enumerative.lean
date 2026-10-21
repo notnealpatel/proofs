@@ -193,3 +193,4 @@ import Enumerative.A352654SumCoefficientXyz
 import Enumerative.A175287SumCeilPerimeter
 import Enumerative.DegreeGrowthRationalMaps
 import Enumerative.A293013ExpModPeter
+import Enumerative.A294532FamilyCoveringGuide
