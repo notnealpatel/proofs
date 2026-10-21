@@ -11,6 +11,7 @@ import PolynomialClosure.FactorialConjectureConstantTerm
 import PolynomialClosure.AlpogeJacobianCounterexampleThree
 import PolynomialClosure.ElementaryWayFindCounterexample
 import PolynomialClosure.GkkTauMatricesHoltz
+import PolynomialClosure.SmallCounterexamplesGaussianMoments
 
 set_option autoImplicit false
 
