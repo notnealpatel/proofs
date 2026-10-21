@@ -194,3 +194,4 @@ import NumberComplexity.A057475Refutation
 import NumberComplexity.RosingerSumFactorialNotPolynomial
 import NumberComplexity.SmithGcdDeterminant
 import NumberComplexity.A036284SumBitFib
+import NumberComplexity.A006308OddPrimePrimitive
