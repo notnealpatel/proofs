@@ -36,3 +36,4 @@ import GroupCount.MetacyclicIngleton
 import GroupCount.FuchsProblemTwoGroupUnits
 import GroupCount.TranslatableQuadraticalQuasigroupFamily
 import GroupCount.TranslatableQuadraticalQuasigroupOrders
+import GroupCount.CameronDeyAbelianHallExtension
