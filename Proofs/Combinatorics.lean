@@ -51,3 +51,4 @@ import Combinatorics.A100056Refutation
 import Combinatorics.ListTotalColouringRefutation
 import Combinatorics.ArrowWilfEquivalences
 import Combinatorics.PotapovWeightDegree
+import Combinatorics.MajorityColouringCylinderRowBudget
