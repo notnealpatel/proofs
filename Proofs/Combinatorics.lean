@@ -50,3 +50,4 @@ import Combinatorics.A285127Refutation
 import Combinatorics.A100056Refutation
 import Combinatorics.ListTotalColouringRefutation
 import Combinatorics.ArrowWilfEquivalences
+import Combinatorics.PotapovWeightDegree
