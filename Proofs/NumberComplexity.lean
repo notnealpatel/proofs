@@ -48,3 +48,4 @@ import NumberComplexity.CoveringSystemMinModulusSeven
 import NumberComplexity.NondeficientConjecturesDisproof
 import NumberComplexity.CarouselTournamentCyclicDecomposition
 import NumberComplexity.A378983Refutation
+import NumberComplexity.A018804Refutation
