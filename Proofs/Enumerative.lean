@@ -165,3 +165,4 @@ import Enumerative.A078522SergeyPavlovEven
 import Enumerative.A000670FubiniModEventually
 import Enumerative.A067076PrimeMathar
 import Enumerative.A131418BaseDigitSum
+import Enumerative.A004123BalaModEventually
