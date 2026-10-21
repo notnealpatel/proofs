@@ -29,3 +29,4 @@ import Combinatorics.KnillUnionClosedBound
 import Combinatorics.KneserTwoChromatic
 import Combinatorics.SeymourSecondNeighbourhoodTournament
 import Combinatorics.PrimeSumPairing
+import Combinatorics.SaarelaWordEquationLemma
