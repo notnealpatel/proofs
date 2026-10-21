@@ -174,3 +174,4 @@ import Enumerative.MultiparameterCountingNumericalSemigroups
 import Enumerative.A024199SumDoubleFactorials
 import Enumerative.A264200Sum
 import Enumerative.A040027GouldSumStirling
+import Enumerative.A026002DelannoyBergot
