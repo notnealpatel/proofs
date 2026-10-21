@@ -297,13 +297,303 @@ theorem matchingNumberMax_four_two_two : matchingNumberMax 4 2 2 = 3 := by
 example : matchingNumberMax 4 2 2 = 3 := by
   exact matchingNumberMax_four_two_two
 
+/-- `circleArc r t`: the cyclic arc `{t, t+1, …, t+r-1}` of `Fin n` (addition mod `n`). -/
+private def circleArc {n : ℕ} (r : ℕ) (t : Fin n) : Finset (Fin n) :=
+  Finset.univ.filter (fun x => (x - t).val < r)
+
+example : circleArc 2 (3 : Fin 5) = {3, 4} := by decide
+
+example : circleArc 2 (4 : Fin 5) = {4, 0} := by decide
+
+/-- A cyclic arc of length `r ≤ n` has exactly `r` points. -/
+private lemma card_circleArc {n : ℕ} [NeZero n] (r : ℕ) (hrn : r ≤ n) (t : Fin n) :
+    (circleArc r t).card = r := by
+  have h : circleArc r t = (circleArc r 0).map (Equiv.addRight t).toEmbedding := by
+    ext x
+    simp only [circleArc, Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_map,
+      Equiv.coe_toEmbedding, Equiv.coe_addRight, sub_zero]
+    constructor
+    · intro hx
+      exact ⟨x - t, hx, sub_add_cancel x t⟩
+    · rintro ⟨y, hy, rfl⟩
+      simpa using hy
+  rw [h, Finset.card_map]
+  have h0 : circleArc r (0 : Fin n) = Finset.univ.filter (fun x : Fin n => x.val < r) := by
+    ext x
+    simp [circleArc]
+  rw [h0, Fin.card_filter_val_lt]
+  omega
+
+/-- Arcs starting at `a < b` are disjoint when `b - a` lies in `[r, n - r]`. -/
+private lemma disjoint_circleArc {n : ℕ} (r : ℕ) (a b : Fin n) (hab : a < b)
+    (h1 : r ≤ b.val - a.val) (h2 : b.val - a.val ≤ n - r) :
+    Disjoint (circleArc r a) (circleArc r b) := by
+  rw [Finset.disjoint_left]
+  intro x hxa hxb
+  simp only [circleArc, Finset.mem_filter, Finset.mem_univ, true_and] at hxa hxb
+  have hab' : a.val < b.val := hab
+  have hxn : x.val < n := x.isLt
+  have hbn : b.val < n := b.isLt
+  rcases le_or_gt a x with hax | hax <;> rcases le_or_gt b x with hbx | hbx
+  · rw [Fin.coe_sub_iff_le.mpr hax] at hxa
+    rw [Fin.coe_sub_iff_le.mpr hbx] at hxb
+    have : a.val ≤ x.val := hax
+    have : b.val ≤ x.val := hbx
+    omega
+  · rw [Fin.coe_sub_iff_le.mpr hax] at hxa
+    rw [Fin.coe_sub_iff_lt.mpr hbx] at hxb
+    have : a.val ≤ x.val := hax
+    have : x.val < b.val := hbx
+    omega
+  · exact absurd ((hab.trans_le hbx).trans hax) (lt_irrefl _)
+  · rw [Fin.coe_sub_iff_lt.mpr hax] at hxa
+    rw [Fin.coe_sub_iff_lt.mpr hbx] at hxb
+    have : x.val < a.val := hax
+    omega
+
+/-- An order embedding `Fin m ↪o Fin n` spreads indices at least as far apart as they are. -/
+private lemma orderEmb_val_add_le {m n : ℕ} (e : Fin m ↪o Fin n) (a b : Fin m) (hab : a ≤ b) :
+    (e a).val + (b.val - a.val) ≤ (e b).val := by
+  have hsub : (Finset.Icc a b).map e.toEmbedding ⊆ Finset.Icc (e a) (e b) := by
+    intro y hy
+    obtain ⟨z, hz, rfl⟩ := Finset.mem_map.mp hy
+    obtain ⟨h1, h2⟩ := Finset.mem_Icc.mp hz
+    exact Finset.mem_Icc.mpr ⟨e.monotone h1, e.monotone h2⟩
+  have hc := Finset.card_le_card hsub
+  rw [Finset.card_map, Fin.card_Icc, Fin.card_Icc] at hc
+  have : a.val ≤ b.val := hab
+  have : (e a).val ≤ (e b).val := e.monotone hab
+  omega
+
+
+/-- Two distinct indices below `(s+1)r` in one residue class mod `r` differ by between `r` and `s r`. -/
+private lemma residue_gap (r s a b : ℕ) (hr : 1 ≤ r) (hab : a < b) (hb : b < (s + 1) * r)
+    (hmod : a % r = b % r) : r ≤ b - a ∧ b - a ≤ s * r := by
+  have hdvd : r ∣ b - a := (Nat.modEq_iff_dvd' hab.le).mp hmod
+  have hlow : r ≤ b - a := Nat.le_of_dvd (by omega) hdvd
+  have hq : b / r < s + 1 := (Nat.div_lt_iff_lt_mul (by omega)).mpr hb
+  have hqb : r * (b / r) ≤ r * s := Nat.mul_le_mul_left r (by omega)
+  have hdb := Nat.div_add_mod b r
+  have hma : a % r ≤ a := Nat.mod_le a r
+  have hrs : r * s = s * r := Nat.mul_comm r s
+  omega
+
+/-- Circle lemma: if `n ≥ (s+1)r` and `T ⊆ ℤ/n` has more than `s r` points, then `T` contains
+    `s + 1` points pairwise at cyclic distance at least `r` (pairwise disjoint arcs). -/
+private lemma exists_separated_of_card_gt (n r s : ℕ) (hr : 1 ≤ r) (hn : (s + 1) * r ≤ n) (T : Finset (Fin n))
+    (hT : s * r < T.card) :
+    ∃ S ⊆ T, S.card = s + 1 ∧
+      ∀ a ∈ S, ∀ b ∈ S, a < b → r ≤ b.val - a.val ∧ b.val - a.val ≤ n - r := by
+  obtain ⟨T₀, hT₀, hT₀c⟩ := Finset.exists_subset_card_eq (s := T) (n := s * r + 1) (by omega)
+  obtain ⟨P, hP, hPc⟩ := Finset.exists_superset_card_eq (s := T₀) (n := (s + 1) * r)
+    (by rw [hT₀c]; nlinarith) (by simpa using hn)
+  set m := (s + 1) * r with hm
+  let e : Fin m ↪o Fin n := P.orderEmbOfFin hPc
+  let U : Finset (Fin m) := Finset.univ.filter (fun a => e a ∈ T₀)
+  have hUc : s * r < U.card := by
+    have hsub : T₀ ⊆ U.map e.toEmbedding := by
+      intro x hx
+      have hxr : x ∈ Set.range e := by
+        rw [Finset.range_orderEmbOfFin]
+        exact hP hx
+      obtain ⟨a, rfl⟩ := hxr
+      exact Finset.mem_map.mpr ⟨a, by simp [U, hx], rfl⟩
+    have hc := Finset.card_le_card hsub
+    rw [Finset.card_map] at hc
+    omega
+  obtain ⟨j, -, hj⟩ := Finset.exists_lt_card_fiber_of_mul_lt_card_of_maps_to
+    (s := U) (t := Finset.range r) (f := fun a : Fin m => a.val % r) (n := s)
+    (fun a _ => Finset.mem_range.mpr (Nat.mod_lt _ (by omega)))
+    (by rw [Finset.card_range]; rw [Nat.mul_comm]; exact hUc)
+  obtain ⟨V, hV, hVc⟩ := Finset.exists_subset_card_eq (n := s + 1) hj
+  refine ⟨V.map e.toEmbedding, ?_, ?_, ?_⟩
+  · intro x hx
+    obtain ⟨a, ha, rfl⟩ := Finset.mem_map.mp hx
+    have := (Finset.mem_filter.mp (hV ha)).1
+    exact hT₀ (Finset.mem_filter.mp this).2
+  · rw [Finset.card_map, hVc]
+  · intro x hx y hy hxy
+    obtain ⟨a, ha, rfl⟩ := Finset.mem_map.mp hx
+    obtain ⟨b, hb, rfl⟩ := Finset.mem_map.mp hy
+    have hab : a < b := e.lt_iff_lt.mp hxy
+    have hma := (Finset.mem_filter.mp (hV ha)).2
+    have hmb := (Finset.mem_filter.mp (hV hb)).2
+    have hmpos : 0 < m := lt_of_le_of_lt (Nat.zero_le _) b.isLt
+    have hgap := residue_gap r s a.val b.val hr hab (by simpa [hm] using b.isLt)
+      (hma.trans hmb.symm)
+    have h1 := orderEmb_val_add_le e a b hab.le
+    have h2 := orderEmb_val_add_le e ⟨0, hmpos⟩ a (Fin.le_iff_val_le_val.mpr (Nat.zero_le _))
+    have h3 := orderEmb_val_add_le e b ⟨m - 1, by omega⟩ (Fin.le_iff_val_le_val.mpr (by
+      have := b.isLt; simp only; omega))
+    have h4 := (e ⟨m - 1, by omega⟩).isLt
+    have hab' : a.val < b.val := hab
+    have hb' : b.val < m := b.isLt
+    simp only at h2 h3
+    show r ≤ (e b).val - (e a).val ∧ (e b).val - (e a).val ≤ n - r
+    have hms : m = s * r + r := by rw [hm]; ring
+    constructor <;> omega
+
+/-- Mapping a finset by a product of permutations is iterated mapping. -/
+private lemma map_perm_mul {n : ℕ} (C : Finset (Fin n)) (σ π : Equiv.Perm (Fin n)) :
+    C.map (σ * π).toEmbedding = (C.map π.toEmbedding).map σ.toEmbedding := by
+  rw [Finset.map_map]
+  rfl
+
+/-- Mapping a finset by the identity permutation is the identity. -/
+private lemma map_perm_one {n : ℕ} (C : Finset (Fin n)) :
+    C.map (1 : Equiv.Perm (Fin n)).toEmbedding = C :=
+  Finset.map_refl
+
+/-- The number of permutations carrying `B` onto `A` depends only on the common cardinality. -/
+private lemma card_perm_map_eq {n : ℕ} (B A B' A' : Finset (Fin n))
+    (hBB : B'.card = B.card) (hAA : A.card = A'.card) :
+    (Finset.univ.filter fun σ : Equiv.Perm (Fin n) => B.map σ.toEmbedding = A).card =
+      (Finset.univ.filter fun σ : Equiv.Perm (Fin n) => B'.map σ.toEmbedding = A').card := by
+  obtain ⟨τ, hτ⟩ := Equiv.Perm.exists_map_finset_eq B' B hBB
+  obtain ⟨ρ, hρ⟩ := Equiv.Perm.exists_map_finset_eq A A' hAA
+  have hτ' : B.map τ⁻¹.toEmbedding = B' := by
+    rw [← hτ, ← map_perm_mul, inv_mul_cancel, map_perm_one]
+  have hρ' : A'.map ρ⁻¹.toEmbedding = A := by
+    rw [← hρ, ← map_perm_mul, inv_mul_cancel, map_perm_one]
+  apply Finset.card_bij' (fun σ _ => ρ * σ * τ) (fun σ _ => ρ⁻¹ * σ * τ⁻¹)
+  · intro σ hσ
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hσ ⊢
+    rw [map_perm_mul, map_perm_mul, hτ, hσ, hρ]
+  · intro σ hσ
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hσ ⊢
+    rw [map_perm_mul, map_perm_mul, hτ', hσ, hρ']
+  · intro σ _
+    group
+  · intro σ _
+    group
+
+/-- Katona-circle form of Frankl's bound: if `n ≥ (s+1)r`, `r ≥ 1`, and an `r`-uniform family
+    on `Fin n` has no `s + 1` pairwise-disjoint members, it has at most `s · C(n-1, r-1)` members. -/
+private theorem card_le_of_not_hasMatching (n r s : ℕ) (hr : 1 ≤ r) (hn : (s + 1) * r ≤ n)
+    (F : Finset (Finset (Fin n))) (hu : ∀ e ∈ F, e.card = r)
+    (hm : ¬ HasMatching F (s + 1)) :
+    F.card ≤ s * (n - 1).choose (r - 1) := by
+  classical
+  have hrn : r ≤ n := le_trans (by nlinarith) hn
+  have hn0 : 0 < n := by omega
+  haveI : NeZero n := ⟨by omega⟩
+  let Tσ : Equiv.Perm (Fin n) → Finset (Fin n) :=
+    fun σ => Finset.univ.filter (fun t => (circleArc r t).map σ.toEmbedding ∈ F)
+  have hT : ∀ σ, (Tσ σ).card ≤ s * r := by
+    intro σ
+    by_contra hlt
+    obtain ⟨S, hS, hSc, hsep⟩ := exists_separated_of_card_gt n r s hr hn (Tσ σ) (not_le.mp hlt)
+    have hdisj : ∀ a ∈ S, ∀ b ∈ S, a ≠ b →
+        Disjoint ((circleArc r a).map σ.toEmbedding) ((circleArc r b).map σ.toEmbedding) := by
+      intro a ha b hb hab
+      rw [Finset.disjoint_map]
+      rcases lt_or_gt_of_ne hab with h | h
+      · obtain ⟨h1, h2⟩ := hsep a ha b hb h
+        exact disjoint_circleArc r a b h h1 h2
+      · obtain ⟨h1, h2⟩ := hsep b hb a ha h
+        exact (disjoint_circleArc r b a h h1 h2).symm
+    have hne : ∀ a, ((circleArc r a).map σ.toEmbedding).Nonempty := by
+      intro a
+      rw [← Finset.card_pos, Finset.card_map, card_circleArc r hrn]
+      omega
+    have hinj : Set.InjOn (fun a => (circleArc r a).map σ.toEmbedding) S := by
+      intro a ha b hb heq
+      by_contra hab
+      have hd := hdisj a ha b hb hab
+      simp only at heq
+      rw [heq, disjoint_self] at hd
+      exact (hne b).ne_empty hd
+    apply hm
+    refine ⟨S.image (fun a => (circleArc r a).map σ.toEmbedding), ?_, ?_, ?_⟩
+    · intro e he
+      obtain ⟨a, ha, rfl⟩ := Finset.mem_image.mp he
+      exact (Finset.mem_filter.mp (hS ha)).2
+    · rw [Finset.card_image_of_injOn hinj, hSc]
+    · intro e he f hf hef
+      obtain ⟨a, ha, rfl⟩ := Finset.mem_image.mp he
+      obtain ⟨b, hb, rfl⟩ := Finset.mem_image.mp hf
+      exact hdisj a ha b hb (fun h => hef (h ▸ rfl))
+  let B₀ := circleArc r (0 : Fin n)
+  let c := (Finset.univ.filter fun σ : Equiv.Perm (Fin n) => B₀.map σ.toEmbedding = B₀).card
+  have hcA : ∀ t : Fin n, ∀ A : Finset (Fin n), A.card = r →
+      (Finset.univ.filter fun σ : Equiv.Perm (Fin n) => (circleArc r t).map σ.toEmbedding = A).card = c := by
+    intro t A hA
+    exact card_perm_map_eq _ _ _ _ (by rw [card_circleArc r hrn, card_circleArc r hrn])
+      (by rw [hA, card_circleArc r hrn])
+  have hfac : n.factorial = n.choose r * c := by
+    have h := Finset.card_eq_sum_card_fiberwise
+      (f := fun σ : Equiv.Perm (Fin n) => B₀.map σ.toEmbedding) (s := Finset.univ)
+      (t := (Finset.univ : Finset (Fin n)).powersetCard r)
+      (by
+        intro σ _
+        rw [Finset.mem_coe, Finset.mem_powersetCard, Finset.card_map]
+        exact ⟨Finset.subset_univ _, card_circleArc r hrn 0⟩)
+    rw [Finset.card_univ, Fintype.card_perm, Fintype.card_fin] at h
+    rw [h, Finset.sum_congr rfl (fun A hA => hcA 0 A (Finset.mem_powersetCard.mp hA).2),
+      Finset.sum_const, Finset.card_powersetCard, Finset.card_univ, Fintype.card_fin,
+      smul_eq_mul]
+  have hinner : ∀ t : Fin n,
+      (Finset.univ.filter fun σ : Equiv.Perm (Fin n) => (circleArc r t).map σ.toEmbedding ∈ F).card =
+        F.card * c := by
+    intro t
+    rw [Finset.card_eq_sum_card_fiberwise
+      (f := fun σ : Equiv.Perm (Fin n) => (circleArc r t).map σ.toEmbedding) (t := F)
+      (by intro σ hσ; exact (Finset.mem_filter.mp hσ).2)]
+    rw [Finset.sum_congr rfl (fun A hA => ?_), Finset.sum_const, smul_eq_mul]
+    rw [Finset.filter_filter]
+    rw [← hcA t A (hu A hA)]
+    congr 1
+    apply Finset.filter_congr
+    intro σ _
+    constructor
+    · exact fun h => h.2
+    · intro h
+      exact ⟨h ▸ hA, h⟩
+  have hsum : ∑ σ, (Tσ σ).card = n * (F.card * c) := by
+    simp only [Tσ, Finset.card_filter]
+    rw [Finset.sum_comm]
+    simp only [← Finset.card_filter]
+    rw [Finset.sum_congr rfl (fun t _ => hinner t), Finset.sum_const, Finset.card_univ,
+      Fintype.card_fin, smul_eq_mul]
+  have hle : ∑ σ, (Tσ σ).card ≤ n.factorial * (s * r) := by
+    calc ∑ σ, (Tσ σ).card ≤ ∑ _σ : Equiv.Perm (Fin n), s * r :=
+          Finset.sum_le_sum (fun σ _ => hT σ)
+      _ = n.factorial * (s * r) := by
+          rw [Finset.sum_const, Finset.card_univ, Fintype.card_perm, Fintype.card_fin,
+            smul_eq_mul]
+  have hcpos : 0 < c := by
+    have hp := Nat.factorial_pos n
+    rw [hfac] at hp
+    exact Nat.pos_of_mul_pos_left hp
+  have hchoose : n.choose r * r = n * (n - 1).choose (r - 1) := by
+    obtain ⟨n', rfl⟩ : ∃ n', n = n' + 1 := ⟨n - 1, by omega⟩
+    obtain ⟨r', rfl⟩ : ∃ r', r = r' + 1 := ⟨r - 1, by omega⟩
+    simp only [Nat.add_sub_cancel]
+    exact (Nat.add_one_mul_choose_eq n' r').symm
+  have key : n * F.card * c ≤ n * (s * (n - 1).choose (r - 1)) * c := by
+    calc n * F.card * c = ∑ σ, (Tσ σ).card := by rw [hsum]; ring
+      _ ≤ n.factorial * (s * r) := hle
+      _ = n.choose r * r * s * c := by rw [hfac]; ring
+      _ = n * (s * (n - 1).choose (r - 1)) * c := by rw [hchoose]; ring
+  have key' := Nat.le_of_mul_le_mul_right key hcpos
+  exact Nat.le_of_mul_le_mul_left key' hn0
+
 /-- **Frankl's bound** ([Fr87]), archived:
     `f(n;r,k) ≤ (k−1)·C(n−1, r−1)`.  The re-entry point if the repo
     ever ports Erdos20-style compression to matchings. -/
 theorem frankl_bound (n r k : ℕ) (hr : 2 ≤ r) (hk : 1 ≤ k) (hrn : r ≤ n)
     (hrkn : r * k ≤ n) :
     matchingNumberMax n r k ≤ (k - 1) * (n - 1).choose (r - 1) := by
-  sorry
+  classical
+  unfold matchingNumberMax
+  apply Finset.sup_le
+  intro H hH
+  obtain ⟨hU, hm⟩ := Finset.mem_filter.mp hH
+  have hu : ∀ e ∈ H, e.card = r := fun e he =>
+    (Finset.mem_powersetCard.mp (Finset.mem_powerset.mp hU he)).2
+  obtain ⟨s, rfl⟩ : ∃ s, k = s + 1 := ⟨k - 1, by omega⟩
+  have hn : (s + 1) * r ≤ n := by rw [Nat.mul_comm]; exact hrkn
+  simpa using card_le_of_not_hasMatching n r s (by omega) hn H hu hm
 
 /-- **Łuczak–Mieczkowska** ([LuMi14]), archived: the conjecture holds
     for `r = 3` and all `k` (with `n` in the honest range). -/
