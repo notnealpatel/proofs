@@ -125,3 +125,4 @@ import Erdos.RamseySmallNumbers
 import Erdos.SquarefreeCount
 import Erdos.E1063
 import Erdos.E112
+import Erdos.SylvesterSchur
