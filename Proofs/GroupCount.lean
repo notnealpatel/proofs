@@ -38,3 +38,4 @@ import GroupCount.TranslatableQuadraticalQuasigroupFamily
 import GroupCount.TranslatableQuadraticalQuasigroupOrders
 import GroupCount.CameronDeyAbelianHallExtension
 import GroupCount.CameronDeyQuestion31Refutation
+import GroupCount.BajnokBeattySpanningNoncyclic
