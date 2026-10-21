@@ -24,3 +24,4 @@ import Combinatorics.LocalAntimagicLeafCounterexample
 import Combinatorics.UnfairZeroOnePolynomialDegreeFour
 import Combinatorics.SatisfactoryColouringIsomorphism
 import Combinatorics.PaleyCliqueBound
+import Combinatorics.LonelyRunnerThree
