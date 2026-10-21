@@ -43,3 +43,4 @@ import GroupCount.DavenportElementaryAbelianChevalleyWarning
 import GroupCount.HerzogLongobardiMajRefutation
 import GroupCount.InvariantSystemsRepresentatives
 import GroupCount.IntersectionNumbersFiniteGroups
+import GroupCount.TarnauceanuZMGroups
