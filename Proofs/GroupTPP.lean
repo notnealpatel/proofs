@@ -28,3 +28,4 @@ import GroupTPP.ExtraspecialLattice
 import GroupTPP.GeomArithInequality
 import GroupTPP.DihedralTPP.Basic
 import GroupTPP.DihedralTPP.Sharpness
+import GroupTPP.CommutingProbabilitySubgroup
