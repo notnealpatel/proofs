@@ -29,3 +29,4 @@ import GroupCount.BraunEtzionVardySubspaceCodes
 import GroupCount.SubindicesInfiniteGroups
 import GroupCount.TransitiveMOLS
 import GroupCount.PowerGraphCographEnhanced
+import GroupCount.EllisHarperDerangements
