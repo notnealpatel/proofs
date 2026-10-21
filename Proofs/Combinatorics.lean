@@ -22,3 +22,4 @@ import Combinatorics.BorgIntersectingPartitions
 import Combinatorics.MelnikovValencyCounterexample
 import Combinatorics.LocalAntimagicLeafCounterexample
 import Combinatorics.UnfairZeroOnePolynomialDegreeFour
+import Combinatorics.SatisfactoryColouringIsomorphism
