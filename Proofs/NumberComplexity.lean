@@ -16,3 +16,4 @@ import NumberComplexity.GiugaPowerSum
 import NumberComplexity.A058128Rotondo
 import NumberComplexity.A000961PowerSumRadical
 import NumberComplexity.A001542PerimeterRecords
+import NumberComplexity.A226898HooleyDelta
