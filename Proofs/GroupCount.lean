@@ -6,3 +6,4 @@ import GroupCount.Structures
 import GroupCount.Submult
 import GroupCount.CommutingTriples
 import GroupCount.SubgroupCountSn
+import GroupCount.SzeleCyclicOrder
