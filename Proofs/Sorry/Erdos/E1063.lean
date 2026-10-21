@@ -318,6 +318,174 @@ theorem nk_le_mul_lcm (k : ℕ) (hk : 3 ≤ k) :
   rw [mul_comm 2 k]
   exact Nat.mul_le_mul_left k hL2
 
+/-- Window index: if `m * q ≤ k + (n - k) % q` with `1 ≤ m`, then
+    `i = k + (n - k) % q - m * q` satisfies `i < k` and `q ∣ n - i`. -/
+private theorem window_index (n k q m : ℕ) (hq : 0 < q) (hkn : k ≤ n) (hm : 1 ≤ m)
+    (hmq : m * q ≤ k + (n - k) % q) :
+    k + (n - k) % q - m * q < k ∧ q ∣ n - (k + (n - k) % q - m * q) := by
+  have hr : (n - k) % q < q := Nat.mod_lt _ hq
+  have hdiv : q * ((n - k) / q) + (n - k) % q = n - k := Nat.div_add_mod (n - k) q
+  have hqm : q ≤ m * q := Nat.le_mul_of_pos_left q hm
+  refine ⟨by omega, ?_⟩
+  have heq : n - (k + (n - k) % q - m * q) = q * ((n - k) / q + m) := by
+    rw [Nat.mul_add, Nat.mul_comm q m]; omega
+  rw [heq]
+  exact Dvd.intro _ rfl
+
+/-- If `q ≤ k` and there is a carry at modulus `q`, then `2 q ≤ k + (n - k) % q`. -/
+private theorem two_mul_le_of_carry (n k q : ℕ) (hqk : q ≤ k)
+    (hcarry : q ≤ k % q + (n - k) % q) : 2 * q ≤ k + (n - k) % q := by
+  have hdm : q * (k / q) + k % q = k := Nat.div_add_mod k q
+  rcases Nat.eq_zero_or_pos q with hq0 | hq0
+  · subst hq0; omega
+  have h1 : 1 ≤ k / q := (Nat.one_le_div_iff hq0).mpr hqk
+  have h2 : q ≤ q * (k / q) := Nat.le_mul_of_pos_right q h1
+  omega
+
+/-- Two window indices: if `2 q ≤ k + (n - k) % q` then two distinct `i < k` have `q ∣ n - i`. -/
+private theorem two_window_indices (n k q : ℕ) (hq : 0 < q) (hkn : k ≤ n)
+    (h2 : 2 * q ≤ k + (n - k) % q) :
+    ∃ i j, i < k ∧ j < k ∧ i ≠ j ∧ q ∣ n - i ∧ q ∣ n - j := by
+  obtain ⟨hi1, hd1⟩ := window_index n k q 1 hq hkn le_rfl (by omega)
+  obtain ⟨hi2, hd2⟩ := window_index n k q 2 hq hkn (by norm_num) h2
+  exact ⟨_, _, hi1, hi2, by omega, hd1, hd2⟩
+
+/-- Per-prime core of the rickyc–GPT bound: if any two failing indices coincide, then for
+    `p ∣ k` some failing index `i < k` has `p ^ (v_p(k) + ⌊log_p (k−1)⌋) ∣ n − i`. -/
+private theorem exists_failing_index_pow_dvd (n k p : ℕ) [hp : Fact p.Prime] (hk : 2 ≤ k)
+    (hkn : k ≤ n) (hpk : p ∣ k)
+    (huniq : ∀ i j, i < k → j < k → ¬ (n - i) ∣ n.choose k → ¬ (n - j) ∣ n.choose k → i = j) :
+    ∃ i, i < k ∧ ¬ (n - i) ∣ n.choose k ∧
+      p ^ (k.factorization p + Nat.log p (k - 1)) ∣ n - i := by
+  have hp1 : 1 < p := hp.out.one_lt
+  have hC : n.choose k ≠ 0 := (Nat.choose_pos hkn).ne'
+  set S := padicValNat p (n.choose k) with hSdef
+  have hfail : ∀ i, p ^ (S + 1) ∣ n - i → ¬ (n - i) ∣ n.choose k := by
+    intro i hd hdiv
+    have hpS := hd.trans hdiv
+    rw [padicValNat_dvd_iff_le hC] at hpS
+    omega
+  have huniq' : ∀ i j, i < k → j < k → p ^ (S + 1) ∣ n - i → p ^ (S + 1) ∣ n - j → i = j :=
+    fun i j hi hj hdi hdj => huniq i j hi hj (hfail i hdi) (hfail j hdj)
+  obtain ⟨T, hcarryT, hST⟩ := exists_level_of_prime_dvd n k p hpk (by omega) hkn
+  obtain ⟨i0, hi0, hdT⟩ :=
+    exists_dvd_sub_of_carry n k (p ^ T) (pow_pos hp.out.pos T) hkn hcarryT
+  have h0 : p ^ (S + 1) ∣ n - i0 := (pow_dvd_pow p (by omega)).trans hdT
+  have hni0 : n - i0 ≠ 0 := by omega
+  set M := padicValNat p (n - i0) with hMdef
+  have hSM : S + 1 ≤ M := (padicValNat_dvd_iff_le hni0).mp h0
+  -- above level `S`, the only multiple in the window is `n - i0`
+  have hlevel : ∀ j i, S < j → i < k → p ^ j ∣ n - i → j ≤ M := by
+    intro j i hSj hik hdj
+    have hdS : p ^ (S + 1) ∣ n - i := (pow_dvd_pow p (by omega)).trans hdj
+    have hii : i = i0 := huniq' i i0 hik hi0 hdS h0
+    subst hii
+    exact (padicValNat_dvd_iff_le hni0).mp hdj
+  have hA : ∀ j, S < j → ¬ 2 * p ^ j ≤ k + (n - k) % p ^ j := by
+    intro j hSj h2
+    obtain ⟨i, i', hi, hi', hne, hdi, hdi'⟩ :=
+      two_window_indices n k (p ^ j) (pow_pos hp.out.pos j) hkn h2
+    exact hne (huniq' i i' hi hi' ((pow_dvd_pow p (by omega)).trans hdi)
+      ((pow_dvd_pow p (by omega)).trans hdi'))
+  have hB : ∀ j, S < j → p ^ j ≤ k + (n - k) % p ^ j → j ≤ M := by
+    intro j hSj h1
+    obtain ⟨hi, hdi⟩ := window_index n k (p ^ j) 1 (pow_pos hp.out.pos j) hkn le_rfl
+      (by rw [one_mul]; exact h1)
+    exact hlevel j _ hSj hi hdi
+  set a := k.factorization p with hadef
+  set L := Nat.log p k with hLdef
+  set e := Nat.log p (k - 1) with hedef
+  have ha1 : 1 ≤ a := hp.out.factorization_pos_of_dvd (by omega) hpk
+  have hpa : p ^ a ∣ k := Nat.ordProj_dvd k p
+  have hpL : p ^ L ≤ k := Nat.pow_log_le_self p (by omega)
+  have heL : e ≤ L := Nat.log_mono_right (by omega)
+  have hval := padicValNat_choose (p := p) hkn (Nat.lt_succ_self (Nat.log p n))
+  rw [← hSdef] at hval
+  have hsub : (Finset.Ico 1 (Nat.log p n).succ).filter
+      (fun i => p ^ i ≤ k % p ^ i + (n - k) % p ^ i) ⊆
+      Finset.Ioc a S ∪ Finset.Ioc (max S L) M := by
+    intro j hj
+    rw [Finset.mem_filter] at hj
+    have hcarry := hj.2
+    have hr : (n - k) % p ^ j < p ^ j := Nat.mod_lt _ (pow_pos hp.out.pos j)
+    have hkmod : k % p ^ j ≤ k := Nat.mod_le k _
+    have haj : a < j := by
+      by_contra haj
+      have hdk : p ^ j ∣ k := (pow_dvd_pow p (by omega)).trans hpa
+      rw [Nat.mod_eq_zero_of_dvd hdk] at hcarry
+      omega
+    rw [Finset.mem_union, Finset.mem_Ioc, Finset.mem_Ioc]
+    by_cases hjS : j ≤ S
+    · exact Or.inl ⟨haj, hjS⟩
+    · right
+      have hSj : S < j := by omega
+      have hLj : L < j := by
+        by_contra hLj
+        have hpj : p ^ j ≤ k := (Nat.pow_le_pow_right hp.out.pos (by omega)).trans hpL
+        exact hA j hSj (two_mul_le_of_carry n k (p ^ j) hpj hcarry)
+      exact ⟨max_lt hSj hLj, hB j hSj (by omega)⟩
+  have hcard : S ≤ (S - a) + (M - max S L) := by
+    calc S = _ := hval
+      _ ≤ (Finset.Ioc a S ∪ Finset.Ioc (max S L) M).card := Finset.card_le_card hsub
+      _ ≤ (Finset.Ioc a S).card + (Finset.Ioc (max S L) M).card := Finset.card_union_le _ _
+      _ = (S - a) + (M - max S L) := by rw [Nat.card_Ioc, Nat.card_Ioc]
+  have hfinal : a + e ≤ M := by
+    rcases le_or_gt a S with haS | hSa
+    · omega
+    · -- the window length is exactly `p ^ (S + 1)`
+      have hdk : p ^ (S + 1) ∣ k := (pow_dvd_pow p (by omega)).trans hpa
+      have hk2 : k < 2 * p ^ (S + 1) := by
+        by_contra hk2
+        exact hA (S + 1) (by omega) ((not_lt.mp hk2).trans (Nat.le_add_right _ _))
+      obtain ⟨c, hc⟩ := hdk
+      have hc1 : c = 1 := by
+        have hcpos : c ≠ 0 := by rintro rfl; omega
+        have hc2 : c < 2 := by
+          rw [hc] at hk2
+          rw [mul_comm 2] at hk2
+          exact Nat.lt_of_mul_lt_mul_left hk2
+        omega
+      rw [hc1, mul_one] at hc
+      have hLS : L = S + 1 := by rw [hLdef, hc, Nat.log_pow hp1]
+      have heS : e < S + 1 := by
+        rw [hedef, Nat.log_lt_iff_lt_pow hp1 (by omega)]
+        omega
+      have haS : a ≤ S + 1 := by
+        have hpak : p ^ a ≤ p ^ (S + 1) := hc ▸ Nat.le_of_dvd (by omega) hpa
+        exact (Nat.pow_le_pow_iff_right hp1).mp hpak
+      omega
+  exact ⟨i0, hi0, hfail i0 h0, (pow_dvd_pow p hfinal).trans pow_padicValNat_dvd⟩
+
+/-- Assembly over the primes of `k`: if `n ≥ 2k` has divisor defect at most one, then
+    `∏_{p^a ∥ k} p^{a + ⌊log_p (k−1)⌋} ≤ n`.  All primes share the unique failing index
+    `i0`, so the pairwise coprime prime powers all divide `n − i0 ≤ n`. -/
+private theorem prod_le_of_divisorDefect_le_one (n k : ℕ) (hk : 2 ≤ k) (hn : 2 * k ≤ n)
+    (hd : divisorDefect n k ≤ 1) :
+    k.factorization.prod (fun p a => p ^ (a + Nat.log p (k - 1))) ≤ n := by
+  have hkn : k ≤ n := by omega
+  have huniq : ∀ i j, i < k → j < k → ¬ (n - i) ∣ n.choose k → ¬ (n - j) ∣ n.choose k →
+      i = j := by
+    intro i j hi hj hfi hfj
+    exact Finset.card_le_one.mp hd i (Finset.mem_filter.mpr ⟨Finset.mem_range.mpr hi, hfi⟩)
+      j (Finset.mem_filter.mpr ⟨Finset.mem_range.mpr hj, hfj⟩)
+  obtain ⟨p0, hp0, hp0k⟩ := Nat.exists_prime_and_dvd (show k ≠ 1 by omega)
+  haveI : Fact p0.Prime := ⟨hp0⟩
+  obtain ⟨i0, hi0, hf0, -⟩ := exists_failing_index_pow_dvd n k p0 hk hkn hp0k huniq
+  have hdvd : k.factorization.prod (fun p a => p ^ (a + Nat.log p (k - 1))) ∣ n - i0 := by
+    rw [Finsupp.prod, Nat.support_factorization]
+    apply Finset.prod_dvd_of_isRelPrime
+    · intro p hp q hq hpq
+      exact Nat.coprime_iff_isRelPrime.mp (Nat.Coprime.pow _ _
+        ((Nat.coprime_primes (Nat.prime_of_mem_primeFactors hp)
+          (Nat.prime_of_mem_primeFactors hq)).mpr hpq))
+    · intro p hp
+      haveI : Fact p.Prime := ⟨Nat.prime_of_mem_primeFactors hp⟩
+      obtain ⟨i, hi, hf, hdi⟩ :=
+        exists_failing_index_pow_dvd n k p hk hkn (Nat.dvd_of_mem_primeFactors hp) huniq
+      rw [huniq i i0 hi hi0 hf hf0] at hdi
+      exact hdi
+  exact (Nat.le_of_dvd (by omega) hdvd).trans (Nat.sub_le n i0)
+
 /-- **rickyc–GPT lower bound** (comments, Jul 2026; comment-sourced,
     unrefereed — verify the valuation argument independently before
     building on it): `∏_{p^a ∥ k} p^{a + ⌊log_p (k−1)⌋} ≤ n_k`.
@@ -325,7 +493,16 @@ theorem nk_le_mul_lcm (k : ℕ) (hk : 3 ≤ k) :
     floor-log. -/
 theorem nk_lower_bound (k : ℕ) (hk : 2 ≤ k) :
     k.factorization.prod (fun p a => p ^ (a + Nat.log p (k - 1))) ≤ nk k := by
-  sorry
+  have hne : {n : ℕ | 2 * k ≤ n ∧ divisorDefect n k ≤ 1}.Nonempty := by
+    rcases Nat.eq_or_lt_of_le hk with rfl | hk3
+    · exact ⟨4, by decide⟩
+    · refine ⟨k.factorial, ?_, divisorDefect_factorial_le_one k⟩
+      obtain ⟨k', rfl⟩ : ∃ k', k = k' + 1 := ⟨k - 1, by omega⟩
+      have hk' : k' ≤ k'.factorial := Nat.self_le_factorial k'
+      rw [Nat.factorial_succ]
+      nlinarith
+  have hmem := Nat.sInf_mem hne
+  exact prod_le_of_divisorDefect_le_one (nk k) k hk hmem.1 hmem.2
 
 -- The problem "Estimate n_k" itself remains OPEN: it is not even known
 -- whether `(n_k)^{1/k}` converges (StijnC, comments: non-monotone;
