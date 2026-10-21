@@ -138,3 +138,4 @@ import Combinatorics.A387737CountsPartitionsLargest
 import Combinatorics.A344611PartitionsWhoseReverse
 import Combinatorics.LevNagyPachSumFullZeroSum
 import Combinatorics.MirskyNewmanLargestModulus
+import Combinatorics.EliahouFromentinDepthThree
