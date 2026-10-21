@@ -135,3 +135,4 @@ import Combinatorics.A295454Bala
 import Combinatorics.A394431SmallestBaseMaximizes
 import Combinatorics.A363166CountSetsHeap
 import Combinatorics.A387737CountsPartitionsLargest
+import Combinatorics.A344611PartitionsWhoseReverse
