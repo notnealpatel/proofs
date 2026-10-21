@@ -14,3 +14,4 @@ import NumberComplexity.KorseltCriterion
 import NumberComplexity.Wolstenholme
 import NumberComplexity.GiugaPowerSum
 import NumberComplexity.A058128Rotondo
+import NumberComplexity.A000961PowerSumRadical
