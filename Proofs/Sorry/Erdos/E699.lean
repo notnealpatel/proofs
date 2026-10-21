@@ -73,6 +73,53 @@ theorem erdos_699_balanced (j i : ℕ) (hi : 1 ≤ i) (hij : i < j) :
     SharedLargePrime (2 * j) i j := by
   sorry
 
+open Finset in
+/-- If no prime `p ≥ i` divides both `C(n,i)` and `C(n,j)` (with `i < j ≤ n`), then
+    `C(n,i) ≤ n ^ (i - 1) * C(j,i)`. -/
+private lemma choose_le_of_not_shared (n i j : ℕ) (hij : i < j) (hjn : j ≤ n)
+    (hbad : ¬ SharedLargePrime n i j) :
+    n.choose i ≤ n ^ (i - 1) * j.choose i := by
+  set m := n.choose i with hm_def
+  have hn : 0 < n := by omega
+  have hm0 : m ≠ 0 := (Nat.choose_pos (by omega)).ne'
+  have hji0 : 0 < j.choose i := Nat.choose_pos hij.le
+  -- smooth/rough split of `m`
+  have hsplit : (∏ p ∈ m.primeFactors with p < i, p ^ m.factorization p) *
+      (∏ p ∈ m.primeFactors with ¬ p < i, p ^ m.factorization p) = m := by
+    rw [prod_filter_mul_prod_filter_not]
+    exact Nat.prod_factorization_pow_eq_self hm0
+  set S := ∏ p ∈ m.primeFactors with p < i, p ^ m.factorization p with hS_def
+  set R := ∏ p ∈ m.primeFactors with ¬ p < i, p ^ m.factorization p with hR_def
+  -- the rough part is coprime to `C(n,j)`
+  have hRcop : R.Coprime (n.choose j) := by
+    refine Nat.Coprime.prod_left fun p hp => ?_
+    rw [mem_filter] at hp
+    have hpp : p.Prime := Nat.prime_of_mem_primeFactors hp.1
+    refine Nat.Coprime.pow_left _ ((hpp.coprime_iff_not_dvd).2 fun hdvd => hbad ?_)
+    exact ⟨p, hpp, not_lt.1 hp.2, Nat.dvd_gcd (Nat.dvd_of_mem_primeFactors hp.1) hdvd⟩
+  -- Bloom's identity: `m ∣ C(n,j) * C(j,i)`
+  have hmdvd : m ∣ n.choose j * j.choose i := by
+    rw [Nat.choose_mul hij.le]
+    exact Dvd.intro _ rfl
+  have hRdvd : R ∣ j.choose i :=
+    hRcop.dvd_of_dvd_mul_left ((Dvd.intro_left S hsplit).trans hmdvd)
+  have hRle : R ≤ j.choose i := Nat.le_of_dvd hji0 hRdvd
+  -- the smooth part is at most `n ^ (i - 1)`
+  have hSle : S ≤ n ^ (i - 1) := by
+    have hcard : (m.primeFactors.filter (· < i)).card ≤ i - 1 := by
+      have hsub : m.primeFactors.filter (· < i) ⊆ Ico 1 i := by
+        intro p hp
+        rw [mem_filter] at hp
+        have hpp : p.Prime := Nat.prime_of_mem_primeFactors hp.1
+        rw [mem_Ico]
+        exact ⟨hpp.one_lt.le, hp.2⟩
+      simpa using card_le_card hsub
+    calc S ≤ n ^ (m.primeFactors.filter (· < i)).card :=
+          prod_le_pow_card _ _ _ fun p _ => Nat.pow_factorization_choose_le hn
+      _ ≤ n ^ (i - 1) := Nat.pow_le_pow_right hn hcard
+  calc m = S * R := hsplit.symm
+    _ ≤ n ^ (i - 1) * j.choose i := Nat.mul_le_mul hSle hRle
+
 /-- **Proved slice 2 — finiteness of bad `n` for fixed `i < j`**
     (easy per DB; Bloom's argument).  For fixed `1 ≤ i < j` the set of
     `n ≥ 2j` violating the conclusion is finite: coprimality forces
@@ -80,7 +127,29 @@ theorem erdos_699_balanced (j i : ℕ) (hi : 1 ≤ i) (hij : i < j) :
     The natural first sorry-free target of this file. -/
 theorem erdos_699_finitely_many_bad (i j : ℕ) (hi : 1 ≤ i) (hij : i < j) :
     {n : ℕ | 2 * j ≤ n ∧ ¬ SharedLargePrime n i j}.Finite := by
-  sorry
+  refine (Set.finite_Iic (2 ^ i * i.factorial * j.choose i)).subset ?_
+  rintro n ⟨hjn, hbad⟩
+  rw [Set.mem_Iic]
+  obtain ⟨k, rfl⟩ : ∃ k, i = k + 1 := ⟨i - 1, by omega⟩
+  have hn : 0 < n := by omega
+  have hup := choose_le_of_not_shared n (k + 1) j hij (by omega) hbad
+  rw [Nat.add_sub_cancel] at hup
+  -- lower bound: `n ^ (k+1) ≤ 2 ^ (k+1) * (k+1)! * C(n,k+1)`
+  have hlow : n ^ (k + 1) ≤ 2 ^ (k + 1) * (k + 1).factorial * n.choose (k + 1) := by
+    have h1 : n ≤ 2 * (n + 1 - (k + 1)) := by omega
+    calc n ^ (k + 1) ≤ (2 * (n + 1 - (k + 1))) ^ (k + 1) := Nat.pow_le_pow_left h1 _
+      _ = 2 ^ (k + 1) * (n + 1 - (k + 1)) ^ (k + 1) := by rw [mul_pow]
+      _ ≤ 2 ^ (k + 1) * n.descFactorial (k + 1) :=
+          Nat.mul_le_mul_left _ (Nat.pow_sub_le_descFactorial n (k + 1))
+      _ = 2 ^ (k + 1) * (k + 1).factorial * n.choose (k + 1) := by
+          rw [Nat.descFactorial_eq_factorial_mul_choose, mul_assoc]
+  have hkey : n * n ^ k ≤ (2 ^ (k + 1) * (k + 1).factorial * j.choose (k + 1)) * n ^ k := by
+    calc n * n ^ k = n ^ (k + 1) := by ring
+      _ ≤ 2 ^ (k + 1) * (k + 1).factorial * n.choose (k + 1) := hlow
+      _ ≤ 2 ^ (k + 1) * (k + 1).factorial * (n ^ k * j.choose (k + 1)) :=
+          Nat.mul_le_mul_left _ hup
+      _ = (2 ^ (k + 1) * (k + 1).factorial * j.choose (k + 1)) * n ^ k := by ring
+  exact Nat.le_of_mul_le_mul_right hkey (pow_pos hn k)
 
 /-- The Erdős–Szekeres *strict* variant `p > i` fails: at
     `(n, i, j) = (28, 5, 14)`, `gcd(C(28,5), C(28,14)) = 2³·3³·5 = 1080`
@@ -114,12 +183,30 @@ theorem strict_variant_fails_28_5_14 :
     rw [hgcd]
     norm_num
 
+/-- Bounded computational form of the window check. -/
+private lemma window_60_compute :
+    ∀ n ∈ List.range 61, ∀ i ∈ List.range 31, ∀ j ∈ List.range 31,
+      1 ≤ i → i < j → 2 * j ≤ n →
+      ∃ p ∈ [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59],
+        i ≤ p ∧ n.descFactorial i / i.factorial % p = 0 ∧
+          n.descFactorial j / j.factorial % p = 0 := by
+  decide +kernel
+
 /-- Sanity window: the headline verified for all `n ≤ 60` and all
     admissible `(i, j)`.  -- PROVABLE (decide; small search space). -/
 theorem erdos_699_window_60 :
     ∀ n ∈ Finset.range 61, ∀ i ∈ Finset.range 31, ∀ j ∈ Finset.range 31,
       1 ≤ i → i < j → 2 * j ≤ n → SharedLargePrime n i j := by
-  sorry
+  intro n hn i hi j hj h1 h2 h3
+  obtain ⟨p, hp, hip, hpi, hpj⟩ := window_60_compute n (List.mem_range.2 (Finset.mem_range.1 hn))
+    i (List.mem_range.2 (Finset.mem_range.1 hi)) j (List.mem_range.2 (Finset.mem_range.1 hj))
+    h1 h2 h3
+  have hprime : p.Prime := by
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hp
+    rcases hp with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl |
+      rfl | rfl | rfl | rfl <;> norm_num
+  rw [← Nat.choose_eq_descFactorial_div_factorial] at hpi hpj
+  exact ⟨p, hprime, hip, Nat.dvd_gcd (Nat.dvd_of_mod_eq_zero hpi) (Nat.dvd_of_mod_eq_zero hpj)⟩
 
 /-- **Sylvester–Schur** (input lemma, also the prize of #683): for
     `1 ≤ k` and `2k ≤ n`, `C(n,k)` has a prime factor `> k`.  Not in
