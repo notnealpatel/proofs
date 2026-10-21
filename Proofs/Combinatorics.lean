@@ -117,3 +117,4 @@ import Combinatorics.GilbreathValidExtensionHoles
 import Combinatorics.UnionClosedManyKSetsBound
 import Combinatorics.MajorityColoringCubeK3Product
 import Combinatorics.DaykinFranklWilliamsConfirmation
+import Combinatorics.BougardJoretCounterexample
