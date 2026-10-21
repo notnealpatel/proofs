@@ -96,3 +96,4 @@ import Combinatorics.A284366Refutation
 import Combinatorics.FinitelyAdditiveMeasuresCombinatorics
 import Combinatorics.CounterexampleTeschnerBondageYavari
 import Combinatorics.RestrictedDivisionPrincipleEquivalent
+import Combinatorics.CombinatorialSearchStrongShift
