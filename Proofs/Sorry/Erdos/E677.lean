@@ -72,12 +72,113 @@ theorem original_cross_k : M 4 3 = M 13 2 ∧ (3 : ℕ) ≠ 2 := by
 example : M 4 3 = M 13 2 ∧ (3 : ℕ) ≠ 2 := by
   exact original_cross_k
 
+/-- `{n+1, …, n+2}` is the two-element set `{n+1, n+2}`. -/
+private theorem icc_two (n : ℕ) : Finset.Icc (n + 1) (n + 2) = {n + 1, n + 2} := by
+  ext x
+  simp only [Finset.mem_Icc, Finset.mem_insert, Finset.mem_singleton]
+  omega
+
+/-- `{n+1, …, n+3}` is the three-element set `{n+1, n+2, n+3}`. -/
+private theorem icc_three (n : ℕ) :
+    Finset.Icc (n + 1) (n + 3) = {n + 1, n + 2, n + 3} := by
+  ext x
+  simp only [Finset.mem_Icc, Finset.mem_insert, Finset.mem_singleton]
+  omega
+
+/-- Consecutive naturals are coprime. -/
+private theorem coprime_self_succ (a : ℕ) : Nat.Coprime a (a + 1) := by
+  simp
+
+/-- Closed form for `k = 2`: `M(n,2) = (n+1)(n+2)`. -/
+private theorem M_two (n : ℕ) : M n 2 = (n + 1) * (n + 2) := by
+  rw [M, icc_two, Finset.lcm_insert, Finset.lcm_singleton, id, id, normalize_eq,
+    lcm_eq_nat_lcm]
+  exact (coprime_self_succ (n + 1)).lcm_eq_mul
+
+/-- `P n = (n+1)(n+2)(n+3)`, the product of the length-3 block. -/
+private def P (n : ℕ) : ℕ := (n + 1) * (n + 2) * (n + 3)
+
+example : P 2 = 60 ∧ P 3 = 120 := by decide
+
+/-- Closed form for `k = 3`: `gcd(n+1, 2) · M(n,3) = (n+1)(n+2)(n+3)`. -/
+private theorem M_three (n : ℕ) : Nat.gcd (n + 1) 2 * M n 3 = P n := by
+  rw [M, icc_three, Finset.lcm_insert, Finset.lcm_insert, Finset.lcm_singleton, id, id,
+    id, normalize_eq, lcm_eq_nat_lcm, lcm_eq_nat_lcm,
+    (coprime_self_succ (n + 2)).lcm_eq_mul]
+  have hg : Nat.gcd (n + 1) ((n + 2) * (n + 3)) = Nat.gcd (n + 1) 2 := by
+    rw [Nat.Coprime.gcd_mul_left_cancel_right _ (coprime_self_succ (n + 1)).symm]
+    have h3 : n + 3 = (n + 1) + 2 := by ring
+    rw [h3, Nat.gcd_self_add_right]
+  rw [← hg, Nat.gcd_mul_lcm, P, mul_assoc]
+
+/-- `P` is strictly increasing. -/
+private theorem P_lt {a b : ℕ} (h : a < b) : P a < P b := by
+  unfold P
+  exact Nat.mul_lt_mul'' (Nat.mul_lt_mul'' (by omega) (by omega)) (by omega)
+
+/-- Candidate bracket index: approximately `2^{1/3}(n+2) - 2`, so that
+    `P (certC n) < 2 P n < P (certC n + 1)` on the window. -/
+private def certC (n : ℕ) : ℕ := 125992 * (n + 2) / 100000 - 2
+
+example : certC 2 = 3 ∧ certC 300 = 378 := by decide
+
+set_option maxRecDepth 20000 in
+/-- Finite certificate: for each `n ≤ 300`, either `2 P n < P (n+3)` or
+    `2 P n` lies strictly between two consecutive values of `P`. -/
+private theorem cert : ∀ n < 301, 2 * P n < P (n + 3) ∨
+    (P (certC n) < 2 * P n ∧ 2 * P n < P (certC n + 1)) := by
+  decide
+
+/-- On the window, `P m = 2 P n` has no solution with `n + 3 ≤ m`. -/
+private theorem P_ne_two_mul {n m : ℕ} (hn : n < 301) (hm : n + 3 ≤ m) :
+    P m ≠ 2 * P n := by
+  intro h
+  rcases cert n hn with h1 | ⟨h1, h2⟩
+  · rcases Nat.lt_or_ge (n + 3) m with h3 | h3
+    · have hlt := P_lt h3
+      omega
+    · have hmeq : m = n + 3 := by omega
+      rw [hmeq] at h
+      omega
+  · rcases Nat.lt_or_ge (certC n) m with h3 | h3
+    · rcases Nat.lt_or_ge (certC n + 1) m with h4 | h4
+      · have hlt := P_lt h4
+        omega
+      · have hmeq : m = certC n + 1 := by omega
+        rw [hmeq] at h
+        omega
+    · rcases Nat.lt_or_ge m (certC n) with h4 | h4
+      · have hlt := P_lt h4
+        omega
+      · have hmeq : m = certC n := by omega
+        rw [hmeq] at h
+        omega
+
+/-- `gcd(a, 2)` is `1` or `2`. -/
+private theorem gcd_two_cases (a : ℕ) : Nat.gcd a 2 = 1 ∨ Nat.gcd a 2 = 2 :=
+  (Nat.dvd_prime Nat.prime_two).mp (Nat.gcd_dvd_right a 2)
+
 /-- Verified window: no same-`k` coincidence with `k = 2, 3` and
     `n, m ≤ 300`.  -- PROVABLE (decide; lcms stay small). -/
 theorem window_300 :
     ∀ k ∈ ({2, 3} : Finset ℕ), ∀ n ∈ Finset.range 301,
       ∀ m ∈ Finset.range 301, n + k ≤ m → M n k ≠ M m k := by
-  sorry
+  intro k hk n hn m _ hnm heq
+  rw [Finset.mem_range] at hn
+  rcases Finset.mem_insert.mp hk with rfl | hk3
+  · rw [M_two, M_two] at heq
+    have hlt : (n + 1) * (n + 2) < (m + 1) * (m + 2) :=
+      Nat.mul_lt_mul'' (by omega) (by omega)
+    omega
+  · rw [Finset.mem_singleton] at hk3
+    subst hk3
+    have hn3 := M_three n
+    have hm3 := M_three m
+    have hP : P n < P m := P_lt (by omega)
+    have hne := P_ne_two_mul hn hnm
+    rw [heq] at hn3
+    rcases gcd_two_cases (n + 1) with h1 | h1 <;> rcases gcd_two_cases (m + 1) with h2 | h2 <;>
+      rw [h1] at hn3 <;> rw [h2] at hm3 <;> omega
 
 /-- **Erdős' stronger prime-support conjecture** ([Er79d], archived):
     for `k > 2`, up to finitely many exceptions, blocks
