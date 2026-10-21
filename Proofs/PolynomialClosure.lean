@@ -14,6 +14,7 @@ import PolynomialClosure.GkkTauMatricesHoltz
 import PolynomialClosure.SmallCounterexamplesGaussianMoments
 import PolynomialClosure.DualPositivityInverseGram
 import PolynomialClosure.MagnitudeMatrixInequalitiesGomi
+import PolynomialClosure.AbedelfatahPowerSumsTrivialZero
 
 set_option autoImplicit false
 
