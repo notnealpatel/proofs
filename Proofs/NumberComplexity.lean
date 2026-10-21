@@ -40,3 +40,4 @@ import NumberComplexity.A001274Refutation
 import NumberComplexity.A001917Refutation
 import NumberComplexity.A074057Refutation
 import NumberComplexity.A094757Refutation
+import NumberComplexity.WangSunPracticalQuadratic
