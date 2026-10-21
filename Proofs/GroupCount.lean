@@ -21,3 +21,4 @@ import GroupCount.ImmaculateGroupQuotient
 import GroupCount.UnionClosedSubgroupLattice
 import GroupCount.HenriksenTrivialUnits
 import GroupCount.HallPaigeNecessity
+import GroupCount.LandauClassNumber
