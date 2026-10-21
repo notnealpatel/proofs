@@ -148,3 +148,4 @@ import NumberComplexity.A373725MaxPrimeAlso
 import NumberComplexity.A106297LucasStepInitial
 import NumberComplexity.A389079SumUnitaryDivisors
 import NumberComplexity.A136050TwinPrimesDecimal
+import NumberComplexity.A001481BothSumsTwo
