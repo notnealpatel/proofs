@@ -173,3 +173,4 @@ import Enumerative.A276371Refutation
 import Enumerative.MultiparameterCountingNumericalSemigroups
 import Enumerative.A024199SumDoubleFactorials
 import Enumerative.A264200Sum
+import Enumerative.A040027GouldSumStirling
