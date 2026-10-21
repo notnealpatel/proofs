@@ -76,3 +76,4 @@ import NumberComplexity.A367865Rad
 import NumberComplexity.A327123CoefficientSumPhi
 import NumberComplexity.A361035OddSome
 import NumberComplexity.A234307SumGcd
+import NumberComplexity.A225502PrimeIndeedNonsquare
