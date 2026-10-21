@@ -14,3 +14,4 @@ import GroupCount.DihedralQuandleIdempotents
 import GroupCount.ForcadePollington
 import GroupCount.GaoGeroldingerRefutation
 import GroupCount.SmithLocalPresentation
+import GroupCount.ZeroSumPropertyCD
