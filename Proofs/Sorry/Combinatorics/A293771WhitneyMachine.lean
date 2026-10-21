@@ -234,12 +234,179 @@ here; this is not a certified refutation. -/
 abbrev MemoryIs (p : List Instr) (m : List ℕ) : Prop :=
   WhitneyMachine.MemoryIs p m
 
+/-! ### Helpers for `conjectureI_fails_for_fixed_memory`
+
+A read-free program with final state `⟨54, [1, 3, 9, 27, 30, 54]⟩` has
+append-only memory (so every intermediate memory is a prefix of the target) and
+a monotone cache (so every intermediate cache is at most `54`).  The table
+`fixedMemoryLb` is the read-free distance from `(cache, memory length)` to the
+target, computed by backward breadth-first search (`99` marks unreachable);
+its one-step inequalities are checked by `decide`. -/
+
+/-- The prescribed chronological memory list `[1, 3, 9, 27, 30, 54]`. -/
+private def fixedMemory : List ℕ := [1, 3, 9, 27, 30, 54]
+
+/-- Rows indexed by memory length `k ≤ 6`, columns by cache `c ≤ 54`: the minimum
+number of read-free steps from `(c, fixedMemory.take k)` to `⟨54, fixedMemory⟩`. -/
+private def fixedMemoryLbTable : List (List ℕ) := [
+  [99, 17, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99],
+  [17, 16, 15, 14, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99],
+  [14, 15, 14, 13, 14, 13, 12, 13, 12, 11, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99],
+  [11, 14, 13, 12, 13, 12, 11, 12, 11, 10, 13, 12, 11, 12, 11, 10, 11, 10, 9, 12, 11, 10, 11, 10, 9, 10, 9, 8, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99],
+  [8, 9, 8, 7, 12, 11, 10, 11, 10, 9, 10, 9, 8, 11, 10, 9, 10, 9, 8, 9, 8, 7, 10, 9, 8, 9, 8, 7, 8, 7, 6, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99],
+  [3, 7, 6, 5, 6, 5, 4, 6, 5, 4, 6, 5, 4, 5, 4, 3, 5, 4, 3, 5, 4, 3, 4, 3, 2, 4, 3, 2, 7, 6, 5, 6, 5, 4, 5, 4, 3, 6, 5, 4, 5, 4, 3, 4, 3, 2, 5, 4, 3, 4, 3, 2, 3, 2, 1],
+  [1, 6, 5, 4, 5, 4, 3, 5, 4, 3, 5, 4, 3, 4, 3, 2, 4, 3, 2, 4, 3, 2, 3, 2, 1, 3, 2, 1, 6, 5, 4, 5, 4, 3, 4, 3, 2, 5, 4, 3, 4, 3, 2, 3, 2, 1, 4, 3, 2, 3, 2, 1, 2, 1, 0]
+  ]
+
+/-- The read-free lower-bound potential at cache `c` and memory length `k`. -/
+private def fixedMemoryLb (c k : ℕ) : ℕ := (fixedMemoryLbTable.getD k []).getD c 99
+
+/-- The potential at the start state is `17`. -/
+private theorem fixedMemoryLb_initial : fixedMemoryLb 1 0 = 17 := by decide
+
+/-- The potential at the target state is `0`. -/
+private theorem fixedMemoryLb_target : fixedMemoryLb 54 6 = 0 := by decide
+
+/-- An add of a stored value lowers the potential by at most one. -/
+private theorem fixedMemoryLb_add : ∀ k < 7, ∀ c < 55, ∀ v ∈ fixedMemory.take k,
+    c + v < 55 → fixedMemoryLb c k ≤ fixedMemoryLb (c + v) k + 1 := by
+  decide
+
+/-- A write that keeps memory a prefix of the target lowers the potential by at most one. -/
+private theorem fixedMemoryLb_write : ∀ k < 7, ∀ c < 55,
+    fixedMemory.take k ++ [c] <+: fixedMemory →
+      fixedMemoryLb c k ≤ fixedMemoryLb c (k + 1) + 1 := by
+  decide
+
+/-- Memory only grows by appending: the start memory is a prefix of the final memory. -/
+private theorem run_memory_prefix : ∀ (p : List Instr) (s s' : MachineState),
+    run p s = some s' → s.memory <+: s'.memory := by
+  intro p
+  induction p with
+  | nil =>
+    intro s s' h
+    cases h
+    exact List.prefix_refl _
+  | cons i q ih =>
+    intro s s' h
+    simp only [run, WhitneyMachine.run, Option.bind_eq_some_iff] at h
+    obtain ⟨s1, h1, h2⟩ := h
+    refine List.IsPrefix.trans ?_ (ih s1 s' h2)
+    cases i with
+    | write =>
+      simp only [WhitneyMachine.step, Option.some.injEq] at h1
+      subst h1
+      exact List.prefix_append _ _
+    | read j =>
+      simp only [WhitneyMachine.step, Option.map_eq_some_iff] at h1
+      obtain ⟨v, -, rfl⟩ := h1
+      exact List.prefix_refl _
+    | add j =>
+      simp only [WhitneyMachine.step, Option.map_eq_some_iff] at h1
+      obtain ⟨v, -, rfl⟩ := h1
+      exact List.prefix_refl _
+
+/-- In a read-free program the cache never decreases. -/
+private theorem run_cache_mono : ∀ (p : List Instr) (s s' : MachineState),
+    ReadFree p → run p s = some s' → s.cache ≤ s'.cache := by
+  intro p
+  induction p with
+  | nil =>
+    intro s s' _ h
+    cases h
+    exact le_rfl
+  | cons i q ih =>
+    intro s s' hrf h
+    simp only [run, WhitneyMachine.run, Option.bind_eq_some_iff] at h
+    obtain ⟨s1, h1, h2⟩ := h
+    have hq : ReadFree q := fun j hj => hrf j (List.mem_cons_of_mem i hj)
+    refine le_trans ?_ (ih s1 s' hq h2)
+    cases i with
+    | write =>
+      simp only [WhitneyMachine.step, Option.some.injEq] at h1
+      subst h1
+      exact le_rfl
+    | read j =>
+      exact absurd (hrf (.read j) List.mem_cons_self) (by simp [WhitneyMachine.Instr.isRead])
+    | add j =>
+      simp only [WhitneyMachine.step, Option.map_eq_some_iff] at h1
+      obtain ⟨v, -, rfl⟩ := h1
+      exact Nat.le_add_right _ _
+
+/-- A read-free program reaching `⟨54, fixedMemory⟩` from `s` has length at least
+the potential of `s`. -/
+private theorem fixedMemoryLb_le_length : ∀ (p : List Instr) (s : MachineState),
+    ReadFree p → run p s = some ⟨54, fixedMemory⟩ →
+      fixedMemoryLb s.cache s.memory.length ≤ p.length := by
+  intro p
+  induction p with
+  | nil =>
+    intro s _ h
+    cases h
+    exact fixedMemoryLb_target.le
+  | cons i q ih =>
+    intro s hrf h
+    have hpre : s.memory <+: fixedMemory := run_memory_prefix _ s _ h
+    have hc : s.cache < 55 := Nat.lt_succ_of_le (run_cache_mono _ s _ hrf h)
+    have hk : s.memory.length < 7 := Nat.lt_succ_of_le hpre.length_le
+    have hmem : s.memory = fixedMemory.take s.memory.length :=
+      List.prefix_iff_eq_take.mp hpre
+    simp only [run, WhitneyMachine.run, Option.bind_eq_some_iff] at h
+    obtain ⟨s1, h1, h2⟩ := h
+    have hq : ReadFree q := fun j hj => hrf j (List.mem_cons_of_mem i hj)
+    have ih1 := ih s1 hq h2
+    have hpre1 : s1.memory <+: fixedMemory := run_memory_prefix _ s1 _ h2
+    have hc1 : s1.cache < 55 := Nat.lt_succ_of_le (run_cache_mono _ s1 _ hq h2)
+    rw [List.length_cons]
+    cases i with
+    | write =>
+      simp only [WhitneyMachine.step, Option.some.injEq] at h1
+      subst h1
+      have hw : fixedMemory.take s.memory.length ++ [s.cache] <+: fixedMemory := by
+        rw [← hmem]
+        exact hpre1
+      have hstep := fixedMemoryLb_write _ hk _ hc hw
+      simp only [List.length_append, List.length_singleton] at ih1
+      omega
+    | read j =>
+      exact absurd (hrf (.read j) List.mem_cons_self) (by simp [WhitneyMachine.Instr.isRead])
+    | add j =>
+      simp only [WhitneyMachine.step, Option.map_eq_some_iff] at h1
+      obtain ⟨v, hv, rfl⟩ := h1
+      have hvm : v ∈ fixedMemory.take s.memory.length := by
+        rw [← hmem]
+        exact List.mem_of_getElem? hv
+      have hstep := fixedMemoryLb_add _ hk _ hc v hvm hc1
+      dsimp only at ih1
+      omega
+
 theorem conjectureI_fails_for_fixed_memory :
     ∃ n : ℕ, 0 < n ∧
       (∀ p : List Instr, MemoryIs p [1, 3, 9, 27, 30, 54] → Computes p n →
         p.length = sInf {l | ∃ q, q.length = l ∧ MemoryIs q [1,3,9,27,30,54] ∧ Computes q n} →
         ¬ ReadFree p) := by
-  sorry
+  refine ⟨54, by norm_num, ?_⟩
+  rintro p ⟨s, hs, hm⟩ ⟨s', hs', hc⟩ hlen hrf
+  have hss : s' = s := Option.some.inj (hs'.symm.trans hs)
+  subst hss
+  have hfinal : s' = ⟨54, fixedMemory⟩ := by
+    cases s'
+    simp only at hc hm
+    subst hc hm
+    rfl
+  -- A read-using witness of length `15` bounds the constrained minimum.
+  let witness : List Instr :=
+    [.write, .add 0, .add 0, .write, .add 1, .add 1, .write,
+      .add 2, .add 2, .write, .add 1, .write, .read 3, .add 3, .write]
+  have hwrun : run witness initial = some ⟨54, [1, 3, 9, 27, 30, 54]⟩ := rfl
+  have hup : sInf {l | ∃ q : List Instr, q.length = l ∧ MemoryIs q [1,3,9,27,30,54] ∧
+      Computes q 54} ≤ 15 :=
+    Nat.sInf_le ⟨witness, rfl, ⟨_, hwrun, rfl⟩, ⟨_, hwrun, rfl⟩⟩
+  -- Every read-free program with this final state has length at least `17`.
+  have hlow : fixedMemoryLb 1 0 ≤ p.length :=
+    fixedMemoryLb_le_length p initial hrf (hfinal ▸ hs)
+  rw [fixedMemoryLb_initial] at hlow
+  omega
 
 /-- Historical source-mismatched fixed-memory II claim. It pins a chronological
 list that is itself strictly sorted, and omits the source's set/minimum distinction.
