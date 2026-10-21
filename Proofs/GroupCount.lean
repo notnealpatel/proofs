@@ -10,3 +10,4 @@ import GroupCount.SzeleCyclicOrder
 import GroupCount.SymmetricClassNumber
 import GroupCount.McKayPowerSolutions
 import GroupCount.SambaleCosetComplement
+import GroupCount.DihedralQuandleIdempotents
