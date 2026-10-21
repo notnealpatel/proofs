@@ -231,3 +231,4 @@ import Enumerative.A381355PrimeSumUnique
 import Enumerative.A160191LodumoTransformLucas
 import Enumerative.A188570Refutation
 import Enumerative.A003278JefferySzekeres
+import Enumerative.A266491ForwardDifferenceRow
