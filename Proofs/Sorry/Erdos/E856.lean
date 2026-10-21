@@ -58,13 +58,30 @@ def harmonicWeight (A : Finset ℕ) : ℚ :=
     -- PROVABLE (decide). -/
 example : LcmPatternFree 3 ({2, 3, 5} : Finset ℕ) ∧
     harmonicWeight {2, 3, 5} = 31 / 30 := by
-  sorry
+  refine ⟨?_, ?_⟩
+  · intro S hS hEq
+    obtain ⟨L, hL⟩ := hEq
+    rw [Finset.mem_powersetCard] at hS
+    have hSeq : S = {2, 3, 5} :=
+      Finset.eq_of_subset_of_card_le hS.1 (by rw [hS.2]; decide)
+    subst hSeq
+    have h23 := hL 2 (by simp) 3 (by simp) (by norm_num)
+    have h25 := hL 2 (by simp) 5 (by simp) (by norm_num)
+    norm_num at h23 h25
+    omega
+  · simp [harmonicWeight]
+    norm_num
 
 /-- Non-degeneracy: `{6, 10, 15}` has all pairwise lcms equal to 30, so
     it is NOT 3-pattern-free.  The constraint has content.
     -- PROVABLE (decide). -/
 example : ¬ LcmPatternFree 3 ({6, 10, 15} : Finset ℕ) := by
-  sorry
+  intro h
+  refine h {6, 10, 15} (Finset.mem_powersetCard.mpr ⟨subset_rfl, by decide⟩) ⟨30, ?_⟩
+  intro a ha b hb hab
+  simp only [Finset.mem_insert, Finset.mem_singleton] at ha hb
+  rcases ha with rfl | rfl | rfl <;> rcases hb with rfl | rfl | rfl <;>
+    first | exact absurd rfl hab | norm_num
 
 /-- **Erdős #856, Er70 upper bound (the Tier-UA target)**:
     `f_k(N) ≪ log N / log log N`.  Stated with an explicit constant
@@ -98,7 +115,15 @@ theorem erdos_856_upper_bound (k : ℕ) (hk : 3 ≤ k) :
 theorem harmonicWeight_le (N : ℕ) (hN : 1 ≤ N) (A : Finset ℕ)
     (hA : A ⊆ Finset.Icc 1 N) :
     (harmonicWeight A : ℝ) ≤ 1 + Real.log N := by
-  sorry
+  have hsub : harmonicWeight A ≤ harmonic N := by
+    rw [harmonic_eq_sum_Icc, harmonicWeight]
+    simp_rw [one_div]
+    refine Finset.sum_le_sum_of_subset_of_nonneg hA ?_
+    intro i _ _
+    positivity
+  have hcast : (harmonicWeight A : ℝ) ≤ (harmonic N : ℝ) := by
+    exact_mod_cast hsub
+  exact hcast.trans (harmonic_le_one_add_log N)
 
 /-- **Tang–Zhang lower bound, k = 3** (TaZh25b), archived:
     `f₃(N) ≥ (log N)^{0.438}` for large `N` — realized by an explicit
@@ -122,7 +147,18 @@ theorem tang_zhang_lower_k3 :
 theorem lcm_pattern_iff_union_pattern (S T : Finset ℕ)
     (hS : ∀ p ∈ S, p.Prime) (hT : ∀ p ∈ T, p.Prime) :
     Nat.lcm (∏ p ∈ S, p) (∏ p ∈ T, p) = ∏ p ∈ (S ∪ T), p := by
-  sorry
+  apply Nat.dvd_antisymm
+  · exact Nat.lcm_dvd (Finset.prod_dvd_prod_of_subset _ _ _ Finset.subset_union_left)
+      (Finset.prod_dvd_prod_of_subset _ _ _ Finset.subset_union_right)
+  · refine Finset.prod_primes_dvd _ ?_ ?_
+    · intro p hp
+      rcases Finset.mem_union.mp hp with h | h
+      · exact (hS p h).prime
+      · exact (hT p h).prime
+    · intro p hp
+      rcases Finset.mem_union.mp hp with h | h
+      · exact (Finset.dvd_prod_of_mem _ h).trans (Nat.dvd_lcm_left _ _)
+      · exact (Finset.dvd_prod_of_mem _ h).trans (Nat.dvd_lcm_right _ _)
 
 end ErdosCandidates.E856
 
