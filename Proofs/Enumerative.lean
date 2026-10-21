@@ -240,3 +240,4 @@ import Enumerative.A005329LaymanBinomialTransform
 import Enumerative.A068779LeastFloorRev
 import Enumerative.A133212SumBinomial
 import Enumerative.A238977InvolutionBalaFormula
+import Enumerative.BirchErdosQaryPartition
