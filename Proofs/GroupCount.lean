@@ -23,3 +23,4 @@ import GroupCount.HenriksenTrivialUnits
 import GroupCount.HallPaigeNecessity
 import GroupCount.LandauClassNumber
 import GroupCount.NonabelianOrderPCubed
+import GroupCount.FrobeniusPowerSolutionCount
