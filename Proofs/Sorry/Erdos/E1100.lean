@@ -70,6 +70,30 @@ theorem tauPerp_twelve_and_primeFactors_card :
 example : tauPerp 12 = 3 ∧ (12 : ℕ).primeFactors.card = 2 := by
   exact tauPerp_twelve_and_primeFactors_card
 
+/-- Every element of the tail of a list is the second entry of some
+    adjacent pair `(y, x)` in `l.zip l.tail`. -/
+private theorem exists_mem_zip_tail_of_mem_tail {α : Type*} :
+    ∀ (l : List α) (x : α), x ∈ l.tail → ∃ y, (y, x) ∈ l.zip l.tail
+  | [], _, h => by simp at h
+  | [_], _, h => by simp at h
+  | a :: b :: r, x, h => by
+    rcases List.mem_cons.1 h with hxb | hxr
+    · exact ⟨a, by simp [hxb]⟩
+    · obtain ⟨y, hy⟩ := exists_mem_zip_tail_of_mem_tail (b :: r) x hxr
+      exact ⟨y, by simp only [List.tail_cons, List.zip_cons_cons] at hy ⊢; simp [hy]⟩
+
+/-- In a list pairwise related by `R`, every adjacent pair `(a, b)` from
+    `l.zip l.tail` satisfies `R a b`. -/
+private theorem rel_of_mem_zip_tail {α : Type*} {R : α → α → Prop} :
+    ∀ (l : List α), l.Pairwise R → ∀ a b, (a, b) ∈ l.zip l.tail → R a b
+  | [], _, _, _, h => by simp at h
+  | [_], _, _, _, h => by simp at h
+  | c :: d :: r, hl, a, b, h => by
+    simp only [List.tail_cons, List.zip_cons_cons, List.mem_cons, Prod.mk.injEq] at h
+    rcases h with ⟨rfl, rfl⟩ | h
+    · exact List.rel_of_pairwise_cons hl (by simp)
+    · exact rel_of_mem_zip_tail (d :: r) hl.of_cons a b (by simpa using h)
+
 /-- **Trivial lower bound (first landing)**: `ω(n) ≤ τ⊥(n)` for
     `n ≥ 2` — below each prime power block boundary the divisors
     p·(largest divisor composed of smaller primes)… Erdős–Hall's
@@ -80,7 +104,54 @@ example : tauPerp 12 = 3 ∧ (12 : ℕ).primeFactors.card = 2 := by
     Effort M (the combinatorial argument needs care).  -/
 theorem omega_le_tauPerp (n : ℕ) (hn : 2 ≤ n) :
     n.primeFactors.card ≤ tauPerp n := by
-  sorry
+  classical
+  set l := divisorList n with hl_def
+  have hn0 : n ≠ 0 := by omega
+  have hsorted : l.Pairwise (· < ·) := (Finset.sortedLT_sort n.divisors).pairwise
+  have hmem : ∀ d, d ∈ l ↔ d ∣ n := fun d => by
+    simp [hl_def, divisorList, Finset.mem_sort, Nat.mem_divisors, hn0]
+  set L := (l.zip l.tail).filter (fun q => decide (Nat.gcd q.1 q.2 = 1)) with hL_def
+  have hcount : tauPerp n = L.length := by
+    rw [tauPerp, ← hl_def, ← List.map_uncurry_zip_eq_zipWith, List.count_eq_countP,
+      List.countP_map, List.countP_eq_length_filter, hL_def]
+    congr 1
+    apply List.filter_congr
+    intro q _
+    simp [Function.uncurry]
+  -- every prime factor `p` is the right end of an adjacent coprime pair
+  have hsub : n.primeFactors ⊆ L.toFinset.image Prod.snd := by
+    intro p hp
+    have hpp : p.Prime := Nat.prime_of_mem_primeFactors hp
+    have hpn : p ∣ n := Nat.dvd_of_mem_primeFactors hp
+    have hpl : p ∈ l := (hmem p).2 hpn
+    have h1l : 1 ∈ l := (hmem 1).2 (one_dvd n)
+    have hptail : p ∈ l.tail := by
+      cases hlc : l with
+      | nil => simp [hlc] at hpl
+      | cons a t =>
+        rw [hlc] at hpl h1l hsorted
+        rcases List.mem_cons.1 hpl with hpa | hpt
+        · exfalso
+          rcases List.mem_cons.1 h1l with h1a | h1t
+          · exact hpp.one_lt.ne' (hpa.trans h1a.symm)
+          · have ha1 : a < 1 := List.rel_of_pairwise_cons hsorted h1t
+            have hp1 : 1 < p := hpp.one_lt
+            omega
+        · simpa using hpt
+    obtain ⟨a, ha⟩ := exists_mem_zip_tail_of_mem_tail l p hptail
+    have hap : a < p := rel_of_mem_zip_tail l hsorted a p ha
+    have hal : a ∈ l := (List.of_mem_zip ha).1
+    have ha0 : a ≠ 0 := by
+      intro h0
+      rw [h0, hmem] at hal
+      exact hn0 (Nat.eq_zero_of_zero_dvd hal)
+    have hcop : Nat.gcd a p = 1 := (Nat.coprime_of_lt_prime ha0 hap hpp).symm
+    rw [Finset.mem_image]
+    exact ⟨(a, p), by simp [hL_def, ha, hcop], rfl⟩
+  calc n.primeFactors.card ≤ (L.toFinset.image Prod.snd).card := Finset.card_le_card hsub
+    _ ≤ L.toFinset.card := Finset.card_image_le
+    _ ≤ L.length := List.toFinset_card_le L
+    _ = tauPerp n := hcount.symm
 
 /-- **Erdős #1100, question 1 (OPEN)**: `τ⊥(n)/ω(n) → ∞` for almost
     all `n` (density form). -/
