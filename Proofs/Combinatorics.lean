@@ -43,3 +43,7 @@ import Combinatorics.FranklWilsonModularIntersection
 import Combinatorics.ErdosHeilbronnRestrictedSumset
 import Combinatorics.LiuQianRefutation
 import Combinatorics.ThreeAPCoveringBound
+import Combinatorics.ChowRimanicLonelyRunnerCounterexample
+import Combinatorics.CarouselTournamentT33T35
+import Combinatorics.UpperStarFormingSetsRefutation
+import Combinatorics.A285127Refutation
