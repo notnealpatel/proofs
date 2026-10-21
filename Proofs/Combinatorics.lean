@@ -2,3 +2,5 @@ import Combinatorics.DiscreteOptimization
 import Combinatorics.FiniteAffine
 import Combinatorics.NoncommutingFiber
 import Combinatorics.NoncommutingMicroGap
+import Combinatorics.Flex86E1Finite
+import Combinatorics.Flex86E1BlockRestriction

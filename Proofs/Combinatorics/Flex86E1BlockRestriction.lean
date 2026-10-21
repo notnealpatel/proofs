@@ -1,4 +1,4 @@
-import Sorry.Flex86E1Finite
+import Combinatorics.Flex86E1Finite
 
 set_option autoImplicit false
 
