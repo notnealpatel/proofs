@@ -144,3 +144,4 @@ import NumberComplexity.CyclicNumbersIshikawaInequality
 import NumberComplexity.WolstenholmeGaussianRefutation
 import NumberComplexity.CentralDelannoyThreeAdic
 import NumberComplexity.A128391Refutation
+import NumberComplexity.A373725MaxPrimeAlso
