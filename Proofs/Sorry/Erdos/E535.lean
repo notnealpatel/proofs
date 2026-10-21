@@ -187,12 +187,39 @@ theorem layerSet_injective :
     `Erdos.Erdos20.erdos_rado_sunflower_same_card`, adapted to
     non-uniform families by layering): explicit, weaker than ALWZ,
     genuinely new as a formal artifact.  The `(Nat.log 2 N)`-layer
-    bookkeeping is the work. -/
+    bookkeeping is the work.
+
+    VACUITY NOTE: as stated this bound is trivially true and carries no
+    Erdős–Rado or sunflower content.  With `m = Nat.log 2 N` we have
+    `N < 2^(m+1) ≤ (r-1)^(m+1) ≤ (m+1) · m! · (r-1)^(m+1)` (since
+    `r - 1 ≥ 2`), so the right-hand side always exceeds `N`, while
+    `fgcd r N ≤ N` holds for any family of subsets of `{1, …, N}`.  The
+    proof below uses only that trivial bound; it is not progress on the
+    intended reduction, which needs a statement whose bound can beat `N`
+    (e.g. the abstract transfer `B(m, r)`-sunflower-free bound implies
+    `fgcd r N ≤ ∑_{s ≤ m} B(s, r)`, or a bound on a fixed-`Ω` layer). -/
 theorem fgcd_le_erdos_rado (r N : ℕ) (hr : 3 ≤ r) (hN : 2 ≤ N) :
     fgcd r N ≤
       (Nat.log 2 N + 1) *
         (Nat.log 2 N).factorial * (r - 1) ^ (Nat.log 2 N + 1) := by
-  sorry
+  classical
+  set m := Nat.log 2 N with hm
+  have hcardN : fgcd r N ≤ N := by
+    unfold fgcd
+    apply Finset.sup_le
+    intro s hs
+    have hsub : s ⊆ Finset.Icc 1 N :=
+      Finset.mem_powerset.mp (Finset.mem_filter.mp hs).1
+    calc s.card ≤ (Finset.Icc 1 N).card := Finset.card_le_card hsub
+      _ = N := by simp
+  have hNlt : N < 2 ^ (m + 1) := Nat.lt_pow_succ_log_self (by norm_num) N
+  have hpow : 2 ^ (m + 1) ≤ (r - 1) ^ (m + 1) := Nat.pow_le_pow_left (by omega) _
+  have hcoef : 1 ≤ (m + 1) * m.factorial :=
+    Nat.one_le_iff_ne_zero.mpr (Nat.mul_ne_zero (by omega) (Nat.factorial_ne_zero m))
+  calc fgcd r N ≤ N := hcardN
+    _ ≤ (r - 1) ^ (m + 1) := by omega
+    _ = 1 * (r - 1) ^ (m + 1) := (one_mul _).symm
+    _ ≤ (m + 1) * m.factorial * (r - 1) ^ (m + 1) := Nat.mul_le_mul_right _ hcoef
 
 /-- **Erdős' lower bound** (Er64), archived: for every `r ≥ 3` there is
     `c_r > 0` with `f_r(N) > N^{c_r / log log N}` for large `N`. -/
