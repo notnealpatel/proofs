@@ -10,6 +10,7 @@ import PolynomialClosure.ReducedResultantLinear
 import PolynomialClosure.FactorialConjectureConstantTerm
 import PolynomialClosure.AlpogeJacobianCounterexampleThree
 import PolynomialClosure.ElementaryWayFindCounterexample
+import PolynomialClosure.GkkTauMatricesHoltz
 
 set_option autoImplicit false
 
