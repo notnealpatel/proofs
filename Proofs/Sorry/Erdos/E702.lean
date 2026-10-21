@@ -38,6 +38,10 @@ set_option autoImplicit false
 
 namespace ErdosCandidates.E702
 
+/- ORIGINAL STATEMENT (removed: false as written; see
+   `frankl_singleton_intersection_false` below).  Verbatim text
+   (Lean block comments nest, so the inner docstring is kept as is):
+
 /-- **Erdős #702, Frankl's theorem** (Fr77): a `k`-uniform family on
     `{1, …, n}` with more than `C(n−2, k−2)` members contains two sets
     meeting in exactly one point (`k ≥ 4`).
@@ -60,6 +64,70 @@ theorem frankl_singleton_intersection (n k : ℕ) (hk : 4 ≤ k) (hkn : k ≤ n)
     (huniform : ∀ A ∈ F, A.card = k)
     (hcard : (n - 2).choose (k - 2) < F.card) :
     ∃ A ∈ F, ∃ B ∈ F, (A ∩ B).card = 1 := by
+  sorry
+-/
+
+/-- The concrete family refuting the uniform-in-`n` reading: all
+    `4`-subsets of `Fin 5`. -/
+def allFourSubsetsFin5 : Finset (Finset (Fin 5)) :=
+  (Finset.univ : Finset (Fin 5)).powersetCard 4
+
+/-- Ground truth: `allFourSubsetsFin5` has `C(5,4) = 5` members. -/
+example : allFourSubsetsFin5.card = 5 := by decide
+
+/-- **Refutation of the original `frankl_singleton_intersection`.**
+
+    Original claim (quoted): "for all `n k` with `4 ≤ k ≤ n`, every
+    `F : Finset (Finset (Fin n))` with `∀ A ∈ F, A.card = k` and
+    `(n - 2).choose (k - 2) < F.card` has `A, B ∈ F` with
+    `(A ∩ B).card = 1`."
+
+    Counterexample: `n = 5`, `k = 4`, `F` = all `4`-subsets of
+    `Fin 5`.  Any two members meet in at least `3` points, so no two
+    meet in exactly one, yet `F.card = 5 > 3 = C(3, 2)`.  The same
+    works for every `k ≥ 4` at `n = k + 1` (indeed any `n ≤ 2k − 2`
+    forces pairwise intersections of size `≥ 2`).
+
+    Source of the discrepancy: erdosproblems.com #702 states the
+    Erdős–Sós conjecture without a range for `n`, but Frankl [Fr77]
+    proves `|F| ≤ C(n−2, k−2)` only for `k ≥ 4` and `n ≥ n₀(k)`
+    (`n` sufficiently large), as restated by Keevash–Mubayi–Wilson
+    (SIAM J. Discrete Math. 20 (2007)) and Linz (arXiv:2604.00418,
+    which gets the exact range `3k − 3 ≤ n ≤ k² − k + 1`).  The
+    intended hypothesis is therefore `n` large relative to `k`; see
+    `frankl_singleton_intersection_eventually`. -/
+theorem frankl_singleton_intersection_false :
+    ¬ ∀ (n k : ℕ), 4 ≤ k → k ≤ n →
+      ∀ F : Finset (Finset (Fin n)),
+        (∀ A ∈ F, A.card = k) →
+        (n - 2).choose (k - 2) < F.card →
+        ∃ A ∈ F, ∃ B ∈ F, (A ∩ B).card = 1 := by
+  intro h
+  have huniform : ∀ A ∈ allFourSubsetsFin5, A.card = 4 := by decide
+  have hcard : (5 - 2).choose (4 - 2) < allFourSubsetsFin5.card := by decide
+  have hnone : ¬ ∃ A ∈ allFourSubsetsFin5, ∃ B ∈ allFourSubsetsFin5,
+      (A ∩ B).card = 1 := by decide
+  exact hnone (h 5 4 le_rfl (by norm_num) allFourSubsetsFin5 huniform hcard)
+
+/-- **Erdős #702, Frankl's theorem (corrected form, [Fr77])**: for
+    every `k ≥ 4` there is `n₀` such that for all `n ≥ n₀`, a
+    `k`-uniform family on `Fin n` with more than `C(n−2, k−2)`
+    members contains two sets meeting in exactly one point.
+
+    This is the statement Frankl actually proves (`n` sufficiently
+    large); the uniform version without a lower bound on `n` is false
+    (`frankl_singleton_intersection_false`).  `n₀ ≥ 4` is not
+    required explicitly: for `n ≥ n₀ ≥ k ≥ 4` the subtractions are
+    exact, and since `n₀` is existential the prover may choose it as
+    large as needed.  OPEN in this repository (known theorem, not yet
+    formalized): Frankl's shifting argument, with Mathlib's
+    UV-compression (`Finset.compression`) as the candidate engine. -/
+theorem frankl_singleton_intersection_eventually (k : ℕ) (hk : 4 ≤ k) :
+    ∃ n₀ : ℕ, ∀ n : ℕ, n₀ ≤ n →
+      ∀ F : Finset (Finset (Fin n)),
+        (∀ A ∈ F, A.card = k) →
+        (n - 2).choose (k - 2) < F.card →
+        ∃ A ∈ F, ∃ B ∈ F, (A ∩ B).card = 1 := by
   sorry
 
 /-- Sharpness witness: the family of all `k`-sets containing `{0, 1}`
