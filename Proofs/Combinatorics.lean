@@ -155,3 +155,4 @@ import Combinatorics.A381717PartitionFiniteMultiset
 import Combinatorics.A000384MinimumThereExactly
 import Combinatorics.A292510GonalLeastSplits
 import Combinatorics.A249265GreedyDistinctNonnegative
+import Combinatorics.FrobergGottliebHaggkvistWilf
