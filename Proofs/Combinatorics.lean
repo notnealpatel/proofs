@@ -141,3 +141,4 @@ import Combinatorics.MirskyNewmanLargestModulus
 import Combinatorics.EliahouFromentinDepthThree
 import Combinatorics.CameronEllisRaynaudCyclicCover
 import Combinatorics.GreedySubsumfreeMetaConjecture
+import Combinatorics.DiceRelabelingSquareSided
