@@ -21,6 +21,7 @@ import PolynomialClosure.CertainPfaffiansConnectedInverse
 import PolynomialClosure.BoundedRatiosLorentzianMatrices
 import PolynomialClosure.BergExplicitInverseAlpha
 import PolynomialClosure.SqrtDeltaFineRings
+import PolynomialClosure.WeightSystemExtendGraph
 
 set_option autoImplicit false
 
