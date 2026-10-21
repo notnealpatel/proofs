@@ -33,3 +33,4 @@ import Combinatorics.SaarelaWordEquationLemma
 import Combinatorics.LovaszThetaPentagon
 import Combinatorics.PrimeCircleFourPrimes
 import Combinatorics.DilworthChainDecomposition
+import Combinatorics.MahonianInversions
