@@ -80,3 +80,4 @@ import NumberComplexity.A225502PrimeIndeedNonsquare
 import NumberComplexity.A228885MatrixEntryGcd
 import NumberComplexity.A231897ThereBinaryWeight
 import NumberComplexity.A239293OddCompositeLeast
+import NumberComplexity.A231817MultiplicativeDigitalRoot
