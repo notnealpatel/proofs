@@ -133,3 +133,4 @@ import Enumerative.A189202SuchEvenEven
 import Enumerative.MuWelkerDegreeThree
 import Enumerative.A072995Refutation
 import Enumerative.A185376RotationClassesBinary
+import Enumerative.A166102OddJacobiSymbol
