@@ -453,6 +453,192 @@ def DirPathOn (r : V → V → Prop) (s : ℕ) (S : Finset V) : Prop :=
     ∀ i : ℕ, ∀ h : i + 1 < s,
       r (e ⟨i, by omega⟩) (e ⟨i + 1, h⟩)
 
+/-- Adding one arc `(u, v)` to an arc set: a walk of the enlarged relation
+    either avoids the new arc, or passes through it, giving walks `x ⇝ u`
+    and `v ⇝ y` in the old relation. -/
+private theorem transGen_insert_arc [DecidableEq V] {A : Finset (V × V)} {u v x y : V}
+    (h : Relation.TransGen (fun a b => (a, b) ∈ insert (u, v) A) x y) :
+    Relation.TransGen (fun a b => (a, b) ∈ A) x y ∨
+      (Relation.ReflTransGen (fun a b => (a, b) ∈ A) x u ∧
+        Relation.ReflTransGen (fun a b => (a, b) ∈ A) v y) := by
+  induction h with
+  | single hab =>
+    rcases Finset.mem_insert.mp hab with heq | hA
+    · obtain ⟨hx, hy⟩ := Prod.mk.inj heq
+      subst hx hy
+      exact Or.inr ⟨.refl, .refl⟩
+    · exact Or.inl (.single hA)
+  | tail _ hbc ih =>
+    rcases Finset.mem_insert.mp hbc with heq | hA
+    · obtain ⟨hb, hc⟩ := Prod.mk.inj heq
+      subst hb hc
+      rcases ih with ih | ⟨hxu, _⟩
+      · exact Or.inr ⟨ih.to_reflTransGen, .refl⟩
+      · exact Or.inr ⟨hxu, .refl⟩
+    · rcases ih with ih | ⟨hxu, hvb⟩
+      · exact Or.inl (ih.tail hA)
+      · exact Or.inr ⟨hxu, hvb.tail hA⟩
+
+/-- A walk in an acyclic relation repeats no vertex. -/
+private theorem nodup_of_isChain_acyclic {R : V → V → Prop}
+    (hacyc : ∀ v, ¬ Relation.TransGen R v v) {l : List V} (hl : l.IsChain R) :
+    l.Nodup := by
+  have hpw : l.Pairwise (Relation.TransGen R) :=
+    List.isChain_iff_pairwise.mp (hl.imp fun _ _ h => Relation.TransGen.single h)
+  exact hpw.imp fun {a _} hab => by rintro rfl; exact hacyc a hab
+
+/-- A repetition-free walk with at least `m` vertices yields a directed path
+    on `m` vertices. -/
+private theorem dirPathOn_of_isChain [DecidableEq V] {r : V → V → Prop} {m : ℕ}
+    {l : List V} (hl : l.IsChain r) (hnd : l.Nodup) (hlen : m ≤ l.length) :
+    ∃ S : Finset V, DirPathOn r m S := by
+  have hlen' : (l.take m).length = m := by simp [hlen]
+  have hc : (l.take m).IsChain r := hl.take m
+  have hnd' : (l.take m).Nodup := hnd.sublist (List.take_sublist m l)
+  generalize l.take m = l' at hlen' hc hnd'
+  subst hlen'
+  let e : Fin l'.length ↪ V := ⟨l'.get, List.nodup_iff_injective_get.mp hnd'⟩
+  refine ⟨Finset.univ.map e, e, ?_, ?_, ?_⟩
+  · intro i
+    exact Finset.mem_map_of_mem e (Finset.mem_univ i)
+  · simp
+  · intro i hi
+    exact hc.getElem i hi
+
+/-- Gallai–Roy pigeonhole form: an irreflexive digraph on more than
+    `(n-1)(m-1)` vertices has an independent `n`-set or a directed path on
+    `m` vertices. A maximum acyclic arc set `A ⊆ r` is chosen; the longest
+    `A`-walk ending at a vertex is strictly increasing along `A`, and every
+    other arc of `r` closes an `A`-walk backwards, so its fibres are
+    independent. -/
+private theorem exists_indep_or_dirPath [Fintype V] [DecidableEq V] (r : V → V → Prop)
+    (hirr : ∀ v, ¬ r v v) (n m : ℕ) (hn : 2 ≤ n) (hm : 2 ≤ m)
+    (hcard : (n - 1) * (m - 1) < Fintype.card V) :
+    (∃ S : Finset V, S.card = n ∧ IndepSet r S) ∨ ∃ S : Finset V, DirPathOn r m S := by
+  classical
+  by_cases hpath : ∃ S : Finset V, DirPathOn r m S
+  · exact Or.inr hpath
+  left
+  let C : Finset (Finset (V × V)) := (Finset.univ : Finset (V × V)).powerset.filter
+    (fun A => (∀ p ∈ A, r p.1 p.2) ∧ ∀ w, ¬ Relation.TransGen (fun a b => (a, b) ∈ A) w w)
+  have hC : C.Nonempty := by
+    refine ⟨∅, Finset.mem_filter.mpr ⟨Finset.empty_mem_powerset _, by simp, ?_⟩⟩
+    intro w hw
+    obtain ⟨c, hc, -⟩ := Relation.TransGen.head'_iff.mp hw
+    simp at hc
+  obtain ⟨A, hAC, hAmax⟩ := Finset.exists_max_image C Finset.card hC
+  have hAr : ∀ p ∈ A, r p.1 p.2 := (Finset.mem_filter.mp hAC).2.1
+  have hAacyc : ∀ w, ¬ Relation.TransGen (fun a b => (a, b) ∈ A) w w :=
+    (Finset.mem_filter.mp hAC).2.2
+  -- every arc of `r` outside `A` is closed backwards by an `A`-walk
+  have hback : ∀ u v, r u v → (u, v) ∉ A →
+      Relation.TransGen (fun a b => (a, b) ∈ A) v u := by
+    intro u v huv hA
+    by_contra hvu
+    have hins : insert (u, v) A ∈ C := by
+      refine Finset.mem_filter.mpr ⟨Finset.mem_powerset.mpr (Finset.subset_univ _), ?_, ?_⟩
+      · intro p hp
+        rcases Finset.mem_insert.mp hp with rfl | hp
+        · exact huv
+        · exact hAr p hp
+      · intro w hw
+        rcases transGen_insert_arc hw with hw | ⟨hwu, hvw⟩
+        · exact hAacyc w hw
+        · rcases Relation.reflTransGen_iff_eq_or_transGen.mp (hvw.trans hwu) with heq | htg
+          · rw [heq] at huv
+            exact hirr v huv
+          · exact hvu htg
+    have hle := hAmax _ hins
+    rw [Finset.card_insert_of_notMem hA] at hle
+    omega
+  -- `W v k`: an `A`-walk with `k + 1` vertices ending at `v`, listed backwards
+  let W : V → ℕ → Prop := fun v k =>
+    ∃ l : List V, l.length = k ∧ (v :: l).IsChain (fun a b => (b, a) ∈ A)
+  have hWbound : ∀ v k, W v k → k ≤ m - 2 := by
+    rintro v k ⟨l, hlen, hch⟩
+    by_contra hk
+    apply hpath
+    have hch' : (v :: l).reverse.IsChain (fun a b => (a, b) ∈ A) :=
+      List.isChain_reverse.mpr hch
+    have hchr : (v :: l).reverse.IsChain r := hch'.imp fun a b h => hAr (a, b) h
+    exact dirPathOn_of_isChain hchr (nodup_of_isChain_acyclic hAacyc hch')
+      (by simp only [List.length_reverse, List.length_cons]; omega)
+  let f : V → ℕ := fun v => Nat.findGreatest (W v) (m - 2)
+  have hfW : ∀ v, W v (f v) := fun v =>
+    Nat.findGreatest_spec (Nat.zero_le _) ⟨[], rfl, List.isChain_singleton v⟩
+  have hfle : ∀ v, f v ≤ m - 2 := fun v => Nat.findGreatest_le _
+  have hmono : ∀ u v, (u, v) ∈ A → f u < f v := by
+    intro u v huv
+    obtain ⟨l, hlen, hch⟩ := hfW u
+    have hW : W v (f u + 1) := ⟨u :: l, by simp [hlen], List.IsChain.cons_cons huv hch⟩
+    exact Nat.lt_of_succ_le (Nat.le_findGreatest (hWbound v _ hW) hW)
+  have hmono' : ∀ u v, Relation.TransGen (fun a b => (a, b) ∈ A) u v → f u < f v := by
+    intro u v h
+    induction h with
+    | single h => exact hmono _ _ h
+    | tail _ h ih => exact ih.trans (hmono _ _ h)
+  have hne : ∀ u v, r u v → f u ≠ f v := by
+    intro u v huv
+    by_cases hA : (u, v) ∈ A
+    · exact (hmono u v hA).ne
+    · exact (hmono' v u (hback u v huv hA)).ne'
+  -- pigeonhole over the `m - 1` heights
+  have hmaps : ∀ v ∈ (Finset.univ : Finset V), f v ∈ Finset.range (m - 1) := fun v _ =>
+    Finset.mem_range.mpr (by have := hfle v; omega)
+  have hlt : (Finset.range (m - 1)).card * (n - 1) < (Finset.univ : Finset V).card := by
+    rw [Finset.card_range, Finset.card_univ, Nat.mul_comm]
+    exact hcard
+  obtain ⟨y, -, hfib⟩ := Finset.exists_lt_card_fiber_of_mul_lt_card_of_maps_to hmaps hlt
+  obtain ⟨T, hT, hTcard⟩ := Finset.exists_subset_card_eq
+    (show n ≤ (Finset.univ.filter fun x => f x = y).card by omega)
+  refine ⟨T, hTcard, ?_⟩
+  intro a ha b hb hab
+  have hfa := (Finset.mem_filter.mp (hT ha)).2
+  have hfb := (Finset.mem_filter.mp (hT hb)).2
+  exact hne a b hab (hfa.trans hfb.symm)
+
+/-- Lower construction for the path variant: on `N ≤ (n-1)(m-1)` vertices,
+    the bidirected disjoint union of the blocks `i / (m-1)` (at most `n - 1`
+    blocks of at most `m - 1` vertices each) has no independent `n`-set and
+    no directed path on `m` vertices. -/
+private theorem exists_bad_digraph (n m N : ℕ) (hn : 2 ≤ n) (hm : 2 ≤ m)
+    (hN : N ≤ (n - 1) * (m - 1)) :
+    ∃ r : Fin N → Fin N → Prop, (∀ v, ¬ r v v) ∧
+      (¬ ∃ S : Finset (Fin N), S.card = n ∧ IndepSet r S) ∧
+      ¬ ∃ S : Finset (Fin N), DirPathOn r m S := by
+  classical
+  refine ⟨fun i j => i ≠ j ∧ (i : ℕ) / (m - 1) = (j : ℕ) / (m - 1),
+    fun v h => h.1 rfl, ?_, ?_⟩
+  · rintro ⟨S, hcard, hind⟩
+    have hmaps : ∀ i ∈ S, (i : ℕ) / (m - 1) ∈ Finset.range (n - 1) := by
+      intro i _
+      rw [Finset.mem_range, Nat.div_lt_iff_lt_mul (by omega)]
+      exact lt_of_lt_of_le i.2 hN
+    have hlt : (Finset.range (n - 1)).card < S.card := by
+      rw [Finset.card_range, hcard]
+      omega
+    obtain ⟨a, ha, b, hb, hab, heq⟩ := Finset.exists_ne_map_eq_of_card_lt_of_maps_to hlt hmaps
+    exact hind a ha b hb ⟨hab, heq⟩
+  · rintro ⟨S, e, -, -, hpath⟩
+    have hblock : ∀ i : Fin m, ((e i : Fin N) : ℕ) / (m - 1) =
+        ((e ⟨0, by omega⟩ : Fin N) : ℕ) / (m - 1) := by
+      rintro ⟨i, hi⟩
+      induction i with
+      | zero => rfl
+      | succ i ih => exact ((hpath i hi).2).symm.trans (ih (by omega))
+    have hmaps : ∀ i ∈ (Finset.univ : Finset (Fin m)),
+        ((e i : Fin N) : ℕ) % (m - 1) ∈ Finset.range (m - 1) := fun i _ =>
+      Finset.mem_range.mpr (Nat.mod_lt _ (by omega))
+    have hlt : (Finset.range (m - 1)).card < (Finset.univ : Finset (Fin m)).card := by
+      rw [Finset.card_range, Finset.card_univ, Fintype.card_fin]
+      omega
+    obtain ⟨a, -, b, -, hab, heq⟩ := Finset.exists_ne_map_eq_of_card_lt_of_maps_to hlt hmaps
+    apply hab
+    apply e.injective
+    apply Fin.ext
+    rw [← Nat.div_add_mod ((e a : Fin N) : ℕ) (m - 1),
+      ← Nat.div_add_mod ((e b : Fin N) : ℕ) (m - 1), hblock a, hblock b, heq]
+
 /-- Hunter–Steiner path variant: the vertex-count threshold is
     `(n-1)*(m-1)+1`, so n=m=2 gives 2. Retained as an admission.
 
@@ -466,7 +652,21 @@ theorem hunter_steiner_path_exact (n m : ℕ) (hn : 2 ≤ n) (hm : 2 ≤ m) :
         (∃ S : Finset (Fin N), S.card = n ∧ IndepSet r S) ∨
         (∃ S : Finset (Fin N), DirPathOn r m S)} =
       (n - 1) * (m - 1) + 1 := by
-  sorry
+  classical
+  have hmem : (n - 1) * (m - 1) + 1 ∈ {N : ℕ | ∀ r : Fin N → Fin N → Prop, (∀ v, ¬ r v v) →
+      (∃ S : Finset (Fin N), S.card = n ∧ IndepSet r S) ∨
+      (∃ S : Finset (Fin N), DirPathOn r m S)} := fun r hirr =>
+    exists_indep_or_dirPath r hirr n m hn hm (by simp)
+  have hlow : ∀ N ∈ {N : ℕ | ∀ r : Fin N → Fin N → Prop, (∀ v, ¬ r v v) →
+      (∃ S : Finset (Fin N), S.card = n ∧ IndepSet r S) ∨
+      (∃ S : Finset (Fin N), DirPathOn r m S)}, (n - 1) * (m - 1) + 1 ≤ N := by
+    intro N hN
+    by_contra hlt
+    obtain ⟨r, hirr, hind, hpath⟩ := exists_bad_digraph n m N hn hm (by omega)
+    rcases hN r hirr with h | h
+    · exact hind h
+    · exact hpath h
+  exact le_antisymm (Nat.sInf_le hmem) (hlow _ (Nat.sInf_mem ⟨_, hmem⟩))
 
 end ErdosCandidates.E112
 
