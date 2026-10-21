@@ -83,3 +83,7 @@ import Enumerative.TwoSumfreePeriodicityCertificate
 import Enumerative.ThreeSumfreeGreedyFamilies
 import Enumerative.BeckA229816NonRascoePartitions
 import Enumerative.TwoSumfreeFOneColumn
+import Enumerative.TouchardCongruence
+import Enumerative.BeckSamWoodsCounterexamples
+import Enumerative.A289004Refutation
+import Enumerative.A004981ProdPrimePeter
