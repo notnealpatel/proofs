@@ -128,3 +128,4 @@ import Combinatorics.A348299SumFloorSqrt
 import Combinatorics.A382465LexicographicallyEarliestDistinct
 import Combinatorics.A094291KotesovecSepLim
 import Combinatorics.A295475Bala
+import Combinatorics.VerrillBaseBDigitIdentity
