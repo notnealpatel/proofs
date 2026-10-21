@@ -24,3 +24,4 @@ import NumberComplexity.A060264DistinctSquaresMod
 import NumberComplexity.DresslerPrimeSetEquivalence
 import NumberComplexity.TamarkinAverageIntegralRefutation
 import NumberComplexity.RuzsaPseudoPolynomialNewton
+import NumberComplexity.TamarkinAverageIntegralCube
