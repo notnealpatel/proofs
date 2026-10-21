@@ -87,3 +87,4 @@ import Enumerative.TouchardCongruence
 import Enumerative.BeckSamWoodsCounterexamples
 import Enumerative.A289004Refutation
 import Enumerative.A004981ProdPrimePeter
+import Enumerative.A002114GlaisherCosPeter
