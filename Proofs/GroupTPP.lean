@@ -34,3 +34,4 @@ import GroupTPP.ClassNumberGallagher
 import GroupTPP.SolubilizerDivisibility
 import GroupTPP.GaussianBinomialSubspaces
 import GroupTPP.SpecialLinearOrder
+import GroupTPP.CharacterDegreeDividesOrder
