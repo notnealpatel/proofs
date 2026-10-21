@@ -1,0 +1,371 @@
+/-
+# `S₅` is an Ingleton violator: an explicit offender
+
+## Source
+
+arXiv:2505.22565, David A. Craven, "The Ingleton inequality holds for
+metacyclic groups and fails for supersoluble groups".  Introduction
+(definition of Ingleton offender / violator), Section 3 ("Ingleton offenders
+of small order"), Table 1 (first row: order `120`, SmallGroup `34`, `S_5`) and
+Table 3 (row `S_5`: one offender class, ratio `16/15`).  The first Ingleton
+violators, `PGL₂(p)` for `p ≥ 5` (so `PGL₂(5) ≅ S₅`), are due to Mao and
+Hassibi (2009).  Recorded 2026-10-21.
+
+Definition (paper, Introduction, verbatim): "let $G$ be a finite group and let
+$\mathbf H=(H_1,H_2,H_3,H_4)$ be a quadruple of subgroups of $G$. Write
+$H_{12}$ for the intersection $H_1\cap H_2$ and so on. We call $\mathbf H$ an
+*Ingleton offender* if the inequality
+$|H_1|\cdot|H_2|\cdot|H_{34}|\cdot|H_{123}|\cdot|H_{124}|\geq
+|H_{12}|\cdot|H_{13}|\cdot|H_{14}|\cdot|H_{23}|\cdot|H_{24}|$
+is not satisfied by the $H_i$. [...] If $G$ contains an Ingleton offender, we
+call $G$ an *Ingleton violator*."
+
+Claim (paper, Table 1 and Table 3): `S_5` is an Ingleton violator, with a
+single class of Ingleton offenders, of ratio `16/15`.
+
+## Status
+
+Known (Mao–Hassibi 2009; recomputed in the paper with Magma).  The paper does
+not print an explicit offender; the witness below was found by a computer
+search over the subgroups of `S₅` and re-checked independently.  Everything in
+this module is kernel-checked by `decide`; it carries no `sorry`.
+
+## Witness (points `1..5` in the paper's notation, `0..4` in `Fin 5`)
+
+* `H₁ = ⟨(1 3)(4 5), (1 2 3)⟩ ≅ S₃`, order `6`;
+* `H₂ = ⟨(1 3)(4 5), (1 2 4 3)⟩ ≅ F₂₀`, order `20`;
+* `H₃ = ⟨(3 4), (2 3)(4 5)⟩ ≅ D₈`, order `8`;
+* `H₄ = ⟨(2 4), (1 2)(4 5)⟩ ≅ D₈`, order `8`.
+
+Intersections: `|H₁₂| = |H₁₃| = |H₁₄| = 2`, `|H₂₃| = |H₂₄| = 4`,
+`|H₃₄| = |H₁₂₃| = |H₁₂₄| = 1`, so
+`|H₁|·|H₂|·|H₃₄|·|H₁₂₃|·|H₁₂₄| = 120 < 128 = |H₁₂|·|H₁₃|·|H₁₄|·|H₂₃|·|H₂₄|`,
+ratio `128/120 = 16/15`.
+-/
+import Mathlib
+
+set_option autoImplicit false
+
+open Equiv Pointwise
+
+namespace Candidates.S5IngletonViolator
+
+section General
+
+variable {G : Type*} [Group G]
+
+/-- The **Ingleton inequality** for a quadruple `(H₁, H₂, H₃, H₄)` of subgroups
+(arXiv:2505.22565, Introduction):
+`|H₁₂|·|H₁₃|·|H₁₄|·|H₂₃|·|H₂₄| ≤ |H₁|·|H₂|·|H₃₄|·|H₁₂₃|·|H₁₂₄|`,
+where `H_I` is the intersection of the `H_i` with `i ∈ I`.  The quadruple is an
+*Ingleton offender* exactly when this fails.  (Same definition as
+`Candidates.IngletonSufficientCriteria.Ingleton`.) -/
+def Ingleton (H₁ H₂ H₃ H₄ : Subgroup G) : Prop :=
+  Nat.card ↥(H₁ ⊓ H₂) * Nat.card ↥(H₁ ⊓ H₃) * Nat.card ↥(H₁ ⊓ H₄) *
+      Nat.card ↥(H₂ ⊓ H₃) * Nat.card ↥(H₂ ⊓ H₄) ≤
+    Nat.card H₁ * Nat.card H₂ * Nat.card ↥(H₃ ⊓ H₄) * Nat.card ↥(H₁ ⊓ H₂ ⊓ H₃) *
+      Nat.card ↥(H₁ ⊓ H₂ ⊓ H₄)
+
+/-- A group `G` is an **Ingleton violator** (arXiv:2505.22565, Introduction) if
+it contains an Ingleton offender, i.e. a quadruple of subgroups violating the
+Ingleton inequality. -/
+def IngletonViolator (G : Type*) [Group G] : Prop :=
+  ∃ H₁ H₂ H₃ H₄ : Subgroup G, ¬ Ingleton H₁ H₂ H₃ H₄
+
+/-! Ground truth for `Ingleton` in `C₂ = Multiplicative (ZMod 2)`: with
+`(H₁, H₂, H₃, H₄) = (C₂, C₂, C₂, 1)` both sides are `2·2·1·2·1`; with
+`(C₂, 1, C₂, C₂)` the two sides are `1·2·2·1·1` and `2·1·2·1·1`. -/
+example : Ingleton (⊤ : Subgroup (Multiplicative (ZMod 2))) ⊤ ⊤ ⊥ ↔
+    2 * 2 * 1 * 2 * 1 ≤ 2 * 2 * 1 * 2 * 1 := by
+  simp [Ingleton, Nat.card_eq_fintype_card]
+
+example : Ingleton (⊤ : Subgroup (Multiplicative (ZMod 2))) ⊥ ⊤ ⊤ ↔
+    1 * 2 * 2 * 1 * 1 ≤ 2 * 1 * 2 * 1 * 1 := by
+  simp [Ingleton, Nat.card_eq_fintype_card]
+
+/-- The order of a subgroup whose carrier is the finite set `S` is `S.card`. -/
+theorem natCard_eq_card_of_coe_eq (H : Subgroup G) (S : Finset G)
+    (hS : (H : Set G) = S) : Nat.card H = S.card := by
+  change Nat.card (H : Set G) = S.card
+  rw [hS, Nat.card_coe_set_eq, Set.ncard_coe_finset]
+
+variable [DecidableEq G]
+
+/-- One breadth-first step of generating a subgroup: `A ↦ A ∪ T·A`. -/
+def grow (T A : Finset G) : Finset G := A ∪ T * A
+
+/-- Every set reached from `{1}` by `grow T` lies in the subgroup generated
+by `T`. -/
+theorem iterate_grow_subset_closure (T : Finset G) (n : ℕ) :
+    (((grow T)^[n] {1} : Finset G) : Set G) ⊆ Subgroup.closure (T : Set G) := by
+  induction n with
+  | zero =>
+    intro x hx
+    rw [Function.iterate_zero_apply, Finset.coe_singleton, Set.mem_singleton_iff] at hx
+    rw [hx]
+    exact Subgroup.one_mem _
+  | succ n ih =>
+    intro x hx
+    rw [Function.iterate_succ_apply', grow, Finset.coe_union, Finset.coe_mul] at hx
+    rcases hx with hx | hx
+    · exact ih hx
+    · obtain ⟨t, ht, a, ha, rfl⟩ := Set.mem_mul.mp hx
+      exact Subgroup.mul_mem _ (Subgroup.subset_closure ht) (ih ha)
+
+/-- If `T ⊆ S`, `S` is closed under products and inverses, and `S` is reached
+from `{1}` by `n` steps of `grow T`, then `S` is the carrier of the subgroup
+generated by `T`. -/
+theorem coe_closure_eq_of_grow (T S : Finset G) (n : ℕ) (hT : T ⊆ S)
+    (hmul : ∀ a ∈ S, ∀ b ∈ S, a * b ∈ S) (hinv : ∀ a ∈ S, a⁻¹ ∈ S)
+    (hone : (1 : G) ∈ S) (hgrow : S ⊆ (grow T)^[n] {1}) :
+    ((Subgroup.closure (T : Set G) : Subgroup G) : Set G) = S := by
+  let K : Subgroup G :=
+    { carrier := S
+      mul_mem' := fun {a b} ha hb => hmul a ha b hb
+      one_mem' := hone
+      inv_mem' := fun {a} ha => hinv a ha }
+  apply le_antisymm
+  · have hle : Subgroup.closure (T : Set G) ≤ K :=
+      (Subgroup.closure_le K).mpr (Finset.coe_subset.mpr hT)
+    exact hle
+  · exact (Finset.coe_subset.mpr hgrow).trans (iterate_grow_subset_closure T n)
+
+end General
+
+/-! ## The four subgroups of `S₅ = Perm (Fin 5)` -/
+
+/-- Generators of `H₁ = ⟨(1 3)(4 5), (1 2 3)⟩` (0-indexed: `(0 2)(3 4)` and
+`(0 1 2) = (0 2)(0 1)`). -/
+def gens₁ : Finset (Perm (Fin 5)) := {swap 0 2 * swap 3 4, swap 0 2 * swap 0 1}
+
+/-- Generators of `H₂ = ⟨(1 3)(4 5), (1 2 4 3)⟩` (0-indexed: `(0 2)(3 4)` and
+`(0 1 3 2) = (0 2)(0 3)(0 1)`). -/
+def gens₂ : Finset (Perm (Fin 5)) :=
+  {swap 0 2 * swap 3 4, swap 0 2 * swap 0 3 * swap 0 1}
+
+/-- Generators of `H₃ = ⟨(3 4), (2 3)(4 5)⟩` (0-indexed: `(2 3)` and
+`(1 2)(3 4)`). -/
+def gens₃ : Finset (Perm (Fin 5)) := {swap 2 3, swap 1 2 * swap 3 4}
+
+/-- Generators of `H₄ = ⟨(2 4), (1 2)(4 5)⟩` (0-indexed: `(1 3)` and
+`(0 1)(3 4)`). -/
+def gens₄ : Finset (Perm (Fin 5)) := {swap 1 3, swap 0 1 * swap 3 4}
+
+/-- The `6` elements of `H₁ ≅ S₃`. -/
+def carrier₁ : Finset (Perm (Fin 5)) :=
+  {1,
+    swap 1 2 * swap 3 4,
+    swap 0 1 * swap 3 4,
+    swap 0 2 * swap 0 1,
+    swap 0 1 * swap 0 2,
+    swap 0 2 * swap 3 4}
+
+/-- The `20` elements of `H₂ ≅ F₂₀`. -/
+def carrier₂ : Finset (Perm (Fin 5)) :=
+  {1,
+    swap 1 3 * swap 1 4 * swap 1 2,
+    swap 1 2 * swap 1 4 * swap 1 3,
+    swap 1 4 * swap 2 3,
+    swap 0 1 * swap 2 4,
+    swap 0 4 * swap 0 3 * swap 0 2 * swap 0 1,
+    swap 0 2 * swap 0 3 * swap 0 1,
+    swap 0 3 * swap 0 4 * swap 0 1,
+    swap 0 1 * swap 0 3 * swap 0 2,
+    swap 0 2 * swap 3 4,
+    swap 0 3 * swap 0 1 * swap 0 4 * swap 0 2,
+    swap 0 4 * swap 0 1 * swap 0 2,
+    swap 0 1 * swap 0 4 * swap 0 3,
+    swap 0 4 * swap 0 2 * swap 0 3,
+    swap 0 3 * swap 1 2,
+    swap 0 2 * swap 0 4 * swap 0 1 * swap 0 3,
+    swap 0 1 * swap 0 2 * swap 0 3 * swap 0 4,
+    swap 0 3 * swap 0 2 * swap 0 4,
+    swap 0 2 * swap 0 1 * swap 0 4,
+    swap 0 4 * swap 1 3}
+
+/-- The `8` elements of `H₃ ≅ D₈`. -/
+def carrier₃ : Finset (Perm (Fin 5)) :=
+  {1,
+    swap 2 3,
+    swap 1 2 * swap 3 4,
+    swap 1 3 * swap 1 4 * swap 1 2,
+    swap 1 2 * swap 1 4 * swap 1 3,
+    swap 1 3 * swap 2 4,
+    swap 1 4,
+    swap 1 4 * swap 2 3}
+
+/-- The `8` elements of `H₄ ≅ D₈`. -/
+def carrier₄ : Finset (Perm (Fin 5)) :=
+  {1,
+    swap 1 3,
+    swap 0 1 * swap 3 4,
+    swap 0 3 * swap 0 4 * swap 0 1,
+    swap 0 1 * swap 0 4 * swap 0 3,
+    swap 0 3 * swap 1 4,
+    swap 0 4,
+    swap 0 4 * swap 1 3}
+
+/-- `H₁ = ⟨(1 3)(4 5), (1 2 3)⟩ ≤ S₅`. -/
+def H₁ : Subgroup (Perm (Fin 5)) := Subgroup.closure (gens₁ : Set (Perm (Fin 5)))
+
+/-- `H₂ = ⟨(1 3)(4 5), (1 2 4 3)⟩ ≤ S₅`. -/
+def H₂ : Subgroup (Perm (Fin 5)) := Subgroup.closure (gens₂ : Set (Perm (Fin 5)))
+
+/-- `H₃ = ⟨(3 4), (2 3)(4 5)⟩ ≤ S₅`. -/
+def H₃ : Subgroup (Perm (Fin 5)) := Subgroup.closure (gens₃ : Set (Perm (Fin 5)))
+
+/-- `H₄ = ⟨(2 4), (1 2)(4 5)⟩ ≤ S₅`. -/
+def H₄ : Subgroup (Perm (Fin 5)) := Subgroup.closure (gens₄ : Set (Perm (Fin 5)))
+
+/-! Ground truth: the generators are the intended permutations (images of
+`0, 1, 2, 3, 4`), and the carriers have the expected sizes. -/
+example : ⇑(swap (0 : Fin 5) 2 * swap 0 1 : Perm (Fin 5)) = ![1, 2, 0, 3, 4] := by decide
+example : ⇑(swap (0 : Fin 5) 2 * swap 0 3 * swap 0 1 : Perm (Fin 5)) = ![1, 3, 0, 2, 4] := by decide
+example : ⇑(swap (0 : Fin 5) 2 * swap 3 4 : Perm (Fin 5)) = ![2, 1, 0, 4, 3] := by decide
+example : ⇑(swap (1 : Fin 5) 2 * swap 3 4 : Perm (Fin 5)) = ![0, 2, 1, 4, 3] := by decide
+example : ⇑(swap (0 : Fin 5) 1 * swap 3 4 : Perm (Fin 5)) = ![1, 0, 2, 4, 3] := by decide
+example : carrier₁.card = 6 := by decide
+example : carrier₂.card = 20 := by decide
+example : carrier₃.card = 8 := by decide
+example : carrier₄.card = 8 := by decide
+
+/-! ## Finite checks: each carrier is the subgroup generated by its generators -/
+
+set_option maxRecDepth 100000 in
+/-- `carrier₁` is closed under products (kernel `decide`). -/
+theorem carrier₁_mul : ∀ a ∈ carrier₁, ∀ b ∈ carrier₁, a * b ∈ carrier₁ := by
+  decide
+
+set_option maxRecDepth 100000 in
+/-- The subgroup `H₁` has carrier `carrier₁`: the carrier contains the generators, is
+closed under products and inverses, and is reached from `{1}` in 2 steps of
+`grow gens₁`. -/
+theorem coe_H₁ : (H₁ : Set (Perm (Fin 5))) = carrier₁ :=
+  coe_closure_eq_of_grow gens₁ carrier₁ 2 (by decide) carrier₁_mul (by decide) (by decide)
+    (by decide)
+
+set_option maxRecDepth 100000 in
+/-- `carrier₂` is closed under products (kernel `decide`). -/
+theorem carrier₂_mul : ∀ a ∈ carrier₂, ∀ b ∈ carrier₂, a * b ∈ carrier₂ := by
+  decide
+
+set_option maxRecDepth 100000 in
+/-- The subgroup `H₂` has carrier `carrier₂`: the carrier contains the generators, is
+closed under products and inverses, and is reached from `{1}` in 5 steps of
+`grow gens₂`. -/
+theorem coe_H₂ : (H₂ : Set (Perm (Fin 5))) = carrier₂ :=
+  coe_closure_eq_of_grow gens₂ carrier₂ 5 (by decide) carrier₂_mul (by decide) (by decide)
+    (by decide)
+
+set_option maxRecDepth 100000 in
+/-- `carrier₃` is closed under products (kernel `decide`). -/
+theorem carrier₃_mul : ∀ a ∈ carrier₃, ∀ b ∈ carrier₃, a * b ∈ carrier₃ := by
+  decide
+
+set_option maxRecDepth 100000 in
+/-- The subgroup `H₃` has carrier `carrier₃`: the carrier contains the generators, is
+closed under products and inverses, and is reached from `{1}` in 4 steps of
+`grow gens₃`. -/
+theorem coe_H₃ : (H₃ : Set (Perm (Fin 5))) = carrier₃ :=
+  coe_closure_eq_of_grow gens₃ carrier₃ 4 (by decide) carrier₃_mul (by decide) (by decide)
+    (by decide)
+
+set_option maxRecDepth 100000 in
+/-- `carrier₄` is closed under products (kernel `decide`). -/
+theorem carrier₄_mul : ∀ a ∈ carrier₄, ∀ b ∈ carrier₄, a * b ∈ carrier₄ := by
+  decide
+
+set_option maxRecDepth 100000 in
+/-- The subgroup `H₄` has carrier `carrier₄`: the carrier contains the generators, is
+closed under products and inverses, and is reached from `{1}` in 4 steps of
+`grow gens₄`. -/
+theorem coe_H₄ : (H₄ : Set (Perm (Fin 5))) = carrier₄ :=
+  coe_closure_eq_of_grow gens₄ carrier₄ 4 (by decide) carrier₄_mul (by decide) (by decide)
+    (by decide)
+
+/-! ## Orders of the subgroups and their intersections -/
+
+/-- `|H₁| = 6`, `|H₂| = 20`, `|H₃| = |H₄| = 8`. -/
+theorem card_H : Nat.card H₁ = 6 ∧ Nat.card H₂ = 20 ∧ Nat.card H₃ = 8 ∧ Nat.card H₄ = 8 := by
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · rw [natCard_eq_card_of_coe_eq H₁ carrier₁ coe_H₁]
+    decide
+  · rw [natCard_eq_card_of_coe_eq H₂ carrier₂ coe_H₂]
+    decide
+  · rw [natCard_eq_card_of_coe_eq H₃ carrier₃ coe_H₃]
+    decide
+  · rw [natCard_eq_card_of_coe_eq H₄ carrier₄ coe_H₄]
+    decide
+
+/-- Orders of the pairwise intersections:
+`|H₁₂| = |H₁₃| = |H₁₄| = 2`, `|H₂₃| = |H₂₄| = 4`, `|H₃₄| = 1`. -/
+theorem card_inf_pairs :
+    Nat.card ↥(H₁ ⊓ H₂) = 2 ∧ Nat.card ↥(H₁ ⊓ H₃) = 2 ∧ Nat.card ↥(H₁ ⊓ H₄) = 2 ∧
+      Nat.card ↥(H₂ ⊓ H₃) = 4 ∧ Nat.card ↥(H₂ ⊓ H₄) = 4 ∧ Nat.card ↥(H₃ ⊓ H₄) = 1 := by
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
+  · rw [natCard_eq_card_of_coe_eq _ (carrier₁ ∩ carrier₂)
+      (by rw [Subgroup.coe_inf, coe_H₁, coe_H₂, Finset.coe_inter])]
+    decide
+  · rw [natCard_eq_card_of_coe_eq _ (carrier₁ ∩ carrier₃)
+      (by rw [Subgroup.coe_inf, coe_H₁, coe_H₃, Finset.coe_inter])]
+    decide
+  · rw [natCard_eq_card_of_coe_eq _ (carrier₁ ∩ carrier₄)
+      (by rw [Subgroup.coe_inf, coe_H₁, coe_H₄, Finset.coe_inter])]
+    decide
+  · rw [natCard_eq_card_of_coe_eq _ (carrier₂ ∩ carrier₃)
+      (by rw [Subgroup.coe_inf, coe_H₂, coe_H₃, Finset.coe_inter])]
+    decide
+  · rw [natCard_eq_card_of_coe_eq _ (carrier₂ ∩ carrier₄)
+      (by rw [Subgroup.coe_inf, coe_H₂, coe_H₄, Finset.coe_inter])]
+    decide
+  · rw [natCard_eq_card_of_coe_eq _ (carrier₃ ∩ carrier₄)
+      (by rw [Subgroup.coe_inf, coe_H₃, coe_H₄, Finset.coe_inter])]
+    decide
+
+/-- Orders of the triple intersections: `|H₁₂₃| = |H₁₂₄| = 1`. -/
+theorem card_inf_triples :
+    Nat.card ↥(H₁ ⊓ H₂ ⊓ H₃) = 1 ∧ Nat.card ↥(H₁ ⊓ H₂ ⊓ H₄) = 1 := by
+  refine ⟨?_, ?_⟩
+  · rw [natCard_eq_card_of_coe_eq _ (carrier₁ ∩ carrier₂ ∩ carrier₃)
+      (by rw [Subgroup.coe_inf, Subgroup.coe_inf, coe_H₁, coe_H₂, coe_H₃,
+        Finset.coe_inter, Finset.coe_inter])]
+    decide
+  · rw [natCard_eq_card_of_coe_eq _ (carrier₁ ∩ carrier₂ ∩ carrier₄)
+      (by rw [Subgroup.coe_inf, Subgroup.coe_inf, coe_H₁, coe_H₂, coe_H₄,
+        Finset.coe_inter, Finset.coe_inter])]
+    decide
+
+/-! ## Main results -/
+
+/-- The two sides of the Ingleton inequality for `(H₁, H₂, H₃, H₄)` in `S₅`:
+`|H₁₂|·|H₁₃|·|H₁₄|·|H₂₃|·|H₂₄| = 128` and
+`|H₁|·|H₂|·|H₃₄|·|H₁₂₃|·|H₁₂₄| = 120`, so the offender has ratio
+`128/120 = 16/15`, as in Table 3 of arXiv:2505.22565. -/
+theorem ingleton_sides :
+    Nat.card ↥(H₁ ⊓ H₂) * Nat.card ↥(H₁ ⊓ H₃) * Nat.card ↥(H₁ ⊓ H₄) *
+        Nat.card ↥(H₂ ⊓ H₃) * Nat.card ↥(H₂ ⊓ H₄) = 128 ∧
+      Nat.card H₁ * Nat.card H₂ * Nat.card ↥(H₃ ⊓ H₄) * Nat.card ↥(H₁ ⊓ H₂ ⊓ H₃) *
+        Nat.card ↥(H₁ ⊓ H₂ ⊓ H₄) = 120 := by
+  obtain ⟨h1, h2, -, -⟩ := card_H
+  obtain ⟨h12, h13, h14, h23, h24, h34⟩ := card_inf_pairs
+  obtain ⟨h123, h124⟩ := card_inf_triples
+  rw [h1, h2, h12, h13, h14, h23, h24, h34, h123, h124]
+  exact ⟨rfl, rfl⟩
+
+/-- **`(H₁, H₂, H₃, H₄)` is an Ingleton offender in `S₅`** (arXiv:2505.22565,
+Table 1/Table 3, row `S_5`): with `H₁ = ⟨(1 3)(4 5), (1 2 3)⟩`,
+`H₂ = ⟨(1 3)(4 5), (1 2 4 3)⟩`, `H₃ = ⟨(3 4), (2 3)(4 5)⟩`,
+`H₄ = ⟨(2 4), (1 2)(4 5)⟩`, the Ingleton inequality fails, `128 ≰ 120`. -/
+theorem not_ingleton_H : ¬ Ingleton H₁ H₂ H₃ H₄ := by
+  obtain ⟨hl, hr⟩ := ingleton_sides
+  unfold Ingleton
+  rw [hl, hr]
+  decide
+
+/-- **`S₅` is an Ingleton violator** (Mao–Hassibi 2009 for `PGL₂(5) ≅ S₅`;
+arXiv:2505.22565, Table 1): the symmetric group `Perm (Fin 5)` contains a
+quadruple of subgroups violating the Ingleton inequality. -/
+theorem ingletonViolator_perm_five : IngletonViolator (Perm (Fin 5)) :=
+  ⟨H₁, H₂, H₃, H₄, not_ingleton_H⟩
+
+end Candidates.S5IngletonViolator
