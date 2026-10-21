@@ -58,6 +58,14 @@ Conjecturists test precise formulations and boundary
 cases; they need not formalize a full proof. In either
 role, distinguish an idea from an observed result.
 
+**Never touch version control.** Do not run `jj` or
+`git` in any form: no `new`, `commit`, `restore`,
+`abandon`, `edit`, `describe`, `status`, or `log`.
+The shared working copy belongs to the dispatcher,
+who lands work by path; a stray `jj new` or `jj
+restore` removes every other agent's uncommitted
+file from disk. Report paths and results instead.
+
 **Protect the finishing budget.** Leave room to compile,
 audit, and clean up. When the remaining work will not
 fit, request resumption before spending the last turns
