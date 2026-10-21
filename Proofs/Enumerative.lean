@@ -176,3 +176,4 @@ import Enumerative.A264200Sum
 import Enumerative.A040027GouldSumStirling
 import Enumerative.A026002DelannoyBergot
 import Enumerative.A008676PartitionsPartsCoefficient
+import Enumerative.A145920CommonValuesPentagonal
