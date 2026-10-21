@@ -208,3 +208,4 @@ import Enumerative.A288317ObtainedLeftRight
 import Enumerative.BinomialCirculantDeterminants
 import Enumerative.SunDeterminantSuperfactorialBridge
 import Enumerative.PreTwoEqualsOneCharacterization
+import Enumerative.CanonPermutationPattern1213
