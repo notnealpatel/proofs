@@ -13,3 +13,4 @@ import Combinatorics.CyclePowerEquivalenceKing
 import Combinatorics.CyclePowerEquivalenceCover
 import Combinatorics.MelnikovValencyBipartite
 import Combinatorics.A295431BalaGamma
+import Combinatorics.A226857FibonacciSumProduct
