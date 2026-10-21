@@ -126,3 +126,4 @@ import NumberComplexity.A257743OddPartThere
 import NumberComplexity.A260911SunPartsPrime
 import NumberComplexity.A265310ProdLeastPrime
 import NumberComplexity.A277216ProductDecimalDigits
+import NumberComplexity.McCranieQuadrupletJumpSemiprime
