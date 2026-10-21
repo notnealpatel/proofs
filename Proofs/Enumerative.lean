@@ -55,3 +55,4 @@ import Enumerative.A294425Recurrence
 import Enumerative.A007052WisemanOrderedPartitions
 import Enumerative.FactorialSeparation
 import Enumerative.FilasetaNonreciprocal
+import Enumerative.SingmasterFibonacciFamily
