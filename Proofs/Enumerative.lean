@@ -218,3 +218,4 @@ import Enumerative.A084569MatharOrderPerimeter
 import Enumerative.A365777Refutation
 import Enumerative.A365794Refutation
 import Enumerative.A365782Refutation
+import Enumerative.A052895SumStirlingCatalan
