@@ -30,6 +30,8 @@
 -/
 import Mathlib
 import Erdos.Erdos77.ClassicalBounds
+import Erdos.RamseySmallNumbers
+import Erdos.RamseyProbabilisticLowerBound
 
 set_option autoImplicit false
 
@@ -78,8 +80,8 @@ theorem R_three : R 3 = 6 := by
     the classical proof (R(4) ≤ R(3)+R(4,3)-ish recursions plus the
     Paley graph on 17 vertices as witness) is a bounded combinatorial
     argument.  Recorded as the stretch certificate target. -/
-theorem R_four : R 4 = 18 := by
-  sorry
+theorem R_four : R 4 = 18 :=
+  ErdosCandidates.RamseySmallNumbers.R_four
 
 /-- **Erdős #77 (OPEN, $100)**: the limit `lim R(k)^{1/k}` exists.
     (Determining its value is the full problem; existence alone was
@@ -99,8 +101,8 @@ theorem erdos_77_limit_exists :
         rational arithmetic, no measure theory needed).
     Effort M each. -/
 theorem R_lower_bound (k : ℕ) (hk : 3 ≤ k) :
-    (2 : ℝ) ^ ((k : ℝ) / 2) ≤ (R k : ℝ) := by
-  sorry
+    (2 : ℝ) ^ ((k : ℝ) / 2) ≤ (R k : ℝ) :=
+  ErdosCandidates.RamseyProbabilisticLowerBound.R_lower_bound k hk
 
 /-- **CGMS 2023 / GNNW 2024**, archived: `limsup R(k)^{1/k} ≤ 3.7993`
     (the current record 3.7992…, rounded up to keep the constant
