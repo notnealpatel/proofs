@@ -12,6 +12,7 @@ import PolynomialClosure.AlpogeJacobianCounterexampleThree
 import PolynomialClosure.ElementaryWayFindCounterexample
 import PolynomialClosure.GkkTauMatricesHoltz
 import PolynomialClosure.SmallCounterexamplesGaussianMoments
+import PolynomialClosure.DualPositivityInverseGram
 
 set_option autoImplicit false
 
