@@ -132,3 +132,4 @@ import Combinatorics.VerrillBaseBDigitIdentity
 import Combinatorics.A371737Refutation
 import Combinatorics.A214799Refutation
 import Combinatorics.A295454Bala
+import Combinatorics.A394431SmallestBaseMaximizes
