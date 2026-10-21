@@ -59,3 +59,4 @@ import Enumerative.SingmasterFibonacciFamily
 import Enumerative.FiniteFieldTwoSquares
 import Enumerative.PartitionConjugation
 import Enumerative.FermatTwoThreeForms
+import Enumerative.StirlingBellCombinatorial
