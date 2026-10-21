@@ -28,6 +28,7 @@
   Fresh def below.
 -/
 import Mathlib
+import Erdos.Covering.RankOfApparition
 
 set_option autoImplicit false
 
@@ -74,6 +75,45 @@ theorem erdos_276 :
     ∃ a₀ a₁ : ℕ, AllComposite a₀ a₁ ∧ NoCommonFactor a₀ a₁ := by
   sorry
 
+/-- Vsemirnov covering certificate: triples `(p, r, z)` such that the
+    prime `p` has Fibonacci rank of apparition dividing `r` and divides
+    the Vsemirnov sequence at index `z`, hence at every index `≡ z (mod r)`. -/
+private def vCover : List (ℕ × ℕ × ℕ) :=
+  [(2, 3, 1), (3, 4, 3), (5, 5, 4), (7, 8, 5), (11, 10, 6), (17, 9, 2), (19, 18, 14),
+   (23, 24, 17), (31, 30, 0), (41, 20, 18), (47, 16, 9), (61, 15, 12), (107, 36, 8),
+   (181, 90, 80), (541, 90, 62), (769, 96, 91), (1103, 48, 33), (2521, 60, 48)]
+
+/-- The classes `z (mod r)` of `vCover` cover every residue modulo `1440`. -/
+private theorem vCover_covers :
+    (List.range 1440).all (fun n => vCover.any (fun t => n % t.2.1 == t.2.2)) = true := by
+  decide +kernel
+
+/-- Certificate condition on a triple `(p, r, z)`: `2 ≤ p` is below the
+    sequence's lower bound, `p ∣ F r`, `r ∣ 1440`, `z < r`, and `p`
+    divides the Vsemirnov term of index `z`. -/
+private def VCertTriple (t : ℕ × ℕ × ℕ) : Prop :=
+  2 ≤ t.1 ∧ t.1 < 35256392432 ∧ t.1 ∣ Nat.fib t.2.1 ∧ t.2.1 ∣ 1440 ∧ t.2.2 < t.2.1 ∧
+    t.1 ∣ lucasSeq 106276436867 35256392432 t.2.2
+
+/-- Every triple of `vCover` satisfies the certificate condition
+    (checked by kernel evaluation). -/
+private theorem vCover_cert : ∀ t ∈ vCover, VCertTriple t := by
+  unfold VCertTriple
+  decide +kernel
+
+/-- Every Vsemirnov term is at least the smaller seed `35256392432`. -/
+private theorem vsemirnov_ge (n : ℕ) :
+    35256392432 ≤ lucasSeq 106276436867 35256392432 n := by
+  induction n using Nat.strong_induction_on with
+  | _ n ih =>
+    match n, ih with
+    | 0, _ => simp [lucasSeq]
+    | 1, _ => simp [lucasSeq]
+    | k + 2, ih =>
+      have h1 := ih (k + 1) (by omega)
+      rw [lucasSeq]
+      omega
+
 /-- **Graham/Vsemirnov certificate slice (the Tier-UA target)**: the
     Vsemirnov seeds generate an all-composite Lucas sequence.  This is
     the covering-system half only (the sequence does have a common
@@ -89,7 +129,29 @@ theorem erdos_276 :
     Historical effort estimate M, conditional on the certificate infrastructure. -/
 theorem vsemirnov_all_composite :
     AllComposite 106276436867 35256392432 := by
-  sorry
+  intro n
+  have hge := vsemirnov_ge n
+  refine ⟨by omega, ?_⟩
+  -- the residue `n % 1440` lies in some class `z (mod r)` of the covering
+  have hcov := vCover_covers
+  rw [List.all_eq_true] at hcov
+  have hrange : n % 1440 ∈ List.range 1440 :=
+    List.mem_range.mpr (Nat.mod_lt _ (by norm_num))
+  have hany := hcov _ hrange
+  rw [List.any_eq_true] at hany
+  obtain ⟨⟨p, r, z⟩, hmem, hmod⟩ := hany
+  obtain ⟨hp2, hplt, hfib, hr, hzr, hz⟩ := vCover_cert _ hmem
+  simp only [beq_iff_eq] at hmod
+  have hs : Erdos.Covering.IsFibonacciLike
+      (fun k => (lucasSeq 106276436867 35256392432 k : ℤ)) := fun k => by
+    simp [lucasSeq]
+  have hrank : Erdos.Covering.rankOfApparition p ∣ r :=
+    (Erdos.Covering.dvd_fib_iff_rankOfApparition_dvd (by omega) r).mp hfib
+  have hn : n % r = z % r := by
+    rw [← Nat.mod_mod_of_dvd n hr, hmod, Nat.mod_eq_of_lt hzr]
+  have hdvd : (p : ℤ) ∣ (lucasSeq 106276436867 35256392432 n : ℤ) :=
+    hs.dvd_of_mod_eq (by omega) hrank (Int.natCast_dvd_natCast.mpr hz) hn
+  exact Nat.not_prime_of_dvd_of_lt (Int.natCast_dvd_natCast.mp hdvd) hp2 (by omega)
 
 /-- Sanity: the Vsemirnov seeds themselves are composite, and the
     recurrence's first terms are as expected.
