@@ -197,3 +197,4 @@ import NumberComplexity.A036284SumBitFib
 import NumberComplexity.A006308OddPrimePrimitive
 import NumberComplexity.A145996JasinskiQuinticRational
 import NumberComplexity.A156833AdamsonSumAction
+import NumberComplexity.A084013ThereDigitPalindromic
