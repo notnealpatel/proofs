@@ -181,3 +181,4 @@ import Enumerative.A016957ContainsSomeBut
 import Enumerative.A011558PartitionsDistinctParts
 import Enumerative.A068722FirstOccurrenceReplaced
 import Enumerative.A246697RowSumsTriangle
+import Enumerative.A173693CeilSatisfies
