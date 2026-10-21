@@ -55,3 +55,4 @@ import Combinatorics.MajorityColouringCylinderRowBudget
 import Combinatorics.RootPosetAntichainComplexes
 import Combinatorics.SubindicesPowerSetsDifferenceLength
 import Combinatorics.PrefixReversalGeneration
+import Combinatorics.A005840Refutation
