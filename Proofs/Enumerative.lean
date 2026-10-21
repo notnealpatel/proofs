@@ -179,3 +179,4 @@ import Enumerative.A008676PartitionsPartsCoefficient
 import Enumerative.A145920CommonValuesPentagonal
 import Enumerative.A016957ContainsSomeBut
 import Enumerative.A011558PartitionsDistinctParts
+import Enumerative.A068722FirstOccurrenceReplaced
