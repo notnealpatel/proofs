@@ -35,3 +35,4 @@ import Enumerative.EulerPentagonalRecurrence
 import Enumerative.EulerOddPerfect
 import Enumerative.LiouvilleWaringFour
 import Enumerative.FermatRightTriangle
+import Enumerative.FrobeniusCoprimeCoefficient
