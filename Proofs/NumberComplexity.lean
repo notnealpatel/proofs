@@ -34,3 +34,4 @@ import NumberComplexity.A354062SongFermat
 import NumberComplexity.A350402Refutation
 import NumberComplexity.A030229Refutation
 import NumberComplexity.A034699Refutation
+import NumberComplexity.A001122Refutation
