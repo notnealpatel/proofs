@@ -17,6 +17,7 @@ import PolynomialClosure.MagnitudeMatrixInequalitiesGomi
 import PolynomialClosure.AbedelfatahPowerSumsTrivialZero
 import PolynomialClosure.CasasAlveroPrimePower
 import PolynomialClosure.CasasAlveroTwoPrimePower
+import PolynomialClosure.CertainPfaffiansConnectedInverse
 
 set_option autoImplicit false
 
