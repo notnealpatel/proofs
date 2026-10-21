@@ -232,3 +232,4 @@ import Enumerative.A160191LodumoTransformLucas
 import Enumerative.A188570Refutation
 import Enumerative.A003278JefferySzekeres
 import Enumerative.A266491ForwardDifferenceRow
+import Enumerative.A011848EntryPresumablyTypo
