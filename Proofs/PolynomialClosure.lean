@@ -7,6 +7,7 @@
 import Mathlib.RingTheory.Nullstellensatz
 import PolynomialClosure.SymmetricIdealNonPrimality
 import PolynomialClosure.ReducedResultantLinear
+import PolynomialClosure.FactorialConjectureConstantTerm
 
 set_option autoImplicit false
 
