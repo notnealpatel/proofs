@@ -26,3 +26,4 @@ import Combinatorics.SatisfactoryColouringIsomorphism
 import Combinatorics.PaleyCliqueBound
 import Combinatorics.LonelyRunnerThree
 import Combinatorics.KnillUnionClosedBound
+import Combinatorics.KneserTwoChromatic
