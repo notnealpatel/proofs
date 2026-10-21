@@ -13,6 +13,7 @@ import PolynomialClosure.ElementaryWayFindCounterexample
 import PolynomialClosure.GkkTauMatricesHoltz
 import PolynomialClosure.SmallCounterexamplesGaussianMoments
 import PolynomialClosure.DualPositivityInverseGram
+import PolynomialClosure.MagnitudeMatrixInequalitiesGomi
 
 set_option autoImplicit false
 
