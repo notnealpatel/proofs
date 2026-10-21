@@ -198,3 +198,4 @@ import Enumerative.A130095SumTendsPhi
 import Enumerative.A177430HannaSquareRoots
 import Enumerative.A002457FloorSqrtMod
 import Enumerative.A100691MatharCountsWords
+import Enumerative.A088827RascoeSitsRow
