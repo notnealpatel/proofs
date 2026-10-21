@@ -70,3 +70,4 @@ import NumberComplexity.A229989Refutation
 import NumberComplexity.A230596Refutation
 import NumberComplexity.A232174Refutation
 import NumberComplexity.A361033OddSome
+import NumberComplexity.A298865PerfectSquareThere
