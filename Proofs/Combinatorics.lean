@@ -106,3 +106,4 @@ import Combinatorics.A195608TakeSumEvil
 import Combinatorics.A195609SameThreeStructural
 import Combinatorics.A221130LeastLie
 import Combinatorics.A295460BalaBoth
+import Combinatorics.A064796MinCyclicArrangements
