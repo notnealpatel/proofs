@@ -9,6 +9,7 @@ import PolynomialClosure.SymmetricIdealNonPrimality
 import PolynomialClosure.ReducedResultantLinear
 import PolynomialClosure.FactorialConjectureConstantTerm
 import PolynomialClosure.AlpogeJacobianCounterexampleThree
+import PolynomialClosure.ElementaryWayFindCounterexample
 
 set_option autoImplicit false
 
