@@ -92,3 +92,4 @@ import NumberComplexity.A177680PrimeMultiple
 import NumberComplexity.A097406LargestPrimitivePrime
 import NumberComplexity.A274536SigmaDivide
 import NumberComplexity.A262959Refutation
+import NumberComplexity.A272766Refutation
