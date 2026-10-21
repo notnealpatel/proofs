@@ -36,3 +36,4 @@ import Combinatorics.DilworthChainDecomposition
 import Combinatorics.MahonianInversions
 import Combinatorics.A287723FibonacciWordMorphism
 import Combinatorics.LatinDeterminantalPigeonhole
+import Combinatorics.FlexCF8AMesoscopicLowRate
