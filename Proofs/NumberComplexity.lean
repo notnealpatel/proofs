@@ -150,3 +150,4 @@ import NumberComplexity.A389079SumUnitaryDivisors
 import NumberComplexity.A136050TwinPrimesDecimal
 import NumberComplexity.A001481BothSumsTwo
 import NumberComplexity.A274010FloorStechkinFunction
+import NumberComplexity.A343260ChebyshevPolynomialFirst
