@@ -42,3 +42,4 @@ import GroupCount.BajnokBeattySpanningNoncyclic
 import GroupCount.DavenportElementaryAbelianChevalleyWarning
 import GroupCount.HerzogLongobardiMajRefutation
 import GroupCount.InvariantSystemsRepresentatives
+import GroupCount.IntersectionNumbersFiniteGroups
