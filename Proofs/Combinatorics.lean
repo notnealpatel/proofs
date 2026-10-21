@@ -37,3 +37,4 @@ import Combinatorics.MahonianInversions
 import Combinatorics.A287723FibonacciWordMorphism
 import Combinatorics.LatinDeterminantalPigeonhole
 import Combinatorics.FlexCF8AMesoscopicLowRate
+import Combinatorics.Flex86E1ProfileIdentity
