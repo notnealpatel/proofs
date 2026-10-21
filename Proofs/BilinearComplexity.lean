@@ -100,3 +100,4 @@ import BilinearComplexity.BooleanRankDenseZero
 import BilinearComplexity.BooleanRankDenseBinomial
 import BilinearComplexity.BooleanRankIrreducibles
 import BilinearComplexity.FlipQuantum.FiniteModel
+import BilinearComplexity.CFCRSpecialDeterminantsRefutation
