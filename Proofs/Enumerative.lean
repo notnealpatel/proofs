@@ -96,3 +96,4 @@ import Enumerative.A058383FloorPrimeForm
 import Enumerative.A062208EventuallyPeriodicPeriod
 import Enumerative.A068689DigitDecimalCopies
 import Enumerative.A068991SquarefreeSuchSum
+import Enumerative.A054656PrimesOccurPartition
