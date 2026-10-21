@@ -60,6 +60,7 @@ right; the awkwardness is exactly the well-definedness above.
 -/
 import Mathlib
 import Enumerative.Practical
+import Enumerative.MelfiPracticalSum
 
 set_option autoImplicit false
 
@@ -111,8 +112,8 @@ def successorGraph (hex : ∀ p : ℕ, p.Practical → ∃ q, HStep p q) :
     SimpleGraph {p : ℕ // p.Practical} where
   Adj p q :=
     (h p.1 (hex p.1 p.2) = q.1 ∧ p ≠ q) ∨ (h q.1 (hex q.1 q.2) = p.1 ∧ p ≠ q)
-  symm := by intro p q hpq; tauto
-  loopless := by intro p hp; rcases hp with ⟨_, hne⟩ | ⟨_, hne⟩ <;> exact hne rfl
+  symm := ⟨by intro p q hpq; tauto⟩
+  loopless := ⟨by intro p hp; rcases hp with ⟨_, hne⟩ | ⟨_, hne⟩ <;> exact hne rfl⟩
 
 /-! ## The statements -/
 
@@ -126,13 +127,18 @@ ill-formed.  It is a *theorem*, not a conjecture, so it is a legitimate
 full-proof target.  (It also appears in `A005153Switkay.lean` in this directory;
 the two cards should share one proof once either lands.) -/
 theorem melfi (n : ℕ) (heven : Even n) (hn : 2 ≤ n) :
-    ∃ q r : ℕ, q.Practical ∧ r.Practical ∧ q + r = n := by
-  sorry
+    ∃ q r : ℕ, q.Practical ∧ r.Practical ∧ q + r = n :=
+  Nat.melfi_thm_6 n heven hn
 
 /-- `h` is total on practical numbers — the immediate corollary of Melfi, and
 the well-definedness the header discusses. -/
 theorem hStep_exists (p : ℕ) (hp : p.Practical) : ∃ q, HStep p q := by
-  sorry
+  obtain ⟨q, r, hq, hr, hsum⟩ := melfi (2 * (p + 1)) ⟨p + 1, by ring⟩ (by omega)
+  rcases le_total r q with hrq | hqr
+  · have hrem : 2 * (p + 1) - q = r := by omega
+    exact ⟨q, hq, by omega, by omega, hrem ▸ hr⟩
+  · have hrem : 2 * (p + 1) - r = q := by omega
+    exact ⟨r, hr, by omega, by omega, hrem ▸ hq⟩
 
 /-- **Sun's conjecture (A222603, Zhi-Wei Sun, Feb 26 2013).**
 
@@ -181,7 +187,30 @@ theorem sun_a222603_isTree (hex : ∀ p : ℕ, p.Practical → ∃ q, HStep p q)
 **provable**, and the half of `IsTree` that is not conjectural. -/
 theorem successorGraph_isAcyclic (hex : ∀ p : ℕ, p.Practical → ∃ q, HStep p q) :
     (successorGraph hex).IsAcyclic := by
-  sorry
+  classical
+  -- An edge from `w` to a larger vertex `x` is the `h`-edge out of `w`.
+  have key : ∀ w x : {p : ℕ // p.Practical}, (successorGraph hex).Adj w x →
+      w.1 ≤ x.1 → h w.1 (hex w.1 w.2) = x.1 := by
+    intro w x hadj hle
+    rcases hadj with ⟨hwx, _⟩ | ⟨hxw, hne⟩
+    · exact hwx
+    · have hlt : x.1 < h x.1 (hex x.1 x.2) := (Nat.find_spec (hex x.1 x.2)).2.1
+      have hval : w.1 ≠ x.1 := fun heq => hne (Subtype.ext heq)
+      omega
+  intro v c hc
+  obtain ⟨w, hw, hmin⟩ :=
+    c.support.toFinset.exists_min_image (fun x => x.1) ⟨v, by simp⟩
+  have hw' : w ∈ c.support := List.mem_toFinset.mp hw
+  have hc' : (c.rotate w hw').IsCycle := SimpleGraph.Walk.IsCycle.rotate hw' hc
+  have hsupp : ∀ x, x ∈ (c.rotate w hw').support → w.1 ≤ x.1 := fun x hx =>
+    hmin x (List.mem_toFinset.mpr ((SimpleGraph.Walk.mem_support_rotate_iff c w hw').mp hx))
+  have ha := (c.rotate w hw').adj_snd hc'.not_nil
+  have hb := (c.rotate w hw').adj_penultimate hc'.not_nil
+  have hsnd : h w.1 (hex w.1 w.2) = (c.rotate w hw').snd.1 :=
+    key _ _ ha (hsupp _ ((c.rotate w hw').getVert_mem_support 1))
+  have hpen : h w.1 (hex w.1 w.2) = (c.rotate w hw').penultimate.1 :=
+    key _ _ hb.symm (hsupp _ ((c.rotate w hw').getVert_mem_support _))
+  exact hc'.snd_ne_penultimate (Subtype.ext (hsnd.symm.trans hpen))
 
 /-- `HStep` carries practicality of the successor — the projection that makes
 `hSub` below well typed. -/
@@ -210,8 +239,8 @@ theorem sun_a222603_orbit_absorbs (hex : ∀ p : ℕ, p.Practical → ∃ q, HSt
 
 -- PROVABLE: `h` is strictly increasing — the fact that makes acyclicity
 -- "clear", per the entry.
-theorem lt_h (p : ℕ) (hp : ∃ q, HStep p q) : p < h p hp := by
-  sorry
+theorem lt_h (p : ℕ) (hp : ∃ q, HStep p q) : p < h p hp :=
+  (Nat.find_spec hp).2.1
 
 -- PROVABLE: the DATA head, via `HStep` witnesses.
 --   a(2) = 2:  p = 1, 2(1+1) = 4, q = 2, 4 − 2 = 2 practical.
@@ -243,13 +272,135 @@ def hRec (p : ℕ) : ℕ := ((Finset.Ioc p (2 * (p + 1))).filter (HStep p)).min.
 example : List.map (fun k => hRec^[k] 1) [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     = [1, 2, 4, 6, 8, 12, 18, 20, 24, 30] := by native_decide
 
+/-- Stewart's divisor-gap form of the inner sum, as a core `List` computation:
+the sum of the divisors of `n` below `d`, filtered from `Finset.range d`, equals
+the corresponding `List.range` filter sum.  Used only to make the bounded
+connectivity check below cheap to evaluate. -/
+theorem sum_filter_range_eq_list (n d : ℕ) :
+    ∑ x ∈ (Finset.range d).filter (fun x => x ∣ n), x =
+      ((List.range d).filter (fun x => decide (x ∣ n))).sum := by
+  rw [Finset.sum_eq_multiset_sum, Finset.filter_val, Finset.range_val, Multiset.range,
+    Multiset.filter_coe, Multiset.map_coe, Multiset.sum_coe, List.map_id']
+
+/-- **Divisor-gap criterion, list form.**  `n` is practical iff `0 < n` and every
+divisor `d ∣ n` satisfies `d ≤ 1 + (sum of the divisors of n below d)`.  This is
+the Stewart/Srinivasan completeness criterion, phrased over core `List`s so that
+deciding it is linear-ish in `n` rather than exponential in the divisor count
+(the defining instance of `Nat.Practical` enumerates the divisor powerset). -/
+theorem practical_iff_list (n : ℕ) : n.Practical ↔
+    (0 < n ∧ ∀ d ∈ List.range (n + 1), d ∣ n →
+      d ≤ 1 + ((List.range d).filter (fun x => decide (x ∣ n))).sum) := by
+  constructor
+  · intro hn
+    refine ⟨hn.pos, fun d _ hd => ?_⟩
+    have hmem : d ∈ n.divisors := Nat.mem_divisors.mpr ⟨hd, hn.pos.ne'⟩
+    have hfil : n.divisors.filter (fun x => x < d) =
+        (Finset.range d).filter (fun x => x ∣ n) := by
+      ext x
+      simp only [Finset.mem_filter, Nat.mem_divisors, Finset.mem_range]
+      constructor
+      · rintro ⟨⟨hx, _⟩, hxd⟩; exact ⟨hxd, hx⟩
+      · rintro ⟨hxd, hx⟩; exact ⟨⟨hx, hn.pos.ne'⟩, hxd⟩
+    have hgap := hn.divisor_le_one_add_sum hmem
+    rwa [hfil, sum_filter_range_eq_list] at hgap
+  · rintro ⟨hpos, hA⟩
+    refine Nat.practical_iff_forall_le_sum_divisors.mpr
+      ⟨hpos, fun _ hm => Finset.exists_subset_sum_eq_of_forall_le_one_add_sum ?_ hm⟩
+    intro d hd
+    obtain ⟨hdn, _⟩ := Nat.mem_divisors.mp hd
+    have hfil : n.divisors.filter (fun x => x < d) =
+        (Finset.range d).filter (fun x => x ∣ n) := by
+      ext x
+      simp only [Finset.mem_filter, Nat.mem_divisors, Finset.mem_range]
+      constructor
+      · rintro ⟨⟨hx, _⟩, hxd⟩; exact ⟨hxd, hx⟩
+      · rintro ⟨hxd, hx⟩; exact ⟨⟨hx, hpos.ne'⟩, hxd⟩
+    rw [hfil, sum_filter_range_eq_list]
+    exact hA d (List.mem_range.mpr (Nat.lt_succ_of_le (Nat.le_of_dvd hpos hdn))) hdn
+
+/-- The minimum of `{x ∈ [a, a + n) | P x}` is the first element of the list
+`a, a+1, …, a+n-1` satisfying `P` (both `none`/`⊤` when there is none).  Lets
+the bounded search in `hRec` stop at its first hit instead of filtering the
+whole interval. -/
+theorem min_filter_Ico_eq_find (P : ℕ → Prop) [DecidablePred P] (a n : ℕ) :
+    ((Finset.Ico a (a + n)).filter P).min =
+      ((List.range' a n).find? (fun x => decide (P x))) := by
+  induction n generalizing a with
+  | zero => simp; rfl
+  | succ n ih =>
+    have hIco : Finset.Ico a (a + (n + 1)) = insert a (Finset.Ico (a + 1) (a + 1 + n)) := by
+      ext x; simp only [Finset.mem_insert, Finset.mem_Ico]; omega
+    rw [hIco, Finset.filter_insert, List.range'_succ, List.find?_cons]
+    by_cases hPa : P a
+    · simp only [hPa, if_true, decide_true]
+      rw [Finset.min_insert]
+      apply min_eq_left
+      apply Finset.le_min
+      intro y hy
+      have hay := (Finset.mem_Ico.mp (Finset.mem_filter.mp hy).1).1
+      exact WithTop.coe_le_coe.mpr (by omega)
+    · simp only [hPa, if_false, decide_false]
+      exact ih (a + 1)
+
+/-- `hRec` agrees with a first-hit search over `p+1, …, 2p+2` using the list-form
+divisor-gap test for practicality (`practical_iff_list`).  This is the
+evaluation-friendly form used by the bounded connectivity check. -/
+theorem hRec_eq_fast : hRec = fun p => ((List.range' (p + 1) (p + 2)).find? (fun q => decide (
+    (0 < q ∧ ∀ d ∈ List.range (q + 1), d ∣ q →
+      d ≤ 1 + ((List.range d).filter (fun x => decide (x ∣ q))).sum) ∧
+    p < q ∧ q ≤ 2 * (p + 1) ∧
+    (0 < 2 * (p + 1) - q ∧ ∀ d ∈ List.range (2 * (p + 1) - q + 1), d ∣ 2 * (p + 1) - q →
+      d ≤ 1 + ((List.range d).filter (fun x => decide (x ∣ 2 * (p + 1) - q))).sum)))).getD 0 := by
+  funext p
+  unfold hRec
+  have hIoc : Finset.Ioc p (2 * (p + 1)) = Finset.Ico (p + 1) (p + 1 + (p + 2)) := by
+    ext x; simp only [Finset.mem_Ioc, Finset.mem_Ico]; omega
+  rw [hIoc, Finset.filter_congr
+      (fun q _ => by unfold HStep; rw [practical_iff_list, practical_iff_list]),
+    min_filter_Ico_eq_find]
+
 -- PROVABLE (bounded connectivity): every practical `p ≤ 2000` reaches the orbit
--- of `1` under `hRec`.  This is the candidates document's proposed sanity layer
--- ("connectivity of the restriction to practicals ≤ 10^4"), at a size the
--- evaluator can finish; raise after timing.
+-- of `1` under `hRec` within `k < 20` steps, meeting it at some `hRec^[m] 1`
+-- with `m < 140`.  (Python recomputation: `k ≤ 11` and `m ≤ 132` suffice.)
+-- An earlier version claimed `m < 40`; that was FALSE from `p = 390` on, since
+-- `hRec^[k] p ≥ p` while `hRec^[m] 1 ≤ hRec^[39] 1 = 384` for `m < 40`.  The
+-- proof certifies the first 140 orbit terms as a literal list, then checks each
+-- `p` against it, both via `hRec_eq_fast` and `native_decide` (as before).
 example : ∀ p ∈ Finset.Icc 1 2000, p.Practical →
-    ∃ k ∈ Finset.range 20, ∃ m ∈ Finset.range 40, hRec^[k] p = hRec^[m] 1 := by
-  native_decide
+    ∃ k ∈ Finset.range 20, ∃ m ∈ Finset.range 140, hRec^[k] p = hRec^[m] 1 := by
+  have horb : List.iterate hRec 1 140 =
+      [1, 2, 4, 6, 8, 12, 18, 20, 24, 30, 32, 36, 42, 54, 56, 60, 66, 78, 80, 84, 90,
+       104, 120, 162, 176, 192, 210, 224, 234, 260, 270, 272, 276, 294, 320, 330, 342,
+       378, 380, 384, 390, 392, 396, 414, 416, 420, 450, 462, 464, 468, 476, 486, 510,
+       512, 522, 546, 594, 620, 630, 702, 704, 714, 726, 728, 744, 750, 798, 800, 810,
+       812, 816, 920, 924, 930, 966, 968, 972, 980, 990, 992, 1014, 1040, 1050, 1088,
+       1122, 1232, 1242, 1254, 1280, 1290, 1302, 1316, 1332, 1350, 1352, 1380, 1386,
+       1458, 1518, 1520, 1530, 1566, 1568, 1584, 1640, 1650, 1664, 1674, 1700, 1710,
+       1722, 1736, 1764, 1770, 1782, 1806, 1820, 1836, 1880, 1890, 1952, 1974, 1976,
+       1980, 2010, 2024, 2040, 2058, 2070, 2072, 2088, 2106, 2142, 2156, 2184, 2214,
+       2240, 2250, 2262, 2300] := by
+    rw [hRec_eq_fast]
+    native_decide
+  have hcheck : ∀ p ∈ Finset.Icc 1 2000, p.Practical →
+      ∃ k ∈ Finset.range 20, hRec^[k] p ∈
+        ([1, 2, 4, 6, 8, 12, 18, 20, 24, 30, 32, 36, 42, 54, 56, 60, 66, 78, 80, 84, 90,
+          104, 120, 162, 176, 192, 210, 224, 234, 260, 270, 272, 276, 294, 320, 330, 342,
+          378, 380, 384, 390, 392, 396, 414, 416, 420, 450, 462, 464, 468, 476, 486, 510,
+          512, 522, 546, 594, 620, 630, 702, 704, 714, 726, 728, 744, 750, 798, 800, 810,
+          812, 816, 920, 924, 930, 966, 968, 972, 980, 990, 992, 1014, 1040, 1050, 1088,
+          1122, 1232, 1242, 1254, 1280, 1290, 1302, 1316, 1332, 1350, 1352, 1380, 1386,
+          1458, 1518, 1520, 1530, 1566, 1568, 1584, 1640, 1650, 1664, 1674, 1700, 1710,
+          1722, 1736, 1764, 1770, 1782, 1806, 1820, 1836, 1880, 1890, 1952, 1974, 1976,
+          1980, 2010, 2024, 2040, 2058, 2070, 2072, 2088, 2106, 2142, 2156, 2184, 2214,
+          2240, 2250, 2262, 2300] : List ℕ) := by
+    rw [hRec_eq_fast]
+    simp only [practical_iff_list]
+    native_decide
+  intro p hp hpr
+  obtain ⟨k, hk, hkL⟩ := hcheck p hp hpr
+  rw [← horb] at hkL
+  obtain ⟨m, hm, hkm⟩ := List.mem_iterate.mp hkL
+  exact ⟨k, hk, m, Finset.mem_range.mpr hm, hkm⟩
 
 /-! ## Notes for a follow-up card
 
