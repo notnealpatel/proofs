@@ -106,3 +106,4 @@ import Enumerative.A087726OnlySquarefreeBranman
 import Enumerative.A088212MinPrimeEquals
 import Enumerative.A084044PositiveBasePalindrome
 import Enumerative.A094802LeastLcmEquals
+import Enumerative.A094336ProdProductBlock
