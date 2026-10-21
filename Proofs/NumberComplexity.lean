@@ -23,3 +23,4 @@ import NumberComplexity.A211417FactorialRatio
 import NumberComplexity.A060264DistinctSquaresMod
 import NumberComplexity.DresslerPrimeSetEquivalence
 import NumberComplexity.TamarkinAverageIntegralRefutation
+import NumberComplexity.RuzsaPseudoPolynomialNewton
