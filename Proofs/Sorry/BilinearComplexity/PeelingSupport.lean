@@ -52,10 +52,46 @@ namespace BilinearComplexity.PeelingSupport
 open Finset
 open scoped symmDiff
 
+/-- The out-mass of a box counts the cells of its support outside `T n`:
+`τ.outMass = Σ_{t ∉ T n} [t ∈ supp τ]`. -/
+private lemma outMass_eq_sum_indicator {n : ℕ} (τ : Box n) :
+    τ.outMass = ∑ t ∈ (matmulSupport n)ᶜ, if t ∈ τ.support then 1 else 0 := by
+  rw [Finset.sum_boole, Nat.cast_id, Box.outMass, Box.mass]
+  have hsd := card_sdiff_add_card_inter τ.support (matmulSupport n)
+  have hfilt : ({t ∈ (matmulSupport n)ᶜ | t ∈ τ.support} : Finset (Triple n)) =
+      τ.support \ matmulSupport n := by
+    ext t
+    simp [and_comm]
+  rw [hfilt]
+  omega
+
+/-- Cover counts split off the head box:
+`coverCount t (τ :: L) = [t ∈ supp τ] + coverCount t L`. -/
+private lemma coverCount_cons {n : ℕ} (t : Triple n) (τ : Box n) (L : List (Box n)) :
+    coverCount t (τ :: L) = (if t ∈ τ.support then 1 else 0) + coverCount t L := by
+  unfold coverCount
+  by_cases h : t ∈ τ.support
+  · simp [h, Nat.add_comm]
+  · simp [h]
+
+/-- Double counting: the total out-mass equals the sum of cover counts over the
+cells outside `T n`. -/
+private lemma totalOutMass_eq_sum_coverCount {n : ℕ} (L : List (Box n)) :
+    totalOutMass n L = ∑ t ∈ (matmulSupport n)ᶜ, coverCount t L := by
+  induction L with
+  | nil => simp [totalOutMass, coverCount]
+  | cons τ L ih =>
+    have hcons : totalOutMass n (τ :: L) = τ.outMass + totalOutMass n L := by
+      simp only [totalOutMass, List.map_cons, List.sum_cons]
+    simp_rw [hcons, coverCount_cons, Finset.sum_add_distrib, ih, outMass_eq_sum_indicator]
+
 /-- **L3b.** The total out-mass is even. -/
 theorem cover_outmass_even {n : ℕ} {L : List (Box n)} (hd : IsDecomp n L) :
     Even (totalOutMass n L) := by
-  sorry
+  rw [totalOutMass_eq_sum_coverCount]
+  apply Finset.even_sum
+  intro t ht
+  exact (isDecomp_iff_parity.mp hd).2 t (Finset.mem_compl.mp ht)
 
 /-! The two private, independently proved helpers are copied verbatim so that
 the archived consumer retains its proof without exposing production-private names.
