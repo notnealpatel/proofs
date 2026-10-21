@@ -25,10 +25,23 @@ Equivalent valuation form used here: for every `k ≥ 1`,
 
 ## Status
 
-Open as far as the triage could tell: the entry carries no resolution and a
-web search found no proof.  Numerically: the product definition satisfies the
-valuation law and the Shanks–Beukers convolution for all `1 ≤ n ≤ 430`
-(Python, this session; triage checked the valuation law to `n ≤ 400`).
+The case `m = 0` is a theorem: M. Newman and D. Shanks, "On a sequence
+arising in series for π", Math. Comp. 42 (1984) 199–217, Theorem 3 (their
+statement (14)), prove that `a_n` is odd iff `n` is a power of `2`, i.e.
+`v_2(a(k)) = 0` iff `s_2(k) = 1`.  The same paper's statement (13) proves
+that `24 · a_n` is the coefficient of `x^n` in `∏_{k≥1} (1+x^(2k-1))^(24n)`,
+the product definition used here.  For `m ≥ 1` the entry carries no
+resolution and the triage web search found no proof of the general law (no
+match is not evidence of novelty).
+
+The Shanks–Beukers convolution identity used below is not an open
+obligation: it is known in the literature (see `shanksBeukers_identity`),
+but not yet formalized here.  Given that identity, the sorry-free
+`cloitre_of_shanksBeukers` below yields the full law, so the informal status
+of the conjecture is: proved modulo a cited, unformalized identity.
+Numerically: the product definition satisfies the valuation law and the
+Shanks–Beukers convolution for all `1 ≤ n ≤ 430` (Python, this session;
+triage checked the valuation law to `n ≤ 400`).
 
 ## What this module proves
 
@@ -393,12 +406,20 @@ Beukers, entered by Ralf Stephan, Oct 24 2002), multiplied by `24`:
 for `n ≥ 1`, `∑_{i=1}^{n} C(2n-2i, n-i)^3 [x^i] ∏_k (1+x^(2k-1))^(24 i)
 = C(2n,n)(16^n - C(2n,n)^2)`.
 
-Remaining goal (exactly the statement): this is the single `sorry` of the module.
-Informal route: by Lagrange inversion `∑_n [x^n]φ^n t^n = 1/(1 - x φ'/φ)` with
-`φ = ∏(1+x^(2k-1))^24`, `t = x/φ`; `t` is a Hauptmodul (`(k k'/4)^2` in the
-Borweins' notation) and `1 - xφ'/φ` a weight-2 Eisenstein series, while
-`∑ C(2n,n)^3 t^n = (2K/π)^2` (Clausen).  The identity is then a theta-function
-identity, out of reach of current Mathlib.  Checked numerically for `n ≤ 430`. -/
+Status: known in the literature, not yet formalized.  This is the single
+`sorry` of the module, and it is not an open problem.  The entry cites it to
+F. Beukers (letter to D. Shanks, 13 March 1984) and to D. Shanks, *Solved and
+Unsolved Problems in Number Theory*, pp. 255–257 and 276.  It also follows
+from J. M. Borwein and P. B. Borwein, *Pi and the AGM*, Exercise 6(a)(i):
+`∑ a_n t^n = ((π/2K)^2 / (1 - 2k^2) - 1) / 24` with `t = (k k'/4)^2`, together
+with Clausen's formula `∑ C(2n,n)^3 t^n = (2K/π)^2` and
+`1 - 64 t = (1 - 2k^2)^2`: multiplying, `(∑ C(2n,n)^3 t^n)(∑ a_n t^n) =
+((1 - 64t)^(-1/2) - ∑ C(2n,n)^3 t^n) / 24`, and `(1 - 64t)^(-1/2) =
+∑ C(2n,n) 16^n t^n`; comparing coefficients of `t^n` gives the identity.  The
+identification of these `a_n` with the product coefficients is Newman–Shanks,
+Math. Comp. 42 (1984), statement (13).  Formalizing this needs the elliptic
+integral `K`, Clausen's formula and the Borweins' theta-function evaluation,
+none of which this module provides.  Checked numerically for `n ≤ 430`. -/
 theorem shanksBeukers_identity (n : ℕ) (hn : 1 ≤ n) :
     ∑ i ∈ Icc 1 n, ((n - i).centralBinom : ℤ) ^ 3 * coeffProd i = shanksBeukersRhs n := by
   sorry
