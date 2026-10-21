@@ -73,6 +73,182 @@ theorem erdos_sos (n k : ℕ) (hk : 1 ≤ k) (hn : k + 1 ≤ n)
     ContainsAllTrees G k := by
   sorry
 
+/-- Removing a vertex `v` from `insert v S` lowers the in-set degree sum
+    `∑_{w ∈ S} |N(w) ∩ S|` (twice the edge count of `G[S]`) by twice the
+    number of neighbours of `v` in `S`. -/
+private lemma sum_card_filter_adj_insert {V : Type*} [DecidableEq V] (G : SimpleGraph V)
+    [DecidableRel G.Adj] (S : Finset V) (v : V) (hv : v ∉ S) :
+    ∑ w ∈ insert v S, ((insert v S).filter (G.Adj w)).card =
+      ∑ w ∈ S, (S.filter (G.Adj w)).card + 2 * (S.filter (G.Adj v)).card := by
+  rw [Finset.sum_insert hv]
+  have h1 : (insert v S).filter (G.Adj v) = S.filter (G.Adj v) := by
+    rw [Finset.filter_insert, if_neg G.irrefl]
+  have h2 : ∀ w ∈ S, ((insert v S).filter (G.Adj w)).card =
+      (S.filter (G.Adj w)).card + if G.Adj w v then 1 else 0 := by
+    intro w _hw
+    rw [Finset.filter_insert]
+    split_ifs with h
+    · rw [Finset.card_insert_of_notMem]
+      simp [hv]
+    · rfl
+  have h3 : (S.filter fun w => G.Adj w v).card = (S.filter (G.Adj v)).card := by
+    congr 1
+    ext w
+    simp [G.adj_comm]
+  rw [h1, Finset.sum_congr rfl h2, Finset.sum_add_distrib, Finset.sum_boole, Nat.cast_id, h3]
+  ring
+
+/-- **k-core extraction**: if the in-set degree sum of `S` exceeds
+    `2(k−1)|S|`, then some nonempty `T ⊆ S` has every vertex with at least
+    `k` neighbours inside `T`. -/
+private lemma exists_core {V : Type*} [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (k : ℕ) (S : Finset V) (hS : 2 * (k - 1) * S.card < ∑ w ∈ S, (S.filter (G.Adj w)).card) :
+    ∃ T ⊆ S, T.Nonempty ∧ ∀ v ∈ T, k ≤ (T.filter (G.Adj v)).card := by
+  induction S using Finset.strongInduction with
+  | H S ih =>
+  by_cases hall : ∀ v ∈ S, k ≤ (S.filter (G.Adj v)).card
+  · refine ⟨S, subset_rfl, ?_, hall⟩
+    rw [Finset.nonempty_iff_ne_empty]
+    rintro rfl
+    simp at hS
+  · push Not at hall
+    obtain ⟨v, hvS, hv⟩ := hall
+    have hvS' : v ∉ S.erase v := Finset.notMem_erase v S
+    have hid := sum_card_filter_adj_insert G (S.erase v) v hvS'
+    rw [Finset.insert_erase hvS] at hid
+    have hdeg : ((S.erase v).filter (G.Adj v)).card ≤ (S.filter (G.Adj v)).card :=
+      Finset.card_le_card (Finset.filter_subset_filter _ (Finset.erase_subset v S))
+    have hcard : (S.erase v).card + 1 = S.card := Finset.card_erase_add_one hvS
+    have hprod : 2 * (k - 1) * S.card = 2 * (k - 1) * (S.erase v).card + 2 * (k - 1) := by
+      rw [← hcard]
+      ring
+    obtain ⟨T, hTsub, hTne, hT⟩ := ih (S.erase v) (Finset.erase_ssubset hvS) (by omega)
+    exact ⟨T, hTsub.trans (Finset.erase_subset v S), hTne, hT⟩
+
+/-- In a tree, a vertex `a` has at most one neighbour one step closer to a
+    fixed root `r`. -/
+private lemma isTree_parent_unique {W : Type*} {T : SimpleGraph W} (hT : T.IsTree) (r : W)
+    {a b b' : W} (hb : T.Adj a b) (hb' : T.Adj a b') (hd : T.dist r b + 1 = T.dist r a)
+    (hd' : T.dist r b' + 1 = T.dist r a) : b = b' := by
+  classical
+  obtain ⟨q, hq, hql⟩ := (hT.connected r a).exists_path_of_dist
+  have key : ∀ c, T.Adj a c → T.dist r c + 1 = T.dist r a → c = q.penultimate := by
+    intro c hc hdc
+    obtain ⟨p, hp, hpl⟩ := (hT.connected r c).exists_path_of_dist
+    have ha : a ∉ p.support := by
+      intro ha
+      have h1 : (p.takeUntil a ha).length ≤ p.length := p.length_takeUntil_le_length ha
+      have h2 : T.dist r a ≤ (p.takeUntil a ha).length := SimpleGraph.dist_le _
+      omega
+    have hc' : c ∈ q.support :=
+      hT.isAcyclic.mem_support_of_ne_mem_support_of_adj_of_isPath hq hp hc ha
+    exact hT.isAcyclic.eq_penultimate_of_adj_end hq hc hc'
+  rw [key b hb hd, key b' hb' hd']
+
+/-- Every nonempty vertex set `A` of a tree contains a vertex with at most
+    one neighbour in `A` (take a vertex of `A` farthest from a root). -/
+private lemma isTree_exists_le_one_nbr {W : Type*} {T : SimpleGraph W} (hT : T.IsTree)
+    (A : Finset W) (hA : A.Nonempty) :
+    ∃ a ∈ A, ∀ b ∈ A, ∀ b' ∈ A, T.Adj a b → T.Adj a b' → b = b' := by
+  obtain ⟨r⟩ := hT.connected.nonempty
+  obtain ⟨a, haA, hmax⟩ := A.exists_max_image (T.dist r) hA
+  refine ⟨a, haA, fun b hbA b' hb'A hb hb' => ?_⟩
+  have hpar : ∀ c ∈ A, T.Adj a c → T.dist r c + 1 = T.dist r a := by
+    intro c hcA hc
+    have hle := hmax c hcA
+    rcases hT.dist_eq_dist_add_one_of_adj r hc with h | h <;> omega
+  exact isTree_parent_unique hT r hb hb' (hpar b hbA hb) (hpar b' hb'A hb')
+
+/-- **Greedy embedding**: if every nonempty vertex set of `T` has a vertex
+    with at most one neighbour in it, and `S` is a nonempty vertex set of
+    `G` in which every vertex has at least `k` neighbours, then every
+    set `A` of at most `k + 1` vertices of `T` maps injectively into `S`,
+    sending `T`-edges inside `A` to `G`-edges. -/
+private lemma greedy_embed {W V : Type*} [DecidableEq W] [DecidableEq V] {T : SimpleGraph W}
+    {G : SimpleGraph V} [DecidableRel G.Adj] (k : ℕ)
+    (hD : ∀ A : Finset W, A.Nonempty →
+      ∃ a ∈ A, ∀ b ∈ A, ∀ b' ∈ A, T.Adj a b → T.Adj a b' → b = b')
+    (S : Finset V) (hSne : S.Nonempty) (hS : ∀ v ∈ S, k ≤ (S.filter (G.Adj v)).card)
+    (A : Finset W) (hAcard : A.card ≤ k + 1) :
+    ∃ f : W → V, (∀ a ∈ A, f a ∈ S) ∧ Set.InjOn f A ∧
+      ∀ a ∈ A, ∀ b ∈ A, T.Adj a b → G.Adj (f a) (f b) := by
+  obtain ⟨s₀, hs₀⟩ := hSne
+  have hScard : k + 1 ≤ S.card := by
+    have hsub : insert s₀ (S.filter (G.Adj s₀)) ⊆ S :=
+      Finset.insert_subset hs₀ (Finset.filter_subset _ _)
+    have hle := Finset.card_le_card hsub
+    rw [Finset.card_insert_of_notMem (by simp)] at hle
+    have hk₀ := hS s₀ hs₀
+    omega
+  induction A using Finset.strongInduction with
+  | H A ih =>
+  rcases A.eq_empty_or_nonempty with rfl | hAne
+  · exact ⟨fun _ => s₀, by simp, by simp, by simp⟩
+  obtain ⟨a, haA, huniq⟩ := hD A hAne
+  have hmem : ∀ x ∈ A, x ≠ a → x ∈ A.erase a := fun x hx hxa => Finset.mem_erase.mpr ⟨hxa, hx⟩
+  have hA'card : (A.erase a).card + 1 = A.card := Finset.card_erase_add_one haA
+  obtain ⟨f', hf'S, hf'inj, hf'hom⟩ := ih (A.erase a) (Finset.erase_ssubset haA) (by omega)
+  have hUcard : ((A.erase a).image f').card ≤ k := Finset.card_image_le.trans (by omega)
+  obtain ⟨s, hsS, hsU, hsadj⟩ : ∃ s ∈ S, s ∉ (A.erase a).image f' ∧
+      ∀ b ∈ A.erase a, T.Adj a b → G.Adj s (f' b) := by
+    by_cases hb : ∃ b ∈ A.erase a, T.Adj a b
+    · obtain ⟨b, hbA', hab⟩ := hb
+      have hfb : f' b ∈ S := hf'S b hbA'
+      have hnot : ¬ (S.filter (G.Adj (f' b)) ⊆ (A.erase a).image f') := by
+        intro hsub
+        have hsub' : S.filter (G.Adj (f' b)) ⊆ ((A.erase a).image f').erase (f' b) := by
+          intro x hx
+          refine Finset.mem_erase.mpr ⟨?_, hsub hx⟩
+          rintro rfl
+          simp at hx
+        have h1 := Finset.card_le_card hsub'
+        have h2 : (((A.erase a).image f').erase (f' b)).card + 1 = ((A.erase a).image f').card :=
+          Finset.card_erase_add_one (Finset.mem_image_of_mem f' hbA')
+        have h3 := hS (f' b) hfb
+        omega
+      obtain ⟨s, hs, hsU⟩ := Finset.not_subset.mp hnot
+      rw [Finset.mem_filter] at hs
+      refine ⟨s, hs.1, hsU, fun b' hb'A' hab' => ?_⟩
+      have hbb : b' = b :=
+        huniq b' (Finset.mem_of_mem_erase hb'A') b (Finset.mem_of_mem_erase hbA') hab' hab
+      rw [hbb]
+      exact hs.2.symm
+    · push Not at hb
+      have hnot : ¬ (S ⊆ (A.erase a).image f') := fun hsub => by
+        have hle := Finset.card_le_card hsub
+        omega
+      obtain ⟨s, hs, hsU⟩ := Finset.not_subset.mp hnot
+      exact ⟨s, hs, hsU, fun b hbA' hab => absurd hab (hb b hbA')⟩
+  refine ⟨Function.update f' a s, ?_, ?_, ?_⟩
+  · intro x hx
+    by_cases hxa : x = a
+    · rw [hxa, Function.update_self]
+      exact hsS
+    · rw [Function.update_of_ne hxa]
+      exact hf'S x (hmem x hx hxa)
+  · intro x hx y hy hxy
+    rw [Finset.mem_coe] at hx hy
+    by_cases hxa : x = a <;> by_cases hya : y = a
+    · rw [hxa, hya]
+    · rw [hxa, Function.update_self, Function.update_of_ne hya] at hxy
+      exact absurd (hxy ▸ Finset.mem_image_of_mem f' (hmem y hy hya)) hsU
+    · rw [hya, Function.update_self, Function.update_of_ne hxa] at hxy
+      exact absurd (hxy ▸ Finset.mem_image_of_mem f' (hmem x hx hxa)) hsU
+    · rw [Function.update_of_ne hxa, Function.update_of_ne hya] at hxy
+      exact hf'inj (Finset.mem_coe.mpr (hmem x hx hxa)) (Finset.mem_coe.mpr (hmem y hy hya)) hxy
+  · intro x hx y hy hxy
+    by_cases hxa : x = a <;> by_cases hya : y = a
+    · rw [hxa, hya] at hxy
+      exact absurd hxy T.irrefl
+    · rw [hxa] at hxy ⊢
+      rw [Function.update_self, Function.update_of_ne hya]
+      exact hsadj y (hmem y hy hya) hxy
+    · rw [hya] at hxy ⊢
+      rw [Function.update_self, Function.update_of_ne hxa]
+      exact (hsadj x (hmem x hx hxa) hxy.symm).symm
+    · rw [Function.update_of_ne hxa, Function.update_of_ne hya]
+      exact hf'hom x (hmem x hx hxa) y (hmem y hy hya) hxy
+
 /-- **The easy bound** (DB: "easily proved by induction"): `n(k−1)+1`
     edges suffice — i.e. `(k−1)·n < #edges` forces every tree on
     `k+1` vertices.  The genuine first target: induction extracting a
@@ -84,7 +260,25 @@ theorem easy_double_bound (n k : ℕ) (hk : 1 ≤ k) (hn : k + 1 ≤ n)
     (G : SimpleGraph (Fin n)) [DecidableRel G.Adj]
     (he : (k - 1) * n < G.edgeFinset.card) :
     ContainsAllTrees G k := by
-  sorry
+  classical
+  intro T hT
+  have hdeg : ∑ v, (Finset.univ.filter (G.Adj v)).card = 2 * G.edgeFinset.card := by
+    rw [← G.sum_degrees_eq_twice_card_edges]
+    refine Finset.sum_congr rfl fun v _ => ?_
+    rw [← G.card_neighborFinset_eq_degree, G.neighborFinset_eq_filter]
+  have hcore : 2 * (k - 1) * (Finset.univ : Finset (Fin n)).card <
+      ∑ v, (Finset.univ.filter (G.Adj v)).card := by
+    rw [hdeg, Finset.card_univ, Fintype.card_fin, mul_assoc]
+    omega
+  obtain ⟨S, -, hSne, hS⟩ := exists_core G k Finset.univ hcore
+  obtain ⟨f, -, hinj, hhom⟩ := greedy_embed k
+    (fun A hA => isTree_exists_le_one_nbr hT A hA) S hSne hS Finset.univ (by simp)
+  exact ⟨{
+    toHom := {
+      toFun := f
+      map_rel' := fun {a b} hab => hhom a (Finset.mem_univ a) b (Finset.mem_univ b) hab }
+    injective' := fun x y hxy =>
+      hinj (Finset.mem_coe.mpr (Finset.mem_univ x)) (Finset.mem_coe.mpr (Finset.mem_univ y)) hxy }⟩
 
 /-- **The path case (Erdős–Gallai)**, archived-but-plausible: with
     more than `(k−1)n/2` edges, `G` contains the path on `k + 1`
