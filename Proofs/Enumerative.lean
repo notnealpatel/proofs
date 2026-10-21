@@ -56,3 +56,4 @@ import Enumerative.A007052WisemanOrderedPartitions
 import Enumerative.FactorialSeparation
 import Enumerative.FilasetaNonreciprocal
 import Enumerative.SingmasterFibonacciFamily
+import Enumerative.FiniteFieldTwoSquares
