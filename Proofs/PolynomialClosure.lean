@@ -15,6 +15,7 @@ import PolynomialClosure.SmallCounterexamplesGaussianMoments
 import PolynomialClosure.DualPositivityInverseGram
 import PolynomialClosure.MagnitudeMatrixInequalitiesGomi
 import PolynomialClosure.AbedelfatahPowerSumsTrivialZero
+import PolynomialClosure.CasasAlveroPrimePower
 
 set_option autoImplicit false
 
