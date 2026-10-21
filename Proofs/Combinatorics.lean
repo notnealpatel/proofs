@@ -97,3 +97,4 @@ import Combinatorics.FinitelyAdditiveMeasuresCombinatorics
 import Combinatorics.CounterexampleTeschnerBondageYavari
 import Combinatorics.RestrictedDivisionPrincipleEquivalent
 import Combinatorics.CombinatorialSearchStrongShift
+import Combinatorics.ShiftEquivalenceObstruction
