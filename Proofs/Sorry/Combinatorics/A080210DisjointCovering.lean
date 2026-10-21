@@ -9,9 +9,12 @@ Zamojski PostScript returned HTTP 404. The Berger–Felzenbaum–Fraenkel (1987)
 abstract and primary arXiv `math/0306099` multiplicity statements do not supply
 the exact `floor(gpf(n) * phi(n) / n) + 1` bound at the numerically largest
 modulus; the divisibility-maximal versus numerically largest bridge remains
-unpaid. Thus `dcs_multiplicity_lower_bound` below is **UNSUPPORTED SOURCE / AN
-UNPAID ADMISSION**, not a proved theorem, a claim of falsity, or an established
-open problem. No proof of that bound is attempted here. The elementary prime
+unpaid. The reconstructed statement `dcs_multiplicity_lower_bound` is now
+**REFUTED** (kernel-checked, `dcs_multiplicity_lower_bound_false`): the disjoint
+covering system `{0 mod 10, 5 mod 10, 1 mod 5, 2 mod 5, 3 mod 5, 4 mod 5}` has
+largest modulus `10` occurring twice, while `a(10) = 3`. Its original text is
+kept in a comment above the refutation. The refutation concerns this
+reconstructed reading only, not whatever the unretrieved source meant. The elementary prime
 formula and finite witnesses are independent of this gate. Historical retrieval
 and review notes below are retained; their “not read” language describes the
 earlier state, not a pending retrieval task.
@@ -170,8 +173,46 @@ def DCS.multiplicity {ι : Type} [Fintype ι] [DecidableEq ι]
 def DCS.LargestModulus {ι : Type} [Fintype ι] (S : DCS ι) (n : ℕ) : Prop :=
   (∃ i, S.m i = n) ∧ ∀ i, S.m i ≤ n
 
-/-! ## The statement -/
+/-- The four-class system `{1 mod 2, 0 mod 4, 2 mod 8, 6 mod 8}` partitions
+all integers, including negative integers. -/
+def dcs_four : DCS (Fin 4) where
+  m := ![2, 4, 8, 8]
+  r := ![1, 0, 2, 6]
+  m_pos := by decide
+  exact := by
+    intro x
+    have hres : x % 8 = 0 ∨ x % 8 = 1 ∨ x % 8 = 2 ∨ x % 8 = 3 ∨
+        x % 8 = 4 ∨ x % 8 = 5 ∨ x % 8 = 6 ∨ x % 8 = 7 := by omega
+    have hcover : ∃ i : Fin 4,
+        Int.ModEq ((![2, 4, 8, 8] i : ℕ) : ℤ) x (![1, 0, 2, 6] i) := by
+      rcases hres with h | h | h | h | h | h | h | h
+      · exact ⟨1, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨0, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨2, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨0, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨1, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨0, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨3, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨0, by dsimp [Int.ModEq]; omega⟩
+    obtain ⟨i, hi⟩ := hcover
+    refine ⟨i, hi, ?_⟩
+    intro j hj
+    fin_cases i <;> fin_cases j <;> dsimp [Int.ModEq] at hi hj ⊢ <;> omega
 
+example : dcs_four.m = ![2, 4, 8, 8] := rfl
+example : dcs_four.r = ![1, 0, 2, 6] := rfl
+example : dcs_four.multiplicity 4 = 1 := by decide
+example : ¬ dcs_four.LargestModulus 4 := by
+  intro hmax
+  have hle : 8 ≤ 4 := hmax.2 (2 : Fin 4)
+  omega
+
+/-! ## The statement (refuted)
+
+The original sorry-bearing declaration is preserved verbatim below as a comment;
+it is **false** and has been replaced by `dcs_multiplicity_lower_bound_false`.
+
+```
 /-- **A080210, under the reconstructed reading.**
 
 The `%F` line, verbatim: "a(n) = floor(Lpf(n)*phi(n)/n) + 1 where Lpf(n) is the
@@ -214,40 +255,87 @@ theorem dcs_multiplicity_lower_bound {ι : Type} [Fintype ι] [DecidableEq ι]
     (S : DCS ι) (n : ℕ) (hn : 2 ≤ n) (hmax : S.LargestModulus n) :
     a080210 n ≤ S.multiplicity n := by
   sorry
+```
+-/
 
-/-- The four-class system `{1 mod 2, 0 mod 4, 2 mod 8, 6 mod 8}` partitions
-all integers, including negative integers. -/
-def dcs_four : DCS (Fin 4) where
-  m := ![2, 4, 8, 8]
-  r := ![1, 0, 2, 6]
+/-- The six-class system `{0 mod 10, 5 mod 10, 1 mod 5, 2 mod 5, 3 mod 5,
+4 mod 5}` partitions all integers: the multiples of `5` split by the parity of
+`x / 5` into the two classes modulo `10`, and every other integer lies in
+exactly one nonzero class modulo `5`. -/
+def dcs_ten : DCS (Fin 6) where
+  m := ![10, 10, 5, 5, 5, 5]
+  r := ![0, 5, 1, 2, 3, 4]
   m_pos := by decide
   exact := by
     intro x
-    have hres : x % 8 = 0 ∨ x % 8 = 1 ∨ x % 8 = 2 ∨ x % 8 = 3 ∨
-        x % 8 = 4 ∨ x % 8 = 5 ∨ x % 8 = 6 ∨ x % 8 = 7 := by omega
-    have hcover : ∃ i : Fin 4,
-        Int.ModEq ((![2, 4, 8, 8] i : ℕ) : ℤ) x (![1, 0, 2, 6] i) := by
-      rcases hres with h | h | h | h | h | h | h | h
-      · exact ⟨1, by dsimp [Int.ModEq]; omega⟩
+    have hres : x % 10 = 0 ∨ x % 10 = 1 ∨ x % 10 = 2 ∨ x % 10 = 3 ∨
+        x % 10 = 4 ∨ x % 10 = 5 ∨ x % 10 = 6 ∨ x % 10 = 7 ∨
+        x % 10 = 8 ∨ x % 10 = 9 := by omega
+    have hcover : ∃ i : Fin 6,
+        Int.ModEq ((![10, 10, 5, 5, 5, 5] i : ℕ) : ℤ) x (![0, 5, 1, 2, 3, 4] i) := by
+      rcases hres with h | h | h | h | h | h | h | h | h | h
       · exact ⟨0, by dsimp [Int.ModEq]; omega⟩
       · exact ⟨2, by dsimp [Int.ModEq]; omega⟩
-      · exact ⟨0, by dsimp [Int.ModEq]; omega⟩
-      · exact ⟨1, by dsimp [Int.ModEq]; omega⟩
-      · exact ⟨0, by dsimp [Int.ModEq]; omega⟩
       · exact ⟨3, by dsimp [Int.ModEq]; omega⟩
-      · exact ⟨0, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨4, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨5, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨1, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨2, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨3, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨4, by dsimp [Int.ModEq]; omega⟩
+      · exact ⟨5, by dsimp [Int.ModEq]; omega⟩
     obtain ⟨i, hi⟩ := hcover
     refine ⟨i, hi, ?_⟩
     intro j hj
     fin_cases i <;> fin_cases j <;> dsimp [Int.ModEq] at hi hj ⊢ <;> omega
 
-example : dcs_four.m = ![2, 4, 8, 8] := rfl
-example : dcs_four.r = ![1, 0, 2, 6] := rfl
-example : dcs_four.multiplicity 4 = 1 := by decide
-example : ¬ dcs_four.LargestModulus 4 := by
-  intro hmax
-  have hle : 8 ≤ 4 := hmax.2 (2 : Fin 4)
+example : dcs_ten.m = ![10, 10, 5, 5, 5, 5] := rfl
+example : dcs_ten.r = ![0, 5, 1, 2, 3, 4] := rfl
+
+/-- `10` is the largest modulus of `dcs_ten`. -/
+theorem dcs_ten_largestModulus : dcs_ten.LargestModulus 10 :=
+  ⟨⟨0, rfl⟩, by decide⟩
+
+/-- The largest modulus `10` occurs exactly twice in `dcs_ten`. -/
+theorem dcs_ten_multiplicity : dcs_ten.multiplicity 10 = 2 := by decide
+
+/-- The A080210 formula at `10`: `⌊gpf(10)·φ(10)/10⌋ + 1 = ⌊5·4/10⌋ + 1 = 3`,
+matching the DATA term `a(10) = 3`. -/
+theorem a080210_ten : a080210 10 = 3 := by
+  have hf : Nat.primeFactorsList 10 = [2, 5] := by simp
+  simp only [a080210, gpf, Nat.primeFactors, hf]
+  decide
+
+/-- **Refutation of `dcs_multiplicity_lower_bound`.**
+
+Original claim (reconstructed reading of A080210): "in any disjoint covering
+system whose largest modulus is `n ≥ 2`, that modulus occurs at least
+`⌊gpf(n)·φ(n)/n⌋ + 1` times", formally
+`∀ ι S n, 2 ≤ n → S.LargestModulus n → a080210 n ≤ S.multiplicity n`.
+
+This is false.  Counterexample: `dcs_ten`, the disjoint covering system
+`{0 mod 10, 5 mod 10, 1 mod 5, 2 mod 5, 3 mod 5, 4 mod 5}`, has largest modulus
+`10`, which occurs only twice, while `a080210 10 = 3`.  The same construction
+`{0 mod 2m, m mod 2m} ∪ {r mod m : 1 ≤ r < m}` gives largest-modulus
+multiplicity `2` for every `2m`.
+
+Source of the discrepancy: the OEIS entry A080210 gives only the `%F` formula
+and the name "Lower bound for the multiplicity of a disjoint covering system";
+the multiplicity/largest-modulus reading was reconstructed in this file, and the
+cited Zamojski survey could not be retrieved, so the intended meaning is
+unknown.  The bound established in the literature for the largest modulus of a
+disjoint (exact) covering system is the Newman–Znám bound (reproved by
+Berger–Felzenbaum–Fraenkel 1987): it occurs at least `minFac n` times, with the
+*least* prime factor; the `gpf`-based formula exceeds that bound at `n = 10`. -/
+theorem dcs_multiplicity_lower_bound_false :
+    ¬ ∀ (ι : Type) [Fintype ι] [DecidableEq ι] (S : DCS ι) (n : ℕ),
+      2 ≤ n → S.LargestModulus n → a080210 n ≤ S.multiplicity n := by
+  intro hclaim
+  have hbound : a080210 10 ≤ dcs_ten.multiplicity 10 :=
+    hclaim (Fin 6) dcs_ten 10 (by norm_num) dcs_ten_largestModulus
+  rw [a080210_ten, dcs_ten_multiplicity] at hbound
   omega
+
 
 /-- The reading that is **false**, recorded so it cannot be adopted by accident.
 
