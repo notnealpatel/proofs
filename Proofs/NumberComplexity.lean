@@ -11,3 +11,4 @@ import NumberComplexity.QuasilogChainGap
 import NumberComplexity.SlizkovDoubling
 import NumberComplexity.StepWalk
 import NumberComplexity.KorseltCriterion
+import NumberComplexity.Wolstenholme
