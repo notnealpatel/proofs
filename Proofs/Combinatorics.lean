@@ -19,3 +19,4 @@ import Combinatorics.ChvatalLovaszQuasiKernel
 import Combinatorics.KatonaAlternatingHamilton
 import Combinatorics.LatinCornerDefiningSet
 import Combinatorics.BorgIntersectingPartitions
+import Combinatorics.MelnikovValencyCounterexample
