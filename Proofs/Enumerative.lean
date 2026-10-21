@@ -45,3 +45,4 @@ import Enumerative.A055203AllenRelationsMod
 import Enumerative.A008578Gerasimova
 import Enumerative.A006531SemiorderMod
 import Enumerative.A007226FibbinaryParity
+import Enumerative.A007228FibbinaryParity
