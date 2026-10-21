@@ -52,3 +52,4 @@ import NumberComplexity.A018804Refutation
 import NumberComplexity.A102091Refutation
 import NumberComplexity.A182484Refutation
 import NumberComplexity.A109864Refutation
+import NumberComplexity.A165978Refutation
