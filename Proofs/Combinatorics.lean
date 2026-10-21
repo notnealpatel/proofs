@@ -149,3 +149,4 @@ import Combinatorics.SunPermutationSquareSumMod
 import Combinatorics.SubtractionNimPassRefutation
 import Combinatorics.StronglyConnectedDigraphExtremalTwo
 import Combinatorics.CrumbyColouringRefutation
+import Combinatorics.FewAbelianSquaresFiciSaarela
