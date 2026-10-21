@@ -30,3 +30,4 @@ import NumberComplexity.WeirdNumbersInfinite
 import NumberComplexity.PocklingtonCriterion
 import NumberComplexity.A091258SigmaThreeDenominator
 import NumberComplexity.A321575LeastComposite
+import NumberComplexity.A354062SongFermat
