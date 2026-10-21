@@ -136,3 +136,4 @@ import Enumerative.A185376RotationClassesBinary
 import Enumerative.A166102OddJacobiSymbol
 import Enumerative.A064618ModEventuallyPeriodic
 import Enumerative.A053871RichmanOddMod
+import Enumerative.A210445MinPracticalSun
