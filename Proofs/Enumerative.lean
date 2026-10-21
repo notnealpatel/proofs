@@ -82,3 +82,4 @@ import Enumerative.A192023Refutation
 import Enumerative.TwoSumfreePeriodicityCertificate
 import Enumerative.ThreeSumfreeGreedyFamilies
 import Enumerative.BeckA229816NonRascoePartitions
+import Enumerative.TwoSumfreeFOneColumn
