@@ -60,3 +60,4 @@ import Enumerative.FiniteFieldTwoSquares
 import Enumerative.PartitionConjugation
 import Enumerative.FermatTwoThreeForms
 import Enumerative.StirlingBellCombinatorial
+import Enumerative.A100682GreathouseFloor
