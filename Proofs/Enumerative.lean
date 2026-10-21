@@ -225,3 +225,4 @@ import Enumerative.A376527CarlitzRiordanCatalan
 import Enumerative.A144837LucasDividesEquivalently
 import Enumerative.A383165SumSignedStirling
 import Enumerative.A144636CompositionalInverseOdd
+import Enumerative.A365771PaulHannaCatalan
