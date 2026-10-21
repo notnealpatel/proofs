@@ -209,3 +209,4 @@ import Enumerative.BinomialCirculantDeterminants
 import Enumerative.SunDeterminantSuperfactorialBridge
 import Enumerative.PreTwoEqualsOneCharacterization
 import Enumerative.CanonPermutationPattern1213
+import Enumerative.CanonPermutationPattern1231Recurrence
