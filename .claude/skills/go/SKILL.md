@@ -1,0 +1,14 @@
+---
+name: go
+description: Conventions for Go code in cmd/ and internal/. Load before writing or editing .go files.
+---
+
+You **MUST** use `goimports -w` to update Go import blocks.
+
+You SHOULD NOT write comments in `.go` files.
+
+You SHOULD use `go doc -u -src` over the Go standard
+library and this project's Go files before `grep` or
+`rg`.
+
+You SHOULD NOT ignore errors in Go programs.

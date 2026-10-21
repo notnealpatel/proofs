@@ -15,6 +15,39 @@ sage script.sage        # run a .sage file
 Write `.sage` files with the `Write` tool for anything longer
 than two lines; pass the path to `sage`. Do not heredoc.
 
+## Computation limits and Sage idiom
+
+You SHOULD use `sage` for exact symbolic and algebraic
+computation when it can test examples, find counterexamples,
+or sharpen a conjecture.
+
+You MUST follow the mathematical computation limits.
+Launch Sage experiments through `Bash` with
+`timeout --kill-after=2s 300s sage ...`. If a longer run is
+justified, state its runtime estimate and compute budget
+first; keep an explicit command limit and kill grace. Use
+unbuffered output or explicit flushing to preserve partial
+evidence. A timed-out computation **MUST NOT** be retried
+unchanged; preserve its partial evidence and change the
+method or escalate the blocker.
+
+Write Sage, not Python. In particular:
+
+- `^` is exponentiation and `^^` is xor;
+- bare integers and fractions such as `1/3` are exact;
+- bind polynomial and field generators explicitly;
+- use `print()` because Sage does not auto-echo scripts.
+
+Use deterministic generator names and stable structured output.
+Convert Sage values with `int()` or `str()` before JSON encoding,
+and use explicit lists for factors, roots, vectors, and matrices
+when later reasoning depends on their representation.
+
+A non-zero exit is a computation failure: read the traceback and
+fix the program. Sage computation is evidence, not proof. Record
+the tested domain and range, and check boundary and degenerate
+cases before drawing a general conclusion.
+
 ## Sage syntax (not Python)
 
 | Sage | Python | Note |

@@ -16,6 +16,26 @@ leandoc group homomorphism        # search: multi-word BM25
 leandoc -v Finset.sum             # include BM25 scores
 ```
 
+## Working rules
+
+Use `leandoc` before broad `grep` or `rg` through Mathlib. It
+searches Lean core, Std, and packages under `.lake/packages`.
+
+Search results identify candidate names but omit bodies.
+Follow a concept search with an exact-name query to obtain
+the source body, signature, docstring, file, and line. A
+`generated` match comes only from compiled metadata and may
+have no body or signature; verify it with Lean itself.
+
+Choose the smallest suitable search:
+
+- `leandoc`: exact declaration names or source concepts;
+- `grep`: an exact source string after indexed searches fail.
+
+You SHOULD NOT treat an empty search, a generated-name hit,
+or a suggested proof as evidence that an API does or does not
+exist.
+
 ## Query classification
 
 A single whitespace-free token is an **identifier query** resolved
