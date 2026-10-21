@@ -191,3 +191,4 @@ import Enumerative.A078008FractionsEvenDenominator
 import Enumerative.A264201SameConstructionSum
 import Enumerative.A352654SumCoefficientXyz
 import Enumerative.A175287SumCeilPerimeter
+import Enumerative.DegreeGrowthRationalMaps
