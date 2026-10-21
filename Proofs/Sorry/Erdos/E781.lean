@@ -259,6 +259,254 @@ theorem fDW_three : fDW 3 = 7 := by
     by_contra h
     exact not_hasMonoDW_three (fDW 3) (by omega) hm
 
+/-- Block sizes of the BEF colouring: `k - 1 - ⌊i/2⌋`, floored at `1`. -/
+private def bsize (k i : ℕ) : ℕ := max (k - 1 - i / 2) 1
+
+/-- Start (0-based) of block `j`. -/
+private def bstart (k j : ℕ) : ℕ := ∑ i ∈ Finset.range j, bsize k i
+
+/-- Each block starts where the previous one ends. -/
+private lemma bstart_succ (k j : ℕ) : bstart k (j + 1) = bstart k j + bsize k j :=
+  Finset.sum_range_succ _ _
+
+/-- Block `0` starts at position `0`. -/
+private lemma bstart_zero (k : ℕ) : bstart k 0 = 0 := Finset.sum_range_zero _
+
+/-- Block starts strictly increase, since every block is nonempty. -/
+private lemma bstart_strictMono (k : ℕ) : StrictMono (bstart k) :=
+  strictMono_nat_of_lt_succ fun j => by
+    rw [bstart_succ]
+    have h1 : 1 ≤ bsize k j := le_max_right _ _
+    omega
+
+/-- Every position lies before the end of some block. -/
+private lemma bstart_exists (k q : ℕ) : ∃ j, q < bstart k (j + 1) :=
+  ⟨q, by
+    have h : q + 1 ≤ bstart k (q + 1) := (bstart_strictMono k).id_le (q + 1)
+    omega⟩
+
+/-- Block index of 0-based position `q`. -/
+private def blk (k q : ℕ) : ℕ := Nat.find (bstart_exists k q)
+
+/-- Position `q` lies in block `blk k q`. -/
+private lemma blk_spec (k q : ℕ) : bstart k (blk k q) ≤ q ∧ q < bstart k (blk k q + 1) := by
+  refine ⟨?_, Nat.find_spec (bstart_exists k q)⟩
+  rcases h : blk k q with _ | j
+  · simp [bstart_zero]
+  · have hlt : j < blk k q := by omega
+    have hmin := Nat.find_min (bstart_exists k q) hlt
+    omega
+
+/-- Block index is monotone in the position. -/
+private lemma blk_mono (k : ℕ) {p q : ℕ} (hpq : p ≤ q) : blk k p ≤ blk k q := by
+  have hp := blk_spec k p
+  have hq := blk_spec k q
+  have h : bstart k (blk k p) < bstart k (blk k q + 1) := by omega
+  have := (bstart_strictMono k).lt_iff_lt.mp h
+  omega
+
+/-- Two positions in one block differ by less than the block size. -/
+private lemma same_blk (k : ℕ) {p q : ℕ} (h : blk k p = blk k q) : q < p + bsize k (blk k p) := by
+  have hp := blk_spec k p
+  have hq := blk_spec k q
+  rw [bstart_succ] at hq
+  rw [← h] at hq
+  omega
+
+/-- Consecutive block sizes drop by at most one. -/
+private lemma bsize_le_succ (k j : ℕ) : bsize k j ≤ bsize k (j + 1) + 1 := by
+  unfold bsize
+  omega
+
+/-- Jumping at least two blocks ahead moves by at least the size of the starting block. -/
+private lemma far_blk (k : ℕ) {p q : ℕ} (h : blk k p + 2 ≤ blk k q) : p + bsize k (blk k p) ≤ q := by
+  have hp := blk_spec k p
+  have hq := blk_spec k q
+  have hmono : bstart k (blk k p + 2) ≤ bstart k (blk k q) := (bstart_strictMono k).monotone h
+  rw [bstart_succ, bstart_succ] at hmono
+  rw [bstart_succ] at hp
+  have := bsize_le_succ k (blk k p)
+  omega
+
+/-- Closed form: the first `2m` blocks occupy `2mk - m(m+1)` positions, for `m < k`. -/
+private lemma bstart_even (k : ℕ) : ∀ m, m + 1 ≤ k → bstart k (2 * m) + m * (m + 1) = 2 * m * k := by
+  intro m
+  induction m with
+  | zero => intro _; simp [bstart_zero]
+  | succ m ih =>
+    intro hm
+    have ih' := ih (by omega)
+    have e : 2 * (m + 1) = 2 * m + 1 + 1 := by ring
+    rw [e, bstart_succ, bstart_succ]
+    have h1 : bsize k (2 * m) = k - 1 - m := by unfold bsize; omega
+    have h2 : bsize k (2 * m + 1) = k - 1 - m := by unfold bsize; omega
+    rw [h1, h2]
+    have e1 : (m + 1) * (m + 1 + 1) = m * (m + 1) + 2 * (m + 1) := by ring
+    have e2 : (2 * m + 1 + 1) * k = 2 * m * k + 2 * k := by ring
+    rw [e1, e2]
+    omega
+
+/-- Positions below `k² - k` lie in blocks of index at most `2k - 3`. -/
+private lemma blk_lt (k q : ℕ) (hk : 1 ≤ k) (hq : q + 1 + k ≤ k ^ 2) : blk k q + 3 ≤ 2 * k := by
+  obtain ⟨k', rfl⟩ : ∃ k', k = k' + 1 := ⟨k - 1, by omega⟩
+  have hc := bstart_even (k' + 1) k' (by omega)
+  have hsq : (k' + 1) ^ 2 = k' * (k' + 1) + (k' + 1) := by ring
+  have h2 : 2 * k' * (k' + 1) = k' * (k' + 1) + k' * (k' + 1) := by ring
+  by_contra hcon
+  have hge : 2 * k' ≤ blk (k' + 1) q := by omega
+  have hmono := (bstart_strictMono (k' + 1)).monotone hge
+  have hs := (blk_spec (k' + 1) q).1
+  omega
+
+/-- The BEF colouring of 1-based position `p`: parity of its block. -/
+private def col (k p : ℕ) : Bool := decide (blk k (p - 1) % 2 = 0)
+
+/-- The BEF colouring of `[1, k² - k]` has no monochromatic `k`-term descending wave,
+    stated for a wave listed as `y 0, …, y (k-1)`. -/
+private lemma no_wave (k : ℕ) (hk : 2 ≤ k) (y : ℕ → ℕ) (b : Bool)
+    (hmono : ∀ t, t + 1 < k → y t < y (t + 1))
+    (hwave : ∀ t, t + 2 < k → y (t + 2) + y t ≤ 2 * y (t + 1))
+    (hrange : ∀ t, t < k → 1 ≤ y t ∧ y t + k ≤ k ^ 2)
+    (hcol : ∀ t, t < k → col k (y t) = b) : False := by
+  set B : ℕ → ℕ := fun t => blk k (y t - 1) with hB
+  have hpar : ∀ t, t < k → B t % 2 = B 0 % 2 := by
+    intro t ht
+    have h1 := hcol t ht
+    have h0 := hcol 0 (by omega)
+    simp only [col] at h1 h0
+    rw [← h0] at h1
+    simp only [hB]
+    by_cases hz : blk k (y 0 - 1) % 2 = 0
+    · simp only [hz, decide_true, decide_eq_true_eq] at h1
+      omega
+    · simp only [hz, decide_false, decide_eq_false_iff_not] at h1
+      omega
+  have hBmono : ∀ t, t + 1 < k → B t ≤ B (t + 1) := by
+    intro t ht
+    have := hmono t ht
+    exact blk_mono k (by omega)
+  have hgap : ∀ t u, t ≤ u → u + 1 < k → y (u + 1) + y t ≤ y (t + 1) + y u := by
+    intro t u htu
+    induction u, htu using Nat.le_induction with
+    | base => intro _; omega
+    | succ u htu ih =>
+      intro hu
+      have h1 := ih (by omega)
+      have h2 : y (u + 1 + 1) + y u ≤ 2 * y (u + 1) := hwave u (by omega)
+      omega
+  have hstuck : ∀ t, t + 1 < k → B t = B (t + 1) → ∀ u, t ≤ u → u < k → B u = B t := by
+    intro t ht hsame u htu
+    induction u, htu using Nat.le_induction with
+    | base => intro _; rfl
+    | succ u htu ih =>
+      intro hu
+      have hBu := ih (by omega)
+      have hle := hBmono u hu
+      by_contra hne
+      have hp1 := hpar u (by omega)
+      have hp2 := hpar (u + 1) hu
+      have hfar : B u + 2 ≤ B (u + 1) := by omega
+      have hf := far_blk k hfar
+      have hs := same_blk k hsame
+      have hg := hgap t u htu hu
+      have hyu := hrange u (by omega)
+      have hyt := hrange t (by omega)
+      have hyt1 := hrange (t + 1) ht
+      have hyu1 := hrange (u + 1) hu
+      simp only [hB] at hf hs hBu
+      rw [hBu] at hf
+      omega
+  have hinc : ∀ s u, s ≤ u → u < k → y s + (u - s) ≤ y u := by
+    intro s u hsu
+    induction u, hsu using Nat.le_induction with
+    | base => intro _; omega
+    | succ u hsu ih =>
+      intro hu
+      have h1 := ih (by omega)
+      have h2 := hmono u hu
+      omega
+  have hclaim : ∀ t, t < k → 2 * t ≤ B t ∨ ∃ s, s ≤ t ∧ 2 * s ≤ B s ∧ B s = B (k - 1) := by
+    intro t
+    induction t with
+    | zero => intro _; left; omega
+    | succ t ih =>
+      intro ht
+      rcases ih (by omega) with hl | ⟨s, hst, h2s, hsJ⟩
+      · by_cases heq : B t = B (t + 1)
+        · right
+          exact ⟨t, by omega, hl, (hstuck t ht heq (k - 1) (by omega) (by omega)).symm⟩
+        · left
+          have hle := hBmono t ht
+          have hp1 := hpar t (by omega)
+          have hp2 := hpar (t + 1) ht
+          omega
+      · right
+        exact ⟨s, by omega, h2s, hsJ⟩
+  have hJ : B (k - 1) + 3 ≤ 2 * k := by
+    have hr := hrange (k - 1) (by omega)
+    exact blk_lt k (y (k - 1) - 1) (by omega) (by omega)
+  rcases hclaim (k - 1) (by omega) with hl | ⟨s, hsk, h2s, hsJ⟩
+  · omega
+  · have hs := same_blk k (p := y s - 1) (q := y (k - 1) - 1) hsJ
+    have hi := hinc s (k - 1) hsk (by omega)
+    have hys := hrange s (by omega)
+    have hyk := hrange (k - 1) (by omega)
+    have hbs : bsize k (B s) ≤ k - 1 - s := by
+      simp only [bsize]
+      omega
+    simp only [hB] at hbs h2s hsJ
+    omega
+
+/-- Coordinates of a combinatorial line are either constant or the line parameter. -/
+private lemma line_coord {k : ℕ} {ι : Type} (l : Combinatorics.Line (Fin k) ι) (i : ι) :
+    (∀ x : Fin k, l x i = x) ∨ ∃ a : Fin k, ∀ x : Fin k, l x i = a := by
+  rcases h : l.idxFun i with _ | a
+  · left; intro x; exact l.apply_none x i h
+  · right; exact ⟨a, fun x => Combinatorics.Line.apply_some h⟩
+
+/-- Finite van der Waerden for descending waves, via Hales–Jewett. -/
+private lemma exists_hasMonoDW (k : ℕ) : ∃ n, HasMonoDW n k := by
+  classical
+  obtain ⟨ι, _inst, hι⟩ := Combinatorics.Line.exists_mono_in_high_dimension (Fin k) Bool
+  refine ⟨1 + Fintype.card ι * (k - 1), fun c => ?_⟩
+  obtain ⟨l, b, hl⟩ := hι fun v => c (1 + ∑ i, ((v i : Fin k) : ℕ))
+  let x : Fin k → ℕ := fun t => 1 + ∑ i, ((l t i : Fin k) : ℕ)
+  refine ⟨x, ⟨?_, ?_⟩, ?_, b, fun t => hl t⟩
+  · intro t t' htt'
+    simp only [x]
+    have hsum : ∑ i, ((l t i : Fin k) : ℕ) < ∑ i, ((l t' i : Fin k) : ℕ) := by
+      apply Finset.sum_lt_sum
+      · intro i _
+        rcases line_coord l i with h | ⟨a, h⟩
+        · rw [h, h]; exact le_of_lt htt'
+        · rw [h, h]
+      · obtain ⟨i, hi⟩ := l.proper
+        refine ⟨i, Finset.mem_univ _, ?_⟩
+        rw [l.apply_none t i hi, l.apply_none t' i hi]
+        exact htt'
+    omega
+  · intro j hj
+    simp only [x]
+    have hsum : ∑ i, ((l ⟨j + 2, hj⟩ i : Fin k) : ℕ) + ∑ i, ((l ⟨j, by omega⟩ i : Fin k) : ℕ)
+        = 2 * ∑ i, ((l ⟨j + 1, by omega⟩ i : Fin k) : ℕ) := by
+      rw [← Finset.sum_add_distrib, Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro i _
+      rcases line_coord l i with h | ⟨a, h⟩
+      · rw [h, h, h]; simp only; omega
+      · rw [h, h, h]; omega
+    omega
+  · intro t
+    refine ⟨by simp [x], ?_⟩
+    simp only [x]
+    have hle : ∑ i, ((l t i : Fin k) : ℕ) ≤ ∑ _i : ι, (k - 1) := by
+      apply Finset.sum_le_sum
+      intro i _
+      have := (l t i).isLt
+      omega
+    rw [Finset.sum_const, Finset.card_univ, smul_eq_mul] at hle
+    omega
+
 /-- **BEF lower bound** (BEF90): `k² − k + 1 ≤ f(k)`.  Stated
     additively to dodge ℕ-subtraction: `k² + 1 ≤ f(k) + k`.
     The witness coloring is explicit in BEF90 — a blockwise coloring
@@ -266,7 +514,26 @@ theorem fDW_three : fDW 3 = 7 := by
     a genuine finite-combinatorics target. -/
 theorem bef_lower_bound (k : ℕ) (hk : 2 ≤ k) :
     k ^ 2 + 1 ≤ fDW k + k := by
-  sorry
+  obtain ⟨N, hN⟩ := exists_hasMonoDW k
+  have hm : HasMonoDW (fDW k) k := Nat.sInf_mem (s := {n | HasMonoDW n k}) ⟨N, hN⟩
+  by_contra hlt
+  obtain ⟨x, ⟨hxm, hxw⟩, hxr, b, hxc⟩ := hm (col k)
+  let y : ℕ → ℕ := fun t => if h : t < k then x ⟨t, h⟩ else 0
+  have hy : ∀ t (h : t < k), y t = x ⟨t, h⟩ := fun t h => dif_pos h
+  apply no_wave k hk y b
+  · intro t ht
+    rw [hy t (by omega), hy (t + 1) ht]
+    exact hxm (Fin.mk_lt_mk.mpr (Nat.lt_succ_self t))
+  · intro t ht
+    rw [hy t (by omega), hy (t + 1) (by omega), hy (t + 2) ht]
+    exact hxw t ht
+  · intro t ht
+    rw [hy t ht]
+    have hr := hxr ⟨t, ht⟩
+    omega
+  · intro t ht
+    rw [hy t ht]
+    exact hxc _
 
 /-- **BEF upper bound** (BEF90): `f(k) ≤ (k³ − 4k + 9)/3`, stated
     multiplicatively: `3 * f(k) + 4 * k ≤ k³ + 9`. -/
