@@ -18,3 +18,4 @@ import Combinatorics.A317297Boustrophedon
 import Combinatorics.ChvatalLovaszQuasiKernel
 import Combinatorics.KatonaAlternatingHamilton
 import Combinatorics.LatinCornerDefiningSet
+import Combinatorics.BorgIntersectingPartitions
