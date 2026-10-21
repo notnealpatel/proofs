@@ -8,3 +8,4 @@ import GroupCount.CommutingTriples
 import GroupCount.SubgroupCountSn
 import GroupCount.SzeleCyclicOrder
 import GroupCount.SymmetricClassNumber
+import GroupCount.McKayPowerSolutions
