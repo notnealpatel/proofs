@@ -150,3 +150,4 @@ import Enumerative.A073642Yanev
 import Enumerative.A023105DistinctSquaresMod
 import Enumerative.A006364WhoseBinaryExpansion
 import Enumerative.A001222SchulteComplexOmega
+import Enumerative.A101312CountingWeekdayDay
