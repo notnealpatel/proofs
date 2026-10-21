@@ -11,3 +11,4 @@ import Combinatorics.BollobasSetPairs
 import Combinatorics.ErdosKSperner
 import Combinatorics.CyclePowerEquivalenceKing
 import Combinatorics.CyclePowerEquivalenceCover
+import Combinatorics.MelnikovValencyBipartite
