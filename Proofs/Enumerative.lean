@@ -202,3 +202,4 @@ import Enumerative.A088827RascoeSitsRow
 import Enumerative.A016789XorBaseDigit
 import Enumerative.A004215BelowSumsFour
 import Enumerative.A069517SumPhiHalting
+import Enumerative.A070875BinaryExactlyPositions
