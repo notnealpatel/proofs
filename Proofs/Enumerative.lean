@@ -149,3 +149,4 @@ import Enumerative.A088226EquivalentlyStephanHalf
 import Enumerative.A073642Yanev
 import Enumerative.A023105DistinctSquaresMod
 import Enumerative.A006364WhoseBinaryExpansion
+import Enumerative.A001222SchulteComplexOmega
