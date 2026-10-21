@@ -16,6 +16,7 @@ import PolynomialClosure.DualPositivityInverseGram
 import PolynomialClosure.MagnitudeMatrixInequalitiesGomi
 import PolynomialClosure.AbedelfatahPowerSumsTrivialZero
 import PolynomialClosure.CasasAlveroPrimePower
+import PolynomialClosure.CasasAlveroTwoPrimePower
 
 set_option autoImplicit false
 
