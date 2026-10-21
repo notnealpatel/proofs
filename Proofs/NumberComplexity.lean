@@ -102,3 +102,4 @@ import NumberComplexity.A263100Refutation
 import NumberComplexity.MersenneRepresentationConollySoliton
 import NumberComplexity.A248667CoefficientsCoprimeTaylor
 import NumberComplexity.A254748CommentBothPrime
+import NumberComplexity.A260960SunSecondPrime
