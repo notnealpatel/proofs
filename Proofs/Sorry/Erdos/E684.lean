@@ -138,7 +138,37 @@ theorem tang_upper (ε : ℝ) (hε : 0 < ε) :
     -- PROBE NEEDED (then decide). -/
 theorem f_set_nonempty_100 :
     ∃ k : ℕ, k ≤ 100 ∧ 100 ^ 2 < smoothPart k (Nat.choose 100 k) := by
-  sorry
+  -- Witness `k = 7`: `C(100,7) = 2^5·3·5^2·7·11·19·47·97`, smooth part `16800`.
+  refine ⟨7, by norm_num, ?_⟩
+  have hchoose : Nat.choose 100 7 = 16007560800 := by
+    rw [Nat.choose_eq_descFactorial_div_factorial]
+    decide
+  have hfac : (16007560800 : ℕ).factorization =
+      Finsupp.single 2 5 + Finsupp.single 3 1 + Finsupp.single 5 2 + Finsupp.single 7 1 +
+      Finsupp.single 11 1 + Finsupp.single 19 1 + Finsupp.single 47 1 +
+      Finsupp.single 97 1 := by
+    rw [show (16007560800 : ℕ) = 2 ^ 5 * 3 * 5 ^ 2 * 7 * 11 * 19 * 47 * 97 by norm_num]
+    repeat rw [Nat.factorization_mul (by norm_num) (by norm_num)]
+    rw [Nat.Prime.factorization_pow (by norm_num : Nat.Prime 2),
+      Nat.Prime.factorization_pow (by norm_num : Nat.Prime 5),
+      Nat.Prime.factorization (by norm_num : Nat.Prime 3),
+      Nat.Prime.factorization (by norm_num : Nat.Prime 7),
+      Nat.Prime.factorization (by norm_num : Nat.Prime 11),
+      Nat.Prime.factorization (by norm_num : Nat.Prime 19),
+      Nat.Prime.factorization (by norm_num : Nat.Prime 47),
+      Nat.Prime.factorization (by norm_num : Nat.Prime 97)]
+  have hprod (f g : ℕ →₀ ℕ) (P : ℕ → Prop) [DecidablePred P] :
+      (f + g).prod (fun p e => if P p then p ^ e else 1) =
+      f.prod (fun p e => if P p then p ^ e else 1) *
+      g.prod (fun p e => if P p then p ^ e else 1) := by
+    apply Finsupp.prod_add_index'
+    · intro p
+      simp
+    · intro p a b
+      by_cases hp : P p <;> simp [hp, pow_add]
+  unfold smoothPart
+  rw [hchoose, hfac]
+  norm_num [hprod]
 
 end ErdosCandidates.E684
 
