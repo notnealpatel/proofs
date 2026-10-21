@@ -111,12 +111,57 @@ theorem exceptional_prime_window : ∀ p ∈ (Nat.choose 7 3).primeFactors, ¬(2
   rw [choose_seven_three_sanity.2]
   decide
 
+/- RETIRED (false as stated; refuted by `ecklund_conjecture_strong_false`).
+   Original text:
+
 /-- Ecklund's stronger conjecture (recorded in the DB remarks; still
     open): if `k^2 < n` then `C(n,k)` has a prime factor `p` with
     `p * k ≤ n`.  OPEN — archived here for the lane; see also #1094.
     (Selfridge's variant in Guy B31: `n > 17.125k` suffices for
     `p ≤ n/k`.) -/
 theorem ecklund_conjecture_strong (n k : ℕ) (hk : 2 ≤ k) (hn : k ^ 2 < n) :
+    ∃ p : ℕ, p.Prime ∧ p ∣ n.choose k ∧ p * k ≤ n := by
+  sorry
+-/
+
+/-- Ground truth: `C(62,6) = 61474519 = 19·29·31·59·61`. -/
+theorem choose_sixty_two_six : Nat.choose 62 6 = 61474519 := by
+  rw [Nat.choose_eq_descFactorial_div_factorial]
+  decide
+
+/-- **Refutation of the retired `ecklund_conjecture_strong`.**
+    The original claim read: "if `2 ≤ k` and `k^2 < n` then `C(n,k)`
+    has a prime factor `p` with `p * k ≤ n`".  It fails at
+    `(n, k) = (62, 6)`: `6^2 = 36 < 62`, but
+    `C(62,6) = 61474519 = 19·29·31·59·61`, and the only primes with
+    `6p ≤ 62` are `2, 3, 5, 7`, none of which divides `C(62,6)`.
+    The discrepancy is with the source: the DB remark on #384 paraphrases
+    Ecklund's conjecture without its exception, while #1094 records
+    Selfridge's form [Se77] "for `n ≥ k^2 - 1`, except `C(62,6)`", and
+    `C(62,6)` is also among the 14 exceptions listed by
+    Erdős–Lacampagne–Selfridge [ELS88].  A Python search (2026-10-21)
+    found `(62,6)` to be the only failure for `n < 400`. -/
+theorem ecklund_conjecture_strong_false :
+    ¬ ∀ n k : ℕ, 2 ≤ k → k ^ 2 < n →
+      ∃ p : ℕ, p.Prime ∧ p ∣ n.choose k ∧ p * k ≤ n := by
+  intro h
+  obtain ⟨p, hp, hdvd, hle⟩ := h 62 6 (by norm_num) (by norm_num)
+  rw [choose_sixty_two_six] at hdvd
+  have hp10 : p ≤ 10 := by omega
+  interval_cases p <;> revert hp hdvd <;> decide
+
+/-- **Ecklund's stronger conjecture, corrected (OPEN).**  If `2 ≤ k`,
+    `k^2 < n` and `(n, k) ≠ (62, 6)`, then `C(n,k)` has a prime factor
+    `p` with `p * k ≤ n` (i.e. `p ≤ n/k`).  This is the
+    Ecklund–Eggleton–Erdős–Selfridge conjecture with its documented
+    exception `C(62,6)` (Selfridge [Se77], recorded in Erdős #1094;
+    Selfridge states it already for `n ≥ k^2 - 1`).  The `sorry` marks an
+    open problem, not a missing routine step; see
+    `ecklund_conjecture_strong_false` for why the exception is needed.
+    (Selfridge's variant in Guy B31: `n > 17.125k` suffices for
+    `p ≤ n/k`.) -/
+theorem ecklund_conjecture_strong_corrected (n k : ℕ) (hk : 2 ≤ k) (hn : k ^ 2 < n)
+    (hexc : ¬(n = 62 ∧ k = 6)) :
     ∃ p : ℕ, p.Prime ∧ p ∣ n.choose k ∧ p * k ≤ n := by
   sorry
 
@@ -130,5 +175,9 @@ end ErdosCandidates.E384
    - Solver attribution Ecklund [Ec69] matches DB.
    - `Nat.choose` is the correct Mathlib definition for binomial coefficients.
    - Stronger conjecture `k^2 < n → ∃ p, p*k ≤ n` matches DB remark on Ecklund's conjecture.
+   - UPDATE 2026-10-21: that DB remark omits the exception C(62,6); the
+     unguarded form is refuted (`ecklund_conjecture_strong_false`) and the
+     corrected open form is `ecklund_conjecture_strong_corrected`.
    - `ecklund_window_30` arithmetic is within kernel-decidable range.
 -/
+
