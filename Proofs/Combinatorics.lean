@@ -7,3 +7,4 @@ import Combinatorics.Flex86E1BlockRestriction
 import Combinatorics.Oddtown
 import Combinatorics.NonuniformFisher
 import Combinatorics.MirskyDualDilworth
+import Combinatorics.BollobasSetPairs
