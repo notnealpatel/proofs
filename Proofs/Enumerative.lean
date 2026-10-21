@@ -30,3 +30,4 @@ import Enumerative.StewartCriterion
 import Enumerative.Zumkeller
 import Enumerative.ZumkellerSigmaHalf
 import Enumerative.ZumkellerTauSigma
+import Enumerative.GaussIrreduciblePolynomialCount
