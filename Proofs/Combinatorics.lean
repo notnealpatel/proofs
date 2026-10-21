@@ -151,3 +151,4 @@ import Combinatorics.StronglyConnectedDigraphExtremalTwo
 import Combinatorics.CrumbyColouringRefutation
 import Combinatorics.FewAbelianSquaresFiciSaarela
 import Combinatorics.SubtractionNimReverseMexAdditive
+import Combinatorics.A381717PartitionFiniteMultiset
