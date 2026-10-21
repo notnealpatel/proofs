@@ -175,3 +175,4 @@ import NumberComplexity.A038867ParticularPerfectSquare
 import NumberComplexity.A078173LaymanSolutionsMaximum
 import NumberComplexity.A088883RotondoPrimeLen
 import NumberComplexity.A124000BinomialCoefficientSemiprime
+import NumberComplexity.A142591BouhamidaSetLargest
