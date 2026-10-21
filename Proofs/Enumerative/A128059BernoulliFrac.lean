@@ -25,7 +25,15 @@ computation agrees for `n = 1..120` (triage `n ≤ 59`, re-validated here to
 
 ## Formalization choices
 
-* `frac x` is `Int.fract x = x - ⌊x⌋` (the entry's "frac").
+* `frac x` is fixed here as `Int.fract x = x - ⌊x⌋` (floor convention).  The
+  entry leaves the convention for "frac" implicit; Maple's `frac` and
+  Mathematica's `FractionalPart` instead round toward zero (`x - trunc x`),
+  which gives a different `f` (`frac(B_4)` becomes `-1/30` instead of `29/30`,
+  and `f(2) = 3/5` instead of this file's `63/5`).  For each `k` the two
+  fractional parts of `B_{2k}` differ by an integer, so after multiplying by the
+  integer `lcm(1..m) · C(m+k, k)` the two readings of `f(m)` differ by an
+  integer and have the same denominator: the denominator statement proved here
+  is the same under both conventions.
 * `Bernoulli(2k)` is Mathlib's `bernoulli (2 * k)`; the `B₁` sign convention
   never enters, since only even indices occur.
 * `lcm(2,3,...,n)` is `(Finset.Icc 1 n).lcm id`; including `1` changes nothing
@@ -356,7 +364,10 @@ lcm(2,3,4,5,...,n)*(Sum_{k=0..n} frac(Bernoulli(2*k))*binomial(n+k,k))."
 For every `n ≥ 1`, the denominator of
 `f(n-1) = lcm(1..n-1) · ∑_{k=0}^{n-1} frac(B_{2k}) · C(n-1+k, k)` equals
 `a(n) = numerator((2n-1)^2 / (2·(2n)!))`.  The guard `1 ≤ n` keeps `n - 1`
-off its truncated value (`n = 0` is outside the conjecture). -/
+off its truncated value (`n = 0` is outside the conjecture).  `frac` is fixed
+as `Int.fract` (floor convention); the entry leaves the convention implicit,
+and the round-toward-zero reading (Maple, Mathematica) changes `f(n-1)` only
+by an integer, so this denominator statement holds under either reading. -/
 theorem aktar_conjecture (n : ℕ) (hn : 1 ≤ n) : ((f (n - 1)).den : ℤ) = a n := by
   obtain ⟨m, rfl⟩ : ∃ m, n = m + 1 := ⟨n - 1, by omega⟩
   rw [Nat.add_sub_cancel, den_f, a_succ]
