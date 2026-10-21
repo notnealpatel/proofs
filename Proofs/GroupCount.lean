@@ -30,3 +30,4 @@ import GroupCount.SubindicesInfiniteGroups
 import GroupCount.TransitiveMOLS
 import GroupCount.PowerGraphCographEnhanced
 import GroupCount.EllisHarperDerangements
+import GroupCount.IngletonSufficientCriteria
