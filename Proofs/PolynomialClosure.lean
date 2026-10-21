@@ -20,6 +20,7 @@ import PolynomialClosure.CasasAlveroTwoPrimePower
 import PolynomialClosure.CertainPfaffiansConnectedInverse
 import PolynomialClosure.BoundedRatiosLorentzianMatrices
 import PolynomialClosure.BergExplicitInverseAlpha
+import PolynomialClosure.SqrtDeltaFineRings
 
 set_option autoImplicit false
 
