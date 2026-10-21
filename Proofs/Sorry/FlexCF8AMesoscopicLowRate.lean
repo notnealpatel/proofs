@@ -1,5 +1,6 @@
 import Combinatorics.PermutationLowEndpointEventBound
 import Combinatorics.PermutationSameEdgeMovingLimit
+import Combinatorics.PermutationEndpointZeroTwoRate
 set_option autoImplicit false
 open PermutationOrderCounting PermutationEndpointCounting PermutationEndpointZeroTwoExact
 
@@ -1733,17 +1734,264 @@ example : (∀ᶠ n : ℕ in atTop, (0 : ℕ) ≠ 2) ∧
     tendsto_const_nhds.div_atTop tendsto_natCast_atTop_atTop
   simpa using ht
 
-/-- Intended full moving mesoscopic rate for the actual terminal avoidance fraction.
-This is the sole unpaid theorem: the checked isolated pair bounds, finite-union
-sandwich, global two-low bound and long-tail bound above have not yet been combined
-into the normalized cutoff estimate and the two-stage limit yielding exp(1)-1.
-The declaration deliberately retains an explicit sorry and depends on sorryAx. -/
+/-- Two-stage squeeze: cutoff-indexed lower and upper bounds whose `n`-limits converge
+to a common value as the cutoff grows force convergence to that value. -/
+private theorem two_stage_squeeze (x : ℕ → ℝ) (l u : ℕ → ℕ → ℝ) (L U : ℕ → ℝ) (c : ℝ)
+    (hl : ∀ᶠ K in atTop, ∀ᶠ n in atTop, l K n ≤ x n)
+    (hu : ∀ᶠ K in atTop, ∀ᶠ n in atTop, x n ≤ u K n)
+    (hlL : ∀ K, Tendsto (l K) atTop (𝓝 (L K)))
+    (huU : ∀ K, Tendsto (u K) atTop (𝓝 (U K)))
+    (hL : Tendsto L atTop (𝓝 c)) (hU : Tendsto U atTop (𝓝 c)) :
+    Tendsto x atTop (𝓝 c) := by
+  rw [tendsto_order]
+  constructor
+  · intro d hd
+    obtain ⟨K, hK1, hK2⟩ := (hl.and (hL.eventually (eventually_gt_nhds hd))).exists
+    filter_upwards [hK1, (hlL K).eventually (eventually_gt_nhds hK2)] with n h1 h2
+    exact lt_of_lt_of_le h2 h1
+  · intro d hd
+    obtain ⟨K, hK1, hK2⟩ := (hu.and (hU.eventually (eventually_lt_nhds hd))).exists
+    filter_upwards [hK1, (huU K).eventually (eventually_lt_nhds hK2)] with n h1 h2
+    exact lt_of_le_of_lt h1 h2
+
+/-- The partial sums `∑_{k=2}^{K} 1/(k-1)!` tend to `e - 1`. -/
+private theorem tendsto_partial_sum :
+    Tendsto (fun K : ℕ => ∑ k : Set.Icc (2 : ℕ) K, 1 / ((k.val - 1).factorial : ℝ))
+      atTop (𝓝 (Real.exp 1 - 1)) := by
+  have h2 : Tendsto (fun K : ℕ => 2 * K) atTop atTop :=
+    tendsto_id.const_mul_atTop' (by norm_num)
+  have ht := PermutationEndpointZeroTwoRate.tendsto_short_sum.comp h2
+  apply ht.congr
+  intro K
+  simp only [Function.comp_apply, Nat.mul_div_cancel_left K (by norm_num : 0 < 2)]
+  exact Finset.sum_subtype (Finset.Icc 2 K) (p := fun k => k ∈ Set.Icc (2 : ℕ) K)
+    (fun k => by simp) (fun k => 1 / ((k - 1).factorial : ℝ))
+
+
+/-- Finite-`n` lower bound: the normalized deficit dominates the cutoff-`K` factorial
+sum, up to the ratio `n/(n-2)` and the relative low-density error `2K·max/(n-3)`. -/
+private theorem lower_finite {n K : ℕ} [NeZero n] (hn : 4 ≤ n) (hshort : 2 * K ≤ n)
+    (a b : Fin n) (hab : a ≠ b) (hA : 1 ≤ a.val + b.val - 1) :
+    (n : ℝ) / ((n - 2 : ℕ) : ℝ) * (∑ k : Set.Icc (2 : ℕ) K, 1 / ((k.val - 1).factorial : ℝ)) *
+        (1 - 2 * (K : ℝ) * (((max a.val b.val : ℕ) : ℝ) / ((n - 3 : ℕ) : ℝ))) ≤
+      (n : ℝ) / ((a.val + b.val - 1 : ℕ) : ℝ) *
+        (1 - PermutationSameEdgeLimit.F n a.val b.val) := by
+  classical
+  have hn2 : 2 ≤ n := by omega
+  let q : Fin n := ⟨n - 1, by omega⟩
+  let Fc : ℝ := Fintype.card (FixedTwo (0 : Fin n) q a b)
+  let Dj : (Set.Icc (2 : ℕ) K ⊕ Set.Icc (2 : ℕ) K) → ℕ := fun j =>
+    Fintype.card {π : FixedTwo (0 : Fin n) q a b //
+      taggedLowOverlap hshort a b j π ∧
+        ∀ x ∈ lowPositions n K, x ≠ witnessPosition hshort j → max a.val b.val < (π.val x).val}
+  have hS := (actual_F_short_sandwich hn2 hshort a b hab).1
+  have hU := (actual_short_union_sandwich hshort a b).1
+  have hFc : 0 ≤ Fc := by positivity
+  have h1 : ((∑ j, Dj j : ℕ) : ℝ) / Fc ≤ 1 - PermutationSameEdgeLimit.F n a.val b.val :=
+    le_trans (div_le_div_of_nonneg_right (by exact_mod_cast hU) hFc) hS
+  let M : ℝ := ((max a.val b.val : ℕ) : ℝ) / ((n - 3 : ℕ) : ℝ)
+  let A : ℝ := ((a.val + b.val - 1 : ℕ) : ℝ)
+  have hApos : 0 < A := by
+    have h : 0 < a.val + b.val - 1 := by omega
+    show (0 : ℝ) < ((a.val + b.val - 1 : ℕ) : ℝ)
+    exact_mod_cast h
+  have hnA : 0 ≤ (n : ℝ) / A := by positivity
+  have hsum : (n : ℝ) / A * (((∑ j, Dj j : ℕ) : ℝ) / Fc) =
+      ∑ k : Set.Icc (2 : ℕ) K, (n : ℝ) / A *
+        (((Dj (Sum.inl k) + Dj (Sum.inr k) : ℕ) : ℝ) / Fc) := by
+    rw [Fintype.sum_sum_type, ← Finset.sum_add_distrib, Nat.cast_sum, Finset.sum_div,
+      Finset.mul_sum]
+  have hterm (k : Set.Icc (2 : ℕ) K) :
+      (n : ℝ) / ((n - 2 : ℕ) : ℝ) * (1 / ((k.val - 1).factorial : ℝ)) * (1 - 2 * (K : ℝ) * M) ≤
+        (n : ℝ) / A * (((Dj (Sum.inl k) + Dj (Sum.inr k) : ℕ) : ℝ) / Fc) := by
+    have hp := (isolated_pair_normalized hn hshort a b hab hA k).1
+    have hcard : ((lowPositions n K).card : ℝ) ≤ 2 * K := by
+      exact_mod_cast card_lowPositions_le n K
+    have hM : 0 ≤ M := by positivity
+    have hL : 0 ≤ (n : ℝ) / ((n - 2 : ℕ) : ℝ) * (1 / ((k.val - 1).factorial : ℝ)) := by
+      positivity
+    refine le_trans (mul_le_mul_of_nonneg_left ?_ hL) hp
+    have he : ((lowPositions n K).card : ℝ) * ((max a.val b.val : ℕ) : ℝ) / ((n - 3 : ℕ) : ℝ) =
+        ((lowPositions n K).card : ℝ) * M := by
+      simp only [M, mul_div_assoc]
+    rw [he]
+    nlinarith
+  calc
+    _ = ∑ k : Set.Icc (2 : ℕ) K,
+        (n : ℝ) / ((n - 2 : ℕ) : ℝ) * (1 / ((k.val - 1).factorial : ℝ)) * (1 - 2 * (K : ℝ) * M) := by
+      rw [Finset.mul_sum, Finset.sum_mul]
+    _ ≤ _ := Finset.sum_le_sum (fun k _ => hterm k)
+    _ = (n : ℝ) / A * (((∑ j, Dj j : ℕ) : ℝ) / Fc) := hsum.symm
+    _ ≤ _ := mul_le_mul_of_nonneg_left h1 hnA
+
+/-- Finite-`n` upper bound: the normalized deficit is at most the cutoff-`K` factorial
+sum plus the global two-low error and the long-overlap tail, all with explicit
+constants. -/
+private theorem upper_finite {n K : ℕ} [NeZero n] (hn : 4 ≤ n) (hK : 5 ≤ K) (hshort : 2 * K ≤ n)
+    (a b : Fin n) (hab : a ≠ b) (hA : 1 ≤ a.val + b.val - 1) :
+    (n : ℝ) / ((a.val + b.val - 1 : ℕ) : ℝ) *
+        (1 - PermutationSameEdgeLimit.F n a.val b.val) ≤
+      (n : ℝ) / ((n - 2 : ℕ) : ℝ) * (∑ k : Set.Icc (2 : ℕ) K, 1 / ((k.val - 1).factorial : ℝ)) +
+        8 * (K : ℝ) ^ 2 * (((max a.val b.val : ℕ) : ℝ) / ((n - 3 : ℕ) : ℝ)) *
+          ((n : ℝ) / ((n - 2 : ℕ) : ℝ)) +
+        (n : ℝ) / ((n - 2 : ℕ) : ℝ) * (6 / ((K - 2) / 3).factorial) := by
+  classical
+  have hn2 : 2 ≤ n := by omega
+  let q : Fin n := ⟨n - 1, by omega⟩
+  let Fc : ℝ := Fintype.card (FixedTwo (0 : Fin n) q a b)
+  let Dj : (Set.Icc (2 : ℕ) K ⊕ Set.Icc (2 : ℕ) K) → ℕ := fun j =>
+    Fintype.card {π : FixedTwo (0 : Fin n) q a b //
+      taggedLowOverlap hshort a b j π ∧
+        ∀ x ∈ lowPositions n K, x ≠ witnessPosition hshort j → max a.val b.val < (π.val x).val}
+  let cB : ℕ := Fintype.card {π : FixedTwo (0 : Fin n) q a b //
+      ∃ x ∈ lowPositions n K, ∃ y ∈ lowPositions n K, x ≠ y ∧ (π.val x).val ≤ max a.val b.val ∧
+        (π.val y).val ≤ max a.val b.val}
+  let cL : ℝ := ((longOverlapTwoFinset (K + 1) q a b).card : ℝ)
+  have hS := (actual_F_short_sandwich hn2 hshort a b hab).2
+  have hU := (actual_short_union_sandwich hshort a b).2
+  letI : Nonempty (FixedTwo (0 : Fin n) q a b) :=
+    fixedTwo_nonempty 0 q a b
+      (by intro he; have hv := congrArg Fin.val he; change 0 = n - 1 at hv; omega) hab
+  have hFc : 0 < Fc := by
+    show (0 : ℝ) < (Fintype.card (FixedTwo (0 : Fin n) q a b) : ℝ)
+    exact_mod_cast Fintype.card_pos
+  have h1 : 1 - PermutationSameEdgeLimit.F n a.val b.val ≤
+      ((∑ j, Dj j : ℕ) : ℝ) / Fc + (cB : ℝ) / Fc + cL / Fc := by
+    refine le_trans hS ?_
+    gcongr ?_ + _
+    rw [← add_div]
+    exact div_le_div_of_nonneg_right (by exact_mod_cast hU) hFc.le
+  let M : ℝ := ((max a.val b.val : ℕ) : ℝ)
+  let A : ℝ := ((a.val + b.val - 1 : ℕ) : ℝ)
+  let N2 : ℝ := ((n - 2 : ℕ) : ℝ)
+  let N3 : ℝ := ((n - 3 : ℕ) : ℝ)
+  have hApos : 0 < A := by
+    have h : 0 < a.val + b.val - 1 := by omega
+    show (0 : ℝ) < ((a.val + b.val - 1 : ℕ) : ℝ)
+    exact_mod_cast h
+  have hN2 : 0 < N2 := by
+    have h : 0 < n - 2 := by omega
+    show (0 : ℝ) < ((n - 2 : ℕ) : ℝ)
+    exact_mod_cast h
+  have hN3 : 0 < N3 := by
+    have h : 0 < n - 3 := by omega
+    show (0 : ℝ) < ((n - 3 : ℕ) : ℝ)
+    exact_mod_cast h
+  have hM : 0 ≤ M := by positivity
+  have hnr : (0 : ℝ) ≤ n := by positivity
+  have hT1 : (n : ℝ) / A * (((∑ j, Dj j : ℕ) : ℝ) / Fc) ≤
+      (n : ℝ) / N2 * (∑ k : Set.Icc (2 : ℕ) K, 1 / ((k.val - 1).factorial : ℝ)) := by
+    rw [Fintype.sum_sum_type, ← Finset.sum_add_distrib, Nat.cast_sum, Finset.sum_div,
+      Finset.mul_sum, Finset.mul_sum]
+    apply Finset.sum_le_sum
+    intro k _
+    exact (isolated_pair_normalized hn hshort a b hab hA k).2
+  have hT2 : (n : ℝ) / A * ((cB : ℝ) / Fc) ≤ 8 * (K : ℝ) ^ 2 * (M / N3) * ((n : ℝ) / N2) := by
+    have hB := global_two_low_bound (0 : Fin n) q a b (lowPositions n K)
+      (lowPositions_anchors hshort).1 (lowPositions_anchors hshort).2 hab
+    have hBr : (cB : ℝ) * N3 * N2 ≤ ((lowPositions n K).card : ℝ) *
+        ((lowPositions n K).card : ℝ) * Fc * M * M := by
+      have h := (Nat.cast_le (α := ℝ)).mpr hB
+      simp only [Nat.cast_mul] at h
+      exact h
+    have hc : ((lowPositions n K).card : ℝ) ≤ 2 * K := by
+      exact_mod_cast card_lowPositions_le n K
+    have hab' : a.val ≠ b.val := Fin.val_ne_of_ne hab
+    have hMA : M ≤ 2 * A := by
+      have h : max a.val b.val ≤ 2 * (a.val + b.val - 1) := by omega
+      show ((max a.val b.val : ℕ) : ℝ) ≤ 2 * ((a.val + b.val - 1 : ℕ) : ℝ)
+      exact_mod_cast h
+    rw [show (n : ℝ) / A * ((cB : ℝ) / Fc) = (n * cB) / (A * Fc) by ring,
+      show 8 * (K : ℝ) ^ 2 * (M / N3) * ((n : ℝ) / N2) = (8 * (K : ℝ) ^ 2 * M * n) / (N3 * N2) by
+        ring,
+      div_le_div_iff₀ (by positivity) (by positivity)]
+    calc
+      (n : ℝ) * cB * (N3 * N2) = n * (cB * N3 * N2) := by ring
+      _ ≤ n * (((lowPositions n K).card : ℝ) * ((lowPositions n K).card : ℝ) * Fc * M * M) :=
+        mul_le_mul_of_nonneg_left hBr hnr
+      _ ≤ n * ((2 * K) * (2 * K) * Fc * M * (2 * A)) := by gcongr
+      _ = _ := by ring
+  have hT3 : (n : ℝ) / A * (cL / Fc) ≤ (n : ℝ) / N2 * (6 / ((K - 2) / 3).factorial) := by
+    have hl := longOverlapTwo_fraction_le_low (by omega : 3 ≤ n) (K + 1) (by omega) q
+      (by change n - 1 + 1 = n; omega) a b hab
+    rw [show K + 1 - 3 = K - 2 by omega] at hl
+    have hN2eq : N2 = (n : ℝ) - 2 := by
+      simp only [N2, Nat.cast_sub hn2, Nat.cast_ofNat]
+    calc
+      (n : ℝ) / A * (cL / Fc) ≤ (n : ℝ) / A * (A / ((n : ℝ) - 2) *
+          (6 / ((K - 2) / 3).factorial)) := mul_le_mul_of_nonneg_left hl (by positivity)
+      _ = _ := by
+        rw [hN2eq]
+        field_simp
+  calc
+    (n : ℝ) / A * (1 - PermutationSameEdgeLimit.F n a.val b.val) ≤
+        (n : ℝ) / A * (((∑ j, Dj j : ℕ) : ℝ) / Fc + (cB : ℝ) / Fc + cL / Fc) :=
+      mul_le_mul_of_nonneg_left h1 (by positivity)
+    _ = (n : ℝ) / A * (((∑ j, Dj j : ℕ) : ℝ) / Fc) + (n : ℝ) / A * ((cB : ℝ) / Fc) +
+        (n : ℝ) / A * (cL / Fc) := by ring
+    _ ≤ _ := add_le_add (add_le_add hT1 hT2) hT3
+
+/-- The ratio `n/(n-2)` (natural subtraction) tends to one. -/
+private theorem tendsto_ratio_two :
+    Tendsto (fun n : ℕ => (n : ℝ) / ((n - 2 : ℕ) : ℝ)) atTop (𝓝 1) := by
+  have h : Tendsto (fun n : ℕ => (n : ℝ) / ((n : ℝ) + (-2))) atTop (𝓝 1) :=
+    tendsto_natCast_div_add_atTop (-2 : ℝ)
+  apply h.congr'
+  filter_upwards [eventually_ge_atTop 2] with n hn
+  rw [Nat.cast_sub hn, Nat.cast_ofNat, sub_eq_add_neg]
+
+/-- The shifted long-tail weight `6/((K-2)/3)!` tends to zero. -/
+private theorem tendsto_tail_shift :
+    Tendsto (fun K : ℕ => (6 : ℝ) / ((K - 2) / 3).factorial) atTop (𝓝 0) :=
+  PermutationEndpointOverlapTail.tendsto_bound.comp (tendsto_sub_atTop_nat 2)
+
+/-- Full moving mesoscopic rate for the actual terminal avoidance fraction: when
+`a n ≠ b n` eventually and `max (a n) (b n) / n → 0`, the normalized deficit
+`n / (a n + b n - 1) * (1 - F n (a n) (b n))` tends to `exp 1 - 1`.
+This theorem is proved and the whole file is placeholder-free. Proof route: a two-stage
+squeeze (`two_stage_squeeze`) between the cutoff-`K` bounds `lower_finite` and
+`upper_finite`, taking `n → ∞` with `tendsto_ratio_two` and the low-density limit,
+then `K → ∞` with `tendsto_partial_sum` (via the production
+`PermutationEndpointZeroTwoRate.tendsto_short_sum`) and `tendsto_tail_shift`. -/
 theorem tendsto_F_moving_mesoscopic (a b : ℕ → ℕ)
     (hab : ∀ᶠ n in atTop, a n ≠ b n)
     (hA : ∀ᶠ n in atTop, 1 ≤ a n + b n - 1)
     (hsub : Tendsto (fun n => ((max (a n) (b n) : ℕ) : ℝ) / (n : ℝ)) atTop (𝓝 0)) :
     Tendsto (fun n : ℕ => (n : ℝ) / ((a n + b n - 1 : ℕ) : ℝ) *
       (1 - PermutationSameEdgeLimit.F n (a n) (b n))) atTop (𝓝 (Real.exp 1 - 1)) := by
-  sorry
+  let s : ℕ → ℝ := fun K => ∑ k : Set.Icc (2 : ℕ) K, 1 / ((k.val - 1).factorial : ℝ)
+  let T : ℕ → ℝ := fun K => 6 / ((K - 2) / 3).factorial
+  let r : ℕ → ℝ := fun n => (n : ℝ) / ((n - 2 : ℕ) : ℝ)
+  let ρ : ℕ → ℝ := fun n => ((max (a n) (b n) : ℕ) : ℝ) / ((n - 3 : ℕ) : ℝ)
+  have hr : Tendsto r atTop (𝓝 1) := tendsto_ratio_two
+  have hρ : Tendsto ρ atTop (𝓝 0) := tendsto_low_density a b hsub
+  have hvalid := eventually_valid_moving_experiment a b hab hA hsub
+  apply two_stage_squeeze _ (fun K n => r n * s K * (1 - 2 * (K : ℝ) * ρ n))
+    (fun K n => r n * s K + 8 * (K : ℝ) ^ 2 * ρ n * r n + r n * T K) s (fun K => s K + T K)
+  · refine Eventually.of_forall (fun K => ?_)
+    filter_upwards [hvalid, eventually_ge_atTop (2 * K)] with n hv hnK
+    haveI : NeZero n := ⟨by omega⟩
+    exact lower_finite hv.1 hnK ⟨a n, hv.2.1⟩ ⟨b n, hv.2.2.1⟩
+      (fun he => hv.2.2.2.1 (congrArg Fin.val he)) hv.2.2.2.2
+  · filter_upwards [eventually_ge_atTop 5] with K hK
+    filter_upwards [hvalid, eventually_ge_atTop (2 * K)] with n hv hnK
+    haveI : NeZero n := ⟨by omega⟩
+    exact upper_finite hv.1 hK hnK ⟨a n, hv.2.1⟩ ⟨b n, hv.2.2.1⟩
+      (fun he => hv.2.2.2.1 (congrArg Fin.val he)) hv.2.2.2.2
+  · intro K
+    have h := (hr.mul (tendsto_const_nhds (x := s K))).mul
+      ((tendsto_const_nhds (x := (1 : ℝ))).sub
+        ((tendsto_const_nhds (x := 2 * (K : ℝ))).mul hρ))
+    simpa using h
+  · intro K
+    have h := ((hr.mul (tendsto_const_nhds (x := s K))).add
+      (((tendsto_const_nhds (x := 8 * (K : ℝ) ^ 2)).mul hρ).mul hr)).add
+      (hr.mul (tendsto_const_nhds (x := T K)))
+    simpa using h
+  · exact tendsto_partial_sum
+  · have h := tendsto_partial_sum.add tendsto_tail_shift
+    rw [add_zero] at h
+    exact h
+
 
 end FlexCF8AMesoscopicLowRate
