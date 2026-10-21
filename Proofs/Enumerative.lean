@@ -207,3 +207,4 @@ import Enumerative.A122399BalaPrimeSum
 import Enumerative.A288317ObtainedLeftRight
 import Enumerative.BinomialCirculantDeterminants
 import Enumerative.SunDeterminantSuperfactorialBridge
+import Enumerative.PreTwoEqualsOneCharacterization
