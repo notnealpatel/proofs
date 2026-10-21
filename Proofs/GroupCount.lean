@@ -32,3 +32,4 @@ import GroupCount.PowerGraphCographEnhanced
 import GroupCount.EllisHarperDerangements
 import GroupCount.IngletonSufficientCriteria
 import GroupCount.S5IngletonViolator
+import GroupCount.MetacyclicIngleton
