@@ -156,3 +156,4 @@ import Enumerative.A134195SumArray
 import Enumerative.A107363StatedRationalOrder
 import Enumerative.A061242PrimeRepetendBlock
 import Enumerative.A277548WhoseLastNonzero
+import Enumerative.A086845BoseNelsonComparator
