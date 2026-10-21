@@ -28,13 +28,16 @@
   The original vocabulary and p2_c1, p2_c2, p2_c4 are now provided by
   BilinearComplexity.Sandwich; InfStab, p2_c3, and p2_c9 are provided by
   BilinearComplexity.P2MovingTriad; p2_c8 is provided by
-  BilinearComplexity.P2ResidualStabilizer. The four remaining conjectures
-  (p2_c5, p2_c6, p2_c7, p2_c10) retain `sorry`;
-  their historical computational evidence below is not a proof.
+  BilinearComplexity.P2ResidualStabilizer. The three remaining conjectures
+  (p2_c5, p2_c6, p2_c7) retain `sorry`; their historical computational
+  evidence below is not a proof. p2_c10 is refuted (`p2_c10_false`, via
+  BilinearComplexity.P2CyclicCounterexample); its counting half survives
+  as `p2_c10_two_fixed`.
   AI disclosure: produced with AI assistance (see Proofs/README).
 -/
 import Mathlib.Data.ZMod.Basic
 import BilinearComplexity.P2ResidualStabilizer
+import BilinearComplexity.P2CyclicCounterexample
 
 set_option autoImplicit false
 
@@ -161,12 +164,67 @@ theorem p2_c7 :
    (b) [concrete]
    (c) invertibility clause extrapolates from 2 data points; Smirnov-1
    is lower-bound-tier. -/
-theorem p2_c10 (u v w : Fin 23 → Fin (3 * 3) → ZMod 2) (π : Equiv.Perm (Fin 23))
-    (hπ : π ^ 3 = 1)
-    (hdec : matMulTensor (ZMod 2) 3 3 3 = fun i j l => ∑ s, u s i * v s j * w s l)
-    (hsym : ∀ s, u (π s) = v s ∧ v (π s) = w s ∧ w (π s) = u s) :
-    ∃ s t, s ≠ t ∧ π s = s ∧ π t = t ∧
-      (IsUnit (matOf (u s)) ∨ IsUnit (matOf (u t))) := sorry
+-- REFUTED. Original (false) statement, retired and kept for the record:
+--
+-- theorem p2_c10 (u v w : Fin 23 → Fin (3 * 3) → ZMod 2) (π : Equiv.Perm (Fin 23))
+--     (hπ : π ^ 3 = 1)
+--     (hdec : matMulTensor (ZMod 2) 3 3 3 = fun i j l => ∑ s, u s i * v s j * w s l)
+--     (hsym : ∀ s, u (π s) = v s ∧ v (π s) = w s ∧ w (π s) = u s) :
+--     ∃ s t, s ≠ t ∧ π s = s ∧ π t = t ∧
+--       (IsUnit (matOf (u s)) ∨ IsUnit (matOf (u t))) := sorry
+
+/-- Refutation of the archived conjecture `p2_c10`, which claimed: "Any
+order-3 cyclically symmetric rank-23 decomposition of `⟨3,3,3⟩` over `ZMod 2`
+(an order-3 term permutation `π` with `u ∘ π = v`, `v ∘ π = w`, `w ∘ π = u`)
+has two distinct `π`-fixed terms, at least one of which has an invertible
+`u`-factor."
+
+The counterexample is `BilinearComplexity.CyclicLadermanCounterexample`: Laderman's
+rank-23 scheme reduced mod 2, output-transposed for cyclic packing and sandwiched
+by `(I, swap01, I)`. Its permutation `π` has `π ^ 3 = 1` and fixes exactly the
+summands `1, 3, 4, 18, 22`, and every fixed `u`-factor matrix has determinant
+`0` over `ZMod 2`. The discrepancy comes from extrapolating the invertibility
+clause from two data points (Strassen mod 2 and Smirnov-1, whose fixed triad
+is `vec(I)^⊗3`); a cyclic Laderman scheme has only singular fixed triads. No
+corrected invertibility statement is known to have been intended. The surviving
+counting clause is `p2_c10_two_fixed`. -/
+theorem p2_c10_false :
+    ¬ ∀ (u v w : Fin 23 → Fin (3 * 3) → ZMod 2) (π : Equiv.Perm (Fin 23)),
+      π ^ 3 = 1 →
+      matMulTensor (ZMod 2) 3 3 3 = (fun i j l => ∑ s, u s i * v s j * w s l) →
+      (∀ s, u (π s) = v s ∧ v (π s) = w s ∧ w (π s) = u s) →
+      ∃ s t, s ≠ t ∧ π s = s ∧ π t = t ∧
+        (IsUnit (matOf (u s)) ∨ IsUnit (matOf (u t))) := by
+  intro hclaim
+  obtain ⟨u, v, w, π, hπ, hdec, hsym, hnot⟩ :=
+    CyclicLadermanCounterexample.counterexample
+  -- `matOf` and the witness module's `unpack` are definitionally the same
+  -- row-major unpacking `fun i j => x (finProdFinEquiv (i, j))`.
+  exact hnot (hclaim u v w π hπ hdec hsym)
+
+/-- The counting half of the retired `p2_c10`: every permutation `π` of the 23
+summands with `π ^ 3 = 1` has two distinct fixed points, because the number of
+fixed points is congruent to `23 ≡ 2` modulo the prime `3`. This needs no
+decomposition hypothesis; it is elementary group theory and says nothing about
+matrix multiplication. -/
+theorem p2_c10_two_fixed (π : Equiv.Perm (Fin 23)) (hπ : π ^ 3 = 1) :
+    ∃ s t, s ≠ t ∧ π s = s ∧ π t = t := by
+  haveI : Fact (Nat.Prime 3) := ⟨Nat.prime_three⟩
+  have hpow : π ^ 3 ^ 1 = 1 := by simpa using hπ
+  have hmod : π.supportᶜ.card ≡ 23 [MOD 3] := by
+    simpa using Equiv.Perm.card_compl_support_modEq hpow
+  have hcard : 1 < π.supportᶜ.card := by
+    have hle : π.supportᶜ.card ≤ 23 := by
+      simpa using Finset.card_le_univ π.supportᶜ
+    unfold Nat.ModEq at hmod
+    omega
+  obtain ⟨s, hs, t, ht, hst⟩ := Finset.one_lt_card.mp hcard
+  refine ⟨s, t, hst, ?_, ?_⟩
+  · simpa [Equiv.Perm.mem_support] using hs
+  · simpa [Equiv.Perm.mem_support] using ht
+
+/-- The hypothesis of `p2_c10_two_fixed` is satisfiable (by the identity). -/
+example : (1 : Equiv.Perm (Fin 23)) ^ 3 = 1 := one_pow 3
 
 end P2Sweep
 end BilinearComplexity
