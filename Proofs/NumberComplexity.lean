@@ -184,3 +184,4 @@ import NumberComplexity.A108866PrimeHalfOrdowski
 import NumberComplexity.A159021FloorSqrtPerfect
 import NumberComplexity.A087412PairsCount
 import NumberComplexity.A130058Refutation
+import NumberComplexity.A086534Refutation
