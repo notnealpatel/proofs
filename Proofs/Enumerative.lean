@@ -194,3 +194,4 @@ import Enumerative.A175287SumCeilPerimeter
 import Enumerative.DegreeGrowthRationalMaps
 import Enumerative.A293013ExpModPeter
 import Enumerative.A294532FamilyCoveringGuide
+import Enumerative.A130095SumTendsPhi
