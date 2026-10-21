@@ -25,3 +25,4 @@ import Combinatorics.UnfairZeroOnePolynomialDegreeFour
 import Combinatorics.SatisfactoryColouringIsomorphism
 import Combinatorics.PaleyCliqueBound
 import Combinatorics.LonelyRunnerThree
+import Combinatorics.KnillUnionClosedBound
