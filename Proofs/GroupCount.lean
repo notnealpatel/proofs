@@ -25,3 +25,4 @@ import GroupCount.LandauClassNumber
 import GroupCount.NonabelianOrderPCubed
 import GroupCount.FrobeniusPowerSolutionCount
 import GroupCount.AbelianPGroupPartitionCount
+import GroupCount.BraunEtzionVardySubspaceCodes
