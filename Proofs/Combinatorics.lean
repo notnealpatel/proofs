@@ -31,3 +31,4 @@ import Combinatorics.SeymourSecondNeighbourhoodTournament
 import Combinatorics.PrimeSumPairing
 import Combinatorics.SaarelaWordEquationLemma
 import Combinatorics.LovaszThetaPentagon
+import Combinatorics.PrimeCircleFourPrimes
