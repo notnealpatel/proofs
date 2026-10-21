@@ -99,3 +99,4 @@ import Combinatorics.RestrictedDivisionPrincipleEquivalent
 import Combinatorics.CombinatorialSearchStrongShift
 import Combinatorics.ShiftEquivalenceObstruction
 import Combinatorics.ParallelChipFiringGames
+import Combinatorics.RelationAlgebraRepresentationsDistance
