@@ -37,6 +37,8 @@ set_option autoImplicit false
 
 namespace ErdosCandidates.E1093
 
+open scoped Nat
+
 /-- `KSmooth k m`: every prime factor of `m` is `≤ k` (the problem's
     "k-smooth").  Note Mathlib's `Nat.smoothNumbers k` uses `< k`, so
     the bridge is `KSmooth k m ↔ m ∈ Nat.smoothNumbers (k+1)` for
@@ -144,6 +146,58 @@ theorem erdos_1093_q2 :
       2 ≤ deficiency q.1 q.2}.Finite := by
   sorry
 
+/-- Splitting the falling product `n (n-1) ⋯ (n-k+1)` around the factor `n - i`. -/
+private theorem descFactorial_split (n k i : ℕ) (hik : i < k) (hkn : k ≤ n) :
+    n.descFactorial k =
+      (n - i) * ((n - i - 1).descFactorial (k - 1 - i) * n.descFactorial i) := by
+  have hsplit := Nat.descFactorial_mul_descFactorial (n := n) hik.le
+  have hni : n - i = (n - i - 1) + 1 := by omega
+  have hki : k - i = (k - 1 - i) + 1 := by omega
+  rw [← hsplit, hni, hki, Nat.succ_descFactorial_succ, ← hni, Nat.mul_assoc]
+
+/-- If `C(n,k)` has no prime factor `≤ k` and `n - i` (`i < k`) is `k`-smooth, then
+    `(n - i) · i! · (k-1-i)!` divides `k!`. -/
+private theorem smooth_mul_factorials_dvd (n k i : ℕ) (hik : i < k) (hkn : k ≤ n)
+    (hdef : DeficiencyDefined n k) (hsm : KSmooth k (n - i)) (hm : n - i ≠ 0) :
+    (n - i) * ((k - 1 - i)! * i !) ∣ k ! := by
+  have hdvdP : (n - i) * ((k - 1 - i)! * i !) ∣ k ! * n.choose k := by
+    rw [← Nat.descFactorial_eq_factorial_mul_choose, descFactorial_split n k i hik hkn]
+    exact Nat.mul_dvd_mul_left _
+      (Nat.mul_dvd_mul (Nat.factorial_dvd_descFactorial _ _)
+        (Nat.factorial_dvd_descFactorial _ _))
+  have hcop : Nat.Coprime ((n - i) * ((k - 1 - i)! * i !)) (n.choose k) := by
+    apply Nat.coprime_of_dvd
+    intro p hp hpA
+    have hpk : p ≤ k := by
+      rcases (Nat.Prime.dvd_mul hp).1 hpA with hpm | hpF
+      · exact hsm p (Nat.mem_primeFactors.2 ⟨hp, hpm, hm⟩)
+      · rcases (Nat.Prime.dvd_mul hp).1 hpF with h1 | h2
+        · have := (Nat.Prime.dvd_factorial hp).1 h1
+          omega
+        · have := (Nat.Prime.dvd_factorial hp).1 h2
+          omega
+    exact hdef p hp hpk
+  exact hcop.dvd_of_dvd_mul_right hdvdP
+
+/-- Under the same hypotheses, `n - i ≤ k · 2^k`. -/
+private theorem sub_le_mul_two_pow (n k i : ℕ) (hik : i < k) (hkn : k ≤ n)
+    (hdef : DeficiencyDefined n k) (hsm : KSmooth k (n - i)) (hm : n - i ≠ 0) :
+    n - i ≤ k * 2 ^ k := by
+  have hdvd := smooth_mul_factorials_dvd n k i hik hkn hdef hsm hm
+  have hle : (n - i) * ((k - 1 - i)! * i !) ≤ k ! := Nat.le_of_dvd (Nat.factorial_pos k) hdvd
+  have hk : k = (k - 1) + 1 := by omega
+  have hfact : k ! = k * (Nat.choose (k - 1) i) * ((k - 1 - i)! * i !) := by
+    have hc := Nat.choose_mul_factorial_mul_factorial (n := k - 1) (k := i) (by omega)
+    conv_lhs => rw [hk, Nat.factorial_succ, ← hc]
+    rw [← hk]
+    ring
+  have hpos : 0 < (k - 1 - i)! * i ! := Nat.mul_pos (Nat.factorial_pos _) (Nat.factorial_pos _)
+  rw [hfact] at hle
+  have hmle : n - i ≤ k * Nat.choose (k - 1) i := Nat.le_of_mul_le_mul_right hle hpos
+  calc n - i ≤ k * Nat.choose (k - 1) i := hmle
+    _ ≤ k * 2 ^ (k - 1) := Nat.mul_le_mul_left _ (Nat.choose_le_two_pow _ _)
+    _ ≤ k * 2 ^ k := Nat.mul_le_mul_left _ (Nat.pow_le_pow_right (by norm_num) (by omega))
+
 /-- **ELS93 bound**, the plausible lemma target: if the deficiency is
     defined and ≥ 1 (with `2k ≤ n`, `k ≥ 2`), then `n ≪ 2^k·√k` —
     stated with an explicit constant existential and `√k ≤ k` relaxed
@@ -153,7 +207,18 @@ theorem els93_bound :
     ∃ C : ℕ, 1 ≤ C ∧ ∀ n k : ℕ, 2 * k ≤ n → 2 ≤ k →
       DeficiencyDefined n k → 1 ≤ deficiency n k →
       n ≤ C * 2 ^ k * k := by
-  sorry
+  refine ⟨2, by norm_num, ?_⟩
+  intro n k hkn hk hdef hdefic
+  unfold deficiency at hdefic
+  obtain ⟨i, hi⟩ := Finset.card_pos.1 (Nat.lt_of_succ_le hdefic)
+  rw [Finset.mem_filter, Finset.mem_range] at hi
+  obtain ⟨hik, hsm⟩ := hi
+  have hm : n - i ≠ 0 := by omega
+  have hmain : n - i ≤ k * 2 ^ k := sub_le_mul_two_pow n k i hik (by omega) hdef hsm hm
+  have hik' : i ≤ k * 2 ^ k := hik.le.trans (Nat.le_mul_of_pos_right k (Nat.two_pow_pos k))
+  calc n = (n - i) + i := by omega
+    _ ≤ k * 2 ^ k + k * 2 ^ k := Nat.add_le_add hmain hik'
+    _ = 2 * 2 ^ k * k := by ring
 
 /-- Sanity: the guard `2k ≤ n` is load-bearing — without it question 2
     trivializes: `C(p, p−1) = p` has every `p − 1 − i` (i < p−1)
@@ -182,3 +247,4 @@ end ErdosCandidates.E1093
      Mathlib vs <= in the problem; k+1 offset is right.
    - ELS93 bound n << 2^k * sqrt(k): matches DB sections.
 -/
+
