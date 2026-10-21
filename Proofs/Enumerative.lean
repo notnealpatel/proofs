@@ -223,3 +223,4 @@ import Enumerative.A113254FamilyFormPerfect
 import Enumerative.A144637SumCoefficientsOdd
 import Enumerative.A376527CarlitzRiordanCatalan
 import Enumerative.A144837LucasDividesEquivalently
+import Enumerative.A383165SumSignedStirling
