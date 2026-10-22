@@ -1,25 +1,9 @@
 /-
 # A230596 — refutation of Sun's conjecture (ii)
 
-## OEIS source (retrieved with `oeis show A230596` and the live entry, 2026-10-21)
+Zhi-Wei Sun's conjecture (ii) in OEIS A230596 (2013).
 
-```
-NAME:     Number of ways to write n = x + y + z with 0 < x <= y <= z such that
-          x*y*z is a triangular number, and that x is a triangular number of
-          the form (p^2 - 1)/8 with p an odd prime.
-TERMS:    0,0,1,0,1,1,0,2,1,1,2,2,1,1,2,2,4,1,1,2,3,2,5,1,3,3,3,3,2,8,1,4,...
-COMMENT:  Conjecture: (i) a(n) > 0 except for n = 1, 2, 4, 7.
-COMMENT:  (ii) For any integer n > 7, there are positive integers x, y, z with
-          x + y + z = n such that x*y*z is a triangular number and x is among
-          1, 2, 3, 4, 5, 6.
-AUTHOR:   _Zhi-Wei Sun_, Oct 24 2013
-```
-
-No later comment or edit in the entry retracts the conjecture.
-
-## Status
-
-This module **refutes** part (ii).  Part (i) is a separate claim and is not
+Part (ii) is false.  Part (i) is a separate claim and is not
 touched here (it still holds at the counterexample below:
 `1366924 = 15 + 246694 + 1120215` with `15 = (11^2 - 1)/8` and
 `15 * 246694 * 1120215 = T(2879324)`).
@@ -32,12 +16,6 @@ All six `D_x` are prime (Lucas certificates below), and a prime has at most one
 representation `a^2 + k b^2` with `k ≥ 2` (up to signs); the second
 representation `1^2 + 2 x N^2` then forces `s N = ± (y - z)`, impossible since
 `|y - z| < N ≤ s N`.
-
-Computational evidence (Python brute force over all `x ≤ 6`, `y`; not
-formalized): part (ii) also fails at `n = 611992`, which the triage reports as
-the least failure (minimality rests on a class-group reduction and was not
-independently re-checked).  `n = 1366924` is used because every `D_x` is prime
-there, so no separate argument is needed.
 -/
 import Mathlib
 
@@ -45,7 +23,7 @@ set_option autoImplicit false
 
 namespace Candidates.A230596Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `t` is a triangular number `m (m + 1) / 2` (OEIS A000217, `m ≥ 0`), stated
 without division as `2 t = m (m + 1)` (`m (m + 1)` is always even). -/
@@ -67,7 +45,7 @@ theorem isTriangular_iff_bounded (t : ℕ) :
 instance (t : ℕ) : Decidable (IsTriangular t) :=
   decidable_of_iff _ (isTriangular_iff_bounded t).symm
 
-/-- Ground truth: the triangular numbers below `30` are `0, 1, 3, 6, 10, 15, 21, 28`
+/-- Examples: the triangular numbers below `30` are `0, 1, 3, 6, 10, 15, 21, 28`
 (OEIS A000217). -/
 example : (List.range 30).filter (fun t => decide (IsTriangular t)) =
     [0, 1, 3, 6, 10, 15, 21, 28] := by
@@ -91,7 +69,7 @@ theorem isOddPrimeForm_iff_bounded (x : ℕ) :
 instance (x : ℕ) : Decidable (IsOddPrimeForm x) :=
   decidable_of_iff _ (isOddPrimeForm_iff_bounded x).symm
 
-/-- Ground truth: the values `(p^2 - 1)/8` (`p` an odd prime) below `50` are
+/-- Examples: the values `(p^2 - 1)/8` (`p` an odd prime) below `50` are
 `1, 3, 6, 15, 21, 36, 45` (`p = 3, 5, 7, 11, 13, 17, 19`). -/
 example : (List.range 50).filter (fun x => decide (IsOddPrimeForm x)) =
     [1, 3, 6, 15, 21, 36, 45] := by
@@ -106,16 +84,16 @@ def a (n : ℕ) : ℕ :=
     q.1 ≤ q.2 ∧ q.1 + 2 * q.2 ≤ n ∧ IsOddPrimeForm q.1 ∧
       IsTriangular (q.1 * q.2 * (n - q.1 - q.2))).card
 
-/-- Ground truth: the first twenty-four terms of A230596 (offset 1). -/
+/-- Examples: the first twenty-four terms of A230596 (offset 1). -/
 example : (List.range 24).map (fun n => a (n + 1)) =
     [0, 0, 1, 0, 1, 1, 0, 2, 1, 1, 2, 2, 1, 1, 2, 2, 4, 1, 1, 2, 3, 2, 5, 1] := by
   decide +kernel
 
 /-! ## The conjecture -/
 
-/-- **Sun's conjecture (ii) (A230596, Zhi-Wei Sun, Oct 24 2013).**
+/-- **Sun's conjecture (ii) (A230596, Zhi-Wei Sun, 2013).**
 
-Verbatim: "(ii) For any integer n > 7, there are positive integers x, y, z
+"(ii) For any integer n > 7, there are positive integers x, y, z
 with x + y + z = n such that x*y*z is a triangular number and x is among 1, 2,
 3, 4, 5, 6." -/
 def Conjecture : Prop :=
@@ -307,10 +285,7 @@ theorem no_decomposition_1366924 (x y z : ℕ) (hx : 0 < x) (hx6 : x ≤ 6) (hy 
 `n = 1366924`: for each `x ∈ {1, …, 6}` the number `2 x (n - x)^2 + 1` is
 prime, and `x y z = T(m)` with `y + z = n - x` would give a second
 representation `(2m+1)^2 + 2x(y-z)^2` of that prime besides
-`1 + 2x(n-x)^2`.  (A brute-force search also finds the smaller failure
-`n = 611992`.)  The author presumably extrapolated from a search far below
-these values; heuristically (Schinzel's Hypothesis H) failures recur
-infinitely often. -/
+`1 + 2x(n-x)^2`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   obtain ⟨x, y, z, hx, hx6, hy, hz, hsum, htri⟩ := hconj 1366924 (by norm_num)

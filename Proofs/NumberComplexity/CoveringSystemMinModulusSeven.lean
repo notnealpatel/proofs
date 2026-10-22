@@ -1,44 +1,15 @@
 /-
 # A distinct covering system with minimum modulus 7 and lcm 10080
 
-## Source
-
-arXiv:2607.19029, Shiliang Zhang and Jiheng Zhang (ShanghaiTech),
-"A Distinct Covering System with Minimum Modulus 7 and Minimal Least
-Common Multiple 10080".  Recorded 2026-10-21.
-
-* Definition (Section 2, Preliminaries), verbatim: "A *covering system*
-  is a finite collection of arithmetic progressions a_i (mod m_i),
-  1 ≤ i ≤ n, where m_i ≥ 2 and 0 ≤ a_i < m_i, such that
-  ⋃_{i=1}^n {x ∈ ℤ : x ≡ a_i (mod m_i)} = ℤ.  It is called *distinct*
-  if the moduli m_i are pairwise distinct. ... The modulus m_1 is
-  called the *minimum modulus* of the system, and
-  L = lcm(m_1, ..., m_n) is the least common multiple of its moduli."
-* Klein's conjecture (Integers 26 (2026) #A38, Conjecture 2), as quoted
-  in the introduction: Klein "constructed a distinct covering system
-  with minimum modulus 7 and least common multiple 15120, and
-  conjectured that 15120 was minimal".
-* The explicit system (Section 7, after the Gurobi results table),
-  verbatim: "One checks modulo 10080 that the following distinct
-  congruence classes cover all integers: 6 (mod 7), 7 (mod 8), ...,
-  5033 (mod 5040), 7193 (mod 10080).  The moduli are distinct, the
-  least modulus is 7, and the least common multiple is 10080.  Hence
-  L_min(7) ≤ 10080."
-* Theorem 1 of the paper: L_min(7) = 10080.
-
-## Status
-
-Proved in the paper.  This module formalizes the upper bound
-L_min(7) ≤ 10080 (the explicit construction), and hence the refutation
-of Klein's Conjecture 2.  The matching lower bound L_min(7) ≥ 10080
-rests on Gurobi branch-and-bound computations and is not formalized.
-
-## Method
-
-The 66 congruences are stored literally as pairs `(a, m)`.  Covering of
-ℤ is reduced to covering of `0, ..., 10079` (every modulus divides
-10080), and the finite check is a Boolean computation evaluated by the
-kernel (`decide +kernel`; no `native_decide`).
+Shiliang Zhang and Jiheng Zhang, “A Distinct Covering System with
+Minimum Modulus 7 and Minimal Least Common Multiple 10080”,
+arXiv:2607.19029, §7. The explicit 66 classes give a distinct covering
+system of the integers with minimum modulus `7` and lcm `10080`,
+refuting Klein's Conjecture 2 (Integers 26 (2026), #A38), which proposed
+minimum lcm `15120`. Only the upper bound is formalized; the paper's
+matching lower bound relies on Gurobi branch-and-bound computations.
+Coverage reduces to residues `0,…,10079`, since every modulus divides
+`10080`.
 -/
 import Mathlib
 
@@ -85,7 +56,7 @@ def KleinConjectureTwo : Prop :=
 def coversBelow (S : List (ℕ × ℕ)) (L : ℕ) : Bool :=
   (List.range L).all fun x => S.any fun p => x % p.2 == p.1
 
-/-! ## Ground-truth checks on a classical small system -/
+/-! ## Examples on a classical small system -/
 
 /-- The classical distinct covering system
 `0 (mod 2), 0 (mod 3), 1 (mod 4), 5 (mod 6), 7 (mod 12)`. -/

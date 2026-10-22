@@ -1,36 +1,12 @@
 /-
 # A087412 — Howroyd: a(3^e) = 2*3^e for e > 1
 
-## OEIS source (retrieved with `oeis show A087412`, 2026-10-21)
-
-```
-NAME:     a(n) is the number of solutions to x^3 + y^3 == 1 (mod n).
-TERMS:    1,2,3,4,5,6,6,8,18,10,11,12,6,12,15,16,17,36,24,20,18,22,23,24,25,
-          12,54,24,29,30,33,32,33,34,30,72,24,48,18,40,41,36,33,44,90,...
-FORMULA:  From _Andrew Howroyd_, Jul 17 2018: (Start)
-          a(p^e) = p^e for p prime and p mod 3 = 2.
-          Conjecture: a(3^e) = 2*3^e for e > 1.
-          ... (End)
-PROGRAM:  (PARI) a(n) = {nb = 0; for (x = 0, n-1, for (y = 0, n-1,
-          if (Mod(x^3,n) + Mod(y^3,n) == Mod(1, n), nb++););); nb;}
-          \\ _Michel Marcus_, Aug 06 2013
-```
-
-## Status
-
-Triage: open in the sense that the entry gives no proof; no literature
-source was located (a web search found only the entry itself).  Counts of
-points on diagonal cubics modulo prime powers are plausibly classical.
-Computation (count table of cubes) confirms `a(3^e) = 2*3^e` for
-`e = 2..13` and `a(3) = 3`.
-
-## Result
-
-Proved here (`a_three_pow`, `card_zmod_three_pow`) by an elementary
-3-adic argument: modulo 9, exactly one of `x, y` is divisible by 3; for
-`x ≡ 0 (mod 3)` the cube map on `y ≡ 1 (mod 3)` hits `1 - x^3 ≡ 1 (mod 9)`
-with fibre exactly the class `y ≡ r (mod 3^(e-1))`, i.e. three residues;
-by symmetry the case `y ≡ 0 (mod 3)` contributes the same `3^e`.
+OEIS A087412, Andrew Howroyd: the number of residue pairs satisfying
+`x³ + y³ ≡ 1 (mod 3^e)` is `2·3^e` for `e ≥ 2`.
+The bound is necessary: `a(3) = 3` and `a(1) = 1`.
+Modulo `9`, exactly one coordinate is divisible by `3`. Each such
+coordinate has three partners modulo `3^e`, giving `3^e` pairs in each
+of the two symmetric cases.
 -/
 import Mathlib
 
@@ -38,7 +14,7 @@ set_option autoImplicit false
 
 namespace Candidates.A087412PairsCount
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- **A087412.** `a n` is the number of pairs `(x, y)` with `0 ≤ x, y < n` and
 `x^3 + y^3 ≡ 1 (mod n)`; this mirrors the entry's PARI program (Michel Marcus).  The right
@@ -47,7 +23,7 @@ def a (n : ℕ) : ℕ :=
   ((Finset.range n ×ˢ Finset.range n).filter
     (fun p : ℕ × ℕ => (p.1 ^ 3 + p.2 ^ 3) % n = 1 % n)).card
 
--- Ground truth against the DATA line `1,2,3,4,5,6,6,8,18,10,...`.
+-- Examples against the DATA line `1,2,3,4,5,6,6,8,18,10,...`.
 example : a 1 = 1 := by decide
 -- Boundary `e = 1`: `a 3 = 3`, not `2 * 3 = 6`, so the guard `2 ≤ e` is load-bearing.
 example : a 3 = 3 := by decide
@@ -258,9 +234,7 @@ theorem card_first_zero (k : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Howroyd's conjecture (A087412, Andrew Howroyd, Jul 17 2018), proved.**
-
-Verbatim: "Conjecture: a(3^e) = 2*3^e for e > 1."
+/-- **Howroyd's conjecture (A087412, Andrew Howroyd, 2018).**
 
 For every `e ≥ 2`, the number of pairs `(x, y)` of residues modulo `3^e` with
 `x^3 + y^3 ≡ 1 (mod 3^e)` equals `2 * 3^e`.  The guard `2 ≤ e` is load-bearing:

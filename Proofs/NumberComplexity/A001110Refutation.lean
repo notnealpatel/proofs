@@ -2,37 +2,9 @@
 # A001110 — Ianakiev: no `a(2^k)` is a positive square plus a positive
 # triangular number (refuted)
 
-## OEIS source (retrieved with `oeis show A001110`, 2026-10-21)
-
-```
-A001110   NAME:   Square triangular numbers: numbers that are both triangular
-                  and square.
-          OFFSET: 0
-          DATA:   0,1,36,1225,41616,1413721,48024900,1631432881,55420693056,
-                  1882672131025,63955431761796,2172602007770041,
-                  73804512832419600,2507180834294496361,85170343853180456676,
-                  2893284510173841030625,98286503002057414584576,...
-COMMENT (the conjecture):
-  Conjecture: No a(2^k), where k is a nonnegative integer, can be expressed
-  as a sum of a positive square number and a positive triangular number.
-  - _Ivan N. Ianakiev_, Sep 19 2012
-COMMENT (later, refuting it):
-  The conjecture of Sep 19 2012 is false, since a(16) =
-  98286503002057414584576 = 303363259914^2 + (111868096760*111868096761)/2.
-  This term is A218273(11). For k = 0, 1, 2, 3 there is no such
-  representation, so k = 4 gives the smallest counterexample.
-  - _Clément Garrot_, Aug 25 2026
-```
-
-No later comment retracts Garrot's refutation.
-
-## Status
-
-**Refuted.**  A Python check (`/tmp/claude/a001110.py`, 2026-10-21)
-confirmed `a(16) = 303363259914^2 + T(111868096760)` and found no
-representation for `k = 0, 1, 2, 3` (exhaustive over the positive squares
-below `a(2^k)`).  This module kernel-checks the refutation at `k = 4`
-(`conjecture_false`).
+OEIS A001110, Ivan N. Ianakiev's conjecture; counterexample due to
+Clément Garrot: `a(16) = 303363259914^2 + T(111868096760)`.
+The refutation uses `k = 4`; minimality is not proved here.
 
 `a` is defined exactly as in the NAME line, as the `n`-th number (from 0)
 that is both a square and a triangular number.  The bridge `a_eq` identifies
@@ -45,7 +17,7 @@ set_option autoImplicit false
 
 namespace Candidates.A001110Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `m` is a square triangular number: a perfect square and a triangular
 number `T(t) = t(t+1)/2` for some `t ≥ 0`.  The division is exact because
@@ -155,7 +127,7 @@ theorem a_eq (n : ℕ) : a n = Pell.yn one_lt_pellParam n ^ 2 := by
   rw [htrue, Nat.nth_true] at hcomp
   exact hcomp.symm
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The Pell `y`-sequence is A001109 `0, 1, 6, 35, 204, 1189, …`.
 example : (List.range 8).map (Pell.yn one_lt_pellParam) = [0, 1, 6, 35, 204, 1189, 6930, 40391] := by
@@ -173,15 +145,10 @@ example : (List.range 17).map a =
 
 /-! ## The conjecture and its refutation -/
 
-/-- **Ianakiev's conjecture (A001110, Ivan N. Ianakiev, Sep 19 2012).**
-
-Verbatim: "Conjecture: No a(2^k), where k is a nonnegative integer, can be
-expressed as a sum of a positive square number and a positive triangular
-number."
-
-A positive square is `s^2` with `0 < s`; a positive triangular number is
-`T(t) = t(t+1)/2` with `0 < t` (`T(0) = 0` is the only non-positive one).
-The division is exact since `t(t+1)` is even. -/
+/-- Ianakiev’s conjecture (A001110): no `a(2^k)`, `k ≥ 0`, is a positive
+square plus a positive triangular number. A positive square is `s²`,
+`0 < s`; a positive triangular number is `t(t+1)/2`, `0 < t`. The division
+is exact since `t(t+1)` is even. -/
 def Conjecture : Prop :=
   ∀ k : ℕ, ¬ ∃ s t : ℕ, 0 < s ∧ 0 < t ∧ a (2 ^ k) = s ^ 2 + t * (t + 1) / 2
 
@@ -190,12 +157,9 @@ theorem a_sixteen : a 16 = 98286503002057414584576 := by
   rw [a_eq]
   decide
 
-/-- **The conjecture is false.**  Counterexample (Clément Garrot, Aug 25 2026)
-at `k = 4`:
-`a(16) = 98286503002057414584576 = 303363259914^2 + T(111868096760)`.
-By Garrot's comment (and a Python check) `k = 4` is the smallest
-counterexample, so the observation behind the conjecture was based on
-`k ≤ 3` only; no corrected form is evident. -/
+/-- Garrot’s counterexample to Ianakiev’s conjecture (OEIS A001110):
+`a(16) = 98286503002057414584576 = 303363259914^2 + T(111868096760)`,
+at `k = 4`. Minimality of this counterexample is not proved here. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   refine hconj 4 ⟨303363259914, 111868096760, by norm_num, by norm_num, ?_⟩

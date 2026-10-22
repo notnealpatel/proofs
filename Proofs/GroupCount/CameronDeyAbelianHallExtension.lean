@@ -15,13 +15,10 @@ Theorem (verbatim): "Let $G$ and $H$ be groups of coprime order, and suppose
 that $G$ is abelian. Let $K$ be any extension of $G$ by $H$. Then
 $\os(G\times H)=\os(G)\os(H)$ strongly dominates $\os(K)$."
 
-Status: proved in the paper (Schur–Zassenhaus complement, then
-$(gh)^{o(g)o(h)} = 1$ because the conjugates $h^i g h^{-i}$ lie in the abelian
-normal subgroup and all have order $o(g)$).  The paper asks (end of the paper)
-whether abelianness of $G$ is necessary; the companion Q31 refutation in this
-repository records that it is.  This module is the positive half of that pair.
-
-Recorded 2026-10-21.
+The proof uses a Schur–Zassenhaus complement and the identity
+$(gh)^{o(g)o(h)} = 1$: the conjugates $h^i g h^{-i}$ lie in the abelian
+normal subgroup and all have order $o(g)$. The companion
+`CameronDeyQuestion31Refutation` gives a counterexample without abelianness.
 
 ## Formalization
 
@@ -62,7 +59,7 @@ theorem StronglyDominates.of_mulEquiv_left {G G' H : Type*} [Group G] [Group G']
   simpa only [Equiv.trans_apply, MulEquiv.toEquiv_eq_coe, MulEquiv.coe_toEquiv, hg]
     using hf (e g)
 
-/-- Ground truth: `ℤ/2 × ℤ/2` does not strongly dominate `ℤ/4`
+/-- `ℤ/2 × ℤ/2` does not strongly dominate `ℤ/4`
 (every element of the Klein group has order dividing `2`, but `ℤ/4` has an
 element of order `4`). -/
 example : ¬ StronglyDominates (Multiplicative (ZMod 2 × ZMod 2)) (Multiplicative (ZMod 4)) := by
@@ -75,7 +72,7 @@ example : ¬ StronglyDominates (Multiplicative (ZMod 2 × ZMod 2)) (Multiplicati
   rw [Equiv.apply_symm_apply, h4] at hdvd
   exact absurd (Nat.le_of_dvd two_pos hdvd) (by norm_num)
 
-/-- The load-bearing computation: if `g` lies in an abelian normal subgroup
+/-- If `g` lies in an abelian normal subgroup
 `N`, then for every `k` we have `(g h)^k = P h^k` with `P ∈ N` and
 `P ^ o(g) = 1`; namely `P = ∏_{i<k} h^i g h^{-i}`. -/
 theorem exists_pow_mul_eq {K : Type*} [Group K] (N : Subgroup K) [N.Normal]

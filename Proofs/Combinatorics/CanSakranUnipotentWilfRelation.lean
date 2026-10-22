@@ -1,42 +1,15 @@
 /-
 # Can–Sakran Conjecture 1.9: relating the unipotent and generalized Wilf invariants
 
-## Source
+M. B. Can and N. Sakran, *On Generalized Wilf Conjectures*,
+arXiv:2306.05530, Port. Math. 81 (2024), 21–55, Conjecture 1.9
+(`C:relatingconjectures`, display `A:newconjecture`), asks whether
+`c_M(S) / c(phi(S)) ≤ n_M(S) / n(phi(S))`.
 
-M. B. Can and N. Sakran, *On Generalized Wilf Conjectures*, arXiv:2306.05530
-(published: Port. Math. 81 (2024) 21–55).  Introduction,
-Conjecture `C:relatingconjectures`, display `A:newconjecture`
-(Conjecture 1.9 in the published numbering).  Recorded 2026-10-21.
-
-Verbatim (arXiv v1 source):
-
-```
-Independently of the relationship between the two conjectures, we think that
-the following inequality will hold true for every unipotent numerical monoid
-in P(n,N).
-Conjecture. Let M := P(n,N). Let S be a unipotent numerical monoid in M.
-Then we have
-    c_M(S) / c(phi(S))  <=  n_M(S) / n(phi(S)).
-```
-
-with (same source, Introduction)
-
-* `P(n,N)_k := {x : k <= max_{i,j} x_ij} ∪ {1_n}` (the `k`-th fundamental
-  submonoid), and `r_M(S)` the smallest positive `k` with `P(n,N)_k ∩ M ⊆ S`;
-* `c_M(S) := r_M(S)^(n-1)`,
-  `n_M(S) := |{1_n} ∪ S \ P(n,N)_{r_M(S)}|`;
-* `phi : P(n,N) ≅ N^(n-1)`, `(a_ij) ↦ (a_12, …, a_1n)`;
-* for a complement-finite submonoid `T` of `N^(n-1)` with hole set `H(T)`,
-  `c(T) := |{a : a ⩽ b for some b ∈ H(T)}|` and
-  `n(T) := |{a ∈ T : a ⩽ b for some b ∈ H(T)}|`.
-
-## Status
-
-Stated as an open conjecture in the paper (checked there on one example only).
-The proof below is elementary: every hole lies in the box `B = [0, r-1]^d`,
-so `H ⊆ D ⊆ B` with `D` the down-closure of the holes, `c_M = |B|`,
-`n_M = |B| - |H|`, `c = |D|`, `n = |D| - |H|`, and
-`|B| (|D| - |H|) ≤ (|B| - |H|) |D|` is `|H| |D| ≤ |H| |B|`.
+Every hole lies in `B = [0,r-1]^d`. If `D` is the down-closure of the
+holes `H`, then `H ⊆ D ⊆ B`, `c_M = |B|`, `n_M = |B|-|H|`,
+`c = |D|`, and `n = |D|-|H|`. The cross-multiplied inequality reduces
+to `|H||D| ≤ |H||B|`.
 
 ## Formalization choices
 
@@ -47,7 +20,7 @@ diagonal entries `1` make `P(n,N)_1` everything).  Every cardinality is a
 `Set.ncard`; the complement-finiteness hypothesis keeps every counted set
 finite.
 
-## Ground truth
+## Examples
 
 The paper's own example (Figure `F:thin2`, a thin monoid in `P(3,N)`) is
 formalized below: `r_M = 6`, `c_M = 36`, `n_M = 12`, `n = 8` as in the paper,
@@ -265,7 +238,7 @@ theorem conj_1_9 (S : AddSubmonoid (Fin d → ℕ)) (hfin : (holeSet S).Finite)
   rw [div_le_div_iff₀ (by exact_mod_cast hcpos) (by exact_mod_cast hnpos)]
   exact hcross
 
-/-! ## Ground truth: the paper's thin monoid in `P(3, ℕ)` (Figure `F:thin2`)
+/-! ## Examples: the paper's thin monoid in `P(3, ℕ)` (Figure `F:thin2`)
 
 Holes (`x = a 0`, `y = a 1`): rows `y ∈ {1,2,3}` with `x ≤ 5`, and rows
 `y ∈ {0,4,5}` with `x ∈ {1,3}`; 24 holes in all.  The paper reports
@@ -406,7 +379,7 @@ example : wilfN exampleMonoid = 8 := by
       simp only [Fin.zero_eta, Fin.mk_one, Fin.isValue] <;> omega)]
   decide
 
-/-- Non-vacuity: the hypotheses of `conj_1_9` hold jointly for the example. -/
+/-- The hypotheses of `conj_1_9` hold jointly for the example. -/
 example : (conductorM exampleMonoid : ℚ) / wilfC exampleMonoid ≤
     (sporadicityM exampleMonoid : ℚ) / wilfN exampleMonoid :=
   conj_1_9 exampleMonoid exampleMonoid_holeSet_finite

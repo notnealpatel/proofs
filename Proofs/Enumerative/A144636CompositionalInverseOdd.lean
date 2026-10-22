@@ -1,47 +1,13 @@
 /-
-# A144636 — Bala: `6^(n-1) a(n) / n!` is an integer, odd iff `n` is a power of 2
+Integrality and parity of the rescaled A144636 e.g.f.
+(Peter Bala, Feb 16 2026; OEIS reversion characterization).
 
-## OEIS source (`oeis show A144636`, retrieved 2026-10-21)
-
-```
-NAME:     Column 1 of triangle in A144633.
-TERMS:    0,1,-1,2,-5,10,35,-910,11935,-134750,1376375,-11761750,48923875,
-          1209057850,-48943019125,1218200233250,-25136059573625,...
-KEYWORDS: sign,easy
-FORMULA:  E.g.f.: A(x) = B(x)-1/B(x)-1 where B(x) = (2+3*x+(5+12*x+9*x^2)^(1/2))^(1/3).
-          [From _Vladeta Jovovic_, Jan 24 2009]
-FORMULA (From _Peter Bala_, Feb 16 2026):
-  E.g.f.: A(x) = Series_Reversion( x + x^2/2! + x^3/3! ).
-  A(x)^3 + 3*A(x)^2 + 6*A(x) = 6*x.
-  (1/6)*A(6*x) = x - 3*x^2 + 12*x^3 - 45*x^4 + 108*x^5 + 378*x^6 - 8424*x^7
-  + 82863*x^8 + ... appears to be an integral series and satisfies the
-  algebraic equation 6*y(x)^3 + 3*y(x)^2 + y(x) = x.
-  Conjecture: 6^(n-1)*a(n)/n! is odd iff n is a power of 2. (End)
-```
-
-## Status
-
-Triage: "open" in the OEIS sense (unaddressed in the entry; no literature
-proof located).  This file **proves** both of Bala's claims: the integrality
-of `(1/6) A(6x)` (equivalently of `6^(n-1) a(n)/n!` for `n ≥ 1`) and the
-parity conjecture.  Numerically re-checked for `n ≤ 700` before formalizing.
-
-## Definitional fidelity
-
-The e.g.f. is taken in Bala's form `A(x) = Series_Reversion(x + x^2/2! + x^3/3!)`,
-i.e. the unique `A ∈ ℚ⟦X⟧` with `A(0) = 0` and `f(A(x)) = x` for
-`f = X + X^2/2 + X^3/6` (`Polynomial.aeval A f = X`).  The main theorem
-quantifies over *every* such `A` (so it does not depend on any auxiliary
-construction), and `exists_compInverse` shows the hypothesis is satisfiable.
-`a A n := n! * [x^n] A`.  The triangle A144633 itself is not formalized;
-the e.g.f. characterization (Bala/Jovovic) is used as the definition.
-
-## Proof
-
-`y := (1/6) A(6x)` satisfies `y + 3y^2 + 6y^3 = x`, giving an integer
-recursion for its coefficients `b n`.  Mod 2 this reads `ȳ + ȳ^2 = x`, and in
-characteristic 2 `[x^n] ȳ^2 = [n even] ȳ_{n/2}`, so `b n ≡ b (n/2)` for even
-`n ≥ 2`, `b n ≡ 0` for odd `n ≥ 3`, `b 1 = 1`.
+For the unique A∈ℚ⟦X⟧ with A(0)=0 and A+A²/2+A³/6=X, set a(n)=n! [X^n]A.
+For n≥1, 6^(n-1)a(n)/n! is integral and odd iff n is a power of 2.
+Existence of the inverse is proved, and the result holds for every such A.
+The triangle A144633 is not reconstructed; the e.g.f. characterization
+(Bala; earlier algebraic formula by Vladeta Jovovic, Jan 24 2009) defines a.
+Rescaling gives y+3y²+6y³=X; modulo 2 this is y+y²=X.
 -/
 import Mathlib
 
@@ -72,9 +38,8 @@ and `y + 3 y^2 + 6 y^3 = x` (see `Y_eq`); for `n ≥ 1`, `b n = 6^(n-1) a(n)/n!`
 (see `conjecture`). -/
 def b (n : ℕ) : ℤ := (bs (n + 1)).getD n 0
 
-/-- Ground truth: Bala's printed expansion
-`x - 3x^2 + 12x^3 - 45x^4 + 108x^5 + 378x^6 - 8424x^7 + 82863x^8`,
-extended by four further terms computed independently in Python. -/
+/-- Bala's printed expansion through `x^8`, followed by four further
+coefficients of the same recurrence. -/
 theorem b_values : (List.range 13).map b =
     [0, 1, -3, 12, -45, 108, 378, -8424, 82863, -623700, 3822390, -17816760, 37055070] := by
   decide
@@ -312,7 +277,7 @@ theorem A₀_spec : constantCoeff A₀ = 0 ∧ Polynomial.aeval A₀ f = X := by
     rw [A₀, ← hR]
     linear_combination C 6 * hY + R ^ 2 * e2 + R ^ 3 * e3 + X * e1
 
-/-- Non-vacuity: the series reversion of `f = x + x^2/2! + x^3/3!` exists. -/
+/-- The series reversion of `f = x + x^2/2! + x^3/3!` exists. -/
 theorem exists_compInverse : ∃ A : ℚ⟦X⟧, constantCoeff A = 0 ∧ Polynomial.aeval A f = X :=
   ⟨A₀, A₀_spec⟩
 
@@ -325,7 +290,7 @@ theorem a_eq (A : ℚ⟦X⟧) (hA0 : constantCoeff A = 0) (hA : Polynomial.aeval
     a A n = (n.factorial : ℚ) * (6 * (1 / 6) ^ n * b n) := by
   rw [a, unique A A₀ hA0 A₀_spec.1 hA A₀_spec.2, coeff_A₀]
 
-/-- Ground truth: the e.g.f. coefficients of the reversion of `x + x^2/2! + x^3/3!`
+/-- The e.g.f. coefficients of the reversion of `x + x^2/2! + x^3/3!`
 reproduce the first ten listed terms of A144636. -/
 theorem a_values (A : ℚ⟦X⟧) (hA0 : constantCoeff A = 0) (hA : Polynomial.aeval A f = X) :
     (List.range 10).map (a A) = [0, 1, -1, 2, -5, 10, 35, -910, 11935, -134750] := by
@@ -337,12 +302,8 @@ theorem a_values (A : ℚ⟦X⟧) (hA0 : constantCoeff A = 0) (hA : Polynomial.a
   simp only [h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, Nat.factorial]
   norm_num
 
-/-- **A144636, Bala (Feb 16 2026).** Let `A` be the e.g.f. of A144636, i.e. the
-series reversion of `x + x^2/2! + x^3/3!` (`A(0) = 0`, `f(A(x)) = x`), and
-`a(n) = n! [x^n] A`.  For `n ≥ 1`, `6^(n-1) a(n) / n!` is an integer `m`, and
-`m` is odd iff `n` is a power of 2.  Verbatim conjecture: "Conjecture:
-6^(n-1)*a(n)/n! is odd iff n is a power of 2."  The integrality is Bala's
-"appears to be an integral series" remark. -/
+/-- For any zero-constant reversion `A` of `X+X²/2+X³/6` and `n≥1`,
+`6^(n-1) a(n)/n!` is integral and odd iff `n` is a power of two. -/
 theorem conjecture (A : ℚ⟦X⟧) (hA0 : constantCoeff A = 0) (hA : Polynomial.aeval A f = X)
     (n : ℕ) (hn : 1 ≤ n) :
     ∃ m : ℤ, (m : ℚ) = 6 ^ (n - 1) * a A n / n.factorial ∧ (Odd m ↔ ∃ k, n = 2 ^ k) := by

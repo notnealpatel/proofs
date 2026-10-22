@@ -66,21 +66,6 @@ srcDir = "Proofs"
 name = "Palomar"
 srcDir = "."
 
-[[lean_exe]]
-name = "binary-search"
-root = "BilinearComplexity.BinarySearchMain"
-srcDir = "Proofs"
-
-[[lean_exe]]
-name = "binary-macro-search"
-root = "BilinearComplexity.BinaryMacroSearchMain"
-srcDir = "Proofs"
-
-[[lean_exe]]
-name = "binary-km-regression"
-root = "BilinearComplexity.BinaryKMMain"
-srcDir = "Proofs"
-
 [[require]]
 name  = "mathlib"
 scope = "leanprover-community"

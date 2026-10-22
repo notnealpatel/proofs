@@ -33,7 +33,7 @@
   subgroups exists; re-probe leandoc at campaign start), `Commute`.
 -/
 import Mathlib
-import GroupCount.SmallCases
+import Sorry.GroupCount.SmallCases
 import GroupCount.NoncommutingBoundOne
 import GroupCount.QuaternionCover
 

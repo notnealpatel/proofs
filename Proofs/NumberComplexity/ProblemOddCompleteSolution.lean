@@ -1,28 +1,14 @@
 /-
 # Tiebekabe, Problem 5.2: `5^a = 3^y - 2^(y-2)` and the equation `5^x + 6^y = z^2`
 
-## Source
+Pagdame Tiebekabe, *The Diophantine equation p^x + 6^y = z^{2n}: a complete
+solution for half of the primes*, arXiv:2609.09214, Problem 5.2, asks to prove
+that `5^a = 3^y-2^(y-2)` has only `(a,y) = (2,3)` in positive integers with
+`y` odd, and deduce the unique positive solution `(4,3,29)` to
+`5^x+6^y = z²`. The reduction is in the paper's proof of the main theorem.
 
-arXiv:2609.09214, Pagdame Tiebekabe, "The Diophantine equation
-`p^x + 6^y = z^{2n}`: a complete solution for half of the primes".
-Section "Open problems" (`sec:open`), Problem `prob:five` (Problem 5.2).
-The case reduction it refers to is in Section "Proof of the main theorem"
-(`sec:proof`), the subsections on `y` even and on `y ≥ 3` odd with `x` even.
-
-Verbatim informal claim (Problem `prob:five`):
-
-```
-Prove that 5^{a}=3^{y}-2^{\,y-2} has (a,y)=(2,3) as its only solution in
-positive integers with y odd. This would imply that 5^{x}+6^{y}=z^{2}
-has the unique solution (x,y,z)=(4,3,29).
-```
-
-Recorded 2026-10-21.
-
-## Status
-
-Stated as an open problem in the paper (not proved there).  This module
-proves both statements in full, elementarily (no Zsigmondy, no Catalan):
+Both statements are proved below by elementary congruences and
+factorization.
 
 * Problem 5.2: for odd `y ≥ 5`, `3^y ≡ 3 (mod 8)` while `2^(y-2) ≡ 0` and
   `5^a ∈ {1, 5} (mod 8)`; `y = 3` gives `5^a = 25`.  The helper
@@ -32,10 +18,6 @@ proves both statements in full, elementarily (no Zsigmondy, no Catalan):
   `z = 5^a + 2s` gives the coprime factorisation
   `s (s + 5^a) = 2^(y-2) 3^y`, whose four branches are closed by mod-4,
   mod-5, size and the Problem 5.2 helper.
-
-Computational evidence (python, 2026-10-21): `5^x + 6^y = z^2` has only
-`(4, 3, 29)` for `0 ≤ x, y ≤ 120`; `5^a + 2^(y-2) = 3^y` has only `(2, 3)`
-for `2 ≤ y ≤ 300`, `0 ≤ a < 400`.
 -/
 import Mathlib
 

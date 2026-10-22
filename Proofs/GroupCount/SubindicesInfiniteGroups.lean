@@ -1,43 +1,24 @@
 /-
-# Subindices and subfactors of infinite groups and numbers — Conjecture II
+# Iterated differences of the Fibonacci set
 
-## Source
+M. H. Hooshmand, *Subindices and subfactors of infinite groups and numbers*,
+arXiv:2604.08724, Section 1 (difference sets and difference length) and
+Section 3, "Index stability and ∞-difference length of Fibonacci numbers",
+Conjecture II.
 
-arXiv:2604.08724, M. H. Hooshmand et al., *Subindices and subfactors of
-infinite groups and numbers*.  Section 3, paragraph "Index stability and
-∞-difference length of Fibonacci numbers", bold **Conjecture II** (just after
-the theorem that the Fibonacci set is index stable with `|ℤ : {F_n}| = ℵ₀`).
-The notions `Dif`, `Dif^n`, `Dif^∞`, `dl^∞` and `⟨A⟩^{(N)}` are defined in
-Section 1.
+The difference operator on additive integers is `Dif(A) = -A + A`, with
+`Dif^0(A) = A`. The Fibonacci set uses positive indices, `F₁ = F₂ = 1`,
+and excludes `F₀ = 0`. This file proves that no two consecutive iterated
+difference stages coincide. It also proves that `F` generates `ℤ`, adjoining
+zero leaves every positive stage unchanged, and the union of positive stages
+is `ℤ`. Thus the augmented set also has infinite difference length, giving
+`ℤ = ⟨F⟩^{(∞)}` in the paper's convention.
 
-Definitions (verbatim, Section 1): "we also define left and right difference
-sets, `Dif_ℓ(A) = A⁻¹A` and `Dif_r(A) = AA⁻¹`. ... we often use `Dif` instead
-of `Dif_ℓ`. Denoting the `n`-iteration of `Dif` by `Dif^n` ... `Dif^0(A) := A`.
-... For every `A ⊆ G`, either there exists the least non-negative integer `N`
-such that `Dif^N(A) = Dif^{N+1}(A)` ... or the sequence `{Dif^n(A)}` is
-strictly increasing. In the first case, we define `dl^∞(A) := N` ... also we
-put `dl^∞(A) := ∞` for the second case. ... put `A^0 := A ∪ {0}` (additive
-notation). By `H = ⟨A⟩^{(N)}` we mean `H = ⟨A⟩` and `dl^∞(A^1) = N`."
-
-Claim (verbatim): "Let `{F_n}_{n=1}^∞` be the Fibonacci sequence (defined by
-`F_n = F_{n-1} + F_{n-2}` with `F_1 = F_2 = 1`), and denote by `F` the set of
-all Fibonacci numbers. ... **Conjecture II.** The ∞-difference length of
-Fibonacci numbers is infinite (i.e., `dl^∞(F) = ∞`), and so
-`ℤ = ⟨F⟩^{(∞)}`."
-
-Date recorded: 2026-10-21.
-
-## Status
-
-Stated as an open conjecture in the paper (no proof given there).  This file
-proves it.  Proof: reduce modulo `M = F_L`.  The addition formula gives
-`F_{n+L} ≡ F_{L+1} F_n (mod F_L)` and Cassini gives `F_{L+1}^2 ≡ ±1`, so
-`F_{n+4L} ≡ F_n (mod F_L)` and `F` has at most `4L` residues mod `F_L`.
-Hence `Dif^N(F)` has at most `(4L)^{2^N}` residues mod `F_L`, which is fewer
-than `F_L` for large `L`, so `Dif^N(F) ≠ ℤ`.  On the other hand, if
-`Dif^N(F) = Dif^{N+1}(F)` with `N ≥ 1` then `Dif^N(F)` is a subgroup
-containing `1 = 2 - 1`, so it would be `ℤ`.  The case `N = 0` fails since
-`0 ∉ F`.
+Modulo `F_L`, the addition formula and Cassini give period `4L`, so `F` has
+at most `4L` residues and `Dif^N(F)` at most `(4L)^(2^N)`. For sufficiently
+large `L` this is smaller than `F_L`, excluding equality with `ℤ`. A stable
+positive stage would be a subgroup containing `1` and hence equal to `ℤ`;
+the initial stage is not stable because it excludes zero.
 -/
 import Mathlib
 
@@ -66,7 +47,7 @@ def fibSet : Set ℤ := Set.range fun n : ℕ => (Nat.fib (n + 1) : ℤ)
 `Dif^N(A) = Dif^{N+1}(A)`. -/
 def DlInfinite (A : Set ℤ) : Prop := ∀ N : ℕ, difIter A N ≠ difIter A (N + 1)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : (1 : ℤ) ∈ fibSet := ⟨0, rfl⟩
 example : (2 : ℤ) ∈ fibSet := ⟨2, rfl⟩
@@ -395,7 +376,7 @@ theorem iUnion_difIter_fibSet : (⋃ n : ℕ, difIter fibSet (n + 1)) = Set.univ
   · exact ⟨k, (key k).1⟩
   · exact ⟨k, (key k).2⟩
 
-/-- **Conjecture II, arXiv:2604.08724 (Hooshmand et al.), full statement.**
+/-- **Conjecture II, arXiv:2604.08724 (Hooshmand), full statement.**
 "The ∞-difference length of Fibonacci numbers is infinite (i.e., `dl^∞(F) = ∞`), and so
 `ℤ = ⟨F⟩^{(∞)}`."  Here `ℤ = ⟨F⟩^{(∞)}` means `ℤ = ⟨F⟩` and `dl^∞(F ∪ {0}) = ∞`; we also
 record `Dif^∞(F) = ⋃_{n ≥ 1} Dif^n(F) = ℤ`. -/

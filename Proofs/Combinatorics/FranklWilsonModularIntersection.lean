@@ -11,12 +11,10 @@
 * D. K. Ray-Chaudhuri, R. M. Wilson, "On `t`-designs", Osaka J. Math. 12
   (1975) 737–744 (the uniform case).
 
-## Informal statement (verbatim from the target card)
+## Statement
 
 > If `L ⊆ ℕ` has `|L| = s` and `𝒜 ⊆ 2^[n]` is `L`-intersecting
 > (`|A ∩ B| ∈ L` for distinct `A, B ∈ 𝒜`), then `|𝒜| ≤ Σ_{i=0}^{s} C(n,i)`.
-
-Recorded 2026-10-21.
 
 ## Formal reading
 

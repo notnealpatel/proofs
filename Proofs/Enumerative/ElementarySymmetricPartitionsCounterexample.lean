@@ -1,32 +1,15 @@
 /-
-# Counterexample to Conjecture 1.3 of Hadelyn–Niergarth–Li–Li (j = 2, ℓ = 8)
+# A counterexample for elementary symmetric partitions
 
-## Source
-
-arXiv:2606.00420, "Counterexamples regarding elementary symmetric
-partitions" (Hadelyn, Niergarth, Li, Li).  Section 1, Conjecture 1.3
-(`conj:our conjecture`), with Definition 2.1 (`def:flip`).  Verbatim:
-
-> Let λ and μ be distinct partitions of length ℓ. Then for any ℓ > j ≥ 2,
-> pre_j(λ) = pre_j(μ) if and only if ℓ = 2j and flip_j(λ) = μ.
-
-followed by: "Conjecture 1.3 would imply that pre_j is injective on the set
-of partitions of length j ≤ ℓ not equal to j or 2j."  Here a partition is
-identified with its multiset of (positive integer) parts, pre_j(λ) is the
-multiset {λ_{i_1}⋯λ_{i_j} : i_1 < ⋯ < i_j}, and
-flip_j(λ) = (λ_1⋯λ_ℓ)^{1/j} · (1/λ_ℓ, …, 1/λ_1) (a real-valued partition).
-No condition on |λ| is imposed.
-
-## Status (recorded 2026-10-21)
-
-Stated as an open conjecture in the paper.  It is false: the pair
-λ = (16,4,4,4,4,4,4,1), μ = (8,8,8,8,2,2,2,2) has length 8, the two are
-distinct, pre_2(λ) = pre_2(μ) = {64^6, 16^16, 4^6}, and 8 ≠ 2·2.
-Taking base-2 logarithms, this is the Selfridge–Straus (1958) phenomenon:
-pairwise sums determine an ℓ-multiset iff ℓ is not a power of 2; the
-exponent multisets (0,2^6,4) and (1^4,3^4) have equal pairwise sums.
-The sizes differ (41 vs 40), consistent with Li's theorem that pre_2 is
-injective on partitions of a fixed n.  This file proves the negation.
+Hadelyn–Niergarth–Li–Li, *Counterexamples regarding elementary symmetric
+partitions*, arXiv:2606.00420, Conjecture 1.3 (`conj:our conjecture`) and
+Definition 2.1 (`def:flip`). Here `pre_j` is the multiset of products of
+j-element selections of positive parts, with multiplicity.
+The distinct length-8 partitions `(16,4^6,1)` and `(8^4,2^4)` have the same
+pair-product multiset `{64^6,16^16,4^6}`, but `8 ≠ 2·2`, refuting the conjecture.
+Their sizes are 41 and 40: this does not contradict Li's fixed-size
+injectivity theorem. The exponent construction is the pair-sum phenomenon
+attributed to Selfridge–Straus (1958).
 -/
 import Mathlib
 
@@ -55,7 +38,7 @@ def Conjecture13 : Prop :=
     Multiset.card lam = ℓ → Multiset.card mu = ℓ → lam ≠ mu → 2 ≤ j → j < ℓ →
     (pre j lam = pre j mu ↔ ℓ = 2 * j ∧ flip j lam = mu.map (fun x : ℕ => (x : ℝ)))
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The worked example of the paper: `pre_3(4,3,3,1) = (36,12,12,9)`.
 example : pre 3 {4, 3, 3, 1} = {36, 12, 12, 9} := by decide

@@ -1,37 +1,10 @@
 /-
 # A342992 — every multiple-of-no-5 number has a multiple with only prime digits
 
-## OEIS source (retrieved with `oeis show A342992`, 2026-10-21)
-
-```
-NAME:     Smallest k such that k*n contains only prime digits, or 0 if no such
-          k exists.
-TERMS:    2,1,1,8,1,12,1,4,3,0,2,6,4,18,5,2,15,4,3,0,12,1,1,3,1,2,1,9,8,0,12,
-          1,1,8,1,2,1,14,7,0,13,6,54,8,5,7,5,49,15,0,5,1,1,43,1,42,1,4,43,0,...
-KEYWORDS: nonn,base
-COMMENT:  a(n) is 0 when n is divisible by 10, but when a(n) = 0, n is not
-          always divisible by 10. For example, for n = 625, 1875, 3125,
-          4375, ... a(n) = 0 because no such k has been found yet for these
-          numbers.
-COMMENT (the conjecture, unattributed in the entry):
-          Conjecture: a(n) > 0 for all n that are not divisible by 5.
-COMMENT:  a(625*k) = 0 for k > 0 as the last four digits of (625*k), i.e.,
-          (625*k) mod 10000 always contains a nonprime digit.
-          - _David A. Corneth_, Apr 21 2021
-```
-
-## Status
-
-Triage: open (still printed as a conjecture; the entry gives no proof and the
-triage found none in the literature).  Computational re-validation
-(2026-10-21): for every `n ≤ 20000` with `5 ∤ n` a multiple of `n` with all
-decimal digits in `{2, 3}` exists (residue BFS), and the definition below
-reproduces the first 40 listed terms.
-
-## Result in this file
-
-The conjecture is **proved** here, in the stronger form that the digits can
-be taken from `{2, 3}`:
+OEIS A342992: every positive `n` not divisible by `5` has a positive
+multiple whose decimal digits are prime. The stronger result uses
+only the digits `2` and `3`. The sequence gives the least positive
+multiplier, or `0` when none exists.
 
 * write `n = 2^e * m` with `m` odd (so `gcd(m, 10) = 1`);
 * `block`: there is an `(e+1)`-digit string `X` over `{2, 3}` with
@@ -47,7 +20,7 @@ set_option autoImplicit false
 
 namespace Candidates.A342992DividingThereDecimal
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `m` "contains only prime digits": every decimal digit of `m` is prime
 (equivalently lies in `{2, 3, 5, 7}`). -/
@@ -79,8 +52,7 @@ theorem a_pos_iff (n : ℕ) : 0 < a n ↔ ∃ k, 0 < k ∧ OnlyPrimeDigits (k * 
     rw [dif_pos hex]
     exact (Nat.find_spec hex).1
 
-/-- Characterization of `a n = k` by minimality, used for the ground-truth
-checks against the DATA line. -/
+/-- Characterization of `a n = k` by minimality, used for the examples. -/
 theorem a_eq_of_minimal (n k : ℕ) (hk : 0 < k) (hP : OnlyPrimeDigits (k * n))
     (hmin : ∀ j < k, 0 < j → ¬ OnlyPrimeDigits (j * n)) : a n = k := by
   classical
@@ -109,7 +81,7 @@ theorem a_ten_mul (t : ℕ) (ht : 0 < t) : a (10 * t) = 0 := by
       simp
   exact Nat.not_prime_zero (hP 0 (by rw [hdig]; simp))
 
-/-! ## Ground truth against the DATA line `2,1,1,8,1,12,1,4,3,0,…` -/
+/-! ## Examples against the DATA line `2,1,1,8,1,12,1,4,3,0,…` -/
 
 example : a 1 = 2 := a_eq_of_minimal 1 2 (by norm_num) (by decide) (by decide)
 example : a 2 = 1 := a_eq_of_minimal 2 1 (by norm_num) (by decide) (by decide)
@@ -186,7 +158,7 @@ theorem digits_ofDigits_two_three (R : List ℕ) (hdig : ∀ d ∈ R, d = 2 ∨ 
   · intro hne
     rcases hdig _ (List.getLast_mem hne) with h | h <;> omega
 
-/-- **Stronger form (proved).** For every positive `n` with `5 ∤ n` there is
+/-- **Stronger form.** For every positive `n` with `5 ∤ n` there is
 `k ≥ 1` such that every decimal digit of `k * n` is `2` or `3`. -/
 theorem exists_mul_digits_two_three (n : ℕ) (hn : 0 < n) (h5 : ¬ 5 ∣ n) :
     ∃ k, 0 < k ∧ ∀ d ∈ Nat.digits 10 (k * n), d = 2 ∨ d = 3 := by
@@ -256,10 +228,8 @@ theorem exists_mul_digits_two_three (n : ℕ) (hn : 0 < n) (h5 : ¬ 5 ∣ n) :
   · rw [Nat.div_mul_cancel hndvd, hRdigits]
     exact hRdig
 
-/-- **A342992 conjecture (proved).** Verbatim: "Conjecture: a(n) > 0 for all n
-that are not divisible by 5."  Equivalently: for every positive integer `n`
-with `5 ∤ n` there is `k ≥ 1` such that every decimal digit of `k * n` is
-prime (lies in `{2, 3, 5, 7}`). -/
+/-- The conjecture in A342992: for each positive `n` with `5 ∤ n`,
+a positive multiple `kn` has only prime decimal digits, in `{2,3,5,7}`. -/
 theorem exists_mul_onlyPrimeDigits (n : ℕ) (hn : 0 < n) (h5 : ¬ 5 ∣ n) :
     ∃ k, 0 < k ∧ OnlyPrimeDigits (k * n) := by
   obtain ⟨k, hk, hdig⟩ := exists_mul_digits_two_three n hn h5
@@ -270,12 +240,12 @@ theorem exists_mul_onlyPrimeDigits (n : ℕ) (hn : 0 < n) (h5 : ¬ 5 ∣ n) :
   · rw [h]
     exact Nat.prime_three
 
-/-- **A342992 conjecture, sequence form (proved).** `a(n) > 0` for every
+/-- **A342992 conjecture, sequence form.** `a(n) > 0` for every
 positive `n` not divisible by `5`. -/
 theorem a_pos (n : ℕ) (hn : 0 < n) (h5 : ¬ 5 ∣ n) : 0 < a n :=
   (a_pos_iff n).mpr (exists_mul_onlyPrimeDigits n hn h5)
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- The hypotheses are jointly satisfiable (`n = 1`, `n = 4`), and the
 -- conclusion is not vacuous: `k * n ≥ 1` so its digit list is nonempty.

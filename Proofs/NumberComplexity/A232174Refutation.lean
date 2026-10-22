@@ -1,39 +1,11 @@
 /-
 # A232174 — Sun: the list of `n` with `a(n) = 1` omits `n = 66`
 
-## OEIS source (retrieved with `oeis show A232174` and https://oeis.org/A232174, 2026-10-21)
-
-```
-NAME:     Number of ways to write n = x + y (x, y > 0) with x + n*y and
-          x^2 + n*y^2 both prime.
-OFFSET:   1
-TERMS:    0,1,2,2,1,2,3,1,2,2,3,2,5,1,4,3,2,2,1,1,2,5,4,1,7,2,4,4,6,2,5,1,4,3,
-          5,2,8,2,6,3,3,3,5,2,5,4,7,5,7,3,5,3,3,1,11,4,7,6,5,2,4,3,8,5,6,1,14,
-          1,6,7,6,6,8,3,6,7,7,5,9,3,3,5,7,7,15,5,6,5,2,5,15,6,12,8,7,3,15,8,10,5
-COMMENT:  Conjecture: (i) a(n) > 0 for all n > 1. Also, a(n) = 1 only for
-          n = 2, 5, 8, 14, 19, 20, 24, 32, 54, 68, 101, 168.
-COMMENT:  In a paper published in 2017, the author announced a USD $200 prize
-          for the first solution to his conjecture that a(n) > 0 for all n > 1.
-          - _Zhi-Wei Sun_, Dec 03 2017
-MATH:     a[n_]:=Sum[If[PrimeQ[k+n(n-k)]&&PrimeQ[k^2+n(n-k)^2],1,0],{k,1,n-1}]
-AUTHOR:   Zhi-Wei Sun, Nov 19 2013
-```
-
-No later comment in the entry retracts or amends the list; parts (ii) and
-(iii) of the comment concern other representations and are not treated here.
-
-## Status
-
-This module **refutes** conjecture (i) as stated (the conjunction of the
-positivity claim and the "a(n) = 1 only for" list) by refuting the list.
-At `n = 66` the unique representation is `66 = 53 + 13`, with
-`53 + 66*13 = 911` and `53^2 + 66*13^2 = 13963` both prime, so `a(66) = 1`
-(as the entry's own DATA line records), yet `66` is not in the list.
-A bounded search (Python, trial division, `n ≤ 400`) finds `a(n) = 1` exactly
-for `n ∈ {2, 5, 8, 14, 19, 20, 24, 32, 54, 66, 68, 101, 168}`; the triage
-reports the same set for `n ≤ 3000`.  The intended list evidently includes
-`66`; that corrected claim, and the $200 positivity claim `a(n) > 0`, remain
-open and are not addressed here.
+Zhi-Wei Sun's conjecture (i) in OEIS A232174 combines positivity of `a(n)`
+for `n > 1` with a list of indices at which `a(n) = 1`. The list omits `66`:
+the unique representation `66 = 53+13` gives the primes `911` and `13963`.
+This refutes the list, not the positivity claim. Parts (ii) and (iii), the
+positivity claim, and a list enlarged by `66` are not treated.
 -/
 import Mathlib
 
@@ -43,7 +15,7 @@ namespace Candidates.A232174Refutation
 
 open Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A232174: `a(n)` is the number of `x` with `0 < x < n` such that, with
 `y = n - x`, both `x + n*y` and `x^2 + n*y^2` are prime.  The `ℕ` subtraction
@@ -68,12 +40,12 @@ theorem mem_filter_a232174_iff (n x : ℕ) :
     rw [hy]
     exact ⟨⟨hx0, by omega⟩, hp1, hp2⟩
 
-/-- Ground truth: `a(1), …, a(12)` match the OEIS data. -/
+/-- `a(1), …, a(12)` match the OEIS data. -/
 example : (List.range 12).map (fun i => a232174 (i + 1)) =
     [0, 1, 2, 2, 1, 2, 3, 1, 2, 2, 3, 2] := by
   decide +kernel
 
-/-- Sun's conjecture (i) on A232174 (Zhi-Wei Sun, Nov 19 2013):
+/-- Sun's conjecture (i) on A232174 (Zhi-Wei Sun):
 `a(n) > 0` for all `n > 1`, and `a(n) = 1` only for
 `n = 2, 5, 8, 14, 19, 20, 24, 32, 54, 68, 101, 168`.
 
@@ -108,9 +80,7 @@ theorem a232174_sixtysix : a232174 66 = 1 := by
 
 /-- Sun's conjecture (i) on A232174 is false: `a(66) = 1` (unique
 representation `66 = 53 + 13`, with `911` and `13963` prime), but `66` is
-missing from the list `2, 5, 8, 14, 19, 20, 24, 32, 54, 68, 101, 168`.  The
-author evidently intended the list to include `66` (the entry's own DATA line
-gives `a(66) = 1`); the positivity part `a(n) > 0` for `n > 1` is untouched. -/
+missing from the list `2, 5, 8, 14, 19, 20, 24, 32, 54, 68, 101, 168`.  The positivity part `a(n) > 0` for `n > 1` is untouched. -/
 theorem a232174_conjecture_false : ¬ Conjecture := by
   rintro ⟨-, honly⟩
   have hmem := honly 66 (by norm_num) a232174_sixtysix

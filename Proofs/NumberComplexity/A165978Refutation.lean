@@ -1,28 +1,9 @@
 /-
 # A165978 — Lowell: no value occurs twice (refuted)
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A165978`,
-## cross-checked against https://oeis.org/A165978)
-
-```
-ID:       A165978
-NAME:     Largest prime factor of number formed from a(n-1) with a 1 added
-          at the end, a(1)=2.
-AUTHOR:   J. Lowell, Oct 02 2009
-TERMS:    2,7,71,79,113,29,97,971,83,277,163,233,37,53,59,197,73,43,431,479,
-          1597,15971,383,1277,43,431,479,1597,15971,383,1277,43,...
-COMMENT (the conjecture; the entry records no date on the comment line):
-  Conjecture: The same number will never occur twice in this sequence. - Lowell
-COMMENT (the retraction already in the entry):
-  Disproved - cycle 43,431,479,1597,15971,383,1277 repeats starting at
-  a(18). - Chandler
-```
-
-## Status
-
-This module refutes Lowell's conjecture by a kernel-checked computation:
-`a 18 = 43 = a 25`.  The entry itself already records the disproof
-(Chandler), so the refutation is a formal confirmation of a known fact.
+J. Lowell's injectivity conjecture in OEIS A165978 is refuted by
+`a 18 = a 25 = 43`. Chandler already records the repeating cycle
+`43,431,479,1597,15971,383,1277` in the entry.
 
 ## Definitions
 
@@ -56,7 +37,7 @@ def a : ℕ → ℕ
   | 1 => 2
   | n + 2 => largestPrimeFactor (appendOne (a (n + 1)))
 
-/-! ## Ground-truth checks on the definitions -/
+/-! ## Examples on the definitions -/
 
 example : appendOne 971 = Nat.ofDigits 10 (1 :: Nat.digits 10 971) := by
   norm_num [appendOne, Nat.ofDigits]
@@ -132,9 +113,9 @@ theorem a_prefix :
   exact ⟨h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18,
     h19, h20, h21, h22, h23, h24, h25⟩
 
-/-- **Lowell's conjecture (A165978, J. Lowell, entry of Oct 02 2009).**
+/-- **Lowell's conjecture (A165978, J. Lowell).**
 
-Verbatim: "Conjecture: The same number will never occur twice in this
+"Conjecture: The same number will never occur twice in this
 sequence."  Stated over the OEIS index range `n ≥ 1`: any two distinct
 indices `1 ≤ m < n` carry distinct values. -/
 def Conjecture : Prop := ∀ m n : ℕ, 1 ≤ m → m < n → a m ≠ a n
@@ -142,8 +123,7 @@ def Conjecture : Prop := ∀ m n : ℕ, 1 ≤ m → m < n → a m ≠ a n
 /-- **Lowell's conjecture is false.**  Counterexample: `a 18 = a 25 = 43`;
 from `a 18` on the sequence runs through the 7-cycle
 `43, 431, 479, 1597, 15971, 383, 1277` forever (as already recorded in the
-entry by Chandler).  No corrected form is evident: the sequence is
-eventually periodic, so any injectivity claim fails. -/
+entry by Chandler). -/
 theorem lowell_false : ¬ Conjecture := by
   intro hconj
   obtain ⟨-, -, -, -, -, -, -, -, -, -, -, -, -, -, -, -, -, h18, -, -, -, -, -, -, h25⟩ :=

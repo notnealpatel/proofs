@@ -1,38 +1,10 @@
 /-
 # A399155 — Dilkhush: subtracting the largest prime factor never takes more steps
 
-## OEIS source (retrieved with `oeis show A399155` and the live entry, 2026-10-21)
-
-```
-NAME:     a(n) = f(n) - g(n), where f(n) is the number of steps to reach 0 by
-          repeatedly subtracting the smallest prime factor of the current
-          value, and g(n) is the number of steps to reach 0 by repeatedly
-          subtracting the largest prime factor.
-OFFSET:   2
-TERMS:    0,0,0,0,1,0,1,1,3,0,2,0,5,4,5,0,5,0,6,7,9,0,8,6,11,8,10,0,9,0,9,13,
-          15,11,14,0,17,16,14,0,15,0,18,15,21,0,16,15,17,22,22,0,23,21,20,25,
-          27,0,24,0,29,22,29,26,27,0,30,31,25,0,32,0,35,26,34
-COMMENT:  a(n) = 0 if and only if n = 4 or n is prime.
-COMMENT:  a(2*p) = p - 2 for odd primes p.
-COMMENT (the conjecture, unsigned, in the entry of _Jaylen Dilkhush_,
-         Aug 20 2026):
-  Conjecture: a(n) >= 0 for all n >= 2; equivalently, subtracting the largest
-  prime factor never takes more steps than subtracting the smallest.
-MATHEMATICA:
-  f[n_]:=Length[NestWhileList[#-FactorInteger[#][[1,1]]&,n,#>0&]]-1;
-  g[n_]:=Length[NestWhileList[#-FactorInteger[#][[-1,1]]&,n,#>0&]]-1;
-AUTHOR:   _Jaylen Dilkhush_, Aug 20 2026
-```
-
-## Literature status (triage)
-
-Open as far as the triage could tell: the entry gives no proof of the
-conjecture, nor of the two unproved comments `a(n) = 0 ↔ n = 4 ∨ n prime`
-and `a(2p) = p - 2`.  Computation (2026-10-21, Python sieve):
-`f(n) ≥ g(n)` for all `2 ≤ n ≤ 60000`, with equality exactly at `n = 4` and
-the primes, and the first 75 values reproduce the DATA line.
-
-## Proof (kernel-checked below)
+The unsigned conjecture in OEIS A399155, an entry by Jaylen Dilkhush
+(2026): for `n ≥ 2`, subtracting the largest prime factor takes no more
+steps to reach zero than subtracting the smallest. The difference is zero
+exactly at primes and `4`, and equals `p-2` at `2p` for odd prime `p`.
 
 * `f` is explicit: for even `n` the smallest prime factor stays `2`, so
   `f(n) = n / 2`; for odd `n ≥ 3` with `p = minFac n`, `n - p` is even, so
@@ -51,7 +23,7 @@ set_option autoImplicit false
 
 namespace Candidates.A399155CountsStepsReach
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The decrement used by `g`: the largest prime factor of `m` for `2 ≤ m`.
 At `m ≤ 1` (where `m` has no prime factor) it is `1`; this matches
@@ -79,7 +51,7 @@ decreasing_by
 /-- A399155: `a(n) = f(n) - g(n)`, as an integer (the entry's offset is `2`). -/
 def a (n : ℕ) : ℤ := (stepsMin n : ℤ) - (stepsMax n : ℤ)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The largest prime factor of `60 = 2^2 · 3 · 5` is `5`.
 example : maxPrimeFac 60 = 5 := by decide +kernel
@@ -217,10 +189,7 @@ theorem stepsMax_le_stepsMin {n : ℕ} (hn : 2 ≤ n) : stepsMax n ≤ stepsMin 
     rw [stepsMax_of_pos hpos, stepsMin_of_pos hpos, stepsMin_even heven]
     omega
 
-/-- **Dilkhush's conjecture (A399155, Jaylen Dilkhush, Aug 20 2026).**
-
-Verbatim: "Conjecture: a(n) >= 0 for all n >= 2; equivalently, subtracting the
-largest prime factor never takes more steps than subtracting the smallest."
+/-- **Dilkhush's conjecture (A399155, Jaylen Dilkhush, 2026).**
 
 Here `a n = f(n) - g(n)` is computed in `ℤ`, so the statement is not about
 truncated subtraction.  The guard `2 ≤ n` is the entry's offset. -/
@@ -229,7 +198,7 @@ theorem a_nonneg {n : ℕ} (hn : 2 ≤ n) : 0 ≤ a n := by
   unfold a
   omega
 
-/-! ## The entry's unproved comments -/
+/-! ## Further identities from the entry -/
 
 /-- `g(4) = 2`: `4 → 2 → 0`. -/
 theorem stepsMax_four : stepsMax 4 = 2 := by
@@ -347,7 +316,7 @@ theorem a_two_mul_prime {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) :
   push_cast
   ring
 
-/-! ## Satisfiability and non-vacuity -/
+/-! ## Examples -/
 
 -- The hypotheses of `a_nonneg` and `a_eq_zero_iff` hold at `n = 2`, and the
 -- inequality is strict at a composite: `a 6 = 1`.

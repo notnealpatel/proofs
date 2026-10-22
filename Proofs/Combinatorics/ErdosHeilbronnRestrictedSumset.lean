@@ -2,8 +2,6 @@
 # Erdős–Heilbronn conjecture over `ZMod p`
   (Dias da Silva–Hamidoune; Alon–Nathanson–Ruzsa)
 
-Date: 2026-10-21.
-
 ## Source
 
 * Conjectured by P. Erdős and H. Heilbronn (1964).
@@ -17,7 +15,7 @@ Date: 2026-10-21.
 * N. Alon, "Combinatorial Nullstellensatz", Combin. Probab. Comput. 8
   (1999), §4 (Theorem 4.1 and its proof).
 
-## Informal statement (verbatim from the target specification)
+## Statement
 
   For a prime p and nonempty A, B ⊆ ZMod p with |A| ≠ |B|, the restricted
   sumset A ∔ B = {a+b : a∈A, b∈B, a≠b} satisfies |A ∔ B| ≥ min(p, |A|+|B|−2).
@@ -26,7 +24,7 @@ Date: 2026-10-21.
 ## Formalization
 
 * `restrictedSumset A B` is the `Finset` image of `(a, b) ↦ a + b` over the
-  off-diagonal part of `A ×ˢ B`; Mathlib has no restricted sumset.  It agrees
+  off-diagonal part of `A ×ˢ B`; it agrees
   pointwise with the repository's `Set`-valued `Erdos880.restrictedSumset`
   (`Proofs/Erdos/Erdos880/RestrictedSumset.lean`), via `mem_restrictedSumset`.
 * `min_le_card_restrictedSumset_of_card_ne` : the |A| ≠ |B| statement.
@@ -273,7 +271,7 @@ theorem erdos_heilbronn {p : ℕ} [Fact p.Prime] {A : Finset (ZMod p)} (hA : 2 �
   exact anr_core A A (i := min (#A - 1) (m + 1)) (j := m + 1 - min (#A - 1) (m + 1))
     (by omega) (by omega) (by omega) (by omega) hmp
 
-/-! ## Ground truth and satisfiability -/
+/-! ## Examples -/
 
 /-- `{0,1,2} ∔ {0,1,2} = {1,2,3}` in `ZMod 7`: the Erdős–Heilbronn bound `2·3 - 3 = 3`
 is attained by an arithmetic progression. -/

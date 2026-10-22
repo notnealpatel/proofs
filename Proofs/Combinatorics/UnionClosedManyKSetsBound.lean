@@ -1,26 +1,13 @@
 /-
 # Union-closed families with more than `C(n,k)` `k`-sets (sharp Petrov bound)
 
-## Source
-
-Amir Jafari, *On union-closed families with prescribed number of `k`-sets*,
-arXiv:2609.11358 (2026).  The statement is Theorem 1.2 (`thm:first-threshold`,
-Section 1.1 "The first strip"); its proof opens Section 2 ("Antichains and small
-certificates").  Recorded 2026-10-21.
-
-Verbatim informal claim (Theorem 1.2):
-
-> Let `n ≥ k ≥ 1` be integers. If a union-closed family `𝓕` contains more than
-> `binom(n,k)` distinct `k`-sets, then `|𝓕_{≥ n}| ≥ n - k + 3`. This bound is
-> attained by a family containing exactly `binom(n,k) + 1` `k`-sets.
-
-Here all sets and families are finite and `𝓕_{≥ n} = {A ∈ 𝓕 : |A| ≥ n}`.  The
-weaker bound `3` is Fedor Petrov's problem from IMC 2016.
-
-## Status
-
-Proved in the paper (unrefereed 2026 preprint).  This module formalizes both
-parts: the bound (`thm_1_2`) and the sharpness construction (`thm_1_2_sharp`).
+Amir Jafari, *On union-closed families with prescribed number of k-sets*,
+arXiv:2609.11358 (2026), Theorem 1.2 (`thm:first-threshold`, Section 1.1),
+proves that for `n ≥ k ≥ 1`, a finite union-closed family with more than
+`binom(n,k)` distinct `k`-sets has at least `n-k+3` members of size at
+least `n`, and that the bound is attained with `binom(n,k)+1` `k`-sets.
+The proof is in Section 2. The weaker bound 3 is Fedor Petrov's
+IMC 2016 problem. Both the bound and sharpness are formalized below.
 
 ## Formalization
 
@@ -67,7 +54,7 @@ theorem isGenUnion_sup {𝒜 ℬ : Finset (Finset α)} (hsub : ℬ ⊆ 𝒜) (hn
   obtain ⟨C, hC, hyC⟩ := mem_sup.1 hy
   exact ⟨C, hsub hC, le_sup (f := id) hC, hyC⟩
 
-/-- Ground truth for `IsGenUnion`: it holds exactly when `S` is the union of a nonempty
+/-- It holds exactly when `S` is the union of a nonempty
 subfamily of `𝒜`. -/
 theorem isGenUnion_iff (𝒜 : Finset (Finset α)) (S : Finset α) :
     IsGenUnion 𝒜 S ↔ ∃ 𝒢 ⊆ 𝒜, 𝒢.Nonempty ∧ 𝒢.sup id = S := by
@@ -401,7 +388,7 @@ theorem thm_1_2_sharp {n k : ℕ} (hk : 1 ≤ k) (hkn : k ≤ n) :
     rw [card_filter_card_eq_sharpFamily hk hkn]
     exact Nat.lt_succ_self _
 
-/-! ### Ground-truth checks on small instances -/
+/-! ### Examples on small instances -/
 
 example : IsUnionClosed ({{0}, {1}, {0, 1}} : Finset (Finset ℕ)) := by
   unfold IsUnionClosed; decide

@@ -1,40 +1,11 @@
 /-
-# A026002 — Bergot: the diagonal of an n(n-1)+1-bordered Delannoy array
+# Bergot's bordered Delannoy array (A026002)
 
-## OEIS source (pulled with `oeis show A026002`, retrieved 2026-10-21)
-
-```
-NAME:     a(n) = T(n,n+2), where T = Delannoy triangle (A008288).
-TERMS:    1,7,41,231,1289,7183,40081,224143,1256465,7059735,39753273,...
-          (offset 1: Deutsch's comment gives a(2) = 7)
-FORMULA:  a(n) = Sum_{k=0..n} C(n, k)*C(n+2, k)*2^k. - _Paul Barry_, Jan 23 2006
-          (with the entry's offset 1 this reads a(n) = Sum_k C(n-1,k)C(n+1,k)2^k,
-          i.e. a(n) = D(n-1, n+1) for the square Delannoy array D)
-COMMENT (the conjecture):
-  Conjecture: define an infinite array to have m(n,1) = m(1,n) = n*(n-1)+1 in
-  the first row and column, and m(i,j) = m(i,j-1) + m(i-1,j-1) + m(i-1,j);
-  then m(n,n) = a(n). - _J. M. Bergot_, Apr 24 2013
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  Checked numerically for `n ≤ 80` (2026-10-21); proved below
-without `sorry` via the closed form in the Proof section.
-
-## Indexing
-
-The entry has offset 1, `a(1) = 1`, `a(2) = 7`, and `a(n) = D(n-1, n+1)` where
-`D` is the square Delannoy array `D(a,0) = D(0,b) = 1`,
-`D(a,b) = D(a-1,b) + D(a,b-1) + D(a-1,b-1)`.  Bergot's array `m` is 1-indexed.
-
-## Proof
-
-`2 m(i,j) = D(i-1, j+1) + D(i+1, j-1)` for all `i, j ≥ 1`: both sides obey the
-Delannoy recurrence for `i, j ≥ 2`, and on the border `j = 1`,
-`D(i-1,2) + D(i+1,0) = (2i² - 2i + 1) + 1 = 2(i² - i + 1)` (symmetrically for
-`i = 1`).  On the diagonal the symmetry `D(a,b) = D(b,a)` gives
-`m(n,n) = D(n-1, n+1) = a(n)`.
+Source: J. M. Bergot's OEIS A026002 comment (Apr 24 2013).
+The array has border `m(n,1) = m(1,n) = n(n-1)+1` and the Delannoy recurrence.
+For positive indices, `2m(i,j) = D(i-1,j+1)+D(i+1,j-1)`.
+Consequently `m(n,n) = D(n-1,n+1)` for `n ≥ 1`, the offset-1 A026002 term
+(`a(1)=1`, `a(2)=7`). Here `D` is the square Delannoy array with border 1.
 -/
 import Mathlib
 
@@ -60,7 +31,7 @@ def bergot : ℕ → ℕ → ℕ
   | n + 2, 1 => (n + 2) * (n + 1) + 1
   | i + 2, j + 2 => bergot (i + 2) (j + 1) + bergot (i + 1) (j + 1) + bergot (i + 1) (j + 2)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- Central Delannoy numbers `D(n,n)` (A001850): `1, 3, 13, 63, 321`. -/
 example : (List.range 5).map (fun n => delannoy n n) = [1, 3, 13, 63, 321] := by
@@ -172,11 +143,8 @@ theorem bergot_diag_succ (n : ℕ) : bergot (n + 1) (n + 1) = delannoy n (n + 2)
   have hsymm : delannoy (n + 2) n = delannoy n (n + 2) := delannoy_comm (n + 2) n
   omega
 
-/-- **Bergot's conjecture (A026002, J. M. Bergot, Apr 24 2013).**
-Verbatim: "define an infinite array to have m(n,1) = m(1,n) = n*(n-1)+1 in the
-first row and column, and m(i,j) = m(i,j-1) + m(i-1,j-1) + m(i-1,j); then
-m(n,n) = a(n)", where `a(n) = D(n-1, n+1)` (entry offset 1).  The guard
-`1 ≤ n` keeps the 1-indexed array and the subtraction `n - 1` off junk values. -/
+/-- Bergot's diagonal identity for the offset-1 sequence A026002.
+The guard `1 ≤ n` keeps both array indices and `n-1` in their intended domains. -/
 theorem bergot_conjecture (n : ℕ) (hn : 1 ≤ n) : bergot n n = delannoy (n - 1) (n + 1) := by
   obtain ⟨k, rfl⟩ : ∃ k, n = k + 1 := ⟨n - 1, by omega⟩
   simpa using bergot_diag_succ k

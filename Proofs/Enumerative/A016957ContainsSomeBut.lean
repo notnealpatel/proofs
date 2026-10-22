@@ -1,54 +1,13 @@
 /-
-# A016957 — Rascoe: `6n + 4` meets A088827 exactly at indices `A186424(k) - 1`
+# A016957: Rascoe's abundance-index identity
 
-## OEIS source (retrieved with `oeis show A016957`, 2026-10-21)
-
-```
-NAME:     a(n) = 6*n + 4.
-TERMS:    4,10,16,22,28,34,40,46,52,58,64,70,76,82,88,94,100,106,112,118,124,
-          130,136,142,148,154,160,166,172,178,184,190,196,202,208,214,220,226
-COMMENT (the conjecture):
-  Conjecture: this sequence contains some but not all, even numbers with odd
-  abundance A088827. They appear in this sequence at indices A186424(n) - 1.
-  - _John Tyler Rascoe_, Jul 09 2022
-```
-
-Cross-referenced entries (retrieved with `oeis show`, 2026-10-21):
-
-```
-A088827  NAME: Even numbers with odd abundance: even squares or two times
-               squares.
-         TERMS: 2,4,8,16,18,32,36,50,64,72,98,100,128,144,162,196,200,...
-         COMMENT: Sigma(k)-2k is odd means that sigma(k) is also odd.
-A186421  NAME: Even numbers interleaved with repeated odd numbers.
-         TERMS: 0,1,2,1,4,3,6,3,8,5,10,5,12,7,14,7,16,9,18,9,20,11,...
-         FORMULA: a(n) = n if n is even, else 2*floor(n/4)+1.
-A186423  NAME: Partial sums of A186421.
-         TERMS: 0,1,3,4,8,11,17,20,28,33,43,48,60,67,81,88,104,113,131,...
-A186424  NAME: Odd terms in A186423.
-         TERMS: 1,3,11,17,33,43,67,81,113,131,171,193,241,267,323,353,...
-         COMMENT: Numbers m such that 6*m-2 is a square. - _Bruno Berselli_,
-                  Apr 29 2016
-```
-
-## Literature status (triage)
-
-Open as far as the triage could tell: the entry gives no proof.  The claim is
-elementary.  Computation (2026-10-21, Python): the index characterization holds
-for every `n < 2 · 10^5` (365 hits), and `2, 8, 18, 32, 36` are members of
-A088827 that are not `≡ 4 (mod 6)`.
-
-## Proof (kernel-checked below)
-
-* `σ(k)` is odd iff `k = 2^e s²` (multiplicativity; `σ(p^m) ≡ m + 1 (mod 2)`
-  for odd `p`, and `σ(2^m)` is odd).  The abundance `σ(k) - 2k` has the parity
-  of `σ(k)`.
-* `6n + 4 ≡ 1 (mod 3)`, while `2 · s² ≢ 1 (mod 3)`, so the exponent `e` is even
-  and `6n + 4` is a square; conversely every square has odd `σ`.
-* Summing `A186421` over blocks of four gives `A186423(4k+1) = 6k² + 4k + 1`,
-  `A186423(4k+2) = 6k² + 8k + 3`, and even values at `4k`, `4k+3`.  Hence
-  `n + 1 ∈ A186424` iff `6n + 4 = (6k+2)²` or `(6k+4)²`, iff `6n + 4` is a
-  square (a square `≡ 4 (mod 6)` has root `≡ 2, 4 (mod 6)`).
+OEIS A016957, John Tyler Rascoe (Jul 09 2022), with A088827, A186421,
+A186423 and A186424; Bruno Berselli's square characterization of A186424
+(Apr 29 2016).
+The sequence `6n + 4` contains some but not all positive even numbers with
+odd abundance. For every zero-based index `n`, membership is equivalent to
+`n + 1` being an odd term of the partial sums A186423.
+Abundance is taken in `ℤ`, and the index condition avoids truncated subtraction.
 -/
 import Mathlib
 
@@ -58,7 +17,7 @@ namespace Candidates.A016957ContainsSomeBut
 
 open ArithmeticFunction Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A016957: `a(n) = 6n + 4`. -/
 def A016957 (n : ℕ) : ℕ := 6 * n + 4
@@ -83,7 +42,7 @@ def A186423 (n : ℕ) : ℕ := ∑ i ∈ range (n + 1), A186421 i
 /-- A186424 membership: `m` is an odd term of A186423. -/
 def IsA186424 (m : ℕ) : Prop := (∃ i, A186423 i = m) ∧ Odd m
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- A016957 data line.
 example : (List.range 8).map A016957 = [4, 10, 16, 22, 28, 34, 40, 46] := by decide
@@ -293,17 +252,10 @@ theorem isA186424_succ_iff (n : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Rascoe's conjecture (A016957, John Tyler Rascoe, Jul 09 2022).**
-
-Verbatim: "Conjecture: this sequence contains some but not all, even numbers
-with odd abundance A088827. They appear in this sequence at indices
-A186424(n) - 1."
-
-Formalized as three conjuncts: (1) some term `6n + 4` lies in A088827;
-(2) some member of A088827 is not of the form `6n + 4`; (3) for every index `n`,
-`6n + 4` lies in A088827 iff `n + 1` is a term of A186424 (the index set is
-`{A186424(k) - 1}`; all terms of A186424 are odd, hence `≥ 1`, so writing
-`n + 1` avoids the truncated subtraction without changing the claim). -/
+/-- Rascoe's A016957 conjecture: some but not all positive even numbers of
+odd abundance occur as `6n+4`, and occurrence is equivalent to `n+1` being
+an A186424 term. All A186424 terms are positive, so this expresses the
+source index set `{A186424(k)-1}` without truncated subtraction. -/
 theorem rascoe_conjecture :
     (∃ n, IsA088827 (A016957 n)) ∧
       (∃ k, IsA088827 k ∧ ∀ n, A016957 n ≠ k) ∧

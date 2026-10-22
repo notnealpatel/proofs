@@ -1,32 +1,11 @@
 /-
-# A295433 — Bala: the half-index Gamma ratio `a(n/2)` is an integer
+# A295433 — integrality of Bala's half-index Gamma ratio
 
-## OEIS source (retrieved with `oeis show A295433`, 2026-10-21)
-
-```
-NAME:     a(n) = (12*n)!*n!/((8*n)!*(3*n)!*(2*n)!).
-TERMS:    1,990,3432198,13768454700,58626071754822,257898242928604740,...
-COMMENT (the conjecture):
-  Conjecture: for n >= 0, a(n/2) = (6*n)!*(n/2)!/((4*n)!*(3*n/2)!*n!) =
-  A347856(n) is an integer, where fractional factorials are defined using
-  the Gamma function; for example, (n/2)! := Gamma(n/2 + 1).
-  - _Peter Bala_, Jun 13 2026
-```
-
-A347856 (NAME: `a(n) = (6*n)!/((4*n)!*n!) * (n/2)!/(3*n/2)!`) begins
-`1, 20, 990, 56576, 3432198, 215147520, ...`.
-
-## Literature status (triage)
-
-Open: no proof in A295433 or A347856, nor in the literature as far as the
-triage could tell. The even case `n = 2m` is the integrality of `a(m)` itself,
-which is classical (Landau's criterion); the content is odd `n`.
-
-## Result of this module
-
-The conjecture is proved for every `n`, with no remaining `sorry`. The proof is
-a second consumer of the Landau-criterion framework of
-`Combinatorics.A295431BalaGamma`.
+Peter Bala (OEIS A295433, Jun 13 2026) conjectured that `a(n/2)`,
+also A347856(n), is integral for every natural `n`, with fractional
+factorials interpreted as `x! = Γ(x+1)`. The sequence is
+`a(n) = (12n)! n! / ((8n)! (3n)! (2n)!)`.
+The proof uses the Landau-criterion framework of `Combinatorics.A295431BalaGamma`.
 
 * Odd `n`: `Γ(k/2 + 1) = k! √π / (2^k ⌊k/2⌋!)` for odd `k`, so the ratio
   equals `2^(2n) (6n)! ⌊3n/2⌋! / ((4n)! (3n)! ⌊n/2⌋!)`. The factorial quotient
@@ -46,7 +25,7 @@ namespace Candidates.A295433BalaJunGamma
 
 open Candidates.A295431BalaGamma (landau_list div_div_eq_of_mul_eq gamma_half_of_odd)
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The OEIS sequence A295433: `a(n) = (12n)! n! / ((8n)! (3n)! (2n)!)`. The
 truncating `Nat` division is exact; see `a295433_mul`. -/
@@ -218,7 +197,7 @@ theorem balaRatio_two_mul (m : ℕ) : balaRatio (2 * m) = (a295433 m : ℝ) := b
   rw [div_eq_iff (by positivity)]
   linear_combination -hmul
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : a295433 0 = 1 := by decide
 example : a295433 1 = 990 := by decide
@@ -252,11 +231,9 @@ theorem bala_integrality_of_odd (n : ℕ) (hn : Odd n) : ∃ k : ℕ, balaRatio 
   push_cast
   ring
 
-/-- **Bala's conjecture (A295433, Peter Bala, Jun 13 2026).** Verbatim:
-"Conjecture: for n >= 0, a(n/2) = (6*n)!*(n/2)!/((4*n)!*(3*n/2)!*n!) =
-A347856(n) is an integer, where fractional factorials are defined using the
-Gamma function; for example, (n/2)! := Gamma(n/2 + 1)." Here `balaRatio n` is
-`a(n/2)`, and the statement asserts it is a natural number for every `n`. -/
+/-- Bala's conjecture (OEIS A295433, Peter Bala, Jun 13 2026):
+`balaRatio n` is a natural number for every natural `n`, with fractional
+factorials interpreted as `x! = Γ(x+1)`. -/
 theorem bala_integrality (n : ℕ) : ∃ k : ℕ, balaRatio n = k := by
   rcases Nat.even_or_odd n with ⟨m, rfl⟩ | hn
   · exact ⟨a295433 m, by rw [← two_mul, balaRatio_two_mul]⟩

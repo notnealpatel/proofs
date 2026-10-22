@@ -1,34 +1,10 @@
 /-
 # A227781 — the level of `ZMod n`: Greathouse's conjecture
 
-## OEIS source (re-pulled verbatim from `https://oeis.org/search?q=id:A227781&fmt=text`, 2026-10-21)
-
-```
-%N A227781 Least number of squares which add to -1 mod n.
-%S A227781 0,1,2,3,1,2,2,4,2,1,2,3,1,2,2,4,1,2,2,3,2,2,2,4,1,1,2,3,1,2,2,4,2,1,
-%C A227781 Pfister proved that a(p) <= 2 for all primes p; then a(p) is called the
-          stufe of the field Z/pZ.
-%C A227781 Conjecture: a(n) = 4 if and only if n is divisible by 8 and a(n) = 3 if
-          and only if n is 4 mod 8. Together with A008784 this would completely
-          define the sequence.
-%F A227781 a(n) <= A002828(n-1) <= 4.
-%F A227781 a(n) = 1 if and only if n > 1 is in A008784. a(4n) >= 3 for all n.
-%O A227781 1,3
-%A A227781 _Charles R Greathouse IV_, Jul 31 2013
-```
-
-The conjecture line carries no separate signature; it belongs to the entry's
-author, Charles R Greathouse IV (entry dated Jul 31 2013, last edited
-May 15 2017).
-
-## Status
-
-Triage status: "unclear".  The triage found no printed proof (the
-levels-of-rings survey in Banach Center Publ. 108 and arXiv:2608.22435 were
-consulted); the statement is very likely folklore.  Brute force over
-`n = 1..3000` (triage) and `n = 3001..3400` (this session) found no exception.
-
-## Proof outline (all proved below)
+OEIS A227781, Charles R Greathouse IV: the level of `ZMod n` is `4`
+iff `8 ∣ n` for `n ≥ 1`, and is `3` iff `n ≡ 4 (mod 8)`.
+At `n = 0` the representation set is empty, so the defined infimum
+is `0`; at `n = 1` the empty sum represents `-1 = 0`.
 
 * Upper bound 4 for every `n ≥ 1`: Lagrange's four-square theorem on `n - 1`.
 * Upper bound 2 when `4 ∤ n`, and 3 when `n ≡ 4 (mod 8)`: for odd `m`, Dirichlet
@@ -45,7 +21,7 @@ set_option autoImplicit false
 
 namespace Candidates.A227781LeastSumSquares
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The set of `k : ℕ` such that `-1` is a sum of `k` squares in `ZMod n`. -/
 def sqSumSet (n : ℕ) : Set ℕ :=
@@ -234,8 +210,7 @@ guard is needed: `4 ∣ 0`.) -/
 theorem A227781_le_two {n : ℕ} (h4 : ¬ 4 ∣ n) : A227781 n ≤ 2 :=
   A227781_le_of_mem (two_mem_sqSumSet h4)
 
-/-- **Greathouse's conjecture, part 1 (A227781, Charles R Greathouse IV,
-Jul 31 2013).** Verbatim: "a(n) = 4 if and only if n is divisible by 8".
+/-- **Greathouse's conjecture, part 1 (A227781, Charles R Greathouse IV, 2013).**
 For every `n ≥ 1`, the least number of squares adding to `-1` modulo `n` is `4`
 iff `8 ∣ n`.  The guard `0 < n` is the entry's offset and is load-bearing: at
 `n = 0` the junk value `A227781 0 = 0` while `8 ∣ 0`. -/
@@ -252,8 +227,7 @@ theorem A227781_eq_four_iff {n : ℕ} (hn : 0 < n) : A227781 n = 4 ↔ 8 ∣ n :
   · intro h8
     exact (A227781_eq_succ_iff n 3).2 ⟨four_mem_sqSumSet hn, three_not_mem_sqSumSet h8⟩
 
-/-- **Greathouse's conjecture, part 2 (A227781, Charles R Greathouse IV,
-Jul 31 2013).** Verbatim: "a(n) = 3 if and only if n is 4 mod 8".
+/-- **Greathouse's conjecture, part 2 (A227781, Charles R Greathouse IV, 2013).**
 The least number of squares adding to `-1` modulo `n` is `3` iff
 `n ≡ 4 (mod 8)`.  This holds for every `n : ℕ`, including the junk case
 `n = 0` (both sides false), so no `0 < n` guard is needed. -/
@@ -277,7 +251,7 @@ theorem A227781_eq_three_iff {n : ℕ} : A227781 n = 3 ↔ n % 8 = 4 := by
     exact (A227781_eq_succ_iff n 2).2
       ⟨three_mem_sqSumSet hmod, two_not_mem_sqSumSet (by omega)⟩
 
-/-! ## Ground truth against the listed terms `0, 1, 2, 3, 1, 2, 2, 4, …` -/
+/-! ## Examples against the listed terms `0, 1, 2, 3, 1, 2, 2, 4, …` -/
 
 /-- `A227781 1 = 0`: in `ZMod 1`, `-1 = 0` is the empty sum. -/
 example : A227781 1 = 0 :=

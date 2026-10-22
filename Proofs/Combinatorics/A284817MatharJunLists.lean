@@ -1,42 +1,11 @@
 /-
 # A284817 — Mathar: `2n - 1 - A284776(n) = A189664(n-1)`
 
-## OEIS source (retrieved with `oeis show A284817` and the live `/internal`
-## page, 2026-10-21)
-
-```
-%N A284817  a(n) = 2n - 1 - A284776(n).
-%O A284817  1
-%S A284817  0,0,1,0,0,0,1,0,1,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,1,...
-%F A284817  a(n) = 2n - 1 - A284776.
-%F A284817  Conjecture: a(n) = A189664(n-1). - _R. J. Mathar_, Jun 21 2025
-%t A284817  s = Nest[Flatten[# /. {0 -> {0, 1}, 1 -> {0, 0, 1, 1}}] &, {0}, 7]; (* A284775 *)
-%t A284817  u = Flatten[Position[s, 0]] ; (* A284776 *)
-%A A284817  Clark Kimberling, Apr 14 2017
-
-%N A284775  Fixed point of the morphism 0 -> 01, 1 -> 0011.
-%N A284776  Positions of 0 in A284775; complement of A284777.
-%S A284776  1,3,4,7,9,11,12,15,16,19,21,22,25,27,28,31,33,35,36,39,...
-%N A189664  Fixed point of the morphism 0->010, 1->001.
-%O A189664  1
-%S A189664  0,1,0,0,0,1,0,1,0,0,1,0,0,1,0,0,0,1,0,1,...
-%F A189664  a(3*k-2) = 0, a(3*k-1) = 1 - a(k), a(3*k) = a(k) for k >= 1, a(0) = 0.
-```
-
-The conjecture as stated by the triage: for all `n ≥ 1`,
-`2n - 1 - A284776(n) = A189664(n-1)`, with `A189664(0) = 0` (the value the
-A189664 entry itself fixes in its formula line).
-
-## Literature status (triage)
-
-Open: no proof in the entry or the literature as far as the triage could tell.
-Triage evidence: verified for `1 ≤ n < 60000`. Re-validated here (Python,
-2026-10-21): verified for `1 ≤ n < 200000`, together with the structural
-identity used below.
-
-## Result of this module
-
-The conjecture is proved for every `n ≥ 1`, with no remaining `sorry`.
+R. J. Mathar's conjecture in OEIS A284817 (June 21, 2025) states that
+`2n - 1 - A284776(n) = A189664(n-1)` for `n ≥ 1`. A284776 lists the
+1-based zero positions in A284775, the fixed point of `0 ↦ 01`, `1 ↦ 0011`.
+A189664 is the fixed point of `0 ↦ 010`, `1 ↦ 001`, with offset 1 and
+`A189664(0) = 0` as specified in its formula line. Differences are in `ℤ`.
 
 **Proof idea.** Write `w` for A284775 and `b` for A189664 (offset 1), and let
 `ψ(0) = 10`, `ψ(1) = 01`. Then `w = 0 · ψ(b)`, i.e. `w(1) = 0` and
@@ -102,7 +71,7 @@ def A189664 : ℕ → ℕ
 /-- A284817 (offset 1): `a(n) = 2n - 1 - A284776(n)`, computed in `ℤ`. -/
 noncomputable def A284817 (n : ℕ) : ℤ := 2 * (n : ℤ) - 1 - (A284776 n : ℤ)
 
-/-! ## Ground truth against the listed terms -/
+/-! ## Examples against the listed terms -/
 
 example : (List.range 30).map (fun n => A284775 (n + 1)) =
     [0,1,0,0,1,1,0,1,0,1,0,0,1,1,0,0,1,1,0,1,0,0,1,1,0,1,0,0,1,1] := by decide
@@ -366,7 +335,7 @@ for all `n ≥ 1`. -/
 theorem A284817_eq_A189664 (n : ℕ) (hn : 1 ≤ n) : A284817 n = (A189664 (n - 1) : ℤ) :=
   two_mul_sub_one_sub_A284776_eq_A189664 n hn
 
-/-! ## Ground truth for the position sequences (via the proved closed form) -/
+/-! ## Examples for the position sequences (via the proved closed form) -/
 
 example : (List.range 20).map (fun n => A284776 (n + 1)) =
     [1,3,4,7,9,11,12,15,16,19,21,22,25,27,28,31,33,35,36,39] := by
@@ -377,7 +346,7 @@ example : (List.range 20).map (fun n => A284776 (n + 1)) =
   simp only [h]
   decide
 
-/-- Non-vacuity: the hypothesis `1 ≤ n` is met, e.g. at `n = 3`, where both
+/-- The hypothesis `1 ≤ n` is met, e.g. at `n = 3`, where both
 sides equal `1`. -/
 example : A284817 3 = 1 := by
   rw [A284817_eq_A189664 3 (by norm_num)]

@@ -1,39 +1,14 @@
 /-
-# A113254 — family form: odd-indexed terms are perfect squares
+# Squares in the A113249–A113256 recurrence family
 
-## OEIS source (retrieved with `oeis show A113254`, 2026-10-21)
-
-```
-NAME:     Corresponds to m = 8 in a family of 4th-order linear recurrence
-          sequences given by a(n) = m^4*a(n-4) + (2*m)^2*a(n-3) - 4*a(n-1),
-          a(0) = -1, a(1) = 4, a(2) = -13 + 6*(m-1) + 3*(m-1)^2,
-          a(3) = (-8+m^2)^2.
-TERMS:    -1,4,176,3136,-15616,123904,1028096,4734976,-51183616,...
-COMMENT:  Conjecture: a(m, 2*n+1) is a perfect square for all m,n
-          (see A113249).
-COMMENT:  This was proved in the case m = 8 (this sequence) by an autonomous
-          AI agent, see the Lean file. ... - _Ralf Stephan_, May 25 2026
-```
-
-The conjecture line is unattributed and undated in the entry; it is the
-family conjecture shared by A113249 through A113256 (A113249: "Conjecture:
-a(m, 2*n+1) is a perfect square for all m, n.").  Sibling A113249 (m = 3)
-carries Robert Israel's (Oct 23 2017) explicit square root for m = 3.
-
-## Status (triage)
-
-Open for general `m`: only the cases m = 8 (AlphaProof Nexus Lean file cited
-in A113254, May 2026) and m = 3 (Israel's formula) are addressed in the
-entries.  No general proof was found in the entries.
-
-## Proof (this file)
-
-The characteristic polynomial factors as
-`x^4 + 4x^3 - 4m^2 x - m^4 = (x^2 - m^2)(x^2 + 4x + m^2)`.  With `B` the
-sequence of `x^2 + 4x + m^2` (`B 0 = 1`, `B 1 = -2`), one has
-`4 a(n) = m^(n+1) (1 - (-1)^n) + 2 B(n+1)` and the "double angle" identity
-`B(2j) = 2 B(j)^2 - m^(2j)`; at odd `n = 2k+1` these give
-`a(2k+1) = B(k+1)^2`.
+Source: the unsigned family conjecture in OEIS A113254 and A113249.
+The entry records an autonomous AI-agent proof for `m = 8` (Ralf Stephan,
+May 25 2026); Robert Israel gives a square-root formula for `m = 3` in
+A113249 (Oct 23 2017).
+For every integer `m` and natural `n`, `a_m(2n+1) = B_m(n+1)²`, where
+`B_m(0)=1`, `B_m(1)=-2`, `B_m(j+2)=-4B_m(j+1)-m²B_m(j)`.
+Factoring the fourth-order characteristic polynomial and a double-angle
+identity for `B_m` prove the square identity for the entire family.
 -/
 import Mathlib
 
@@ -41,7 +16,7 @@ set_option autoImplicit false
 
 namespace Candidates.A113254FamilyFormPerfect
 
-/-- The family `a_m` of A113249–A113256, verbatim from the entry:
+/-- The family `a_m` of A113249–A113256, from the entry:
 `a(0) = -1`, `a(1) = 4`, `a(2) = -13 + 6(m-1) + 3(m-1)^2`, `a(3) = (-8+m^2)^2`,
 `a(n) = m^4 a(n-4) + (2m)^2 a(n-3) - 4 a(n-1)` for `n ≥ 4`. -/
 def a (m : ℤ) : ℕ → ℤ
@@ -58,7 +33,7 @@ def B (m : ℤ) : ℕ → ℤ
   | 1 => -2
   | j + 2 => -4 * B m (j + 1) - m ^ 2 * B m j
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- `m = 8` reproduces the first listed terms of A113254. -/
 example : (List.range 8).map (a 8) =

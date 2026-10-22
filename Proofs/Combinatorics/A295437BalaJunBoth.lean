@@ -1,28 +1,11 @@
 /-
 # A295437 — Bala: both `a(n/2)` and `a(n/3)` are integers
 
-## OEIS source (retrieved with `oeis show A295437`, 2026-10-21)
+OEIS A295437, Peter Bala (2026): both `a(n/2)` and `a(n/3)` are integers
+for every natural `n`, where `a(n) = (18n)! n! / ((9n)! (6n)! (4n)!)` and
+fractional factorials mean `x! = Γ(x+1)`.
 
-```
-NAME:     a(n) = (18*n)!*n!/((9*n)!*(6*n)!*(4*n)!).
-TERMS:    1,1021020,6016814703900,41477110789150966020,...
-COMMENT (the conjecture):
-  Conjectures: for n >= 0, both a(n/2) = (9*n)!*(n/2)! /
-  ((9*n/2)!*(3*n)!*(2*n)!) and a(n/3) = (6*n)!*(n/3)! /
-  ((3*n)!*(2*n)!*(4*n/3)!) are integers, where fractional factorials are
-  defined using the Gamma function; for example (n/2)! := Gamma(n/2 + 1).
-  - _Peter Bala_, Jun 13 2026
-```
-
-## Literature status (triage)
-
-Open: no proof in the entry or in the literature as far as the triage could
-tell. The cases `n = 2m` and `n = 3m` are the integrality of `a(m)` itself,
-which is classical (Landau's criterion).
-
-## Result of this module
-
-Both conjectures are proved for every `n`, with no remaining `sorry`.
+## Proof outline
 
 * Gamma is removed uniformly by the Pochhammer identity
   `Γ(x + k) = Γ(x) ∏_{i<k} (x + i)`:
@@ -445,7 +428,7 @@ theorem halfRatio_two_mul (m : ℕ) : halfRatio (2 * m) = a295437 m :=
 theorem thirdRatio_three_mul (m : ℕ) : thirdRatio (3 * m) = a295437 m :=
   thirdRatio_eq (third_three_mul_eq m)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : a295437 0 = 1 := by decide
 
@@ -486,11 +469,9 @@ theorem thirdRatio_integral (n : ℕ) : ∃ k : ℕ, thirdRatio n = k := by
   obtain ⟨c, hc⟩ := third_exists n
   exact ⟨c, thirdRatio_eq hc⟩
 
-/-- **Bala's conjecture (A295437, Peter Bala, Jun 13 2026).** Verbatim:
-"Conjectures: for n >= 0, both a(n/2) = (9*n)!*(n/2)! / ((9*n/2)!*(3*n)!*(2*n)!)
-and a(n/3) = (6*n)!*(n/3)! / ((3*n)!*(2*n)!*(4*n/3)!) are integers, where
-fractional factorials are defined using the Gamma function; for example
-(n/2)! := Gamma(n/2 + 1)." Both ratios are natural numbers, for every `n`. -/
+/-- Bala's conjecture (OEIS A295437, Peter Bala, 2026):
+for every natural `n`, both `a(n/2)` and `a(n/3)` are natural numbers,
+with fractional factorials interpreted as `x! = Γ(x+1)`. -/
 theorem bala_both (n : ℕ) : (∃ k : ℕ, halfRatio n = k) ∧ (∃ k : ℕ, thirdRatio n = k) :=
   ⟨halfRatio_integral n, thirdRatio_integral n⟩
 

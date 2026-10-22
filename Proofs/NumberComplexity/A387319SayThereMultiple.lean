@@ -1,42 +1,15 @@
 /-
 # A387319 — Scheller: membership is exactly "composite, not 4, 8, 10, 25"
 
-## OEIS source (`oeis show A387319`, live entry checked 2026-10-21)
+Kenneth J. Scheller's conjecture in OEIS A387319 characterizes membership
+as composite numbers other than `4,8,10,25`. Membership means that the
+fractions `(2k mod m)/m` coincide at `m = 3` and some other multiple of `3`
+with `m ≤ k`.
 
-```
-NAME:     Numbers k for which modulo 3 and modulo another multiple of 3 are
-          coincident among the fractions (2*k mod m)/m for 1 <= m <= k.
-AUTHOR:   Kenneth J Scheller, Oct 24 2025          OFFSET: 1,1
-TERMS:    6,9,12,14,15,16,18,20,21,22,24,26,27,28,30,32,33,34,35,36,38,39,40,...
-PROGRAM:  A387319Q[k_] := With[{f = Mod[2*k, 3]/3},
-            AnyTrue[Range[6, k, 3], Mod[2*k, #]/# == f &]];  (Paolo Xausa)
-COMMENT (the conjecture, unsigned, from the author's entry):
-  Conjecture: Every composite number, except 4, 8, 10, and 25, has at least one
-  coincident pair linking m = 3 with another multiple of 3 among the fractions
-  (2*k mod m)/m for 1 <= m <= k, while no prime has such a pair. Empirically
-  verified to 10^5.
-COMMENT:
-  Conjecture (based on comparing the first 10,000 terms): a(n) = A343311(n)
-  for n>=3. - _R. J. Mathar_, Nov 10 2025
-```
-
-A343311 (`oeis show A343311`): "Numbers of the form x + y + z with distinct
-positive integers x,y,z such that (x+y+z) | x*y*z."  Comment from
-_Robert Israel_, Apr 12 2021: "Conjecture: Consists of all composite numbers
-except 4, 8, 9, and 25."
-
-## Status
-
-Literature status (triage, 2026-10-21): open; the live entries of A387319 and
-A343311 carry no proof, and both statements are still labelled conjectures.
-Brute force from the definitions agrees with both characterisations for
-`k ≤ 10000` (A387319) and `N ≤ 700` (A343311).
-
-## Results in this file (all proved, no `sorry`)
-
-* `inA387319_iff` — Scheller's conjecture.
-* `inA343311_iff` — Israel's A343311 conjecture.
-* `nth_inA387319_eq_nth_inA343311` — Mathar's conjecture, as a corollary.
+Robert Israel's conjecture in A343311 characterizes numbers expressible as
+`x+y+z` for distinct positive `x,y,z` with `x+y+z ∣ xyz`: composites other
+than `4,8,9,25`. Both characterizations are proved below, as is R. J.
+Mathar's equality of the two sequences from their third term onward.
 
 Key reduction: with `m = 3j` and `r = 2k mod 3`, the equation
 `r/3 = (2k mod 3j)/(3j)` holds iff `2k mod 3j = r j`; this forces `j ∣ 2k`,
@@ -80,7 +53,7 @@ theorem inA387319_iff_nat (k : ℕ) : InA387319 k ↔ InA387319Nat k := by
 instance : DecidablePred InA387319 := fun k =>
   decidable_of_iff _ (inA387319_iff_nat k).symm
 
-/-- Ground truth: the members up to `40` are the first listed terms of A387319. -/
+/-- the members up to `40` are the first listed terms of A387319. -/
 example : (List.range 41).filter (fun k => decide (InA387319 k)) =
     [6, 9, 12, 14, 15, 16, 18, 20, 21, 22, 24, 26, 27, 28, 30, 32, 33, 34, 35,
       36, 38, 39, 40] := by decide
@@ -244,7 +217,7 @@ theorem inA343311_iff_nat (N : ℕ) : InA343311 N ↔ InA343311Nat N := by
 instance : DecidablePred InA343311 := fun N =>
   decidable_of_iff _ (inA343311_iff_nat N).symm
 
-/-- Ground truth: the members up to `30` are the first listed terms of A343311. -/
+/-- the members up to `30` are the first listed terms of A343311. -/
 example : (List.range 31).filter (fun N => decide (InA343311 N)) =
     [6, 10, 12, 14, 15, 16, 18, 20, 21, 22, 24, 26, 27, 28, 30] := by decide
 
@@ -344,7 +317,7 @@ theorem infinite_inA387319 : (Set.ofPred InA387319).Infinite := by
   rw [inA387319_iff_nat]
   exact inA387319Nat_of_three_dvd (by omega) ⟨2 * (a + 1), by ring⟩
 
-/-- **Mathar's conjecture (A387319, Nov 10 2025).** `A387319(n) = A343311(n)`
+/-- **Mathar's conjecture (A387319).** `A387319(n) = A343311(n)`
 for `n ≥ 3` (OEIS offset 1); with `Nat.nth` indexed from `0` this is
 `nth InA387319 n = nth InA343311 n` for `2 ≤ n`. -/
 theorem nth_inA387319_eq_nth_inA343311 (n : ℕ) (hn : 2 ≤ n) :

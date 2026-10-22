@@ -1,33 +1,11 @@
 /-
-# A058383 — Cloitre: a totient equation characterizing Pierpont primes ≥ 7
+# A058383: Cloitre's totient characterization
 
-## OEIS source (retrieved with `oeis show A058383`, 2026-10-21)
-
-```
-NAME:     Primes of form 1+(2^a)*(3^b), a>0, b>0.
-TERMS:    7,13,19,37,73,97,109,163,193,433,487,577,769,1153,1297,1459,2593,
-          2917,3457,3889,10369,12289,17497,18433,39367,52489,139969,147457,...
-COMMENT (the conjecture):
-  Conjecture: these are the only solutions >=7 to the equation
-  A000010(x) + A000010(x-1) = floor((4*x-3)/3). - _Benoit Cloitre_, Mar 02 2018
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  Computational evidence: the solution set of the equation in
-`[7, 4·10^6]` coincides with the Pierpont primes `1 + 2^a 3^b` (`a, b ≥ 1`)
-there (41 solutions).  This file proves the conjecture in full, in the form
-"for `x ≥ 7`, the equation holds iff `x` is a term of A058383".
-
-## Proof outline
-
-For `x ≥ 7`, `φ x` and `φ (x - 1)` are even, while `⌊(4x-3)/3⌋` is odd unless
-`x ≡ 1 (mod 3)`, where it equals `4(x-1)/3`.  Put `m = x - 1`, so `3 ∣ m`.
-If `x` is even, `2 φ x ≤ x` and `3 φ m ≤ 2 m` give a sum `< 4m/3`.  If `x` is
-odd, `6 ∣ m`; writing `m = 2^(a+1) 3^(b+1) k` with `gcd(k, 6) = 1` gives
-`3 φ m = 2^(a+1) 3^(b+1) φ k ≤ m`, and `φ x ≤ m`; equality forces `φ x = x - 1`
-(so `x` is prime) and `φ k = k` (so `k = 1`).
+OEIS A058383, Benoit Cloitre (Mar 02 2018).
+For `x ≥ 7`, `φ(x) + φ(x-1) = floor((4x-3)/3)` holds exactly when
+`x = 1 + 2^a 3^b` is prime with both exponents positive.
+This positive-exponent convention is narrower than conventions for
+Pierpont primes allowing exponent zero.
 -/
 import Mathlib
 
@@ -37,14 +15,14 @@ namespace Candidates.A058383FloorPrimeForm
 
 open Nat
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- Membership in OEIS A058383: `x` is a prime of the form `1 + 2^a * 3^b`
 with `a > 0` and `b > 0` (the Pierpont primes other than `2`, `3`, `5`). -/
 def IsA058383 (x : ℕ) : Prop :=
   x.Prime ∧ ∃ a b : ℕ, 0 < a ∧ 0 < b ∧ x = 1 + 2 ^ a * 3 ^ b
 
-/-! ### Ground truth: the first listed terms are members -/
+/-! ### Example: the first listed terms are members -/
 
 example : IsA058383 7 := ⟨by norm_num, 1, 1, by norm_num⟩
 example : IsA058383 13 := ⟨by norm_num, 2, 1, by norm_num⟩
@@ -55,7 +33,7 @@ example : IsA058383 97 := ⟨by norm_num, 5, 1, by norm_num⟩
 example : IsA058383 109 := ⟨by norm_num, 2, 3, by norm_num⟩
 example : IsA058383 163 := ⟨by norm_num, 1, 4, by norm_num⟩
 
-/-! ### Ground truth: non-members -/
+/-! ### Example: non-members -/
 
 /-- `17 = 1 + 2^4` is prime but needs `b = 0`. -/
 example : ¬ IsA058383 17 := by
@@ -203,14 +181,10 @@ theorem totient_eq_of_isA058383 {x : ℕ} (hx : IsA058383 x) :
   rw [Nat.add_sub_cancel_left, hφp, hφm, hPQ]
   omega
 
-/-- **Cloitre's conjecture (A058383, Benoit Cloitre, Mar 02 2018).**
-
-Verbatim: "Conjecture: these are the only solutions >=7 to the equation
-A000010(x) + A000010(x-1) = floor((4*x-3)/3)."
-
-Formalized as: for every `x ≥ 7`, `φ x + φ (x - 1) = ⌊(4x - 3)/3⌋` holds iff `x`
-is a prime of the form `1 + 2^a 3^b` with `a, b > 0`.  The `7 ≤ x` guard is
-from the source and keeps both natural subtractions off their junk values. -/
+/-- Cloitre's A058383 characterization: for `x ≥ 7`,
+`φ(x) + φ(x-1) = floor((4x-3)/3)` iff `x` is prime of the form
+`1+2^a 3^b` with both exponents positive. The bound guards all natural
+subtractions. -/
 theorem totient_add_totient_sub_one_eq_iff {x : ℕ} (hx : 7 ≤ x) :
     φ x + φ (x - 1) = (4 * x - 3) / 3 ↔ IsA058383 x :=
   ⟨isA058383_of_totient_eq hx, totient_eq_of_isA058383⟩

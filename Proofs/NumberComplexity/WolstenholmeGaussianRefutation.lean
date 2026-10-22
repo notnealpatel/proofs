@@ -1,34 +1,12 @@
 /-
 # Wolstenholme's theorem over Gaussian integers: the higher-power conjecture fails
 
-## Source
-
-Nikita Kalinin, *Wolstenholme's theorem over Gaussian integers*,
-arXiv:2504.07978, Section 3 ("Higher powers"), Conjecture `conj:main`
-("Wolstenholme's Higher-Power Congruences for Gaussian Integers").
-Verbatim (LaTeX):
-
-```
-For any integer $k \geq 1$ and prime $p > 17$,
-the sum $S_p^{(k)}$ satisfies:
-S_p^{(k)}=\sum_{\substack{1\leq n,m\leq p-1\\(p,n^2+m^2)=1}}\frac{1}{(mi+n)^{k}}
-  \equiv 0 \pmod{p^{m(k)}},
-m(k) = 4, 3, 2, 1 if k \equiv 1, 2, 3, 0 \pmod 4.
-One can write $m(k)$ as $m(k)=4-(k-1)\pmod 4.$
-```
-
-The paper's Motivation section fixes the meaning of `≡ 0 (mod p^e)` for a
-Gaussian rational: it is `p^e` times a number whose denominator is prime to `p`.
-
-## Status (recorded 2026-10-21)
-
-The paper states this as an open conjecture (supported by computations with
-`k ≤ 12`, `p < 1000`).  It is **false as printed**.  This module proves:
-
-* `kalininConjecture_false`: the conjecture fails at `p = 29`, `k = 28`
-  (`m(28) = 1`, but `S_{29}^{(28)} ≢ 0 (mod 29)`);
-* `not_gaussCongZero_conjExponent_of_mod_four_eq_one`: it fails for every
-  prime `p ≡ 1 (mod 4)` and every positive multiple `k` of `p - 1`.
+Nikita Kalinin, “Wolstenholme’s theorem over Gaussian integers”,
+arXiv:2504.07978, §3, Conjecture `conj:main`. The higher-power
+congruence for `S_p^(k)` fails at `p = 29`, `k = 28`, and for every
+prime `p ≡ 1 (mod 4)` with positive `k` divisible by `p-1`.
+For Gaussian rationals, congruence to zero modulo `p^e` means `p^e`
+times a number with denominator prime to `p`.
 
 Argument: clear denominators by `Q = ∏ (n²+m²)^k`, reduce modulo `p` along
 `ℤ[i] → ZMod p`, `i ↦ c` with `c² = -1`; by Fermat every term becomes `1`,
@@ -53,7 +31,7 @@ def pairs (p : ℕ) : Finset (ℕ × ℕ) :=
 noncomputable def S (p k : ℕ) : ℂ :=
   ∑ x ∈ pairs p, 1 / ((x.1 : ℂ) + (x.2 : ℂ) * I) ^ k
 
-/-! Ground truth: for `p = 3` and `p = 7` (both `≡ 3 mod 4`) no pair is excluded; for
+/-! Examples: for `p = 3` and `p = 7` (both `≡ 3 mod 4`) no pair is excluded; for
 `p = 5, 13` (`≡ 1 mod 4`) exactly `2 (p - 1)` pairs are excluded. -/
 example : (pairs 3).card = 4 := by decide
 example : (pairs 5).card = 8 := by decide
@@ -63,7 +41,7 @@ example : (pairs 13).card = 120 := by decide +kernel
 /-- The index set for `p = 3`. -/
 theorem pairs_three : pairs 3 = {(1, 1), (1, 2), (2, 1), (2, 2)} := by decide
 
-/-- Ground truth: `S_3^{(1)} = 1/(1+i) + 1/(1+2i) + 1/(2+i) + 1/(2+2i) = 27/20 · (1 - i)`. -/
+/-- Examples: `S_3^{(1)} = 1/(1+i) + 1/(1+2i) + 1/(2+i) + 1/(2+2i) = 27/20 · (1 - i)`. -/
 theorem S_three_one : S 3 1 = 27 / 20 * (1 - I) := by
   rw [S, pairs_three]
   apply Complex.ext

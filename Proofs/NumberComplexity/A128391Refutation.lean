@@ -1,40 +1,10 @@
 /-
 # A128391 — Adamson: only `k = 24` gives a sequence `A054523^k * A000594` with a zero
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A128391` and the live entry)
-
-```
-NAME:     A054523^24 * A000594.
-TERMS:    1,0,300,-1724,4926,0,-16600,44600,-100299,0,534852,-517200,-577450,0,
-          1477800,2486626,-6905550,0,10661852,-8492424,-4980000,0,18643800,
-          13380000,-25030649,0,-78396200,28618400,128407302,0,-52842448,
-          -150834520,160455600,0,-81771600
-KEYWORDS: sign,mult
-COMMENT (the conjecture, unsigned in the entry; AUTHOR line of the entry is
-  Gary W. Adamson, Feb 28 2007):
-  Conjecture: Given A054523^k, k = any positive integer, "zero" appears only in
-  the sequence A018391 (k=24).
-COMMENT:
-  Each application of A054523 corresponds to the Dirichlet convolution of
-  A000010 with the sequence on the right. Since both A000594 and A000010 are
-  multiplicative, the resulting sequence will also be multiplicative.
-  - _Andrew Howroyd_, Aug 03 2018
-EXTENSIONS:
-  a(7) corrected and terms a(11) and beyond from Andrew Howroyd, Aug 03 2018
-PROGRAM (PARI):
-  seq(n, k=24)={my(u=vector(n,n,eulerphi(n)), v=vector(n,n,ramanujantau(n)));
-  for(i=1, k, v=dirmul(u,v)); v} \\ _Andrew Howroyd_, Aug 03 2018
-```
-
-"A018391" in the conjecture is evidently a typo for A128391 itself (the
-`k = 24` sequence).  No later comment in the entry retracts or amends the
-conjecture.
-
-A054523: "Triangle read by rows: T(n,k) = phi(n/k) if k divides n, T(n,k)=0
-otherwise (n >= 1, 1 <= k <= n)."
-A000594: "Ramanujan's tau function", G.f. `x * Product_{k>=1} (1 - x^k)^24`.
-
-## Status
+Gary W. Adamson's conjecture in OEIS A128391 says that only `k = 24`
+produces a zero in `A054523^k * A000594`. The source's `A018391` is read as
+A128391, the `k = 24` sequence. As Andrew Howroyd notes, applying A054523 is
+Dirichlet convolution with Euler's totient.
 
 This module **refutes** the conjecture.  Applying A054523 is Dirichlet
 convolution with Euler's totient, so at a prime `p` the `k`-th sequence takes
@@ -53,10 +23,7 @@ namespace Candidates.A128391Refutation
 /-! ## Ramanujan's tau function (A000594)
 
 `tau n` is the coefficient of `x^n` in `x * ∏_{j ≥ 1} (1 - x^j)^24`, i.e. the
-coefficient of `x^(n-1)` in `∏_{j ≥ 1} (1 - x^j)^24`.  We compute it with
-truncated power series represented as coefficient lists.  (The import set is
-kept narrow on purpose: the kernel evaluation of `tau 59` below needs a few GB
-of memory on top of the imported environment.) -/
+coefficient of `x^(n-1)` in `∏_{j ≥ 1} (1 - x^j)^24`.  It is computed with truncated power series represented as coefficient lists. -/
 
 /-- Multiply the truncated power series with coefficient list `c` (coefficient
 of `x^i` at index `i`) by `1 - x^m`, keeping the same truncation length: the
@@ -65,7 +32,7 @@ new coefficient of `x^i` is `c_i - c_(i - m)` (with `c_(i - m) = 0` for
 def mulOneSubX (m : ℕ) (c : List ℤ) : List ℤ :=
   List.zipWith (· - ·) c (List.replicate m 0 ++ c)
 
-/-- Ground truth: `(1 - x) * (1 + 2x + 3x^2 + 4x^3) ≡ 1 + x + x^2 + x^3 (mod x^4)`
+/-- `(1 - x) * (1 + 2x + 3x^2 + 4x^3) ≡ 1 + x + x^2 + x^3 (mod x^4)`
 and `(1 - x^2) * (1 + 2x + 3x^2 + 4x^3) ≡ 1 + 2x + 2x^2 + 2x^3 (mod x^4)`. -/
 example : mulOneSubX 1 [1, 2, 3, 4] = [1, 1, 1, 1] ∧
     mulOneSubX 2 [1, 2, 3, 4] = [1, 2, 2, 2] := by
@@ -78,7 +45,7 @@ def etaPow24TruncAux (N : ℕ) : ℕ → List ℤ
   | 0 => (List.range N).map fun i => if i = 0 then 1 else 0
   | K + 1 => (mulOneSubX (K + 1))^[24] (etaPow24TruncAux N K)
 
-/-- Ground truth: modulo `x^25`, `(1 - x)^24` has the coefficients
+/-- modulo `x^25`, `(1 - x)^24` has the coefficients
 `(-1)^j * C(24, j)`. -/
 example : etaPow24TruncAux 25 1 =
     (List.range 25).map fun j => (-1) ^ j * (Nat.choose 24 j : ℤ) := by
@@ -96,7 +63,7 @@ product.  The constant coefficient of `x * ∏ …` is `0`, so `tau 0 = 0`. -/
 def tau (n : ℕ) : ℤ :=
   if n = 0 then 0 else (etaPow24Trunc n).getD (n - 1) 0
 
-/-- Ground truth: the first 20 terms of A000594. -/
+/-- the first 20 terms of A000594. -/
 example : (List.range 20).map (fun i => tau (i + 1)) =
     [1, -24, 252, -1472, 4830, -6048, -16744, 84480, -113643, -115920, 534612,
       -370944, -577738, 401856, 1217160, 987136, -6905934, 2727432, 10661420,
@@ -115,7 +82,7 @@ theorem tau_fiftyNine : tau 59 = -5189203740 := by
 def A054523 (n m : ℕ) : ℤ :=
   if m ∣ n then ((n / m).totient : ℤ) else 0
 
-/-- Ground truth: rows `1, …, 12` of A054523. -/
+/-- rows `1, …, 12` of A054523. -/
 example : (List.range 12).flatMap (fun i => (List.range (i + 1)).map
       fun j => A054523 (i + 1) (j + 1)) =
     [1, 1, 1, 2, 0, 1, 2, 1, 0, 1, 4, 0, 0, 0, 1, 2, 2, 1, 0, 0, 1, 6, 0, 0, 0, 0, 0,
@@ -158,7 +125,7 @@ theorem seq_eq_seqDiv (k : ℕ) : seq k = seqDiv k := by
     funext n
     rw [seq, seqDiv, applyA054523_eq_sum_divisors, ih]
 
-/-- Ground truth: the first 12 terms of A128391 (`k = 24`). -/
+/-- the first 12 terms of A128391 (`k = 24`). -/
 example : (List.range 12).map (fun i => seq 24 (i + 1)) =
     [1, 0, 300, -1724, 4926, 0, -16600, 44600, -100299, 0, 534852, -517200] := by
   rw [seq_eq_seqDiv]
@@ -166,9 +133,9 @@ example : (List.range 12).map (fun i => seq 24 (i + 1)) =
 
 /-! ## The conjecture -/
 
-/-- **Adamson's conjecture (A128391, Gary W. Adamson, Feb 28 2007).**
+/-- **Adamson's conjecture (A128391, Gary W. Adamson).**
 
-Verbatim: "Conjecture: Given A054523^k, k = any positive integer, "zero"
+"Conjecture: Given A054523^k, k = any positive integer, "zero"
 appears only in the sequence A018391 (k=24)."  ("A018391" is a typo for
 A128391, the `k = 24` sequence.)
 
@@ -219,8 +186,7 @@ theorem seq_89469030_fiftyNine : seq 89469030 59 = 0 := by
 `tau(59) = -5189203740 = -58 * 89469030`, so `A054523^89469030 * A000594` has
 `a(59) = 0` (and hence, by multiplicativity, `a(n) = 0` whenever `59 ∥ n`).
 A zero at a prime `p` occurs exactly when `(p - 1) ∣ tau(p)` with
-`tau(p) < 0`; `p = 2` gives `k = 24`, and the author presumably checked only
-small `k`, where `k = 24` is the only solution. -/
+`tau(p) < 0`; `p = 2` gives `k = 24`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   have hk := h 89469030 (by norm_num) ⟨59, by norm_num, seq_89469030_fiftyNine⟩

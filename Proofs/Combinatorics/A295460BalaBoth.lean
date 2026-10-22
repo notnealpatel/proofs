@@ -1,28 +1,10 @@
 /-
 # A295460 — Bala: half- and quarter-integer values of a(n) are integers
 
-## OEIS source (pulled with `oeis show A295460`, retrieved 2026-10-21)
-
-```
-NAME:     a(n) = (30*n)!*(3*n)!*(2*n)!/((15*n)!*(10*n)!*(6*n)!*(4*n)!).
-TERMS:    1,38818159380,11536562100925275834420,
-          3989159479106945583885404912116080, ...
-FORMULA:  a(n) = binomial(30*n,15*n)*binomial(15*n,5*n)*binomial(2*n,n)/
-          (binomial(6*n,n)*binomial(4*n,n)). - _Chai Wah Wu_, Feb 16 2026
-COMMENT (the conjecture, verbatim):
-  Conjecture: for n >= 0, both a(n/2) = (15*n)!*(3*n/2)!*(n)! /
-  ((15*n/2)!*(5*n)!*(3*n)!*(2*n)!) and a(n/4) = (15*n/2)!*(3*n/4)!*(n/2)! /
-  ((15*n/4)!*(5*n/2)!*(3*n/2)!*n!) are integers, where fractional factorials
-  are defined using the Gamma function - for example, (3*n/2)! :=
-  Gamma(3*n/2 + 1). - _Peter Bala_, Jul 29 2026
-```
-
-## Status
-
-Triage status: open (no proof in the entry or in the literature as far as the
-triage could tell; both expressions checked integral for `n ≤ 300`).  This
-module re-checked integrality of the quadruple-factorial form for `n ≤ 1200`
-and gives a complete kernel-checked proof of the conjecture (`conjecture`).
+OEIS A295460, Peter Bala (2026): both `a(n/2)` and `a(n/4)` are integers
+for every natural `n`, where
+`a(n) = (30n)!(3n)!(2n)! / ((15n)!(10n)!(6n)!(4n)!)` and `x! = Γ(x+1)`.
+The entry also gives a binomial-coefficient formula by Chai Wah Wu (2026).
 
 ## Proof outline
 
@@ -563,7 +545,7 @@ theorem quarterExpr_int (n : ℕ) : ∃ k : ℤ, quarterExpr n = k := by
   have h : ∀ q, quadFact q ≠ 0 := fun q => (quadFact_pos q).ne'
   exact_mod_cast mul_ne_zero (mul_ne_zero (mul_ne_zero (h _) (h _)) (h _)) (h _)
 
-/-! ## Ground truth at genuinely fractional arguments -/
+/-! ## Examples at genuinely fractional arguments -/
 
 /-- `a(1/4) = Γ(17/2)Γ(7/4)Γ(3/2)/(Γ(19/4)Γ(7/2)Γ(5/2)Γ(2)) = 156`. -/
 example : quarterExpr 1 = 156 := by
@@ -584,15 +566,9 @@ example : halfExpr 1 = 86016 := by
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjecture (A295460, Peter Bala, Jul 29 2026), proved.**
-
-Verbatim: "Conjecture: for n >= 0, both a(n/2) = (15*n)!*(3*n/2)!*(n)! /
-((15*n/2)!*(5*n)!*(3*n)!*(2*n)!) and a(n/4) = (15*n/2)!*(3*n/4)!*(n/2)! /
-((15*n/4)!*(5*n/2)!*(3*n/2)!*n!) are integers, where fractional factorials are defined
-using the Gamma function."
-
-Here `x! = fact x = Γ(x + 1)` and both quotients are real numbers with positive denominators
-(`fact_pos`). -/
+/-- Bala's conjecture (OEIS A295460, Peter Bala, 2026):
+for every natural `n`, both `a(n/2)` and `a(n/4)` are integers.
+Here `x! = fact x = Γ(x+1)`; both denominators are positive (`fact_pos`). -/
 theorem conjecture : ∀ n : ℕ, (∃ k : ℤ, halfExpr n = k) ∧ (∃ k : ℤ, quarterExpr n = k) := fun n =>
   ⟨by rw [halfExpr_eq]; exact quarterExpr_int _, quarterExpr_int n⟩
 

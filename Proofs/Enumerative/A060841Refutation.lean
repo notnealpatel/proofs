@@ -1,50 +1,14 @@
 /-
-# A060841 — Wilson: `1/det(1/lcm(i,j))` has power-of-two denominators (FALSE)
+# A060841: a denominator counterexample
 
-## OEIS source (retrieved with `oeis show A060841`, 2026-10-21)
-
-```
-NAME:     Numerator of 1/det(M) where M is the n X n matrix with
-          M[i,j] = 1/lcm(i,j).
-TERMS:    1,4,18,144,900,16200,132300,2116800,28576800,714420000,
-          8644482000,311201352000,4382752374000,143169910884000,...
-FORMULA:  a(n) = (n!)^2 / (phi(1)*phi(2)*...*phi(n)) = (n!)^2 / A001088(n).
-COMMENT:  The value of 1/det(M) is not always an integer! For example,
-          1/det(35) = 5029296746186844716050163189085401314000634765625/2.
-          - _Harry J. Smith_, Jul 13 2009
-COMMENT (the conjecture):
-  Conjecture: 1/det(M) is an integer only for n: 1 - 34, 36 and 38. All
-  denominators are powers of two (A000079). But not all powers of two are
-  present. See A260502. - _Robert G. Wilson v_, Aug 02 2015
-COMMENT (later):
-  Adamczewski disproves the above conjecture with counterexample for
-  n = 1807, in linked article. - _Michael De Vlieger_, Aug 20 2026
-```
-
-## Status
-
-**False**, as the entry itself now records (Adamczewski, arXiv:2608.11941).
-This module refutes the conjecture independently, by a kernel-checked
-computation.  Re-validated here (python, 2026-10-21): for `n ≤ 2000`,
-`1/det M_n` is an integer exactly for `n ∈ {1, …, 34, 36, 38}`, and the first
-`n` whose reduced denominator is not a power of two is `n = 1807`, where the
-denominator is `2^2342 · 3`.
-
-## Results in this file (all kernel-checked, no `sorry`)
-
-* `det_gcdMatrix`, `det_lcmRecipMatrix` — Smith's determinant
-  `det M_n = φ(1)⋯φ(n) / (n!)²`, proved for every `n`.
-* `one_div_det_lcmRecipMatrix_eq_primeProd` — the prime-product form
-  `1/det M_n = n! · ∏_{p ≤ n} p^⌊n/p⌋ / ∏_{p ≤ n} (p-1)^⌊n/p⌋`.
-* `den_one_div_det_lcmRecipMatrix_1807` — the denominator at `n = 1807` is
-  `2^2342 · 3`.
-* `wilsonConjecture_false` — the conjecture, as stated, is false.
-
-The computation uses `decide +kernel` (ordinary kernel reduction with GMP
-literal arithmetic; no `native_decide`, no extra axioms).  The direct
-`φ`-product is quadratic and too slow in the kernel, so it is replaced by the
-proved prime-product identity, with primality for `p < 43²` decided by trial
-division up to `42`.
+OEIS A060841, Robert G. Wilson v (Aug 02 2015); Harry J. Smith's
+integrality comment (Jul 13 2009). Michael De Vlieger (Aug 20 2026)
+records Adamczewski's counterexample, arXiv:2608.11941; see also A260502.
+The rational matrix is indexed by `1 ≤ i,j ≤ n`, with entries `1/lcm(i,j)`.
+Smith's determinant formula and a prime-product identity give the reduced
+denominator of its inverse determinant at `n = 1807` as `2^2342 * 3`.
+This refutes the conjunction containing Wilson's power-of-two claim;
+it does not prove the complete classification of integral values.
 -/
 import Mathlib
 
@@ -175,7 +139,7 @@ theorem invDet_eq (n : ℕ) :
     invDet n = (n.factorial : ℚ) ^ 2 / ∏ k ∈ range n, (Nat.totient (k + 1) : ℚ) := by
   rw [invDet, det_lcmRecipMatrix, one_div_div]
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- Direct check of the matrix definition at `n = 2`: `M = [[1, 1/2], [1/2, 1/2]]`.
 example : (lcmRecipMatrix 2).det = 1 / 4 := by
@@ -197,19 +161,11 @@ example : (invDet 34).den = 1 ∧ (invDet 35).den = 2 := by
 
 /-! ## The conjecture -/
 
-/-- **Wilson's conjecture (A060841, Robert G. Wilson v, Aug 02 2015).**
-
-Verbatim: "Conjecture: 1/det(M) is an integer only for n: 1 - 34, 36 and 38.
-All denominators are powers of two (A000079). But not all powers of two are
-present."
-
-Formalized as the conjunction of (i) for `n ≥ 1`, `1 / det M_n` is an integer
-(reduced denominator `1`) iff `n ≤ 34`, `n = 36` or `n = 38`, and (ii) for every
-`n ≥ 1` the reduced denominator of `1 / det M_n` is a power of two.  The
-closing remark ("not all powers of two are present") is a separate observation
-about A260502 and is not part of the formalized claim.  The `1 ≤ n` guard
-matches the OEIS offset; `det M_n > 0` (`det_lcmRecipMatrix_pos`), so `1 / det`
-is never a junk value. -/
+/-- Wilson's A060841 conjunction: for `n ≥ 1`, integrality of the inverse
+determinant is equivalent to `n ≤ 34` or `n = 36,38`, and every reduced
+denominator is a power of two (A000079). The additional source observation
+that not all powers occur (A260502) is not part of this proposition.
+Determinant positivity guards the inverse. -/
 def WilsonConjecture : Prop :=
   (∀ n : ℕ, 1 ≤ n → ((invDet n).den = 1 ↔ n ≤ 34 ∨ n = 36 ∨ n = 38)) ∧
     ∀ n : ℕ, 1 ≤ n → ∃ k : ℕ, (invDet n).den = 2 ^ k
@@ -289,9 +245,8 @@ theorem den_one_div_det_lcmRecipMatrix_1807 : (invDet 1807).den = 2 ^ 2342 * 3 :
 
 /-- **Wilson's conjecture is false.**  At `n = 1807` (Adamczewski's
 counterexample, arXiv:2608.11941) the reduced denominator of `1 / det M_n` is
-`2^2342 · 3`, which is divisible by `3` and hence not a power of two.  The
-first clause (integrality exactly for `n ∈ {1, …, 34, 36, 38}`) holds for all
-`n ≤ 2000` by computation and is not used. -/
+`2^2342 · 3`, which is divisible by `3` and hence not a power of two.
+The integrality-classification clause is not needed for this refutation. -/
 theorem wilsonConjecture_false : ¬ WilsonConjecture := by
   rintro ⟨-, hpow⟩
   obtain ⟨k, hk⟩ := hpow 1807 (by norm_num)

@@ -1,41 +1,14 @@
 /-
-# A061164 — Bala: half-integer factorial ratio is an integer
+# A061164: integrality of a Gamma ratio
 
-## OEIS source (retrieved with `oeis show A061164`, 2026-10-21)
-
-```
-NAME:     a(n) = (20*n)!*n!/((10*n)!*(7*n)!*(4*n)!).
-TERMS:    1,5542680,190818980609400,7691041400616850556280,...
-COMMENT (the conjecture):
-  Conjecture: for n >= 0, a(n/2) = (10*n)!*(n/2)! / ((5*n)!*(7*n/2)!*(2*n)!)
-  is an integer, where fractional factorials are defined using the Gamma
-  function - for example, (n/2)! := Gamma(n/2 + 1). - _Peter Bala_, Jul 31 2026
-COMMENT (context):
-  One of the 52 sporadic integral factorial ratio sequences found by
-  V. I. Vasyunin (see Bober, Table 2, Entry 43). - _Peter Bala_, Apr 10 2012
-```
-
-## Literature status (triage)
-
-Open: no proof in the entry or in the literature as far as the triage could
-tell (the cited arXiv:2608.11941 of Adamczewski does not cover it). The even
-case `n = 2m` is the integrality of `a(m)` itself (Vasyunin, Bober). Same-day
-sibling conjectures by Bala sit in A295475, A295477, A295479 and A295481.
-
-## Result of this module
-
-The conjecture is proved for every `n`, with no remaining `sorry`.
-
-* Odd `n`: `Γ(k/2 + 1) = k! √π / (2^k ⌊k/2⌋!)` for odd `k`, so the ratio
-  equals `2^(6n) (10n)! n! ⌊7n/2⌋! / ((5n)! (2n)! (7n)! ⌊n/2⌋!)`. Landau's
-  criterion shows that the factorial quotient without the power of two is
-  already an integer. The step function behind it is
-  `⌊10x⌋ + ⌊x⌋ + ⌊7x/2⌋ - ⌊5x⌋ - ⌊2x⌋ - ⌊7x⌋ - ⌊x/2⌋`. It is constant on
-  intervals `[j/70, (j+1)/70)` and has period `2`. Writing `j = ⌊70x⌋` reduces
-  it to a finite `decide` over `j < 140`.
-* Even `n = 2m`: the ratio is `a(m)`. Its integrality follows from the same
-  Landau argument with the step function
-  `⌊20y⌋ + ⌊y⌋ - ⌊10y⌋ - ⌊7y⌋ - ⌊4y⌋`.
+OEIS A061164, Peter Bala (Jul 31 2026); the integral factorial ratio for
+even inputs is attributed there to V. I. Vasyunin (Bober, Table 2, Entry 43;
+Bala's comment of Apr 10 2012).
+For every natural `n`, the Gamma interpretation of
+`(10n)! (n/2)! / ((5n)! (7n/2)! (2n)!)` is an integer.
+The denominator is positive. Half-integer Gamma identities reduce odd
+inputs to factorial divisibility; even inputs use the original factorial
+ratio. Both divisibilities follow from Landau step inequalities of period `140`.
 -/
 import Mathlib
 
@@ -43,7 +16,7 @@ set_option autoImplicit false
 
 namespace Candidates.A061164BalaIntegrality
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The OEIS sequence A061164: `a(n) = (20n)! n! / ((10n)! (7n)! (4n)!)`. The
 truncating `Nat` division is exact; see `a061164_mul`. -/
@@ -223,9 +196,9 @@ theorem a061164_mul (m : ℕ) :
       (20 * m).factorial * m.factorial :=
   Nat.mul_div_cancel' (factorial_dvd_a061164 m)
 
-/-- **Bala's integer form (triage restatement).** For odd `n`,
-`(5n)! (7n)! (2n)! ((n-1)/2)!` divides `2^(6n) (10n)! n! ((7n-1)/2)!`. The
-natural subtractions are guarded by oddness (`1 ≤ n`). -/
+/-- For odd `n`, `(5n)! (7n)! (2n)! ((n-1)/2)!` divides
+`2^(6n) (10n)! n! ((7n-1)/2)!`. Oddness ensures `1 ≤ n`, guarding
+the natural subtractions. -/
 theorem integer_form_of_odd (n : ℕ) (hn : Odd n) :
     (5 * n).factorial * (7 * n).factorial * (2 * n).factorial * ((n - 1) / 2).factorial ∣
       2 ^ (6 * n) * (10 * n).factorial * n.factorial * ((7 * n - 1) / 2).factorial := by
@@ -306,7 +279,7 @@ theorem balaRatio_two_mul (m : ℕ) : balaRatio (2 * m) = (a061164 m : ℝ) := b
   rw [div_eq_iff (by positivity)]
   linear_combination -hmul
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : a061164 0 = 1 := by decide
 example : a061164 1 = 5542680 := by decide

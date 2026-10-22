@@ -1,34 +1,14 @@
 /-
 # A136510 — every positive integer occurs in binary inside one of its powers
 
-## OEIS source (retrieved with `oeis show A136510`, 2026-10-21)
+OEIS A136510 (entry by Reinhard Zumkeller) asks whether its least exponent
+`k > 1` exists for every positive `n`: the binary representation of `n`
+must occur as a contiguous substring of that of `n^k`.
 
-```
-NAME:     Smallest k>1 such that in binary representation n is contained in n^k.
-TERMS:    2,2,3,2,3,3,3,2,3,3,5,3,4,3,3,2,3,3,6,3,6,5,3,3,5,5,2,3,3,3,3,2,
-          3,3,6,3,8,6,3,3,2,9,4,5,6,5,5,3,5,5,4,5,6,2,5,3,5,3,6,3,6,3,3,2,...
-COMMENT:  A136511(n) = n^a(n);
-COMMENT:  a(A018826(n)) = 2; 1 < a(A136490(n)) <= 3;
-COMMENT:  conjecture: a(n) is defined for all n.
-XREFS:    Variant of A086063.
-```
-
-The conjecture line is the unsigned comment "conjecture: a(n) is defined for
-all n." (no author or date is attached to that comment line in the entry; the
-entry itself is by Reinhard Zumkeller, Jan 2008).
-
-## Status
-
-Triage: open (no proof in the entry or its duplicate A086063).  This module
-proves it.  Argument: write `n = 2^e * m` with `m` odd and let `L` be the bit
-length of `m`.  By Euler, `m ^ φ(2^L) ≡ 1 [MOD 2^L]`, so with
-`k = φ(2^L) + 1 > 1` the low `L` bits of `m^k` are exactly the bits of `m`.
-Then `n^k = 2^(e*k) * m^k`, whose binary string ends with `bin(m)` followed by
-`e*k ≥ e` zeros, and that contains `bin(m) 0^e = bin(n)`.
-
-Computation (2026-10-21, Python): recomputing the smallest `k` reproduces all
-104 listed terms; the explicit exponent `1 + 2^(L-1)` was checked for
-`n ≤ 6000`.
+Write `n = 2^e m` with `m` odd and bit length `L`. Euler's theorem gives
+`m^φ(2^L) ≡ 1 [MOD 2^L]`, so `k = φ(2^L)+1 > 1` makes the low `L` bits of
+`m^k` equal those of `m`. Thus `n^k` ends with `bin(m)` followed by `ek ≥ e`
+zeros and contains `bin(n) = bin(m) 0^e`.
 -/
 import Mathlib
 
@@ -36,7 +16,7 @@ set_option autoImplicit false
 
 namespace Candidates.A136510ThereSomeBinary
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The binary representation of `n` as a most-significant-bit-first list of
 bits (`Nat.digits 2` is least-significant-first, so it is reversed).  For
@@ -112,15 +92,15 @@ theorem a_eq_iff (n : ℕ) (hn : 0 < n) (k : ℕ) :
   unfold a
   exact Nat.find_eq_iff _
 
-/-- Ground truth: `a 1 = 2`, `a 2 = 2`, `a 3 = 3` (first listed terms). -/
+/-- `a 1 = 2`, `a 2 = 2`, `a 3 = 3` (first listed terms). -/
 example : a 1 (by norm_num) = 2 ∧ a 2 (by norm_num) = 2 ∧ a 3 (by norm_num) = 3 := by
   refine ⟨(a_eq_iff _ _ _).mpr ?_, (a_eq_iff _ _ _).mpr ?_, (a_eq_iff _ _ _).mpr ?_⟩ <;> decide
 
-/-- Ground truth: `a 11 = 5`, `a 13 = 4`, `a 19 = 6` (listed terms). -/
+/-- `a 11 = 5`, `a 13 = 4`, `a 19 = 6` (listed terms). -/
 example : a 11 (by norm_num) = 5 ∧ a 13 (by norm_num) = 4 ∧ a 19 (by norm_num) = 6 := by
   refine ⟨(a_eq_iff _ _ _).mpr ?_, (a_eq_iff _ _ _).mpr ?_, (a_eq_iff _ _ _).mpr ?_⟩ <;> decide
 
-/-- Ground truth: `a 42 = 9`, `a 71 = 10`, `a 74 = 11` (listed terms). -/
+/-- `a 42 = 9`, `a 71 = 10`, `a 74 = 11` (listed terms). -/
 example : a 42 (by norm_num) = 9 ∧ a 71 (by norm_num) = 10 ∧ a 74 (by norm_num) = 11 := by
   refine ⟨(a_eq_iff _ _ _).mpr ?_, (a_eq_iff _ _ _).mpr ?_, (a_eq_iff _ _ _).mpr ?_⟩ <;> decide
 

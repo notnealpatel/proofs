@@ -1,38 +1,11 @@
 /-
 # A367865 — Yanev: a radical-sum formula for `Σ_{d|n} d φ(d) μ(d)²`
 
-## OEIS source (`oeis show A367865`, live entry https://oeis.org/A367865,
-## retrieved 2026-10-21)
+Velin Yanev's conjecture in OEIS A367865 (2025): for `n ≥ 1`,
+`a(n) = (rad(n)/n) Σ_{k=1}^n rad(nk)/rad(k)`, where
+`a(n)=Σ_{d∣n} dφ(d)μ(d)²` and `rad` is A007947. Amiram Eldar's prime-power
+formula (2023) is `a(p^e)=p²-p+1`.
 
-```
-NAME:     a(n) = Sum_{d|n} d * phi(d) * mu(d)^2.
-TERMS:    1,3,7,3,21,21,43,3,7,63,111,21,157,129,147,3,273,21,343,63,301,
-          333,507,21,21,471,7,129,813,441,931,3,777,819,903,21,1333,1029,
-          1099,63,1641,903,1807,333,147,1521,2163,21,43,63,1911,471,2757,
-          21,2331,129,2401,2439
-KEYWORDS: nonn,easy,mult
-COMMENT:
-  Inverse Möbius transform of n * phi(n) * mu(n)^2.
-FORMULA:
-  Multiplicative with a(p^e) = p^2 - p + 1. - _Amiram Eldar_, Dec 04 2023
-FORMULA (the conjecture):
-  Conjecture: a(n) = (rad(n)/n) * Sum_{k=1..n} rad(n*k)/rad(k), where rad
-  is A007947. - _Velin Yanev_, Sep 14 2025
-XREFS:
-  Cf. A000010 (phi), A007947 (rad), A008966 (mu^2), A202535.
-```
-
-## Status
-
-Triage status: open.  The entry gives no proof of Yanev's formula and the
-triage found none in the literature; no novelty claim is made beyond that
-search.  Computational re-validation (Python, exact rationals): the
-identity holds for every `1 ≤ n ≤ 1500` (with `rad(n k)` computed
-directly for `n ≤ 300`).
-
-## Result in this file
-
-The conjecture is proved (`yanev_conjecture`).  Proof outline.
 1. Both sides are products over the primes of `n`: for any `g`,
    `Σ_{d | n, d squarefree} Π_{p | d} g(p) = Π_{p | n} (1 + g(p))`
    (`sum_squarefree_divisors_prod`).
@@ -63,7 +36,7 @@ def rad (n : ℕ) : ℕ := ∏ p ∈ n.primeFactors, p
 def a (n : ℕ) : ℤ :=
   ∑ d ∈ n.divisors, (d : ℤ) * (Nat.totient d : ℤ) * (ArithmeticFunction.moebius d) ^ 2
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : rad 1 = 1 := by decide +kernel
 example : rad 12 = 6 := by decide +kernel
@@ -191,9 +164,9 @@ theorem rad_mul_div_rad (n k : ℕ) (hn : n ≠ 0) (hk : k ≠ 0) :
 
 /-! ## The conjecture -/
 
-/-- **Yanev's conjecture (A367865, Velin Yanev, Sep 14 2025).**
+/-- **Yanev's conjecture (A367865, Velin Yanev, 2025).**
 
-Verbatim: "Conjecture: a(n) = (rad(n)/n) * Sum_{k=1..n} rad(n*k)/rad(k), where
+"Conjecture: a(n) = (rad(n)/n) * Sum_{k=1..n} rad(n*k)/rad(k), where
 rad is A007947."  Here `a(n) = Σ_{d | n} d φ(d) μ(d)²` and the identity is
 taken in `ℚ` for every `n ≥ 1` (the entry's offset). -/
 theorem yanev_conjecture (n : ℕ) (hn : 0 < n) :

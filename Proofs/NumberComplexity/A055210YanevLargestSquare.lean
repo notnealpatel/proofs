@@ -1,32 +1,9 @@
 /-
 # A055210 — Yanev: sum of totients of square divisors via the largest square divisor
 
-## OEIS source (pulled with `oeis show A055210`, 2026-10-21)
-
-```
-NAME:     Sum of totients of square divisors of n.
-TERMS:    1,1,1,3,1,1,1,3,7,1,1,3,1,1,1,11,1,7,1,3,1,1,1,3,21,1,7,3,1,1,1,11,
-          1,1,1,21,1,1,1,3,1,1,1,3,7,1,1,11,43,21,1,3,1,7,1,3,1,1,1,3,...
-KEYWORDS: nonn,mult
-FORMULA:  a(n) = Sum_{d is square and divides n} phi(d).
-FORMULA (the conjecture):
-  Conjecture: a(n) = sigma_2(n/core(n))/sigma_1(n/core(n))
-  = A001157(A008833(n))/A000203(A008833(n)) for all n > 0. - _Velin Yanev_, Oct 13 2019
-```
-
-Triage phrasing: "Yanev: Σ_{d^2 | n} φ(d^2) = σ_2(s)/σ_1(s), where s is the
-largest square dividing n."  Here `A008833(n)` is the largest square dividing
-`n` (NAME of A008833: "Largest square dividing n.").
-
-## Status
-
-Triage: open (no proof in the entry or found in the literature).  The triage
-noted it is routine: both sides are multiplicative, and on `p^e` with
-`k = ⌊e/2⌋` both equal `(p^(2k+1)+1)/(p+1)`, matching Jovovic's formula in the
-entry.  Re-checked numerically for `1 ≤ n ≤ 20000` (exact rationals, no
-mismatch) before formalization.
-
-## Proof route (this file)
+Velin Yanev's conjecture in OEIS A055210 (2019): for `n > 0`, the sum of
+totients of square divisors equals `σ₂(s)/σ₁(s)`, with `s = A008833(n)`
+the largest square divisor of `n`.
 
 Write the largest square divisor as `m * m`.  A square `d * d` divides `n` iff
 `d ∣ m` (since `lcm(d, m)^2` is a square divisor of `n`), so
@@ -42,7 +19,7 @@ namespace Candidates.A055210YanevLargestSquare
 
 open ArithmeticFunction Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A055210: `a(n) = ∑_{d ∣ n, d a square} φ(d)`, the sum of totients of the
 square divisors of `n` (entry NAME and first FORMULA). -/
@@ -53,19 +30,19 @@ divisors of `n`.  For `n = 0` the divisor set is empty and the value is the junk
 every statement below assumes `0 < n`. -/
 def largestSquareDvd (n : ℕ) : ℕ := (n.divisors.filter IsSquare).sup id
 
-/-- Ground truth: the first 30 terms of A055210. -/
+/-- Examples: the first 30 terms of A055210. -/
 example : (List.range 30).map (fun n => a (n + 1)) =
     [1, 1, 1, 3, 1, 1, 1, 3, 7, 1, 1, 3, 1, 1, 1, 11, 1, 7, 1, 3, 1, 1, 1, 3, 21, 1, 7, 3,
       1, 1] := by
   decide +kernel
 
-/-- Ground truth: the first 30 terms of A008833. -/
+/-- Examples: the first 30 terms of A008833. -/
 example : (List.range 30).map (fun n => largestSquareDvd (n + 1)) =
     [1, 1, 1, 4, 1, 1, 1, 4, 9, 1, 1, 4, 1, 1, 1, 16, 1, 9, 1, 4, 1, 1, 1, 4, 25, 1, 9, 4,
       1, 1] := by
   decide +kernel
 
-/-- Ground truth: `a 72 = 21` and `largestSquareDvd 72 = 36`. -/
+/-- Examples: `a 72 = 21` and `largestSquareDvd 72 = 36`. -/
 example : a 72 = 21 ∧ largestSquareDvd 72 = 36 := by decide +kernel
 
 /-! ## The largest square divisor -/
@@ -236,7 +213,7 @@ theorem sum_mul_totient_mul_sigma_one (m : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Yanev's conjecture (A055210, Velin Yanev, Oct 13 2019), cross-multiplied form.**
+/-- **Yanev's conjecture (A055210, Velin Yanev, 2019), cross-multiplied form.**
 For `0 < n`, with `s` the largest square dividing `n`,
 `a(n) · σ₁(s) = σ₂(s)`. -/
 theorem a_mul_sigma_one_largestSquareDvd (n : ℕ) (hn : 0 < n) :
@@ -246,10 +223,7 @@ theorem a_mul_sigma_one_largestSquareDvd (n : ℕ) (hn : 0 < n) :
   rw [a_eq_sum hn hm, hm]
   exact sum_mul_totient_mul_sigma_one m
 
-/-- **Yanev's conjecture (A055210, Velin Yanev, Oct 13 2019).**
-
-Verbatim: "Conjecture: a(n) = sigma_2(n/core(n))/sigma_1(n/core(n))
-= A001157(A008833(n))/A000203(A008833(n)) for all n > 0."
+/-- **Yanev's conjecture (A055210, Velin Yanev, 2019).**
 
 Here `a(n) = ∑_{d ∣ n, d square} φ(d)` (A055210) and `A008833(n)` is the largest
 square dividing `n`.  The quotient is taken in `ℚ`; the denominator

@@ -1,40 +1,10 @@
 /-
 # A088883 / A088884 — Rotondo: residues mod 6 of the "concat-with-reverse ± 2" primes
 
-## OEIS source (retrieved with `oeis show A088883` and `oeis show A088884`, 2026-10-21)
-
-```
-A088883
-NAME:     Primes which when concatenated with their reverse and incremented by 2
-          yield a new prime.
-TERMS:    7,19,97,109,151,163,181,193,547,709,727,733,991,1039,1093,1279,1447,...
-COMMENT:  It appears that if concat(p,reverse(p))+2 is prime, then
-          concat(p,reverse(p))-2 is not and vice versa. This was tested for the
-          first 60000 primes.
-COMMENT (the conjecture):
-          Conjecture: All these primes are of the form 6*k + 1.
-          - _Davide Rotondo_, Apr 29 2025
-
-A088884
-NAME:     Primes which when concatenated with their reverse and decremented by 2
-          yield a new prime.
-TERMS:    3,5,11,53,107,131,149,167,179,191,311,317,389,503,599,947,971,1049,...
-COMMENT:  It appears that if concat(p,reverse(p))-2 is prime, then
-          concat(p,reverse(p))+2 is not and vice versa. This was tested for the
-          first 60000 primes.
-COMMENT (the conjecture):
-          Conjecture: except for 3, all these primes are of the form 6*k - 1.
-          - _Davide Rotondo_, Apr 29 2025
-```
-
-## Status
-
-Triage status: open (no proof in either entry; the live A088883 page on
-2026-10-21 still says "Conjecture").  Computation (this card, primes
-`p < 400000`): no violation of (a), (b) or the "never both" comment, and the
-first terms of both entries are reproduced.
-
-## Proof (formalized below in full)
+Davide Rotondo's conjectures in OEIS A088883 and A088884 (2025): primes
+whose concatenation with their reversal, plus `2`, is prime are `1 mod 6`;
+for minus `2` they are `5 mod 6`, except `3`. The two numbers cannot both
+be prime.
 
 Since `10 ≡ 1 (mod 3)`, `N(p) ≡ 2 · digitsum(p) ≡ 2p (mod 3)`.  If
 `p ≡ 2 (mod 3)` then `3 ∣ N(p) + 2`; if `p ≡ 1 (mod 3)` then `3 ∣ N(p) - 2`;
@@ -48,7 +18,7 @@ set_option autoImplicit false
 
 namespace Candidates.A088883RotondoPrimeLen
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `catRev p` is the decimal concatenation of `p` with its digit reversal,
 `N(p) = p * 10^len(p) + reverse(p)`.  `Nat.digits 10 p` is little-endian, so the
@@ -73,7 +43,7 @@ theorem catRev_eq (p : ℕ) :
   rw [catRev, Nat.ofDigits_append, Nat.ofDigits_digits, List.length_reverse]
   ring
 
-/-! ### Ground truth: first terms of A088883 and A088884 -/
+/-! ### Examples: first terms of A088883 and A088884 -/
 
 /-- `7` is in A088883: `77 + 2 = 79` is prime. -/
 example : (catRev 7 + 2).Prime := by
@@ -151,11 +121,8 @@ theorem eq_three_of_prime_of_mod_three {p : ℕ} (hp : p.Prime) (h3 : p % 3 = 0)
 
 /-! ## The conjectures -/
 
-/-- **Rotondo's conjecture for A088883 (Davide Rotondo, Apr 29 2025).**
-
-Verbatim: "Conjecture: All these primes are of the form 6*k + 1."  That is, if
-`p` is prime and `N(p) + 2` is prime, where `N(p)` is the concatenation of `p`
-with its decimal reversal, then `p ≡ 1 (mod 6)`. -/
+/-- Rotondo's A088883 conjecture (2025): if `p` and `N(p)+2` are prime, where
+`N(p)` concatenates `p` with its decimal reversal, then `p ≡ 1 (mod 6)`. -/
 theorem a088883_mod_six {p : ℕ} (hp : p.Prime) (h : (catRev p + 2).Prime) :
     p % 6 = 1 := by
   have hp0 : 0 < p := hp.pos
@@ -168,11 +135,9 @@ theorem a088883_mod_six {p : ℕ} (hp : p.Prime) (h : (catRev p + 2).Prime) :
   · omega
   · exact absurd h (not_prime_catRev_add_two hp0 h3)
 
-/-- **Rotondo's conjecture for A088884 (Davide Rotondo, Apr 29 2025).**
-
-Verbatim: "Conjecture: except for 3, all these primes are of the form 6*k - 1."
-That is, if `p ≠ 3` is prime and `N(p) - 2` is prime, then `p ≡ 5 (mod 6)`.
-The natural subtraction is honest: `N(p) ≥ 10p ≥ 20` (`ten_mul_le_catRev`). -/
+/-- Rotondo's A088884 conjecture (2025): if `p ≠ 3` and both `p` and `N(p)-2`
+are prime, then `p ≡ 5 (mod 6)`. The natural subtraction does not truncate:
+`N(p) ≥ 10p ≥ 20` (`ten_mul_le_catRev`). -/
 theorem a088884_mod_six {p : ℕ} (hp : p.Prime) (hp3 : p ≠ 3) (h : (catRev p - 2).Prime) :
     p % 6 = 5 := by
   have hp0 : 0 < p := hp.pos
@@ -185,11 +150,8 @@ theorem a088884_mod_six {p : ℕ} (hp : p.Prime) (hp3 : p ≠ 3) (h : (catRev p 
       norm_num at h
     · omega
 
-/-- **The "vice versa" comment of A088883 and A088884.**
-
-Verbatim: "It appears that if concat(p,reverse(p))+2 is prime, then
-concat(p,reverse(p))-2 is not and vice versa."  For every prime `p`, `N(p) + 2`
-and `N(p) - 2` are not both prime. -/
+/-- The 'vice versa' comment in OEIS A088883 and A088884: for every prime
+`p`, `N(p)+2` and `N(p)-2` are not both prime. -/
 theorem not_both_prime {p : ℕ} (hp : p.Prime) :
     ¬ ((catRev p + 2).Prime ∧ (catRev p - 2).Prime) := by
   rintro ⟨hplus, hminus⟩

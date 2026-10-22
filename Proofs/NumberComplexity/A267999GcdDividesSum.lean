@@ -1,33 +1,8 @@
 /-
 # A267999 — gcd(n, 2^n - 2) = 1 forces n^3 ∣ Σ_{k<n} k^n
 
-## OEIS source (retrieved with `oeis show A267999`, 2026-10-21)
-
-```
-NAME:     Numbers n > 1 such that gcd(n, 2^n - 2) = 1.
-TERMS:    35,55,77,95,115,119,143,155,161,187,203,209,215,221,235,247,253,275,
-          287,295,299,319,323,329,335,355,371,377,391,395,403,407,413,415,...
-COMMENT:  Odd numbers n > 1 such that gcd(n, 2^(n-1)-1) = 1.
-COMMENT (the conjecture, unattributed and undated in the entry):
-  Conjecture: this is a subsequence of A121707. Tested for all terms <= 10^5.
-FORMULA:  a(n) = A121707(n) for n < 62. A121707(62) = 697 = A306097(1) is the
-          first term of A121707 not in this sequence. - _M. F. Hasler_, Nov 09 2018
-```
-
-A121707 (`oeis show A121707`, same date): "Numbers n > 1 such that n^3 divides
-Sum_{k=1..n-1} k^n = A121706(n)."  Its crossrefs list "A267999 (probably a
-subsequence)".  A121707 also records (Ordowski–Israel conjecture, proved by
-Schinzel in a letter dated Dec 29 2015, cited there) that odd n > 1 lies in A121707 iff
-n ∣ Σ_{k=1}^{n-1} k^(n-1).
-
-## Status
-
-Triage (2026-10-21): open on OEIS (both the local entry and the live entry
-still call it a conjecture); no proof found in the entry or the literature.
-The triage verified it for n ≤ 3000; this module's author re-checked
-n ∈ [2, 700] ∪ [3000, 8000] (758 terms, no failures) before formalizing.
-
-## Proof (kernel-checked below)
+OEIS A267999: for `n > 1`, `gcd(n,2^n-2) = 1` implies
+`n³ ∣ ∑_{k=1}^{n-1} k^n` (membership in A121707).
 
 1. `gcd(n, 2^n - 2) = 1` forces n odd and `gcd(n, 2^(n-1) - 1) = 1`.
 2. Doubling `x ↦ 2x` permutes `ZMod n`, so `S = Σ_x x^(n-1)` satisfies
@@ -44,7 +19,7 @@ set_option autoImplicit false
 
 namespace Candidates.A267999GcdDividesSum
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- Membership in A267999: `n > 1` and `gcd(n, 2^n - 2) = 1`.  The natural
 subtraction `2 ^ n - 2` is exact here because `1 < n` gives `2 ≤ 2 ^ n`. -/
@@ -59,7 +34,7 @@ def IsA121707 (n : ℕ) : Prop := 1 < n ∧ n ^ 3 ∣ ∑ k ∈ Finset.Ico 1 n, 
 instance (n : ℕ) : Decidable (IsA121707 n) := by
   unfold IsA121707; infer_instance
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The first three terms of A267999 below 80 are exactly 35, 55, 77.
 example : (Finset.range 80).filter IsA267999 = {35, 55, 77} := by decide
@@ -184,9 +159,8 @@ theorem odd_and_coprime_of_gcd_eq_one (n : ℕ) (hn : 1 < n) (h : Nat.gcd n (2 ^
 
 /-! ## The conjecture -/
 
-/-- **A267999 ⊆ A121707 (conjecture in A267999, unattributed; "Tested for all
-terms <= 10^5").**  For every integer `n > 1` with `gcd(n, 2^n - 2) = 1`,
-`n^3` divides `Σ_{k=1}^{n-1} k^n`.  Proved here (formerly open on OEIS). -/
+/-- The inclusion conjectured in OEIS A267999 (unattributed): for
+`n > 1` with `gcd(n,2^n-2) = 1`, `n³` divides `∑_{k=1}^{n-1} k^n`. -/
 theorem cube_dvd_sum_Ico_pow (n : ℕ) (hn : 1 < n) (h : Nat.gcd n (2 ^ n - 2) = 1) :
     n ^ 3 ∣ ∑ k ∈ Finset.Ico 1 n, k ^ n := by
   obtain ⟨hodd, hcop⟩ := odd_and_coprime_of_gcd_eq_one n hn h

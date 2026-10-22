@@ -1,37 +1,12 @@
 /-
 # A280098 — Wilson: `k ∣ σ(k n - 1)` for all `n` iff `k ∈ {1, 3, 4, 6, 8, 12, 24}`
 
-## OEIS source (retrieved with `oeis show A280098`, 2026-10-21)
-
-```
-NAME:     The sum of the divisors of 24*n - 1, divided by 24.
-TERMS:    1,2,3,5,6,7,7,8,11,10,11,14,13,17,15,16,19,18,28,20,21,24,25,31,25,
-          30,27,31,35,30,31,35,38,41,35,36,37,38,54,46,41,45,43,53,49,46,57,48,
-          62,55,51,55,56,76,55,60,57,63,71,60,80,62,63,77,65,66,67
-COMMENT (the conjecture):
-  Conjecture: only the integers k in {1, 3, 4, 6, 8, 12, 24} have the property
-  that the sum of the divisors of (k*n-1)/k is always an integer.
-  - _Robert G. Wilson v_, Dec 25 2016
-FORMULA:
-  24 * a(n) = sum of the divisors of A183010(n).
-  a(n) = A280097(n)/24. - _Omar E. Pol_, Dec 25 2016
-```
-
-The comment's wording "the sum of the divisors of (k*n-1)/k" is read, as the
-NAME line and the formula `24 * a(n) = sigma(24 n - 1)` dictate, as
-"`sigma(k n - 1) / k` is an integer", i.e. `k ∣ sigma(k n - 1)`, for every
-`n ≥ 1` with `k n - 1 ≥ 1` (for `k = 1, n = 1` the argument `0` is excluded).
-
-## Literature status (triage)
-
-Open as far as the triage could tell: the `k = 24` direction is the classical
-fact cited in A280097 (every divisor `d` of `N ≡ -1 (mod 24)` satisfies
-`d + N/d ≡ 0 (mod 24)`), but the converse appears in the entry only as
-Wilson's 2016 conjecture, and a web search found no published proof of the
-full equivalence (it may be folklore).  Computation (2026-10-21): for
-`k ≤ 400` and `k n - 1 ≤ 60000`, exactly `k ∈ {1,3,4,6,8,12,24}` pass.
-
-## Proof (kernel-checked below)
+Robert G. Wilson v's conjecture in OEIS A280098 characterizes positive `k`
+for which `k ∣ σ(kn-1)` whenever `1 < kn`: exactly `1,3,4,6,8,12,24`.
+The source's wording about the sum of divisors of `(kn-1)/k` is read as
+`σ(kn-1)/k`, consistently with the sequence definition `a(n) = σ(24n-1)/24`.
+The argument `0` at `k = n = 1` is excluded. The divisor-pairing argument
+for `k = 24` is also recorded in A280097.
 
 * If: for `k ∈ {3,4,6,8,12,24}`, every `x, y ∈ ZMod k` with `x y = -1`
   satisfy `x + y = 0` and `x ≠ y` (finite check).  Pair each divisor `d` of
@@ -50,7 +25,7 @@ namespace Candidates.A280098SigmaDivisibility
 
 open ArithmeticFunction
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A280098 (offset 1): `a(n) = sigma(24 n - 1) / 24`. -/
 def a (n : ℕ) : ℕ := sigma 1 (24 * n - 1) / 24
@@ -63,7 +38,7 @@ def SigmaDivProperty (k : ℕ) : Prop :=
 /-- The conjectured exceptional set `{1, 3, 4, 6, 8, 12, 24}`. -/
 def exceptionalSet : Finset ℕ := {1, 3, 4, 6, 8, 12, 24}
 
-/-! ### Ground truth -/
+/-! ### Examples -/
 
 example : (List.range 10).map (fun i => a (i + 1)) = [1, 2, 3, 5, 6, 7, 7, 8, 11, 10] := by
   simp only [a, sigma_one_apply]; decide
@@ -222,10 +197,7 @@ theorem not_sigmaDivProperty_two : ¬ SigmaDivProperty 2 := by
 
 /-! ## The conjecture -/
 
-/-- **Wilson's conjecture (A280098, Robert G. Wilson v, Dec 25 2016)**, proved.
-
-Verbatim: "Conjecture: only the integers k in {1, 3, 4, 6, 8, 12, 24} have the
-property that the sum of the divisors of (k*n-1)/k is always an integer."
+/-- **Wilson's conjecture (A280098, Robert G. Wilson v)**, proved.
 
 Formal reading: for `k ≥ 1`, `k ∣ sigma(k n - 1)` for every `n` with
 `1 < k n` if and only if `k ∈ {1, 3, 4, 6, 8, 12, 24}`.  The guard `0 < k`

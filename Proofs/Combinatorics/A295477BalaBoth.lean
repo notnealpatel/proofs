@@ -1,32 +1,10 @@
 /-
-# A295477 — Bala: both `a(n/2)` and `a(n/4)` are integers
+# A295477 — integrality at half and quarter indices
 
-## OEIS source (retrieved with `oeis show A295477`, 2026-10-21)
-
-```
-NAME:     a(n) = (24*n)!*n!/((12*n)!*(8*n)!*(5*n)!).
-TERMS:    1,267711444,527048385075849780,1217325447549161369383451760,...
-FORMULA:  a(n) = binomial(24*n,12*n)*binomial(12*n,4*n)/binomial(5*n,n) =
-          binomial(24*n,12*n)*binomial(13*n,5*n)/binomial(13*n,n).
-          - _Chai Wah Wu_, Feb 16 2026
-COMMENT (the conjecture):
-  Conjectures: for n >= 0, both a(n/2) = (12*n)!*(n/2)! /
-  ((6*n)!*(4*n)!*(5*n/2)!) and a(n/4) = (6*n)!*(n/4)! /
-  ((3*n)!*(2*n)!*(5*n/4)!) are integers, where fractional factorials are
-  defined using the Gamma function - for example, (n/2)! := Gamma(n/2 + 1).
-  - _Peter Bala_, Jul 31 2026
-```
-
-## Literature status (triage)
-
-Open: no proof in the entry or in the literature as far as the triage could
-tell. Triage evidence: both ratios integral for `n ≤ 300`. Re-checked here
-(Sage, exact integers after removing Gamma, 2026-10-21) for `n ≤ 450`, and
-cross-checked against a multiprecision Gamma evaluation for `n ≤ 4`.
-
-## Result of this module
-
-Both conjectures are proved for every `n`.
+Peter Bala (OEIS A295477, Jul 31 2026) conjectured that both `a(n/2)`
+and `a(n/4)` are integral for every natural `n`, where
+`a(n) = (24n)! n! / ((12n)! (8n)! (5n)!)` and `x! = Γ(x+1)`.
+Chai Wah Wu (Feb 16 2026) also gave binomial-quotient formulas for `a(n)`.
 
 * Gamma is removed by the Pochhammer identity `Γ(x + k) = Γ(x) ∏_{i<k} (x + i)`:
   `a(n/2) = 2^(2n) (12n)! / ((6n)! (4n)! ∏_{i<2n} (n + 2(i+1)))` and
@@ -53,7 +31,7 @@ open Candidates.A295431BalaGamma (landau_list div_div_eq_of_mul_eq)
 open Candidates.A295437BalaJunBoth (apProd dvd_of_terms gamma_add_nat apProd_real
   factorial_mul_prod_succ apProd_mul_left card_eq_zero_of_dvd)
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The OEIS sequence A295477:
 `a(n) = (24n)! n! / ((12n)! (8n)! (5n)!)`. The truncating `Nat` division is
@@ -389,7 +367,7 @@ theorem quarterRatio_two_mul (m : ℕ) : quarterRatio (2 * m) = halfRatio m := b
 theorem quarterRatio_four_mul (m : ℕ) : quarterRatio (4 * m) = a295477 m := by
   rw [show 4 * m = 2 * (2 * m) by ring, quarterRatio_two_mul, halfRatio_two_mul]
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : a295477 0 = 1 := by decide
 
@@ -431,11 +409,9 @@ theorem quarterRatio_integral (n : ℕ) : ∃ k : ℕ, quarterRatio n = k := by
   obtain ⟨c, hc⟩ := quarter_exists n
   exact ⟨c, quarterRatio_eq hc⟩
 
-/-- **Bala's conjecture (A295477, Peter Bala, Jul 31 2026).** Verbatim:
-"Conjectures: for n >= 0, both a(n/2) = (12*n)!*(n/2)! / ((6*n)!*(4*n)!*(5*n/2)!)
-and a(n/4) = (6*n)!*(n/4)! / ((3*n)!*(2*n)!*(5*n/4)!) are integers, where
-fractional factorials are defined using the Gamma function - for example,
-(n/2)! := Gamma(n/2 + 1)." Both ratios are natural numbers, for every `n`. -/
+/-- Bala's conjecture (OEIS A295477, Peter Bala, Jul 31 2026):
+both `a(n/2)` and `a(n/4)` are natural numbers for every natural `n`,
+with fractional factorials interpreted as `x! = Γ(x+1)`. -/
 theorem bala_both (n : ℕ) : (∃ k : ℕ, halfRatio n = k) ∧ (∃ k : ℕ, quarterRatio n = k) :=
   ⟨halfRatio_integral n, quarterRatio_integral n⟩
 

@@ -1,30 +1,10 @@
 /-
 # A254748 — twin-prime averages have no superdivisor
 
-## OEIS source (retrieved with `oeis show A254748`, 2026-10-21)
-
-```
-NAME:     Numbers without superdivisors: numbers n such that n/k + n fails to
-          divide at least one of (n/k)^(n/k) + n, (n/k)^n + n/k or
-          n^(n/k) + n/k for any divisor k of n.
-TERMS:    2,4,6,8,12,14,16,18,20,24,26,28,30,32,38,40,42,44,48,50,52,54,56,
-          60,62,64,66,68,72,74,80,84,86,88,90,92,96,98,100,102,...
-COMMENT (the conjecture, unsigned; attributed to the entry author
-         Juri-Stepan Gerasimov, Feb 07 2015, per the live AUTHOR line):
-  Conjecture: Average of twin prime pairs (A014574) are zerosuperdivisor
-  numbers.
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  Computation (Python, bounded): no twin-prime average below
-`3 * 10^6` and no even `n ≤ 2.5 * 10^6` with `n - 1` prime has a superdivisor.
-
-This module proves the conjecture, in the stronger form found by the triage:
-every even `n` with `n - 1` prime has no superdivisor.  Only the second
-divisibility condition `(n/k + n) ∣ (n/k)^n + n/k` is used (plus the first one
-at the single exceptional case `n = 4`).
+Juri-Stepan Gerasimov's conjecture in OEIS A254748 says that averages of
+twin primes (A014574) have no superdivisor. The stronger statement proved
+here assumes only that `n` is even and `n-1` is prime. Only the second
+superdivisor condition is used, except that the first excludes `n = 4`.
 
 Informal argument.  Write `n = k * d` (`d = n / k`), `p = n - 1` prime.  Then
 `n/k + n = d * (k + 1)` and the second condition becomes
@@ -69,7 +49,7 @@ instance : DecidablePred InA254748 := fun n =>
   if hn : 0 < n then decidable_of_iff _ (inA254748_iff_divisors hn).symm
   else isFalse (fun h => hn h.1)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : InA254748 2 := by decide
 example : InA254748 4 := by decide
@@ -191,7 +171,7 @@ theorem eq_two_of_succ_dvd {k d : ℕ} (he : Even (k * d)) (hp : (k * d - 1).Pri
   · omega
   · omega
 
-/-- **Stronger form (triage).** If `n` is even and `n - 1` is prime, then `n`
+/-- **Stronger form.** If `n` is even and `n - 1` is prime, then `n`
 has no superdivisor. -/
 theorem not_isSuperdivisor_of_even_of_prime_sub_one {n : ℕ} (he : Even n)
     (hp : (n - 1).Prime) (k : ℕ) : ¬ IsSuperdivisor n k := by
@@ -210,7 +190,7 @@ theorem inA254748_of_even_of_prime_sub_one {n : ℕ} (he : Even n) (hp : (n - 1)
     InA254748 n :=
   ⟨by have := hp.two_le; omega, not_isSuperdivisor_of_even_of_prime_sub_one he hp⟩
 
-/-- **A254748 comment conjecture (Juri-Stepan Gerasimov, Feb 07 2015).** "Average of twin
+/-- **A254748 comment conjecture (Juri-Stepan Gerasimov).** "Average of twin
 prime pairs (A014574) are zerosuperdivisor numbers": if `n - 1` and `n + 1` are
 both prime, then `n` has no superdivisor, i.e. `n ∈ A254748`. -/
 theorem twin_prime_average_inA254748 {n : ℕ} (hm : (n - 1).Prime) (hpl : (n + 1).Prime) :

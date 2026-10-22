@@ -1,29 +1,10 @@
 /-
 # A259145 — if k^2 - phi(k) is prime then k is a cyclic number
 
-## OEIS source (retrieved with `oeis show A259145` and the live entry, 2026-10-21)
-
-```
-NAME:     Numbers k such that k^2 - phi(k) is prime, where phi() is A000010.
-TERMS:    2,3,7,13,33,35,65,67,77,79,91,133,139,151,163,193,221,247,249,287,...
-KEYWORDS: nonn,easy
-AUTHOR:   Carlos Eduardo Olivieri, Jun 19 2015
-COMMENT (the conjecture; the entry gives no separate attribution, so it is
-the author's, Carlos Eduardo Olivieri, Jun 19 2015):
-  Conjecture: a(n) is a cyclic number (see A003277) for all n.
-```
-
-A003277 (cyclic numbers): numbers `k` with `gcd(k, phi(k)) = 1`.
-
-## Status
-
-Triage: "open" in the sense that neither the entry nor the literature found by
-the triage records a proof.  The statement has an elementary one-line proof:
-`d = gcd(k, phi(k))` divides `k^2 - phi(k) = q`, a prime, and
-`d ≤ k < k^2 - phi(k) = q` for `k ≥ 2`, so `d = 1`.  This module proves it.
-
-Computational check (python, 2026-10-21): every `k ≤ 200000` with
-`k^2 - phi(k)` prime (6626 values) satisfies `gcd(k, phi(k)) = 1`.
+Carlos Eduardo Olivieri's conjecture in OEIS A259145 says that if
+`k²-φ(k)` is prime, then `k` is cyclic, meaning `gcd(k,φ(k)) = 1` (A003277).
+Indeed the gcd divides that prime and is smaller: for `k ≥ 2`,
+`gcd(k,φ(k)) ≤ k < k²-φ(k)`.
 
 ## Truncated subtraction
 
@@ -57,7 +38,7 @@ theorem sub_cast_eq (k : ℕ) :
   push_cast [hle]
   ring
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The terms of A259145 below `40` are exactly the first six listed
 terms `2, 3, 7, 13, 33, 35`. -/
@@ -81,8 +62,8 @@ theorem lt_sq_sub_totient {k : ℕ} (hk : 2 ≤ k) : k < k ^ 2 - Nat.totient k :
     exact Nat.mul_le_mul_right k hk
   omega
 
-/-- **A259145 conjecture (Carlos Eduardo Olivieri, Jun 19 2015).**
-Verbatim: "Conjecture: a(n) is a cyclic number (see A003277) for all n."
+/-- **A259145 conjecture (Carlos Eduardo Olivieri).**
+"Conjecture: a(n) is a cyclic number (see A003277) for all n."
 That is: if `k^2 - phi(k)` is prime, then `gcd(k, phi(k)) = 1`.
 
 Proof: `d = gcd(k, phi(k))` divides the prime `q = k^2 - phi(k)`; since

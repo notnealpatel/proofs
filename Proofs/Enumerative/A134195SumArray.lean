@@ -1,38 +1,12 @@
 /-
-# A134195 — Irvine: antidiagonal sums of A126885 are partial sums of A104879
+Antidiagonal sums and partial sums (OEIS A134195; Sean A. Irvine, Jul 14 2022).
 
-## OEIS source (retrieved with `oeis show A134195`, 2026-10-21)
-
-```
-NAME:     Antidiagonal sums of square array A126885.
-TERMS:    1,3,7,15,32,72,178,494,1543,5373,20581,85653,383494,1833250,9301792,
-          49857540,281193501,1663183383,10286884195,66365330811,445598473612,...
-COMMENT (the conjecture):
-  Conjecture: partial sums of A104879. - _Sean A. Irvine_, Jul 14 2022
-```
-
-Referenced entries (retrieved the same day):
-
-```
-A126885 NAME: T(n,k) = n*T(n,k-1) + k, with T(n,1) = 1, square array read by
-              ascending antidiagonals (n >= 0, k >= 1).
-A104879 NAME: Row sums of a sum-of-powers triangle.
-A104879 FORMULA: a(n) = 1 + n + Sum_{k=2..n+1} (k^(n-k+1)-1)/(k-1).
-```
-
-Precise form (from the triage): for `s ≥ 0`,
-`Sum_{n=0..s} T(n, s-n+1) = Sum_{j=0..s} A104879(j)`.
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell; checked for `s = 0..29`).  Re-checked here in Python for
-`s = 0..59`, and against all 27 listed terms of A134195.
-
-This file proves the conjecture.  The argument: with the geometric sums
-`G(n, m) = Sum_{i<m} n^i`, one has `T(n, k+1) = T(n, k) + G(n, k+1)` and
-`A104879(j) = Sum_{k=0..j+1} G(k, j+1-k)`, so the first difference of the
-antidiagonal sums is exactly `A104879`.
+For the A126885 array T(n,k)=n T(n,k-1)+k with T(n,1)=1,
+ ∑_{n=0}^s T(n,s-n+1)=∑_{j=0}^s A104879(j) for every natural s.
+A104879 is defined by the entry's explicit formula
+1+j+∑_{k=2}^{j+1}(k^(j-k+1)-1)/(k-1), not by a separate bijection to
+its sum-of-powers-triangle interpretation. Geometric sums identify the
+first difference of the antidiagonal sums with that formula.
 -/
 import Mathlib
 
@@ -67,7 +41,7 @@ def a104879 (j : ℕ) : ℕ :=
 def a134195 (s : ℕ) : ℕ :=
   ∑ n ∈ range (s + 1), T n (s - n + 1)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The first four ascending antidiagonals of A126885: 1; 1,2; 1,3,3; 1,4,6,4.
 example : T 0 1 = 1 ∧ T 1 1 = 1 ∧ T 0 2 = 2 ∧ T 2 1 = 1 ∧ T 1 2 = 3 ∧ T 0 3 = 3 ∧
@@ -157,12 +131,8 @@ theorem a134195_succ (s : ℕ) : a134195 (s + 1) = a134195 s + a104879 (s + 1) :
 
 /-! ## The conjecture -/
 
-/-- **Irvine's conjecture (A134195, Sean A. Irvine, Jul 14 2022), proved.**
-
-Verbatim: "Conjecture: partial sums of A104879."  Precisely: for every `s ≥ 0`,
-`Sum_{n=0..s} T(n, s-n+1) = Sum_{j=0..s} A104879(j)`, where `T` is the array
-A126885 (`T(n,1) = 1`, `T(n,k) = n*T(n,k-1) + k`) and
-`A104879(j) = 1 + j + Sum_{k=2..j+1} (k^(j-k+1) - 1)/(k-1)`. -/
+/-- The antidiagonal sums of A126885 are the partial sums of the
+formula-defined A104879, for every natural diagonal index `s`. -/
 theorem a134195_eq_sum_a104879 (s : ℕ) :
     ∑ n ∈ range (s + 1), T n (s - n + 1) = ∑ j ∈ range (s + 1), a104879 j := by
   induction s with

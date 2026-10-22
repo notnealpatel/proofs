@@ -1,28 +1,13 @@
 /-
 # Seymour's second neighbourhood conjecture for tournaments (Dean's conjecture)
 
-## Source
-
-* MathOverflow question 100265, "Not especially famous, long-open problems
-  which anyone can understand", answer https://mathoverflow.net/a/102040
-  (score 13; the answer author is not recorded in the local dump).  Verbatim:
-
-  > In an oriented graph, is there always a vertex from which there are at least
-  > as many vertices that one can access by moving along exactly two edges, than
-  > there are vertices that one can access by moving along one edge? This is
-  > known as Seymour's second neighborhood conjecture, and might be on the verge
-  > to being too famous (but it seems few of my colleagues know it).
-
-* The conjecture is due to P. Seymour (1990).  The general oriented-graph case
-  is open.  The tournament case is Dean's conjecture, proved by D. C. Fisher
-  (J. Graph Theory 23 (1996)) and reproved combinatorially by F. Havet and
-  S. Thomassé, "Median orders of tournaments: a tool for the second
-  neighborhood problem and Sumner's conjecture", J. Graph Theory 35 (2000)
-  244--256.  The Havet--Thomassé statement is restated in arXiv 1808.02247,
-  arXiv 1106.5463 and arXiv 2406.03635.
-
-* Date of this card: 2026-10-21.  Status: special case (tournaments) of an open
-  conjecture; the special case is proved in the literature.
+Seymour's second neighbourhood conjecture (1990) asks for a vertex `v`
+of a nonempty oriented graph with `|N⁺(v)| ≤ |N⁺⁺(v)|`; see also
+MathOverflow answer https://mathoverflow.net/a/102040. This file treats
+only tournaments (Dean's conjecture), proved by D. C. Fisher,
+J. Graph Theory 23 (1996). The proof follows F. Havet and S. Thomassé,
+*Median orders of tournaments: a tool for the second neighborhood problem
+and Sumner's conjecture*, J. Graph Theory 35 (2000), 244–256.
 
 ## What is formalized
 
@@ -102,7 +87,7 @@ def goodSet {n : ℕ} (G : Digraph V) [DecidableRel G.Adj] (σ : Fin (n + 1) ≃
 
 end Finite
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The cyclic tournament `0 → 1 → 2 → 0` on three vertices. -/
 def cyc3 : Digraph (Fin 3) := ⟨fun i j => j = i + 1⟩

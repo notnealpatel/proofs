@@ -1,40 +1,10 @@
 /-
-# A007228 — Bala: parity of `3 * binomial(4n, n) / (n + 1)`
+Parity of OEIS A007228 (Peter Bala, Mar 13 2023).
 
-## OEIS source (pulled with `oeis show A007228`, retrieved 2026-10-21)
-
-```
-NAME:     a(n) = 3*binomial(4*n,n)/(n+1).
-TERMS:    3,6,28,165,1092,7752,57684,444015,3506100,28242984,231180144,...
-COMMENT (the conjecture):
-  Conjecture: for n >= 1, a(n) is odd iff n = 4*A263133(k) + 3 for some k.
-  - _Peter Bala_, Mar 13 2023
-```
-
-Cross-reference (`oeis show A263133`):
-
-```
-NAME:     Numbers m such that binomial(4*m + 3, m) is odd.
-TERMS:    0,1,2,3,5,7,10,11,15,21,23,31,42,43,47,63,85,87,95,127,...
-```
-
-## Status
-
-Triage status: open (the entry gives no proof; no proof was located in the
-literature by the triage).  Numerically confirmed for `1 ≤ n ≤ 6000`
-(`python3`, exact integers).  This module proves the conjecture.
-
-## Proof outline
-
-* `a n + C(4n, n+1) = 3 C(4n, n)` (from `C(4n,n+1)(n+1) = C(4n,n)(3n)`), so
-  `a n ≡ C(4n,n) + C(4n,n+1) = C(4n+1, n+1) (mod 2)`.
-* Lucas's theorem at `p = 2` (`Choose.choose_modEq_choose_mod_mul_choose_div_nat`)
-  evaluates the parity of `C(4n+1, n+1)` according to `n mod 4`:
-  `n ≡ 1, 2` gives an even factor `C(0,1) = 0`; `n = 4m` with `m ≥ 1` reduces to
-  `C(8m, 2m)`, even since `C(4k, k)` is even for `k ≥ 1`; `n = 4m + 3` reduces to
-  `C(4m+3, m+1) = 3 C(4m+3, m)`.
-* The guard `n ≥ 1` is load-bearing: `a 0 = 3` is odd but `0` is not of the
-  form `4m + 3`.
+For n ≥ 1 and a(n) = 3 C(4n,n)/(n+1), a(n) is odd iff n = 4m+3
+with C(4m+3,m) odd (membership in A263133). The quotient is exact.
+The proof uses Pascal's rule and Lucas's theorem at 2.
+The guard is necessary: a(0) = 3 is odd but 0 has no such representation.
 -/
 import Mathlib
 
@@ -200,12 +170,8 @@ theorem choose_odd_iff (n : ℕ) (hn : 1 ≤ n) :
       subst hmm
       omega
 
-/-- **Bala's conjecture (A007228, Peter Bala, Mar 13 2023), proved.**
-
-Verbatim: "Conjecture: for n >= 1, a(n) is odd iff n = 4*A263133(k) + 3 for
-some k."  Here `a n = 3 * C(4n, n) / (n + 1)` and `A263133` is the set of `m`
-with `C(4m + 3, m)` odd (`IsA263133`).  The guard `1 ≤ n` is from the source and
-is necessary (`a 0 = 3` is odd). -/
+/-- For `n≥1`, A007228(n) is odd iff `n=4m+3` with `C(4m+3,m)` odd
+(Peter Bala, Mar 13 2023). The guard is necessary since `a 0=3`. -/
 theorem a_odd_iff (n : ℕ) (hn : 1 ≤ n) :
     Odd (a n) ↔ ∃ m, IsA263133 m ∧ n = 4 * m + 3 := by
   rw [Nat.odd_iff, a_mod_two, choose_odd_iff n hn]
@@ -218,7 +184,7 @@ theorem a_zero_odd_not_form : Odd (a 0) ∧ ¬ ∃ m, IsA263133 m ∧ 0 = 4 * m 
   rintro ⟨m, -, hm⟩
   omega
 
--- Non-vacuity: both sides of `a_odd_iff` occur (`a 3 = 165` odd, `a 1 = 6` even).
+-- Both sides of `a_odd_iff` occur (`a 3 = 165` odd, `a 1 = 6` even).
 example : Odd (a 3) ∧ ∃ m, IsA263133 m ∧ 3 = 4 * m + 3 := ⟨by decide, 0, by unfold IsA263133; decide, rfl⟩
 example : ¬ Odd (a 1) := by decide
 

@@ -1,28 +1,9 @@
 /-
 # A094291 — Kotesovec: `lim a(n)^(1/n) = (3 + √5)/2`
 
-## OEIS source (retrieved with `oeis show A094291`, 2026-10-21)
-
-```
-NAME:     a(n) = maximal value of C(i, j) * C(n-j, n-i) for 0 <= j <= i <= n.
-TERMS:    1,2,4,9,18,40,100,225,525,1225,3136,7056,17640,44100,108900,261360,
-          637065,1656369,4008004,10020010,25050025,64128064,155739584, ...
-          (offset 1: a(1) = 1, a(2) = 2, a(3) = 4, ...)
-FORMULA (the conjecture):
-  Conjecture: Limit_{n->oo} a(n)^(1/n) = (3 + sqrt(5))/2. - _Vaclav Kotesovec_,
-  Sep 03 2026
-FORMULA (companion, NOT formalized here):
-  Conjecture: a(n) = C(n-k(n), j(n))*C(n-j(n), k(n)) where
-  [n/4] <= j(n) <= k(n) <= j(n)+1; the j (resp. k) value can increase only when
-  j = k-1 (resp. j = k). - _M. F. Hasler_, Sep 02 2026
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  This file proves Kotesovec's limit.  Hasler's companion
-conjecture (location of the maximizer) is a separate formula line and is not
-addressed here.
+OEIS A094291, Vaclav Kotesovec (2026): the limit of the nth root of
+`max_{0 ≤ j ≤ i ≤ n} C(i,j) C(n-j,n-i)` is `(3 + √5)/2`.
+Hasler's companion conjecture on the location of the maximizer is not addressed.
 
 ## Proof outline
 
@@ -42,7 +23,7 @@ namespace Candidates.A094291KotesovecSepLim
 
 open Finset
 
-/-! ## Definition and ground truth -/
+/-! ## Definitions and examples -/
 
 /-- A094291: `a n` is the maximal value of `C(i, j) * C(n - j, n - i)` over
 `0 ≤ j ≤ i ≤ n`.  The `Nat` subtractions are exact on this range. -/
@@ -212,8 +193,7 @@ theorem goldenRatio_sq_eq : goldenRatio ^ 2 = (3 + Real.sqrt 5) / 2 := by
 
 /-- **Kotesovec's conjecture (A094291, Vaclav Kotesovec, Sep 03 2026).**
 
-Verbatim: "Conjecture: Limit_{n->oo} a(n)^(1/n) = (3 + sqrt(5))/2."
-
+The limit of `a(n)^(1/n)` is `(3 + √5)/2`.
 Here `a n = max_{0 ≤ j ≤ i ≤ n} C(i, j) * C(n - j, n - i)`.  The value of the
 real power at `n = 0` (exponent `1/0 = 0`) is irrelevant to the limit. -/
 theorem kotesovec_limit : Filter.Tendsto (fun n : ℕ => (a n : ℝ) ^ ((1 : ℝ) / n))

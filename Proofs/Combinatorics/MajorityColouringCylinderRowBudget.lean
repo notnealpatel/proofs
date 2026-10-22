@@ -1,52 +1,19 @@
 /-
-# Row budget for majority C-colourings of cylinders `C_m □ P_n`
-
-## Source
+# Row budgets for majority colourings of cylinders
 
 ZeHua Lu, *Exact majority C-colourings of balanced Hamming graphs and grids*,
-arXiv:2609.31674, Section 5.1 ("Even heights and the counterexample"),
-Lemma 9 (row budget) and the counting inequality following it, which give the
-upper bound of Theorem 2(1). Recorded 2026-10-21.
+arXiv:2609.31674, Section 5.1, Lemma 9 and the counting bound for Theorem 2(1).
+For `m ≥ 4`, `n ≥ 2`, each majority class `S` of `C_m □ P_n` has row budget
+`B(S) = ∑_y ⌊|S ∩ L_y|/2⌋ ≥ 2`. Summing over a partition into `c` classes
+gives `2c ≤ n⌊m/2⌋`.
 
-Definitions (Section 1, verbatim): "Put `d_S(v) = |N_G(v) ∩ S|`. A nonempty set
-`S ⊆ V(G)` is a **majority class** if `d_S(v) ≥ ⌈d_G(v)/2⌉ (v ∈ S)`. A majority
-C-colouring is a vertex partition into majority classes; `M(G)` is its largest
-possible number of parts."
+An explicit nine-class partition attains the bound at `(m,n) = (7,6)`.
+This refutes Bujtás–Dettlaff–Furmańczyk–Laskowska, arXiv:2608.27669v1,
+Conjecture 4, which predicts 10 classes there.
 
-Lemma 9 (verbatim): "For `m ≥ 4, n ≥ 2` and any majority class `S`,
-`B(S) := ∑_y ⌊|S ∩ L_y|/2⌋ ≥ 2`."  Here `L_y` is the row `C_m × {y}`.
-
-Counting (verbatim): "For a partition into `c` classes,
-`2c ≤ ∑_S B(S) ≤ n ⌊m/2⌋`."
-
-Counterexample (verbatim): "For `C_7 □ P_6`, an optimal nine-colouring is
-[the 2×2 / 2×3 block colouring] ... The budget inequality gives `2c ≤ 18`,
-ruling out the ten colours asserted by [1, Conjecture 4]."
-
-Refuted statement: Bujtás–Dettlaff–Furmańczyk–Laskowska, arXiv:2608.27669v1,
-Conjecture 4: for `m, n ≥ 6` with at least one of them odd,
-`M(C_m □ P_n) = M(C_m □ C_n) = 1 + ⌊m/2⌋⌊n/2⌋`. At `(m, n) = (7, 6)` this
-predicts `M(C_7 □ P_6) = 10`.
-
-## Status
-
-Proved in the paper (Lemma 9 and Theorem 2(1)). This module proves, with no
-`sorry`:
-
-* `two_le_rowBudget` (Lemma 9),
-* `two_mul_card_parts_le` (the counting bound `2c ≤ n ⌊m/2⌋` for `m ≥ 4`,
-  `n ≥ 2`),
-* `exists_nine_class_partition_C7_P6` (the explicit nine-colouring),
-* `majorityColouringNumber_C7_P6` (`M(C_7 □ P_6) = 9`), and
-* `not_conjecture4_C7_P6` (Conjecture 4 fails at `(7, 6)`).
-
-The condition `d_S(v) ≥ ⌈d(v)/2⌉` is encoded as `d(v) ≤ 2 d_S(v)`, which is
-equivalent over `ℕ`. The hypothesis `2 ≤ n` cannot be dropped:
-`n_one_counterexample` shows the bound fails for `C_4 □ P_1`.
-
-Mathlib provides no `DecidableRel (pathGraph n).Adj` instance; one is supplied
-below so that the neighbour sets of `C_m □ P_n` are finite by instance search.
-Degrees do not depend on the choice of `Fintype` instance.
+Majority means `d(v) ≤ 2 d_S(v)`, equivalently `⌈d(v)/2⌉ ≤ d_S(v)`.
+The hypothesis `2 ≤ n` is necessary: the bound fails for `C_4 □ P_1`.
+Neighbour-set degrees are independent of the chosen `Fintype` instance.
 -/
 import Mathlib
 
@@ -94,7 +61,7 @@ abbrev rowSlice {m n : ℕ} (S : Finset (Fin m × Fin n)) (y : Fin n) :
 def rowBudget {m n : ℕ} (S : Finset (Fin m × Fin n)) : ℕ :=
   ∑ y : Fin n, #(rowSlice S y) / 2
 
-/-! ### Ground truth for the definitions -/
+/-! ### Examples -/
 
 /-- A boundary vertex of `C_7 □ P_6` has degree three. -/
 example : (cycleGraph 7 □ pathGraph 6).degree (3, 0) = 3 := by decide

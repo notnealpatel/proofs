@@ -1,27 +1,15 @@
 /-
 # Braun–Etzion–Vardy bound for binary linear subspace codes
 
-## Source
+Srikanth B. Pai, *A proof of the Braun–Etzion–Vardy bound for binary
+subspace codes*, arXiv:2609.33719, Theorem `thm:main` (Section 3).
+The bound was posed by Braun–Etzion–Vardy, LAA 438 (2013), Section 5,
+Problem 1.
 
-* arXiv:2609.33719, Srikanth B. Pai, "A proof of the Braun–Etzion–Vardy
-  bound for binary subspace codes".
-* Statement: Conjecture `conj:bev` (Section 2, citing Braun–Etzion–Vardy
-  2013, LAA 438, Section 5, Problem 1), proved as Theorem `thm:main`
-  (Section 3; restated from Theorem `thm:main-intro`, Section 1).
-* Verbatim informal claim (Definition `def:linear-code` + Theorem `thm:main`):
-
-  > A subspace code `C ⊆ P_q(n)` with `0 ∈ C` is a *linear subspace code*
-  > if it is equipped with a binary operation `⊞ : C × C → C` such that
-  > (i) `(C, ⊞)` is an abelian group with identity `0`; (ii) `X ⊞ X = 0`
-  > for every `X ∈ C`; and (iii) the subspace distance is translation
-  > invariant, that is, `d_S(X,Y) = d_S(X ⊞ Z, Y ⊞ Z)` for all `X,Y,Z ∈ C`.
-  >
-  > Theorem. Every binary linear subspace code `C ⊆ P_2(n)` satisfies
-  > `|C| ≤ 2^n`; that is, Conjecture [BEV] holds.
-
-  Here `d_S(X,Y) = dim X + dim Y - 2 dim(X ∩ Y)`.
-* Date recorded: 2026-10-21.
-* Literature status: proved in the paper (fresh, unrefereed preprint).
+A binary linear subspace code `C ⊆ P_2(n)` contains the zero subspace and
+carries an abelian group operation `⊞` with identity zero, `X ⊞ X = 0`,
+and translation-invariant subspace distance
+`d_S(X,Y) = dim X + dim Y - 2 dim(X ∩ Y)`. The bound is `|C| ≤ 2^n`.
 
 ## Formal rendering
 
@@ -116,7 +104,7 @@ lemma sum_indicator_eq_two_pow (X : Submodule (ZMod 2) (Fin n → ZMod 2)) :
 
 end Sdist
 
-/-! ## Ground-truth checks on the definition of `sdist` -/
+/-! ## Examples for `sdist` -/
 
 /-- `d_S(0, F_2^3) = 3`. -/
 example : sdist (⊥ : Submodule (ZMod 2) (Fin 3 → ZMod 2)) ⊤ = 3 := by

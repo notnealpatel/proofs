@@ -1,32 +1,10 @@
 /-
-# A295468 — Bala: the half-index Gamma ratio `a(n/2)` is an integer
+# A295468 — integrality of Bala's half-index Gamma ratio
 
-## OEIS source (retrieved with `oeis show A295468`, 2026-10-21)
-
-```
-NAME:     a(n) = (30*n)!*(5*n)!*(3*n)!*(2*n)!/((15*n)!*(10*n)!*(8*n)!*(6*n)!*n!).
-TERMS:    1,2772725670,40337629723514950470,671214073076279711920414071900,...
-FORMULA:  a(n) = binomial(30*n,15*n)*binomial(15*n,5*n)*binomial(2*n,n)/
-          (binomial(8*n,3*n)*binomial(6*n,n)). - _Chai Wah Wu_, Feb 16 2026
-COMMENT (the conjecture):
-  Conjecture: for n >= 0, a(n/2) = (15*n)!*(5*n/2)!*(3*n/2)!*n! /
-  ((15*n/2)!*(5*n)!*(4*n)!*(3*n)!*(n/2)!) is an integer, where fractional
-  factorials are defined using the Gamma function - for example,
-  (5*n/2)! := Gamma(5*n/2 + 1). - _Peter Bala_, Jul 30 2026
-```
-
-## Literature status (triage)
-
-Open: no proof in the entry or in the literature as far as the triage could
-tell. The even case `n = 2m` is the integrality of `a(m)` itself, which is
-classical (Landau's criterion). Triage evidence: integral for `n ≤ 300`.
-Re-validated here (Python, exact integers, 2026-10-21): for odd `n ≤ 599` the
-odd form below is integral even without its power of two, and `a(m)` is
-integral for `m ≤ 150`.
-
-## Result of this module
-
-The conjecture is proved for every `n`, with no remaining `sorry`.
+Peter Bala (OEIS A295468, Jul 30 2026) conjectured integrality of `a(n/2)`
+for every natural `n`, where `a(n) = (30n)! (5n)! (3n)! (2n)! /
+((15n)! (10n)! (8n)! (6n)! n!)` and `x! = Γ(x+1)`.
+Chai Wah Wu (Feb 16 2026) also gave a binomial-quotient formula for `a(n)`.
 
 * Odd `n`: `Γ(k/2 + 1) = k! √π / (2^k ⌊k/2⌋!)` for odd `k`
   (`Candidates.A295431BalaGamma.gamma_half_of_odd`), so the ratio equals
@@ -50,7 +28,7 @@ namespace Candidates.A295468Bala
 
 open Candidates.A295431BalaGamma (landau_list div_div_eq_of_mul_eq gamma_half_of_odd)
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The OEIS sequence A295468:
 `a(n) = (30n)! (5n)! (3n)! (2n)! / ((15n)! (10n)! (8n)! (6n)! n!)`. The
@@ -262,7 +240,7 @@ theorem balaRatio_two_mul (m : ℕ) : balaRatio (2 * m) = (a295468 m : ℝ) := b
   rw [div_eq_iff (by positivity)]
   linear_combination -hmul
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : a295468 0 = 1 := by decide
 example : a295468 1 = 2772725670 := by decide
@@ -294,11 +272,9 @@ theorem bala_integrality_of_odd (n : ℕ) (hn : Odd n) : ∃ z : ℤ, balaRatio 
   push_cast
   ring
 
-/-- **Bala's conjecture (A295468, Peter Bala, Jul 30 2026).** Verbatim:
-"Conjecture: for n >= 0, a(n/2) = (15*n)!*(5*n/2)!*(3*n/2)!*n! /
-((15*n/2)!*(5*n)!*(4*n)!*(3*n)!*(n/2)!) is an integer, where fractional
-factorials are defined using the Gamma function - for example,
-(5*n/2)! := Gamma(5*n/2 + 1)." Here `balaRatio n` is `a(n/2)`. -/
+/-- Bala's conjecture (OEIS A295468, Peter Bala, Jul 30 2026):
+`balaRatio n = a(n/2)` is integral for every natural `n`, with fractional
+factorials interpreted as `x! = Γ(x+1)`. -/
 theorem bala_integrality (n : ℕ) : ∃ z : ℤ, balaRatio n = z := by
   rcases Nat.even_or_odd n with ⟨m, rfl⟩ | hn
   · refine ⟨a295468 m, ?_⟩

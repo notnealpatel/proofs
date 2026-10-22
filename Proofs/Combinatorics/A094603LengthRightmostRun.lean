@@ -1,32 +1,14 @@
 /-
 # A094603 — the rightmost black run of Rule 30 depends only on `v₂(n)`
 
-## OEIS source (pulled with `oeis show A094603`, retrieved 2026-10-21)
+OEIS A094603, Alan Michael Gómez Calderón (2023):
+`a(n) = A094604(A007814(n)) = a(2^{v₂(n)})` for `1 ≤ n`, where `a(n)` is
+the length of the rightmost black run in row `n` of Rule 30 begun from one
+black cell. Row `n` is generation `n - 1`.
+The mechanism is Rowland's Theorem 1, *Local nested structure in Rule 30*,
+Complex Systems 16 (2006), §3.
 
-```
-NAME:     a(n) is the length of the maximal sequence of rightmost black cells
-          in the n-th row of Rule 30 (begun from an initial black cell).
-TERMS:    1,3,1,4,1,3,1,6,1,3,1,4,1,3,1,7,1,3,1,4,1,3,1,6,1,3,1,4,1,3,1,9,...
-KEYWORDS: easy,nice,nonn
-COMMENT:  New numbers (A094604) in the sequence occur at positions 2^m.
-FORMULA (the conjecture):
-  Conjecture: a(n) = A094604(A007814(n)). - _Alan Michael Gómez Calderón_,
-  Feb 17 2023
-```
-
-A094604 is named "... a(n) = b(2^n), where b(m) is sequence A094603", and
-A007814(n) is the 2-adic valuation `v₂(n)`.  So the conjecture reads
-`a(n) = a(2^{v₂(n)})` for every `n ≥ 1`.
-
-## Status (triage)
-
-Proved elsewhere: the mechanism is Rowland's Theorem 1 (E. Rowland, "Local
-nested structure in Rule 30", Complex Systems 16 (2006), Sec. 3), stating
-`I_I(t) = a(ord₂(t+1))`.  The OEIS entry still lists it as a conjecture.
-Re-validated here by direct simulation of the literal automaton for
-`n ≤ 3000` and of the bitmask encoding for `n ≤ 65536` (no counterexample).
-
-## Proof outline (kernel-checked below)
+## Proof outline
 
 Reflect the row at its right edge: bit `j` of the reflected row at time `t`
 is the cell `t - j`.  Then bit `j` evolves as
@@ -314,7 +296,7 @@ theorem succ_le_rightRun_iff (n : ℕ) (hn : 1 ≤ n) (m : ℕ) :
 
 /-- **Gómez Calderón's conjecture (A094603, Feb 17 2023), proved.**
 
-Verbatim: "Conjecture: a(n) = A094604(A007814(n))."  Since A094604(k) is by
+Since A094604(k) is by
 definition `a(2^k)` and A007814 is the 2-adic valuation, this says: for every
 `n ≥ 1`, the length `a(n)` of the rightmost run of black cells in row `n` of
 Rule 30 (begun from one black cell) equals `a(2^{v₂(n)})`, i.e. it depends

@@ -1,38 +1,11 @@
 /-
-# A266491 — Curtz: divisibility of the forward-difference rows of `n * A130658(n)`
+# Forward differences of A266491
 
-## OEIS source (retrieved with `oeis show A266491` and https://oeis.org/A266491/internal, 2026-10-21)
-
-```
-NAME:     a(n) = n*A130658(n).
-TERMS:    0,1,4,6,4,5,12,14,8,9,20,22,12,13,28,30,16,17,36,38,20,21,44,46,24,...
-AUTHOR:   _Paul Curtz_, Dec 30 2015
-FORMULA:  a(n) = n*(3 - (-1)^((n-1)*n/2))/2.
-COMMENT:  Successive differences:
-          r(0):    0,   1,    4,    6,   4,    5,   12,   14, ...
-          r(1):    1,   3,    2,   -2,   1,    7,    2,   -6, ...
-          ...
-          r(10): 160, -16, -192,   48, 224,  -80, -256,  112, ...
-          Let b(n) = 1, 1, 1, 1, 2, 2, 4, 4, 8, 8, 16, 16, ..., with n>=0, which
-          is formed from the terms of A011782 repeated twice.
-          Conjecture: all terms of the row r(i) are divisible by b(i).
-          Conjecture: the terms of the first column divided by b(n) provide
-          0, 1, 2, -3, 0, 5, -6, 7, 0, -9, 10, -11, ..., the absolute values of
-          which are listed in A190621.
-```
-
-The two conjecture lines carry no separate attribution; they belong to the
-entry by Paul Curtz (Dec 30 2015).
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  Both conjectures are proved below (`b_dvd_row`,
-`abs_row_zero`), via the Gaussian-integer identity
-`2 a(n) = Re(3 n + (i - 1) n i^n)` and the closed form
-`Δ^(k+2) (c n + w n z^n)(m) = w z^m (z-1)^(k+1) (m (z-1) + (k+2) z)`.
-Computational re-validation (Python, 2026-10-21): both claims hold for rows
-`0..398` over the first `400` terms.
+Source: the two conjectures in Paul Curtz's OEIS A266491 entry (Dec 30 2015).
+With `a(n)=n A130658(n)` and `row i=Δ^i a`, every entry of row `i` is divisible
+by `b(i)=A011782(floor(i/2))`. The absolute value of `row i 0 / b(i)` is A190621(i).
+No general sign formula for the first column is asserted.
+The proof uses a Gaussian-integer closed form for forward differences.
 -/
 import Mathlib
 
@@ -40,7 +13,7 @@ set_option autoImplicit false
 
 namespace Candidates.A266491ForwardDifferenceRow
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A266491, by the entry formula `a(n) = n*(3 - (-1)^((n-1)*n/2))/2`.
 The inner `n * (n - 1) / 2` is the triangular number (exact in `ℕ`, and
@@ -197,11 +170,8 @@ theorem b_eq_two_pow (i : ℕ) : b i = 2 ^ ((i - 2) / 2) := by
 
 /-! ## The conjectures -/
 
-/-- **First conjecture of A266491 (Paul Curtz, entry of Dec 30 2015).**
-
-Verbatim: "Conjecture: all terms of the row r(i) are divisible by b(i)."
-Here `row i = Δ^i a` and `b = 1, 1, 1, 1, 2, 2, 4, 4, ...` (A011782 repeated
-twice).  Proved for every row `i` and every position `n`. -/
+/-- Curtz's first A266491 assertion: `b(i)` divides every entry of row `i`,
+where `row i=Δ^i a` and `b` repeats each A011782 term twice. -/
 theorem b_dvd_row (i n : ℕ) : (b i : ℤ) ∣ row i n := by
   match i with
   | 0 => simp [b, a011782]
@@ -240,12 +210,9 @@ theorem two_mul_row_zero (k : ℕ) : 2 * row (k + 2) 0 = ((k + 2 : ℕ) : ℤ) *
   push_cast
   ring
 
-/-- **Second conjecture of A266491 (Paul Curtz, entry of Dec 30 2015), product form.**
-
-Verbatim: "Conjecture: the terms of the first column divided by b(n) provide
-0, 1, 2, -3, 0, 5, -6, 7, 0, -9, 10, -11, ..., the absolute values of which are
-listed in A190621."  Stated without division: `|r(i)(0)| = b(i) · A190621(i)`
-for every `i`; the division form is `abs_row_zero_div`. -/
+/-- Curtz's second assertion in product form:
+`|row i 0|=b(i) A190621(i)`. The exact-division form is `abs_row_zero_div`;
+no general sign formula is asserted. -/
 theorem abs_row_zero (i : ℕ) : |row i 0| = (b i : ℤ) * a190621 i := by
   match i with
   | 0 => decide

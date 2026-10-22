@@ -1,41 +1,12 @@
 /-
-# A153772 — Sigg: `a(n)` is the third largest member of a Collatz level
+# A153772: the third largest member of a Collatz level
 
-## OEIS source (retrieved with `oeis show A153772`, 2026-10-21)
-
-```
-NAME:     a(n) = (2^n + 2*(-1)^n - 6)/3.
-TERMS:    -1,-2,0,0,4,8,20,40,84,168,340,680,1364,2728,5460,10920,21844,...
-KEYWORDS: easy,sign
-FORMULA:  a(n) = 4*A000975(n-3) for n >= 3. - _Markus Sigg_, Sep 14 2020
-COMMENT (the conjecture):
-  Conjecture: For n >= 6, a(n) is the third largest natural number whose
-  Collatz orbit has length n+2. - _Markus Sigg_, Sep 14 2020
-```
-
-## Status
-
-Triage: open (no proof in the entry; a web and OEIS name search found no
-published proof, which does not establish novelty).  The companion statement
-(A000975, Sigg, Sep 14 2020: `A000975(n)` is the second largest element of the
-level `n + 2`) is stated without proof in A127824 and is not formalized here.
-
-## Conventions
-
-The Collatz map is `x ↦ x/2` for even `x` and `x ↦ 3x+1` for odd `x`.  The
-orbit of `m` is `(m, T m, …, 1)`, stopped at the first `1`; it has `n + 2`
-elements exactly when the trajectory first reaches `1` at step `n + 1`
-(`FirstHitsOne (n + 1) m`).  `0` never reaches `1`, so every level consists of
-positive integers.
-
-## Proof outline (kernel-checked below)
-
-* `level_trichotomy`: an `m` first reaching `1` at step `k` is `2^k`, or has a
-  single `3x+1` step (`3m + 2^e = 2^(e+j)`, `j` even, `4 ≤ j`, `k = e + j + 1`),
-  or satisfies `36 m ≤ 2^k`.  Forward induction on `k`.
-* `level_top`: the level elements above `2^(e₁+2) c₀` are exactly `2^k` and
-  `2^e₁ c₁` (one-up elements with the two largest admissible `j`).
-* `a153772_third_largest`: the conjecture, for every `n ≥ 6`.
+OEIS A153772, Markus Sigg (Sep 14 2020), with A000975 and A127824.
+For every `n ≥ 6`, `(2^n + 2*(-1)^n - 6)/3` belongs to the first-hit level
+of `1` at step `n+1` and has exactly two larger members in that level.
+The Collatz map is `x/2` for even `x`, `3x+1` for odd `x`; the stopped orbit
+has `n+2` elements. No global termination assumption is used.
+The companion second-largest assertion for A000975 is not formalized.
 -/
 import Mathlib
 

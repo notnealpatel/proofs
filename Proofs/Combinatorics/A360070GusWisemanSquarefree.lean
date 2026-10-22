@@ -1,31 +1,9 @@
 /-
 # A360070 — Gus Wiseman: no squarefree term greater than 1
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A360070` and the live
-## entry https://oeis.org/A360070/internal)
-
-```
-NAME:     Numbers for which there exists an integer partition such that the
-          parts have the same mean as the multiplicities.
-TERMS:    1,4,8,9,12,16,18,20,25,27,32,36,45,48,49,50,54,63,64,72,75,80,81,
-          90,96,98,99,100,108,112,117,121,125,128,144,147,150,160,162,169,175,
-          176,180,192,196,200,208,216,224,225,240,242,243,245,250,252,256,272
-COMMENT:  Conjecture: No term > 1 is squarefree.
-EXAMPLE:  A partition of 20 with the same mean as its multiplicities is
-          (5,4,3,2,1,1,1,1,1,1), so 20 is in the sequence.
-MATHEMATICA:
-          Select[Range[30],Select[IntegerPartitions[#],
-            Mean[#]==Mean[Length/@Split[#]]&]!={}&]
-AUTHOR:   _Gus Wiseman_, Jan 27 2023
-```
-
-The conjecture comment carries no separate signature; it belongs to the
-original submission by Gus Wiseman (Jan 27 2023).
-
-## Status
-
-Triage (2026-10-21): open as far as the entry and the literature go; no
-proof or refutation on the live OEIS page.
+OEIS A360070 (Gus Wiseman, January 27, 2023) consists of positive
+integers admitting a partition whose parts and multiplicities have the
+same mean. Its conjecture states that no term greater than 1 is squarefree.
 
 ## Mathematics
 
@@ -37,10 +15,6 @@ every part is `1`, hence `k = 1` and `n = n ^ 2`, i.e. `n = 1`.
 This file proves it (`not_isTerm_of_squarefree`), together with the full
 characterization `isTerm_iff`: `n` is a term iff some `0 < k ≤ L` satisfy
 `n * k = L ^ 2` and `2 (L - k) + k (k + 1) ≤ 2 n`.
-
-Computation (2026-10-21, Python brute force over all partitions): the set of
-terms for `n ≤ 60` matches the entry exactly, and no squarefree `n` in
-`[2, 60]` is a term.
 -/
 import Mathlib
 
@@ -72,7 +46,7 @@ multiplicities. -/
 def IsTerm (n : ℕ) : Prop :=
   0 < n ∧ ∃ p : n.Partition, partsMean p = multMean p
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The partition `(2,2)` of `4`. -/
 def p4 : (4 : ℕ).Partition where
@@ -303,14 +277,10 @@ theorem isTerm_iff_bounded (n : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Wiseman's conjecture (A360070, Gus Wiseman, Jan 27 2023), proved.**
-
-Verbatim: "Conjecture: No term > 1 is squarefree."
-
-For every squarefree `n > 1`, no integer partition of `n` has the mean of its
-parts (counted with multiplicity) equal to the mean of its multiplicities.
-The guard `1 < n` is from the source: `n = 1` is squarefree and is a term
-(the partition `(1)`). -/
+/-- Wiseman's conjecture (OEIS A360070, January 27, 2023):
+no squarefree `n > 1` admits a partition whose parts and multiplicities
+have the same mean. The guard is necessary: the partition `(1)`
+witnesses that the squarefree number 1 is a term. -/
 theorem not_isTerm_of_squarefree {n : ℕ} (hn : 1 < n) (hsq : Squarefree n) :
     ¬ IsTerm n := by
   rintro ⟨hn0, p, hp⟩
@@ -357,11 +327,11 @@ def p20 : (20 : ℕ).Partition where
     omega
   parts_sum := by decide
 
-/-- Ground truth for `multiplicities`: the multiplicities of the entry's
+/-- The multiplicities of the entry's
 example partition of `20` are `1, 1, 1, 1, 6`. -/
 example : multiplicities p20 = {1, 1, 1, 1, 6} := by decide
 
-/-- Ground truth (entry EXAMPLE): the partition `(5,4,3,2,1,1,1,1,1,1)` has
+/-- The partition `(5,4,3,2,1,1,1,1,1,1)` has
 parts mean `20 / 10 = 2` and multiplicities mean `10 / 5 = 2`. -/
 example : partsMean p20 = 2 ∧ multMean p20 = 2 := by
   have hm : multiplicities p20 = {1, 1, 1, 1, 6} := by decide
@@ -371,7 +341,7 @@ example : partsMean p20 = 2 ∧ multMean p20 = 2 := by
   · rw [multMean, hm]
     norm_num
 
-/-- Ground truth: the terms of A360070 below `31` are exactly the first ten
+/-- The terms of A360070 below `31` are exactly the first ten
 listed terms `1, 4, 8, 9, 12, 16, 18, 20, 25, 27`. -/
 example : ∀ n < 31, IsTerm n ↔ n ∈ ({1, 4, 8, 9, 12, 16, 18, 20, 25, 27} : Finset ℕ) := by
   intro n hn

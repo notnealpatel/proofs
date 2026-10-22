@@ -1,35 +1,16 @@
 /-
-# A189786 — Dale: the values are the positive evens not ≡ 6 mod 8 (refuted)
+# A189786: Mathar's counterexample to Dale's conjecture
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A189786`)
+OEIS A189786 defines `a(n) = n + ⌊nr/t⌋ + ⌊ns/t⌋`, where
+`r = π/2`, `s = arcsin(5/13)`, and `t = arcsin(12/13)`.
+Harvey P. Dale's conjecture (2018-12-07) says its values at positive
+indices are exactly the positive even integers not congruent to `6 mod 8`.
+R. J. Mathar's comment (2025-08-25) records the counterexample `a(143) = 382`.
 
-```
-NAME:     a(n) = n + [nr/t] + [ns/t]; r=Pi/2, s=arcsin(5/13), t=arcsin(12/13).
-TERMS:    2,4,8,10,12,16,18,20,24,26,28,32,34,36,40,42,44,48,50,52,56,58,60,
-          64,66,68,72,74,76,80,82,84,88,90,92,96,98,100,104,106,108,112,...
-COMMENT:  Conjecture: Sequence consists of all the positive even numbers
-          except numbers of the form 8*x+6, x >= 0. - _Harvey P. Dale_,
-          Dec 07 2018
-COMMENT:  Contains numbers like a(143)=382, a(146)=390, a(149)=398,
-          a(152)=406,... which are not in A047464. - _R. J. Mathar_,
-          Aug 25 2025
-COMMENT:  For n<143, a(n) = n+A047217(n+1), but then this formula becomes
-          invalid. - _R. J. Mathar_, Aug 25 2025
-MATH:     With[{t=ArcSin[12/13]},Table[n+Floor[(n*Pi/2)/t]
-          +Floor[(n*ArcSin[5/13])/t],{n,80}]] (* _Harvey P. Dale_ *)
-```
-
-`[x]` is the floor.  The entry itself already records Mathar's
-counterexample (Aug 2025); this module kernel-checks it.
-
-## Status
-
-This module **refutes** Dale's conjecture.  Since `r = s + t` exactly,
-`a(n) = 2n + 2⌊n s/t⌋` (`seq_eq`), and with `A = arctan (1/5)`,
-`B = arctan (1/239)` one has `s = 2A`, `t = 6A - 2B` (Machin), so
-`s/t = A/(3A - B) ≈ 0.3357052`.  At `n = 143`, `143 s/t ≈ 48.00585`,
-hence `a(143) = 286 + 96 = 382 = 8·47 + 6` (`seq_143`), a value of the
-sequence that is `≡ 6 (mod 8)` (`conjecture_false`).
+Here `r = s+t` gives `a(n) = 2n + 2⌊ns/t⌋`. With
+`A = arctan(1/5)` and `B = arctan(1/239)`, the identities `s = 2A` and
+`t = 6A-2B` and rational arctangent bounds give `⌊143s/t⌋ = 48`.
+Thus `a(143) = 382 = 8·47+6`, refuting the conjecture.
 -/
 import Mathlib
 
@@ -145,7 +126,7 @@ theorem floor_eq_of_bounds (n : ℕ) (k : ℤ)
   rw [Int.floor_eq_iff, le_div_iff₀ t_pos, div_lt_iff₀ t_pos]
   exact ⟨hlo, hhi⟩
 
-/-! ## Ground truth: the first listed terms `2, 4, 8` -/
+/-! ## Examples: the first listed terms `2, 4, 8` -/
 
 example : seq 1 = 2 := by
   have hfl : ⌊((1 : ℕ) : ℝ) * s / t⌋ = 0 := by
@@ -188,11 +169,8 @@ theorem seq_143 : seq 143 = 382 := by
   rw [seq_eq, hfl]
   norm_num
 
-/-- **Dale's conjecture is false.**  `a(143) = 382 ≡ 6 (mod 8)` is a value of
-the sequence (Mathar, Aug 2025); likewise `a(146) = 390`, `a(149) = 398`.  The
-pattern "positive evens except `8x+6`" holds only for `n < 143`, where
-`⌊n s/t⌋ = ⌊n/3⌋`; it breaks because `s/t ≈ 0.3357052` is slightly larger
-than `1/3`. -/
+/-- Dale's conjecture is false: `a(143) = 382 = 8·47+6` is a sequence value
+excluded by the conjecture (Mathar, August 2025). -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   have hmem := (h 382).1 ⟨143, by norm_num, seq_143⟩

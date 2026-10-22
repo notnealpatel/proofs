@@ -65,7 +65,7 @@ Organizationally fits the Erdős arc (`Proofs/Erdos`); no definition reuse.  The
 cleared-denominator form uses only `ℕ` arithmetic — no subtraction, no division,
 so STYLE.md-clean by construction.
 -/
-import Erdos.ErdosStrausResidues
+import Sorry.Erdos.ErdosStrausResidues
 
 set_option autoImplicit false
 

@@ -1,33 +1,10 @@
 /-
-# A094802 — the least `k` with `lcm(1..n) ∣ k!` is the largest prime `≤ n`
+Least factorial containing lcm(1,…,n) (OEIS A094802; Jon Perry, Jun 11 2004).
 
-## OEIS source (retrieved with `oeis show A094802` and the live entry, 2026-10-21)
-
-```
-NAME:     a(n) = smallest k such that all of 1 through n divides k!.
-TERMS:    1,2,3,4,5,5,7,7,7,7,11,11,13,13,13,13,17,17,19,19,19,19,23,23,23,23,
-          23,23,29,29,31,31,31,31,31,31,37,37,37,37,41,41,43,43,43,43,47,47,47,
-          47,47,47,53,53,53,53,53,53,59,59
-OFFSET:   1 (the Maple program searches `for k from 1`)
-COMMENT (the conjecture):
-  It is conjectured that after n=4 the sequence is prime for n prime or the
-  previous prime for n not prime.
-AUTHOR:   _Jon Perry_, Jun 11 2004 (the comment is unsigned and dates from the
-          original submission)
-XREFS:    Cf. A002034, A007917.
-```
-
-## Status
-
-Triage: open — no proof in the entry; a web search found no explicit source
-for the Kempner value `S(lcm(1..n))`.  The statement is elementary (Bertrand's
-postulate plus a factorisation argument) and is very likely folklore, so novelty
-is not claimed.  Re-validated computationally for `5 ≤ n ≤ 1500` (2026-10-21).
-
-## Result
-
-Proved here, with no `sorry`: `a_eq_largest_prime` and the verbatim-shape
-corollaries `a_eq_self_of_prime` and `a_of_not_prime`.
+For n≥5 the least positive k such that every integer 1,…,n divides k!
+is the largest prime at most n. The theorem includes prime and composite
+corollaries. The boundary n=4 is exceptional: a(4)=4.
+The proof uses Bertrand's postulate and a factorization argument.
 -/
 import Mathlib
 
@@ -61,7 +38,7 @@ theorem exists_allDvdFactorial (n : ℕ) : ∃ k, AllDvdFactorial n k :=
 noncomputable def a (n : ℕ) : ℕ :=
   Nat.find (exists_allDvdFactorial n)
 
-/-! ## Ground truth against the DATA line -/
+/-! ## Examples against the DATA line -/
 
 example : a 1 = 1 := by rw [a, Nat.find_eq_iff]; decide
 example : a 2 = 2 := by rw [a, Nat.find_eq_iff]; decide
@@ -76,7 +53,7 @@ example : a 10 = 7 := by rw [a, Nat.find_eq_iff]; decide
 example : a 11 = 11 := by rw [a, Nat.find_eq_iff]; decide
 example : a 12 = 11 := by rw [a, Nat.find_eq_iff]; decide
 
--- The guard `5 ≤ n` is load-bearing: `a 4 = 4` is not prime.
+-- The guard `5 ≤ n` is key: `a 4 = 4` is not prime.
 example : ¬ (a 4).Prime := by
   have h4 : a 4 = 4 := by rw [a, Nat.find_eq_iff]; decide
   rw [h4]
@@ -124,7 +101,7 @@ theorem dvd_factorial_largest_prime {n P : ℕ} (hn : 5 ≤ n) (hP : P.Prime)
   rcases lt_or_eq_of_le hxy with hlt | heq
   · rw [hy]
     exact mul_dvd_factorial_of_lt hxpos hlt hyP.le
-  · -- square case `j = x * x`
+  · -- Square case `j = x * x`
     subst heq
     have h2x : 2 * x ≤ P := by
       by_contra hcon
@@ -159,11 +136,11 @@ theorem a_eq_largest_prime (n : ℕ) (hn : 5 ≤ n) :
   rw [a_eq_of_largest_prime hn hP hPn hmax]
   exact ⟨hP, hPn, hmax⟩
 
-/-- Verbatim shape, first branch: for prime `n ≥ 5`, `a n = n`. -/
+/-- Prime branch: for prime `n ≥ 5`, `a n = n`. -/
 theorem a_eq_self_of_prime (n : ℕ) (hn : 5 ≤ n) (hnp : n.Prime) : a n = n :=
   a_eq_of_largest_prime hn hnp le_rfl (fun _ _ hqn => hqn)
 
-/-- Verbatim shape, second branch: for composite `n ≥ 5`, `a n` is the previous
+/-- Composite branch: for composite `n ≥ 5`, `a n` is the previous
 prime, i.e. a prime `< n` with no prime strictly between it and `n`. -/
 theorem a_of_not_prime (n : ℕ) (hn : 5 ≤ n) (hnp : ¬ n.Prime) :
     (a n).Prime ∧ a n < n ∧ ∀ q, q.Prime → a n < q → n ≤ q := by

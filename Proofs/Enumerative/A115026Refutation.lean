@@ -1,32 +1,13 @@
 /-
-# A115026 — Dale's bound `a(n) ≤ 370` is false
+# A counterexample to the bound for A115026
 
-## OEIS source (retrieved with `oeis show A115026`, 2026-10-21)
-
-```
-NAME:     Limiting value of n under iteration of "sum of the digits raised to
-          the power of the number of digits of n" (A101337).
-TERMS:    1,2,3,4,5,6,7,8,9,1,2,5,1,370,370,370,370,370,1,4,5,8,1,4,370,370,
-          370,1,370,9,1,1,370,370,370,370,370,370,370,370,370,4,370,1,370,370,
-          370,370,1,370,370,370,370,370,370,370,370,370,160,370,370,370,370,
-          370,370
-COMMENT:  Iterate A101337 starting at n until reaching a constant value (like
-          370) or a cycle (like 160, 217, 352, 160, ...). In the latter case,
-          a(n) takes the smallest value in the cycle (e.g., a(59) = 160). ...
-COMMENT (the conjecture):
-          Conjecture: no term is greater than 370. - _Harvey P. Dale_, Jun 08 2022
-```
-
-No later comment in the entry retracts or qualifies the conjecture.
-
-## Status
-
-This module **refutes** the conjecture.  `371 = 3^3 + 7^3 + 1^3` is a fixed
-point of A101337, so `a(371) = 371 > 370`.  The least counterexample is
-`n = 119` (`119 ↦ 731 ↦ 371 ↦ 371`), proved here to satisfy
-`a(119) = 371`; its minimality (`a(n) ≤ 370` for `1 ≤ n ≤ 118`) is a Python
-computation only, not kernel-checked.  The listed data stop at `n = 65`, so
-the conjecture was presumably meant only for the computed range.
+Source: Harvey P. Dale's OEIS A115026 comment (Jun 08 2022), asserting
+that no term exceeds 370. Iteration of A101337 sums the decimal digits
+raised to the number of digits; the sequence selects the least value in
+the eventual cycle.
+Here `a(371)=371` and `a(119)=371`, by the fixed point 371 and the orbit
+`119 → 731 → 371`. Neither minimality of 119 nor eventual periodicity
+of every input orbit is proved here.
 -/
 import Mathlib
 
@@ -50,8 +31,7 @@ cycle explicitly.) -/
 noncomputable def a (n : ℕ) : ℕ :=
   sInf {m | (∃ k, f^[k] n = m) ∧ m ∈ periodicPts f}
 
-/-- **Dale's conjecture (A115026, Harvey P. Dale, Jun 08 2022).**
-Verbatim: "Conjecture: no term is greater than 370."  The entry has offset 1. -/
+/-- Dale's A115026 conjecture: no term at a positive index exceeds 370. -/
 def Conjecture : Prop := ∀ n : ℕ, 1 ≤ n → a n ≤ 370
 
 /-! ## Computing `a` from a closed finite cycle -/
@@ -85,7 +65,7 @@ theorem a_eq_of_cycle {n m : ℕ} (C : Finset ℕ) (hC : ∀ y ∈ C, f y ∈ C)
   have hjC : f^[k] n ∈ (C : Set ℕ) := by rw [hk]; exact hmC
   exact hmin x (mem_of_periodic_of_iterate_mem (C : Set ℕ) hmaps hjC hi hx)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- `f` agrees with the first 74 listed terms of A101337 (offset 1).
 example : (List.range 74).map (fun i => f (i + 1)) =
@@ -118,16 +98,14 @@ example : a 59 = 160 :=
 theorem a_371 : a 371 = 371 :=
   a_eq_of_cycle {371} (by decide) (by decide) (by decide) 0 rfl 1 one_pos (by decide)
 
-/-- The least counterexample: `119 ↦ 731 ↦ 371 ↦ 371`, so `a(119) = 371`. -/
+/-- The orbit `119 → 731 → 371 → 371` gives `a(119)=371`.
+Minimality as a counterexample is not asserted. -/
 theorem a_119 : a 119 = 371 :=
   a_eq_of_cycle {371} (by decide) (by decide) (by decide) 2 (by decide) 1 one_pos
     (by decide)
 
-/-- **Dale's conjecture is false.**  The counterexample is `n = 371`, a
-narcissistic fixed point with `a(371) = 371 > 370` (the least counterexample is
-`n = 119`, with `a(119) = 371`; see `a_119`).  The author probably intended the
-bound only for the computed data range `1 ≤ n ≤ 65` (it holds through
-`n = 118` by computation). -/
+/-- Dale's bound fails: the fixed point 371 gives `a(371)=371 > 370`.
+The orbit from 119 supplies another counterexample (`a_119`). -/
 theorem conjecture_false : ¬ Conjecture := fun h => by
   have h371 := h 371 (by norm_num)
   rw [a_371] at h371

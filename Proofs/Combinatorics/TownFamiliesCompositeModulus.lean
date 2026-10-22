@@ -1,24 +1,12 @@
 /-
 # (a,b)-town (mod k) families: the off-diagonal bound `m_{k,n}(a,b) ≤ n`
 
-## Source (recorded 2026-10-21)
-
-* Hanlin Zou, "On the maximum size of $(a,b)$-town$\pmod{k}$ families",
-  arXiv:2606.03613.  Definition in §1; the statement is Theorem 1.4
-  (`thm_main_ab`), proved in §4.1 from Theorem 4.1 (`thm_ab_n+1`, the
-  `n + 1` bound).  It resolves Conjecture 1.2 of Veselinov and Marinov.
-* Status: **proved in the paper**.
-
-## Informal statement (verbatim from the paper)
-
-```
-Definition. Let a,b,k,n be nonnegative integers with n ≥ k ≥ 2. A family F
-of subsets of [n] is called an (a,b)-town (mod k) family if for any
-A, B ∈ F we have |A ∩ B| ≡ a (mod k) if A = B, and ≡ b (mod k) if A ≠ B.
-
-Theorem 1.4. Let a,b,k,n be nonnegative integers with n ≥ k ≥ 2 and
-0 ≤ a,b ≤ k-1. If a ≠ b, then m_{k,n}(a,b) ≤ n.
-```
+Hanlin Zou, *On the maximum size of (a,b)-town (mod k) families*,
+arXiv:2606.03613, Theorem 1.4 (`thm_main_ab`, Section 4.1), resolves
+Conjecture 1.2 of Veselinov and Marinov: for `n ≥ k ≥ 2` and
+`a,b < k`, `a ≠ b`, an `(a,b)`-town family on `[n]` has at most `n`
+members. Such a family has set sizes congruent to `a` and intersections
+of distinct members congruent to `b` modulo `k`.
 
 ## Formal reading
 
@@ -331,13 +319,13 @@ theorem isTownFamily_singletons (k n : ℕ) :
     rw [if_neg hne, Finset.singleton_inter_of_notMem (by simpa using hij)]
     simp
 
-/-- Non-vacuity of `thm_1_4`: its hypotheses hold jointly for the Oddtown
-singletons on `[3]` (`k = 2`, `a = 1`, `b = 0`). -/
+/-- The Oddtown singletons on `[3]` satisfy the hypotheses of `thm_1_4`
+with `k = 2`, `a = 1`, `b = 0`. -/
 example : #({{0}, {1}, {2}} : Finset (Finset (Fin 3))) ≤ 3 :=
   thm_1_4 (k := 2) (a := 1) (b := 0) le_rfl (by norm_num) (by norm_num) (by norm_num)
     (by norm_num) (by decide)
 
-/-- Non-vacuity at a composite modulus, with equality: the Fano lines form a
+/-- At a composite modulus, with equality: the Fano lines form a
 `(3,1)`-town (mod `4`) family on `[7]` of size `7`. -/
 example : #({{0, 1, 2}, {0, 3, 4}, {0, 5, 6}, {1, 3, 5}, {1, 4, 6}, {2, 3, 6}, {2, 4, 5}} :
     Finset (Finset (Fin 7))) ≤ 7 :=

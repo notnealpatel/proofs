@@ -1,45 +1,16 @@
 /-
-# Subindices and subfactors of infinite groups — Problem (ii) on `A[k] = {k^m}`
+# Difference lengths of sets of powers
 
-## Source
+M. H. Hooshmand, *Subindices and subfactors of infinite groups and numbers*,
+arXiv:2604.08724, Section 3, Problem after `Waringlemma`, parts (ii)–(iii);
+Section 1, definitions and `WaringExample`. For `A[k] = {k^m : m ≥ 0}`,
+part (ii) asks whether `dl^∞(A[k]) = ∞` and `ℤ = ⟨A[k]⟩^{(∞)}` for `k ≥ 2`.
+Here `Dif(B) = -B+B`, `Dif⁰(A) = A` and `Dif^{n+1}(A) = Dif(Dif^n(A))`.
+Infinite difference length means no two consecutive stages agree. The
+notation `ℤ = ⟨A⟩^{(∞)}` means `⟨A⟩ = ℤ` and `dl^∞(A ∪ {0}) = ∞`.
 
-arXiv:2604.08724, M. H. Hooshmand, *Subindices and subfactors of infinite
-groups and numbers*.  Section 3, paragraph "Index stability and
-∞-difference length of `A(k)` and `A[k]`": Lemma `Waringlemma` (c) and the
-Problem immediately after it, items (ii) and (iii).  The `k = 2` argument is
-Example `WaringExample` (Section 1).  The notions `Dif`, `Dif^n`, `Dif^∞`,
-`dl^∞`, `A^0` and `⟨A⟩^{(N)}` are defined in Section 1.
-
-Definitions (verbatim, Section 1): "`Dif_ℓ(A) = A⁻¹A` ... we often use `Dif`
-instead of `Dif_ℓ`.  Denoting the `n`-iteration of `Dif` by `Dif^n` ...
-`Dif^∞(A) = lim Dif^n(A) := ⋃_{n=1}^∞ Dif^n(A)` ... `Dif^0(A) := A` ...
-either there exists the least non-negative integer `N` such that
-`Dif^N(A) = Dif^{N+1}(A)` ... or the sequence `{Dif^n(A)}` is strictly
-increasing.  In the first case, we define `dl^∞(A) := N` ... also we put
-`dl^∞(A) := ∞` for the second case. ... put `A^1 := A ∪ {1}` (`A^0 := A ∪ {0}`
-for additive notation).  By `H = ⟨A⟩^{(N)}` we mean `H = ⟨A⟩` ... and
-`dl^∞(A^1) = N`."
-
-Claim (verbatim, Problem (ii)): "For a fixed positive integer `k`, put ...
-`A[k] = {k^m : m ∈ ℤ⁺ ∪ {0}}`. ... Adapted from [stackwaring2022], we claim
-that `dl^∞(A[k]) = ∞`, for all `k ≥ 2`, and so `ℤ = ⟨A[k]⟩^{(∞)}` (note that
-`dl^∞(A[1]) = 1`). Is it true?"
-
-Problem (iii) (verbatim): "Prove or disprove: `A[k]` is index stable with the
-infinite index (`= ℵ₀`)."  Not formalized here (subindices are not in
-Mathlib); only the gap property of `Dif(A[k])` underlying it is proved.
-
-Date recorded: 2026-10-21.
-
-## Status
-
-Problem (ii) is posed as an open question in the paper (only `k = 2` is
-argued, in Example `WaringExample`).  This file proves both parts of (ii)
-for every `k ≥ 2`:
-
-* `dl^∞(A[k]) = ∞` (`dlInfinite_powSet`);
-* `ℤ = ⟨A[k]⟩^{(∞)}`, i.e. `⟨A[k]⟩ = ℤ` and `dl^∞(A[k]^0) = ∞` with
-  `A[k]^0 = A[k] ∪ {0}` (`problem_ii`).
+Part (iii), index stability with infinite index, is not formalized; only
+the gap property of `Dif(A[k])` underlying it is established.
 
 Proof: modulo `M = k^L`, every power of `k` is congruent to some `k^r` with
 `r ≤ L` (as `k^m ≡ 0 = k^L` for `m ≥ L`), so `Dif^N(A)` has at most
@@ -82,7 +53,7 @@ def powSet (k : ℕ) : Set ℤ := Set.range fun m : ℕ => (k : ℤ) ^ m
 `Dif^N(A) = Dif^{N+1}(A)`. -/
 def DlInfinite (A : Set ℤ) : Prop := ∀ N : ℕ, difIter A N ≠ difIter A (N + 1)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : (8 : ℤ) ∈ powSet 2 := ⟨3, by norm_num⟩
 example : (1 : ℤ) ∈ powSet 3 := ⟨0, by norm_num⟩
@@ -449,7 +420,7 @@ theorem exists_Icc_disjoint_difIter_powSet (k : ℕ) (hk : 2 ≤ k) (B : ℕ) :
   obtain ⟨hy1, hy2⟩ := hy
   exact not_mem_difIter_one_powSet_of_lt k hk (B + 1) (by linarith) (by linarith)
 
-/-! ## Sanity checks -/
+/-! ## Examples -/
 
 /-- The paper's remark `dl^∞(A[1]) = 1`: `A[1] = {1}` and `Dif(A[1]) = Dif²(A[1]) = {0}`,
 so `A[1]` does not have infinite difference length (the hypothesis `2 ≤ k` is needed). -/

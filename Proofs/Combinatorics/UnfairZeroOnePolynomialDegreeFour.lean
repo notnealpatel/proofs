@@ -1,44 +1,20 @@
 /-
 # Unfair 0-1 polynomial conjecture: the case `min (deg P) (deg Q) ≤ 4`
 
-## Source
+L. Ghidelli, *Progress on the unfair 0-1-polynomials conjecture using
+linear recurrences and numerical analysis*, arXiv:2209.09843,
+Conjecture 1.2, asks whether monic real polynomials with nonnegative
+coefficients whose product is 0-1 must themselves be 0-1. See also
+E. Amiot's MathOverflow question 339137, "Factoring 0-1 polynomials",
+and Ben Green's *100 open problems*, Problem 28; the probabilistic form
+is due to G. Letac (c. 1969).
 
-* MathOverflow question 339137, "Factoring 0-1 polynomials"
-  (https://mathoverflow.net/questions/339137), posted by E. Amiot (migrated from
-  MathStackExchange); also MO answer 349463 (polymath proposals) and MO answer 354126.
-  Ben Green, *100 open problems*, Problem 28.
-* G. Letac (c. 1969) asked the probabilistic form; Krasner and Ranulac (1937) proved the
-  palindromic case.
-* L. Ghidelli, arXiv:2209.09843, "Progress on the unfair 0-1-polynomials conjecture using
-  linear recurrences and numerical analysis".  Conjecture 1.2 (algebraic version), verbatim:
-
-  > Let $P(t),Q(t)$ be monic polynomials with nonnegative real coefficients and suppose
-  > that $R(t)=P(t)Q(t)$ has all of its coefficients equal to either 0 or 1. Then all
-  > coefficients of $P$ and $Q$ are in $\{0,1\}$ as well.
-
-  After his Theorem 1.1 (the family `x^5 + a x^2 + 1`), Ghidelli writes, verbatim:
-
-  > The statement of the theorem is also true, if we replace $P(x)$ by a polynomial of
-  > degree at most 4. This may be shown using an extension of the combinatorial methods of
-  > Krasner and Ranulac. [...] For this, we refer to a followup note of the author
-  > (in preparation).
-
-* K. G. Hare, arXiv:2307.07363: computer-assisted classification; no unfair factor of
-  degree `≤ 6`.  Dvorsky, arXiv:2608.19173: the family `1 + a x^2 + x^k`, odd `k ≥ 341`.
-
-Date recorded: 2026-10-21.
-
-## Status
-
-The full conjecture (`UnfairZeroOneConjecture` below) is **open**.  The degree `≤ 4` case
-is asserted by Ghidelli (proof deferred to a note "in preparation" that we could not
-locate) and is covered computationally by Hare's classification.  This file gives a
-self-contained, elementary, kernel-checked proof of that case:
-`isZeroOne_of_natDegree_le_four` and its symmetric form
-`isZeroOne_of_min_natDegree_le_four`.  It also proves the general facts that every
-coefficient of a factor is at most `1` (`coeff_le_one_of_monic`), that after removing
-powers of `X` both constant terms are `1` (`coeff_zero_eq_one`), and that if one factor is
-`0`-`1` then so is the other (`isZeroOne_right_of_left`).
+This file proves only the case where one factor has degree at most 4,
+asserted after Ghidelli's Theorem 1.1 and covered by K. G. Hare's
+computer-assisted classification, arXiv:2307.07363. The general conjecture
+is recorded as a proposition, not proved. The auxiliary results bound
+each factor coefficient by 1, identify the nonzero constant terms after
+removing powers of `X`, and show that if one factor is 0-1 so is the other.
 
 ## Proof outline
 
@@ -74,13 +50,13 @@ theorem isZeroOne_iff_coeffs_subset (f : ℝ[X]) : IsZeroOne f ↔ f.coeffs ⊆ 
     · exact Or.inl hn
     · exact Or.inr (Finset.mem_singleton.mp (h (coeff_mem_coeffs hn)))
 
-/-- Ground truth: `X^3 + X + 1` is a `0`-`1` polynomial. -/
+/-- `X^3 + X + 1` is a `0`-`1` polynomial. -/
 example : IsZeroOne (X ^ 3 + X + 1) := by
   intro n
   simp only [coeff_add, coeff_X_pow, coeff_X, coeff_one]
   rcases n with _ | _ | _ | _ | n <;> simp
 
-/-- Ground truth: `X + 1/2` is not a `0`-`1` polynomial. -/
+/-- `X + 1/2` is not a `0`-`1` polynomial. -/
 example : ¬ IsZeroOne (X + C (1 / 2)) := by
   intro h
   rcases h 0 with h0 | h0 <;> simp at h0
@@ -93,7 +69,7 @@ def UnfairZeroOneConjecture : Prop :=
   ∀ P Q : ℝ[X], P.Monic → Q.Monic → (∀ n, 0 ≤ P.coeff n) → (∀ n, 0 ≤ Q.coeff n) →
     IsZeroOne (P * Q) → IsZeroOne P ∧ IsZeroOne Q
 
-/-- Non-vacuity: the hypotheses of `isZeroOne_of_natDegree_le_four` hold jointly for
+/-- The hypotheses of `isZeroOne_of_natDegree_le_four` hold jointly for
 `P = X^4 + 1`, `Q = X + 1` (with `P * Q = X^5 + X^4 + X + 1`). -/
 example : (X ^ 4 + 1 : ℝ[X]).Monic ∧ (X + 1 : ℝ[X]).Monic
     ∧ (∀ n, 0 ≤ (X ^ 4 + 1 : ℝ[X]).coeff n) ∧ (∀ n, 0 ≤ (X + 1 : ℝ[X]).coeff n)

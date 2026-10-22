@@ -1,40 +1,14 @@
 /-
 # Hercher: positive integers `n` with `φ(n) = (2/3)(n + 1)`
 
-## Source
-
-arXiv:2504.19915, Christian Hercher, "On Positive Integers `n` with
-`φ(n) = (2/3)·(n+1)`" (retrieved with `fetch 2504.19915`, 2026-10-21).
-
-Context: Steinerberger, treating the case `r = 2` of Erdős–Graham's
-Problem #411 (`g_{k+r}(x) = 2 g_k(x)` for `g_0(x) = x + φ(x)`), reduced
-the remaining cases to the equation `φ(n) = (2/3)(n + 1)` and conjectured
-that its only solutions are `5, 35, 1295, 1679615`.  (The paper's
-introduction prints `1195`; this is a typo for `5·7·37 = 1295`.)
-
-Statements formalized here, verbatim from the paper:
-
-* Theorem 1 (Sec. 2, `Thm:square-free`): "Let `n` be a positive integer
-  with `φ(n) = (2/3)·(n+1)`. Then `n` is square-free."
-* Reformulation (Sec. 2, eq. `NewFormulation`): "Find all finite sets
-  `∅ ≠ Q ⊂ ℙ \ {2,3}` of primes with
-  `3·∏_{q∈Q}(q-1) - 2·∏_{q∈Q} q = 2`.  In this setting `∏_{q∈Q} q = n`."
-* Corollary 2 (Sec. 2, `Cor:prdiv`): "Let `n` be a positive integer with
-  `φ(n) = (2/3)·(n+1)` and let `p` and `r` be two primes with `pr ∣ n`.
-  Then `p ∤ (r-1)`."
-* Theorem 10 (Sec. 3, `Thm:k<=4`): "The only solutions `n` to equation
-  (NewFormulation) with at most four prime factors are
-  `5, 5·7, 5·7·37, and 5·7·37·1297`."
-
-## Status
-
-Proved in the paper (Lemmas 3, 4, 6, 9 cover `k = |Q| = 1, 2, 3, 4`;
-numbering by the shared LaTeX counter, labels quoted above).  The full
-conjecture (no further solutions at all) is open; the paper's computer
-search additionally excludes `k = 5, 6` and `n < 10^14`, which is not
-formalized here.
-
-## Proof route used here
+Christian Hercher, “On Positive Integers n with φ(n) = (2/3)(n+1)”,
+arXiv:2504.19915, §2, Theorem 1 and Corollary 2, and §3, Theorem 10.
+Solutions are squarefree; if primes `p,r` satisfy `pr ∣ n`, then
+`p ∤ r-1`. With at most four distinct prime factors the solutions are
+exactly `5,35,1295,1679615`. The introduction's `1195` is a typo for
+`1295 = 5·7·37`. The unrestricted classification and the paper's
+computational exclusions for five or six factors and `n < 10^14` are
+not formalized here.
 
 * Squarefree: if `p² ∣ n` then `p ∣ φ(p²) ∣ φ(n)`, so `p ∣ 2(n+1)` and
   `p ∣ 2`; but `n` is odd because `φ(n)·2 ≤ n` for even `n`.
@@ -54,7 +28,7 @@ namespace Candidates.HercherTotientTwoThirds
 
 open Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- Steinerberger's equation `φ(n) = (2/3)·(n+1)`, cleared of denominators:
 `3·φ(n) = 2·(n+1)` (no division, so no junk values). -/
@@ -64,7 +38,7 @@ def IsSolution (n : ℕ) : Prop := 3 * n.totient = 2 * (n + 1)
 instance : DecidablePred IsSolution := fun n =>
   inferInstanceAs (Decidable (3 * n.totient = 2 * (n + 1)))
 
-/-! Ground truth: Steinerberger's first two solutions, and small non-solutions. -/
+/-! Examples: Steinerberger's first two solutions, and small non-solutions. -/
 example : IsSolution 5 := by decide
 example : IsSolution 35 := by decide
 example : ¬ IsSolution 0 := by decide

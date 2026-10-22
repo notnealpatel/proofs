@@ -1,48 +1,12 @@
 /-
 # A128382 — Adamson: only `k = 24` gives a sequence `A051731^k * A000594` with a zero
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A128382` and the live entry)
-
-```
-NAME:     Inverse Moebius transform operation performed 24 times on A000594:
-          A051731^24 * A000594.
-TERMS:    1,0,276,-1748,4854,0,-16720,44552,-107295,0,534636,-482448,-577714,0,
-          1339704,2528206,-6905910,0,10661444,-8484792,-4614720,0,18643296,
-          12296352,-25383005,0,-75928312,29226560,128406654,0,-52843144,
-          -151821160,147559536,0,-81158880
-KEYWORDS: sign,mult
-COMMENT (the conjecture, unsigned in the entry; AUTHOR line of the entry is
-  Gary W. Adamson, Feb 28 2007):
-  Conjecture: given the inverse Moebius transform operation performed any k
-  times (k=1,2,3,...); k=24 is the only such sequence with zeros. A weaker
-  conjecture: "zero" occurs an infinite number of times in A128382.
-COMMENT:
-  Multiplicative because A000594 is. Each application of A051731 corresponds
-  to an inverse Moebius transform. - _Andrew Howroyd_, Aug 03 2018
-EXTENSIONS:
-  Terms a(11) and beyond from Andrew Howroyd, Aug 03 2018
-PROGRAM (PARI):
-  seq(n, k=24)={my(u=vector(n,n,1), v=vector(n,n,ramanujantau(n)));
-  for(i=1, k, v=dirmul(u,v)); v} \\ _Andrew Howroyd_, Aug 03 2018
-```
-
-No later comment in the entry retracts or amends the conjecture.
-
-A051731: "Triangle read by rows: T(n,k) = 1 if k divides n, T(n,k) = 0
-otherwise (for n >= 1 and 1 <= k <= n)."
-A000594: "Ramanujan's tau function", G.f. `x * Product_{k>=1} (1 - x^k)^24`.
-
-## Status
-
-This module **refutes** the (strong) conjecture.  Applying A051731 is the
-inverse Moebius transform (Dirichlet convolution with the constant function
-`1`), so at a prime `p` the `k`-th sequence takes the value `tau(p) + k`.
-Since `tau(7) = -16744`, the sequence for `k = 16744` vanishes at `n = 7`.
-
-The weaker conjecture (infinitely many zeros for `k = 24`) is true: `a(2) = 0`
-and the sequence is multiplicative, so `a(n) = 0` for all `n ≡ 2 (mod 4)`.
-Its proof needs the multiplicativity of `tau` (Mordell), which is not in
-Mathlib; it is stated below as `WeakConjecture` but not proved here.
+OEIS A128382, Gary W. Adamson. Applying A051731 is the inverse
+Möbius transform, or Dirichlet convolution with `1`. At a prime `p`,
+its `k`-fold iterate on Ramanujan's tau is `tau(p) + k`. Thus
+`tau(7) = -16744` refutes the assertion that only `k = 24` gives zeros.
+The weaker assertion of infinitely many zeros for `k = 24` is stated
+but not proved; its usual proof uses multiplicativity of tau.
 -/
 import Mathlib
 
@@ -59,13 +23,13 @@ truncated power series represented as coefficient lists. -/
 
 /-- The coefficient list of the polynomial `(1 - x)^24` (coefficient of `x^j` at
 index `j`), written out; by the binomial theorem the coefficient of `x^j` is
-`(-1)^j * C(24, j)`, which the ground-truth check below confirms. -/
+`(-1)^j * C(24, j)`, which the example below confirms. -/
 def oneSubXPow24 : List ℤ :=
   [1, -24, 276, -2024, 10626, -42504, 134596, -346104, 735471, -1307504, 1961256,
     -2496144, 2704156, -2496144, 1961256, -1307504, 735471, -346104, 134596, -42504,
     10626, -2024, 276, -24, 1]
 
-/-- Ground truth: the coefficient of `x^j` in `(1 - x)^24` is `(-1)^j * C(24, j)`. -/
+/-- Examples: the coefficient of `x^j` in `(1 - x)^24` is `(-1)^j * C(24, j)`. -/
 example : oneSubXPow24 = (List.range 25).map fun j => (-1) ^ j * (Nat.choose 24 j : ℤ) := by
   decide +kernel
 
@@ -92,7 +56,7 @@ product.  The constant coefficient of `x * ∏ …` is `0`, so `tau 0 = 0`. -/
 def tau (n : ℕ) : ℤ :=
   if n = 0 then 0 else (etaPow24Trunc n).getD (n - 1) 0
 
-/-- Ground truth: the first 15 terms of A000594. -/
+/-- Examples: the first 15 terms of A000594. -/
 example : (List.range 15).map (fun i => tau (i + 1)) =
     [1, -24, 252, -1472, 4830, -6048, -16744, 84480, -113643, -115920, 534612,
       -370944, -577738, 401856, 1217160] := by
@@ -105,7 +69,7 @@ example : (List.range 15).map (fun i => tau (i + 1)) =
 def A051731 (n m : ℕ) : ℤ :=
   if m ∣ n then 1 else 0
 
-/-- Ground truth: rows `1, …, 10` of A051731. -/
+/-- Examples: rows `1, …, 10` of A051731. -/
 example : (List.range 10).flatMap (fun i => (List.range (i + 1)).map
       fun j => A051731 (i + 1) (j + 1)) =
     [1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0,
@@ -149,7 +113,7 @@ theorem seq_eq_seqDiv (k : ℕ) : seq k = seqDiv k := by
     funext n
     rw [seq, seqDiv, applyA051731_eq_sum_divisors, ih]
 
-/-- Ground truth: the first 15 terms of A128382 (`k = 24`). -/
+/-- Examples: the first 15 terms of A128382 (`k = 24`). -/
 example : (List.range 15).map (fun i => seq 24 (i + 1)) =
     [1, 0, 276, -1748, 4854, 0, -16720, 44552, -107295, 0, 534636, -482448, -577714,
       0, 1339704] := by
@@ -158,24 +122,16 @@ example : (List.range 15).map (fun i => seq 24 (i + 1)) =
 
 /-! ## The conjectures -/
 
-/-- **Adamson's conjecture (A128382, Gary W. Adamson, Feb 28 2007).**
+/-- **Adamson's conjecture (A128382, Gary W. Adamson, 2007).**
 
-Verbatim: "Conjecture: given the inverse Moebius transform operation performed
-any k times (k=1,2,3,...); k=24 is the only such sequence with zeros."
-
-Formalized: for every positive `k`, the sequence `A051731^k * A000594`
+For every positive `k`, the sequence `A051731^k * A000594`
 (indexed by `n ≥ 1`) has a zero term if and only if `k = 24`. -/
 def Conjecture : Prop :=
   ∀ k : ℕ, 0 < k → ((∃ n : ℕ, 0 < n ∧ seq k n = 0) ↔ k = 24)
 
-/-- **Adamson's weaker conjecture (A128382, same comment).**
-
-Verbatim: "A weaker conjecture: "zero" occurs an infinite number of times in
-A128382."
-
-Formalized: the set of indices `n ≥ 1` with `A128382(n) = 0` is infinite.
-This is true (zeros at all `n ≡ 2 (mod 4)` by multiplicativity of `tau`), but
-it is not proved in this module. -/
+/-- Adamson’s weaker conjecture (A128382): infinitely many positive
+indices give zero terms when `k = 24`. It is not proved here; the usual
+argument uses multiplicativity of tau and the zero at `n = 2`. -/
 def WeakConjecture : Prop :=
   {n : ℕ | 0 < n ∧ seq 24 n = 0}.Infinite
 
@@ -209,14 +165,9 @@ theorem seq_16744_seven : seq 16744 7 = 0 := by
   rw [seq_prime 16744 (by norm_num), tau_seven]
   norm_num
 
-/-- **Adamson's conjecture is false.**  Counterexample: `k = 16744`, `n = 7`.
-At a prime `p` the `k`-th sequence equals `tau(p) + k`, and
-`tau(7) = -16744`, so `A051731^16744 * A000594` has `a(7) = 0`
-(and hence, by multiplicativity, `a(n) = 0` whenever `7 ∥ n`).  By
-`seq_prime`, a zero at a prime `p` occurs exactly when `tau(p) < 0`, with
-`k = -tau(p)`; `k = 24` is the case `p = 2`.  The author presumably intended
-the claim only for small `k`: the triage brute-force search (`k ≤ 3000`,
-`n ≤ 64`; evidence, not proved here) finds zeros only for `k = 24`. -/
+/-- Adamson’s uniqueness claim fails at `k = 16744`, `n = 7`:
+`(A051731^16744 · A000594)(7) = tau(7) + 16744 = 0`.
+More generally `seq_prime` gives the value `tau(p)+k` at each prime `p`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   have h16744 := (h 16744 (by norm_num)).mp ⟨7, by norm_num, seq_16744_seven⟩

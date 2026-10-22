@@ -1,53 +1,25 @@
 /-
-# Euler's sum `∑ H_k/k^2 = 2ζ(3)` and the Furdui–Sîntămărian `q = 1` identity
+# Euler's harmonic sum and the consecutive-pair identity
 
-## Source
+Source: Wilson J. Chen and Vincent Nguyen, *A Series Involving a Product
+of Four Consecutive Harmonic Numbers*, arXiv:2507.19502, Section 1.
+The introductory equations (EulerGoldbach), (OriginalEulerSum) at `n = 2`,
+and (Consecutive2) give
+`∑_{k≥1} H_k/k² = 2ζ(3)` and
+`∑_{k≥1} H_k H_{k+1}/(k(k+1)) = ζ(2)+2ζ(3)`.
+These are known inputs to that paper: Euler's identity and the
+Furdui–Sîntămărian identity (cited there to *Sharp Mathematical Analysis*,
+pp. 238–240 and p. 119, respectively).
 
-arXiv:2507.19502, Wilson J. Chen and Vincent Nguyen,
-"A Series Involving a Product of Four Consecutive Harmonic Numbers".
-Both statements sit in Section 1 (Introduction) and are used in the proof of the
-paper's main theorem (Lemmas `ReIndexEulerSummLemma` and `PowerEulerSumLemma`).
+Only these one-harmonic and consecutive-pair (`q = 1`) identities are
+formalized here, not the paper's four-consecutive (`q = 3`) result.
+Mathlib's rational `harmonic k` is cast to `ℝ` or `ℂ`, and `ζ` is
+`riemannZeta`. The paper-indexed series have a zero totalized `k = 0` term.
 
-Verbatim (LaTeX) from the paper, eq. (EulerGoldbach), first half, and the `n = 2`
-case of eq. (OriginalEulerSum):
-
-```
-\sum_{k=1}^\infty \frac{H_k}{k^2} = 2\zeta(3)
-\sum_{k=1}^\infty \frac{H_k}{k^n} = \left(\frac{n}{2} + 1\right)\zeta(n+1)
-  - \frac{1}{2}\sum_{k=1}^{n-2} \zeta(n-k)\zeta(k+1), \quad (n \in \mathbb{N}\setminus\{1\}).
-```
-
-and eq. (Consecutive2):
-
-```
-\sum_{k=1}^\infty \frac{H_k H_{k+1}}{k(k+1)} = \zeta(2) + 2\zeta(3)
-```
-
-where `H_k := 1 + 1/2 + ⋯ + 1/k`.
-
-Date recorded: 2026-10-21.
-
-## Status
-
-Known results, not proved in the paper: the first is due to Euler (the paper cites
-Euler and Sharp Mathematical Analysis pp. 238–240); the second is due to Furdui and
-Sîntămărian (computed in "Sharp Mathematical Analysis", p. 119). The paper uses both
-as inputs.
-
-## Formalization
-
-* `H_k` is Mathlib's `harmonic k : ℚ`, cast to `ℝ` or `ℂ`; `ζ` is `riemannZeta`.
-* Euler's sum is proved via the nonnegative double series
-  `S = ∑_{n,k ≥ 1} 1/(n k (n+k))`: summing rows (telescoping) gives `∑ H_n/n^2`,
-  summing antidiagonals `n + k = m` gives `2 ∑_{m ≥ 2} H_{m-1}/m^2`, whence
-  `∑ H_n/n^2 = 2 ζ(3)`.
-* The `q = 1` identity is proved from the exact partial-sum identity
-  `sum_range_consecutive_pair` together with `H_N^2/N → 0`, Euler's sum and
-  `ζ(2) = π^2/6`.
-
-Main results: `hasSum_harmonic_div_sq` (real), `euler_sum_eq_two_zeta_three` (paper
-indexing, `ℂ`), `hasSum_consecutive_pair` (real),
-`consecutive_pair_eq_zeta_two_add_two_zeta_three` (paper indexing, `ℂ`).
+A nonnegative double series `∑_{n,k≥1} 1/(nk(n+k))`, summed by rows and
+antidiagonals, gives Euler's identity. An exact partial-sum identity,
+`H_N²/N → 0`, Euler's sum, and the Basel sum give the consecutive-pair
+identity. Each is supplied in real `HasSum` and complex zeta forms.
 -/
 import Mathlib
 
@@ -57,7 +29,7 @@ namespace FourConsecutiveHarmonicSeries
 
 open Filter Topology
 
-/-! ## Ground truth for the objects involved -/
+/-! ## Examples for the objects involved -/
 
 /-- `H_1 = 1`, `H_2 = 3/2`, `H_3 = 11/6`. -/
 example : harmonic 1 = 1 ∧ harmonic 2 = 3 / 2 ∧ harmonic 3 = 11 / 6 := by

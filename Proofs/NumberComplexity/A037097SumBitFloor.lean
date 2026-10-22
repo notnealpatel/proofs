@@ -1,45 +1,10 @@
 /-
 # A037097 — Karttunen: the bit columns of `3^k` are divisible by a power of `x + 1`
 
-## OEIS source (retrieved with `oeis show A037097`, 2026-10-21)
-
-```
-NAME:     Periodic vertical binary vectors of powers of 3, starting from
-          bit-column 2 (halved).
-OFFSET:   2
-TERMS:    0,12,120,57120,93321840,10431955353116229600,...
-AUTHOR:   Antti Karttunen, Jan 29 1999 (entry revised Dec 29 2007)
-FORMULA:  a(n) = Sum_{k=0..A000225(n-1)} ([A000244(k)/(2^n)] mod 2) * 2^k,
-          where [] stands for floor function.
-PROGRAM:  a(n) := sum( 'bit_n(3^i, n)*(2^i)', 'i'=0..(2^(n-1))-1);
-          bit_n := (x, n) -> `mod`(floor(x/(2^n)), 2);
-COMMENT (the conjecture):
-  Conjecture: For n>=3, each term a(n), when considered as a GF(2)[X]-polynomial,
-  is divisible by GF(2)[X] -polynomial (x + 1) ^ A000225(n-2) (= A051179(n-2)).
-  If this holds, then for n>=3, a(n) = A048720bi(A136386(n),
-  A048723bi(3, A000225(n-2))) = A048720bi(A136386(n), A051179(n-2)).
-  [corrected by _Qiyuan Gu_, Jul 24 2026]
-```
-
-The comment carries no signature of its own; it is attributed to the entry
-author (Antti Karttunen), with the correction by Qiyuan Gu, Jul 24 2026.
-`A000225(m) = 2^m - 1`.
-
-Companion entry A037096 (offset 0), `a(n) = Sum_{k=0..(2^n)-1} (floor(3^k/2^n)
-mod 2) * 2^k`, carries the analogous conjecture: "For n >= 3, each term a(n),
-when considered as a GF(2)[X] polynomial, is divisible by the GF(2)[X]
-polynomial (x + 1) ^ A055010(n-1)", with `A055010(n-1) = 3*2^(n-2) - 1`.
-
-## Status
-
-Triage: "open" (no proof in the entry or in the literature as far as the
-triage could tell; a quick web search found nothing on this exact statement;
-probably folklore in LFSR / 2-adic circles).  Proved below, together with the
-exactness of both exponents and the A037096 companion.
-
-Computation (python, 2026-10-21): the exact `(x+1)`-adic valuation of
-A037097(n) is `2^(n-2) - 1` and of A037096(n) is `3*2^(n-2) - 1` for every
-`3 ≤ n ≤ 18`.
+Antti Karttunen's conjecture in OEIS A037097, corrected by Qiyuan Gu
+(2026), and its A037096 companion. A037097 uses a window of length
+`2^(n-1)` (offset 2), A037096 a window of length `2^n` (offset 0),
+of the bits `floor(3^k/2^n) mod 2`. Both divisibility exponents are exact.
 
 ## Argument
 
@@ -62,7 +27,7 @@ open Polynomial Finset
 
 namespace Candidates.A037097SumBitFloor
 
-/-! ## Definition layer (mirrors the entry's PROGRAM and FORMULA lines) -/
+/-! ## Definitions (mirrors the entry's PROGRAM and FORMULA lines) -/
 
 /-- The entry's `bit_n(m) = floor(m / 2^n) mod 2`: bit `n` of `m`. -/
 def bitN (n m : ℕ) : ℕ := m / 2 ^ n % 2
@@ -89,7 +54,7 @@ polynomial of A037096 (`gf2OfNat_colNat`). -/
 noncomputable def colPoly (n L : ℕ) : (ZMod 2)[X] :=
   ∑ k ∈ range L, C ((bitN n (3 ^ k) : ℕ) : ZMod 2) * X ^ k
 
-/-! ## Ground truth against the DATA lines -/
+/-! ## Examples against the DATA lines -/
 
 -- A037097 DATA: 0, 12, 120, 57120, 93321840, 10431955353116229600 (n = 2..7).
 example : a037097 2 = 0 := by decide
@@ -167,7 +132,7 @@ theorem gf2OfNat_colNat (n L : ℕ) : gf2OfNat (colNat n L) = colPoly n L := by
   simp only [mem_range]
   split_ifs <;> simp
 
--- Ground truth for the reading: `12 = 0b1100` is the polynomial `x^2 + x^3`.
+-- Examples for the reading: `12 = 0b1100` is the polynomial `x^2 + x^3`.
 example : gf2OfNat 12 = X ^ 2 + X ^ 3 := by
   ext i
   rw [coeff_gf2OfNat, coeff_add, coeff_X_pow, coeff_X_pow]
@@ -338,11 +303,9 @@ theorem colPoly_full_not_dvd (n : ℕ) (hn : 3 ≤ n) :
 
 /-! ## The conjectures, stated on the OEIS integers -/
 
-/-- **A037097 conjecture (Karttunen; corrected by Qiyuan Gu, Jul 24 2026).**
-"For n>=3, each term a(n), when considered as a GF(2)[X]-polynomial, is
-divisible by GF(2)[X] -polynomial (x + 1) ^ A000225(n-2)", where
-`A000225(n-2) = 2^(n-2) - 1` (`n ≥ 3` keeps `n - 2` and the exponent off
-truncation).  Proved. -/
+/-- Karttunen's A037097 conjecture, corrected by Qiyuan Gu (2026): for `n ≥ 3`,
+A037097(n), read as a GF(2) polynomial, is divisible by
+`(x+1)^(2^(n-2)-1)`. The guard keeps both subtractions from truncating. -/
 theorem A037097_conjecture (n : ℕ) (hn : 3 ≤ n) :
     (X + 1 : (ZMod 2)[X]) ^ (2 ^ (n - 2) - 1) ∣ gf2OfNat (a037097 n) := by
   rw [a037097, gf2OfNat_colNat]
@@ -355,9 +318,8 @@ theorem A037097_exponent_exact (n : ℕ) (hn : 3 ≤ n) :
   rw [a037097, gf2OfNat_colNat]
   exact colPoly_half_not_dvd n hn
 
-/-- **A037096 companion conjecture.** "For n >= 3, each term a(n), when
-considered as a GF(2)[X] polynomial, is divisible by the GF(2)[X] polynomial
-(x + 1) ^ A055010(n-1)", where `A055010(n-1) = 3 * 2^(n-2) - 1`.  Proved. -/
+/-- The A037096 companion conjecture: for `n ≥ 3`, A037096(n), read as a
+GF(2) polynomial, is divisible by `(x+1)^(3*2^(n-2)-1)`. -/
 theorem A037096_conjecture (n : ℕ) (hn : 3 ≤ n) :
     (X + 1 : (ZMod 2)[X]) ^ (3 * 2 ^ (n - 2) - 1) ∣ gf2OfNat (a037096 n) := by
   rw [a037096, gf2OfNat_colNat]
@@ -370,7 +332,7 @@ theorem A037096_exponent_exact (n : ℕ) (hn : 3 ≤ n) :
   rw [a037096, gf2OfNat_colNat]
   exact colPoly_full_not_dvd n hn
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- Non-vacuity at the boundary `n = 3`: `a(3) = 12` reads as `x^2 + x^3`,
 -- which is `(x + 1)^1 * x^2`, and the conjecture's exponent there is `1`.

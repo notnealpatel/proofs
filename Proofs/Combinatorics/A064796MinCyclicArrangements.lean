@@ -1,34 +1,13 @@
 /-
 # A064796 — McCranie: minimax adjacent product over cyclic arrangements
 
-## OEIS source (retrieved with `oeis show A064796`, 2026-10-21)
+Jud McCranie's conjecture in OEIS A064796 (October 25, 2001) gives the
+minimax adjacent product as `(n+1)(n+3)/4` for odd `n` and `n(n+4)/4`
+for even `n`. David Wasserman's formula (August 19, 2002) restricts this
+to `n > 2`: at `n = 2` the value is 2, not 3.
 
-```
-NAME:     Largest integer m such that every permutation (p_1, ..., p_n) of
-          (1, ..., n) satisfies p_i * p_{i+1} >= m for some i, 1 <= i <= n,
-          where p_{n+1} = p_1.
-TERMS:    1,2,6,8,12,15,20,24,30,35,42,48,56,63,72,80,90,99,110,120,132,...
-COMMENT (the conjecture):
-  Conjecture: a(n) = (n+1)(n+3)/4 for odd n, a(n) = (n)(n+4)/4 for even n.
-  - _Jud McCranie_, Oct 25 2001
-FORMULA:
-  For odd n > 2, a(n) = (n+1)(n+3)/4. For even n > 2, a(n) = n(n+4)/4.
-  - _David Wasserman_, Aug 19 2002
-```
-
-## Status
-
-Triage: "unclear".  The entry records Wasserman's 2002 formula as a FORMULA
-line with no proof; no proof in the literature was located by the triage.
-The conjecture as written fails at `n = 2` (`a(2) = 2`, formula gives `3`);
-the guard `n > 2` is taken from Wasserman's FORMULA line.  Brute force
-(Hamiltonian-cycle search) confirms the formula for `3 ≤ n ≤ 18`.
-
-## Result in this file
-
-`a_eq_formula` proves the formula for every `n ≥ 3` (kernel-checked, no
-`sorry`).  Lower bound: a double-counting pigeonhole on the top values of the
-cycle.  Upper bound: the explicit zigzag arrangement `1, n, 2, n-1, 3, ...`.
+The lower bound uses double counting on the largest values of the cycle;
+the upper bound uses the zigzag arrangement `1, n, 2, n-1, 3, ...`.
 -/
 import Mathlib
 
@@ -69,7 +48,7 @@ theorem a_eq_of_bounds (n M : ℕ)
   obtain ⟨i, hi⟩ := hm σ₀
   exact hi.trans (hσ₀ i)
 
-/-! ## Ground truth: the first listed terms `1, 2, 6, 8` -/
+/-! ## Examples: the first listed terms `1, 2, 6, 8` -/
 
 example : a 1 = 1 := by
   apply a_eq_of_bounds
@@ -326,15 +305,11 @@ theorem a_even (m : ℕ) (hm : 1 ≤ m) : a (2 * m + 2) = (m + 1) * (m + 3) :=
   a_eq_of_bounds _ _ (lower_even m hm)
     ⟨zigzagPerm _, fun i => by rw [adjProd_zigzagPerm]; exact upper_even m i i.isLt⟩
 
-/-- **McCranie's conjecture (A064796, Jud McCranie, Oct 25 2001; formula
-recorded by David Wasserman, Aug 19 2002).**
-
-Verbatim: "Conjecture: a(n) = (n+1)(n+3)/4 for odd n, a(n) = (n)(n+4)/4 for
-even n."  Here `a n` is the entry's definition: the largest `m` such that every
-cyclic arrangement of `1, ..., n` has two cyclically adjacent entries with
-product `≥ m`.  The guard `3 ≤ n` is Wasserman's `n > 2`; at `n = 2` the
-formula gives `3` while `a 2 = 2`.  Both divisions are exact for the stated
-parity (`4 ∣ (n+1)(n+3)` for odd `n`, `4 ∣ n(n+4)` for even `n`). -/
+/-- McCranie's conjecture (OEIS A064796, October 25, 2001), with
+Wasserman's restriction `3 ≤ n` (August 19, 2002): the minimax cyclic
+adjacent product is `(n+1)(n+3)/4` for odd `n` and `n(n+4)/4` for even `n`.
+The divisions are exact in their respective parity cases. At `n = 2`
+the formula gives 3, whereas `a 2 = 2`. -/
 theorem a_eq_formula (n : ℕ) (hn : 3 ≤ n) :
     a n = if Odd n then (n + 1) * (n + 3) / 4 else n * (n + 4) / 4 := by
   rcases Nat.even_or_odd' n with ⟨k, rfl | rfl⟩

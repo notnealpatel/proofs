@@ -1,46 +1,13 @@
 /-
-# A057032 — Kurkov: `a(n) - 1` is prime iff `a(n) = n + 1`
+# The forward-cyclic sequence A057032
 
-## OEIS source (retrieved with `oeis show A057032`, 2026-10-21)
-
-```
-NAME:     Let P(n) of a sequence s(1), s(2), s(3), ... be obtained by leaving
-          s(1), ..., s(n-1) fixed and forward-cyclically permuting every n
-          consecutive terms thereafter; apply P(2) to 1, 2, 3, ... to get PS(2),
-          then apply P(3) to PS(2) to get PS(3), then apply P(4) to PS(3), etc.
-          The limit of PS(n) as n -> oo is this sequence.
-TERMS:    1,3,4,7,6,10,8,16,15,21,12,22,14,27,28,36,18,33,20,43,35,39,24,53,34,
-          45,46,50,30,66,32,78,52,57,55,81,38,63,59,88,42,86,44,96,87,75,48,119,
-          64,111,76,101,54,103,79,144,83,93,60,141,62,99,113,173,91,136,68,139
-KEYWORDS: nonn,nice,easy
-COMMENT (the conjecture):
-  Conjecture: a(n) - 1 is prime if and only if a(n) = n + 1.
-  - _Mikhail Kurkov_, Mar 10 2022
-PROGRAM (Mathematica, Jean-François Alcover, Oct 20 2011, after MATLAB):
-  PS[i_, n_] := If[i == 1, n, If[n < i, PS[i-1, n], If[Mod[n, i] == 0,
-    PS[i-1, n+i-1], PS[i-1, n-1]]]]; a[n_] := PS[n, n]
-PROGRAM (PARI, Rémy Sigrist, Aug 25 2020):
-  a(n) = { my (p=0); forstep (d=n, 1, -1, if (p%d==0, p+=d)); p }
-```
-
-## Status
-
-Triage: open (no proof in the entry or in the literature found by the triage).
-Bogdanov's MathOverflow answer (q/416089) proves the analogous statement for the
-reverse-cyclic sibling A057063; this forward version is not treated there.
-This module proves the conjecture, together with the corollary
-`a(n) = n + 1 ↔ n` prime for `n ≥ 2`, with no `sorry`.
-
-## Proof outline
-
-Tracing position `n` backwards through `P(n), P(n-1), …, P(2)` and writing
-`z = position - step` turns the process into Sigrist's PARI loop: start from
-`z = 0`, and for `d = n, n-1, …, 1` add `d` whenever `d ∣ z`; then `a(n) = z`.
-The step `d = n` gives `z = n`, the step `d = 1` adds the final `1`.
-If `n` is prime no `d ∈ [2, n-1]` fires, so `a(n) = n + 1`.
-If `n` is composite, `minFac n` fires (or an earlier step already did), so
-`a(n) > n + 1`.  If any step fires, the last firing `d` divides the final value
-`a(n) - 1` with `2 ≤ d < a(n) - 1`, so `a(n) - 1` is composite.
+Source: Mikhail Kurkov's OEIS A057032 comment (Mar 10 2022), with the
+forward-process program of Jean-François Alcover (Oct 20 2011) and Rémy
+Sigrist's divisor-descent program (Aug 25 2020).
+The finite process stabilizes at each position and has limit `A057032`.
+For `n ≥ 1`, `A057032 n - 1` is prime iff `A057032 n = n+1`;
+for `n ≥ 2`, the latter is equivalent to primality of `n`.
+Tracing positions backwards identifies the process with the divisor descent.
 -/
 import Mathlib
 
@@ -48,7 +15,7 @@ set_option autoImplicit false
 
 namespace Candidates.A057032LimitSequenceForward
 
-/-! ## Definition layer
+/-! ## Definitions
 
 Positions are 1-indexed, as in the entry; position `0` is carried along but
 never read.  `P(k)` keeps positions `1, …, k-1` and splits the rest into the
@@ -80,12 +47,12 @@ def PS : ℕ → ℕ → ℕ
 pointwise limit of `PS(k)` as `k → ∞`, as in the entry's definition. -/
 def A057032 (n : ℕ) : ℕ := PS n n
 
-/-- Ground truth for `P(3)` on `1, 2, 3, …`: positions `1, 2` fixed, blocks
+/-- `P(3)` on `1, 2, 3, …`: positions `1, 2` fixed, blocks
 `(3,4,5) ↦ (5,3,4)` and `(6,7,8) ↦ (8,6,7)`. -/
 example : (List.range 8).map (fun i => fwdPerm 3 id (i + 1)) = [1, 2, 5, 3, 4, 8, 6, 7] := by
   decide
 
-/-- Ground truth: the 68 listed terms of A057032. -/
+/-- The 68 listed terms of A057032. -/
 example : (List.range 68).map (fun n => A057032 (n + 1)) =
     [1,3,4,7,6,10,8,16,15,21,12,22,14,27,28,36,18,33,20,43,35,39,24,53,34,45,46,50,30,66,32,78,
      52,57,55,81,38,63,59,88,42,86,44,96,87,75,48,119,64,111,76,101,54,103,79,144,83,93,60,141,
@@ -266,13 +233,9 @@ theorem A057032_eq_succ_iff_prime (n : ℕ) (hn : 2 ≤ n) : A057032 n = n + 1 �
 
 /-! ## The conjecture -/
 
-/-- **Kurkov's conjecture (A057032, Mikhail Kurkov, Mar 10 2022).**
-
-Verbatim: "Conjecture: a(n) - 1 is prime if and only if a(n) = n + 1."
-
-Here `a = A057032` is the limit of the forward-cyclic block process (see
-`tendsto_PS`), indexed from `n = 1` as in the entry.  The subtraction `a(n) - 1`
-is a genuine subtraction since `1 ≤ a(n)` (`one_le_A057032`). -/
+/-- Kurkov's identity for the limit of the forward-cyclic block process
+(`tendsto_PS`), indexed from 1. The subtraction is exact since
+`one_le_A057032` gives `1 ≤ A057032 n`. -/
 theorem A057032_sub_one_prime_iff (n : ℕ) (hn : 1 ≤ n) : (A057032 n - 1).Prime ↔ A057032 n = n + 1 := by
   rcases n with _ | _ | m
   · omega

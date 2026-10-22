@@ -1,23 +1,8 @@
 /-
-# A091713 — Hanna: every coefficient of A = x + x·A(A(A(x))) is odd
+# A091713 — odd coefficients of `A = X + X * A(A(A(X)))`
 
-## OEIS source (retrieved with `oeis show A091713`, 2026-10-21)
-
-```
-NAME:     G.f. A(x) satisfies A(x) = x + x*A(A(A(x))).
-TERMS:    1,1,3,15,99,781,7001,69253,742071,8506775,103411463,1324477033,
-          17785238513,249432247233,3642471258187,55246757713367,...
-COMMENT (the conjecture):
-  Conjecture: all terms are odd. - _Paul D. Hanna_, Dec 01 2024
-FORMULA (Manyama, Jun 13 2026, excerpt):
-  a(n,0,l) = 0^(n-1) and a(n,k,l) = a(n,k-1,l)
-             + Sum_{j=1..n-1} a(j,k+l-1,l) * a(n-j,k-1,l) for k > 0.
-```
-
-## Status
-
-Triage status: open (the entry records no proof; no literature proof was
-found by the triage).  This module proves the conjecture.
+Paul D. Hanna (OEIS A091713, Dec 01 2024) conjectured that every
+positive-degree coefficient is odd.
 
 ## Formalization
 
@@ -44,7 +29,7 @@ namespace Candidates.A091713SumUniquePower
 
 open PowerSeries
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 section General
 
@@ -297,7 +282,7 @@ theorem map_zmod_two_eq {A : ℤ⟦X⟧} (h0 : constantCoeff A = 0)
 
 /-- **Hanna's conjecture (A091713, Paul D. Hanna, Dec 01 2024).**
 
-Verbatim: "Conjecture: all terms are odd."  Here the terms are the coefficients
+Every positive-degree coefficient is odd. These are the coefficients
 `a(n)`, `n ≥ 1`, of the power series `A(x)` with `A(0) = 0` and
 `A(x) = x + x * A(A(A(x)))`; by `existsUnique_solution` there is exactly one
 such `A`.  The guard `1 ≤ n` is load-bearing: `a(0) = 0` is even. -/
@@ -308,7 +293,7 @@ theorem hanna_coeff_odd {A : ℤ⟦X⟧} (h0 : constantCoeff A = 0)
   rw [coeff_map, show (X * mk fun _ => (1 : ZMod 2)) = B2 from rfl, coeff_B2 hn] at hc
   exact ZMod.intCast_eq_one_iff_odd.mp hc
 
-/-! ## Sanity layer: ground truth against the DATA line -/
+/-! ## Examples from the listed terms -/
 
 /-- The truncation `X + X² + 3X³ + 15X⁴ + 99X⁵` of the listed terms. -/
 noncomputable def p5 : ℤ⟦X⟧ := X + X ^ 2 + 3 * X ^ 3 + 15 * X ^ 4 + 99 * X ^ 5
@@ -323,8 +308,7 @@ theorem subst_p5 {a : ℤ⟦X⟧} (ha : constantCoeff a = 0) :
 /-- `p5` has zero constant term. -/
 theorem constantCoeff_p5 : constantCoeff p5 = 0 := by simp [p5]
 
-/-- `p5` solves the functional equation modulo `X ^ 6` (quotients computed in Sage
-and checked here by `ring`). -/
+/-- `p5` solves the functional equation modulo `X ^ 6`. -/
 theorem X_pow_six_dvd_rhs_p5_sub : X ^ 6 ∣ rhs p5 - p5 := by
   set q : ℤ⟦X⟧ := X + 2 * X ^ 2 + 8 * X ^ 3 + 46 * X ^ 4 + 330 * X ^ 5 with hq
   have hq0 : constantCoeff q = 0 := by simp [hq]
@@ -364,7 +348,7 @@ theorem X_pow_dvd_sub_p5 {A : ℤ⟦X⟧} (h0 : constantCoeff A = 0) (hA : A = r
     have h3 := dvd_add h1 h2
     rwa [sub_add_sub_cancel, ← hA] at h3
 
--- Ground truth: the solution's first coefficients are the listed terms
+-- The solution's first coefficients are the listed terms
 -- `1, 1, 3, 15, 99`.
 example {A : ℤ⟦X⟧} (h0 : constantCoeff A = 0)
     (hA : A = X + X * subst (subst A A : ℤ⟦X⟧) A) :

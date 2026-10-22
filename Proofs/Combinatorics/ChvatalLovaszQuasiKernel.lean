@@ -1,34 +1,12 @@
 /-
 # Chvátal–Lovász: every finite digraph has a quasi-kernel
 
-## Source
+V. Chvátal and L. Lovász, *Every directed graph has a semi-kernel*,
+Hypergraph Seminar (1974). Also cited as [CL] in J. Ai, G. Gutin, X. Liu
+and X. Meng, *Small and large quasi-kernels: a weighted transfer theorem*,
+arXiv:2610.23487, Section 1.
 
-arXiv:2610.23487, J. Ai, G. Gutin, X. Liu, X. Meng, "Small and large
-quasi-kernels: a weighted transfer theorem", Section 1 (Introduction),
-the sentence citing [CL] directly after the definition of a quasi-kernel.
-Retrieved 2026-10-21.
-
-Verbatim (paper conventions):
-
-```
-Throughout the paper, all digraphs are finite without loops or parallel arcs;
-opposite arcs are allowed. [...] We write N_D^{<=2}[X] for the vertices
-reachable from X by a directed path of length at most two. A set
-X ⊆ V(D) is independent if there is no arc between any pair of vertices
-in X. An independent set Q is a quasi-kernel of D if N_D^{<=2}[Q] = V(D).
-Chvátal and Lovász [CL] proved that every digraph has a quasi-kernel.
-```
-
-(Footnote: paths start in the quasi-kernel, not end there.)
-
-## Status
-
-Known result: V. Chvátal and L. Lovász, "Every directed graph has a
-semi-kernel", Hypergraph Seminar (1974).  The paper cites it as the
-existence base for the (open) Small Quasi-kernel Conjecture; it does not
-reprove it.  This module proves it.
-
-## Formal conventions
+## Conventions
 
 * Digraphs are Mathlib's `Digraph V` on a finite vertex type.
 * Independence quantifies over *pairs of distinct* vertices.  For the
@@ -76,7 +54,7 @@ theorem isIndependent_iff_of_loopless (G : Digraph V) (hloop : ∀ v, ¬ G.Adj v
   · intro h x hx y hy _
     exact h x hx y hy
 
-/-! ## Ground truth: the directed 4-cycle (the paper's tightness example) -/
+/-! ## Example: the directed 4-cycle (the paper's tightness example) -/
 
 /-- The directed 4-cycle `0 → 1 → 2 → 3 → 0`. -/
 def cycle4 : Digraph (Fin 4) where

@@ -1,36 +1,13 @@
 /-
 # A129364 — `∏_{k ≤ n} (⌊n/k⌋!)^k` divides `∏_{j,k ≤ n} gcd(j,k)`
 
-## OEIS source (re-pulled with `oeis show A129364`, A092287, A066841, A129365;
-## author line checked on https://oeis.org/A129364; retrieved 2026-10-21)
-
-```
-A129364
-NAME:     a(n) = Product_{k = 1..n} A066841(k).
-AUTHOR:   Peter Bala, Apr 11 2007
-TERMS:    1,2,6,96,480,207360,1451520,2972712960,722369249280,... (offset 1)
-FORMULA:  a(n) = Product_{k = 1..n} Product_{d|k} d^(k/d).
-FORMULA:  a(n) = Product_{k = 1..n} ((floor(n/k))!)^k.
-COMMENT (the conjecture, unattributed in the entry):
-  Conjecture: a(n) divides A092287(n) for all n - see comments in A129365.
-
-A066841   a(n) = Product{k|n} k^(n/k); terms 1,2,3,16,5,432,7,2048,...
-A092287   a(n) = Product_{j=1..n} Product_{k=1..n} gcd(j,k);
-          terms (offset 0) 1,1,2,6,96,480,414720,2903040,...
-A129365   a(n) = A092287(n)/A129364(n); terms 1,1,1,1,1,2,2,2,6,48,...
-```
-
-Task form of the conjecture: for all `n ≥ 1`,
-`Product_{k=1..n} (floor(n/k)!)^k` divides `Product_{j,k<=n} gcd(j,k)` (A092287).
-
-## Literature status (triage)
-
-Proved elsewhere: Adamczewski, arXiv:2608.11941 (cited in A129365, Aug 2026),
-with Lean proofs in `epoch-research/LeanOpenProblems-results`
-(`oeis_a129365_conjecture_B/_C/_D`).  The self-contained argument below is
-the standard Legendre-type valuation count and was written independently here.
-
-## Proof (kernel-checked below)
+The conjecture in OEIS A129364 (entry by Peter Bala; see also A129365)
+asserts `A129364(n) ∣ A092287(n)`, where
+`A129364(n) = ∏_{k=1..n} (⌊n/k⌋!)^k` and
+`A092287(n) = ∏_{j,k=1..n} gcd(j,k)`.
+See also Adamczewski, arXiv:2608.11941, and the Lean proofs
+`oeis_a129365_conjecture_B/_C/_D` in
+`epoch-research/LeanOpenProblems-results`.
 
 Fix a prime `p` and `B = n + 1`.  For `q = p^i`:
 
@@ -40,9 +17,6 @@ Fix a prime `p` and `B = n + 1`.  For `q = p^i`:
   `v_p(RHS) = ∑_i #{(j,k) ≤ n : q ∣ j, q ∣ k} = ∑_i (n/q)^2`.
 * With `N = n/q ≤ n`: `k · (N/k) ≤ N` for `k ≤ N` and `N/k = 0` for `k > N`,
   so `∑_{k ≤ n} k · (N/k) ≤ N^2`.
-
-Computational re-validation (python, exact integers): divisibility holds for
-all `1 ≤ n ≤ 300`, and the floor formula reproduces the listed A129364 terms.
 -/
 import Mathlib
 
@@ -52,7 +26,7 @@ namespace Candidates.A129364ProductFloorDivides
 
 open Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A066841: `a(k) = ∏_{d ∣ k} d^(k/d)`, product over the positive divisors of `k`. -/
 def a066841 (k : ℕ) : ℕ := ∏ d ∈ k.divisors, d ^ (k / d)
@@ -63,7 +37,7 @@ def a129364 (n : ℕ) : ℕ := ∏ k ∈ Icc 1 n, a066841 k
 /-- OEIS A092287: `a(n) = ∏_{j=1..n} ∏_{k=1..n} gcd(j,k)`. -/
 def a092287 (n : ℕ) : ℕ := ∏ j ∈ Icc 1 n, ∏ k ∈ Icc 1 n, Nat.gcd j k
 
-/-! ### Ground truth against the listed terms -/
+/-! ### Examples against the listed terms -/
 
 example : (List.range 9).map a066841 = [1, 1, 2, 3, 16, 5, 432, 7, 2048] := by decide
 
@@ -215,7 +189,7 @@ theorem a129364_eq_prod_factorial_pow (n : ℕ) :
 
 /-- **A129364 conjecture (comment in A129364; see A129365), floor form.**
 
-Verbatim (task form): "For all n >= 1, Product_{k=1..n} (floor(n/k)!)^k divides
+"For all n >= 1, Product_{k=1..n} (floor(n/k)!)^k divides
 Product_{j,k<=n} gcd(j,k) (A092287)."
 
 Proved here for every `n : ℕ`; the case `n = 0` (outside the conjecture's range) is the
@@ -234,8 +208,8 @@ theorem prod_factorial_pow_dvd_prod_gcd (n : ℕ) :
 
 /-- **A129364 conjecture (entry form): `A129364(n) ∣ A092287(n)` for all `n`.**
 
-Verbatim: "Conjecture: a(n) divides A092287(n) for all n - see comments in A129365."
-(A129364, entry by Peter Bala, Apr 11 2007; the comment is unattributed.)  Here
+"Conjecture: a(n) divides A092287(n) for all n - see comments in A129365."
+(A129364, entry by Peter Bala; the comment is unattributed.)  Here
 `a129364` is the entry's NAME definition `∏_{k=1..n} A066841(k)`, bridged to the floor form
 by `a129364_eq_prod_factorial_pow`. -/
 theorem a129364_dvd_a092287 (n : ℕ) : a129364 n ∣ a092287 n := by

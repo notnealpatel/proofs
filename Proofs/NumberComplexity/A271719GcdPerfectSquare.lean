@@ -1,34 +1,12 @@
 /-
 # A271719 — Sun: primitive `x + y + z = n` with `x² + (2y+z)²` a square
 
-## OEIS source (retrieved with `oeis show A271719`, 2026-10-21)
+Zhi-Wei Sun's conjecture in OEIS A271719 (2016). The sequence counts
+ordered positive triples `x ≥ y`, `gcd(x,y,z)=1`, `x+y+z=n` with
+`x²+(2y+z)²` a square. It is positive for `n > 10`, and equals one exactly
+at `11,12,14,18,24,54` in this range.
 
-```
-NAME:     Number of ordered ways to write n as x + y + z with x >= y > 0, z > 0
-          and gcd(x,y,z) = 1 such that x^2 + (2*y+z)^2 is a square.
-TERMS:    0,0,0,0,0,2,0,0,0,0,1,1,3,1,2,4,3,1,3,4,3,2,2,1,4,2,5,4,5,2,6,4,7,4,
-          6,4,8,5,7,7,10,3,9,7,10,9,10,4,8,5,6,4,9,1,8,5,7,6,12,4,17,11,15,10,
-          15,8,21,12,15,9
-OFFSET:   1
-COMMENT (the conjecture):
-  Conjecture: a(n) > 0 for all n > 10, and a(n) = 1 only for
-  n = 11, 12, 14, 18, 24, 54.
-AUTHOR:   Zhi-Wei Sun, Apr 12 2016 (the conjecture line carries no separate
-          signature; it is part of Sun's original entry; live entry checked)
-```
-
-## Literature status (triage)
-
-Open as far as the triage could tell: the entry contains no proof, Sun's
-arXiv:1604.06723 does not state or prove it, and a web search found only the
-OEIS page.  The triage recomputed the data up to `n = 20000`; this attempt
-recomputed it (independent brute force for `n ≤ 200` cross-checked against a
-Pythagorean-pair enumeration) up to `n = 30000`.
-
-This module proves the conjecture completely (no `sorry`; axioms
-`propext`, `Classical.choice`, `Quot.sound`).
-
-## Proof outline (formalized below)
+## Proof outline
 
 Put `u = x` and `v = 2y + z`.  Then `y = u + v - n`, `z = 2n - 2u - v`, and the
 side conditions become `n < u + v`, `2u + v < 2n`, `v ≤ n`, and
@@ -46,13 +24,12 @@ representations, and the six exceptional values are counted exactly.
 import Mathlib
 
 set_option autoImplicit false
-/- The kernel-evaluated finite checks below are elaborated sequentially: run in
-parallel they exhaust the 14 GB address-space cap used on this machine. -/
+/- Elaborate the finite checks sequentially to limit peak memory. -/
 set_option Elab.async false
 
 namespace Candidates.A271719GcdPerfectSquare
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The representations counted by A271719, encoded by the pair `(x, y)`; the
 third coordinate is `z = n - x - y`, which the guard `x + y < n` keeps positive
@@ -370,7 +347,7 @@ theorem two_le_a {n : ℕ} (hn : 10 < n) (hE : n ∉ ({11, 12, 14, 18, 24, 54} :
       tauto
     · exact two_le_a_of_twoReps h
 
-/-- **Sun's conjecture, part (i)** (A271719, Zhi-Wei Sun, Apr 12 2016): `a(n) > 0`
+/-- **Sun's conjecture, part (i)** (A271719, Zhi-Wei Sun, 2016): `a(n) > 0`
 for every `n > 10`. -/
 theorem a_pos {n : ℕ} (hn : 10 < n) : 0 < a n := by
   by_cases hE : n ∈ ({11, 12, 14, 18, 24, 54} : Finset ℕ)
@@ -380,16 +357,10 @@ theorem a_pos {n : ℕ} (hn : 10 < n) : 0 < a n := by
   · have h2 := two_le_a hn hE
     omega
 
-/-- **Sun's conjecture** (A271719, Zhi-Wei Sun, Apr 12 2016).
-
-Verbatim: "Conjecture: a(n) > 0 for all n > 10, and a(n) = 1 only for
-n = 11, 12, 14, 18, 24, 54."
-
-Here `a n` counts the ordered ways to write `n = x + y + z` with `x ≥ y > 0`,
-`z > 0`, `gcd(x, y, z) = 1` and `x² + (2y + z)²` a perfect square.  The
-statement is: for every `n > 10`, `a n > 0`, and `a n = 1` holds exactly for
-`n ∈ {11, 12, 14, 18, 24, 54}` (the "only for" of the source, together with
-the fact that these six values do have `a n = 1`, as the DATA line shows). -/
+/-- Sun's conjecture (OEIS A271719, 2016): for every `n > 10`, `a n > 0`,
+and `a n = 1` iff `n ∈ {11,12,14,18,24,54}`. Here `a` counts ordered positive
+triples `x ≥ y`, `x+y+z=n`, `gcd(x,y,z)=1` and `x²+(2y+z)²` a square.
+This includes the source's 'only for' claim and verifies all six occurrences. -/
 theorem a271719_conjecture (n : ℕ) (hn : 10 < n) :
     0 < a n ∧ (a n = 1 ↔ n ∈ ({11, 12, 14, 18, 24, 54} : Finset ℕ)) := by
   refine ⟨a_pos hn, ⟨fun h1 => ?_, fun hE => ?_⟩⟩

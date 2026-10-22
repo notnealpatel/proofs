@@ -1,31 +1,9 @@
 /-
 # A302975 — the reduced denominator of `tau(n)^n / n^tau(n)` is a square
 
-## OEIS source (retrieved with `oeis show A302975` and the live entry, 2026-10-21)
-
-```
-NAME:     a(n) = denominator of tau(n)^n / n^tau(n).
-OFFSET:   1,3
-TERMS:    1,1,9,64,25,81,49,1,1,625,121,1,169,2401,50625,1048576,289,1,361,
-          15625,194481,14641,529,6561,15625,28561,531441,117649,841,
-          2562890625,961,1,1185921,83521,1500625,262144,1369,130321,2313441,
-          390625,1681,37822859361,1849
-KEYWORDS: nonn,frac
-COMMENT:  tau(n) = the number of the divisors of n (A000005).
-COMMENT (the conjecture):
-  Conjecture: all terms are squares.
-AUTHOR:   _Jaroslav Krizek_, Apr 16 2018 (the conjecture line is unsigned and
-          belongs to the original submission)
-FORMULA:  a(p) = p^2 for p = prime.
-FORMULA:  a(A120737(n)) = 1.
-```
-
-## Status
-
-Literature status from the triage: open (stated only as a conjecture in the
-entry; no proof found in the entry or the literature).  Computationally
-checked with exact rational arithmetic for `n < 1200` before formalizing.
-This file proves the conjecture in full (`a_isSquare`).
+The unsigned conjecture in OEIS A302975, an entry by Jaroslav Krizek
+(2018): the reduced denominator of `τ(n)^n / n^τ(n)` is a square for `n ≥ 1`.
+Here `τ(n)` is the number of divisors, not Ramanujan's tau function.
 
 ## Proof outline
 
@@ -48,7 +26,7 @@ namespace Candidates.A302975ReducedDenominatorTau
 
 open Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `tau n`, the number of divisors of `n` (OEIS A000005). -/
 def tau (n : ℕ) : ℕ := #n.divisors
@@ -132,7 +110,7 @@ theorem a_eq (n : ℕ) (hn : n ≠ 0) :
   rw [a, hq, Rat.den_divInt, if_neg hb]
   simp only [Int.natAbs_natCast, Int.gcd_natCast_natCast]
 
-/-! ## Ground truth against the listed terms (via `a_eq`) -/
+/-! ## Examples against the listed terms (via `a_eq`) -/
 
 example : a 1 = 1 := by rw [a_eq 1 (by norm_num)]; decide
 example : a 2 = 1 := by rw [a_eq 2 (by norm_num)]; decide
@@ -194,9 +172,9 @@ theorem even_factorization_a (n : ℕ) (hn : n ≠ 0) (p : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **A302975 conjecture (OEIS entry by Jaroslav Krizek, Apr 16 2018).**
+/-- **A302975 conjecture (OEIS entry by Jaroslav Krizek, 2018).**
 
-Verbatim: "Conjecture: all terms are squares."  That is, for every `n ≥ 1`,
+"Conjecture: all terms are squares."  That is, for every `n ≥ 1`,
 the reduced denominator of `tau(n)^n / n^tau(n)` is a perfect square.  The
 `0 < n` guard is the entry's offset. -/
 theorem a_isSquare (n : ℕ) (hn : 0 < n) : IsSquare (a n) :=

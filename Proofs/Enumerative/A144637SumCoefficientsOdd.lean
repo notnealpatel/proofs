@@ -1,46 +1,14 @@
 /-
-# A144637 — Bala: the rescaled e.g.f. `A(6x)/18` has odd coefficients exactly at `x^(2^k)`
+Integrality and parity for the rescaled A144637 e.g.f.
+(Peter Bala, Feb 19 2026; OEIS A144637).
 
-## OEIS source (re-pulled with `oeis show A144637`, 2026-10-21)
-
-```
-NAME:     Column 2 of triangle in A144633.
-TERMS:    0,0,1,-3,11,-45,175,-315,-6265,139755,-2127125,28153125,-327452125,
-          2921393475,-2998820825,-788463550875,28464750689375,-739460838241125,
-          16173782241491875,-294957734383186875,3672958879661946875,
-          19544468129733421875,-3601613031568517590625
-KEYWORDS: sign,easy
-FORMULA:  E.g.f.: B(x)^2/2 where B(x) is e.g.f. for A144636. [_Vladeta Jovovic_, Jan 24 2009]
-FORMULA (From _Peter Bala_, Feb 19 2026):
-  E.g.f. A(x) satisfies the algebraic equation
-    2*A(x)^3 + 3*A(x)^2 + 18*(1 + x)*A(x) = 9*x^2.
-  (1/18)*A(6*x) = x^2 - 6*x^3 + 33*x^4 - 162*x^5 + 630*x^6 - 972*x^7 - 14499*x^8 + ...
-    appears to be an integral series and satisfies the algebraic equation
-    36*y(x)^3 + 3*y(x)^2 + (1 + 6*x)*y(x) = x^2.
-  Conjecture: (1/18)*6^(n)*a(n)/n! is odd iff n = 2^k for k >= 1. (End)
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature found by the triage;
-not mentioned in Fried arXiv:2607.24832).  Checked numerically for
-`n ≤ 600` (2026-10-21) via the integer recurrence below; the recurrence
-reproduces all 23 listed terms through `c(n) = 6^n a(n) / (18 n!)`.
-
-## What this file proves (no `sorry`)
-
-* `c` is the coefficient sequence of the unique power series `z` with
-  `z(0) = 0` and `36 z^3 + 3 z^2 + (1 + 6x) z = x^2` (Bala's equation for
-  `A(6x)/18`; substituting `A(6x) = 18 z` into
-  `2A^3 + 3A^2 + 18(1+x)A = 9x^2` at `x ↦ 6x` and dividing by `324` gives it).
-  Over every commutative ring, in particular `ℚ`, the unique solution with zero
-  constant term has coefficients `(c n : R)` (`coeff_eq_of_equation`), so the
-  series is integral, and `c` solves the equation (`map_z_equation`).
-* `odd_iff`: `c n` is odd iff `n = 2^k` with `1 ≤ k` — Bala's conjecture.
-
-Proof idea: modulo `2` the equation reads `z = x^2 + z^2`, and squaring in
-characteristic `2` sends `∑ c_i x^i` to `∑ c_i x^(2i)`, so the reduction is
-`∑_{k ≥ 1} x^(2^k)`.
+The unique zero-constant solution of 36z³+3z²+(1+6X)z=X² has integer
+coefficients c(n), odd exactly when n=2^k with k≥1.
+This is the source's equation for z=A(6X)/18, obtained from
+2A³+3A²+18(1+X)A=9X². The identity with column 2 of A144633 is inherited
+from that OEIS equation, not independently proved here.
+The entry also gives A=B²/2 with B the A144636 e.g.f.
+(Vladeta Jovovic, Jan 24 2009). Modulo 2 the scaled equation is z=X²+z².
 -/
 import Mathlib
 
@@ -88,7 +56,7 @@ theorem c_succ_cast {R : Type*} [CommRing R] (n : ℕ) :
   push_cast
   rfl
 
-/-! ### Ground truth against the listed terms -/
+/-! ### Examples against the listed terms -/
 
 /-- `c 1 = 0`. -/
 theorem c_one : c 1 = 0 := by rw [c]; simp [c_zero]
@@ -328,7 +296,7 @@ theorem coeff_eq_of_equation {R : Type*} [CommRing R] (W : R⟦X⟧)
   exact eq_of_recursion f (fun m => ((c m : ℤ) : R)) hf0 (by rw [c_zero, Int.cast_zero])
     hfrec (fun m => c_succ_cast m) n
 
-/- Non-vacuity of `coeff_eq_of_equation` over `ℚ`: the image of `z` satisfies both
+/- Example for `coeff_eq_of_equation` over `ℚ`: the image of `z` satisfies both
 hypotheses. -/
 example : constantCoeff (PowerSeries.map (Int.castRingHom ℚ) z) = 0 ∧
     36 * (PowerSeries.map (Int.castRingHom ℚ) z) ^ 3
@@ -448,15 +416,9 @@ theorem c_cast_zmod_two (n : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjecture (A144637, Peter Bala, Feb 19 2026).**
-
-Verbatim: "Conjecture: (1/18)*6^(n)*a(n)/n! is odd iff n = 2^k for k >= 1."
-
-Here `c n = 6^n a(n) / (18 n!)` is the `n`-th coefficient of `A(6x)/18`, the unique
-power series `z` with `z(0) = 0` and `36 z^3 + 3 z^2 + (1 + 6x) z = x^2`
-(see `coeff_eq_of_equation`).  The conclusion is the parity statement for every
-`n : ℕ`, including `n = 0` and `n = 1` (`c 0 = c 1 = 0` are even and neither index
-is `2^k` with `1 ≤ k`). -/
+/-- The integral coefficients of the source's scaled algebraic equation are
+odd iff `n=2^k` for `k≥1` (Peter Bala, Feb 19 2026).
+The boundary coefficients `c 0=c 1=0` are even. -/
 theorem odd_iff (n : ℕ) : Odd (c n) ↔ ∃ k : ℕ, 1 ≤ k ∧ n = 2 ^ k := by
   classical
   rw [← ZMod.intCast_eq_one_iff_odd, c_cast_zmod_two]

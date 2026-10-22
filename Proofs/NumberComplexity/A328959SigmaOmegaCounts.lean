@@ -1,34 +1,12 @@
 /-
 # A328959 — sigma_0(n) - 2 - (Omega(n) - 1) * omega(n) is nonnegative for n ≥ 2
 
-## OEIS source (live entry https://oeis.org/A328959, retrieved 2026-10-21)
-
-```
-%N a(n) = sigma_0(n) - 2 - (omega(n) - 1) * nu(n), where sigma_0 = A000005,
-   nu = A001221, omega = A001222.
-%C Conjecture: All terms are nonnegative except for a(1) = -1.
-%F a(n) = A000005(n) - A307408(n). - _Antti Karttunen_, Nov 17 2019
-%Y The positions of positive terms are conjectured to be A320632.
-%K sign
-%A _Gus Wiseman_, Nov 02 2019. The idea for this sequence came from
-   _Mats Granvik_
-```
-
-The conjecture line carries no separate signature; it belongs to the
-author line (_Gus Wiseman_, Nov 02 2019).
-
-Notation clash: in the entry `omega = A001222` counts prime factors *with*
-multiplicity (Mathlib `ArithmeticFunction.cardFactors`, notation `Ω`) and
-`nu = A001221` counts *distinct* prime factors (Mathlib
-`ArithmeticFunction.cardDistinctFactors`, notation `ω`).
-
-## Status
-
-Triage: open (stated only as a conjecture in the entry and in
-A307408/A307409; no proof found in the literature by the triage).
-Computation: checked for every `n` in `2..300000` (no negative value).
-This file proves the conjecture (`a_nonneg`).  The companion %Y
-conjecture (positive terms exactly on A320632) is not formalized here.
+Gus Wiseman's conjecture in OEIS A328959, from an idea of Mats Granvik,
+asserts nonnegativity of `d(n)-2-(Ω(n)-1)ω(n)` for `n ≥ 2`, with `a(1) = -1`.
+In the entry, `omega` (A001222) counts prime factors with multiplicity
+(Mathlib `cardFactors`, `Ω`), while `nu` (A001221) counts distinct factors
+(Mathlib `cardDistinctFactors`, `ω`). The companion conjecture locating
+positive terms at A320632 is not treated.
 
 ## Proof
 
@@ -56,7 +34,7 @@ entry's terms are signed: `a(1) = -1`). -/
 def a (n : ℕ) : ℤ :=
   (sigma 0 n : ℤ) - 2 - ((cardFactors n : ℤ) - 1) * (cardDistinctFactors n : ℤ)
 
-/-! ## Ground truth against the listed terms -/
+/-! ## Examples against the listed terms -/
 
 /-- Evaluation route for small arguments: rewrite to divisor count and the
 prime factor list, evaluate the list by simproc, then decide. -/
@@ -134,9 +112,7 @@ theorem sub_one_mul_card_add_two_le_prod {ι : Type*} (s : Finset ι) (hs : s.No
 
 /-! ## The conjecture -/
 
-/-- **A328959 conjecture (Gus Wiseman, Nov 02 2019; idea of Mats Granvik).**
-
-Verbatim: "Conjecture: All terms are nonnegative except for a(1) = -1."
+/-- **A328959 conjecture (Gus Wiseman; idea of Mats Granvik).**
 
 For every `n ≥ 2`, `0 ≤ sigma_0(n) - 2 - (Ω(n) - 1) * ω(n)`, i.e.
 `d(n) ≥ (Ω(n) - 1) ω(n) + 2`.  The guard `2 ≤ n` is the source's exception

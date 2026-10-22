@@ -1,49 +1,22 @@
 /-
-# Strict greedy 2-sumfree sequences: the `f = 1` column, `S_{1,2m}` in closed form
+Strict greedy 2-sumfree sequences with first seed 1.
 
-## Source
+Source: Daan van Berkel and Wieb Bosma, Periodicity conjectures for all
+2-sumfree sequences, arXiv:2609.18522, §§1–3 (conj:main, conj:per, conj:pre).
+The greedy rule excludes sums of two distinct previous terms.
+For m≥4, put N=8m+3 and
+ R={1,3} ∪ {even r : 2m≤r≤4m-2} ∪ {odd r : 4m+5≤r≤6m+1} ∪ {8m,8m+2}.
+Then S_{1,2m} is
+ {1} ∪ {even x : 2m≤x≤4m} ∪ {4m+3} ∪ {x≥4m+4 : x mod N∈R}.
 
-Daan van Berkel and Wieb Bosma, *Periodicity conjectures for all 2-sumfree
-sequences*, arXiv:2609.18522 (retrieved and read 2026-10-21).
-
-* Section 1 defines the strict greedy 2-sumfree sequence, verbatim: "initialize
-  the first two values `s_0=f≥1` and `s_1=g>f`, and once the first `k≥2` values
-  `s_0, s_1, ⋯, s_{k-1}` are defined, let `s_k` be the smallest integer greater
-  than `s_{k-1}` that is not equal to the sum of 2 different previous elements
-  in the sequence."
-* Conjecture 1.1 (`conj:main`), verbatim: "Every 2-sumfree sequence is
-  eventually periodic."  The paper says "We have not been able to establish the
-  truth of this conjecture"; it proves it only for `g ≤ 2f` (Theorem 5.1, from
-  van Berkel–Bosma, and the new Theorem 5.2 for `g = 2f`, `f ≥ 3`).
-* Sections 2–3 (`conj:per`, `conj:pre`, with the special `f = 1` modifications
-  of `𝓛_1` and `𝒦_1`) conjecture the period and preperiod lengths.  For `f = 1`
-  these predict, for `d = g - 1` odd and `≥ 7` (i.e. `g = 2m`, `m ≥ 4`), period
-  length `d + 4 = 2m + 3` and preperiod length `(d + 7)/2 = m + 3` (in numbers
-  of terms).  The paper gives no proof for the `f = 1` column.
-
-## Claim formalized here (the `f = 1` column)
-
-For `m ≥ 4`, with `N = 8m + 3` and
-`R = {1, 3} ∪ {even r : 2m ≤ r ≤ 4m - 2} ∪ {odd r : 4m + 5 ≤ r ≤ 6m + 1} ∪ {8m, 8m + 2}`:
-
-  `S_{1,2m} = {1} ∪ {even x : 2m ≤ x ≤ 4m} ∪ {4m + 3} ∪ {x ≥ 4m + 4 : x mod N ∈ R}`
-
-(`eq_T1_of_isGS`).  Consequences proved: the characteristic sequence is periodic
-with period `N` from `4m + 4` on (`eventually_periodic_one_two_mul`), not from
-`4m + 3` (`not_periodic_at_four_mul_add_three`), `N` is the least eventual
-period (`exists_mem_add_not_mem`), a period contains `2m + 3` terms
-(`ncard_inter_Ico`) and the preperiod `m + 3` terms (`ncard_inter_Iio`).
-The remaining members of the column are also settled: odd `g ≥ 3`
-(`S_{1,g} = {1} ∪ {odd x ≥ g}`, `eq_Todd_of_isGS`) and `g = 2, 4, 6`
-(`eq_T2_of_isGS`, `eq_T4_of_isGS`, `eq_T6_of_isGS`).  The greedy sequence is
-modelled by its set of terms, characterized by the fixpoint `IsGS`; uniqueness
-is `IsGS.unique`, and `mem_gsBelow_iff` ties it to the literal greedy
-computation `gsBelow`.
-
-## Status
-
-Open in the source (conjectural special case; the closed form for `g = 2m` was
-found computationally by the triage).  Kernel-checked here with no `sorry`.
+The characteristic support has least eventual period N, starting at 4m+4
+but not 4m+3. The preperiod contains m+3 terms and a period contains 2m+3
+terms. These are support cardinalities, not formal minimal-period or
+preperiod-length theorems for a difference-sequence object.
+Odd g≥3 has support {1}∪{odd x≥g}; the cases g=2,4,6 are also given.
+IsGS characterizes the unique support and mem_gsBelow_iff relates it to the
+literal greedy computation. The source's general conjectures for f>1,g>2f
+are not addressed.
 -/
 import Mathlib
 
@@ -171,10 +144,10 @@ instance (m : ℕ) : DecidablePred (· ∈ T1 m) := fun x => by
   unfold T1 R1
   infer_instance
 
-/-- Ground truth: `T1 4` agrees with the greedy sequence `S_{1,8}` below `81`. -/
+/-- `T1 4` agrees with the greedy sequence `S_{1,8}` below `81`. -/
 example : (List.range 81).filter (· ∈ T1 4) = gsBelow 1 8 81 := by decide +kernel
 
-/-- Ground truth: `T1 5` agrees with the greedy sequence `S_{1,10}` below `130`. -/
+/-- `T1 5` agrees with the greedy sequence `S_{1,10}` below `130`. -/
 example : (List.range 130).filter (· ∈ T1 5) = gsBelow 1 10 130 := by decide +kernel
 
 /-- Residues allowed in the first block `[0, 8m + 3)`. -/
@@ -611,7 +584,7 @@ instance (g : ℕ) : DecidablePred (· ∈ Todd g) := fun x => by
   unfold Todd
   infer_instance
 
-/-- Ground truth: `Todd 5` agrees with the greedy sequence `S_{1,5}` below `40`. -/
+/-- `Todd 5` agrees with the greedy sequence `S_{1,5}` below `40`. -/
 example : (List.range 40).filter (· ∈ Todd 5) = gsBelow 1 5 40 := by
   decide +kernel
 
@@ -660,7 +633,7 @@ instance : DecidablePred (· ∈ T2) := fun x => by
   unfold T2
   infer_instance
 
-/-- Ground truth: `T2` agrees with the greedy sequence `S_{1,2}` below `40`. -/
+/-- `T2` agrees with the greedy sequence `S_{1,2}` below `40`. -/
 example : (List.range 40).filter (· ∈ T2) = gsBelow 1 2 40 := by
   decide +kernel
 
@@ -705,7 +678,7 @@ instance : DecidablePred (· ∈ T4) := fun x => by
   unfold T4
   infer_instance
 
-/-- Ground truth: `T4` agrees with the greedy sequence `S_{1,4}` below `80`. -/
+/-- `T4` agrees with the greedy sequence `S_{1,4}` below `80`. -/
 example : (List.range 80).filter (· ∈ T4) = gsBelow 1 4 80 := by
   decide +kernel
 
@@ -751,7 +724,7 @@ instance : DecidablePred (· ∈ T6) := fun x => by
   unfold T6
   infer_instance
 
-/-- Ground truth: `T6` agrees with the greedy sequence `S_{1,6}` below `80`. -/
+/-- `T6` agrees with the greedy sequence `S_{1,6}` below `80`. -/
 example : (List.range 80).filter (· ∈ T6) = gsBelow 1 6 80 := by
   decide +kernel
 

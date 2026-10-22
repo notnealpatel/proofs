@@ -1,35 +1,16 @@
 /-
-# A108211 — Kimberling: `floor(1/(1/(4n) - log 2 + H_{2n} - H_n)) = 16n^2 + 1`
+# A108211: Kimberling's harmonic-floor identity
 
-## OEIS source (retrieved with `oeis show A108211`, 2026-10-21)
+Clark Kimberling's conjecture (OEIS A108211, 2014-09-09) states, for `n ≥ 1`,
+`⌊1/(1/(4n) - log 2 + H_{2n} - H_n)⌋ = 16n² + 1`.
 
-```
-NAME:     a(n) = 16*n^2 + 1.
-TERMS:    17,65,145,257,401,577,785,1025,1297,1601,1937,2305,2705,3137,3601,...
-COMMENT (the conjecture):
-  Conjecture: a(n) = floor(1/(1/(4*n) - log(2) + 1/(n+1) + 1/(n+2) + ... +
-  1/(2*n))). - _Clark Kimberling_, Sep 09 2014
-```
+Writing the denominator as `x n`, its telescoping difference is
+`1/(4n(n+1)(2n+1))`, and `x n → 0` by the Euler–Mascheroni limit.
+Comparing differences with `1/(16n²+c)`, for `c = 1, 2`, gives
+`1/(16n²+2) < x n < 1/(16n²+1)` and hence the floor identity.
 
-## Status
-
-Triage: open (no proof in the entry or in the literature found by the triage).
-Numerics (mpmath): holds for `n = 1..5000` and `n = 10^4..10^18`;
-`1/x(n) - 16 n^2` increases to `2` from below (`1.589` at `n = 1`).
-
-## Proof (kernel-checked below)
-
-Let `x n = 1/(4n) - log 2 + ∑_{k=n+1}^{2n} 1/k`.  Then for `n ≥ 1`
-`x n - x (n+1) = 1/(4n(n+1)(2n+1))` and `x n → 0` (Euler–Mascheroni limit).
-Comparing the telescoping step with that of `g_c n = 1/(16n^2 + c)`:
-`g_2 n - g_2 (n+1) < x n - x (n+1) < g_1 n - g_1 (n+1)`.  Hence
-`x - g_1` is strictly increasing and `x - g_2` strictly decreasing, both
-tending to `0`, so `1/(16n^2+2) < x n < 1/(16n^2+1)`, and the floor of
-`1/x n` is `16n^2 + 1`.
-
-The guard `1 ≤ n` is from the source (the entry has offset 1) and is
-load-bearing: at `n = 0` the sum is empty, `1/(4·0) = 0` in Lean, and the
-floor is `⌊-1/log 2⌋ = -2`.
+The guard `1 ≤ n` matches the source offset and is essential: at `n = 0`
+the empty sum and totalized division give a floor of `-2`.
 -/
 import Mathlib
 
@@ -169,11 +150,9 @@ lemma lower_lt_x (n : ℕ) (hn : 1 ≤ n) : 1 / (16 * (n : ℝ) ^ 2 + 2) < x n :
   push_cast at h1 h2 ⊢
   linarith
 
-/-- **Kimberling's conjecture (A108211, Clark Kimberling, Sep 09 2014).**
-
-Verbatim: "Conjecture: a(n) = floor(1/(1/(4*n) - log(2) + 1/(n+1) + 1/(n+2)
-+ ... + 1/(2*n)))."  Here `a n = 16 n^2 + 1` and `n ≥ 1` (the entry's offset).
--/
+/-- Kimberling's conjecture (OEIS A108211, 2014-09-09): for `n ≥ 1`,
+`⌊1/(1/(4n) - log 2 + ∑_{k=n+1}^{2n} 1/k)⌋ = a n = 16n²+1`.
+The guard matches the entry's offset. -/
 theorem kimberling_conjecture (n : ℕ) (hn : 1 ≤ n) :
     ⌊(1 : ℝ) / (1 / (4 * (n : ℝ)) - Real.log 2 + ∑ k ∈ Icc (n + 1) (2 * n), (1 : ℝ) / k)⌋
       = (a n : ℤ) := by

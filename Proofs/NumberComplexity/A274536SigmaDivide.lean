@@ -1,28 +1,11 @@
 /-
 # A274536 — Pol: `sigma(5n) = 6 sigma(n)` iff `5 ∤ n`
 
-## OEIS source (retrieved with `oeis show A274536`, 2026-10-21)
-
-```
-NAME:     a(n) = 6 * sigma(n).
-TERMS:    6,18,24,42,36,72,48,90,78,108,72,168,84,144,144,186,108,234,120,252,
-          192,216,144,360,186,252,240,336,180,432,192,378,288,324,288,546,228
-FORMULA (the conjecture):
-  Conjecture: a(n) = sigma(5*n) = A283118(n) iff n is not a multiple of 5.
-  - _Omar E. Pol_, Oct 02 2018
-```
-
-`A283118(n) = sigma(5*n)` (terms 6,18,24,42,31,72,...).
-
-## Status
-
-Triage: "open" in the sense that the entry records no proof; the claim is
-elementary.  If `5 ∤ n` then multiplicativity gives `σ(5n) = σ(5) σ(n) = 6 σ(n)`.
-If `n = 5^k m` with `k ≥ 1` and `5 ∤ m`, then
-`σ(5^(k+1)) = 5 σ(5^k) + 1 < 6 σ(5^k)` because `σ(5^k) > 1`, so
-`σ(5n) < 6 σ(n)`.  Computational check: no exception for `1 ≤ n ≤ 200000`.
-This file proves the conjecture outright.  The statement needs `0 < n`:
-at `n = 0` Mathlib's `σ 1 0 = 0` makes both sides `0` while `5 ∣ 0`.
+OEIS A274536, Omar E. Pol: for positive `n`,
+`σ(5n) = 6σ(n)` iff `5 ∤ n` (A283118 is `σ(5n)`).
+Multiplicativity proves the coprime case. If `n = 5^k m`, `k ≥ 1`,
+`5 ∤ m`, then `σ(5^(k+1)) = 5σ(5^k)+1 < 6σ(5^k)`.
+Positivity is necessary: at `n = 0` both sums are `0`, but `5 ∣ 0`.
 -/
 import Mathlib
 
@@ -39,12 +22,12 @@ def a (n : ℕ) : ℕ := 6 * σ 1 n
 /-- A283118: `b(n) = sigma(5 * n)`. -/
 def b (n : ℕ) : ℕ := σ 1 (5 * n)
 
-/-- Ground truth: the first listed terms of A274536. -/
+/-- Examples: the first listed terms of A274536. -/
 example : (List.range 12).map (fun i => a (i + 1)) =
     [6, 18, 24, 42, 36, 72, 48, 90, 78, 108, 72, 168] := by
   decide +kernel
 
-/-- Ground truth: the first listed terms of A283118. -/
+/-- Examples: the first listed terms of A283118. -/
 example : (List.range 12).map (fun i => b (i + 1)) =
     [6, 18, 24, 42, 31, 72, 48, 90, 78, 93, 72, 168] := by
   decide +kernel
@@ -87,7 +70,7 @@ theorem sigma_five_mul_lt_of_dvd {n : ℕ} (hn : 0 < n) (h5 : 5 ∣ n) :
     sigma_five_pow_succ (k + 1), sigma_five_pow_succ k]
   nlinarith
 
-/-- **A274536 conjecture (Omar E. Pol, Oct 02 2018).** For `n ≥ 1`,
+/-- **A274536 conjecture (Omar E. Pol, 2018).** For `n ≥ 1`,
 `sigma(5n) = 6 sigma(n)` if and only if `n` is not a multiple of `5`. -/
 theorem sigma_five_mul_eq_iff {n : ℕ} (hn : 0 < n) :
     σ 1 (5 * n) = 6 * σ 1 n ↔ ¬ 5 ∣ n := by

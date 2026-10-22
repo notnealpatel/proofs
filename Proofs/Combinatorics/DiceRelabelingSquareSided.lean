@@ -10,23 +10,12 @@ Theorem `thm:q01_coeffs`.  The paper defines, for distinct primes `p, q`,
 
   `Q_{a,b}(x) := x Φ_q² Φ_{pq}^a Φ_{p²q}^b`,   so   `Q_{01}(x) = x Φ_q(x)² Φ_{p²q}(x)`.
 
-Verbatim informal claim (Conjecture con:q01):
+For distinct primes `p,q`, Conjecture `con:q01` states that `Q_{01}` has
+nonnegative coefficients iff `p = 2` and `q ≡ 1 (mod 4)`. Theorem
+`thm:q01_coeffs` proves the `p = 2` case. This module proves the odd-`p`
+direction left open there: `Q_{01}` has a negative coefficient.
 
-  "`Q_{01}` has nonnegative coefficients if and only if `p=2` and `q≡1 mod 4`."
-
-followed by "We have ample numerical evidence to justify the case where
-`p≠2`, but were not able to fully classify this case.  However, we can prove
-this conjecture in the case of `p=2`."  Theorem thm:q01_coeffs proves the
-`p = 2` case.
-
-## Target recorded here (2026-10-21)
-
-The direction the paper leaves open: for all primes `p ≠ q` with `p` odd,
-`Q_{01}` has a negative coefficient.  Literature status: open in the source
-(only numerical evidence there).  Together with the paper's Theorem
-thm:q01_coeffs this settles Conjecture con:q01.
-
-## Proof outline (checked below, no `sorry`)
+## Proof outline
 
 With `t_k = [x^k] Φ_q² Φ_{p²q}`:
 
@@ -367,7 +356,7 @@ theorem exists_coeff_q01Core_neg (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq 
       omega
 
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : shiftCount 9 8 0 = 1 := by decide
 example : shiftCount 9 8 7 = 1 := by decide

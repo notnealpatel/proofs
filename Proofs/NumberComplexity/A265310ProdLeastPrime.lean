@@ -1,24 +1,9 @@
 /-
 # A265310 — least `k` with `∏_{d ∣ n} d ∣ k!`: the fixed points `a(n) = n`
 
-## OEIS source (retrieved with `oeis show A265310` and the live entry, 2026-10-21)
-
-```
-NAME:     Least positive k such that the product of divisors of n (A007955)
-          divides k!.
-TERMS:    1,2,3,4,5,6,7,8,9,10,11,9,13,14,10,12,17,15,19,15,14,22,23,16,15,26,
-          15,21,29,20,31,16,22,34,14,21,37,38,26,20,41,28,43,33,15,46,47,24,...
-AUTHOR:   Gionata Neri, Dec 06 2015
-COMMENT (the conjecture; no separate author or date is attached to the line,
-         so it is attributed to the entry author, Gionata Neri, Dec 06 2015):
-  Conjecture: a(n) = n if and only if n is prime, 2*prime, 1, 8 or 9.
-```
-
-## Status
-
-Triage: open (no proof in the entry or found in the literature; a(n) = n
-fixed points checked by computation to n ≤ 200000, re-checked here to
-n ≤ 30000).  This module proves the conjecture in full.
+Gionata Neri's conjecture in OEIS A265310 characterizes the fixed points of
+the least positive `k` for which the divisor product of `n` divides `k!`:
+`a(n) = n` iff `n` is prime, twice a prime, or one of `1,8,9`.
 
 ## Proof outline
 
@@ -276,9 +261,7 @@ theorem a_eq_self_iff_not_dvd {n : ℕ} (hn : 2 ≤ n) :
     rintro j hj ⟨-, hdj⟩
     exact hnd (hdj.trans (Nat.factorial_dvd_factorial (by omega)))
 
-/-- **A265310 conjecture (OEIS A265310, comment line, entry by Gionata Neri, Dec 06 2015).**
-
-Verbatim: "Conjecture: a(n) = n if and only if n is prime, 2*prime, 1, 8 or 9."
+/-- **A265310 conjecture (OEIS A265310, comment line, entry by Gionata Neri).**
 
 Here `a n` is the least positive `k` with `∏_{d ∣ n} d ∣ k!`. For every `n ≥ 1`,
 `a n = n` exactly when `n = 1`, `n = 8`, `n = 9`, `n` is prime, or `n = 2 p` with `p`
@@ -307,7 +290,7 @@ theorem a_eq_self_iff (n : ℕ) (hn : 0 < n) :
     · exact divisorProd_prime_not_dvd h
     · exact divisorProd_two_mul_prime_not_dvd hp
 
-/-! ## Ground truth: the first 30 terms of the OEIS DATA line -/
+/-! ## the first 30 terms of the OEIS DATA line -/
 
 -- `a n` matches the DATA line `1, 2, 3, ..., 29, 20` for `n = 1, ..., 30`.
 example : a 1 = 1 := by rw [a_eq_iff]; decide

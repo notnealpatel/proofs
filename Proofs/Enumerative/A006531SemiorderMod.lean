@@ -1,51 +1,16 @@
 /-
-# A006531 — Bala: labeled semiorder counts are eventually periodic mod every modulus
+# Eventual periodicity of the A006531 formula
 
-## OEIS source (pulled with `oeis show A006531`, retrieved 2026-10-21)
+Source: Peter Bala's OEIS A006531 formula and comment (Jan 15 2018).
+For the signed Catalan-factorial-Stirling sum `semiorder`,
+`semiorder (n+φ(m)) ≡ semiorder n (mod m)` whenever `0 < m ≤ n`.
+This exhibits an eventual period; no separate minimal-period theorem is stated.
+The identity of this source formula with the number of labeled semiorders
+(the entry's combinatorial definition) is not formalized here.
 
-```
-NAME:     Number of semiorders on n labeled elements.
-TERMS:    1,1,3,19,183,2371,38703,763099,17648823,468603091,14050842303,
-          469643495179,17315795469063,698171064855811,...
-KEYWORDS: nonn,nice,easy,changed
-FORMULA (the definition used here):
-  From _Peter Bala_, Jan 15 2018: (Start)
-  a(n) = Sum_{k = 0..n} (-1)^(n+k)*Catalan(k)*k!*Stirling2(n,k). Cf. A052895.
-FORMULA (the conjecture, same block):
-  Conjecture: for fixed k = 1,2,..., the sequence a(n) (mod k) is eventually
-  periodic with the exact period dividing phi(k), where phi(k) is Euler's
-  totient function A000010. For example, modulo 10 the sequence becomes
-  (1, 1, 3, 9, 3, 1, 3, 9, 3, ...) with an apparent period 1, 3, 9, 3 of
-  length 4 = phi(10) beginning at a(1). (End)
-```
-
-## Status
-
-Triage status: open (no proof in the entry; none found in the literature by
-the triage, although the result may be folklore).  This module proves it:
-`a (n + φ m) ≡ a n [ZMOD m]` for every `m > 0` and every `n ≥ m`, which is
-exactly "eventually periodic mod `m` with a period `φ m`", hence the exact
-(minimal) eventual period divides `φ m`.
-
-## Proof
-
-1. `k! S(n,k) = Σ_{i ≤ k} (-1)^(k+i) C(k,i) i^n` (inclusion–exclusion count
-   of surjections), proved by induction on `n` from `stirlingSecond_succ_succ`.
-2. Hence each summand of `a n` is `Σ_i c_{k,i} (-i)^n` with `c_{k,i}`
-   independent of `n`.
-3. For `m ≤ n`, `x^(n + φ m) ≡ x^n [ZMOD m]` for every integer `x`, checked
-   prime power by prime power (`p ∣ x`: both sides vanish since `k < p^k ≤ n`;
-   `p ∤ x`: Euler's theorem with `φ(p^k) ∣ φ(m)`).
-4. Summands with `k ≥ m` vanish mod `m` because `m ∣ k!`, so the varying upper
-   limit of the sum does not matter.
-
-## Definitional fidelity
-
-The entry's NAME counts labeled semiorders; this module uses Bala's formula
-from the same comment block as the definition, which is the form in which the
-conjecture is stated.  The ground-truth examples check it against the listed
-terms `a(0..10)`; the general identity with the semiorder count (via the
-e.g.f. `C(1 - exp(-x))`) is not formalized here.
+Inclusion–exclusion expresses the low-index summands as fixed linear
+combinations of powers. Euler's theorem and prime-power divisibility give
+the period; summands with index at least `m` vanish modulo `m`.
 -/
 import Mathlib
 
@@ -55,7 +20,7 @@ namespace Candidates.A006531SemiorderMod
 
 open Finset Nat
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- Bala's formula for A006531 (labeled semiorders):
 `a(n) = Σ_{k=0..n} (-1)^(n+k) * Catalan(k) * k! * Stirling2(n,k)`. -/
@@ -276,15 +241,8 @@ theorem semiorder_add_totient_modEq (m : ℕ) (hm : 0 < m) {n : ℕ} (hn : m ≤
   rw [hcomb]
   exact (hhead.add (htail _)).sub (htail _)
 
-/-- **Bala's conjecture (A006531, Peter Bala, Jan 15 2018).**
-
-Verbatim: "Conjecture: for fixed k = 1,2,..., the sequence a(n) (mod k) is
-eventually periodic with the exact period dividing phi(k), where phi(k) is
-Euler's totient function A000010."
-
-Formalized as: for every modulus `m > 0` there is `N` with
-`a(n + φ(m)) ≡ a(n) (mod m)` for all `n ≥ N`; an eventual period `φ(m)` is the
-same as the minimal eventual period dividing `φ(m)`.  Proved with `N = m`. -/
+/-- The source formula for A006531 has eventual period `φ(m)` modulo
+every positive `m`, with threshold `N=m` (Bala). -/
 theorem semiorder_eventually_periodic (m : ℕ) (hm : 0 < m) :
     ∃ N : ℕ, ∀ n : ℕ, N ≤ n → semiorder (n + φ m) ≡ semiorder n [ZMOD m] :=
   ⟨m, fun _ hn => semiorder_add_totient_modEq m hm hn⟩

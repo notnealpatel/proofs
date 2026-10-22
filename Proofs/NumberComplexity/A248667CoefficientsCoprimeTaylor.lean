@@ -1,45 +1,17 @@
 /-
 # A248667 — Kurkov: every composite term is a product of two terms > 1
 
-## OEIS source (retrieved with `oeis show A248667`, 2026-10-21)
+Mikhail Kurkov's conjecture in OEIS A248667 says that every composite term
+is a product of two terms greater than one. Membership means that the
+coefficients of the numerator polynomial `p(n,x)` are relatively prime.
+Peter J. Taylor characterizes this as `gcd(n,A000522(n-1)) = 1`.
+His stated top coefficient `n^n` is a slip: it is `n^(n-1)`; the bridge
+below does not use that coefficient.
 
-```
-NAME:     Numbers k for which coefficients of the polynomial p(k,x) defined in
-          Comments are relatively prime.
-TERMS:    1,3,7,9,11,17,19,21,23,27,29,31,33,41,43,47,49,51,53,57,59,61,63,67,
-          69,71,73,77,79,81,83,87,89,93,97,99,101,103,107,109,113,119,121,123,
-          127,129,131,133,137,139,141,147,149,151,153,157,159,161,163,167
-COMMENT:  The polynomial p(n,x) is defined as the numerator when the sum
-          1 + 1/(n*x + 1) + 1/((n*x + 1)(n*x + 2)) + ... +
-          1/((n*x + 1)(n*x + 2)...(n*x + n - 1)) is written as a fraction with
-          denominator (n*x + 1)(n*x + 2)...(n*x + n - 1). For more, see A248664.
-COMMENT:  Since p(n,x) is a sum of products of terms (n*x + i), the only
-          coefficient which is not necessarily divisible by n is the
-          coefficient of x^0 = A000522(n-1). On the other hand, the coefficient
-          of x^(n-1) is n^n. Therefore n is in this sequence iff
-          gcd(n, A000522(n-1)) = 1. - _Peter J. Taylor_, Apr 08 2022
-COMMENT (the conjecture):
-          Conjecture: any composite term can be represented as a product
-          a(i)*a(j) (i > 1, j > 1) in at least one way.
-          - _Mikhail Kurkov_, Apr 09 2022
-MATHEMATICA (the definition used here):
-          t[x_, n_, k_] := Product[n*x + n - i, {i, 1, k}];
-          p[x_, n_] := Sum[t[x, n, k], {k, 0, n - 1}];
-          u = Table[Apply[GCD, CoefficientList[p[x, n], x]], {n, 1, 60}] (* A248666 *)
-          Flatten[Position[u, 1]]  (* this sequence *)
-```
-
-(Taylor's "n^n" for the top coefficient is a slip: the coefficient of
-`x^(n-1)` is `n^(n-1)`; e.g. `p(2,x) = 2x + 2`.  The bridge below does not
-use the top coefficient.)
-
-## Status
-
-Triage literature status: **open** (no proof in the entry or the related
-entries A248664/A248666/A248669; the triage found none in the literature).
-This module **proves** it.  The key congruence
-`A000522(n + k) ≡ A000522(n) (mod k)` is recorded as a comment in A000522 but
-is not applied to Kurkov's conjecture in any related entry.
+The polynomial is the numerator of
+`1 + 1/(nx+1) + … + 1/((nx+1)⋯(nx+n-1))` over the denominator
+`(nx+1)⋯(nx+n-1)`, equivalently
+`p(n,x) = Σ_{j=0}^{n-1} ∏_{i=1}^{j} (nx+n-i)`.
 
 ## Proof
 
@@ -55,10 +27,6 @@ is not applied to Kurkov's conjecture in any related entry.
    (`InA248667.of_dvd`).
 4. (`kurkov_conjecture`.)  A composite term `k` is `q * (k / q)` with
    `q = minFac k`, and both factors are terms greater than `1`.
-
-Computation (Python, 2026-10-21): the coprimality form reproduces the listed
-terms, matches the polynomial gcd definition for `k ≤ 119`, and the conjecture
-holds for every `k ≤ 6000` (2150 terms).
 -/
 import Mathlib
 
@@ -68,7 +36,7 @@ namespace Candidates.A248667CoefficientsCoprimeTaylor
 
 open Polynomial
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A000522 (total number of arrangements of an `m`-set,
 `a(m) = ∑_{j=0}^{m} m!/j!`), defined by its recurrence `a(0) = 1`,
@@ -78,7 +46,7 @@ def a000522 : ℕ → ℕ
   | 0 => 1
   | m + 1 => (m + 1) * a000522 m + 1
 
-/-- Ground truth: the first terms of A000522 are `1, 2, 5, 16, 65, 326, 1957, 13700`. -/
+/-- the first terms of A000522 are `1, 2, 5, 16, 65, 326, 1957, 13700`. -/
 example : (List.range 8).map a000522 = [1, 2, 5, 16, 65, 326, 1957, 13700] := by decide
 
 /-- The recurrence agrees with the A000522 definition
@@ -100,7 +68,7 @@ integer coefficients.  This is the numerator of
 noncomputable def p (n : ℕ) : ℤ[X] :=
   ∑ j ∈ Finset.range n, ∏ i ∈ Finset.Icc 1 j, (C (n : ℤ) * X + C ((n : ℤ) - i))
 
-/-- Ground truth: `p(2,x) = 2x + 2` (coefficient gcd `2`, so `2 ∉ A248667`). -/
+/-- `p(2,x) = 2x + 2` (coefficient gcd `2`, so `2 ∉ A248667`). -/
 example : p 2 = C 2 * X + C 2 := by
   simp only [p, Nat.cast_ofNat, eq_intCast, Int.cast_ofNat, Int.cast_sub, Int.cast_natCast,
     Finset.sum_range_succ, Finset.range_one, Finset.sum_singleton, Order.lt_one_iff,
@@ -108,7 +76,7 @@ example : p 2 = C 2 * X + C 2 := by
     Nat.cast_one]
   ring
 
-/-- Ground truth: `p(3,x) = 9x^2 + 12x + 5` (coefficient gcd `1`). -/
+/-- `p(3,x) = 9x^2 + 12x + 5` (coefficient gcd `1`). -/
 example : p 3 = C 9 * X ^ 2 + C 12 * X + C 5 := by
   simp only [p, Nat.cast_ofNat, eq_intCast, Int.cast_ofNat, Int.cast_sub, Int.cast_natCast,
     Finset.sum_range_succ, Finset.range_one, Finset.sum_singleton, Order.lt_one_iff,
@@ -310,10 +278,7 @@ theorem InA248667.of_dvd {k d : ℕ} (hk : InA248667 k) (hd : d ∣ k) : InA2486
 
 /-! ## The conjecture -/
 
-/-- **Kurkov's conjecture (A248667, Mikhail Kurkov, Apr 09 2022), proved.**
-
-Verbatim: "Conjecture: any composite term can be represented as a product
-a(i)*a(j) (i > 1, j > 1) in at least one way."
+/-- **Kurkov's conjecture (A248667, Mikhail Kurkov), proved.**
 
 Since `a(1) = 1` and the sequence is strictly increasing, the terms `a(i)` with
 `i > 1` are exactly the terms greater than `1`; so the claim is: every
@@ -336,7 +301,7 @@ theorem kurkov_conjecture (k : ℕ) (hk : InA248667 k) (h1 : 1 < k) (hnp : ¬ k.
     hq.one_lt, hcof, hmul⟩
 
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 /-- The 60 terms listed in the OEIS DATA line of A248667 (all terms `< 168`). -/
 def listedTerms : List ℕ :=
@@ -351,7 +316,7 @@ theorem coprime_filter_eq_listedTerms :
   decide
 
 
-/-- Ground truth: below `168`, the terms of A248667 (polynomial definition)
+/-- below `168`, the terms of A248667 (polynomial definition)
 are exactly the 60 terms of the OEIS DATA line. -/
 theorem inA248667_iff_mem_listedTerms (k : ℕ) (hk : k < 168) :
     InA248667 k ↔ k ∈ listedTerms := by
@@ -359,7 +324,7 @@ theorem inA248667_iff_mem_listedTerms (k : ℕ) (hk : k < 168) :
     List.mem_range, decide_eq_true_iff]
   exact ⟨fun h => ⟨hk, h⟩, fun h => h.2⟩
 
-/-- Ground truth: `2` is not a term (`p(2,x) = 2x + 2`). -/
+/-- `2` is not a term (`p(2,x) = 2x + 2`). -/
 example : ¬ InA248667 2 := by
   rw [inA248667_iff_mem_listedTerms 2 (by norm_num)]
   decide

@@ -1,53 +1,20 @@
 /-
-# A371737 — refutation of part (2) of the zero-set conjecture
+# A371737 — counterexample to part (2) of Wiseman's zero-set conjecture
 
-## OEIS source (retrieved with `oeis show A371737` and from
-## https://oeis.org/A371737, 2026-10-21)
+Gus Wiseman (OEIS A371737, Apr 14 2024) conjectured that its zero positions
+are A327782 and its positive positions are A368459. A371737 counts strict
+integer partitions admitting a partition into at least two blocks of equal sum.
+A327782 consists of positive integers not expressible as a sum of at least
+two distinct positive parts with largest part dividing the sum. A368459 is
+the negative set of `2 * (Bacher(n) - sigma(n)) + n + 1` (A368457), where
+Bacher(n) (A368207) counts `n = wx + yz` with `max(w,x) < min(y,z)`.
 
-```
-NAME:     Number of quanimous strict integer partitions of n, meaning there is
-          more than one set partition with all equal block-sums.
-OFFSET:   0,11
-TERMS:    0,0,0,0,0,0,1,0,1,0,3,0,4,0,7,1,9,0,16,0,21,4,32,0,45,0,63,13,84,0,
-          126,0,158,36,220,0,303,0,393,93,511,0,708,0,881,229,1156,0,1539,0,
-          1925,516,2445,0,3233,6,3952,1134,5019,0,6497
-AUTHOR:   Gus Wiseman, Apr 14 2024
-COMMENT:  A finite multiset of numbers is defined to be quanimous iff it can be
-          partitioned into two or more multisets with equal sums.
-COMMENT (the conjecture, entry author, Apr 14 2024):
-  Conjecture: (1) Positions of 0's are A327782. (2) Positions of terms > 0
-  are A368459.
-```
-
-Referenced entries (same retrieval):
-
-* A327782: "Numbers n that cannot be written as a sum of two or more distinct
-  parts with the largest part dividing n."
-* A368459: "Numbers k such that 2*(Bacher(k) - sigma(k)) + k + 1 < 0."
-* A368457: "a(n) = 2*(Bacher(n) - sigma(n)) + n + 1".
-* A368207: "Bacher numbers: number of nonnegative representations of
-  n = w*x+y*z with max(w,x) < min(y,z)."
-
-No comment on A371737 retracts or qualifies the conjecture.
-
-## Status: part (2) is FALSE at n = 77
-
-This module refutes the conjecture.  `77 = 7 * 11` lies in A368459
-(`Bacher(77) = 54`, `sigma(77) = 96`, so `A368457(77) = -6 < 0`; the DATA
-line of A368459 lists 77), but `a(77) = 0`: if a set `S` of distinct positive
-integers splits into `k ≥ 2` blocks of common sum `s`, every element of `S` is
-at most `s`, so `2 * sum(S) ≤ s * (s + 1)` while `sum(S) = k * s`.  For
-`77 = k * s` with `k ≥ 2` this forces `s ∈ {1, 7, 11}`, and `2 * 77 = 154`
-exceeds `s * (s + 1) ∈ {2, 56, 132}`.  Hence 77 is a zero of A371737 that the
-conjecture (2) places among the positive terms.  In `1..95` it is the only
-disagreement between A368459 and the positive positions of A371737 (Python
-check, 2026-10-21).  Part (1) appears to be true: `a(n) > 0` iff some
-`k ≥ 2` divides `n` with `n / k ≥ 2k - 1`, which is also the criterion of
-A327782.  Consistently, 77 is a term of A327782.
-
-The literal reading of (1) also fails at the offset boundary `n = 0`
-(`a(0) = 0` and `0 ∉ A327782`); the statement below restricts both parts to
-`n ≥ 1`, so its refutation does not rely on that boundary artifact.
+At `n = 77`, Bacher(77) = 54 and sigma(77) = 96, so A368457(77) = -6.
+However, A371737(77) = 0: a strict partition into `k ≥ 2` blocks of sum `s`
+would give `77 = ks` and `154 ≤ s(s+1)`, impossible for `s ∈ {1,7,11}`.
+Part (1) is not refuted here. Both parts are restricted below to `n ≥ 1`;
+the literal part (1) also fails at `n = 0`, since A371737(0) = 0 but
+0 is not in A327782.
 -/
 import Mathlib.Algebra.BigOperators.Intervals
 import Mathlib.Data.Set.Card
@@ -62,7 +29,7 @@ namespace Candidates.A371737Refutation
 
 open Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A finite set `S` of natural numbers is *quanimous* when it admits a set
 partition into two or more blocks all having the same sum.  (The OEIS NAME says
@@ -154,7 +121,7 @@ theorem bacher_eq_card (n r : ℕ) (hr : n < (r + 1) * (r + 1)) :
   unfold bacher
   rw [← hinj.ncard_image, himg, Set.ncard_coe_finset]
 
-/-! ## Ground truth against the OEIS data -/
+/-! ## Examples from the OEIS data -/
 
 -- A368207 (Bacher numbers) DATA: 1, 2, 2, 5, 3, 8, 4, 8, 9, 9, 6, 18, ...
 example : bacher 1 = 1 := by rw [bacher_eq_card 1 1 (by norm_num)]; decide
@@ -261,7 +228,7 @@ theorem A371737_pos_of (n : ℕ) (S : Finset ℕ) (hpos : ∀ x ∈ S, 0 < x)
 example : 0 < A371737 6 :=
   A371737_pos_of 6 {1, 2, 3} (by decide) (by decide) quanimous_one_two_three
 
--- A327782 ground truth: 6 = 1 + 2 + 3 with largest part 3 dividing 6, so 6 is
+-- A327782 example: 6 = 1 + 2 + 3 with largest part 3 dividing 6, so 6 is
 -- not a term (A327782 starts 1, 2, 3, 4, 5, 7, ...).
 example : ¬ InA327782 6 := by
   rintro ⟨-, h⟩
@@ -327,22 +294,17 @@ theorem inA327782_seventyseven : InA327782 77 := by
 
 /-! ## The conjecture and its refutation -/
 
-/-- **The conjecture of A371737 (Gus Wiseman, Apr 14 2024).**
-
-Verbatim: "Conjecture: (1) Positions of 0's are A327782. (2) Positions of terms
-> 0 are A368459."
-
-Both parts are stated for `n ≥ 1`, the range of A327782 and A368459 (at the
-offset `n = 0` the literal part (1) fails trivially, since `a(0) = 0`). -/
+/-- The conjecture of OEIS A371737 (Gus Wiseman, Apr 14 2024): its zero
+positions are A327782 and its positive positions are A368459. Both parts
+are stated for `n ≥ 1`; the literal first part fails at the offset `n = 0`,
+since `a(0) = 0` but `0 ∉ A327782`. -/
 def Conjecture : Prop :=
   (∀ n : ℕ, 0 < n → (A371737 n = 0 ↔ InA327782 n)) ∧
   (∀ n : ℕ, 0 < n → (0 < A371737 n ↔ InA368459 n))
 
 /-- **The conjecture is false.**  Counterexample `n = 77` against part (2):
 77 is a term of A368459 (`Bacher(77) = 54`, `sigma(77) = 96`,
-`A368457(77) = -6 < 0`), yet `a(77) = 0`.  Part (1) is not contradicted; the
-author probably intended (2) as the complement of (1), and A368459 agrees with
-the complement of A327782 only below 77. -/
+`A368457(77) = -6 < 0`), yet `a(77) = 0`.  Part (1) is not contradicted. -/
 theorem conjecture_false : ¬ Conjecture := by
   rintro ⟨-, h2⟩
   have hpos : 0 < A371737 77 := (h2 77 (by norm_num)).mpr inA368459_seventyseven

@@ -1,25 +1,8 @@
 /-
 # A059324 — Lallouet: no prime pair `(p, q > p^2)` with `q - p^2 = 6n - 4`
 
-## OEIS source (retrieved with `oeis show A059324`, 2026-10-21)
-
-```
-NAME:     Numbers n such that 6n + 5 is composite.
-TERMS:    5,10,12,15,19,20,23,25,26,30,33,34,35,36,40,45,47,49,50,53,54,55,
-          56,60,61,62,65,67,68,70,72,75,78,80,82,85,87,88,89,90,91,95,96,100,
-          ...
-FORMULA:  a(n) = A046953(n-1) - 1.
-COMMENT (the conjecture):
-  Conjecture: There exists no pair of primes (p, q > p^2) such that
-  q - p^2 = 6*n - 4 (see A138479). - Philippe LALLOUET
-  (philip.lallouet(AT)orange.fr), Mar 20 2008
-```
-
-## Status
-
-Triage status: open (no proof recorded in the entry or found in the
-literature by the triage), tractability "trivial".  The argument is an
-elementary case analysis on `p`:
+Philippe Lallouet's conjecture in OEIS A059324 (2008): if `6n+5` is
+composite, there are no primes `p, q` with `p^2 < q` and `q-p^2 = 6n-4`.
 
 * `p = 2`: `q = 6n` is even and larger than `2`, so not prime;
 * `p = 3`: `q = 6n + 5`, composite by hypothesis;
@@ -48,7 +31,7 @@ def InA059324 (n : ℕ) : Prop :=
 instance : DecidablePred InA059324 := fun n => by
   unfold InA059324; infer_instance
 
-/-! ## Ground truth against the listed terms `5, 10, 12, 15, 19, 20, …` -/
+/-! ## Examples against the listed terms `5, 10, 12, 15, 19, 20, …` -/
 
 example : InA059324 5 := by unfold InA059324; norm_num
 example : InA059324 10 := by unfold InA059324; norm_num
@@ -78,13 +61,9 @@ theorem sq_mod_three_of_prime_ne_three {p : ℕ} (hp : p.Prime) (h3 : p ≠ 3) :
   rw [Nat.pow_mod]
   rcases hmod with h | h <;> simp [h]
 
-/-- **Lallouet's conjecture (A059324, Philippe Lallouet, Mar 20 2008).**
-
-Verbatim: "Conjecture: There exists no pair of primes (p, q > p^2) such that
-q - p^2 = 6*n - 4 (see A138479)."
-
-For every `n` in A059324 (i.e. `6n + 5` composite) there are no primes `p`,
-`q` with `p^2 < q` and `q - p^2 = 6n - 4` (difference computed in `ℤ`). -/
+/-- Lallouet's conjecture (OEIS A059324, 2008): for every `n` with `6n+5`
+composite, no primes `p, q` satisfy `p² < q` and `q-p²=6n-4`.
+Both differences are computed in `ℤ`. -/
 theorem not_exists_prime_pair {n : ℕ} (hn : InA059324 n) :
     ¬ ∃ p q : ℕ, p.Prime ∧ q.Prime ∧ p ^ 2 < q ∧
       (q : ℤ) - (p : ℤ) ^ 2 = 6 * (n : ℤ) - 4 := by

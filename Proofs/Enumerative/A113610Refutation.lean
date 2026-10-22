@@ -1,41 +1,13 @@
 /-
-# A113610 — digit-sum valleys between consecutive primes and twin primes
+# A113610: digit-sum valleys do not force twin primes
 
-## OEIS source (live entry https://oeis.org/A113610, retrieved 2026-10-21)
-
-```
-NAME:     Sum of digits of all composite numbers between prime(n) and
-          prime(n+1).
-OFFSET:   1,2
-DATA:     0,4,6,18,3,18,9,9,40,3,35,27,6,27,43,55,6,50,36,9,65,27,70,84,36,
-          3,18,9,9,93,27,40,12,81,6,50,53,36,58,70,9,126,12,45,18,68,83,27,...
-COMMENT:  Conjecture: For n > 9 if a(n) > a(n+1) < a(n+2) then prime(n) and
-          prime(n+1) form a twin prime pair.
-EXAMPLE:  2 '' 3 '4' 5 '6' 7 '8910' 11 '12' 13 '141516' 17 '18' 19 '202122'
-          23 '2425262728' 29,...
-MATHEMATICA: Table[Total[Flatten[IntegerDigits/@Range[Prime[n]+1,
-          Prime[n+1]-1]]],{n, 100}] (* _Zak Seidov_, Nov 13 2009 *)
-AUTHOR:   _Amarnath Murthy_, Nov 09 2005
-```
-
-The conjecture comment carries no separate signature; it is part of the
-original entry by Amarnath Murthy (Nov 09 2005).  No later comment retracts
-it (the entry has a single comment; revision 8, 2025-08-10).
-
-## Status
-
-This module **refutes** the conjecture.  At `n = 12`:
-`prime(12) = 37`, `prime(13) = 41`, `prime(14) = 43`, `prime(15) = 47`, and
-`a(12) = 3+8+3+9+4+0 = 27`, `a(13) = 4+2 = 6`, `a(14) = 4+4+4+5+4+6 = 27`,
-so `a(12) > a(13) < a(14)` while `41 - 37 = 4`.
-
-The probable intended reading (the valley at `a(n+1)` sits on the gap
-`prime(n+1), prime(n+2)`, which is then twin) is also false: at `n = 21`,
-`prime(21..24) = 73, 79, 83, 89`, `a(21) = 65 > a(22) = 27 < a(23) = 70`,
-while `83 - 79 = 4`.  Both refutations are kernel-checked below.
-Computation (python, `/tmp/claude/a113610.py`) found literal failures at
-`n = 12, 16, 19, 21, 25, ...` and shifted-reading failures at
-`n = 21, 30, 37, 53, ...`.
+OEIS A113610, Amarnath Murthy (Nov 09 2005); program by Zak Seidov
+(Nov 13 2009). The sequence sums decimal digits of the composites strictly
+between consecutive one-based primes.
+The literal conjecture fails at `n = 12`: `27 > 6 < 27`, but the relevant
+primes are `37, 41`. The index-shifted reading also fails, at `n = 21`:
+`65 > 27 < 70`, with relevant primes `79, 83`.
+Neither theorem asserts that its counterexample is the smallest.
 -/
 import Mathlib
 
@@ -77,7 +49,7 @@ theorem a_eq_of_count {p q n : ℕ} (hp : p.Prime) (hq : q.Prime)
     a n = compositeDigitSumBetween p q := by
   rw [a, oeisPrime_eq_of_count hp hpn, oeisPrime_eq_of_count hq hqn]
 
-/-! ## Ground truth: the first 14 listed terms -/
+/-! ## Example: the first 14 listed terms -/
 
 example : oeisPrime 1 = 2 := oeisPrime_eq_of_count (by norm_num) (by decide)
 example : oeisPrime 12 = 37 := oeisPrime_eq_of_count (by norm_num) (by decide)
@@ -110,20 +82,17 @@ def Conjecture : Prop :=
   ∀ n : ℕ, 9 < n → a (n + 1) < a n → a (n + 1) < a (n + 2) →
     oeisPrime (n + 1) = oeisPrime n + 2
 
-/-- Index-shifted reading of the conjecture, probably the one intended: the
-valley `a(n) > a(n+1) < a(n+2)` sits on the gap `prime(n+1), prime(n+2)`,
-which is then a twin prime pair. -/
+/-- The index-shifted conjecture associates a valley at `a(n+1)` with
+the prime pair `prime(n+1), prime(n+2)`. -/
 def ShiftedConjecture : Prop :=
   ∀ n : ℕ, 9 < n → a (n + 1) < a n → a (n + 1) < a (n + 2) →
     oeisPrime (n + 2) = oeisPrime (n + 1) + 2
 
 /-! ## Refutations -/
 
-/-- **A113610 conjecture is false.** Counterexample `n = 12`: the primes
-`prime(12..15) = 37, 41, 43, 47` give `a(12) = 27 > a(13) = 6 < a(14) = 27`,
-but `prime(12) = 37` and `prime(13) = 41` are not twin primes.  (The author
-probably intended the twin pair `prime(n+1), prime(n+2)`, here `41, 43`; that
-reading is refuted separately in `shiftedConjecture_false`.) -/
+/-- The literal conjecture fails at `n = 12`: `a(12) = 27`, `a(13) = 6`,
+`a(14) = 27`, but `prime(12) = 37` and `prime(13) = 41` are not twins.
+The shifted conjecture is refuted separately in `shiftedConjecture_false`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have h37 : oeisPrime 12 = 37 := oeisPrime_eq_of_count (by norm_num) (by decide)

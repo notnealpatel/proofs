@@ -1,62 +1,15 @@
 /-
-# A002114 — Bala: Glaisher's H' numbers are eventually periodic mod k with period φ(k)
+# Glaisher's H' numbers modulo positive integers (A002114)
 
-## OEIS source (retrieved with `oeis show A002114`, 2026-10-21)
+Source: Peter Bala's OEIS A002114 comments (Oct 03 and Oct 13 2026).
+For every positive `k`, `a002114` has eventual period `φ(k)` modulo `k`.
+For `n ≥ 1`, `a002114 n` is `(2n)!` times the coefficient of `x^(2n)`
+in `1/(2(2 cos x-1))`. The auxiliary value `a002114 0 = 0` is outside
+the entry's offset 1.
 
-```
-NAME:     Glaisher's H' numbers.
-OFFSET:   1 (programs list `seq(a(n), n = 1..14)`)
-TERMS:    1,11,301,15371,1261501,151846331,25201039501,5515342166891,...
-KEYWORDS: nice,easy,nonn,changed
-FORMULA:  E.g.f. 1/2*1/(2*cos(x)-1).  [the definition used here]
-FORMULA:  a(n) = 2 * Sum_{k = 1..n} (-1)^(k+1) * binomial(2*n, 2*k) * a(n-k)
-          with a(0) := 1/2.  - _Peter Bala_, Oct 03 2026
-COMMENT (the conjecture, From _Peter Bala_, Oct 03 2026):
-  Conjecture: more generally, reducing the sequence modulo a positive integer
-  k produces an eventually periodic sequence with period dividing phi(k).
-  For example, modulo 13 the sequence becomes [1, 11, 2, 5, 7, 0,  1, 11, 2,
-  5, 7, 0, ...], with an apparent period of 6 = phi(13)/2. Cf. A000364 and
-  A000436. [The conjecture is true when k = p is a prime since the congruence
-  a(n+p-1) == a(n) (mod p) holds for all n >= 1. Cf. A215066. - _Peter Bala_,
-  Oct 13 2026]
-```
-
-## Status
-
-Triage: open (the entry proves only the prime case `k = p`; no proof of the
-general case was found in the entry or the literature).  Computation
-(`timeout 300 python3`): the period `φ(k)` holds for every `k ≤ 300` and
-`n ≤ 420`, with eventual period starting by `n = 4`; the bridge identity
-`b(n) = (-1)^n d(2n)` below was checked numerically for `n ≤ 40`.
-
-This module proves the conjecture for every `k ≥ 1`
-(`a002114_eventuallyPeriodic`), in the form "eventual period `φ(k)`"
-(period dividing `φ(k)` is the same statement: some eventual period divides
-`φ(k)` iff `φ(k)` is an eventual period).
-
-## Proof
-
-Write `Y = e^x - 1`.  Then `e^{-x} = 1/(1+Y)` and
-`1/(2 cosh x - 1) = H(Y)` with `H(Y) = (1+Y)/(1+Y+Y^2) = ∑ χ(m) Y^m`, where
-`χ = 1, 0, -1` repeats mod 3.  So `d(m) := m! [x^m] 1/(2 cosh x - 1)` is the
-weighted Stirling transform `∑_j χ(j) j! S(m,j)`, which the repository
-already proves eventually periodic with period `φ(K)` modulo every `K ≥ 1`
-(`OrdinaryIntegralEGF.weightedStirlingTransform_eventuallyPeriodic`).
-Replacing `cosh` by `cos` twists the `x^(2n)` coefficient by `(-1)^n`, so
-`2 a(n) = b(n) = (-1)^n d(2n)`; this is checked through the shared
-recurrence.  Apply periodicity modulo `2k` (`φ(2k) ∣ 2 φ(k)`), divide by `2`,
-and absorb the sign `(-1)^{φ(k)}`, which is `1` for `k ≥ 3` and harmless
-modulo `k ≤ 2`.
-
-## Definition layer
-
-`glaisherB n = (2n)! [x^(2n)] 1/(2 cos x - 1)` is defined by Bala's
-recurrence and `a002114 n = glaisherB n / 2` (exact division for `n ≥ 1`,
-`two_mul_a002114`).  The theorem `a002114_eq_egf_coeff` proves that for
-`n ≥ 1` this equals `(2n)! [x^(2n)] (2 (2 cos x - 1))⁻¹` in `ℚ⟦X⟧` with
-Mathlib's `PowerSeries.cos`, i.e. the entry's e.g.f. definition.  The value
-`a002114 0 = 0` lies outside the entry's offset and does not affect any
-eventual statement.
+The mod-3 character series `(1+Y)/(1+Y+Y²)` at `Y = exp(x)-1` supplies a
+weighted Stirling transform. Twisting its even coefficients by `(-1)^n`
+gives `2 a002114 n`; periodicity modulo `2k` then descends modulo `k`.
 -/
 import Enumerative.OrdinaryIntegralEGFComposition
 
@@ -171,7 +124,7 @@ def glaisherB : ℕ → ℤ
       (-1) ^ k * ((2 * (n + 1)).choose (2 * (k + 1)) : ℤ) * glaisherB (n - k)
 decreasing_by omega
 
--- Ground truth: `b = 1, 2, 22, ...` is twice A002114 (`1, 11, ...`) after `b(0) = 1`.
+-- `b = 1, 2, 22, ...` is twice A002114 (`1, 11, ...`) after `b(0) = 1`.
 example : glaisherB 0 = 1 := by simp [glaisherB]
 example : glaisherB 1 = 2 := by simp [glaisherB]
 example : glaisherB 2 = 22 := by
@@ -247,7 +200,7 @@ theorem two_mul_a002114 {n : ℕ} (hn : 1 ≤ n) : 2 * a002114 n = glaisherB n :
   obtain ⟨m, rfl⟩ : ∃ m, n = m + 1 := ⟨n - 1, by omega⟩
   rw [a002114, glaisherB, Int.mul_ediv_cancel_left _ (by norm_num)]
 
--- Ground truth against the DATA line `1, 11, 301, 15371`.
+-- Listed terms from the DATA line `1, 11, 301, 15371`.
 example : a002114 1 = 1 := by simp [a002114, glaisherB]
 example : a002114 2 = 11 := by
   simp [a002114, glaisherB, Finset.sum_range_succ, Nat.choose]
@@ -282,15 +235,8 @@ theorem chiTransform_two_mul (j : ℕ) : chiTransform (2 * j) = (-1) ^ j * glais
   rw [glaisherB_eq, ← mul_assoc, ← pow_add, ← two_mul, pow_mul]
   simp
 
-/-- **Bala's conjecture (A002114, Peter Bala, Oct 03 2026), proved.**
-
-Verbatim: "Conjecture: more generally, reducing the sequence modulo a positive
-integer k produces an eventually periodic sequence with period dividing
-phi(k)."
-
-Formal reading: for every `k ≥ 1` there is `N` such that
-`a(n + φ(k)) ≡ a(n) (mod k)` for all `n ≥ N`.  The entry records only the
-prime case `k = p`; this theorem covers every positive modulus. -/
+/-- For each positive modulus `k`, A002114 has eventual period `φ(k)`
+(Bala's conjecture). -/
 theorem a002114_eventuallyPeriodic (k : ℕ) (hk : 1 ≤ k) :
     ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
       (a002114 (n + Nat.totient k) : ZMod k) = (a002114 n : ZMod k) := by

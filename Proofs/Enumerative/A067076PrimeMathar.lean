@@ -1,32 +1,13 @@
 /-
-# A067076 — Mathar: four descriptions of `(prime(n+1) - 3)/2`
+# Four prime-counting descriptions of A067076
 
-## OEIS source (retrieved with `oeis show`, 2026-10-21)
-
-```
-A067076  NAME:  Numbers k such that 2*k + 3 is a prime.
-         TERMS: 0,1,2,4,5,7,8,10,13,14,17,19,20,22,25,28,29,32,34,35,...
-         FORMULA (the conjecture):
-           Conjecture: a(n) = A008507(n) + n - 1 = A005097(n) - 1
-           = A102781(n+1) - 1. - _R. J. Mathar_, Jul 07 2009
-A008507  NAME:  Number of odd composite numbers less than n-th odd prime.
-         TERMS: 0,0,0,1,1,2,2,3,5,5,7,8,8,9,11,...
-A005097  NAME:  (Odd primes - 1)/2.
-         TERMS: 1,2,3,5,6,8,9,11,14,15,...
-A102781  NAME:  Number of positive even numbers less than the n-th prime.
-         TERMS: 0,1,2,3,5,6,8,9,11,14,15,...
-```
-
-All four entries have offset 1.  The task statement adds the closed form
-`a(n) = (prime(n+1) - 3)/2`, which is immediate from the A067076 name.
-
-## Status
-
-Triage: proved-elsewhere.  The identities are elementary consequences of the
-definitions (A008507 records `a(n) = A067076(n) - n + 1`, Librandi 2013, and
-`a(n) = (A000040(n+1) - 1)/2 - n`, van Tol 2026; A102781 is recorded as A005097
-with a leading zero).  Numerically re-checked for `n ≤ 3000` (2026-10-21).
-This module gives a kernel-checked proof of the whole chain.
+Source: R. J. Mathar's OEIS A067076 formula (Jul 07 2009), with A008507,
+A005097 and A102781. All four sequences are indexed from 1.
+For `n ≥ 1`, `a(n) = (prime(n+1)-3)/2 = A008507(n)+n-1 = A005097(n)-1
+= A102781(n+1)-1`. Here A008507 counts odd composites below the nth odd
+prime, A005097 is `(oddPrime(n)-1)/2`, and A102781 counts positive
+even integers below the nth prime. Subtractions are in `ℤ` after casting,
+and the division by 2 is exact.
 -/
 import Mathlib
 
@@ -35,7 +16,7 @@ set_option autoImplicit false
 namespace Candidates.A067076PrimeMathar
 
 
-/-! ## Definition layer (all sequences 1-indexed, as in the OEIS) -/
+/-! ## Definitions (all sequences 1-indexed, as in the OEIS) -/
 
 /-- `prime n` is the `n`-th prime, 1-indexed (`prime 1 = 2`); OEIS A000040.
 `Nat.nth` is 0-indexed, hence the shift.  At `n = 0` the value is junk. -/
@@ -59,7 +40,7 @@ noncomputable def a005097 (n : ℕ) : ℕ := (oddPrime n - 1) / 2
 noncomputable def a102781 (n : ℕ) : ℕ :=
   ((Finset.range (prime n)).filter (fun e => 0 < e ∧ Even e)).card
 
-/-! ## Ground truth against the OEIS DATA lines
+/-! ## Listed terms from the OEIS DATA lines
 
 Each value is certified independently of the conjecture: `Nat.nth p i = m`
 follows from `p m` and `Nat.count p m = i` (`Nat.nth_count`), both decided. -/
@@ -75,7 +56,7 @@ theorem nth_eq_of_count {p : ℕ → Prop} [DecidablePred p] {m i : ℕ} (hpm : 
 example : prime 1 = 2 ∧ prime 2 = 3 ∧ prime 3 = 5 ∧ prime 4 = 7 ∧ prime 5 = 11 := by
   refine ⟨?_, ?_, ?_, ?_, ?_⟩ <;> exact nth_eq_of_count (by norm_num) (by decide)
 
-/-- Ground truth for `oddPrime` against A065091: the first five odd primes are
+/-- `oddPrime` against A065091: the first five odd primes are
 `3, 5, 7, 11, 13`. -/
 theorem oddPrime_one_to_five : oddPrime 1 = 3 ∧ oddPrime 2 = 5 ∧ oddPrime 3 = 7 ∧
     oddPrime 4 = 11 ∧ oddPrime 5 = 13 := by
@@ -240,14 +221,9 @@ theorem two_mul_a067076_add_three (n : ℕ) (hn : 1 ≤ n) :
   obtain ⟨k, hk, hc⟩ := exists_nth_prime_eq n hn
   rw [a067076_eq n k hn hk hc, prime_succ, hk]
 
-/-- **Mathar's conjecture (A067076, R. J. Mathar, Jul 07 2009), with the closed form.**
-
-Verbatim: "Conjecture: a(n) = A008507(n) + n - 1 = A005097(n) - 1 = A102781(n+1) - 1."
-The task statement adds `a(n) = (prime(n+1) - 3)/2`.
-
-All sequences are 1-indexed as in the OEIS; the guard `1 ≤ n` is the OEIS
-offset.  Subtractions are taken in `ℤ` after casting, and the division by `2`
-is exact because `prime (n+1)` is odd (see `two_mul_a067076_add_three`). -/
+/-- Mathar's identities for the four 1-indexed sequences, including
+`a(n)=(prime(n+1)-3)/2`. Subtractions are in `ℤ` after casting;
+the division is exact because `prime(n+1)` is odd. -/
 theorem mathar_conjecture (n : ℕ) (hn : 1 ≤ n) :
     (a067076 n : ℤ) = ((prime (n + 1) : ℤ) - 3) / 2 ∧
     (a067076 n : ℤ) = (a008507 n : ℤ) + n - 1 ∧

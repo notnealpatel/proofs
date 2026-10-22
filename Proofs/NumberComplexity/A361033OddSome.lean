@@ -1,30 +1,10 @@
 /-
 # A361033 — parity of 3(4n)!/(n!(n+1)!^3)
 
-## OEIS source (retrieved with `oeis show A361033`, 2026-10-21)
-
-```
-NAME:     a(n) = 3*(4*n)!/(n!*(n+1)!^3).
-TERMS:    3,9,280,17325,1513512,162954792,20193091776,2768662192725,
-          409716429837000,64358256798795960,...
-FORMULA:  a(n) = 3*A008977(n)/(n+1)^3.
-COMMENT:  ... the numbers A008977(n) = (4*n)!/n!^4 appear to have the
-          property that 3*A008977(n) is divisible by (n + 1)^3, leading to
-          the present sequence. ...
-COMMENT (the conjecture):
-  Conjecture: a(n) is odd iff n = 2^k - 1 for some k >= 0.
-```
-
-The conjecture line carries no separate signature; the entry AUTHOR line is
-"Peter Bala, Mar 01 2023" (checked on oeis.org), to whom it is attributed.
-
-## Status
-
-Triage: "open" (no proof in the entry or found in the literature). The
-argument is short: by Legendre, `v₂(m!) = m - s₂(m)` and `s₂(4n) = s₂(n)`, so
-`v₂(a(n)) = 3 (s₂(n+1) - 1)`, which vanishes iff `n + 1` is a power of `2`.
-The entry's "appear to" integrality claim (`n!(n+1)!³ ∣ 3(4n)!`) is also
-proved here, prime by prime from Legendre's formula.
+OEIS A361033, Peter Bala: `3(4n)!/(n!(n+1)!³)` is an integer and
+is odd iff `n = 2^k-1`, `k ≥ 0`. Legendre's formula gives
+`v₂(a(n)) = 3(s₂(n+1)-1)`. Integrality is proved prime by prime,
+so natural division is exact.
 -/
 import Mathlib
 
@@ -174,7 +154,7 @@ theorem padicValNat_two_denom (n : ℕ) :
   rw [padicValNat.mul (by positivity) (by positivity), padicValNat.pow,
     padicValNat_two_factorial, padicValNat_two_factorial]
 
-/-- Integrality (stated as "appear to" in the entry): `n! (n+1)!³ ∣ 3 (4n)!`. -/
+/-- Integrality: `n! (n+1)!³ ∣ 3 (4n)!`. -/
 theorem denom_dvd_numer (n : ℕ) : n ! * (n + 1)! ^ 3 ∣ 3 * (4 * n)! := by
   rw [← Nat.factorization_prime_le_iff_dvd (by positivity) (by positivity)]
   intro p hp
@@ -205,7 +185,7 @@ theorem padicValNat_two_a (n : ℕ) :
   have hs1 := one_le_digits_two_sum (m := n + 1) (by omega)
   omega
 
-/-- A361033 parity conjecture (Peter Bala, Mar 01 2023), in the form
+/-- A361033 parity conjecture (Peter Bala, 2023), in the form
 `a(n)` is odd iff `n + 1` is a power of two. -/
 theorem odd_a_iff (n : ℕ) : Odd (a n) ↔ ∃ k : ℕ, n + 1 = 2 ^ k := by
   have hne : a n ≠ 0 := (a_pos n).ne'
@@ -216,7 +196,7 @@ theorem odd_a_iff (n : ℕ) : Odd (a n) ↔ ∃ k : ℕ, n + 1 = 2 ^ k := by
   rw [hv, padicValNat_two_a, ← digits_two_sum_eq_one_iff]
   omega
 
-/-- OEIS A361033 conjecture, verbatim form: `a(n) = 3(4n)!/(n!(n+1)!³)` is odd
+/-- OEIS A361033 conjecture: `a(n) = 3(4n)!/(n!(n+1)!³)` is odd
 if and only if `n = 2^k - 1` for some `k ≥ 0` (the subtraction is safe since
 `1 ≤ 2^k`). -/
 theorem conjecture (n : ℕ) : Odd (a n) ↔ ∃ k : ℕ, n = 2 ^ k - 1 := by

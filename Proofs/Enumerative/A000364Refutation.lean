@@ -1,50 +1,11 @@
 /-
-# A000364 — Bala: secant numbers mod `k` are purely periodic with period dividing `φ(k)`
+# A000364: refutation of Bala's pure-period conjecture
 
-## OEIS source (retrieved with `oeis show A000364`, 2026-10-21)
-
-```
-NAME:     Euler (or secant or "Zig") numbers: e.g.f. (even powers only)
-          sec(x) = 1/cos(x).
-TERMS:    1,1,5,61,1385,50521,2702765,199360981,19391512145,2404879675441,...
-COMMENT (the conjecture, verbatim):
-  Conjecture: taking the sequence [a(n) : n >= 1] modulo an integer k gives a
-  purely periodic sequence with period dividing phi(k). For example, the
-  sequence taken modulo 21 begins [1, 5, 19, 20, 16, 2, 1, 5, 19, 20, 16, 2, 1,
-  5, 19, 20, 16, 2, 1, 5, 19, ...] with an apparent period of 6 = phi(21)/2.
-  - _Peter Bala_, May 08 2023
-```
-
-No later comment in the entry retracts or amends the conjecture.  The adjacent
-comment (Allen Stenger, Aug 03 2020, citing Knuth & Buckholtz 1967, Thm. 2)
-proves pure periodicity modulo every odd *prime*; the conjecture extends this
-to every modulus `k`.
-
-## Status
-
-This module **refutes** the conjecture.  At `k = 27` (`φ(27) = 18`) the
-sequence `a(n) mod 27`, `n ≥ 1`, begins
-
-  1, 5, 7, 8, 4, 11, 1, 14, 25, 17, 22, 20, 19, 23, 16, 26, 13, 2, 10, 5, ...
-
-so `a(19) ≡ 10` while `a(1) ≡ 1 (mod 27)`.  Every period `p ∣ 18` of the
-sequence would make `18` a period too, hence `a(19) ≡ a(1)`; no such `p`
-exists.  Computation (Python, `a(n)` for `n ≤ 700`, all `k ≤ 300`; evidence
-only) finds failures exactly at the multiples of `27` or `125` (`27, 54, 81,
-108, 125, 135, 162, 189, 216, 243, 250, 270, 297`), each failing at `n = 1`
-(and at `k = 243` also at `n = 2`).  The data suggest the intended statement
-is *eventual* periodicity (here from `n = 2`).
-
-## Definition layer
-
-The entry defines `a(n)` through the e.g.f. `sec x = Σ a(n) x^(2n)/(2n)!`.
-Comparing coefficients of `x^(2n)` in `sec x · cos x = 1` gives, for `n ≥ 1`,
-`Σ_{j ≤ n} (-1)^(n-j) C(2n,2j) a(j) = 0`, i.e. the recurrence of
-`secant_succ`.  `secant` is computed from this recurrence (with the binomial
-coefficient written through factorials so that the kernel evaluates it in
-linear time), and `secantEGF_eq_inv_cos` proves that its e.g.f. is exactly
-`(cos x)⁻¹` in `ℚ⟦X⟧`.  The definition therefore matches the entry's e.g.f.
-definition for every `n`, not merely on the listed terms.
+OEIS A000364, Peter Bala (May 08 2023). The integer secant recurrence has
+rational e.g.f. `(cos x)⁻¹`, as proved by `secantEGF_eq_inv_cos`.
+At modulus `27`, any positive period dividing `φ(27) = 18` on `n ≥ 1`
+would force `a(19) ≡ a(1)`, but these residues are `10` and `1`.
+The finite-window examples below do not establish eventual periodicity.
 -/
 import Mathlib
 
@@ -69,7 +30,7 @@ integer: `(2n)!` times the coefficient of `x^(2n)` in `sec x`
 (see `secantEGF_eq_inv_cos`). -/
 def secant (n : ℕ) : ℤ := (secantTable n).getD n 0
 
-/-! ### Ground truth against the OEIS DATA line -/
+/-! ### Examples against the OEIS DATA line -/
 
 example : (List.range 10).map secant =
     [1, 1, 5, 61, 1385, 50521, 2702765, 199360981, 19391512145, 2404879675441] := by
@@ -194,26 +155,21 @@ theorem secantEGF_mul_cos : secantEGF * PowerSeries.cos ℚ = 1 := by
       simp [hodd]
     · simp [Nat.not_even_iff_odd.mpr hko]
 
-/-- **Faithfulness bridge.** The e.g.f. of `secant` is `sec x = (cos x)⁻¹` in
+/-- The e.g.f. of `secant` is `sec x = (cos x)⁻¹` in
 `ℚ⟦X⟧`, which is the defining property of A000364. -/
 theorem secantEGF_eq_inv_cos : secantEGF = (PowerSeries.cos ℚ)⁻¹ :=
   (PowerSeries.eq_inv_iff_mul_eq_one (by simp [PowerSeries.cos])).mpr secantEGF_mul_cos
 
 /-! ### The conjecture -/
 
-/-- **Bala's conjecture (A000364, Peter Bala, May 08 2023).**
-
-Verbatim: "Conjecture: taking the sequence [a(n) : n >= 1] modulo an integer k
-gives a purely periodic sequence with period dividing phi(k)."
-
-Formalized: for every modulus `k ≥ 1` there is a period `p > 0` with
-`p ∣ φ(k)` such that `a(n + p) ≡ a(n) (mod k)` for every `n ≥ 1` (pure
-periodicity of the sequence indexed from `n = 1`). -/
+/-- Bala's conjecture (OEIS A000364): for every `k ≥ 1`, there is a
+positive period `p ∣ φ(k)` such that `a(n+p) ≡ a(n) (mod k)` for all `n ≥ 1`.
+This is pure periodicity from index `1`, not eventual periodicity. -/
 def BalaSecantPeriodic : Prop :=
   ∀ k : ℕ, 0 < k → ∃ p : ℕ, 0 < p ∧ p ∣ Nat.totient k ∧
     ∀ n : ℕ, 1 ≤ n → secant (n + p) ≡ secant n [ZMOD k]
 
-/-! ### Sanity: Bala's own example and the eventual periodicity at `k = 27` -/
+/-! ### Examples: residues modulo 21 and 27 -/
 
 -- Bala's example: modulo `21` the sequence has period `6 = φ(21)/2` on a window.
 example : ∀ n ∈ Finset.Icc 1 24, secant (n + 6) ≡ secant n [ZMOD 21] := by decide +kernel
@@ -230,12 +186,9 @@ theorem secant_nineteen_emod : secant 19 % 27 = 10 := by decide +kernel
 /-- `a(1) ≡ 1 (mod 27)`. -/
 theorem secant_one_emod : secant 1 % 27 = 1 := by decide +kernel
 
-/-- **Bala's conjecture is false.**  Counterexample: `k = 27`, `φ(27) = 18`.
-Any period `p ∣ 18` would give `a(1 + 18) ≡ a(1) (mod 27)`, but
-`a(19) = |E_38| ≡ 10` and `a(1) = 1 (mod 27)`.  The sequence mod 27 is periodic
-with period `18` only from `n = 2`; the hypothesis the author probably intended
-is eventual (not pure) periodicity, or pure periodicity for moduli not
-divisible by `27` or `125` (the failures observed for `k ≤ 300`). -/
+/-- Bala's pure-period conjecture fails at `k = 27`, where `φ(27) = 18`.
+Any positive period dividing `18` would imply `a(19) ≡ a(1) (mod 27)`,
+but the residues are `10` and `1`. -/
 theorem bala_secant_periodic_false : ¬ BalaSecantPeriodic := by
   intro h
   obtain ⟨p, -, hdvd, hper⟩ := h 27 (by norm_num)

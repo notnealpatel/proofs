@@ -1,41 +1,13 @@
 /-
-# A293406 — Kimberling: the complementary equation `a(n) = a(n-1) + a(n-2) + b(n-1) + 1`
-# has `a(n)/a(n-1) → φ`
+# A complementary sequence with limiting ratio φ (A293406)
 
-## OEIS source (retrieved with `oeis show A293406` and https://oeis.org/A293406, 2026-10-21)
-
-```
-NAME:     Solution of the complementary equation a(n) = a(n-1) + a(n-2) + b(n-1) + 1,
-          where a(0) = 1, a(1) = 3, b(0) = 2, b(1) = 4.
-TERMS:    1,3,9,18,34,60,103,174,289,476,779,1270,2065,3352,5435,8807,14263,23092,
-          37378,60494,97897,158417,256341,414786,671156,1085972,1757159,2843163
-KEYWORDS: nonn,easy
-AUTHOR:   Clark Kimberling, Oct 29 2017
-COMMENT:  The complementary sequences a() and b() are uniquely determined by the
-          titular equation and initial values.
-COMMENT (the conjecture, no separate attribution, hence the entry author's):
-  Conjecture: a(n)/a(n-1) -> (1 + sqrt(5))/2, the golden ratio.  See A293358 for
-  a guide to related sequences.
-PROGRAM (Mathematica, the definition mirrored here):
-  mex := First[Complement[Range[1, Max[#1] + 1], #1]] &;
-  a[0] = 1; a[1] = 3; b[0] = 2; b[1] = 4;
-  a[n_] := a[n] = a[n - 1] + a[n - 2] + b[n - 1] + 1;
-  b[n_] := b[n] = mex[Flatten[Table[Join[{a[n]}, {a[i], b[i]}], {i, 0, n - 1}]]];
-```
-
-## Status
-
-Triage: open (no proof in the entry; literature not searched beyond the entry).
-This module proves it (`ratio_tendsto_goldenRatio`), with the quantitative bound
-`|a(n+1)/a(n) - φ| ≤ 12/(n+1)`.
-
-## Proof outline
-
-* `b n ≤ 2n + 2` by pigeonhole (`b n` is the least positive integer avoiding
-  `2n + 1` values).
-* `(n+1)^2 ≤ 2 a(n)` by induction from the recurrence.
-* The error `e(n) = a(n+1) - φ a(n)` obeys `e(n+1) = ψ e(n) + b(n+1) + 1` with
-  `|ψ| < 2/3`, whence `|e(n)| ≤ 6(n+1)`; divide by `a(n)`.
+Source: Clark Kimberling's OEIS A293406 entry (Oct 29 2017), using its
+Mathematica mex program. The initial values are `a(0)=1`, `a(1)=3`,
+`b(0)=2`, `b(1)=4`; the recurrence is `a(n)=a(n-1)+a(n-2)+b(n-1)+1`.
+The complement's least-unused-value property is proved.
+The positive sequence satisfies `a(n+1)/a(n) → φ`, with error at most
+`12/(n+1)`. The proof bounds `b(n)` linearly and `a(n)` quadratically,
+then applies the contracting recurrence for `a(n+1)-φ a(n)`.
 -/
 import Mathlib
 
@@ -72,12 +44,12 @@ def b : ℕ → ℕ
   | 0 => 2
   | n + 1 => (st n).2.2.1
 
-/-- Ground truth: the first 20 listed terms of A293406. -/
+/-- The first 20 listed terms of A293406. -/
 example : (List.range 20).map a =
     [1, 3, 9, 18, 34, 60, 103, 174, 289, 476, 779, 1270, 2065, 3352, 5435, 8807, 14263,
       23092, 37378, 60494] := by decide
 
-/-- Ground truth: the first 12 terms of the complement `b` (Mathematica program). -/
+/-- The first 12 terms of the complement `b` (Mathematica program). -/
 example : (List.range 12).map b = [2, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15] := by decide
 
 

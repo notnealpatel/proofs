@@ -1,55 +1,12 @@
 /-
-# A028884 — Purath: `(n+3)^2 - 8 = A079896(A265284(n-1))` (refuted as stated)
+# A028884: refutation with the current sequence offsets
 
-## OEIS source (retrieved with `oeis show A028884` and checked against
-## `https://oeis.org/A028884/internal`, 2026-10-21)
-
-```
-A028884   NAME:   a(n) = (n + 3)^2 - 8.
-          OFFSET: 0,2
-          DATA:   1,8,17,28,41,56,73,92,113,136,161,188,217,248,281,316,353,392,...
-COMMENT (block "From _Klaus Purath_, Jan 04 2023: (Start)" ... "(End)"):
-  For n > 0, this is a proper subsequence of A079896.
-  Conjecture: a(n) = A079896(A265284(n-1)). -
-```
-
-Referenced entries (same retrieval date):
-
-```
-A079896   NAME:   Discriminants of indefinite binary quadratic forms.
-          OFFSET: 1,1
-          DATA:   5,8,12,13,17,20,21,24,28,29,32,33,37,40,41,44,45,48,52,53,...
-          COMMENT: Numbers n such that n == 0 (mod 4) or n == 1 (mod 4), but n
-                   is not a square.
-          COMMENT: [I changed the offset to 1, since this is an important list.
-                   ... - _N. J. A. Sloane_, Mar 14 2023]
-A265284   NAME:   Total number of ON (black) cells after n iterations of the
-                  "Rule 94" elementary cellular automaton starting with a single
-                  ON (black) cell.
-          OFFSET: 0,2
-          DATA:   1,4,8,14,20,28,36,46,56,68,80,94,108,124,140,158,176,196,...
-```
-
-No later comment in A028884 retracts or amends the conjecture.
-
-## Status
-
-**Refuted as currently stated.**  With the current offsets
-(A028884 offset 0, A079896 offset 1, A265284 offset 0), at `n = 1`:
-`a(1) = 8`, `A265284(0) = 1`, `A079896(1) = 5`, and `8 ≠ 5`.
-A Python check (`/tmp/claude/a028884.py`, 2026-10-21) found that the
-stated identity fails for every `1 ≤ n ≤ 299`.
-
-The conjecture is dated Jan 04 2023, before Sloane changed the offset of
-A079896 from 0 to 1 on Mar 14 2023.  Under the old offset the conjecture
-reads `a(n) = A079896(A265284(n-1) + 1)` in current indexing.  The same
-Python check confirmed that form for every `1 ≤ n ≤ 299`.  This module
-kernel-checks the shifted form only for `1 ≤ n ≤ 8`
-(`shifted_conjecture_of_le_eight`).  A general proof would need a closed
-form for the Rule 94 counts.  Barker's closed form in A265284 is only
-conjectural.
-
-This module **refutes** the conjecture as stated (`conjecture_false`).
+OEIS A028884, Klaus Purath (Jan 04 2023), with A079896 and A265284.
+With offsets `0, 1, 0` respectively, the identity
+`a(n) = A079896(A265284(n-1))` fails at `n = 1`: the two sides are `8` and `5`.
+The conjecture predates N. J. A. Sloane's A079896 offset change (Mar 14 2023).
+The shifted identity `a(n) = A079896(A265284(n-1) + 1)` is checked only for
+`1 ≤ n ≤ 8`, not proved for all indices. A265284 is defined by Rule 94.
 -/
 import Mathlib
 
@@ -57,7 +14,7 @@ set_option autoImplicit false
 
 namespace Candidates.A028884Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A028884: `a(n) = (n + 3)^2 - 8` (offset 0).  The natural-number
 subtraction is never truncated, because `9 ≤ (n + 3)^2`; see
@@ -169,7 +126,7 @@ theorem a079896_data :
   obtain ⟨hd, hc⟩ := a079896_data_certificate p hp
   exact a079896_eq_of_count hd (by rw [Nat.count_eq_card_filter_range]; exact hc)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- A028884 against its DATA line.
 example : (List.range 18).map a028884 =
@@ -187,23 +144,16 @@ example : a079896 1 = 5 ∧ a079896 2 = 8 :=
 
 /-! ## The conjecture and its refutation -/
 
-/-- **Purath's conjecture (A028884, Klaus Purath, Jan 04 2023).**
-
-Verbatim: "Conjecture: a(n) = A079896(A265284(n-1))."
-
-The guard `1 ≤ n` comes from the source: A265284 has offset 0, so `n - 1`
-must be a valid index, and the preceding comment reads "For n > 0, this is
-a proper subsequence of A079896".  The current offsets are used: A079896 has
-offset 1 (`a079896`), and A265284 and A028884 have offset 0. -/
+/-- Purath's A028884 identity `a(n) = A079896(A265284(n-1))` for `n ≥ 1`.
+The current offsets are used: A079896 starts at `1`, and A028884 and
+A265284 at `0`. Positivity of A265284 keeps the nested index valid. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 1 ≤ n → a028884 n = a079896 (a265284 (n - 1))
 
-/-- **The conjecture is false as stated.**  Counterexample `n = 1`:
-`a(1) = 8`, `A265284(0) = 1`, and `A079896(1) = 5`.
-
-The author probably meant A079896 with the offset 0 it had before
-Mar 14 2023.  In current indexing that reads
-`a(n) = A079896(A265284(n-1) + 1)`; see `shifted_conjecture_of_le_eight`. -/
+/-- The current-offset conjecture fails at `n = 1`: `a(1) = 8`,
+`A265284(0) = 1`, and `A079896(1) = 5`.
+The historical offset-shifted form is checked only in
+`shifted_conjecture_of_le_eight`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have h1 : a028884 1 = a079896 (a265284 0) := hconj 1 le_rfl

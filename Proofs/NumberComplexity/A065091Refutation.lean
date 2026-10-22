@@ -1,24 +1,10 @@
 /-
 # A065091 — Ordowski: the next prime is the least odd `m > p` with `∑ k^(m-1) ≡ p-1 (mod m)`
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A065091`)
+Thomas Ordowski's conjecture in OEIS A065091 (2018). A065091 has offset 1
+and `a(n) = prime(n+1)`, with `prime(1) = 2`.
 
-```
-NAME:     Odd primes.
-TERMS:    3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,
-          97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,...
-COMMENT (the conjecture):
-  Conjecture: a(n) is the smallest odd number m > prime(n) such that
-  Sum_{k=1..prime(n)-1} k^(m-1) == prime(n)-1 (mod m). This is an extension
-  of the Agoh-Giuga conjecture. - _Thomas Ordowski_, Aug 01 2018
-```
-
-No later comment in the entry retracts or amends the conjecture.  Offsets:
-A065091 has offset 1 (`a(1) = 3`) and `prime(1) = 2`, so `a(n) = prime(n+1)`.
-
-## Status
-
-This module **refutes** the conjecture.  For `p = 198139` (prime) the odd
+The conjecture fails: For `p = 198139` (prime) the odd
 composite `m = 198151 = 19 * 10429` satisfies
 `Sum_{k=1..p-1} k^(m-1) ≡ p - 1 (mod m)`, while the next prime after `p` is
 `198173`.  So the least odd `m > p` with the congruence is at most `198151`,
@@ -31,9 +17,9 @@ sum to at most `10429` terms, which the kernel evaluates.
 import Mathlib
 
 set_option autoImplicit false
--- The two kernel evaluations of `10^4`-term sums below are checked sequentially:
--- run concurrently under the shared virtual-memory cap, the asynchronous
--- elaboration threads fail to start (`failed to create thread`).
+-- Elaborate the large finite sums sequentially:
+-- their simultaneous elaboration increases peak memory
+-- beyond the available limit.
 set_option Elab.async false
 
 namespace Candidates.A065091Refutation
@@ -58,19 +44,16 @@ instance (p m : ℕ) : Decidable (OrdowskiCong p m) := by
   unfold OrdowskiCong
   infer_instance
 
-/-- **Ordowski's conjecture (A065091, Thomas Ordowski, Aug 01 2018).**
-
-Verbatim: "Conjecture: a(n) is the smallest odd number m > prime(n) such that
-Sum_{k=1..prime(n)-1} k^(m-1) == prime(n)-1 (mod m)."
-
-With 0-based indices, `prime(n)` is `Nat.nth Nat.Prime n` (so the `0`-th prime
-is `2`) and `a(n)` is `oddPrime n`. -/
+/-- Ordowski's conjecture (OEIS A065091, 2018): the next prime after `p`
+is the least odd `m > p` with `Σ_{k=1}^{p-1} k^(m-1) ≡ p-1 (mod m)`.
+Indices here are zero-based: `p = Nat.nth Nat.Prime n` and the next prime
+is `oddPrime n`. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, IsLeast
     {m : ℕ | Odd m ∧ Nat.nth Nat.Prime n < m ∧ OrdowskiCong (Nat.nth Nat.Prime n) m}
     (oddPrime n)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The odd primes form an infinite set. -/
 theorem infinite_setOf_prime_and_odd :
@@ -84,7 +67,7 @@ theorem oddPrime_prime_and_odd (n : ℕ) : (oddPrime n).Prime ∧ Odd (oddPrime 
   Nat.nth_mem_of_infinite infinite_setOf_prime_and_odd n
 
 /-- If `n` is an odd prime with exactly `i` odd primes below it, then
-`oddPrime i = n`: the tool for the ground-truth checks below. -/
+`oddPrime i = n`: the tool for the examples below. -/
 theorem oddPrime_eq_of_count_eq {i n : ℕ} (hn : n.Prime ∧ Odd n)
     (hcount : Nat.count (fun p => p.Prime ∧ Odd p) n = i) : oddPrime i = n := by
   rw [← hcount]
@@ -253,10 +236,7 @@ theorem not_prime_of_198139_lt_of_le_198151 (q : ℕ) (hlo : 198139 < q)
 (prime), the odd composite `m = 198151 = 19 * 10429` satisfies
 `Sum_{k=1..p-1} k^(m-1) ≡ p - 1 (mod m)`, so the least odd `m > p` with the
 congruence is at most `198151`, whereas the next odd prime after `p` is
-`198173`.  No corrected form is evident: the comment presents the claim as
-an extension of the Agoh-Giuga conjecture, and the witness `m` is odd,
-squarefree and composite, so it is excluded by none of the hypotheses the
-author states. -/
+`198173`.  The witness `m` is odd, squarefree and composite. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   set i := Nat.count Nat.Prime 198139

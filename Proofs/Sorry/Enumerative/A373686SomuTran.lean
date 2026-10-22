@@ -74,9 +74,9 @@ practical number and a triangular number, resolving a conjecture by Sun") is a
 an archive card; it is stated below as `somuTran_thm1_practical_add_triangular`.
 -/
 import Mathlib
-import Enumerative.Practical
-import Enumerative.StewartCriterion
-import Enumerative.SomuTranTriangular
+import Sorry.Quarantine.Enumerative.Practical
+import Sorry.Enumerative.StewartCriterion
+import Sorry.Enumerative.SomuTranTriangular
 
 set_option autoImplicit false
 

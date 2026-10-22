@@ -1,38 +1,11 @@
 /-
 # A262959 — refutation of Sun's residue conjecture (part (i))
 
-## OEIS source (retrieved with `oeis show A262959` and checked against the
-## live entry https://oeis.org/A262959, 2026-10-21)
-
-```
-NAME:     Positive integers that cannot be written as the sum of a fourth
-          power, a square and a positive triangular number.
-TERMS:    9,34,63,89,99,139,164,174,193,204,245,314,324,399,424,454,464,489,
-          504,524,549,714,1049,1089,1149,1174,1439,1504,1539,1639,1714,1799,...
-COMMENT:  Conjecture: (i) Each term is congruent to one of 3, 4, 5, 9 modulo 10.
-COMMENT:  (ii) a(n+1) - a(n) > 4 for all n > 0.
-COMMENT:  Part (ii) of this conjecture is stronger than the conjecture in
-          A262956. Note that a(139) - a(138) = 18089 - 18084 = 5.
-AUTHOR:   Zhi-Wei Sun, Oct 05 2015
-```
-
-The conjecture comments carry no separate signature; they are by the entry's
-author, Zhi-Wei Sun (Oct 05 2015).  No later comment in the live entry
-retracts or qualifies part (i) (checked 2026-10-21).
-
-## Status of this module
-
-This module **refutes** the conjecture: part (i) fails at `n = 9052`
-(`9052 ≡ 2 (mod 10)`), the 99th term of the sequence.  A second
-counterexample is `11808 ≡ 8 (mod 10)` (the 117th term).  The original
-program in the entry searched only `m ≤ 5000`, which explains why the
-pattern looked exceptionless.  A bounded computation (Python, all
-`n ≤ 30000`) finds exactly these two exceptions to part (i) and minimum gap
-`5` between consecutive terms, so part (ii) survives that range; part (ii)
-is not addressed here.
-
-`Elab.async false` keeps the kernel checks sequential; under a virtual-memory
-cap the default asynchronous elaboration fails to create its worker threads.
+OEIS A262959, Zhi-Wei Sun: the proposed residues `3,4,5,9 mod 10`
+for positive integers not expressible as a fourth power, a square
+and a positive triangular number fail at `9052` and `11808`.
+The separate conjecture on gaps between consecutive terms is stated
+but not addressed.
 -/
 import Mathlib
 
@@ -53,7 +26,7 @@ def Representable (n : ℕ) : Prop :=
 def InS (n : ℕ) : Prop :=
   0 < n ∧ ¬ Representable n
 
-/-- **Sun's conjecture (A262959, Zhi-Wei Sun, Oct 05 2015).**
+/-- **Sun's conjecture (A262959, Zhi-Wei Sun, 2015).**
 
 (i) "Each term is congruent to one of 3, 4, 5, 9 modulo 10."
 (ii) "a(n+1) - a(n) > 4 for all n > 0": whenever `m < n` are consecutive
@@ -122,7 +95,7 @@ theorem representable_iff_repB {n a c : ℕ} (ha : n < a ^ 4) (hc : n < c * (c +
     unfold residual
     omega
 
-/-! ## Ground truth: the listed terms below `250` -/
+/-! ## Examples: the listed terms below `250` -/
 
 /-- The elements of A262959 below `250` are exactly
 `9, 34, 63, 89, 99, 139, 164, 174, 193, 204, 245`, matching the first eleven
@@ -145,7 +118,7 @@ example : Representable 1 := ⟨0, 0, 1, by norm_num, by norm_num⟩
 
 /-- `9052` has no representation: for every `x < 10` and `0 < z < 135` with
 `x^4 + z(z+1)/2 ≤ 9052`, the residual `9052 - x^4 - z(z+1)/2` is not a perfect
-square.  Checked by kernel evaluation (`decide +kernel`, not `native_decide`). -/
+square. -/
 theorem repB_9052 : repB 9052 10 135 = false := by
   decide +kernel
 
@@ -163,12 +136,9 @@ theorem inS_11808 : InS 11808 := by
   rw [representable_iff_repB (a := 11) (c := 154) (by norm_num) (by norm_num), hrep]
   exact Bool.false_ne_true
 
-/-- **Refutation of Sun's conjecture on A262959.**  Part (i) fails: `9052`
-is in the sequence (it is not a fourth power plus a square plus a positive
-triangular number) but `9052 ≡ 2 (mod 10)`.  Sun's original search stopped at
-`5000`; the statement he probably intended is the empirical residue pattern of
-the terms in that range, which first breaks at `9052` (and again at
-`11808 ≡ 8 (mod 10)`, see `inS_11808`). -/
+/-- Sun’s residue conjecture (A262959), part (i), fails at `9052`:
+it is not a fourth power plus a square plus a positive triangular number,
+but it is `2 mod 10`. Another counterexample is `11808 ≡ 8 (mod 10)`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have hmem := hconj.1 9052 inS_9052

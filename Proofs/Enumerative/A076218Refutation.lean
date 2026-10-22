@@ -1,47 +1,13 @@
 /-
-# A076218 — Lowell: numbers occurring twice in A055524 (refuted as stated)
+# A076218: occurrence twice in A055524
 
-## OEIS source (retrieved with `oeis show A076218`, `oeis show A055524`, and
-## checked against `https://oeis.org/search?q=id:A0...&fmt=text`, 2026-10-21)
-
-```
-A076218   NAME:   Numbers n such that 2*n^2 - 3*n + 1 is a square.
-          OFFSET: 1,3
-          DATA:   0,1,5,145,4901,166465,5654885,192099601,6525731525,...
-COMMENT:  Conjecture: a nonzero number occurs twice in A055524 if and only if
-          it's in this sequence. - _J. Lowell_, Jul 23 2016
-COMMENT:  Equivalently, n=0 or both n-1 and 2*n-1 are perfect squares.
-          - _Sture Sjöstedt_, Feb 22 2017
-
-A055524   NAME:   Longest other side of a Pythagorean triangle with n as length
-                  of one of the three sides (in fact n is a leg and a(n) the
-                  hypotenuse).
-          OFFSET: 3,1
-          DATA:   5,5,13,10,25,17,41,26,61,37,85,50,113,65,145,82,181,101,...
-FORMULA:  a(2k) = k^2+1, a(2k+1) = k^2+(k+1)^2.
-```
-
-No later comment in A076218 retracts or amends the conjecture.
-
-## Status
-
-**Refuted as stated** (`conjecture_false`).  The counterexample is `1`:
-it is nonzero and a term of A076218 (`2 - 3 + 1 = 0 = 0^2`), but `1` never
-occurs in A055524 at all (every value is a hypotenuse `c` with a positive
-leg `b < c`, so `c ≥ 2`; see `a055524_ne_one`).  The refutation therefore
-does not depend on whether "occurs twice" means "at least twice" or
-"exactly twice".
-
-A Python check (`/tmp/claude/a076218.py`, 2026-10-21) confirmed the closed
-form of A055524 against a brute-force maximal hypotenuse for `3 ≤ n < 400`,
-that no value of A055524 occurs more than twice for `3 ≤ n < 200000`, and
-that the doubled values below the complete range are exactly
-`5, 145, 4901, 166465, 5654885, 192099601, 6525731525`, i.e. the terms of
-A076218 other than `0` and `1`.
-
-The intended statement presumably reads "a number greater than `1`" (the
-boundary term `a(2) = 1` of A076218 was overlooked).  That corrected form is
-proved here as `occursTwice_iff_mem_of_two_le`.
+OEIS A076218, J. Lowell (Jul 23 2016); equivalent square conditions by
+Sture Sjöstedt (Feb 22 2017). A055524 is the greatest hypotenuse for a
+given leg length, on valid indices `n ≥ 3`.
+The literal nonzero criterion fails at `1`, which belongs to A076218
+but never occurs in A055524. The equivalence for values `m ≥ 2` is proved.
+Occurrence twice uses two distinct indices; the characterization also
+rules out three occurrences.
 -/
 import Mathlib
 
@@ -49,7 +15,7 @@ set_option autoImplicit false
 
 namespace Candidates.A076218Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `c` is the hypotenuse of a Pythagorean triangle with leg `n`: there is a
 positive other leg `b` with `n^2 + b^2 = c^2`.  The bound `b < c` is automatic
@@ -154,7 +120,7 @@ theorem a055524_ne_one (n : ℕ) : a055524 n ≠ 1 := by
   obtain ⟨b, hb, hb0, -⟩ := hP one_ne_zero
   omega
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The first six terms of A055524 (offset 3), by direct evaluation:
 -- 5, 5, 13, 10, 25, 17.
@@ -177,19 +143,14 @@ example : OccursTwice 5 := ⟨3, 4, le_rfl, by norm_num, by norm_num, by decide,
 
 /-! ## The conjecture and its refutation -/
 
-/-- **Lowell's conjecture (A076218, J. Lowell, Jul 23 2016).**
-
-Verbatim: "Conjecture: a nonzero number occurs twice in A055524 if and only if
-it's in this sequence."
-
-"Occurs twice" is read as "is the value of A055524 at two distinct indices";
-since no value occurs three times, this agrees with "exactly twice". -/
+/-- Lowell's A076218 conjecture: a nonzero value occurs at two distinct
+valid indices of A055524 iff it is a member of A076218.
+No value occurs three times, so this also expresses exactly two occurrences. -/
 def Conjecture : Prop := ∀ m : ℕ, m ≠ 0 → (OccursTwice m ↔ m ∈ a076218)
 
-/-- **Lowell's conjecture is false.**  Counterexample `m = 1`: it is a nonzero
-term of A076218 (`2 - 3 + 1 = 0`, a square) but never occurs in A055524
-(`a055524_ne_one`).  The author probably intended "a number greater than `1`";
-that form is `occursTwice_iff_mem_of_two_le`. -/
+/-- Lowell's nonzero criterion fails at `m = 1`: this is a member of A076218
+but never a value of A055524. The equivalence for `m ≥ 2` is
+`occursTwice_iff_mem_of_two_le`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have hmem : (1 : ℕ) ∈ a076218 := ⟨0, by norm_num⟩

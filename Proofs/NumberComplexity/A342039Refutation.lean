@@ -1,39 +1,17 @@
 /-
 # A342039 — refutation of the conjecture `a(n) ≥ prime(n) - 1`
 
-## OEIS source (retrieved with `oeis show A342039` and the live entry, 2026-10-21)
-
-```
-A342039   a(n) is the index of the first occurrence of the term in A307437 that
-          is divisible by p and greater than p, p = prime(n).
-DATA:     256,27,10,42,40,66,40,72,66,42,390,333,180,301,46,104,145,1230,...
-COMMENT:  Conjecture: a(n) >= prime(n)-1 for all n.
-AUTHOR:   _Jianing Song_, Feb 26 2021
-```
-
-The conjecture comment carries no separate attribution; it is part of the
-original submission by Jianing Song (Feb 26 2021).  No later comment in the
-entry retracts it, and the entry's data stop at `p = prime(52) = 239`.
-
-`A307437(k)` is "the smallest `m` such that `2k` divides `psi(m)`,
-`psi = A002322`" (Carmichael's lambda); its data begin `3,5,7,17,11,13,29,…`.
-
-## Result
-
-This module **refutes** the conjecture.  For `p = 653 = prime(119)` one has
-`A307437(489) = 4571 = 7 · 653`, so `a(119) ≤ 489 < 652 = p - 1`.
+OEIS A342039, Jianing Song: the proposed lower bound
+`a(n) ≥ prime(n)-1` fails for `p = 653`. Here A307437 is the least
+positive `m` with `2k ∣ λ(m)`. Since `A307437(489) = 4571 = 7·653`,
+the first admissible index is at most `489 < 652`. The formal prime
+index is obtained as `Nat.count Nat.Prime 653 + 1`, not evaluated.
 
 * `978 = 2 · 489` divides `λ(4571) = lcm(λ 7, λ 653) = lcm(6, 652) = 1956`.
 * For `0 < m < 4571`, `978 ∤ φ(m)` (hence `978 ∤ λ(m)`): a factor `163` of
   `φ(m)` forces `163² ∣ m` (too large) or a prime `q ∣ m` with `q ≡ 1 (mod 163)`,
   and below `4571` those primes are only `653` and `2609`; the remaining
   candidates `653 r` (`r ≤ 6`) and `2609` have totient not divisible by `3`.
-
-A Python recomputation (spf sieve, `m ≤ 4·10⁵`) reproduces the first fifteen
-terms of the entry and finds `(653, 489)` and `(773, 579)` as the only
-failures among primes below `800`.  The index `119` of `653` is computational
-evidence only; the formal refutation obtains the index as
-`Nat.count Nat.Prime 653 + 1` through `Nat.nth_count`.
 -/
 import Mathlib
 
@@ -90,7 +68,7 @@ theorem not_dvd_carmichael_of_not_dvd_totient {d m : ℕ} (h : ¬ d ∣ m.totien
     ¬ d ∣ carmichael m :=
   fun hd => h (hd.trans (carmichael_dvd_totient m))
 
-/-! ## Ground truth against the entries' data -/
+/-! ## Examples against the entries' data -/
 
 /-- `A307437(1) = 3`. -/
 example : a307437 1 = 3 := by
@@ -137,9 +115,7 @@ example : IsIndex (Nat.nth Nat.Prime (3 - 1)) 10 := by
 
 /-! ## The conjecture -/
 
-/-- **Conjecture (A342039, Jianing Song, Feb 26 2021).**
-Verbatim: "Conjecture: a(n) >= prime(n)-1 for all n."
-
+/-- **Conjecture (A342039, Jianing Song, 2021).**
 Stated for every `n ≥ 1` (the entry's offset).  The natural subtraction
 `prime(n) - 1` is safe since `prime(n) ≥ 2`. -/
 def Conjecture : Prop :=
@@ -223,13 +199,10 @@ theorem isIndex_653_489 : IsIndex 653 489 := by
   rw [IsIndex, a307437_489]
   norm_num
 
-/-- **The conjecture is false.**  With `p = 653 = prime(119)` (index obtained in
-the proof as `Nat.count Nat.Prime 653 + 1`), `A307437(489) = 4571 = 7 · 653`
-is a multiple of `653` greater than `653`, so `a(119) ≤ 489 < 652 = p - 1`.
-The next failure is `p = 773` with `a = 579`; the entry's data, which stop at
-`p = 239`, contain no counterexample.  The bound `a(n) ≥ prime(n) - 1` holds for
-every prime below `653` (computational evidence, not formalized); no corrected
-form is evident. -/
+/-- Song’s lower bound fails for the index of the prime `653`:
+`A307437(489) = 4571 = 7·653`, so the first admissible index is
+at most `489 < 652`. The proof uses the prime index
+`Nat.count Nat.Prime 653 + 1` without evaluating it. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have hprime : Nat.Prime 653 := by norm_num

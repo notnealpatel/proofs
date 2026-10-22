@@ -1,50 +1,19 @@
 /-
-# A145656 — Bala: the numerators come from a logarithmic integral
+# A145656: Bala's logarithmic-integral formula
 
-## OEIS source (retrieved with `oeis show A145656`, 2026-10-21)
+OEIS A145656 defines `a(n)` as the numerator of
+`A(n) = ∑_{d=1}^{n-1} 2^(n-d)/d` (the entry's genus-1 polynomial at `m = 2`).
+Peter Bala's conjecture (2024-06-10) identifies it with the numerator of
+`2^n log 2 - 2^(n+1) ∫₀¹ x^(2n-1)/(1+x²)^n dx`.
 
-```
-NAME:     a(n) = numerator of polynomial of genus 1 and level n for m = 2.
-TERMS:    0,2,5,32,131,661,1327,18608,148969,447047,89422,1967410,7869871,
-          102309709,204620705,2046213056,32739453941,556571077357,
-          556571247527,10574855234543,42299423848079,42299425233749,
-          84598851790183
-KEYWORDS: frac,nonn,easy
-COMMENT (the definition):
-  Definition: The polynomial A[1,2*n+1](m) = A[genus 1,level n] is here
-  defined as Sum_{d = 1..n-1} m^(n-d)/d.
-PROGRAM (Maple, R. J. Mathar, Feb 01 2011):
-  A145656 := proc(n) add( 2^(n-d)/d, d = 1..n-1) end:
-  seq(numer(A145656(n)), n = 1..20);
-COMMENT (the conjecture):
-  Conjecture: a(n) = numerator( (2^n)*log(2) - 2^(n+1)*Integral_{x = 0..1}
-  x^(2*n-1)/(1 + x^2)^n ). - _Peter Bala_, Jun 10 2024
-```
+The real expression equals the rational `A(n)`. The final statement
+exhibits a rational representative and proves that every rational
+representative has numerator `a(n)`; no numerator operation on arbitrary
+reals is assumed. The source offset requires `1 ≤ n`, excluding truncation
+of the integrand exponent at `n = 0`. In the finite sum, `d < n` likewise
+keeps the natural exponent `n-d` untruncated.
 
-## Status
-
-Triage status: open (no proof in the entry; none found in the literature by
-the triage).  The triage judged it a routine calculus identity: the real
-number `2^n log 2 - 2^(n+1) ∫₀¹ x^(2n-1)/(1+x²)^n dx` equals the rational
-`Sum_{d=1}^{n-1} 2^(n-d)/d` exactly.  Re-validated numerically (to `10⁻³⁵`,
-`n = 1..40`) and against the 23 listed terms before formalization.
-
-## Formalization
-
-`A n : ℚ` is the entry's `Sum_{d = 1..n-1} 2^(n-d)/d` (the exponent `n - d`
-is natural subtraction, but `d ∈ Ico 1 n` keeps `d < n`), and `a n` is its
-numerator.  `logIntegralExpr n : ℝ` is Bala's real expression.  "The
-numerator of a real number" only makes sense for a rational number, so the
-conjecture is stated as: the expression is rational, and every rational `q`
-whose cast is the expression has numerator `a n`.  The range is `1 ≤ n`
-(the entry's offset; at `n = 0` the integrand exponent `2n - 1` is
-truncated).
-
-## Proof
-
-With `J m = ∫₀¹ x^(2m+1)/(1+x²)^(m+1) dx`, the pointwise identity
-`x^(2m+3)/(1+x²)^(m+2) = x^(2m+1)/(1+x²)^(m+1) - x^(2m+1)/(1+x²)^(m+2)` and
-the antiderivative `(x²/(1+x²))^(m+1) / (2(m+1))` of the last term give
+For `J m = ∫₀¹ x^(2m+1)/(1+x²)^(m+1) dx`, an explicit antiderivative gives
 `J (m+1) = J m - (1/2)^(m+1)/(2(m+1))`, with `J 0 = log 2 / 2`.
 -/
 import Mathlib
@@ -69,12 +38,12 @@ def a (n : ℕ) : ℤ := (A n).num
 noncomputable def logIntegralExpr (n : ℕ) : ℝ :=
   2 ^ n * Real.log 2 - 2 ^ (n + 1) * ∫ x in (0 : ℝ)..1, x ^ (2 * n - 1) / (1 + x ^ 2) ^ n
 
--- Ground truth: the first twelve terms of the DATA line.
+-- Examples: the first twelve terms of the DATA line.
 example : (List.range 12).map (fun i => a (i + 1)) =
     [0, 2, 5, 32, 131, 661, 1327, 18608, 148969, 447047, 89422, 1967410] := by
   decide +kernel
 
--- Ground truth: the entry's displayed polynomials at `m = 2`.
+-- Examples: the entry's displayed polynomials at `m = 2`.
 example : A 1 = 0 ∧ A 2 = 2 ∧ A 3 = 2 / 2 + 2 ^ 2 ∧ A 4 = 2 / 3 + 2 ^ 2 / 2 + 2 ^ 3 := by
   decide +kernel
 
@@ -195,13 +164,9 @@ theorem logIntegralExpr_eq (n : ℕ) (hn : 1 ≤ n) : logIntegralExpr n = (A n :
   rw [← hsum]
   ring
 
-/-- **Bala's conjecture (A145656, Peter Bala, Jun 10 2024).**
-
-Verbatim: "Conjecture: a(n) = numerator( (2^n)*log(2) - 2^(n+1)*Integral_{x =
-0..1} x^(2*n-1)/(1 + x^2)^n )."
-
-For every `n ≥ 1` the real number `2^n log 2 - 2^(n+1) ∫₀¹ x^(2n-1)/(1+x²)^n dx`
-is rational, and every rational `q` equal to it has numerator `a n`. -/
+/-- Bala's conjecture (OEIS A145656, 2024-06-10): for `n ≥ 1`,
+`2^n log 2 - 2^(n+1) ∫₀¹ x^(2n-1)/(1+x²)^n dx` has a rational
+representative, and every such representative has numerator `a n`. -/
 theorem a_eq_num_logIntegralExpr (n : ℕ) (hn : 1 ≤ n) :
     (∃ q : ℚ, (q : ℝ) = logIntegralExpr n) ∧
       ∀ q : ℚ, (q : ℝ) = logIntegralExpr n → q.num = a n := by

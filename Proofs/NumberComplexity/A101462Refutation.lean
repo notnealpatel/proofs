@@ -1,34 +1,12 @@
 /-
 # A101462 — Zhou: for every prime `p` some `2^k - p` is prime (refuted)
 
-## OEIS source (retrieved with `oeis show A101462` and the live entry, 2026-10-21)
-
-```
-A101462 NAME: Smallest k such that 2^k-prime(n) is prime.
-OFFSET:  1,1
-TERMS:   2,3,3,39,4,4,6,5,6,5,7,11,6,29,6,6,6,6,7,10,9,9,8,8,7,26,9,8,7,10,
-         47,14,10,9,8,31,15,9,8,8,12,9,14,21,8,9,25,261,8,9,8,8,9,8,14,...
-COMMENT: Conjecture: sequence is defined for all n. First unproved n: 286
-         Prime(286)=1871, up to date, tested up to k=40959, none
-         2^k-Prime(286) is prime.
-COMMENT: Primo was used for testing large primes.
-AUTHOR:  Lei Zhou, Jan 20 2005
-EXTENSIONS: a(35) and a(45) corrected by Alper Ferudun, Oct 13 2026
-```
-
-The conjecture comment is unsigned, hence by the author (Lei Zhou,
-Jan 20 2005).  No later comment retracts it (2026-10-21).
-
-## Status
-
-This module refutes the conjecture.  The prime `p = 509203` (Riesel's
-number, `p = prime(42228)`) has no `k` with `2^k - p` prime: every
-residue class of `k` modulo `24` is covered by one of the primes
-`3, 5, 7, 13, 17, 241` (each has `2^24 ≡ 1`), i.e. `q ∣ 2^k - p`; and for
-`k ≥ 19` the difference `2^k - p ≥ 15085` exceeds every covering prime,
-while for `k ≤ 18` we have `2^k < p`.  This is the dual of Riesel's 1956
-covering for `p * 2^k - 1`; the sister entry A094076 records the analogous
-covering refutation for `p + 2^k`.
+OEIS A101462, Lei Zhou: the sequence need not be defined at every
+positive index. The prime `p = 509203` has no prime difference `2^k - p`.
+The classes modulo `24` are covered by `3, 5, 7, 13, 17, 241`.
+For `k ≥ 19` the positive difference exceeds each covering prime; for
+`k ≤ 18` it is negative, represented here by truncated subtraction.
+This is the dual of Riesel's covering for `p·2^k - 1`.
 -/
 import Mathlib
 
@@ -36,7 +14,7 @@ set_option autoImplicit false
 
 namespace Candidates.A101462Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `k` is admissible for the prime `p` in A101462: `k ≥ 1`, the
 difference `2^k - p` is positive (so the truncated `ℕ` subtraction is the
@@ -53,7 +31,7 @@ instance (p k : ℕ) : Decidable (Admissible p k) := by
 def IsA101462Term (n a : ℕ) : Prop :=
   0 < n ∧ IsLeast {k : ℕ | Admissible (Nat.nth Nat.Prime (n - 1)) k} a
 
-/-! ### Ground truth against the listed terms `a(1), a(2), a(3), a(5), a(6) = 2, 3, 3, 4, 4` -/
+/-! ### Examples against the listed terms `a(1), a(2), a(3), a(5), a(6) = 2, 3, 3, 4, 4` -/
 
 /-- Least-element check by a finite scan below `a`. -/
 theorem isA101462Term_of_check (n a : ℕ) (hn : 0 < n)
@@ -80,8 +58,8 @@ example : IsA101462Term 5 4 := by
 
 /-! ## The conjecture -/
 
-/-- **Zhou's conjecture (A101462, Lei Zhou, Jan 20 2005).**
-Verbatim: "Conjecture: sequence is defined for all n."  That is, for every
+/-- **Zhou's conjecture (A101462, Lei Zhou, 2005).**
+That is, for every
 `n ≥ 1` there is `k ≥ 1` with `2^k - prime(n)` a (positive) prime. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 0 < n → ∃ k : ℕ, Admissible (Nat.nth Nat.Prime (n - 1)) k
@@ -133,13 +111,10 @@ theorem not_prime_two_pow_sub (k : ℕ) : ¬ (2 ^ k - 509203).Prime := by
   · omega
   · omega
 
-/-- **Refutation.** The prime `p = 509203 = prime(42228)` (Riesel's number)
-has no `k` with `2^k - p` a positive prime: the classes of `k` modulo `24`
-are covered by `3, 5, 7, 13, 17, 241`.  So A101462 is undefined at
-`n = π(509203) + 1 = 42228`.  The index is obtained from `Nat.nth_count`,
-without computing `π(509203)`.  The author's empirical claim (tested only
-to small primes, the first open case being `prime(286) = 1871`) has no
-evident corrected form beyond excluding covering-congruence primes. -/
+/-- Riesel’s prime `509203` gives an undefined term of A101462: no
+`2^k - 509203` is prime, by the covering classes modulo `24`.
+The proof obtains a positive prime index from `Nat.nth_count`,
+without evaluating `Nat.count Nat.Prime 509203`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   have hnth : Nat.nth Nat.Prime (Nat.count Nat.Prime 509203) = 509203 :=

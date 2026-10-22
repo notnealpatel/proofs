@@ -1,27 +1,9 @@
 /-
 # A322327 — Schulte: `A005361(n) * k^omega(n)` is multiplicative for every `k`
 
-## OEIS source (retrieved with `oeis show A322327` and https://oeis.org/A322327, 2026-10-21)
-
-```
-NAME:     a(n) = A005361(n) * A034444(n).
-TERMS:    1,2,2,4,2,4,2,6,4,4,2,8,2,4,4,8,2,8,2,8,4,4,2,12,4,4,6,8,2,8,...
-AUTHOR:   Werner Schulte, Dec 03 2018
-COMMENT (the conjecture; the comment carries no signature of its own, so it is
-the author's, Werner Schulte, Dec 03 2018):
-  Conjecture: Let k be some fixed integer and a_k(n) = A005361(n) * k^A001221(n)
-  for n > 0 with 0^0 = 1. Then a_k(n) is multiplicative with a_k(p^e) = k*e for
-  prime p and e > 0. For k = 0 see A000007 (offset 1), for k = 1 see A005361,
-  for k = 2 see this sequence, for k = 3 see A226602 (offset 1), and for k = 4
-  see A322328.
-FORMULA:  Multiplicative with a(p^e) = 2*e for prime p and e > 0.
-```
-
-## Status
-
-Triage literature status: "open" (no proof in the entry), tractability
-"trivial": the claim is immediate from the multiplicativity of the product of
-exponents `A005361` and of `k^omega`.  This file proves it.
+Werner Schulte's conjecture in OEIS A322327 (2018): for each integer `k`,
+`A005361(n) k^ω(n)` is multiplicative and equals `ke` at `p^e` for prime `p`
+and `e > 0`.
 
 ## Definitions
 
@@ -53,7 +35,7 @@ def ak (k : ℤ) (n : ℕ) : ℤ := (A005361 n : ℤ) * k ^ cardDistinctFactors 
 def akFun (k : ℤ) : ArithmeticFunction ℤ :=
   ⟨fun n => if n = 0 then 0 else ak k n, if_pos rfl⟩
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : A005361 1 = 1 := by decide +kernel
 example : A005361 8 = 3 := by decide +kernel
@@ -122,15 +104,10 @@ theorem akFun_apply_of_pos (k : ℤ) {n : ℕ} (hn : 0 < n) : akFun k n = ak k n
 
 /-! ## The conjecture -/
 
-/-- **Schulte's conjecture (A322327, Werner Schulte, Dec 03 2018).**
-
-Verbatim: "Conjecture: Let k be some fixed integer and a_k(n) = A005361(n) *
-k^A001221(n) for n > 0 with 0^0 = 1. Then a_k(n) is multiplicative with
-a_k(p^e) = k*e for prime p and e > 0."
-
-For every integer `k`, the arithmetic function `n ↦ A005361(n) * k ^ ω(n)`
-(`n > 0`) is multiplicative and takes the value `k * e` at `p ^ e` for every
-prime `p` and every `e > 0`. -/
+/-- Schulte's conjecture (OEIS A322327, 2018): for every integer `k`, the
+arithmetic function `n ↦ A005361(n) k^ω(n)` on positive arguments is
+multiplicative and equals `ke` at `p^e` for prime `p` and `e > 0`.
+The convention is `0^0=1`. -/
 theorem schulte_conjecture (k : ℤ) :
     (akFun k).IsMultiplicative ∧
       ∀ p e : ℕ, p.Prime → 0 < e → akFun k (p ^ e) = k * e := by

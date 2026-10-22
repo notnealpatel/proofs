@@ -1,35 +1,10 @@
 /-
 # A288523 — length of the iterates of the parsing map 00 → 0101, 10 → 010
 
-## OEIS source (retrieved with `oeis show A288523` / `oeis show A288520`, 2026-10-21)
-
-```
-A288523
-NAME:     a(n) = a(n-1) + a(n-2) + a(n-3) - 2*a(n-4) for n >= 5, where a(0) = 2,
-          a(1) = 4, a(2) = 5, a(3) = 8, a(4) = 11.
-TERMS:    2,4,5,8,11,16,25,36,55,84,125,192,291,440,673,1020,1551,2364,3589,...
-COMMENT (the conjecture):
-  Conjecture: a(n) is the number of letters (0's and 1's) in the n-th iteration
-  of the mapping 00->0101, 10->010, starting with 00; see A288520.
-FORMULA:  G.f.: (2 + 2 x - x^2 - 3 x^3 - 2 x^4)/(1 - x - x^2 - x^3 + 2 x^4).
-
-A288520 (the iterates; Clark Kimberling, Jun 2017)
-  Iterates, starting with 00:
-  00, 0101, 00101, 01010101, 00100100101, 0101010001000101, ...
-  PROG (Mathematica):
-    w[n_] := StringReplace[w[n - 1], {"00" -> "0101", "10" -> "010"}]
-  Table[StringLength[w[n]], {n, 1, 35}] (* A288523 conjectured *)
-```
-
-The conjecture is unsigned in the entry; the entry AUTHOR line (live oeis.org)
-is "Clark Kimberling, Jun 13 2017", so it is Kimberling's; the OEIS
-entry gives no proof.
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell); computationally verified for `n < 40` (2026-10-21).  This module
-proves it: `length_iterate_eq_a`.
+OEIS A288523 and A288520, Clark Kimberling (2017): the recurrence
+`a(n) = a(n-1)+a(n-2)+a(n-3)-2a(n-4)` for `5 ≤ n`, with initial values
+`2,4,5,8,11`, gives the lengths of iterates of `00 ↦ 0101`, `10 ↦ 010`
+starting from `00`.
 
 ## Semantics of the parsing map
 
@@ -77,7 +52,7 @@ def a : ℕ → ℤ
   | 4 => 11
   | n + 5 => a (n + 4) + a (n + 3) + a (n + 2) - 2 * a (n + 1)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The iterates listed in A288520.
 example : step^[0] [false, false] = [false, false] := rfl
@@ -281,9 +256,7 @@ theorem L_add_three (m : ℕ) (hm : 1 ≤ m) : L (m + 3) + 2 = L (m + 1) + 2 * L
 
 /-- **Kimberling's conjecture (A288523 / A288520, Jun 2017), proved.**
 
-Verbatim: "Conjecture: a(n) is the number of letters (0's and 1's) in the n-th
-iteration of the mapping 00->0101, 10->010, starting with 00; see A288520."
-
+The length of the nth iterate of `00` equals `a n`.
 Here `step` is the left-to-right parse of the Mathematica program
 `StringReplace[w, {"00" -> "0101", "10" -> "010"}]` and `a` is the recurrence
 of the NAME line, `a(n) = a(n-1)+a(n-2)+a(n-3)-2a(n-4)` (`n ≥ 5`) with initial

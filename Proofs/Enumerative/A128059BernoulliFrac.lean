@@ -1,56 +1,18 @@
 /-
-# A128059 — Aktar: denominator of an lcm-weighted Bernoulli fractional-part sum
+Bernoulli fractional-part denominators (OEIS A128059; Yalcin Aktar, Jul 23 2008).
 
-## OEIS source (retrieved with `oeis show A128059`, 2026-10-21)
+For n≥1, the denominator of
+ f(n-1)=lcm(1,…,n-1) ∑_{k=0}^{n-1} frac(B_{2k}) C(n-1+k,k)
+is A128059(n), defined by numerator((2n-1)²/(2(2n)!)).
+Both equal 2n-1 if that number is prime, and 1 otherwise.
 
-```
-NAME:     a(n) = numerator((2*n-1)^2/(2*(2*n)!)).
-TERMS:    1,1,3,5,7,1,11,13,1,17,19,1,23,1,1,29,31,1,1,37,1,41,43,1,47,1,1,53,
-          1,1,59,61,1,1,67,1,71,73,1,1,79,1,83,1,1,89,1,1,1,97,1,101,103,1,107,
-          109,1,113,1,1,1,1,1,1,127
-KEYWORDS: easy,nonn
-OFFSET:   0 (the Maple program lists a(0), a(1), ... = 1, 1, 3, ...)
-FORMULA (the conjecture, verbatim):
-  Conjecture: a(n) = denominator(f(n-1)) with f(n) =
-  lcm(2,3,4,5,...,n)*(Sum_{k=0..n} frac(Bernoulli(2*k))*binomial(n+k,k)).
-  - _Yalcin Aktar_, Jul 23 2008
-```
-
-## Status
-
-Triage: open — the entry records the identity as a 2008 conjecture with no
-proof, and the triage found no proof in the literature.  Exact rational
-computation agrees for `n = 1..120` (triage `n ≤ 59`, re-validated here to
-`n ≤ 120` in Sage).
-
-## Formalization choices
-
-* `frac x` is fixed here as `Int.fract x = x - ⌊x⌋` (floor convention).  The
-  entry leaves the convention for "frac" implicit; Maple's `frac` and
-  Mathematica's `FractionalPart` instead round toward zero (`x - trunc x`),
-  which gives a different `f` (`frac(B_4)` becomes `-1/30` instead of `29/30`,
-  and `f(2) = 3/5` instead of this file's `63/5`).  For each `k` the two
-  fractional parts of `B_{2k}` differ by an integer, so after multiplying by the
-  integer `lcm(1..m) · C(m+k, k)` the two readings of `f(m)` differ by an
-  integer and have the same denominator: the denominator statement proved here
-  is the same under both conventions.
-* `Bernoulli(2k)` is Mathlib's `bernoulli (2 * k)`; the `B₁` sign convention
-  never enters, since only even indices occur.
-* `lcm(2,3,...,n)` is `(Finset.Icc 1 n).lcm id`; including `1` changes nothing
-  and the empty case (`n ≤ 1`) is `1`, as for the empty lcm in the entry.
-* The conjecture is about `n ≥ 1` (it evaluates `f (n - 1)`); the guard
-  `1 ≤ n` keeps the natural-number subtraction off its junk value.
-
-## Proof (complete, kernel-checked below)
-
-By von Staudt–Clausen (`Bernoulli.vonStaudt_clausen`),
-`frac(B_{2k}) ≡ -∑_{p prime, (p-1) ∣ 2k} 1/p (mod ℤ)`, so
-`f(m) ≡ -∑_k ∑_p L·C(m+k,k)/p (mod ℤ)` with `L = lcm(1..m)`.  For every
-prime `p ≠ 2m+1` in the sum, `p ∣ L·C(m+k,k)`: either `p ≤ m` and `p ∣ L`,
-or `m < p ≤ m + k` and `p ∣ C(m+k,k)` (`Nat.Prime.dvd_choose_add`).  The
-only surviving term is `k = m`, `p = 2m+1` (when prime), whose numerator
-`L·C(2m,m)` is prime to `2m+1`.  Hence `den f(m) = 2m+1` if `2m+1` is prime
-and `1` otherwise, which is also the value of `numerator((2m+1)^2/(2(2m+2)!))`.
+Here frac is the floor fractional part Int.fract. The entry leaves the
+convention implicit; truncation-toward-zero fractional parts differ by
+integers, so the two sums differ by an integer and have the same denominator.
+That convention comparison is not a separate formal theorem here.
+Only even Bernoulli indices occur. Including 1 in the lcm changes nothing;
+the empty lcm is 1. The guard n≥1 is required by f(n-1).
+Von Staudt–Clausen reduces the proof to prime divisibility of binomial coefficients.
 -/
 import Mathlib
 
@@ -74,7 +36,7 @@ noncomputable def f (m : ℕ) : ℚ :=
 (the subtraction `2n - 1` is taken in `ℚ`, so `a 0 = numerator(1/2) = 1`). -/
 def a (n : ℕ) : ℤ := (((2 * n : ℚ) - 1) ^ 2 / (2 * (2 * n).factorial)).num
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The DATA line, `a(0..11)`.
 example : (List.range 12).map a = [1, 1, 3, 5, 7, 1, 11, 13, 1, 17, 19, 1] := by
@@ -356,30 +318,21 @@ theorem a_succ (m : ℕ) : a (m + 1) = if (2 * m + 1).Prime then 2 * m + 1 else 
 
 /-! ## The conjecture -/
 
-/-- **Aktar's conjecture (A128059, Yalcin Aktar, Jul 23 2008), proved.**
-
-Verbatim: "Conjecture: a(n) = denominator(f(n-1)) with f(n) =
-lcm(2,3,4,5,...,n)*(Sum_{k=0..n} frac(Bernoulli(2*k))*binomial(n+k,k))."
-
-For every `n ≥ 1`, the denominator of
-`f(n-1) = lcm(1..n-1) · ∑_{k=0}^{n-1} frac(B_{2k}) · C(n-1+k, k)` equals
-`a(n) = numerator((2n-1)^2 / (2·(2n)!))`.  The guard `1 ≤ n` keeps `n - 1`
-off its truncated value (`n = 0` is outside the conjecture).  `frac` is fixed
-as `Int.fract` (floor convention); the entry leaves the convention implicit,
-and the round-toward-zero reading (Maple, Mathematica) changes `f(n-1)` only
-by an integer, so this denominator statement holds under either reading. -/
+/-- For `n≥1`, the denominator of `f(n-1)` is A128059(n)
+(Yalcin Aktar, Jul 23 2008). The formal `f` uses floor fractional parts;
+the source's alternate truncation convention changes `f` only by an integer. -/
 theorem aktar_conjecture (n : ℕ) (hn : 1 ≤ n) : ((f (n - 1)).den : ℤ) = a n := by
   obtain ⟨m, rfl⟩ : ∃ m, n = m + 1 := ⟨n - 1, by omega⟩
   rw [Nat.add_sub_cancel, den_f, a_succ]
 
-/-- Closed form of the denominator (the triage's equivalent form): for `n ≥ 1`,
+/-- Closed form of the denominator : for `n ≥ 1`,
 `denominator(f(n-1)) = 2n-1` if `2n-1` is prime and `1` otherwise. -/
 theorem den_f_pred (n : ℕ) (hn : 1 ≤ n) :
     (f (n - 1)).den = if (2 * n - 1).Prime then 2 * n - 1 else 1 := by
   obtain ⟨m, rfl⟩ : ∃ m, n = m + 1 := ⟨n - 1, by omega⟩
   rw [Nat.add_sub_cancel, den_f, show 2 * (m + 1) - 1 = 2 * m + 1 by omega]
 
--- Non-vacuity: the hypothesis `1 ≤ n` is met at `n = 3`, where the common value is `5`.
+-- The hypothesis `1 ≤ n` is met at `n = 3`, where the common value is `5`.
 example : ((f (3 - 1)).den : ℤ) = a 3 ∧ a 3 = 5 :=
   ⟨aktar_conjecture 3 (by norm_num), by decide +kernel⟩
 

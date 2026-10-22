@@ -1,41 +1,11 @@
 /-
-# A365771 — Paul D. Hanna: residues of `Catalan(n) * C(3n-1, n)` modulo 5
+Residues of OEIS A365771 modulo 5 (Paul D. Hanna, Oct 10 2023).
 
-## OEIS source (retrieved with `oeis show A365771`, 2026-10-21; checked against the
-live entry the same day)
-
-```
-NAME:     a(n) = binomial(2*n+1, n)/(2*n+1) * binomial(3*n-1, n) for n >= 0.
-TERMS:    1,2,20,280,4620,84084,1633632,33256080,701149020,15191562100,...
-FORMULA:  a(n) = A000108(n) * A165817(n) for n >= 0.
-COMMENT (the conjecture; entry authored by _Paul D. Hanna_, Oct 10 2023):
-  Conjectures: given A033042 is the sums of distinct powers of 5, then
-  (1) a(5*A033042(n)) == 4 (mod 5) for n > 0,
-  (2) a(5*A033042(n) + 1) == 2 (mod 5) for n > 0,
-  (3) a(n) == 0 (mod 5) for n > 0 except when n or n-1 equals 5*A033042(k)
-      for some k >= 0.
-```
-
-Triage restatement: with `B = 5 * {numbers whose base-5 digits are all 0 or 1}`,
-(1) `a(n) ≡ 4 (mod 5)` for `n ∈ B`, `n > 0`; (2) `a(n) ≡ 2 (mod 5)` for
-`n - 1 ∈ B`, `n > 1`; (3) `a(n) ≡ 0 (mod 5)` for all other `n > 0`.
-
-## Status
-
-Literature status at triage: open (no proof in the entry or the literature as far
-as the triage could tell; the live entry carries no "proved" note).  Numerically
-verified for `1 ≤ n ≤ 6000`.  This file **proves all three parts** (no `sorry`).
-
-## Proof
-
-`3 (n+1) a(n) = 2 C(2n,n) C(3n,n)` for `n ≥ 1` (from `C(2n+1,n) = (2n+1) Cat(n)`
-and `3 C(3n-1,n) = 2 C(3n,n)`).  Lucas's theorem digit by digit gives
-`C(2n,n) C(3n,n) ≡ 1 (mod 5)` if every base-5 digit of `n` is `0` or `1` and
-`≡ 0` otherwise.  When `n ≢ 4 (mod 5)`, `3 (n+1)` is a unit mod 5 and the three
-residues follow; when `n ≡ 4 (mod 5)`, Lucas gives `5 ∣ C(3n-1, n)` directly.
-
-Part (2) is proved in the stronger successor form `m ∈ B → a(m+1) ≡ 2`, which
-also covers `m = 0` (`a(1) = 2`).
+For a(n)=Catalan(n)*C(3n-1,n), let B be five times the numbers whose base-5
+digits are 0 or 1 (A033042). At positive n, a(n)≡4 if n∈B and a(n)≡0
+if neither n nor n-1 lies in B. For m∈B, a(m+1)≡2, including m=0.
+Thus all three source residue assertions hold. The Catalan quotient formula
+is bridged to the definition; Lucas's theorem supplies the digit criterion.
 -/
 import Mathlib
 
@@ -85,7 +55,7 @@ example : InB 0 ∧ InB 5 ∧ InB 30 ∧ InB 130 := by
 example : ¬ InB 10 ∧ ¬ InB 6 ∧ ¬ InB 55 := by
   norm_num [InB, AllDigitsLeOne]
 
--- Ground truth against A033042 (sums of distinct powers of 5): 0,1,5,6,25,26,30,31.
+-- Examples against A033042 (sums of distinct powers of 5): 0,1,5,6,25,26,30,31.
 example : (Finset.range 32).filter AllDigitsLeOne = {0, 1, 5, 6, 25, 26, 30, 31} := by
   decide
 
@@ -273,7 +243,7 @@ theorem hanna_conjecture :
     (∀ n : ℕ, 0 < n → ¬ InB n → ¬ InB (n - 1) → a n % 5 = 0) :=
   ⟨a_mod_five_of_inB, a_mod_five_of_inB_sub_one, a_mod_five_of_not_inB⟩
 
--- Non-vacuity: each part's hypotheses are jointly satisfiable.
+-- Each part's hypotheses are jointly satisfiable.
 example : 0 < 5 ∧ InB 5 := ⟨by norm_num, by norm_num [InB, AllDigitsLeOne]⟩
 example : 1 < 6 ∧ InB (6 - 1) := ⟨by norm_num, by norm_num [InB, AllDigitsLeOne]⟩
 example : 0 < 2 ∧ ¬ InB 2 ∧ ¬ InB (2 - 1) := by norm_num [InB]

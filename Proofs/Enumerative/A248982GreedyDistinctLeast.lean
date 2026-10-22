@@ -1,37 +1,12 @@
 /-
-# A248982 — greedy distinct sequence with Fibonacci running averages
+# A248982: a greedy sequence with Fibonacci running averages
 
-## OEIS source (retrieved with `oeis show A248982`, 2026-10-21)
-
-```
-NAME:     Sequence of distinct least positive numbers such that the average of
-          the first n terms is a Fibonacci number.
-TERMS:    1,3,2,6,13,5,26,8,53,93,21,177,34,328,55,599,89,1079,144,1924,233,
-          3401,377,5969,610,10412,987,18067,1597,31207,2584,53688,4181,92037,...
-FORMULA:  Conjecture: a(n) = 2*a(n-2)+a(n-4)-2*a(n-6)-a(n-8) for n > 17.
-          - _Colin Barker_, Oct 19 2014
-FORMULA:  Conjecture: For n > 4, a(2*n+1) = A000045(n+3).
-```
-
-Fried's refined form (arXiv:2410.07237, J. Integer Seq.): for `n ≥ 10`,
-`a(n) = n*F(n/2+3) - (n-1)*F(n/2+2)` when `n` is even and
-`a(n) = F((n+1)/2+2)` when `n` is odd.
-
-## Status (triage)
-
-Open as far as the triage could tell: Fried reduced the problem to showing
-that the even-index values are never Fibonacci numbers and states that he
-could not prove this; a claimed resolution (arXiv:2509.26138) is withdrawn.
-
-## Proof outline (this file)
-
-Put `b i = F(i+2) + 2 i F(i+1)`.  From `n = 10` on, the running sum is
-`s_n = n F(⌊n/2⌋+3)`.  At an odd step the least admissible average is
-`F(j+3)`, giving the value `F(j+3)`; at an even step the average `F(j+3)`
-would repeat the previous term, so the next average is `F(j+4)`, giving
-`b (j+1)`.  Freshness of `F(j+3)` needs `b i` never to be a Fibonacci number
-(`b_ne_fib`), proved with `F(m) = F(s) F(i+1) + F(s+1) F(i+2)` and
-`gcd(F(i+1), F(i+2)) = 1`.
+OEIS A248982, Colin Barker's recurrence (Oct 19 2014), and Fried's
+refined formulas, arXiv:2410.07237, Journal of Integer Sequences.
+For the greedy distinct least-positive sequence, the even and odd Fibonacci
+formulas hold for `n ≥ 10`, and Barker's recurrence holds for `n > 17`.
+The proof shows that `b(i) = F(i+2) + 2i F(i+1)` is never Fibonacci for
+`i ≥ 5`, supplying the freshness condition in the greedy induction.
 -/
 import Mathlib
 
@@ -408,7 +383,7 @@ theorem inv_terms (j : ℕ) (hj : 5 ≤ j) : Inv j (terms (2 * j)) := by
     rw [h2, a_odd_of_inv j hj ih, a_even_of_inv j hj ih]
     exact inv_succ j hj _ ih
 
-/-! ## Ground truth: the first listed terms -/
+/-! ## Example: the first listed terms -/
 
 /-- `terms k` lists `a 1, ..., a k`. -/
 theorem getElem?_terms (k n : ℕ) (h : n < k) : (terms k)[n]? = some (a (n + 1)) := by
@@ -521,7 +496,7 @@ theorem a_recurrence (n : ℕ) (hn : 17 < n) :
       show t + 5 + 3 = t + 8 by ring, h5, h4, h3]
     push_cast; ring
 
-/-! ## Further ground truth from the closed forms -/
+/-! ## Further examples from the closed forms -/
 
 example : a 11 = 21 := by rw [show 11 = 2 * 5 + 1 by rfl, a_two_mul_add_one 5 (by norm_num)]; decide
 example : a 12 = 177 := by rw [show 12 = 2 * 5 + 2 by rfl, a_even_closed 5 (by norm_num)]; decide

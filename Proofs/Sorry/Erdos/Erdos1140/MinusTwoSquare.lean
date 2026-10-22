@@ -1,4 +1,4 @@
-import Erdos.Erdos1140.MinusTwoSquare
+import Sorry.Quarantine.Erdos.Erdos1140.MinusTwoSquare
 
 /-!
 Quarantined admissions and their dependent consequences. Production supplies the

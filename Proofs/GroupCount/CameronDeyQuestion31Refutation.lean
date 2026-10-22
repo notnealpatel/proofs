@@ -1,39 +1,22 @@
 /-
 # Cameron–Dey, Question 31: the abelian hypothesis is necessary
 
-## Source
-
 Peter J. Cameron and Hiranya Kishore Dey, *On the order sequence of a group*,
-arXiv:2310.06516 (published as Electron. J. Combin. 32(2) (2025) #P2.9).
+arXiv:2310.06516; Electron. J. Combin. 32(2) (2025) #P2.9, Question 31.
 
-* Definitions (arXiv Sec. 2, before Prop. `p:bijection`): for groups `G`, `H`
-  of the same order `n`, `os(G)` *dominates* `os(H)` if `o(g_i) ≥ o(h_i)` for
-  `1 ≤ i ≤ n`, where both order sequences are sorted increasingly.
-  Proposition `p:bijection` (EJC Prop. 3, proved in the paper): `os(G)`
-  dominates `os(H)` iff there is a bijection `f : G → H` with
-  `o(g) ≥ o(f(g))` for all `g`.  `os(G)` *strongly dominates* `os(H)` if there
-  is a bijection `f : G → H` with `o(f(g)) ∣ o(g)` for all `g`.
-* Theorem `t:extension` (EJC Theorem 8, proved in the paper): "Let `G` and `H`
-  be groups of coprime order, and suppose that `G` is abelian. Let `K` be any
-  extension of `G` by `H`. Then `os(G × H) = os(G) os(H)` strongly dominates
-  `os(K)`."
-* Section "Open questions", second question (EJC Question 31), verbatim:
-  "Is the condition that `G` is abelian necessary in Theorem~\ref{t:extension}?"
-  The question is printed as open in both the arXiv and the EJC versions.
+For groups of equal finite order, ordinary domination compares their sorted
+element-order sequences entrywise. By Proposition 3 (`p:bijection`), this is
+equivalent to a bijection `f : G → H` with `o(f g) ≤ o(g)`. Strong domination
+requires `o(f g) ∣ o(g)`. Theorem 8 (`t:extension`) says that `G × H` strongly
+dominates every extension of an abelian `G` by `H` when their orders are
+coprime. Question 31 asks whether abelianness is necessary.
 
-## Claim formalized here (date: 2026-10-21)
-
-Negative answer to the implicit claim, i.e. the abelian hypothesis *is*
-necessary, and without it even ordinary domination fails.  Witness:
-`V = (ZMod 5)²`, `r = [[0,-1],[1,-1]]` (order 3) and `s = [[0,1],[1,0]]`
-generate a copy of `S₃ ≅ DihedralGroup 3` in `GL(2,5)`;
-`K = V ⋊ S₃` (order 150) and `N = V ⋊ ⟨r⟩` (order 75, nonabelian, normal of
-index 2).  Element orders: `K` has `{1:1, 2:15, 3:50, 5:24, 10:60}` while
-`N × C₂` has `{1:1, 2:1, 3:50, 5:24, 6:50, 10:24}`, so `K` has 60 elements of
-order `≥ 10` against only 24 in `N × (K ⧸ N)`.
-
-Status: this answers an open question of the paper; the refutation below is
-fully kernel-checked (no unfinished goals).
+This module gives a counterexample without abelianness, even for ordinary
+domination. Let `V = (ZMod 5)²`; the matrices `r = [[0,-1],[1,-1]]` and
+`s = [[0,1],[1,0]]` generate `S₃ ≅ DihedralGroup 3` in `GL(2,5)`.
+Then `K = V ⋊ S₃` has order 150, and `N = V ⋊ ⟨r⟩` is nonabelian and normal
+of order 75 and index 2. The group `K` has 60 elements of order at least 10,
+whereas `N × (K ⧸ N)` has at most 24, excluding a dominating bijection.
 -/
 import Mathlib
 
@@ -96,7 +79,7 @@ def coeffs : DihedralGroup 3 → ZMod 5 × ZMod 5 × ZMod 5 × ZMod 5
   | sr i => if i = 0 then (0, 1, 1, 0) else if i = 1 then (1, -1, 0, -1) else (-1, 0, -1, 1)
 
 /-- The rotation `r 1` acts by `R = [[0,-1],[1,-1]]` and the reflection `sr 0`
-by `S = [[0,1],[1,0]]` (ground truth for `coeffs`). -/
+by `S = [[0,1],[1,0]]`. -/
 example : coeffs (r 1) = (0, -1, 1, -1) ∧ coeffs (sr 0) = (0, 1, 1, 0) := by decide
 
 /-- The linear action of `DihedralGroup 3` on `V` through `coeffs`. -/
@@ -105,7 +88,7 @@ def act (g : DihedralGroup 3) (v : V) : V :=
     ((coeffs g).1 * v.toAdd.1 + (coeffs g).2.1 * v.toAdd.2,
      (coeffs g).2.2.1 * v.toAdd.1 + (coeffs g).2.2.2 * v.toAdd.2)
 
-/-- `R (1, 0) = (0, 1)`: ground truth for `act`. -/
+/-- `R (1, 0) = (0, 1)`. -/
 example : act (r 1) (Multiplicative.ofAdd (1, 0)) = Multiplicative.ofAdd (0, 1) := by decide
 
 /-- `act` is a left action. -/

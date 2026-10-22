@@ -1,40 +1,15 @@
 /-
 # Conway's "climb to a prime" is false: the composite fixed point 13532385396179
 
-## Source (recorded 2026-10-21)
-
-* MathOverflow answer https://mathoverflow.net/a/66101 (thread "Open problems
-  with monetary rewards", answer listing J. H. Conway's $1000 problems).  The
-  thread page itself could not be fetched from this environment on 2026-10-21;
-  the claim below is taken from the triage spec and cross-checked against
-  OEIS A080670 and the public reports listed here.
-* OEIS A080670, "Literal reading of the prime factorization of n" (comment by
-  M. F. Hasler, Jun 2017, recording the nontrivial fixed point).
-* The Aperiodical, "13532385396179 doesn't climb to a prime" (June 2017),
-  https://aperiodical.com/2017/06/13532385396179-doesnt-climb-to-a-prime/
-* Prime Curios, https://t5k.org/curios/page.php/13532385396179.html
-* No arXiv paper is involved.
-
-## Claim (stated by J. H. Conway, as one of his $1000 problems)
-
-  "Climb to a prime: start from n >= 2, write its prime factorization with
-  primes in increasing order and exponents equal to 1 omitted, read the
-  concatenated digits as a new number, and repeat.  Conway asked whether this
-  always reaches a prime."
-
-## Status
-
-Refuted (proved in the literature): James Davis (June 2017) found
-`n = 13532385396179 = 13 * 53^2 * 3853 * 96179`.  Its factorization reads
-`13 53 2 3853 96179`, which is `n` again, so `n` is a composite fixed point and
-its orbit never reaches a prime.  This module kernel-checks that refutation.
-
-## Conventions
-
-`climb` follows A080670 for every `n ≥ 2` (checked below against the OEIS terms
-for `2 ≤ n ≤ 60`).  For `n = 0, 1` the factorization is empty and `climb`
-returns `0`, whereas A080670 sets `a(1) = 1`; Conway's process only starts at
-`n ≥ 2`, and this boundary value plays no role in the statements.
+Conway's climb map reads the prime factorization in increasing order,
+omitting exponents equal to `1`, as a decimal integer. James Davis's
+composite fixed point `13532385396179 = 13·53²·3853·96179` refutes
+the assertion that every orbit starting at `n ≥ 2` reaches a prime.
+Sources: OEIS A080670; The Aperiodical,
+“13532385396179 doesn’t climb to a prime” (2017),
+https://aperiodical.com/2017/06/13532385396179-doesnt-climb-to-a-prime/ .
+For `n = 0,1` the factorization is empty and `climb` returns `0`,
+whereas A080670 sets `a(1) = 1`. This does not affect the refutation.
 -/
 import Mathlib
 
@@ -90,7 +65,7 @@ theorem climb_eq_fun : climb = fun n =>
   funext n
   rw [climb, climbBlocks_eq]
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : concatDec 13 53 = 1353 := by decide +kernel
 example : climbBlocks 12 = [2, 2, 3] := by rw [climbBlocks_eq]; decide +kernel

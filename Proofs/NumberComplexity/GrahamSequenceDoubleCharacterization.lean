@@ -1,41 +1,11 @@
 /-
 # A006255 — Graham's function: `g(n) = 2n` iff `n = 0`, `n = 6`, or `n > 3` prime
 
-## Source
-
-* Sarosh Adenwalla, *On a Generalisation of a Function of Ron Graham's*,
-  arXiv:2504.19196v2 (May 2025).  Section 1 (definition of `g_m(n)`),
-  Conjecture 1.1 (due to Kagey–Rajesh), and Theorem `conj` at the end of
-  Section 3, whose proof uses Lemma `lemma:ab` (Selfridge / Erdős) and the
-  Appendix values `g_2(2) = 6`, `g_2(3) = 8`.
-* The "if" direction is credited there to C. Kagey and N. Rajesh,
-  arXiv:2410.04728 (Lemma 7: `g_2(p) = 2p` for primes `p > 3`;
-  `g_2(0) = 0`, `g_2(6) = 12`).
-* OEIS A006255 is the sequence `(g_2(n))_{n ≥ 0}`.
-
-Verbatim (arXiv:2504.19196, Section 1):
-
-  "For non-negative integers n, define g(n) to be the smallest integer
-  s ≥ n such that there exist distinct integers a_1,…,a_t ∈ [n,s] where
-  a_1 = n and ∏ a_i is a square."
-
-  "Definition. A sequence of integers, a_1 ≤ a_2 ≤ … ≤ a_t, is a
-  m-product sequence if there exists R ∈ ℕ such that ∏ a_i = R^m and no
-  integer appears more than m−1 times in the sequence."
-
-  "Definition. For n ∈ ℕ, we say g_m(n) is the least integer s such that
-  there exists an m-product sequence starting at n and ending at s."
-
-  "Theorem (conj). For all n ∈ ℕ, g_2(n) = 2n if and only if:
-  1. n > 3 is prime  2. n = 0  3. n = 6."
-
-## Status
-
-Proved in the literature (Kagey–Rajesh for "if", Adenwalla for "only
-if").  Recorded 2026-10-21.  This module proves the full characterization
-end to end.
-
-## Encoding
+Sarosh Adenwalla, “On a Generalisation of a Function of Ron Graham's”,
+arXiv:2504.19196v2, §3, Theorem `conj`; the “if” direction is due to
+C. Kagey and N. Rajesh, arXiv:2410.04728, Lemma 7.
+For Graham's function (OEIS A006255), `g(n) = 2n` exactly when `n = 0`,
+`n = 6`, or `n > 3` is prime.
 
 An `m`-product sequence `n = a_1 ≤ … ≤ a_t = s` is encoded by its
 multiplicity function `c : ℕ → ℕ` on `Finset.Icc n s`: `c i` is the number
@@ -47,7 +17,7 @@ definition (`adm_two_iff`).
 
 Upper bound witnesses used below:
 * `p` prime, `p ≥ 5`: `{p, 2l², 2p}` with `p < 2l² < 2p`, product
-  `(2pl)²` (simpler than the two-square witness of the triage sketch).
+  `(2pl)²` (a three-term square-product witness).
 * `n = ab`, `1 < a < b`: `{ab, a(b+1), (a+1)b, (a+1)(b+1)}` (Lemma `ab`).
 * `n = 6`: `{6, 8, 12}`, product `24²`.
 -/
@@ -330,7 +300,7 @@ theorem gm_two_six : gm 2 6 le_rfl = 12 := by
     rw [Finset.mem_Icc]; omega
   · exact not_adm_two_of_forall not_isSquare_small.2.2 (by omega)
 
-/-- Ground truth against OEIS A006255 (`0, 1, 6, 8, 4, 10, 12, …`) at
+/-- Examples against OEIS A006255 (`0, 1, 6, 8, 4, 10, 12, …`) at
 `n = 4, 5`. -/
 example : gm 2 4 le_rfl = 4 := by
   refine le_antisymm (by simpa using gm_le le_rfl (adm_two_sq 2)) (le_gm _ fun t ht => ?_)

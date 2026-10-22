@@ -1,40 +1,13 @@
 /-
-# A189202 — Shevelev: the even-even digit-sum property always has a solution
+Existence for the even-even digit-sum property (OEIS A189202;
+Vladimir Shevelev, May 02 2011; “A new digital problem”, SeqFan, Apr 2011).
 
-## OEIS source (retrieved with `oeis show A189202` and the live entry, 2026-10-21)
-
-```
-NAME:     Let s_k(n) denote the sum of digits of n in base k. Then a(n) is the
-          smallest m>0 such that both s_2(m*(n-1)) and s_n(2*m*(n-1))/(n-1) are
-          even, or a(n)=0, if such m does not exist.
-OFFSET:   n = 2
-TERMS:    3,5,5,3,13,4,9,5,11,6,19,20,15,47,17,9,19,10,21,32,23,12,37,13,40,
-          41,29,15,46,16,33,17,35,18,37,56,39,20,41,21,85,22,45,68,47,72,73,25,
-          51,26,79,80,109,28,57,87,59,30,91,153,63,191,65,33,67,34,69
-KEYWORDS: nonn
-AUTHOR:   Vladimir Shevelev, May 02 2011
-COMMENT (the conjecture, unsigned, in Shevelev's entry):
-  Conjecture: For all n>=2, a(n)>0.
-COMMENT:
-  For a general problem, see SeqFan link.
-LINKS:    Alois P. Heinz, Table of n, a(n) for n = 2..10000;
-          Vladimir Shevelev, "A new digital problem", SeqFan Discussion, Apr 2011.
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell; the Heinz b-file has `a(n) > 0` for `n = 2..10000`).  Recomputed
-here: the listed terms `n = 2..68` agree, and `a(n) > 0` for `n ≤ 3000`.
-
-This module proves the conjecture.  With `N = n - 1`, write a number as a sum
-of `2N` pieces `2^h * n^g`, each larger than the sum of the earlier ones in
-both bases, so that binary and base-`n` digit sums are additive over the
-pieces (`digitSum_add_pow_mul`).  Pigeonhole fixes the residues of
-`s_2(n^g) mod 2` and `s_n(2^h) mod 2N` along infinite sets of exponents
-(`exists_residue_unbounded`), so `2N` pieces make both sums vanish modulo `2`
-and `2N`.  The digit-sum congruence `X ≡ s_n(X) (mod N)` and a large power
-of two give `2N ∣ X`, and `m = X / (2N)` works.
+For every n≥2 there is positive m with s₂(m(n-1)) even and
+s_n(2m(n-1))/(n-1) even. The quotient is proved integral.
+Thus the least-witness-or-zero sequence is positive on its source domain n≥2;
+no claim is made about the totalized definitions at smaller bases.
+The construction uses separated powers with additive digit sums and
+pigeonhole on their residues.
 -/
 import Mathlib
 
@@ -65,8 +38,7 @@ or `0` if no such `m` exists. -/
 noncomputable def a (n : ℕ) : ℕ :=
   if h : ∃ m, 0 < m ∧ IsSolution n m then Nat.find h else 0
 
-/-- Characterisation of `a n = k` by minimality, used for the ground-truth
-checks: if `k > 0` has the property and no smaller positive `m` does, then
+/-- Characterisation of `a n = k` by minimality, used for the examples: if `k > 0` has the property and no smaller positive `m` does, then
 `a n = k`. -/
 theorem a_eq_of_isLeast (n k : ℕ) (hk : 0 < k) (hgood : IsSolution n k)
     (hmin : ∀ m < k, 0 < m → ¬ IsSolution n m) : a n = k := by
@@ -76,7 +48,7 @@ theorem a_eq_of_isLeast (n k : ℕ) (hk : 0 < k) (hgood : IsSolution n k)
   rw [dif_pos hex, Nat.find_eq_iff]
   exact ⟨⟨hk, hgood⟩, fun m hm hms => hmin m hm hms.1 hms.2⟩
 
-/-! ## Ground truth: the first listed terms `a(2..7) = 3,5,5,3,13,4` and `a(15) = 47` -/
+/-! ## The first listed terms `a(2..7) = 3,5,5,3,13,4` and `a(15) = 47` -/
 
 example : digitSum 2 6 = 2 := by decide
 example : digitSum 10 1234 = 10 := by decide
@@ -218,11 +190,7 @@ theorem exists_isSolution (n : ℕ) (hn : 2 ≤ n) : ∃ m, 0 < m ∧ IsSolution
     rw [ht, show 2 * N * t = N * (2 * t) by ring, Nat.mul_div_cancel_left _ hN]
     exact even_two_mul t
 
-/-- **A189202 conjecture (Vladimir Shevelev's entry, May 02 2011).**
-
-Verbatim: "Conjecture: For all n>=2, a(n)>0."  Here `a n` is the least
-`m > 0` such that `s_2(m*(n-1))` and `s_n(2*m*(n-1))/(n-1)` are both even,
-and `0` if there is none.  Proved via `exists_isSolution`. -/
+/-- The least even-even digit-sum witness is positive for every source base `n≥2`. -/
 theorem a_pos (n : ℕ) (hn : 2 ≤ n) : 0 < a n := by
   classical
   have hex := exists_isSolution n hn

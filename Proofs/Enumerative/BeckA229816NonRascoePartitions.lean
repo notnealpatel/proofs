@@ -1,44 +1,14 @@
 /-
-# Beck's A229816 conjecture: non-Rascoe partitions vs. distinct part sizes at rank `n + 1`
+# Beck's A229816 partition identity
 
-## Source
-
-* arXiv:2608.30180, Philip Cuthbertson, "A requested analytic proof of an
-  identity of Dixit, Kumar, and Srivastava", Section 4 ("Proof of Beck's
-  conjecture/Remark 10"): two lemmas (partitions with no part 1 are counted by
-  `p(n) - p(n-1)`; the total number of part sizes over them is `p(n-2)`) and
-  the Theorem `e(n) = p(n) - p(n-1) + p(n-2) = f(n)`.
-* OEIS A229816, comment by George Beck (Jun 23 2019), where the identity was
-  conjectured.
-
-## Verbatim informal claim (arXiv:2608.30180, Section 4, Theorem)
-
-  "Let `f(n)` be the sum of the number of part sizes in all partitions of
-  `2n + 2` with rank `n + 1`. Then, `e(n) = p(n) - p(n - 1) + p(n - 2) = f(n)`."
-
-Here `e(n)` is the number of (unrestricted) partitions of `n` whose length
-`ℓ(λ)` (number of parts) is not a part ("unrestricted non-Rascoe partitions"),
-and the rank of a partition is its largest part minus its number of parts.
-
-## Status
-
-Proved in the paper (combinatorially; the first equality is taken there from
-the Dixit-Kumar-Srivastava generating function).  Recorded 2026-10-21.
-
-## Formalization
-
-The proof below is fully bijective and does not use generating functions.
-Partitions are transported to their multisets of parts (`partsSet n`), where
-four explicit bijections are verified:
-
-* (A) `λ ⊢ n + 1` with `1 ∈ λ`  ↔  `μ ⊢ n`  (remove / add a part `1`);
-* (B) `λ ⊢ n + 1` with `ℓ(λ) ∈ λ`  ↔  `μ ⊢ n` with no part `1`
-  (remove one part `ℓ(λ)`, add `1` to every other part);
-* (C) pairs `(λ, k)`, `λ ⊢ n + 2` with no part `1`, `k` a part size of `λ`
-  ↔  `μ ⊢ n` (replace one `k` by `k - 2` ones);
-* (D) `λ ⊢ 2n + 2` of rank `n + 1`  ↔  `μ ⊢ n` with no part `1`
-  (remove the largest part, add `1` to the others); the number of part sizes
-  drops by exactly one.
+Philip Cuthbertson, "A requested analytic proof of an identity of Dixit,
+Kumar, and Srivastava", arXiv:2608.30180, Section 4; OEIS A229816,
+George Beck (Jun 23 2019).
+For every `n`, partitions of `n` whose length is not a part are counted by
+the total number of distinct part sizes among partitions of `2n+2` with
+rank `n+1`. Rank is largest part minus length.
+The proof is bijective. The formulas involving partition numbers are stated
+at `n+2`, avoiding negative indices; the main equality holds for all `n`.
 -/
 import Mathlib
 
@@ -67,7 +37,7 @@ def beckF (n : ℕ) : ℕ :=
   ∑ l ∈ univ.filter (fun l : (2 * n + 2).Partition => rank l = n + 1),
     l.parts.toFinset.card
 
-/-! ## Ground truth on small instances -/
+/-! ## Examples on small instances -/
 
 /-- The partition `(2)` of `2` has rank `1 = 0 + 1`, so it contributes to `f(0)`. -/
 example : rank (⟨{2}, by decide, by decide⟩ : (2 : ℕ).Partition) = 0 + 1 := by decide

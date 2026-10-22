@@ -1,26 +1,8 @@
 /-
 # A057015 — Dale: every term after the first is divisible by 10
 
-## OEIS source (retrieved with `oeis show A057015`, 2026-10-21)
-
-```
-NAME:     Numbers k such that k^2 + 1, k^2 + 3, k^2 + 7 and k^2 + 9 are all primes.
-TERMS:    2,10,1420,2080,2600,20500,22630,46960,65300,81610,153560,173590,
-          187330,195290,238850,255230,301690,315410,316250,346580,...
-KEYWORDS: nonn
-COMMENT (the conjecture):
-  Conjecture: all terms after the first term are equal to zero mod 10.
-  - _Harvey P. Dale_, Sep 04 2026
-```
-
-## Status
-
-Triage: "open" (no proof in the entry or the literature as far as the triage
-could tell), tractability "trivial".  It follows from congruences mod 2 and
-mod 5 and is proved below (`dale_ten_dvd`).  Computation (Sage, 2026-10-21):
-the 49 values `k ≤ 2·10^6` are `2` followed by multiples of `10` only.
-
-## Argument
+OEIS A057015, Harvey P. Dale: every term greater than `2` is divisible
+by `10`. A term has all of `k² + 1, k² + 3, k² + 7, k² + 9` prime.
 
 If `k` is odd then `k^2 + 1` is even and greater than `2`.  Modulo `5`,
 `k^2 ≡ 0, 1, 4`.  If `k^2 ≡ 1` then `5 ∣ k^2 + 9 > 5`; if `k^2 ≡ 4` then
@@ -42,7 +24,7 @@ instance (k : ℕ) : Decidable (IsTerm k) := by
   unfold IsTerm
   infer_instance
 
-/-! ## Ground truth against the DATA line -/
+/-! ## Examples against the DATA line -/
 
 -- The first two listed terms `2, 10` are terms.
 example : IsTerm 2 := by unfold IsTerm; norm_num
@@ -98,10 +80,9 @@ theorem five_dvd_of_isTerm {k : ℕ} (hk : 2 < k) (h : IsTerm k) : 5 ∣ k := by
 
 /-! ## The conjecture -/
 
-/-- **Dale's conjecture (A057015, Harvey P. Dale, Sep 04 2026), proved.**
+/-- **Dale's conjecture (A057015, Harvey P. Dale, 2026).**
 
-Verbatim: "Conjecture: all terms after the first term are equal to zero
-mod 10."  Stated as: every `k > 2` with `k^2 + 1`, `k^2 + 3`, `k^2 + 7` and
+Every `k > 2` with `k^2 + 1`, `k^2 + 3`, `k^2 + 7` and
 `k^2 + 9` all prime satisfies `10 ∣ k`.  The first term is `2`; the guard
 `2 < k` excludes it and is load-bearing (`IsTerm 2` and `¬ 10 ∣ 2`). -/
 theorem dale_ten_dvd (k : ℕ) (hk : 2 < k) (h : IsTerm k) : 10 ∣ k := by
@@ -109,7 +90,7 @@ theorem dale_ten_dvd (k : ℕ) (hk : 2 < k) (h : IsTerm k) : 10 ∣ k := by
   have h5 : 5 ∣ k := five_dvd_of_isTerm hk h
   exact Nat.Coprime.mul_dvd_of_dvd_of_dvd (by norm_num) h2 h5
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- Non-vacuity: the hypotheses are jointly satisfiable at `k = 10`.
 example : 2 < 10 ∧ IsTerm 10 := ⟨by norm_num, by unfold IsTerm; norm_num⟩

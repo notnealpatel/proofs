@@ -1,20 +1,11 @@
 /-
 # Dilworth's chain decomposition theorem for finite posets
 
-## Source
-
-R. P. Dilworth, "A decomposition theorem for partially ordered sets",
-Ann. of Math. (2) 51 (1950), 161–166, Theorem 1.1 (finite case).
-The proof formalised here is the short induction of
-F. Galvin, "A proof of Dilworth's chain decomposition theorem",
-Amer. Math. Monthly 101 (1994), 352–353.
-
-## Informal statement (as recorded in the target spec)
-
-> In a finite poset whose largest antichain has w elements, the poset can be
-> partitioned into w chains.
-
-Recorded 2026-10-21.
+R. P. Dilworth, *A decomposition theorem for partially ordered sets*,
+Ann. of Math. (2) 51 (1950), 161–166, Theorem 1.1 (finite case):
+a finite poset of width `w` can be partitioned into `w` chains.
+The proof follows F. Galvin, *A proof of Dilworth's chain decomposition
+theorem*, Amer. Math. Monthly 101 (1994), 352–353.
 
 ## Formal rendering
 
@@ -33,13 +24,6 @@ poset is a union of zero chains (the same convention as the repository's
   partitioned into exactly `w` *nonempty* chains.
 * `dilworth_iff` — every antichain has at most `w` elements iff `s` is a union
   of `w` chains; i.e. the width equals the minimum number of covering chains.
-
-## Mathlib absence check
-
-`leandoc` searches ("Dilworth", "dilworth chain decomposition", "partition poset
-into chains width antichain", "minimum chain cover antichain") and a grep for
-`dilworth` over Mathlib found no statement of the theorem (2026-10-21); the
-only nearby material is `Counterexamples/AharoniKorman.lean`.
 -/
 import Mathlib
 
@@ -294,7 +278,7 @@ theorem dilworth_iff (s : Finset α) (w : ℕ) :
   ⟨exists_chain_labelling_of_antichain_card_le s w,
     fun ⟨f, hfw, hf⟩ => antichain_card_le_of_chain_labelling s w f hfw hf⟩
 
-/-! ## Non-vacuity checks -/
+/-! ## Examples -/
 
 /-- The hypotheses of `dilworth` hold jointly: the chain `{0, 1, 2}` in `ℕ` has
 largest antichain `{0}` of size `1`. -/

@@ -1,40 +1,14 @@
 /-
 # Lovász: the Shannon capacity of the pentagon is `√5`
 
-## Source
+L. Lovász, *On the Shannon capacity of a graph*, IEEE Trans. Inform.
+Theory 25 (1979), 1–7. Also stated by Gil Kalai in MathOverflow 214927,
+answer <https://mathoverflow.net/a/216114> (2015), and in the Lean
+evaluation problem <https://lean-lang.org/eval/problems/shannon_capacity_pentagon/>.
 
-MathOverflow question 214927, "Important formulas in combinatorics" (asked by
-Gil Kalai), answer https://mathoverflow.net/a/216114 by Gil Kalai,
-2015-09-01.  Verbatim (re-pulled through the StackExchange API, 2026-10-21):
-
-```
-$$\Theta (C_5)=\sqrt 5.$$
-This is the formula by Lovasz for the Shannon capacity of the cycle of length 5.
-The Shannon capacity of a graph $\Theta (G)= \lim_{n \to \infty}(\omega(G^n))^{1/n}$,
-where $\omega (G)$ is the largest size of an independent set of vertices in $G$,
-and $G^n$ is the $n$-fold strong product of $G$. A key to Lovasz' proof was the
-introduction of a new spectral parameter $\theta (G)$, and a proof that
-$\Theta (G) \le \theta (G)$.
-```
-
-No arXiv paper is involved; the result is L. Lovász, "On the Shannon capacity
-of a graph", IEEE Trans. Inform. Theory 25 (1979) 1-7.  The same statement is
-a public Lean evaluation problem (Kim Morrison,
-https://lean-lang.org/eval/problems/shannon_capacity_pentagon/).
-
-Date of this card: 2026-10-21.
-
-## Status
-
-Proved in the literature (Lovász 1979); stated, not proved, in the thread.
-This module proves it completely (no `sorry`):
-
-* `lovasz_pentagon`: every independent set `S` of the strong power `C₅^⊠n`
-  satisfies `|S|² ≤ 5ⁿ`;
-* `exists_indep_card` / `shannon_pentagon_lower`: an explicit independent set
-  of size `5^⌊n/2⌋`, generated coordinatewise by `{(i, 2i)}`;
-* `indepNum_two_mul`: `α(C₅^⊠2k) = 5^k`;
-* `shannon_capacity_pentagon`: `α(C₅^⊠n)^{1/n} → √5`.
+The strong powers of `C₅` satisfy `α(C₅^⊠n)² ≤ 5ⁿ` and
+`5^⌊n/2⌋ ≤ α(C₅^⊠n)`, with equality `α(C₅^⊠2k) = 5^k`. Thus
+`α(C₅^⊠n)^{1/n} → √5`.
 
 ## Proof method
 
@@ -74,7 +48,7 @@ noncomputable def sn1 : ℝ := √(1 - c1 ^ 2)
 /-- `sin (4π/5) = √(1 - cos² (4π/5))`. -/
 noncomputable def sn2 : ℝ := √(1 - c2 ^ 2)
 
-/-- Ground truth: `c2` is `cos (4π/5)`. -/
+/-- `c2` is `cos (4π/5)`. -/
 example : c2 = Real.cos (4 * π / 5) := by
   rw [show 4 * π / 5 = π - π / 5 by ring, Real.cos_pi_sub, Real.cos_pi_div_five]
   unfold c2 s5; ring
@@ -175,12 +149,12 @@ theorem strongPow_cycleGraph_adj_iff (n : ℕ) (s t : Fin n → Fin 5) :
       s ≠ t ∧ ∀ i, s i = t i ∨ s i - t i = 1 ∨ t i - s i = 1 :=
   Iff.rfl
 
-/-- Ground truth: `(0,0) ~ (1,4)` in `C₅^⊠2`. -/
+/-- `(0,0) ~ (1,4)` in `C₅^⊠2`. -/
 example : (strongPow (SimpleGraph.cycleGraph 5) 2).Adj ![0, 0] ![1, 4] := by
   rw [strongPow_cycleGraph_adj_iff]
   decide
 
-/-- Ground truth: `(0,0)` and `(2,0)` are not adjacent in `C₅^⊠2`. -/
+/-- `(0,0)` and `(2,0)` are not adjacent in `C₅^⊠2`. -/
 example : ¬(strongPow (SimpleGraph.cycleGraph 5) 2).Adj ![0, 0] ![2, 0] := by
   rw [strongPow_cycleGraph_adj_iff]
   decide
@@ -256,7 +230,7 @@ lemma pairEmbed_odd (n : ℕ) (a : Fin (n / 2) → Fin 5) (p : Fin (n / 2)) :
   have h2 : (2 * p.val + 1) % 2 = 1 := by omega
   simp [pairEmbed, h1, h2]
 
-/-- Ground truth: `pairEmbed 2 (3) = (3, 6 mod 5) = (3, 1)`. -/
+/-- `pairEmbed 2 (3) = (3, 6 mod 5) = (3, 1)`. -/
 example : pairEmbed 2 ![3] = ![3, 1] := by decide
 
 /-- `pairEmbed n` is injective. -/

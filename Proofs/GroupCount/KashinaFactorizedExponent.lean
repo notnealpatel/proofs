@@ -1,42 +1,24 @@
 /-
-# Exponents of factorized groups (Natale's question, Kashina-type divisibility)
+# Exponents of factorized groups
 
-## Source
+Ningyi Li (as listed on arXiv), *Exponents of factorized groups and Kashina's
+conjecture for group-theoretical Hopf algebras*, arXiv:2608.14972.
+Version 2 (2026-10-08) is marked withdrawn at a co-author's request.
 
-arXiv:2608.14972, "Exponents of factorized groups and Kashina's conjecture for
-group-theoretical Hopf algebras" (math.QA, math.GR), authors as listed on the
-arXiv abstract page: Ningyi Li. v1 submitted 2026-08-15; v2 (2026-10-08) is
-marked withdrawn at the request of a co-author. The TeX source could not be
-retrieved (arXiv 404 on `fetch 2608.14972`), so the theorem number is unknown;
-the statement sits in the abstract as the main group-theoretic theorem.
+For a finite group factorization `G = A B`, with neither factor assumed
+normal and arbitrary intersection, this file proves
+`exp(G) ∣ lcm(|A|, |B|)` and the equivalent index form
+`gcd([G : A], [G : B]) * exp(G) ∣ |G|`.
+The paper presents the group-theoretic claim as answering Natale's question;
+its Hopf-algebra consequences are outside this file's scope.
 
-Informal claim (abstract, paraphrased by the arXiv listing): for a
-factorization `G = F Γ` of a finite group `G` into subgroups `F` and `Γ`
-(neither assumed normal, intersection allowed to be nontrivial), the exponent
-of `G` divides `lcm(|F|, |Γ|)`; this answers a question of Natale and is the
-group-theoretic input to Kashina's exponent conjecture for group-theoretical
-Hopf algebras. The Hopf-algebra consequence is out of scope here.
-
-Equivalent form: `gcd([G : F], [G : Γ]) * exp(G)` divides `|G|`.
-
-Date recorded: 2026-10-21.
-Status in the literature: claimed proved in the paper (paper withdrawn).
-Status here: proved in Lean, by an elementary argument independent of the
-paper (no CFSG, no characters):
-
-1. (Wielandt-style Sylow factorization) for every prime `p` some Sylow
-   `p`-subgroup `P` satisfies `P = (A ∩ P)(B ∩ P)`, by a `p`-adic counting
-   argument from `|A ∩ B| * |G| = |A| * |B|`;
-2. (`p`-groups) if a finite `p`-group factorizes as `P = A B`, then every
-   element order is at most `max |A| |B|`, by strong induction on normal
-   subgroups `N ≤ A ∩ B` with the invariant
-   `[⟨g⟩ : ⟨g⟩ ∩ N] * |N| ≤ max |A| |B|`; either some conjugate of `A` or `B`
-   meets `⟨g⟩` inside `N` (regular orbit on cosets), or the cores of `A` and
-   `B` share an element of `⟨g⟩ \ N` and the induction climbs;
-3. an element of order `p ^ k` is conjugate into `P`, so `p ^ k` divides
-   `|A|` or `|B|`; the exponent is the lcm of element orders.
-
-Hypothesis encoding: the factorization `G = A B` is the pointwise statement
+The proof constructs a Sylow subgroup `P = (A ∩ P)(B ∩ P)` by counting
+`p`-parts. In a factorized `p`-group, induction over normal subgroups
+`N ≤ A ∩ B` bounds `[⟨g⟩ : ⟨g⟩ ∩ N] * |N|` by `max |A| |B|`: either a
+conjugate factor meets `⟨g⟩` inside `N`, giving a coset bound, or the two
+normal cores share an element outside `N`, allowing the induction to climb.
+Prime-power element orders then divide one factor's order, giving the
+exponent divisibility. Factorization is encoded pointwise as
 `∀ g, ∃ a ∈ A, ∃ b ∈ B, a * b = g`.
 -/
 import Mathlib
@@ -437,7 +419,7 @@ theorem gcd_index_mul_exponent_dvd_card [Finite G] (A B : Subgroup G)
     exact Nat.lcm_dvd hA hB
   exact (Nat.mul_dvd_mul_left d (exponent_dvd_lcm_card_of_forall_mul A B hAB)).trans hlcm
 
-/-! ## Non-vacuity: a factorization with a non-normal factor
+/-! ## A factorization with a non-normal factor
 
 `S₃ = A₃ · ⟨(0 1)⟩`, where `⟨(0 1)⟩` is not normal. The hypothesis of the main theorem
 holds, and the conclusion reads `exp(S₃) ∣ lcm(3, 2)`. -/

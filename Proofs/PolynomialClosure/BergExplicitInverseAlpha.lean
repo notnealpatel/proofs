@@ -1,54 +1,31 @@
 /-
-# Berg's explicit inverse of `(1 / C(i+j+α, α))` and the only-if half of Richardson's
-# Conjecture 4.1
+# Berg's explicit inverse and Richardson's integrality condition
 
-## Sources
+For a positive natural number `α`, let
+`H = (1 / C(i+j+α, α))_{0 ≤ i,j < N}`. Berg's formula gives
+`H⁻¹ = (1/α) Lᵀ diag(α+2k) L`, where
+`L_{k,m} = (-1)^(k+m) C(k,m) C(α+k+m-1, m)`, and shows that `α H⁻¹`
+has integer entries. Berg indexes his matrix from `0` to `n`; here `N = n+1`
+is the dimension.
 
-* arXiv:math/9905079, Thomas M. Richardson, "The Filbert Matrix" (Fibonacci Quart. 39
-  (2001)).  §4 defines `b_k(r) = C(k+r-1, r)` and the reciprocal Hankel matrix
-  `R_n(a_k) = (1 / a_{i+j-1})_{1 ≤ i,j ≤ n}` and states, verbatim:
+For `0 < N`, the corner entry is `H⁻¹_{00} = N + N(N-1)/α`. Thus integrality
+of `H⁻¹` implies `α ∣ N(N-1)`, equivalently `N ≡ 0` or `1 (mod q)` for every
+prime power `q ∣ α`. This is only the necessary direction of Richardson's
+Conjecture 4.1; the sufficient direction is not addressed.
 
-  > **Conjecture.** Suppose that $r$ is a positive integer.  The inverse of the matrix
-  > $R_n(b_k(r))$ has integer entries if and only if $n\equiv 0 \pmod q$ or
-  > $n\equiv 1 \pmod q$ for all prime powers $q$ that divide $r$.
+Sources:
+* Christian Berg, "Fibonacci numbers and orthogonal polynomials", Arab J. Math.
+  Sci. 17 (2011), arXiv:math/0609283, §4, Theorem `cbthm:binomalpha` and the
+  following inverse formula. The paper's integral inverse is that of `H/α`.
+* Thomas M. Richardson, "The Filbert Matrix", Fibonacci Quart. 39 (2001),
+  arXiv:math/9905079, §4, Conjecture 4.1. His
+  `b_k(r) = C(k+r-1, r)` and `R_N(a_k) = (1/a_{i+j-1})_{1 ≤ i,j ≤ N}`
+  give `H` when `r = α`, after reindexing.
 
-  (Equivalently `r ∣ n(n-1)`.)
-* arXiv:math/0609283, Christian Berg, "Fibonacci numbers and orthogonal polynomials"
-  (Arab J. Math. Sci. 17 (2011)), §4, Theorem `cbthm:binomalpha` and the display after it,
-  verbatim:
-
-  > Let $\a\in\mathbb N$. The inverse of the matrix
-  > $\left(\frac{1}{\a\binom{\a+i+j}{\a}}\right)_0^n$ has integer entries.
-  > [...] $r_n^{(\a)}(1-x)=\sum_{k=0}^n (-1)^{n-k}\tbinom{n}{k}\tbinom{\a+n+k-1}{k}x^k$,
-  > and it follows that the entries of the inverse of (\ref{eq:hankelbinom}) are given as
-  > $(-1)^{i+j}\sum_{k=\max(i,j)}^n (\a+2k)\tbinom{k}{i}\tbinom{k}{j}
-  > \tbinom{\a+k+i-1}{i}\tbinom{\a+k+j-1}{j}$.  This formula holds of course for any $\a>0$.
-
-Recorded 2026-10-21.
-
-## Target (workflow key a8-12)
-
-For `H = (1/C(i+j+α, α))_{0 ≤ i,j < N}` with `α ∈ ℕ`, `α > 0`:
-(i) `H` is invertible with `H⁻¹ = E = (1/α) Lᵀ diag(α+2k) L`, `L_{k,m} = c_k(m)`;
-(ii) `α E` has integer entries;
-(iii) `E_00 = N + N(N-1)/α`, so integrality of `H⁻¹` forces `α ∣ N(N-1)`
-(the only-if half of Richardson's Conjecture 4.1).
-
-## Status
-
-Known result: (i)–(ii) are proved by Berg (via shifted Jacobi polynomials); (iii) is an
-immediate consequence.  The if-half of Richardson's conjecture is not addressed here.
-
-## Proof route (fully algebraic; no integrals)
-
-* Off-diagonal orthogonality `∑_m c_k(m)/C(m+l+α, α) = 0` (`l < k`): the summand is
-  `(-1)^(k+m) C(k,m)` times a polynomial of degree `k-1` in `m`; Mathlib's
-  `Polynomial.fwdDiff_iter_eq_zero_of_degree_lt`.
-* Diagonal value: one polynomial division by `X + (k+α)` plus the partial-fraction identity
-  `∑_m (-1)^(k+m) C(k,m)/(x+m) = (-1)^k k!/∏_{i ≤ k}(x+i)`, proved by iterated forward
-  differences on `ℕ`.
-* Matrix algebra: `L H Lᵀ = diag(α/(α+2k))` gives `(Lᵀ diag((α+2k)/α) L) H = 1` via
-  `mul_eq_one_comm` (no separate invertibility of `L` is needed).
+The proof is algebraic: forward differences give off-diagonal orthogonality;
+polynomial division and a partial-fraction sum give the diagonal values.
+Then `L H Lᵀ = diag(α/(α+2k))` yields the inverse by matrix algebra, without
+separately proving invertibility of `L`.
 -/
 import Mathlib
 
@@ -531,7 +508,7 @@ theorem hilbertMatrix_inv_integral (N : ℕ) (i j : Fin N) :
   obtain ⟨z, hz⟩ := alpha_mul_inv_integral 1 N one_pos i j
   exact ⟨z, by rw [hilbertMatrix_eq, ← hz, Nat.cast_one, one_mul]⟩
 
-/-! ## Ground truth on small instances -/
+/-! ## Examples -/
 
 example : c 1 1 0 = -1 := by decide
 example : c 1 1 1 = 2 := by decide
@@ -547,8 +524,7 @@ example : recipBinomHankel 2 2 1 1 = 1 / 6 := by
 example : bergInv 2 2 0 0 = 3 ∧ bergInv 2 2 0 1 = -6 ∧ bergInv 2 2 1 1 = 18 := by
   refine ⟨?_, ?_, ?_⟩ <;> norm_num [bergInv, c, sum_range_succ, Nat.choose]
 
-/-- Non-vacuity of the integrality hypothesis of `richardson_conj41_onlyIf`: for `α = N = 2`
-the inverse is integral. -/
+/-- For `α = N = 2`, the inverse has integer entries. -/
 example : ∀ i j : Fin 2, ∃ z : ℤ, (recipBinomHankel 2 2)⁻¹ i j = z := by
   intro i j
   rw [recipBinomHankel_inv 2 2 two_pos]

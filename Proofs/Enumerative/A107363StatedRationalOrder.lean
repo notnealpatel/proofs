@@ -1,45 +1,13 @@
 /-
-# A107363 — Fibonacci numbers as the nonnegative values of a rational g.f.
+Values of the rational generating function in OEIS A107363
+(Creighton Dement, May 24 2005).
 
-## OEIS source (retrieved with `oeis show A107363`, 2026-10-21)
-
-```
-NAME:     Expansion of (1 - x)*(1 + x)^2*(1 + x^2)*(1 - x^2 + 2*x^3 + x^4) /
-          ((1 - x^2 - x^4)*(1 + x^2 + 2*x^4 - x^6 + x^8)).
-TERMS:    1,1,-1,1,2,0,5,3,-7,3,8,0,21,13,-29,13,34,0,89,55,-123,55,144,0,
-          377,233,-521,233,610,0,1597,987,-2207,987,2584,0,6765,4181,-9349,...
-AUTHOR:   Creighton Dement, May 24 2005
-COMMENT (the conjecture, no separate attribution):
-  Conjectures: { Fib(n) | n in naturals } = { a(n) | n in naturals,
-  a(n) >= 0 } = { a(n) | n in naturals, n not of the form 6*n+2 }
-  (naturals include 0).
-FORMULA (no separate attribution):
-  a(6*n+2) = - A048876(n) (Generalized Pellian with second term of 7),
-  conjecture.
-FORMULA (Colin Barker, May 11 2019):
-  a(n) = 4*a(n-6) + a(n-12) for n>11.
-XREFS:    Cf. A000045, A048876.
-```
-
-A048876 is `b(n) = 4*b(n-1) + b(n-2)`, `b(0) = 1`, `b(1) = 7`, with the
-cross-reference formula `b(n) = A000032(3*n+1)` (Lucas numbers).
-
-## Status
-
-Triage (2026-10-21): open — no proof in the entry or the literature as far as
-the triage could tell.  Verified numerically for `n < 600` by the triage and
-re-verified for `n < 1500` (together with the g.f./recurrence agreement)
-before formalization.
-
-## Formal content
-
-* `a` is defined by Barker's order-12 recurrence with the twelve listed initial
-  terms; `gf_mul_eq` proves that its generating function is exactly the rational
-  function of the NAME line, and `eq_mk_of_gf` proves that the g.f. determines
-  the sequence, so the definition mirrors the entry's definition.
-* `conjecture` is the comment's double set equality and `a_six_mul_add_two` the
-  `A048876` / Lucas formula.  Both are proved, via the six residue-class closed
-  forms `closedForm`.
+The sequence is defined by its initial twelve values and
+ a(n+12)=4a(n+6)+a(n) (Colin Barker, May 11 2019).
+The denominator/numerator identity and uniqueness identify this with the
+entry's rational generating function. The six residue-class formulas give
+both descriptions of its nonnegative value set as the Fibonacci numbers,
+and a(6n+2)=-Lucas(3n+1)=-A048876(n). Natural indices include zero.
 -/
 import Mathlib
 
@@ -82,12 +50,12 @@ def lucas : ℕ → ℕ
   | 1 => 1
   | n + 2 => lucas (n + 1) + lucas n
 
--- Ground truth: the first 30 listed terms of A107363.
+-- The first 30 listed terms of A107363.
 example : (List.range 30).map a =
     [1, 1, -1, 1, 2, 0, 5, 3, -7, 3, 8, 0, 21, 13, -29, 13, 34, 0, 89, 55, -123,
       55, 144, 0, 377, 233, -521, 233, 610, 0] := by decide
 
--- Ground truth: the first terms of A048876 and of the Lucas numbers.
+-- The first terms of A048876 and of the Lucas numbers.
 example : (List.range 8).map b = [1, 7, 29, 123, 521, 2207, 9349, 39603] := by decide
 example : (List.range 10).map lucas = [2, 1, 3, 4, 7, 11, 18, 29, 47, 76] := by decide
 
@@ -209,14 +177,9 @@ theorem a_neg_of_mod_eq_two (n : ℕ) (hn : n % 6 = 2) : a n < 0 := by
   have hpos := lucas_pos (3 * k + 1)
   omega
 
-/-- **The A107363 conjecture (entry comment, unattributed; entry by Creighton
-Dement, May 24 2005).**  Verbatim: "Conjectures: { Fib(n) | n in naturals } =
-{ a(n) | n in naturals, a(n) >= 0 } = { a(n) | n in naturals, n not of the
-form 6*n+2 } (naturals include 0)."
-
-Here `a` is the coefficient sequence of the entry's rational g.f. (see
-`gf_mul_eq`, `eq_mk_of_gf`), the sets are subsets of `ℤ`, and "`n` not of the
-form `6*k+2`" is `n % 6 ≠ 2`. -/
+/-- The Fibonacci numbers are exactly the nonnegative values of A107363,
+and exactly its values at indices not congruent to `2` modulo `6`.
+These are subsets of `ℤ`; natural indices include zero. -/
 theorem conjecture :
     {x : ℤ | ∃ m : ℕ, (Nat.fib m : ℤ) = x} = {x : ℤ | ∃ n : ℕ, a n = x ∧ 0 ≤ x} ∧
       {x : ℤ | ∃ n : ℕ, a n = x ∧ 0 ≤ x} = {x : ℤ | ∃ n : ℕ, n % 6 ≠ 2 ∧ a n = x} := by

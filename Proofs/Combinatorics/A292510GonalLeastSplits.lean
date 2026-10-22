@@ -1,34 +1,11 @@
 /-
 # A292510 — least k for which the first k n-gonal numbers split evenly
 
-## OEIS source (retrieved with `oeis show A292510` and oeis.org/A292510/internal, 2026-10-21)
-
-```
-NAME:     a(n) = smallest k >= 1 such that {1, p(n,2), p(n,3), ..., p(n,k)} can be
-          partitioned into two sets with equal sums, where p(n,m) is m-th n-gonal
-          number.
-OFFSET:   3,1
-TERMS:    4,7,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
-          7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
-KEYWORDS: nonn
-COMMENT (the conjecture, unsigned, hence by the entry author):
-  Conjecture: a(n) = 7 for n > 5.
-FORMULA:
-  p(n,1) + p(n,2) + p(n,4) + p(n,7) = p(n,3) + p(n,5) + p(n,6) (= 28*n-42).
-  So a(n) <= 7.
-AUTHOR:   _Seiichi Manyama_, Sep 17 2017
-```
-
-## Status
-
-Triage status: open (no proof in the entry or the literature as far as the
-triage could tell; the entry proves only the upper bound `a(n) ≤ 7`).
-Computation (2026-10-21): `a(n) = 7` for every `6 ≤ n ≤ 3000`.
-
-This module proves the conjecture.  Writing `P(n,m) = (n-2)·C(m,2) + m`,
-the equal-split condition for a fixed subset of `{1, …, k}` is linear in `n`;
-for `k ≤ 6` a case split over the at most `2^6` subsets leaves linear
-arithmetic goals that `omega` closes for `n > 5`.
+OEIS A292510, Seiichi Manyama (2017): for `5 < n`, the least positive `k`
+for which the first `k` n-gonal numbers split into equal-sum sets is `7`.
+Writing `P(n,m) = (n-2) C(m,2) + m`, each subset of `{1,…,k}` gives a
+linear condition in `n`. For `k ≤ 6`, the at most `2^6` cases rule out a
+split when `5 < n`; the entry supplies the split for `k = 7`.
 -/
 import Mathlib
 
@@ -50,7 +27,7 @@ empty.) -/
 def Splits (n k : ℕ) : Prop :=
   ∃ S ⊆ Finset.Icc 1 k, ∑ m ∈ S, P n m = ∑ m ∈ Finset.Icc 1 k \ S, P n m
 
-/-! ## Ground truth for `P` -/
+/-! ## Examples for `P` -/
 
 /-- Triangular numbers (`n = 3`). -/
 example : (List.range 6).map (fun m => P 3 (m + 1)) = [1, 3, 6, 10, 15, 21] := by decide
@@ -121,7 +98,7 @@ theorem splits_seven (n : ℕ) : Splits n 7 := by
   norm_num [Nat.choose_two_right]
   ring
 
-/-! ## Ground truth for the sequence: `a(3) = 4`, `a(4) = 7`, `a(5) = 6` -/
+/-! ## Sequence examples: `a(3) = 4`, `a(4) = 7`, `a(5) = 6` -/
 
 /-- `a(3) = 4`: `1 + 3 + 6 = 10`. -/
 example : IsLeast {k : ℕ | 1 ≤ k ∧ Splits 3 k} 4 := by
@@ -148,7 +125,7 @@ example : IsLeast {k : ℕ | 1 ≤ k ∧ Splits 5 k} 6 := by
 
 /-- **Conjecture of A292510 (Seiichi Manyama, Sep 17 2017): `a(n) = 7` for `n > 5`.**
 
-Verbatim: "Conjecture: a(n) = 7 for n > 5."  Here `a(n)` is the smallest `k ≥ 1` such
+Here `a(n)` is the smallest `k ≥ 1` such
 that `{P(n,1), …, P(n,k)}` (with `P(n,m)` the `m`-th `n`-gonal number) can be partitioned
 into two sets with equal sums.  Stated as: for every `n > 5`, `7` is the least element of
 `{k | 1 ≤ k ∧ Splits n k}`. -/

@@ -1,4 +1,4 @@
-import Erdos.Erdos20.SunflowerConjecture
+import Sorry.Quarantine.Erdos.Erdos20.SunflowerConjecture
 
 /-
   Erdős Problem #20 — the **sunflower conjecture** in the shape OEIS A332077

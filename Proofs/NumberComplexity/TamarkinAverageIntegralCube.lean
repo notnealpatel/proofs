@@ -2,39 +2,18 @@
 # Generalized Tamarkin conjecture at `p = 3`: the cube of a `3`-average-integral
 # sequence is `3`-average-integral
 
-## Source
+Darij Grinberg, MathOverflow question 66959, *Generalization of Tamarkin's
+ARO 1993, final round, problem 10/8: still a conjecture?*
+(<https://mathoverflow.net/questions/66959>), asks whether `p`-average-integral
+integer sequences are closed under pointwise `p`-th powers.
+The averaging operator is `(F_p f)(n) = (f(n)+⋯+f(n+p-1))/p`;
+average-integrality requires every nonnegative iterate to be integer-valued.
 
-MathOverflow question 66959, "Generalization of Tamarkin's ARO 1993, final
-round, problem 10/8: still a conjecture?", asked by Darij Grinberg on
-2011-06-05 (<https://mathoverflow.net/questions/66959>).  No arXiv paper is
-involved.  Verbatim (re-pulled through the StackExchange API, 2026-10-21):
-
-```
-Let p be a prime. Define a linear operator F_p : R^Z -> R^Z by
-  (F_p f)(n) = (f(n) + f(n+1) + ... + f(n+p-1)) / p
-for every n in Z and every f in R^Z. [...] An element f in Z^Z is said to be
-average-integral if it satisfies F_p^k f in Z^Z for every nonnegative integer
-k. For any f in R^Z, define f^p in R^Z by f^p(n) = (f(n))^p for every n in Z.
-
-Conjecture: If f in Z^Z is average-integral, then so is f^p.
-
-For p=3, the conjecture is still true, but the iceberg apparently is not
-anmyore; it took me a lengthy computation with combinatorial divisibilities
-to verify the conjecture.
-```
-
-Gjergji Zaimi's answer (2011-06-16) records, for polynomials with coefficients
-`a_k` in the binomial basis, the condition `ν_3(a_k) ≥ ⌊k/2⌋ - ν_3(k!)` and
-remarks that "such polynomials are closed under taking pth powers" for
-`p ∈ {2, 3}`.  The general case `p > 3` is false (zeb, same thread; see the
-sibling module `TamarkinAverageIntegralRefutation`).
-
-## Status
-
-Claimed true by Grinberg for `p = 3` through an unpublished computation; the
-thread contains only the polynomial heuristic above, and a shallow literature
-search found no published proof for arbitrary integer sequences.  This module
-gives a complete, kernel-checked proof (2026-10-21).
+This module proves the case `p = 3` for arbitrary integer sequences, asserted
+in Grinberg's question via an unpublished computation. Gjergji Zaimi's answer
+gives a binomial-basis criterion for polynomials and discusses closure for
+`p ∈ {2,3}`. The general claim for `p > 3` is false (zeb, same thread; see
+`TamarkinAverageIntegralRefutation`).
 
 ## Proof route
 
@@ -70,7 +49,7 @@ integer-valued for every `k ≥ 0`. -/
 def AvgIntegral (p : ℕ) (f : ℤ → ℤ) : Prop :=
   ∀ k : ℕ, ∀ n : ℤ, ∃ m : ℤ, (avgOp p)^[k] (fun x => (f x : ℚ)) n = m
 
-/-! ### Ground truth -/
+/-! ### Examples -/
 
 example : avgOp 3 (fun n => (n : ℚ) ^ 2) 0 = 5 / 3 := by
   simp only [avgOp, zero_add, Int.cast_natCast, sum_range_succ, range_one, sum_singleton,
@@ -276,7 +255,7 @@ i.e. `Δ^K` at `0` of `t ↦ C(t,i) C(t,j) C(t,l)`.  With `b_i = Δ^i f (n)`,
 def cubeCoeff (K i j l : ℕ) : ℤ :=
   ∑ t ∈ range (K + 1), (-1 : ℤ) ^ (K - t) * K.choose t * (t.choose i * t.choose j * t.choose l)
 
-/-- Ground truth: `Δ² (t³) (0) = 6`, `Δ³ (t³) (0) = 6`, `Δ⁴ (t³) (0) = 0`, and
+/-- `Δ² (t³) (0) = 6`, `Δ³ (t³) (0) = 6`, `Δ⁴ (t³) (0) = 0`, and
 `Δ² (t · C(t,2)²) (0) = 2`. -/
 example : cubeCoeff 2 1 1 1 = 6 ∧ cubeCoeff 3 1 1 1 = 6 ∧ cubeCoeff 4 1 1 1 = 0
     ∧ cubeCoeff 2 1 2 2 = 2 := by

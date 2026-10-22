@@ -74,7 +74,7 @@ set. The historical source quotations and its original uncertainty are retained
 verbatim; the proofs below reference the production family module.
 -/
 import Mathlib
-import Combinatorics.SelfridgeLacampagneFamilyCounterexample
+import Sorry.Combinatorics.SelfridgeLacampagneFamilyCounterexample
 
 set_option autoImplicit false
 

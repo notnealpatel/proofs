@@ -1,34 +1,18 @@
 /-
 # Mersenne representation: the A055938 difference rule and the A080578 relation
 
-## Source
-
-Fumitaka Yura, *Mersenne Representation, the Conolly Sequence, and Soliton
-Profiles over Finite Fields*, arXiv:2607.22202.
-
-* Section 2.2 ("The sublanguages"): the binary side `C(J̄)` is the set of all
-  finite sums `∑_{k ≥ 1} ε_k (2^k - 1)`, `ε_k ∈ {0,1}` (OEIS A005187); the
-  nonbinary side `C(J)` is its complement in `ℤ_{≥0}`, enumerated increasingly
-  as `y_1 < y_2 < ⋯` (OEIS A055938).
-* Section 3.3, Proposition `prop:A055938-difference` (verbatim):
-  "For every `n ≥ 1`, `y_{n+1} - y_n = 3 - 2 χ_J(n)`."
-  where `χ_J` is the indicator of `C(J)`.
-* Section 4.1, Theorem `thm:A080578-A055938` (verbatim):
-  "For every `n ≥ 2`, `A080578(n) = A055938(n-1) + 2`."
-  Here A080578 is `a(1) = 1` and, for `n > 1`, `a(n) = a(n-1) + 1` if `n`
-  occurs among `a(1), …, a(n-1)`, and `a(n) = a(n-1) + 3` otherwise.
-  Remark `rem:OEIS-conjecture`: the OEIS entry for A080578 records this
-  relation as conjectural (R. Stephan, Dec 27 2013).
-
-## Status
-
-Proved in the paper (via Mersenne-word successor machinery).  This module
-gives an independent elementary proof (recorded 2026-10-21): with
-`b(m) = ∑_{i ∈ bits(m)} (2^(i+1) - 1)` (so `C(J̄) = range b`), one has
-`b(2j) = b(j) + 2j` and `b(2j+1) = b(2j) + 1`; the complement of `range b` is a
-union of blocks `(b(2j+1), b(2j+2))`, the counting function of the complement
-below `b(k)` is `b(k) - k`, and the block-end indices are exactly the values
-`b(j+1)`.  No `sorry` remains.
+Fumitaka Yura, “Mersenne Representation, the Conolly Sequence, and
+Soliton Profiles over Finite Fields”, arXiv:2607.22202, §3.3,
+Proposition `prop:A055938-difference`, and §4.1,
+Theorem `thm:A080578-A055938`.
+The binary side is the set of finite sums of distinct weights `2^k-1`,
+`k ≥ 1` (A005187); its complement is A055938. Its successive gaps are
+`3-2χ_J(n)` for `n ≥ 1`, and `A080578(n) = A055938(n-1)+2` for `n ≥ 2`
+(the relation conjectured by R. Stephan in A080578, 2013).
+The proof uses `b(m) = ∑_{i∈bits(m)} (2^(i+1)-1)`, with
+`b(2j) = b(j)+2j` and `b(2j+1) = b(2j)+1`. The complement is a union
+of blocks `(b(2j+1),b(2j+2))`; its count below `b(k)` is `b(k)-k`,
+and block-end indices are the values `b(j+1)`.
 -/
 import Mathlib
 
@@ -71,7 +55,7 @@ already occurs among `a(1), …, a(n-1)`, else `a(n) = a(n-1) + 3`.
 The value at `n = 0` is the junk value `0`. -/
 def a080578 (n : ℕ) : ℕ := (a080578State n).1
 
-/-! ## Ground truth for the definitions -/
+/-! ## Examples for the definitions -/
 
 /-- First terms of A080578 as listed in the OEIS. -/
 example : (List.range 16).map (fun n => a080578 (n + 1)) =
@@ -337,7 +321,7 @@ theorem nth_nonbinarySide_zero : Nat.nth (· ∈ nonbinarySide) 0 = 2 := by
 /-- `A055938(1) = 2`. -/
 theorem a055938_one : a055938 1 = 2 := nth_nonbinarySide_zero
 
-/-- Ground truth: `A055938(1..6) = 2, 5, 6, 9, 12, 13`. -/
+/-- Examples: `A055938(1..6) = 2, 5, 6, 9, 12, 13`. -/
 example : a055938 6 = 13 ∧ a055938 4 = 9 := by
   have h2 : a055938 2 = 5 := by rw [a055938_succ 1 le_rfl, a055938_one]; decide
   have h3 : a055938 3 = 6 := by rw [a055938_succ 2 (by norm_num), h2]; decide

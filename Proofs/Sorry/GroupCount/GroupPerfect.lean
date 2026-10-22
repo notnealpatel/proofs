@@ -1,4 +1,4 @@
-import GroupCount.GroupPerfect
+import Sorry.Quarantine.GroupCount.GroupPerfect
 
 /-!
 # Unproved obligations associated with `GroupCount.GroupPerfect`

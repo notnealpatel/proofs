@@ -1,4 +1,4 @@
-import GroupCount.DennisSurjectivity
+import Sorry.Quarantine.GroupCount.DennisSurjectivity
 
 /-!
 # Unproved obligations associated with `GroupCount.DennisSurjectivity`

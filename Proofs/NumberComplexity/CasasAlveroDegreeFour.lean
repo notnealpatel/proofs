@@ -1,30 +1,13 @@
 /-
 # Casas-Alvero conjecture in degree at most 4 (characteristic zero)
 
-## Source
-
-arXiv:2608.14726, Mohammad F. Marashdeh, "A descent-set obstruction for the
-Casas--Alvero conjecture", Section 1 (Introduction), Conjecture `conj:CA`
-and the known-cases paragraph following it.  Recorded 2026-10-21.
-
-Verbatim statement (Conjecture 1.1, `conj:CA`):
-
-> Let $K$ be a field of characteristic $0$. Then there is no
-> $\CA$-polynomial over $K$; equivalently, if $f\in K[x]$ is monic of
-> degree $d$ and $\gcd\bigl(f,f^{(i)}\bigr)\neq 1$ for $i=1,\dots,d-1$,
-> then $f=(x-\alpha)^{d}$ for some $\alpha\in K$.
-
-The paper states that the conjecture "is trivial for $d\le2$", that
-$\bad(3)=\{2\}$ and $\bad(4)=\{3,5,7\}$, and that the conjecture is known
-for $d\le7$ by direct elimination (Diaz-Toca and Gonzalez-Vega 2006).
-
-## Status
-
-The conjecture is open in general.  The degree `d ≤ 4` case formalized here
-is a known result (proved elsewhere: Diaz-Toca and Gonzalez-Vega 2006, and
-elementary); it is not a new theorem of the source paper.
-
-## Formalization
+The Casas–Alvero conjecture in degree at most `4` over a field of
+characteristic zero: a monic polynomial sharing a nonconstant factor
+with every nontrivial derivative is a power of a linear polynomial.
+This is a known low-degree case (Diaz-Toca and Gonzalez-Vega, 2006);
+see M. F. Marashdeh, “A descent-set obstruction for the Casas–Alvero
+conjecture”, arXiv:2608.14726, §1, Conjecture 1.1.
+The general conjecture is not proved here.
 
 `gcd(f, f^(i)) ≠ 1` over the field `K` is rendered as
 `¬ IsCoprime f (derivative^[i] f)`: in the Euclidean domain `K[X]` the
@@ -40,7 +23,7 @@ namespace Candidates.CasasAlveroDegreeFour
 
 open Polynomial
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The Casas-Alvero hypothesis on `f ∈ K[X]` of degree `d`: for every
 `i ∈ {1, …, d - 1}` the polynomial `f` shares a non-constant common factor with
@@ -49,7 +32,7 @@ coprime.  The range `1 ≤ i < d` avoids natural-number subtraction. -/
 def SharesFactorWithDerivatives {K : Type*} [Field K] (f : K[X]) : Prop :=
   ∀ i : ℕ, 1 ≤ i → i < f.natDegree → ¬ IsCoprime f (derivative^[i] f)
 
-/-- Ground truth: `X ^ 4` satisfies the Casas-Alvero hypothesis over `ℚ`
+/-- Examples: `X ^ 4` satisfies the Casas-Alvero hypothesis over `ℚ`
 (every derivative of order `1 ≤ i ≤ 3` is divisible by `X`). -/
 example : SharesFactorWithDerivatives (X ^ 4 : ℚ[X]) := by
   intro i hi1 hi
@@ -61,7 +44,7 @@ example : SharesFactorWithDerivatives (X ^ 4 : ℚ[X]) := by
     exact dvd_mul_of_dvd_right (dvd_pow_self X (by omega)) _
   exact not_isUnit_X (hcop.isUnit_of_dvd' hXf hXd)
 
-/-- Ground truth: `X ^ 2 - 1` fails the Casas-Alvero hypothesis over `ℚ`,
+/-- Examples: `X ^ 2 - 1` fails the Casas-Alvero hypothesis over `ℚ`,
 since `-(X ^ 2 - 1) + (X / 2) * (2 X) = 1` makes it coprime to its derivative. -/
 example : ¬ SharesFactorWithDerivatives (X ^ 2 - 1 : ℚ[X]) := by
   intro h

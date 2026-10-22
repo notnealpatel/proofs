@@ -4,8 +4,7 @@
 ## Source
 
 Qinglin Wang, Yingzhi Tian, "Extremal Problems for the Family of
-k-Strongly Connected Digraphs", arXiv:2605.01269 (retrieved with
-`fetch 2605.01269`, 2026-10-21).  Section 4: Definition 4.1 (the
+k-Strongly Connected Digraphs", arXiv:2605.01269.  Section 4: Definition 4.1 (the
 construction `D_U(n,k)`), Theorem 4.2 (saturation and arc count), and
 the Conjecture stated right after Theorem 4.2:
 
@@ -14,19 +13,7 @@ Conjecture. For sufficiently large n,
   ex(n, D_k) = (3/2)(k - 4/3)(n - k + 1) + binom(n, 2).
 ```
 
-Definitions used verbatim from Section 1 of the paper:
-
-```
-A subset S ⊆ V(D) is called a separator of D if D - S is not strongly
-connected or is trivial. ... The vertex-strong connectivity of D, κ(D),
-is the cardinality of a minimum separator of D. ... A digraph D is
-k-strongly connected if κ(D) ≥ k. ... D_k denotes the family of
-k-strongly connected digraphs. ... sat(n, D) and ex(n, D) are the
-minimum and maximum numbers of arcs among all n-vertex D-saturated
-digraphs.
-```
-
-## Claim formalized here (status: open; not in the paper)
+## Result
 
 The `k = 2` case of the conjecture, for every `n ≥ 1`:
 
@@ -35,7 +22,9 @@ The `k = 2` case of the conjecture, for every `n ≥ 1`:
 which is the conjectured value since (3/2)(2 - 4/3) = 1.  The paper
 proves only the general upper bound binom(n-k+1, 2) + (17/6)(k-1)(n-k+1)
 for n ≥ 3(k-1) and the lower-bound construction of Theorem 4.2; the
-`k = 2` equality is not stated or proved there.
+`k = 2` equality is not stated or proved there. The paper defines `ex`
+as the maximum arc count among saturated digraphs; both the free and
+saturated formulations are proved below.
 
 Argument (elementary, digon forest).  The digon graph `G₂` joins `u ≠ v`
 when both arcs `(u,v)` and `(v,u)` are present.  A cycle of length
@@ -65,17 +54,6 @@ subgraphs (`card_le_choose_two_add_card_digonGraph`,
   as an induced one.
 * `IsSaturated A k`: `A` is loopless, `D_k`-free, and adding any missing
   non-loop arc creates a `k`-strongly connected subdigraph.
-
-## Computational evidence (2026-10-21)
-
-Exhaustive search over all loopless digraphs (`n ≤ 5`) gives
-`ex(n, D_2) = 0, 2, 5, 9, 14` for `n = 1..5`, matching the formula; the
-construction was checked `D_2`-free with `binom(n,2) + n - 1` arcs for
-`n ≤ 8`.
-
-## Status of this module
-
-Fully proved, no `sorry`.
 -/
 import Mathlib
 
@@ -180,7 +158,7 @@ lemma kStrongOn_complete (k : ℕ) :
     exact Relation.ReflTransGen.refl
   · exact Relation.ReflTransGen.single ⟨hu, hv, huv⟩
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- `K₃*` is `2`-strongly connected. -/
 example : KStrongOn (fun a b : Fin 3 => a ≠ b) univ 2 := kStrongOn_complete 2

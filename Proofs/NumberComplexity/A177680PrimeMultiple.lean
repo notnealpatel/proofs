@@ -1,25 +1,10 @@
 /-
 # A177680 — Dale: every term after the first is a multiple of 5
 
-## OEIS source (retrieved with `oeis show A177680`, 2026-10-21)
-
-```
-NAME:     Numbers n such that 6n and 12n are both the average of twin prime pairs.
-TERMS:    1,5,110,135,355,425,555,565,975,1045,1755,5530,6935,7355,8925,9240,
-          9555,10640,10850,11730,11830,12045,12350,12460,13130,13445,13655,
-          14590,15540,17050,19245,20795,22330,22825,26070,26910,28075,30585,30805
-FORMULA:  a(n)=A066388(n)/6.
-COMMENT (the conjecture):
-  Conjecture: all terms but the first term are multiples of 5.
-  - _Harvey P. Dale_, Sep 26 2017
-```
-
-## Status
-
-Listed as a conjecture in the entry; triage found no proof in the entry or the
-literature ("open").  It is an elementary residue argument modulo 5: for
-`n ≡ 1, 2, 3, 4 (mod 5)` respectively `5 ∣ 6n-1`, `5 ∣ 12n+1`, `5 ∣ 12n-1`,
-`5 ∣ 6n+1`, and each of these numbers exceeds 5 once `n > 1`.  Proved below.
+OEIS A177680, Harvey P. Dale: every term `n > 1` is a multiple of `5`.
+For `n ≡ 1,2,3,4 (mod 5)`, respectively `6n-1`, `12n+1`, `12n-1`,
+`6n+1` is divisible by `5` and greater than `5`, contradicting primality.
+The first term `n = 1` is excluded.
 -/
 import Mathlib
 
@@ -39,7 +24,7 @@ instance : DecidablePred IsTerm := fun n => by
   unfold IsTerm
   infer_instance
 
-/-! ## Ground truth against the listed terms -/
+/-! ## Examples against the listed terms -/
 
 example : IsTerm 1 := by unfold IsTerm; norm_num
 example : IsTerm 5 := by unfold IsTerm; norm_num

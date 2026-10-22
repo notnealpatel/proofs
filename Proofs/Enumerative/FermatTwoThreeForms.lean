@@ -1,39 +1,16 @@
 /-
-# Fermat's theorems on primes of the form `x^2 + 2y^2` and `x^2 + 3y^2`
+Fermat's prime representations by x²+2y² and x²+3y².
 
-## Source
+For prime p and natural x,y, representability by x²+2y² is equivalent to
+p=2 or p≡1,3 (mod 8); representability by x²+3y² is equivalent to
+p=3 or p≡1 (mod 3). The exceptional primes are included.
+Sources: Fermat's letters (1654), Euler's proofs, and D. A. Cox,
+Primes of the Form x²+ny², §§1–2.
 
-* P. de Fermat, letters (1654, including the letter to Pascal), stated
-  without proof; proved by L. Euler.
-* D. A. Cox, *Primes of the Form x^2 + ny^2*, §1 (Fermat's statements) and
-  §2 (Euler's proofs).
-* A. Thue (1902), the approximation lemma used here in place of Euler's descent.
-
-## Informal statement (verbatim from the target specification)
-
-For a prime p: p = x^2 + 2y^2 for some naturals x, y iff p = 2 or
-p ≡ 1, 3 (mod 8). Also p = x^2 + 3y^2 iff p = 3 or p ≡ 1 (mod 3).
-Supporting lemma (Thue): for a prime p and a in ZMod p there are naturals
-x, y with 0 < y, x^2 < p, y^2 < p and a*y = ±x in ZMod p.
-
-Date: 2026-10-21.
-
-## Mathlib absence check
-
-`leandoc` exact/search probes for `Nat.Prime.sq_add_two_mul_sq`,
-`Nat.Prime.sq_add_three_mul_sq`, Thue's lemma, and "prime sum square two times
-square" find only four-square and two-square results (`Nat.Prime.sq_add_sq`).
-Present and used here: `ZMod.exists_sq_eq_neg_two_iff`,
-`exists_prime_orderOf_dvd_card`, `ZMod.card_units`.
-
-## Proof route
-
-Thue's lemma by pigeonhole on `(u, v) ↦ u - a v` over `[0, √p]^2`.  For `-2`,
-`ZMod.exists_sq_eq_neg_two_iff` supplies `a` with `a^2 = -2`; for `-3`, a
-primitive cube root of unity `ω` (Cauchy's theorem in `(ZMod p)ˣ`) gives
-`(2ω + 1)^2 = -3`.  Thue then gives `p ∣ x^2 + n y^2 < (n + 1) p`, and the
-small multiples are reduced by parity/divisibility.  The converses are residue
-computations.
+The proof uses Thue's approximation lemma (1902): for prime p and a∈ZMod p,
+there are natural x,y with 0<y, x²<p, y²<p and ay=±x modulo p.
+Pigeonhole proves this lemma. Square roots of -2 and -3 then give a small
+multiple of p, reduced by parity and divisibility; the converses use residues.
 -/
 import Mathlib
 
@@ -60,7 +37,7 @@ theorem thue {p : ℕ} [hp : Fact p.Prime] (a : ZMod p) :
   have hm_lt_p : m < p := by
     have h1 : m ≤ m ^ 2 := by nlinarith
     omega
-  -- pigeonhole
+  -- Pigeonhole
   let f : Fin (m + 1) × Fin (m + 1) → ZMod p := fun uv => (uv.1 : ℕ) - a * (uv.2 : ℕ)
   have hcard : Fintype.card (ZMod p) < Fintype.card (Fin (m + 1) × Fin (m + 1)) := by
     simp only [ZMod.card, Fintype.card_prod, Fintype.card_fin]
@@ -254,13 +231,13 @@ theorem exists_sq_add_three_mul_sq_iff {p : ℕ} (hp : p.Prime) :
     · exact ⟨0, 1, by rw [h3]; norm_num⟩
     · exact exists_sq_add_three_mul_sq_of_mod_three hp h
 
-/-! ## Ground-truth instances (satisfiability of the hypotheses) -/
+/-! ## Examples -/
 
 example : Nat.Prime 11 ∧ 11 % 8 = 3 ∧ 11 = 3 ^ 2 + 2 * 1 ^ 2 := by norm_num
 example : Nat.Prime 17 ∧ 17 % 8 = 1 ∧ 17 = 3 ^ 2 + 2 * 2 ^ 2 := by norm_num
 example : Nat.Prime 7 ∧ 7 % 3 = 1 ∧ 7 = 2 ^ 2 + 3 * 1 ^ 2 := by norm_num
 example : Nat.Prime 13 ∧ 13 % 3 = 1 ∧ 13 = 1 ^ 2 + 3 * 2 ^ 2 := by norm_num
-/-- `5 ≡ 5 (mod 8)` is not of the form `x^2 + 2y^2` (non-vacuity of the iff). -/
+/-- `5 ≡ 5 (mod 8)` is not of the form `x^2 + 2y^2` (a negative instance). -/
 example : ¬ ∃ x y : ℕ, 5 = x ^ 2 + 2 * y ^ 2 := by
   rw [exists_sq_add_two_mul_sq_iff (by norm_num)]; norm_num
 /-- `5 ≡ 2 (mod 3)` is not of the form `x^2 + 3y^2`. -/

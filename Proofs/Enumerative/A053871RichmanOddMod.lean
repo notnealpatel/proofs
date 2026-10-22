@@ -1,40 +1,11 @@
 /-
-# A053871 — Richman: odd-modulus periodicity of `(-1)^n a(n)`
+Odd-modulus periodicity for OEIS A053871 (Harry Richman, Aug 29 2023).
 
-## OEIS source (retrieved with `oeis show A053871`, 2026-10-21)
-
-```
-NAME:     a(n) = 2*(n-1)*(a(n-1) + a(n-2)), starting a(0) = 1; a(1) = 0.
-TERMS:    1,0,2,8,60,544,6040,79008,1190672,20314880,387099936,8148296320,...
-FORMULA (the conjecture):
-  Conjecture: if m == n (mod q) for q odd, then (-1)^m*a(m) == (-1)^n*a(n)
-  (mod q). - _Harry Richman_, Aug 29 2023
-FORMULA (used in the proof):
-  a(n) = (-1)^n*Sum_{k=0..n} (-1)^k*C(n, k)*(2*k-1)!!.
-  - _Benoit Cloitre_, May 01 2003; corrected by _David Fioramonti_, May 17 2016
-COMMENT:
-  Harry Richman's conjecture in the Formula section was proved by Ahaan
-  Kallat (2026, Theorem 59); see the paper in the Links section.
-  - _Ahaan Kallat_, Oct 14 2026
-```
-
-## Status
-
-Proved elsewhere (Kallat 2026, Theorem 59, per the entry).  This module gives
-an independent kernel-checked proof.
-
-## Proof outline
-
-Write `b n = (-1)^n a(n)`; then `b (n+2) = 2(n+1)(b n - b (n+1))`.
-
-1. (`b_add_mul_congr`) For every modulus `q`, every `N` with `q ∣ N` and every
-   `r`, `b (N + r) ≡ b N * b r [ZMOD q]`: the recurrence reduced mod `q` only
-   sees `n mod q`, and `b (N+1) ≡ 0` since its factor `2N` vanishes.
-2. Hence `b (j q) ≡ (b q)^j`, so periodicity reduces to `b q ≡ 1 [ZMOD q]`.
-3. (`b_eq_sum`) `b n = ∑_k C(n,k) e_k` with `e_k = (-1)^k (2k-1)!!`.
-4. (`dvd_choose_mul_doubleFactorial`) for odd `q` and `1 ≤ k`,
-   `q ∣ C(q,k) (2k-1)!!`, because `2^k C(q,k) (2k-1)!! = q^{(k)} C(2k,k)`
-   with the falling factorial `q^{(k)}` divisible by `q`.  So `b q ≡ e_0 = 1`.
+For a(0)=1, a(1)=0 and a(n)=2(n-1)(a(n-1)+a(n-2)), the signed sequence
+b(n)=(-1)^n a(n) satisfies b(m) ≡ b(n) (mod q) whenever q is odd and m ≡ n (mod q).
+The proof uses the binomial/double-factorial formula of Benoit Cloitre
+(May 01 2003), corrected by David Fioramonti (May 17 2016).
+The entry credits a proof to Ahaan Kallat (2026, Theorem 59).
 -/
 import Mathlib
 

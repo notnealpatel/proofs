@@ -29,9 +29,9 @@
   G or in Gᶜ.  `SimpleGraph.CliqueFree` exists.
 -/
 import Mathlib
-import Erdos.Erdos77.ClassicalBounds
-import Erdos.RamseySmallNumbers
-import Erdos.RamseyProbabilisticLowerBound
+import Sorry.Erdos.Erdos77.ClassicalBounds
+import Sorry.Erdos.RamseySmallNumbers
+import Sorry.Erdos.RamseyProbabilisticLowerBound
 
 set_option autoImplicit false
 

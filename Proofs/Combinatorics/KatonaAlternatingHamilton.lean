@@ -1,25 +1,12 @@
 /-
 # Katona's conjecture: alternating Hamilton cycles in the Boolean lattice
 
-## Source
-
-arXiv:2610.18152, Yuxian Dong and Jianxi Mao, "Alternating Hamilton Paths and
-Cycles in Poset Products".  Section 1, Conjecture 1.1 (Katona, Discrete Appl.
-Math. 2013, Section 8) and Corollary 1.3; the construction used here is
-Lemma 2.2 of Section 2 (`P × B_2` admits an AHC whenever `P` admits an AHP and
-`|P| ≥ 2`).
-
-Verbatim informal claim (Conjecture 1.1 / Corollary 1.3):
-
-  "For every n ≥ 3, B_n admits an AHC."
-
-where an AHC of a poset `P` with `|P| ≥ 4` is "a cyclic ordering of all the
-elements such that x_1 < x_2 > x_3 < ⋯ < x_{|P|} > x_1 or
-x_1 > x_2 < x_3 > ⋯ > x_{|P|} < x_1", and `B_n` is the poset of all subsets of
-`[n]` ordered by inclusion.
-
-Recorded 2026-10-21.  Status: proved in the paper (Corollary 1.3 of
-Theorem 1.2(i)).  This module gives a complete Lean proof.
+Yuxian Dong and Jianxi Mao, *Alternating Hamilton Paths and Cycles in
+Poset Products*, arXiv:2610.18152, Conjecture 1.1 (Katona, Discrete Appl.
+Math. 2013, Section 8) and Corollary 1.3: the Boolean lattice `B_n`
+admits an alternating Hamilton cycle for every `n ≥ 3`. Such a cycle
+is a cyclic enumeration alternating strict increases and decreases.
+The construction below uses Lemma 2.2, Section 2.
 
 ## Route
 
@@ -55,12 +42,12 @@ position it is strictly smaller.  This is the paper's first pattern
 def IsAltHamCycle {N : ℕ} (x : Fin N ≃ α) : Prop :=
   ∀ i : Fin N, (Even (i : ℕ) → x i < x (finRotate N i)) ∧ (Odd (i : ℕ) → x (finRotate N i) < x i)
 
-/-- Ground truth: `0 < 2 > 1 < 3 > 0` is an alternating Hamilton cycle of the chain `Fin 4`. -/
+/-- `0 < 2 > 1 < 3 > 0` is an alternating Hamilton cycle of the chain `Fin 4`. -/
 example : IsAltHamCycle (Equiv.swap (1 : Fin 4) 2) := by
   unfold IsAltHamCycle
   decide
 
-/-- Ground truth: the identity enumeration `0 < 1 < 2 < 3` of `Fin 4` is not alternating. -/
+/-- The identity enumeration `0 < 1 < 2 < 3` of `Fin 4` is not alternating. -/
 example : ¬ IsAltHamCycle (Equiv.refl (Fin 4)) := by
   unfold IsAltHamCycle
   decide
@@ -473,17 +460,17 @@ lemma isLabelledAHP_two : IsLabelledAHP
   unfold IsLabelledAHP
   decide
 
-/-- Ground truth: `boolEmb` sends `({0}, {1})` to `{0} ∪ {1 + 1} = {0, 2}` in `B_3`. -/
+/-- `boolEmb` sends `({0}, {1})` to `{0} ∪ {1 + 1} = {0, 2}` in `B_3`. -/
 example : boolEmb 1 ({0}, {1}) = {0, 2} := by decide
 
-/-- Ground truth: the explicit AHC of `B_3` printed in the proof of Lemma 2.2,
+/-- The explicit AHC of `B_3` printed in the proof of Lemma 2.2,
 `∅ < {1,2,3} > {1} < {1,2} > {2} < {2,3} > {3} < {1,3} > ∅` (shifted to `Fin 3`). -/
 example : IsLabelledAHC ([(∅, false), ({0, 1, 2}, true), ({0}, false), ({0, 1}, true),
     ({1}, false), ({1, 2}, true), ({2}, false), ({0, 2}, true)] :
       List (Finset (Fin 3) × Bool)) :=
   ⟨∅, _, rfl, by decide, by decide, by decide⟩
 
-/-- Ground truth: the Lemma 2.2 cycle built from the path `0 < 1` of the chain `Fin 2`
+/-- The Lemma 2.2 cycle built from the path `0 < 1` of the chain `Fin 2`
 (the case `|P| = 2`) is an AHC of `Fin 2 × B_2`. -/
 example : IsLabelledAHC (prodCycle (0 : Fin 2) 1 []) :=
   prodCycle_isLabelledAHC 0 1 [] ⟨by decide, by decide, by decide⟩
@@ -529,7 +516,7 @@ theorem cor_1_3 (n : ℕ) (hn : 3 ≤ n) :
     ∃ x : Fin (2 ^ n) ≃ Finset (Fin n), IsAltHamCycle x :=
   katona_conjecture n hn
 
-/-- Non-vacuity at the smallest case: `B_3` has an alternating Hamilton cycle. -/
+/-- At the smallest case, `B_3` has an alternating Hamilton cycle. -/
 example : ∃ x : Fin (2 ^ 3) ≃ Finset (Fin 3), IsAltHamCycle x := katona_conjecture 3 le_rfl
 
 end Boolean

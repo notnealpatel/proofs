@@ -32,7 +32,7 @@
   The production proof below is an independent coordinate-quadratic
   argument, not a formalization of either historical proof.
 -/
-import Combinatorics.IntegralDistances.AnningErdos
+import Sorry.Combinatorics.IntegralDistances.AnningErdos
 
 set_option autoImplicit false
 

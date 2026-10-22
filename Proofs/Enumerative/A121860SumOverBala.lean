@@ -1,35 +1,12 @@
 /-
-# A121860 — Bala: `a(n) = Σ_{d ∣ n} n!/(d!(n/d)!)` is eventually `2` modulo `k`
+# A121860: eventual residue 2
 
-## OEIS source (retrieved with `oeis show A121860`, 2026-10-21)
-
-```
-NAME:     a(n) = Sum_{d|n} n!/(d!*(n/d)!).
-TERMS:    1,2,2,8,2,122,2,1682,10082,30242,2,7318082,2,17297282,3632428802,
-          36843206402,2,2981705126402,2,1690185726028802,3379030566912002,
-          28158588057602,2,76941821303636889602,1077167364120207360002
-COMMENT:  a(n) = 2 iff n is prime.
-COMMENT (the conjecture):
-  Conjecture: the sequence a(n) taken modulo a positive integer k >= 3
-  eventually becomes constant equal to 2. For example, the sequence taken
-  modulo 11 is [1, 2, 2, 8, 2, 1, 2, 10, 6, 3, 2, 2, 2, 2, 2, 2, ...].
-  - _Peter Bala_, Aug 08 2025
-FORMULA:  E.g.f.: Sum_{k>0} (exp(x^k)-1)/k!.
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  This module proves it, in the stronger explicit form
-`((n - 4)/2)! ∣ a(n) - 2` for `n ≥ 4`, hence `a(n) ≡ 2 (mod k)` for all
-`n ≥ 2k + 4` and every `k ≥ 1`.
-
-## Argument
-
-The divisors `d = 1` and `d = n` contribute `1` each.  For any other divisor,
-write `n = d * e` with `2 ≤ d, e` and `r = n - d - e`.  Then
-`d! * e! * r! ∣ (d + e)! * r! ∣ n!`, so `r! ∣ n!/(d! e!)`; and
-`(d - 2)(e - 2) ≥ 0` gives `r ≥ (n - 4)/2`.
+OEIS A121860, Peter Bala (Aug 08 2025).
+For the divisor sum `a(n) = Σ_{d∣n} n!/(d!(n/d)!)`,
+`((n-4)/2)!` divides `a(n)-2` in `ℤ` whenever `n ≥ 4`.
+Consequently, for every positive `k`, `a(n) ≡ 2 (mod k)` for `n ≥ 2k+4`.
+The divisors `1` and `n` contribute `1` each; the other terms have the
+required factorial divisibility.
 -/
 import Mathlib
 

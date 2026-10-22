@@ -1,29 +1,13 @@
 /-
 # A231548 — refutation of the antisigma(n) < antisigma(n-3) conjecture
 
-## OEIS source (retrieved with `oeis show A231548` and the live entry, 2026-10-21)
+The unsigned conjecture in OEIS A231548, an entry by Jaroslav Krizek
+(2013). Antisigma (A024816) sums the non-divisors between `1` and `n`.
 
-```
-NAME:     Numbers n such that 2*n - 1 < sigma(n) - sigma(n-2).
-TERMS:    1680,2520,3360,3780,3960,4200,4680,5040,6300,6720,7560,7920,8820,...
-COMMENT:  Also numbers n such that antisigma(n) < antisigma(n-2), where
-          antisigma(n) = A024816(n) = the sum of the non-divisors of n that are
-          between 1 and n.
-COMMENT (the conjecture, unsigned; entry author _Jaroslav Krizek_, Nov 12 2013):
-          Conjecture: there are no numbers n such that antisigma(n) < antisigma(n-3).
-```
-
-No later comment or edit in the entry retracts the conjecture.
-
-## Status
-
-This module **refutes** the conjecture.  At `n = 332640 = 2^5 * 3^3 * 5 * 7 * 11`
-we have `n - 3 = 332637 = 3 * 110879` with `110879` prime, so
-`sigma(n) = 1451520`, `sigma(n-3) = 443520`, and
-`antisigma(n) = 55323399600 < 55323409683 = antisigma(n-3)`.
-A bounded sieve (Python, up to 4 * 10^5) found `332640` to be the least
-counterexample, followed by `360360`; minimality is computational evidence
-only and is not formalized here.
+At `n = 332640 = 2^5 · 3^3 · 5 · 7 · 11`, `n-3 = 3 · 110879` with
+`110879` prime. Thus `σ(n)=1451520`, `σ(n-3)=443520` and
+`antisigma(n)=55323399600 < 55323409683=antisigma(n-3)`, refuting the claim.
+No minimality assertion is proved here.
 
 The conjecture is read for `n ≥ 4`, so that `n - 3` is a positive integer
 (for `n ≤ 3` the truncated `n - 3 = 0` gives `antisigma 0 = 0`, which can never
@@ -38,13 +22,13 @@ namespace Candidates.A231548Refutation
 open ArithmeticFunction
 open scoped ArithmeticFunction.sigma
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `antisigma n` (OEIS A024816): the sum of the numbers `k` with `1 ≤ k ≤ n`
 that do not divide `n`. -/
 def antisigma (n : ℕ) : ℕ := ∑ k ∈ (Finset.Icc 1 n).filter (fun k => ¬ k ∣ n), k
 
-/-- Ground truth: the first twenty terms of A024816 (offset 1). -/
+/-- Examples: the first twenty terms of A024816 (offset 1). -/
 example : (List.range 20).map (fun n => antisigma (n + 1)) =
     [0, 0, 2, 3, 9, 9, 20, 21, 32, 37, 54, 50, 77, 81, 96, 105, 135, 132, 170, 168] := by
   decide
@@ -73,9 +57,9 @@ theorem antisigma_eq (n : ℕ) : antisigma n = n * (n + 1) / 2 - σ 1 n := by
 
 /-! ## The conjecture -/
 
-/-- **Krizek's conjecture (A231548, comment; entry by Jaroslav Krizek, Nov 12 2013).**
+/-- **Krizek's conjecture (A231548, comment; entry by Jaroslav Krizek, 2013).**
 
-Verbatim: "Conjecture: there are no numbers n such that antisigma(n) <
+"Conjecture: there are no numbers n such that antisigma(n) <
 antisigma(n-3)."  Stated for `n ≥ 4`, i.e. whenever `n - 3` is a positive
 integer: `antisigma (n - 3) ≤ antisigma n`. -/
 def Conjecture : Prop := ∀ n : ℕ, 4 ≤ n → antisigma (n - 3) ≤ antisigma n
@@ -118,9 +102,7 @@ theorem antisigma_332640_lt : antisigma 332640 < antisigma (332640 - 3) := by
 /-- **Krizek's A231548 conjecture is false.**  The witness is
 `n = 332640 = 2^5 * 3^3 * 5 * 7 * 11`: here `n - 3 = 3 * 110879` with `110879`
 prime, so `sigma(n) - sigma(n-3) = 1008000 > 3n - 3 = 997917`, i.e.
-`antisigma(n) < antisigma(n-3)`.  The author presumably extrapolated from a
-search below `332640`; highly composite `n` with `sigma(n)/n > 4` and
-`n - 3` three times a prime break the inequality. -/
+`antisigma(n) < antisigma(n-3)`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   exact absurd (hconj 332640 (by norm_num)) (Nat.not_le.mpr antisigma_332640_lt)

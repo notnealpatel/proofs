@@ -1,20 +1,8 @@
 /-
 # A001481 — Lowell: two distinct positive sums of two squares never add to a power of 2
 
-## OEIS source (pulled with `oeis show A001481`, 2026-10-21)
-
-```
-NAME:     Numbers that are the sum of 2 nonnegative squares.
-TERMS:    0,1,2,4,5,8,9,10,13,16,17,18,20,25,26,29,32,34,36,37,40,41,45,49,50,...
-COMMENT (the conjecture):
-  Conjecture: barring the 0+2, 0+4, 0+8, 0+16, ... sequence, the sum of 2
-  distinct terms in this sequence is never a power of 2. - _J. Lowell_, Jan 14 2022
-```
-
-## Status
-
-Triage: "open" (no proof recorded in the entry), tractability trivial.  It is an
-elementary exercise and is proved below (kernel-checked, no `sorry`).
+OEIS A001481, J. Lowell: two distinct positive sums of two squares
+cannot add to a power of two.
 
 Informal proof.  An odd sum of two squares is `≡ 1 (mod 4)`.  An even sum of
 two squares `2m = a² + b²` has `a ≡ b (mod 2)`, and `m = ((a+b)/2)² + ((a-b)/2)²`.
@@ -36,7 +24,7 @@ namespace Candidates.A001481BothSumsTwo
 /-- `n` is a term of A001481: `n` is the sum of two nonnegative squares. -/
 def IsSumTwoSq (n : ℕ) : Prop := ∃ a b : ℕ, n = a ^ 2 + b ^ 2
 
-/-- Bounded form of `IsSumTwoSq`, used to decide membership for ground truth. -/
+/-- Bounded form of `IsSumTwoSq`, used to decide membership for examples. -/
 theorem isSumTwoSq_iff_bounded (n : ℕ) :
     IsSumTwoSq n ↔ ∃ a < n + 1, ∃ b < n + 1, n = a ^ 2 + b ^ 2 := by
   constructor
@@ -50,7 +38,7 @@ theorem isSumTwoSq_iff_bounded (n : ℕ) :
 instance : DecidablePred IsSumTwoSq := fun n =>
   decidable_of_iff _ (isSumTwoSq_iff_bounded n).symm
 
-/-- Ground truth: the terms of A001481 below `30` are exactly the listed ones. -/
+/-- Examples: the terms of A001481 below `30` are exactly the listed ones. -/
 example : (List.range 30).filter (fun n => decide (IsSumTwoSq n)) =
     [0, 1, 2, 4, 5, 8, 9, 10, 13, 16, 17, 18, 20, 25, 26, 29] := by
   decide
@@ -122,17 +110,15 @@ theorem eq_of_add_eq_two_pow (k : ℕ) :
       · rw [pow_succ] at h
         omega
 
-/-- **Lowell's conjecture (A001481, J. Lowell, Jan 14 2022), positive form.**
+/-- **Lowell's conjecture (A001481, J. Lowell, 2022), positive form.**
 If `x ≠ y` are both positive sums of two squares, then `x + y` is never a power
 of `2`. -/
 theorem conjecture (x y : ℕ) (hx : IsSumTwoSq x) (hy : IsSumTwoSq y)
     (hx0 : 0 < x) (hy0 : 0 < y) (hxy : x ≠ y) (k : ℕ) : x + y ≠ 2 ^ k :=
   fun h => hxy (eq_of_add_eq_two_pow k x y hx hy hx0 hy0 h)
 
-/-- **Lowell's conjecture (A001481), verbatim form.** "Barring the 0+2, 0+4,
-0+8, 0+16, ... sequence, the sum of 2 distinct terms in this sequence is never a
-power of 2": if two distinct terms of A001481 add to a power of `2`, one of them
-is `0`. -/
+/-- Lowell’s conjecture (A001481), including the zero exception: if two
+distinct sums of two nonnegative squares add to a power of `2`, one is `0`. -/
 theorem conjecture_verbatim (x y : ℕ) (hx : IsSumTwoSq x) (hy : IsSumTwoSq y)
     (hxy : x ≠ y) (k : ℕ) (h : x + y = 2 ^ k) : x = 0 ∨ y = 0 := by
   rcases Nat.eq_zero_or_pos x with hx0 | hx0

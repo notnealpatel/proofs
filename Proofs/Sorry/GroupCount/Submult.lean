@@ -1,4 +1,4 @@
-import GroupCount.Submult
+import Sorry.Quarantine.GroupCount.Submult
 
 /-!
 # Archived Lopes group-count conjecture (OEIS A000001)

@@ -1,59 +1,19 @@
 /-
-# The Fibonacci numbers are not 3-accessible (Wesley)
+# Fibonacci numbers are not 3-accessible
 
-## Source
+William J. Wesley, *The Fibonacci numbers are not 3-accessible*,
+arXiv:2609.33744, Section 2: Theorem 1 (`MainThm`), Lemmas 2 and 3
+(`LemmaRecur`, `LemmaS`). A D-diffsequence is strictly increasing with
+successive differences in D; r-accessibility requires arbitrarily long
+monochromatic such sequences in every r-coloring of the positive integers.
 
-William J. Wesley, "The Fibonacci numbers are not 3-accessible",
-arXiv:2609.33744.  Section 2 ("Proof of Theorem 1"): Theorem 1 (`MainThm`),
-Lemma 2 (`LemmaRecur`), Lemma 3 (`LemmaS`).  Recorded 2026-10-21.
-
-Verbatim informal claim (Theorem 1):
-
-> There exists a 3-coloring of $\mathbb{Z}^+$ that does not contain
-> monochromatic 19-term $F$-diffsequences. In particular,
-> $\operatorname{doa}(F) = 2$.
-
-Definitions (Section 1): a *$D$-diffsequence* is a sequence of integers
-$x_1 < \dots < x_k$ with $x_{i+1} - x_i \in D$; $D$ is *$r$-accessible* if
-every $r$-coloring of the positive integers contains arbitrarily long
-monochromatic $D$-diffsequences.  $F = \{f_n : n \ge 1\} = \{1, 2, 3, 5, 8, \dots\}$.
-
-The paper's coloring: $m = 232$, $\alpha = 184 + 8\phi$,
-$\rho(n) = \lfloor \alpha n \rfloor \bmod m$, $\chi(n) = C(\rho(n))$ with the
-explicit 3-coloring $C = (C_1, C_2, C_3)$ of $\mathbb{Z}_m$.
-
-## Status
-
-Proved in the paper.  The "not 3-accessible" half (`doa(F) ≤ 2`) is the new
-result of the paper; the lower bound `doa(F) ≥ 2` is Landman–Robertson (2007)
-and is only cited, so it is not formalized here.
-
-## What is formalized (all proved, no `sorry`)
-
-* `lemma_2`  — Lemma 2 of the paper, over `ℝ`.
-* `floor_alpha_mul` — exact integer form `⌊α n⌋ = 188 n + ⌊√(80 n²)⌋`.
-* `lemma_3`  — Lemma 3 of the paper: `ρ(x + f) - ρ(x) ∈ S (mod 232)` for `f ∈ F`.
-* `paperColoring_not_monochromatic_twenty` — the paper's coloring `χ` has no
-  monochromatic 20-term `F`-diffsequence (finite height certificate on the
-  Cayley digraph, checked by `decide`).
-* `thm_1` — Theorem 1 as stated: some 3-coloring has no monochromatic
-  19-term `F`-diffsequence.
-* `not_isAccessible_fibSet_three` — `F` is not 3-accessible.
-
-## Discrepancy note (off by one in the paper)
-
-The paper's own graph argument shows the longest paths in `G[C_i]` have 19,
-18, 14 vertices, hence a monochromatic diffsequence of `χ` has *at most 19*
-terms; this excludes 20-term sequences, not 19-term ones.  The paper's
-coloring is therefore certified here only for 20 terms
-(`paperColoring_not_monochromatic_twenty`).  Theorem 1 (19 terms) is proved
-with a different coloring `improvedC` of `ℤ/232` (same `α` and `m`, found by
-simulated annealing during triage) whose monochromatic Cayley-digraph paths
-have at most 16 vertices, so it has no monochromatic 17-term diffsequence
-(`improvedColoring_not_monochromatic_seventeen`).  Theorem 1 is existential
-in the coloring, so this proves the statement exactly as written.
-Brute force (triage, not a proof) finds the paper's coloring's actual longest
-monochromatic `F`-diffsequence up to 200000 to be 14 terms.
+The real recurrence and increment enclosure are proved for
+`α=184+8φ`, `ρ(n)=floor(αn) mod 232`. Finite acyclic-graph height certificates
+give no monochromatic 20-term Fibonacci diffsequence for the paper's coloring.
+This bound alone does not exclude 19 terms. A different explicit coloring
+with the same `α` and modulus excludes 17 terms, hence proves the existential
+19-term statement and non-3-accessibility. The lower bound of 2-accessibility
+(Landman–Robertson, 2007) is not formalized; no equality `doa(F)=2` is proved here.
 -/
 import Mathlib
 
@@ -137,7 +97,7 @@ theorem floor_alpha_mul (n : ℕ) : ⌊alpha * n⌋₊ = 188 * n + sqrtPart n :=
 theorem rho_eq (n : ℕ) : rho n = (188 * n + sqrtPart n) % 232 := by
   rw [rho, floor_alpha_mul]
 
-/-- Ground truth: `⌊α⌋ = 196` and `⌊2α⌋ = 393` (so `ρ(1) = 196`, `ρ(2) = 161`). -/
+/-- `⌊α⌋ = 196` and `⌊2α⌋ = 393` (so `ρ(1) = 196`, `ρ(2) = 161`). -/
 example : ⌊alpha * (1 : ℕ)⌋₊ = 196 ∧ ⌊alpha * (2 : ℕ)⌋₊ = 393 := by
   rw [floor_alpha_mul, floor_alpha_mul, sqrtPart, sqrtPart]
   constructor
@@ -394,14 +354,14 @@ def inC3 (u : ℕ) : Bool :=
 def paperC (u : ℕ) : Fin 3 := if inC1 u then 0 else if inC2 u then 1 else 2
 
 set_option maxRecDepth 100000 in
-/-- Ground truth: `C₁, C₂, C₃` partition `{0, …, 231}` (each residue lies in exactly one
+/-- `C₁, C₂, C₃` partition `{0, …, 231}` (each residue lies in exactly one
 class). -/
 example : (List.range 232).all (fun u =>
     (if inC1 u then 1 else 0) + (if inC2 u then 1 else 0) + (if inC3 u then 1 else 0) == 1) =
       true := by decide
 
 set_option maxRecDepth 100000 in
-/-- Ground truth: `paperC` agrees with the class `C₃` on `{0, …, 231}`. -/
+/-- `paperC` agrees with the class `C₃` on `{0, …, 231}`. -/
 example : (List.range 232).all (fun u => (paperC u == 2) == inC3 u) = true := by decide
 
 /-- The paper's 3-coloring `χ(n) = C(ρ(n))` of the positive integers. -/
@@ -413,7 +373,7 @@ def paperHeight : ℕ :=
   8824601084478421337089433220089021505880875094362635220708834266993159645407467416692712386436177664153574818157779381317298489394153471718618389317776035335998755423166906331360910341223700703481290405107104536487830604416341672508629473086934219546731139802053539421025991318383215465750271115379265015860759741179460092772498632498541550863173106
 
 set_option maxRecDepth 100000 in
-/-- Kernel-checked certificate that every `G[C_i]` is acyclic with heights from
+/-- Certificate that every `G[C_i]` is acyclic with heights from
 `paperHeight`. -/
 theorem paper_cert : certOK paperC paperHeight = true := by decide
 
@@ -434,7 +394,7 @@ def pieceColor : List (ℕ × Fin 3) → ℕ → Fin 3
   | [], _ => 0
   | (b, c) :: rest, u => if u ≤ b then c else pieceColor rest u
 
-/-- A second coloring of `ℤ/232` (found by simulated annealing during triage) whose
+/-- A second coloring of `ℤ/232` whose
 monochromatic Cayley-digraph paths have at most 16 vertices. -/
 def improvedC (u : ℕ) : Fin 3 :=
   pieceColor [(23, 0), (40, 2), (55, 1), (86, 2), (97, 0), (118, 2), (143, 1), (148, 2),
@@ -451,7 +411,7 @@ def improvedHeight : ℕ :=
   7577244309918845883565583878863006884372876191757011813835308550215279086456822356693316627798961626885182668585608396289213445306611155288856080384123302564838532805479843490355348993759388483460781250524282428155291985718838742189657979910277331704502941298265359705176648837841080108175320895992654814640794153799980748580876757226566767028452847
 
 set_option maxRecDepth 100000 in
-/-- Kernel-checked certificate for `improvedC`. -/
+/-- Certificate for `improvedC`. -/
 theorem improved_cert : certOK improvedC improvedHeight = true := by decide
 
 /-- Heights for `improvedC` are at most 15. -/

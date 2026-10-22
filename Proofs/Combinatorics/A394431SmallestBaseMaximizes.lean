@@ -1,25 +1,12 @@
 /-
-# A394431 — the smallest digit-sum-maximizing base is `⌊n/2⌋ + 1` for `n > 8`
+# A394431 — the least digit-sum-maximizing base
 
-## OEIS source (pulled with `oeis show A394431`, 2026-10-21)
+Sean A. Irvine (OEIS A394431, Mar 25 2026) conjectured
+`a(n) = ⌈(n+1)/2⌉` for `n > 8`, where `a(n)` is the smallest base
+`1 < b < n` maximizing the base-`b` digit sum, with `a(1) = a(2) = 1`.
+The bound is sharp: `a(8) = 3`, not 5.
 
-```
-NAME:     The smallest base b < n where the sum of the digits for the number n
-          in the base b is the largest, with 1 < b < n and a(1) = a(2) = 1.
-TERMS:    1,1,2,3,3,4,4,3,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,
-          15,16,16,17,17,18,18,19,19,20,20,21,21,22,22,23,23,24,24,25,25,26,...
-FORMULA (the conjecture):
-  Conjecture: a(n) = ceiling((n+1)/2) for n>8. - _Sean A. Irvine_, Mar 25 2026
-```
-
-## Status
-
-Triage status: open.  Neither the entry nor its links (a Robert Israel b-file
-to 10000, Maple/Mathematica/PARI programs) contain a proof.  Brute force agrees
-with the formula for `9 ≤ n ≤ 6000` (re-checked 2026-10-21).  At `n = 8` the
-formula fails (`a(8) = 3`, not `5`), so the hypothesis `n > 8` is sharp.
-
-## Proof outline (proved below)
+## Proof outline
 
 Write `s_b(n)` for the base-`b` digit sum and `q = n / b`, `r = n % b`.
 * Bases `n/2 < b < n`: `n = 1·b + (n - b)`, so `s_b(n) = n - b + 1`, which is
@@ -35,7 +22,7 @@ set_option autoImplicit false
 
 namespace Candidates.A394431SmallestBaseMaximizes
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The base-`b` digit sum `s_b(n)` of `n`, via Mathlib's `Nat.digits`. -/
 def digitSum (b n : ℕ) : ℕ := (Nat.digits b n).sum
@@ -66,7 +53,7 @@ theorem a_eq_iff {n b : ℕ} (hn : 2 < n) :
     a n = b ↔ IsMaxBase n b ∧ ∀ c < b, ¬ IsMaxBase n c := by
   rw [a, dif_pos hn, Nat.find_eq_iff]
 
-/-! ## Ground truth against the DATA line -/
+/-! ## Examples from the listed terms -/
 
 example : a 1 = 1 := rfl
 example : a 2 = 1 := rfl
@@ -178,8 +165,7 @@ theorem digitSum_max_at_half_add_one (n : ℕ) (hn : 8 < n) :
 
 /-- **Irvine's conjecture (A394431, Sean A. Irvine, Mar 25 2026), natural-number form.**
 
-Verbatim: "Conjecture: a(n) = ceiling((n+1)/2) for n>8."  Here `a(n) = ⌊n/2⌋ + 1`
-for every `n > 8`; see `a_eq_ceil` for the ceiling form. -/
+The identity `a(n) = ⌊n/2⌋ + 1` holds for every `n > 8`; see `a_eq_ceil` for the ceiling form. -/
 theorem a_eq_half_add_one (n : ℕ) (hn : 8 < n) : a n = n / 2 + 1 := by
   obtain ⟨h1, hlt, -, hle, hstrict⟩ := digitSum_max_at_half_add_one n hn
   rw [a_eq_iff (by omega)]
@@ -202,10 +188,9 @@ theorem half_add_one_eq_ceil (n : ℕ) :
     push_cast
     constructor <;> linarith
 
-/-- **Irvine's conjecture (A394431, Sean A. Irvine, Mar 25 2026), verbatim form.**
+/-- **Irvine's conjecture (A394431, Sean A. Irvine, Mar 25 2026), ceiling form.**
 
-"Conjecture: a(n) = ceiling((n+1)/2) for n>8."  For every integer `n > 8`, the
-smallest base `1 < b < n` maximizing the base-`b` digit sum of `n` equals
+For every natural `n > 8`, the smallest base `1 < b < n` maximizing the base-`b` digit sum of `n` equals
 `⌈(n+1)/2⌉`. -/
 theorem a_eq_ceil (n : ℕ) (hn : 8 < n) : (a n : ℤ) = ⌈((n : ℚ) + 1) / 2⌉ := by
   rw [a_eq_half_add_one n hn, half_add_one_eq_ceil]

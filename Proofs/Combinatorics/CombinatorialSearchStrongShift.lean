@@ -1,43 +1,19 @@
 /-
 # Combinatorial search for strong shift equivalence: Ashley's eight-by-eight
 
-## Source
+Emmanuel Jeandel, *Combinatorial Search for Strong Shift Equivalence*,
+arXiv:2609.03567, §Results, proves that Ashley's eight-by-eight matrix is
+strong shift equivalent over `ℕ` to `(2)`. The appendix
+"Ashley eight-by-eight is SSE to the matrix (2) (optimized)"
+(`ashley_opt.tex`) supplies a 23-step certificate. The appendix
+"A_3 is SSE to B_3 (optimized)" (`1341_opt.tex`) supplies a 17-step
+certificate for Theorem `thm:baker` at `k = 3`.
 
-arXiv:2609.03567, Emmanuel Jeandel, "Combinatorial Search for Strong Shift
-Equivalence".  Recorded 2026-10-21.
-
-* Definitions: §Background "Definitions" (ESSE and SSE over a semiring,
-  here `ℕ = ℤ₊`).
-* Ashley's matrix: §Background "Open problems", displayed after the Little
-  Shift Equivalence Conjecture for `n = 2`.
-* Theorem (§Results "The Ashley example"), verbatim:
-
-  > The Ashley matrix is SSE to the matrix $\begin{pmatrix}2 \end{pmatrix}$.
-  > The SSE uses 23 steps and involves 10 by 10 matrices.
-
-* Certificate: appendix "Ashley eight-by-eight is SSE to the matrix $(2)$
-  (optimized)" (source file `ashley_opt.tex`), 23 printed triples
-  `A_i = R_i S_i`, `S_i R_i = A_{i+1}`, with `A_0` the Ashley matrix and
-  `A_23 = (2)`.
-* Secondary: Theorem `thm:baker` at `k = 3`, certificate in the appendix
-  "$A_3$ is SSE to $B_3$ (optimized)" (source file `1341_opt.tex`), 17
-  printed triples.
-
-Definition (verbatim): "Two square matrices $A$ and $B$, possibly of
-different size, with elements in $\mathcal{S}$, are elementary strong shift
-equivalent (ESSE ...), if there exist matrices $R,S$ over $\mathcal{S}$ s.t.,
-$A = RS$ and $B = SR$.  Strong shift equivalence is the symmetric, reflexive,
-and transitive closure of elementary strong shift equivalence."
-
-## Status
-
-Proved in the paper (by computer search; the certificate is printed in the
-appendix).  Here every printed product is re-checked by kernel evaluation
-(`decide +kernel`, no `native_decide`).  The matrices below were transcribed
-mechanically from the paper's LaTeX source; the transcription is faithful
-because each kernel check would fail on any mistranscribed entry that breaks
-`A_i = R_i S_i` or `S_i R_i = A_{i+1}`, and the endpoints `ashley` and `(2)`
-are stated independently in the main theorem.
+The matrices below transcribe these certificates. Each step verifies
+`A_i = R_i S_i` and `A_{i+1} = S_i R_i`; the endpoints are specified
+independently. Elementary strong shift equivalence is the existence of
+such `R_i, S_i`, and strong shift equivalence is its reflexive, symmetric,
+transitive closure, as in §Background, "Definitions".
 -/
 import Mathlib
 
@@ -91,7 +67,7 @@ theorem SSE.trace_eq {X Y : SqMat} (h : SSE X Y) : X.2.trace = Y.2.trace := by
   | symm _ _ _ ih => exact ih.symm
   | trans _ _ _ _ _ ih₁ ih₂ => exact ih₁.trans ih₂
 
-/-! ## Ground-truth checks of the definitions -/
+/-! ## Examples of the definitions -/
 
 /-- `(2) = (1 1)(1 1)ᵀ` and `(1 1)ᵀ(1 1)` is the all-ones `2 × 2` matrix (a splitting). -/
 example : ESSE !![(2 : ℕ)] !![1, 1; 1, 1] :=
@@ -101,7 +77,7 @@ example : ESSE !![(2 : ℕ)] !![1, 1; 1, 1] :=
 example {n : ℕ} (A : Matrix (Fin n) (Fin n) ℕ) : ESSE A A :=
   ⟨1, A, (one_mul A).symm, (mul_one A).symm⟩
 
-/-- Non-vacuity of `SSE`: `(1)` and `(2)` are not SSE, since their traces differ. -/
+/-- `(1)` and `(2)` are not SSE, since their traces differ. -/
 example : ¬ SSE ⟨1, !![1]⟩ ⟨1, !![2]⟩ := by
   intro h
   have htr := h.trace_eq
@@ -860,117 +836,117 @@ def ashleyS22 : Matrix (Fin 1) (Fin 2) ℕ :=
   !![1, 1]
 
 /-- Ashley certificate, step 0: `A_{0}` is elementary strong shift equivalent to `A_{1}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_0 : ESSE ashley ashleyA1 :=
   ⟨ashleyR0, ashleyS0, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 1: `A_{1}` is elementary strong shift equivalent to `A_{2}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_1 : ESSE ashleyA1 ashleyA2 :=
   ⟨ashleyR1, ashleyS1, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 2: `A_{2}` is elementary strong shift equivalent to `A_{3}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_2 : ESSE ashleyA2 ashleyA3 :=
   ⟨ashleyR2, ashleyS2, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 3: `A_{3}` is elementary strong shift equivalent to `A_{4}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_3 : ESSE ashleyA3 ashleyA4 :=
   ⟨ashleyR3, ashleyS3, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 4: `A_{4}` is elementary strong shift equivalent to `A_{5}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_4 : ESSE ashleyA4 ashleyA5 :=
   ⟨ashleyR4, ashleyS4, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 5: `A_{5}` is elementary strong shift equivalent to `A_{6}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_5 : ESSE ashleyA5 ashleyA6 :=
   ⟨ashleyR5, ashleyS5, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 6: `A_{6}` is elementary strong shift equivalent to `A_{7}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_6 : ESSE ashleyA6 ashleyA7 :=
   ⟨ashleyR6, ashleyS6, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 7: `A_{7}` is elementary strong shift equivalent to `A_{8}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_7 : ESSE ashleyA7 ashleyA8 :=
   ⟨ashleyR7, ashleyS7, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 8: `A_{8}` is elementary strong shift equivalent to `A_{9}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_8 : ESSE ashleyA8 ashleyA9 :=
   ⟨ashleyR8, ashleyS8, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 9: `A_{9}` is elementary strong shift equivalent to `A_{10}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_9 : ESSE ashleyA9 ashleyA10 :=
   ⟨ashleyR9, ashleyS9, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 10: `A_{10}` is elementary strong shift equivalent to `A_{11}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_10 : ESSE ashleyA10 ashleyA11 :=
   ⟨ashleyR10, ashleyS10, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 11: `A_{11}` is elementary strong shift equivalent to `A_{12}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_11 : ESSE ashleyA11 ashleyA12 :=
   ⟨ashleyR11, ashleyS11, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 12: `A_{12}` is elementary strong shift equivalent to `A_{13}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_12 : ESSE ashleyA12 ashleyA13 :=
   ⟨ashleyR12, ashleyS12, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 13: `A_{13}` is elementary strong shift equivalent to `A_{14}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_13 : ESSE ashleyA13 ashleyA14 :=
   ⟨ashleyR13, ashleyS13, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 14: `A_{14}` is elementary strong shift equivalent to `A_{15}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_14 : ESSE ashleyA14 ashleyA15 :=
   ⟨ashleyR14, ashleyS14, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 15: `A_{15}` is elementary strong shift equivalent to `A_{16}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_15 : ESSE ashleyA15 ashleyA16 :=
   ⟨ashleyR15, ashleyS15, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 16: `A_{16}` is elementary strong shift equivalent to `A_{17}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_16 : ESSE ashleyA16 ashleyA17 :=
   ⟨ashleyR16, ashleyS16, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 17: `A_{17}` is elementary strong shift equivalent to `A_{18}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_17 : ESSE ashleyA17 ashleyA18 :=
   ⟨ashleyR17, ashleyS17, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 18: `A_{18}` is elementary strong shift equivalent to `A_{19}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_18 : ESSE ashleyA18 ashleyA19 :=
   ⟨ashleyR18, ashleyS18, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 19: `A_{19}` is elementary strong shift equivalent to `A_{20}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_19 : ESSE ashleyA19 ashleyA20 :=
   ⟨ashleyR19, ashleyS19, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 20: `A_{20}` is elementary strong shift equivalent to `A_{21}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_20 : ESSE ashleyA20 ashleyA21 :=
   ⟨ashleyR20, ashleyS20, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 21: `A_{21}` is elementary strong shift equivalent to `A_{22}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_21 : ESSE ashleyA21 ashleyA22 :=
   ⟨ashleyR21, ashleyS21, by decide +kernel, by decide +kernel⟩
 
 /-- Ashley certificate, step 22: `A_{22}` is elementary strong shift equivalent to `A_{23}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem ashley_esse_22 : ESSE ashleyA22 !![2] :=
   ⟨ashleyR22, ashleyS22, by decide +kernel, by decide +kernel⟩
 
@@ -1376,87 +1352,87 @@ def baker3S16 : Matrix (Fin 2) (Fin 2) ℕ :=
     0, 1]
 
 /-- Baker `k = 3` certificate, step 0: `A_{0}` is elementary strong shift equivalent to `A_{1}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_0 : ESSE bakerA3 baker3A1 :=
   ⟨baker3R0, baker3S0, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 1: `A_{1}` is elementary strong shift equivalent to `A_{2}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_1 : ESSE baker3A1 baker3A2 :=
   ⟨baker3R1, baker3S1, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 2: `A_{2}` is elementary strong shift equivalent to `A_{3}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_2 : ESSE baker3A2 baker3A3 :=
   ⟨baker3R2, baker3S2, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 3: `A_{3}` is elementary strong shift equivalent to `A_{4}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_3 : ESSE baker3A3 baker3A4 :=
   ⟨baker3R3, baker3S3, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 4: `A_{4}` is elementary strong shift equivalent to `A_{5}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_4 : ESSE baker3A4 baker3A5 :=
   ⟨baker3R4, baker3S4, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 5: `A_{5}` is elementary strong shift equivalent to `A_{6}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_5 : ESSE baker3A5 baker3A6 :=
   ⟨baker3R5, baker3S5, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 6: `A_{6}` is elementary strong shift equivalent to `A_{7}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_6 : ESSE baker3A6 baker3A7 :=
   ⟨baker3R6, baker3S6, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 7: `A_{7}` is elementary strong shift equivalent to `A_{8}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_7 : ESSE baker3A7 baker3A8 :=
   ⟨baker3R7, baker3S7, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 8: `A_{8}` is elementary strong shift equivalent to `A_{9}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_8 : ESSE baker3A8 baker3A9 :=
   ⟨baker3R8, baker3S8, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 9: `A_{9}` is elementary strong shift equivalent to `A_{10}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_9 : ESSE baker3A9 baker3A10 :=
   ⟨baker3R9, baker3S9, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 10: `A_{10}` is elementary strong shift equivalent to `A_{11}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_10 : ESSE baker3A10 baker3A11 :=
   ⟨baker3R10, baker3S10, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 11: `A_{11}` is elementary strong shift equivalent to `A_{12}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_11 : ESSE baker3A11 baker3A12 :=
   ⟨baker3R11, baker3S11, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 12: `A_{12}` is elementary strong shift equivalent to `A_{13}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_12 : ESSE baker3A12 baker3A13 :=
   ⟨baker3R12, baker3S12, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 13: `A_{13}` is elementary strong shift equivalent to `A_{14}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_13 : ESSE baker3A13 baker3A14 :=
   ⟨baker3R13, baker3S13, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 14: `A_{14}` is elementary strong shift equivalent to `A_{15}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_14 : ESSE baker3A14 baker3A15 :=
   ⟨baker3R14, baker3S14, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 15: `A_{15}` is elementary strong shift equivalent to `A_{16}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_15 : ESSE baker3A15 baker3A16 :=
   ⟨baker3R15, baker3S15, by decide +kernel, by decide +kernel⟩
 
 /-- Baker `k = 3` certificate, step 16: `A_{16}` is elementary strong shift equivalent to `A_{17}`,
-witnessed by the printed pair `(R, S)`; both products are checked by kernel evaluation. -/
+witnessed by the printed pair `(R, S)`. -/
 theorem baker3_esse_16 : ESSE baker3A16 bakerB3 :=
   ⟨baker3R16, baker3S16, by decide +kernel, by decide +kernel⟩
 
@@ -1505,7 +1481,7 @@ theorem baker3_chain :
 /-- **Ashley's eight-by-eight is SSE to `(2)`** (Jeandel, arXiv:2609.03567, §Results
 "The Ashley example"): Ashley's eight-by-eight matrix is strong shift equivalent over
 `ℤ₊` to the one-by-one matrix `(2)`.  Proved by the 23-step certificate of the appendix
-"Ashley eight-by-eight is SSE to the matrix (2) (optimized)", each step kernel-checked. -/
+"Ashley eight-by-eight is SSE to the matrix (2) (optimized)". -/
 theorem ashley_sse_two : SSE ⟨8, ashley⟩ ⟨1, !![2]⟩ :=
   SSE.of_reflTransGen ashley_chain
 

@@ -1,32 +1,12 @@
 /-
 # A106297 — Wu: periods of the Lucas 5-step sequence modulo prime powers
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A106297`)
-
-```
-NAME:     Period of the Lucas 5-step sequence A074048 mod n.
-TERMS:    1,1,104,6,781,104,2801,12,312,781,16105,312,30941,2801,81224,24,
-          88741,312,13032,4686,291304,16105,12166,312,3905,30941,936,16806,...
-FORMULA:  Let the prime factorization of n be p1^e1...pk^ek. Then
-          a(n) = lcm(a(p1^e1), ..., a(pk^ek)).
-FORMULA (the conjecture):
-  Conjectures: a(5^k) = 781*5^(k-1) for k > 0. a(2^k) = 3*2^(k-1) for k > 1.
-  If a(p) != a(p^2) for prime p > 2, then a(p^k) = p^(k-1)*a(p) for k > 0.
-  - _Chai Wah Wu_, Feb 25 2022
-COMMENT:
-  This sequence can differ from the corresponding Fibonacci sequence (A106303)
-  only when n is a multiple of 2 or 599 because 9584 is the discriminant of
-  the characteristic polynomial x^5-x^4-x^3-x^2-x-1 and the prime factors of
-  9584 are 2 and 599. [corrected by _Avery Diep_, Aug 25 2025]
-```
-
-A074048: "Pentanacci numbers with initial conditions a(0)=5, a(1)=1, a(2)=3,
-a(3)=7, a(4)=15", terms 5,1,3,7,15,31,57,113,223,439,863,1695,3333,...
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  This module proves all three parts.
+Chai Wah Wu's conjectures in OEIS A106297 concern the least period `a(m)`
+of the Lucas 5-step sequence A074048 modulo `m`: `a(2^k) = 3·2^(k-1)` for
+`k ≥ 2`, `a(5^k) = 781·5^(k-1)` for `k ≥ 1`, and
+`a(p^k) = p^(k-1)a(p)` for odd primes with `a(p²) ≠ a(p)` and `k ≥ 1`.
+The sequence starts `5,1,3,7,15`, then sums the previous five terms.
+All three formulas are proved below.
 
 ## Proof outline
 
@@ -75,7 +55,7 @@ def IsPeriodMod (m t : ℕ) : Prop :=
 periods; `exists_isPeriodMod` shows the set is nonempty for `0 < m`). -/
 noncomputable def period (m : ℕ) : ℕ := sInf {t | IsPeriodMod m t}
 
-/-! ## Ground truth for `luc5` -/
+/-! ## Examples for `luc5` -/
 
 example : (List.range 14).map luc5 =
     [5, 1, 3, 7, 15, 31, 57, 113, 223, 439, 863, 1695, 3333, 6553] := by decide
@@ -735,7 +715,7 @@ theorem chain_599 (hne : period (599 ^ 2) ≠ period 599) (i : ℕ) :
 
 /-! ## Part (ii): odd primes -/
 
-/-- **Part (ii)** (Chai Wah Wu's conjecture in A106297, Feb 25 2022): for every
+/-- **Part (ii)** (Chai Wah Wu's conjecture in A106297): for every
 prime `p > 2` with `a(p²) ≠ a(p)`, `a(p^k) = p^(k-1) · a(p)` for all `k ≥ 1`, where
 `a = period` is the least period of the Lucas 5-step sequence A074048. -/
 theorem period_prime_pow (p : ℕ) (hp : p.Prime) (hp2 : 2 < p)
@@ -809,7 +789,7 @@ theorem chain_two (i : ℕ) :
     rw [hrw, show 2 + (k + 1) = 3 + k by ring]
     exact chain_of_lift (by norm_num) (by norm_num) (fun k => (hlift k).2) k
 
-/-- **Part (i)** (Chai Wah Wu's conjecture in A106297, Feb 25 2022):
+/-- **Part (i)** (Chai Wah Wu's conjecture in A106297):
 `a(2^k) = 3 · 2^(k-1)` for every `k ≥ 2`. -/
 theorem period_two_pow (k : ℕ) (hk : 2 ≤ k) : period (2 ^ k) = 3 * 2 ^ (k - 1) := by
   obtain ⟨i, rfl⟩ : ∃ i, k = 2 + i := ⟨k - 2, by omega⟩
@@ -849,7 +829,7 @@ theorem period_twentyfive_ne : period (5 ^ 2) ≠ period 5 := by
   revert this
   set_option maxRecDepth 100000 in decide
 
-/-- **Part (iii)** (Chai Wah Wu's conjecture in A106297, Feb 25 2022):
+/-- **Part (iii)** (Chai Wah Wu's conjecture in A106297):
 `a(5^k) = 781 · 5^(k-1)` for every `k ≥ 1`. -/
 theorem period_five_pow (k : ℕ) (hk : 1 ≤ k) : period (5 ^ k) = 781 * 5 ^ (k - 1) := by
   rw [period_prime_pow 5 (by norm_num) (by norm_num) period_twentyfive_ne k hk, period_five,
@@ -857,8 +837,7 @@ theorem period_five_pow (k : ℕ) (hk : 1 ≤ k) : period (5 ^ k) = 781 * 5 ^ (k
 
 /-! ## The conjecture -/
 
-/-- **Chai Wah Wu's conjectures on A106297** (formula section of A106297,
-Feb 25 2022).  Let `a(m)` be the least period of the Lucas 5-step sequence
+/-- **Chai Wah Wu's conjectures on A106297** (formula section of A106297).  Let `a(m)` be the least period of the Lucas 5-step sequence
 A074048 (`5, 1, 3, 7, 15`, then each term the sum of the previous five) modulo `m`.
 Then (i) `a(2^k) = 3 · 2^(k-1)` for `k ≥ 2`; (ii) for every prime `p > 2` with
 `a(p²) ≠ a(p)`, `a(p^k) = p^(k-1) · a(p)` for all `k ≥ 1`; (iii)
@@ -870,7 +849,7 @@ theorem conjecture :
     (∀ k : ℕ, 1 ≤ k → period (5 ^ k) = 781 * 5 ^ (k - 1)) :=
   ⟨period_two_pow, period_prime_pow, period_five_pow⟩
 
-/-! ## Ground truth and non-vacuity -/
+/-! ## Examples -/
 
 /-- The hypothesis of part (ii) is satisfiable: it holds at `p = 5`. -/
 example : Nat.Prime 5 ∧ 2 < 5 ∧ period (5 ^ 2) ≠ period 5 :=

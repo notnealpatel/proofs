@@ -1,31 +1,12 @@
 /-
 # A284366 — Kimberling's two-sided bound on the positions of 1 is false
 
-## OEIS source (retrieved 2026-10-21 from the local OEIS store and
-## https://oeis.org/A284366)
-
-```
-NAME:     Positions of 1 in A284364; complement of A284365.
-TERMS:    1,3,5,7,8,10,12,14,15,17,19,21,22,24,26,28,30,32,34,35,37,39,41,42,
-          44,46,48,49,51,53,55,57,59,61,62,64,66,68,69,71,73,75,76,78,80,82,84,
-          86,88,89,91,93,95,96,98,100,102,103,105,107,109,110,112,114
-COMMENT:  Conjecture:  -1 < n*s - a(n) < 2 for n >= 1, where s = (-1+sqrt(21))/2.
-AUTHOR:   Clark Kimberling, Mar 26 2017
-```
-
-`A284364` is the "Fixed point of the morphism 0->1, 1->101010."; its program
-(`Nest[Flatten[# /. {0 -> {1}, 1 -> {1, 0, 1, 0, 1, 0}}] &, {0}, 10]`)
-gives the word `u = 101010110101011...`, and `a(n)` is the 1-indexed position
-of the `n`-th letter `1` in `u`.  The comment line carries no separate
-signature; it is part of the original entry by Clark Kimberling.  On
-2026-10-21 the live entry still lists it as a conjecture, with no retraction.
-
-## Status
-
-This module **refutes** the conjecture: the upper bound fails at
-`n = 2977771`, where `a(n) = 5334043` and `n*s - a(n) = 2.00487...`.
-(The same witness refutes the `v(n)` half of the companion conjecture in
-A284364.)
+OEIS A284366, Clark Kimberling (2017): positions of `1` in A284364, the
+fixed point of `0 ↦ 1`, `1 ↦ 101010`. Positions and term numbers are
+1-indexed. The conjectured bound `-1 < n*s - a(n) < 2`,
+`s = (-1 + √21)/2`, fails at `n = 2977771`: `a(n) = 5334043` and
+`n*s - a(n) = 2.00487...`. This also refutes the `v(n)` half of the
+companion conjecture in A284364.
 
 ## Proof outline
 
@@ -71,9 +52,8 @@ noncomputable def a (n : ℕ) : ℕ := Nat.nth (fun i => u i = 1) (n - 1) + 1
 /-- The constant `s = (-1 + √21)/2` of the conjecture. -/
 noncomputable def s : ℝ := (-1 + Real.sqrt 21) / 2
 
-/-- **Kimberling's conjecture (A284366, Mar 26 2017).**
-Verbatim: "Conjecture: -1 < n*s - a(n) < 2 for n >= 1, where
-s = (-1+sqrt(21))/2." -/
+/-- Kimberling's conjecture (A284366, 2017):
+`-1 < n*s - a(n) < 2` for every `1 ≤ n`, where `s = (-1 + √21)/2`. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 1 ≤ n → -1 < (n : ℝ) * s - (a n : ℝ) ∧ (n : ℝ) * s - (a n : ℝ) < 2
 
@@ -296,7 +276,7 @@ theorem a_count_add_one (N : ℕ) (hu : u N = 1) :
   unfold a
   rw [Nat.add_sub_cancel, Nat.nth_count hu]
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The first 86 letters of `u` (read from `W 4`, of length 306) are the listed
 terms of A284364. -/
@@ -365,10 +345,7 @@ theorem two_lt_witness : (2 : ℝ) < ((2977771 : ℕ) : ℝ) * s - ((5334043 : �
 
 /-- **Kimberling's A284366 conjecture is false.** At `n = 2977771` one has
 `a(n) = 5334043` and `n*s - a(n) = 2.00487... > 2`, so the upper bound fails
-(the lower bound `-1 <` is not what breaks).  Numerically, 11 violations of the
-upper bound occur among the first 33.5 million terms, the next at
-`n = 5409958, 6051478`; the bound `2` was presumably read off a short prefix,
-and the intended statement is a two-sided bound with a larger upper constant. -/
+(the lower bound `-1 <` is not what breaks). -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   have hupper := (h 2977771 (by norm_num)).2

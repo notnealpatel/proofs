@@ -1,44 +1,14 @@
 /-
-# A004982 — Bala: `a(p n) ≡ a(n) (mod p^2)` for primes `p ≡ 1 (mod 4)`
+# Prime-square congruences for A004982
 
-## OEIS source (retrieved with `oeis show A004982`, 2026-10-21)
+For `a(n) = 2^n ∏_{j<n}(4j+3)/n!`, the quotient is integral and
+`a(pn) ≡ a(n) (mod p²)` for every `n ≥ 0` and every prime `p ≡ 1 (mod 4)`.
+The guarded alias retains `n > 0` from Peter Bala's OEIS A004982 comment
+(Dec 22 2019). The congruence need not hold for `p ≡ 3 (mod 4)` or modulo `p³`.
 
-```
-NAME:     a(n) = (2^n/n!) * Product_{k=0..n-1} (4*k + 3).
-TERMS:    1,6,42,308,2310,17556,134596,1038312,8046918,62587140,488179692,...
-KEYWORDS: nonn,easy
-FORMULA:  G.f.: (1 - 8*x)^(-3/4).
-FORMULA:  D-finite with recurrence: n*a(n) + 2*(-4*n+1)*a(n-1) = 0.
-          - _R. J. Mathar_, Jan 16 2020
-COMMENT (the conjecture):
-  Conjecture: a(p*n) = a(n) (mod p^2) for prime p == 1 (mod 4) and all
-  positive integers n. Cf. A004981. - _Peter Bala_, Dec 22 2019
-```
-
-## Status
-
-Triage: open (the entry records no proof; none was found in the literature by
-the triage).  Computation (`timeout 300 python3`, 2026-10-21): no failure for
-primes `p ≡ 1 (mod 4)` below `700` with `p n ≤ 9000`; the core congruence
-`2^(p-1) ∏' (4j+3) ≡ (p-1)! (mod p^2)` holds for every such `p < 3000`.
-
-This module proves the conjecture (`bala_conjecture`), sorry-free.
-
-## Proof
-
-Write `∏'` for a product with the multiples of `p` dropped (`skip`).  For
-`p ≡ 1 (mod 4)` the multiples of `p` among `4k+3`, `k < p n`, are exactly
-`p (4t+3)`, `t < n`, and the multiples of `p` in `[1, p n]` are `p t`,
-`t ≤ n`.  Hence `a(p n) X = a(n) (2^(p-1))^n Y` exactly, where `X`, `Y` are the
-products over the `n` length-`p` blocks of `∏' (j+1)` and `∏' (4j+3)`.
-
-* **Block shift.** Each block is congruent modulo `p^2` to the block at `0`:
-  shifting a full residue system of non-multiples by a multiple of `p`
-  changes the product by `1 + p t ∑ x⁻¹`, and `∑ x⁻¹ ≡ 0 (mod p)`.
-* **Core.** With `Q_r = ∏_{j<p}' (4j+r)` and `X₀ = ∏_{j<p}' (j+1)`: splitting
-  `[1, 4p]` by parity gives `X₀^4 ≡ 4^(p-1) X₀^2 Q₁ Q₃`; the reflection
-  `m ↦ 4p - m` gives `Q₁ ≡ Q₃`; so `(2^(p-1) Q₃)^2 ≡ X₀^2 (mod p^2)`, and
-  `2^(p-1) Q₃ ≡ X₀ (mod p)` fixes the sign.
+Removing multiples of `p` reduces the congruence to products over length-`p`
+blocks. Block shifts preserve those products modulo `p²`; reflection and
+parity splitting establish the core product identity.
 -/
 import Mathlib
 
@@ -46,11 +16,11 @@ set_option autoImplicit false
 
 namespace Candidates.A004982ProdPrimePeter
 
-/-- **A004982.** `a n = 2 ^ n * ∏_{k=0}^{n-1} (4k+3) / n!`, verbatim from the
+/-- **A004982.** `a n = 2 ^ n * ∏_{k=0}^{n-1} (4k+3) / n!`, from the
 entry's NAME; the division is exact (`factorial_dvd`). -/
 def a (n : ℕ) : ℕ := 2 ^ n * (∏ k ∈ Finset.range n, (4 * k + 3)) / n.factorial
 
--- Ground truth: the first ten terms of the OEIS DATA line.
+-- The first ten terms of the OEIS DATA line.
 example : [a 0, a 1, a 2, a 3, a 4, a 5, a 6, a 7, a 8, a 9] =
     [1, 6, 42, 308, 2310, 17556, 134596, 1038312, 8046918, 62587140] := by decide
 
@@ -639,20 +609,13 @@ theorem a_prime_mul_modEq {p : ℕ} (hp : p.Prime) (hp1 : p % 4 = 1) (n : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Peter Bala's conjecture for A004982 (Dec 22 2019), proved.**
-
-Verbatim: "Conjecture: a(p*n) = a(n) (mod p^2) for prime p == 1 (mod 4) and all
-positive integers n. Cf. A004981."
-
-Here `a n = 2 ^ n * ∏_{k<n} (4k+3) / n!` is the OEIS definition; the division
-is exact (`factorial_dvd`), so `a` is the integer sequence of the entry. The
-statement keeps the entry's positivity guard `0 < n` (unused: the proof
-(`a_prime_mul_modEq`) also covers `n = 0`). -/
+/-- Bala's A004982 congruence for positive `n`. The quotient defining `a`
+is integral (`factorial_dvd`); `a_prime_mul_modEq` also covers `n = 0`. -/
 theorem bala_conjecture (p n : ℕ) (hp : p.Prime) (hp1 : p % 4 = 1) (_hn : 0 < n) :
     a (p * n) ≡ a n [MOD p ^ 2] :=
   a_prime_mul_modEq hp hp1 n
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- Satisfiability: the hypotheses hold jointly at `p = 5`, `n = 1`, and the
 -- conclusion is the concrete congruence `17556 ≡ 6 (mod 25)`.

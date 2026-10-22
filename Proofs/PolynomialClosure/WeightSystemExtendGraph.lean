@@ -1,62 +1,39 @@
 /-
-# The vertex-deletion recurrence for the `c = 3/8` extension `φ` of the `sl(2)` weight system
-
-## Source
+# Vertex-deletion recurrence for the `c = 3/8` extension `φ`
 
 D. Fomichev, M. Karev, F. Pavutnitskiy, S. Usanov,
-"`sl(2)`-weight system does not extend to a graph 4-invariant", arXiv:2607.24217.
-Section 3 ("Extension of `sl(2)`-weight system specialized to the irreducible
-3-dimensional representation"), Conjecture `conj:del-vert-2d`, stated right after
-Theorem `theorem:del-vert-3d`.  The function `φ` is defined in Section 2 (the
-`c = 3/8` item of the list after Proposition `proposition:lando`).
-
-Verbatim (LaTeX):
-
-```
-\phi(G) = 2^{-2|V|} \sum_{U\subseteq V} \left(-\frac{1}{2}\right)^{|V\setminus U|} 2^{\eta(G|_U)};
-
-\begin{conjecture}\label{conj:del-vert-2d}
-    \phi(G) = \left(\frac{3}{8}-1\right)\phi(G_x) + \frac{(-1)^{k+1}}{2}\phi(\bar{G}_x)
-      + \frac{(-1)^k}{4}\cdot\frac{3}{8}\phi(\bar{G}_x^{a_1})
-      + \frac{1}{4}\cdot\frac{3}{8}\phi(G_x^{a_1}).
-\end{conjecture}
-Similarly to previous conventions, $G_x$ is $G\setminus\setp{x}$.
-The conjecture was verified numerically for all graphs with $\leq 9$ vertices.
-Below we prove it for the case of $k=2$ neighbors.
-```
-
-with the conventions of Theorem `theorem:del-vert-3d`: `x` is a vertex of degree
-`k ≥ 1` with neighbours `A = {a₁, …, a_k}`; `Ḡ_x` is `G` with `x` deleted and all
-edges inside `G|_A` inverted; `Ḡ_x^{a₁}` is `Ḡ_x` after the 2T transforms for all
-pairs `(a₁, aᵢ)`, `i = 2, …, k`, followed by deleting `a₁`; `G_x^{a₁}` is `G` with
-`x` deleted, the same 2T transforms applied, and `a₁` deleted.  `η` is the corank
-over `𝔽₂` of the adjacency matrix; the 2T transform for `(a, b)` adds `a`'s row to
-`b`'s row and then `a`'s column to `b`'s column.
-
-## Status
-
-Open in the source (stated 2026 as a conjecture; the paper proves only `k = 2`,
-and `k = 1` is the leaf relation).  This file proves it for every `k ≥ 1`:
-`conj_del_vert_2d`.  Recorded 2026-10-21.
-
-## Formal setting
+"`sl(2)`-weight system does not extend to a graph 4-invariant", arXiv:2607.24217,
+Section 3, Conjecture `conj:del-vert-2d`.  The function `φ` is defined in
+Section 2, after Proposition `proposition:lando`.  The source states the
+recurrence as a conjecture and proves the degree-two case; degree one is the
+leaf relation.  `conj_del_vert_2d` gives the recurrence for every positive degree.
+This is not a formalization of the whole weight-system or nonextendability
+theorem.
 
 A graph is a symmetric zero-diagonal `M : Matrix V V (ZMod 2)` on an ambient
-`Fintype V`, restricted to a vertex set `S : Finset V`; deleting a vertex is
-`S.erase`.  `compl` and `twoTs` are explicit matrix operations; both keep the zero
-diagonal, so no framing appears.  `twoTs` is the simultaneous congruence `E M Eᵀ`
-and `twoTs_insert` shows it is the iterate of the paper's single 2T transform
-`twoT`.
+`Fintype V`, restricted to a finite vertex set `S`.  The recurrence requires
+`x ∈ S` and a chosen neighbour `a₁ ∈ A = nbhd M S x`, so `k = |A|` is positive.
+Deleting a vertex is `S.erase`.  The function `phi` uses the source's formula
+`2^{-2|S|} ∑_{U ⊆ S} (-1/2)^{|S \ U|} 2^{η(G|_U)}`, where `η` is the corank
+of the induced adjacency matrix over `𝔽₂`.
 
-## Proof idea
+With the conventions of Theorem `theorem:del-vert-3d`, `G_x` deletes `x`;
+`Ḡ_x` also toggles every edge inside `A`.  The graphs `G_x^{a₁}` and
+`Ḡ_x^{a₁}` apply the 2T transforms for `(a₁, aᵢ)`, `i = 2, …, k`, then delete
+`a₁`.  A single 2T transform adds `a₁`'s row to `aᵢ`'s row and then its column
+to `aᵢ`'s column.  The operations `compl` and `twoTs` preserve zero diagonals
+for symmetric matrices, so no framing appears.  The simultaneous congruence
+`twoTs = E M Eᵀ` agrees with iterated `twoT` by `twoTs_insert`.
+
+## Proof outline
 
 `phi_eq_stateSum` turns `φ` into `8^{-n} ∑_{v ∈ 𝔽₂^S} ∏_i wt(v_i, (Mv)_i)` by
-rank–nullity and `Finset.prod_add`.  All five state sums are then expanded over
-the states `y` on `S \ {x, a₁}` and the two extra coordinates; the edge
-complementation on `A` is absorbed by the framing-flip identity
+rank–nullity and `Finset.prod_add`.  All five state sums are expanded over
+states on `S \ {x, a₁}` and the two extra coordinates.  Edge complementation
+is absorbed by the framing-flip identity
 `wt v (u + v) = -(-1)^v wt v (u + 1)` (`prod_flip`), and the 2T transforms become
-explicit shifts (`twoTs_mulVec`).  What remains is a four-term identity at each
-fixed `y` (`pointwise`), checked by cases.
+explicit shifts (`twoTs_mulVec`).  The remaining four-term identity at each
+fixed outer state is `pointwise`.
 -/
 import Mathlib
 
@@ -633,7 +610,7 @@ lemma twoTs_insert (M : Matrix V V (ZMod 2)) {a b : V} {C : Finset V} (hb : b �
     · simp [hb, ha, hib, hiC]
   · by_cases hiC : i ∈ C <;> by_cases hjC : j ∈ C <;> simp [hi, hj, hiC, hjC]
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The adjacency matrix of `K₂`. -/
 def k2 : Matrix (Fin 2) (Fin 2) (ZMod 2) := !![0, 1; 1, 0]
@@ -660,8 +637,7 @@ example : compl p3 {0, 2} 0 2 = 1 ∧ compl p3 {0, 2} 0 0 = 0 := by decide
 /-- The 2T transform `(0, 2)` on `P₃` removes the edge `2 - 1` (row `0` added to row `2`). -/
 example : twoTs p3 0 {2} 2 1 = 0 ∧ twoT p3 0 2 = twoTs p3 0 {2} := by decide
 
-/-- The hypotheses of `conj_del_vert_2d` are jointly satisfiable (`P₃`, `x = 1`, `a₁ = 0`), and the
-integer identity holds there by direct evaluation. -/
+/-- The hypotheses of `conj_del_vert_2d` hold jointly for `P₃`, `x = 1`, `a₁ = 0`. -/
 example : p3.IsSymm ∧ (∀ i, p3 i i = 0) ∧ (1 : Fin 3) ∈ (univ : Finset (Fin 3)) ∧
     (0 : Fin 3) ∈ nbhd p3 univ 1 := by
   refine ⟨Matrix.IsSymm.ext fun i j => ?_, ?_, mem_univ _, by decide⟩

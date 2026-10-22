@@ -1,44 +1,13 @@
 /-
-# A000670 — Bala: Fubini numbers mod k are eventually periodic, period ∣ φ(k)
+# Eventual periodicity of Fubini numbers (A000670)
 
-## OEIS source (`oeis show A000670`, retrieved 2026-10-21)
-
-```
-NAME:     Fubini numbers: number of preferential arrangements of n labeled
-          elements; or number of weak orders on n labeled elements; or number
-          of ordered partitions of [n].
-TERMS:    1,1,3,13,75,541,4683,47293,545835,7087261,102247563,...
-COMMENT (the conjecture, verbatim):
-  From _Peter Bala_, Jul 08 2022: (Start)
-  Conjecture: Let k be a positive integer. The sequence obtained by reducing
-  a(n) modulo k is eventually periodic with the period dividing
-  phi(k) = A000010(k). For example, modulo 16 we obtain the sequence
-  [1, 1, 3, 13, 11, 13, 11, 13, 11, 13, ...], with an apparent period of 2
-  beginning at a(4). Cf. A354242.
-  More generally, we conjecture that the same property holds for integer
-  sequences having an e.g.f. of the form G(exp(x) - 1), where G(x) is an
-  integral power series. (End)
-```
-
-## Status
-
-Proved in the literature: B. Poonen, *Periodicity of a combinatorial
-sequence*, Fibonacci Quarterly 26 (1988), 70–76 (Fubini case, with the
-totient bound; prime-power case also Barsky).  Triage status:
-"proved-elsewhere".  Both parts are already kernel-checked in this
-repository:
-
-* `A000670.fubini_mod_eventuallyPeriodic_conjecture`
-  (`Proofs/Enumerative/FubiniMod.lean`), and
-* `OrdinaryIntegralEGF.factorial_mul_coeff_subst_eventuallyPeriodic`
-  (`Proofs/Enumerative/OrdinaryIntegralEGFComposition.lean`).
-
-This card restates both parts of the conjecture in the house format and
-discharges them from those theorems; it contains no `sorry`.
-
-Computational re-validation (2026-10-21, Python, exact integers): for
-`G ∈ {1/(1-x), x, ∑ (-1)^m (m+1) x^m, ∑ (m²-3) x^m, ∑ F_m x^m}`, every
-`1 ≤ k ≤ 40`, and `60 ≤ n ≤ 200 - φ(k)`, `b(n + φ(k)) ≡ b(n) (mod k)`.
+Peter Bala's OEIS A000670 comment (Jul 08 2022) asks for an eventual period
+dividing `φ(k)` for every positive modulus, also for integer sequences with
+EGF `G(exp(x)-1)` and integral `G`. Both statements follow here from
+`FubiniMod` and `OrdinaryIntegralEGFComposition`; an integer sequence with
+the required coefficients exists for every such `G`.
+Reference: B. Poonen, *Periodicity of a combinatorial sequence*,
+Fibonacci Quarterly 26 (1988), 70–76.
 -/
 import Mathlib
 import Enumerative.Fubini
@@ -52,10 +21,10 @@ namespace Candidates.A000670FubiniModEventually
 
 open A051293
 
-/-! ## Definition layer
+/-! ## Definitions
 
 * `A051293.fubini : ℕ → ℕ` (`Proofs/Enumerative/Fubini.lean`), the OEIS
-  recurrence `a(0) = 1`, `a(n) = ∑_{j<n} C(n,j) a(j)`, reused verbatim.
+  recurrence `a(0) = 1`, `a(n) = ∑_{j<n} C(n,j) a(j)`, reused here.
 * `egfCompExpSubOne G`, the formal composition `G(exp(x) - 1)` over `ℚ` of an
   integral power series `G : PowerSeries ℤ`; the "integer sequence having
   e.g.f. `G(exp(x)-1)`" is a `b : ℕ → ℤ` with `b n = n! · [xⁿ] G(exp(x)-1)`. -/
@@ -66,7 +35,7 @@ constant term, so the substitution is well defined). -/
 noncomputable def egfCompExpSubOne (G : PowerSeries ℤ) : PowerSeries ℚ :=
   PowerSeries.subst (PowerSeries.exp ℚ - 1) (PowerSeries.map (Int.castRingHom ℚ) G)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- the first listed terms of A000670
 example : fubini 0 = 1 ∧ fubini 1 = 1 ∧ fubini 2 = 3 ∧ fubini 3 = 13 ∧

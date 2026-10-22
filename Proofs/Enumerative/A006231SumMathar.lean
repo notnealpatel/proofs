@@ -1,34 +1,10 @@
 /-
-# A006231 — Mathar: a fourth-order holonomic recurrence
+Mathar's recurrence for OEIS A006231 (R. J. Mathar, Aug 06 2013).
 
-## OEIS source (retrieved with `oeis show A006231`, 2026-10-21)
-
-```
-NAME:     a(n) = Sum_{k=2..n} n(n-1)...(n-k+1)/k.
-TERMS:    0,1,5,20,84,409,2365,16064,125664,1112073,10976173,119481284,
-          1421542628,18348340113,255323504917,3809950976992, ...   (offset 1)
-FORMULA:  a(n+1) - a(n) = A000522(n) - 1.
-FORMULA (the conjecture):
-  Conjecture: a(n) + (-n-2)*a(n-1) + (3*n-2)*a(n-2) + 3*(-n+2)*a(n-3)
-  + (n-3)*a(n-4) = 0. - _R. J. Mathar_, Aug 06 2013
-```
-
-Triage restatement: "For n >= 5: a(n) - (n+2)a(n-1) + (3n-2)a(n-2)
-- 3(n-2)a(n-3) + (n-3)a(n-4) = 0, where a(n) = Sum_{k=2..n} n!/((n-k)! k)
-(Mathar 2013)."
-
-## Status
-
-Literature status per the triage: open (no proof in the entry or the
-literature as far as the triage could tell).  Sage/Python evidence: holds
-for `5 ≤ n ≤ 450`.
-
-This module proves the conjecture.  The argument: with
-`c n = Σ_{k=1}^{n} n^{(k)}/k = a n + n` and `e n = Σ_{k=0}^{n} n^{(k)}`
-(A000522), Pascal's rule for falling factorials gives `c (n+1) = c n + e n`,
-and `e (n+1) = (n+1) e n + 1`.  Hence
-`a(n+2) - a(n+1) = (n+1)(a(n+1) - a(n)) + (n+1)`, and the second difference
-of this three-term inhomogeneous recurrence is Mathar's homogeneous one.
+For a(n) = ∑_{k=2}^n n!/((n-k)! k) and n ≥ 5, the integer recurrence is
+ a(n) - (n+2)a(n-1) + (3n-2)a(n-2) - 3(n-2)a(n-3) + (n-3)a(n-4) = 0.
+The proof derives recurrences for auxiliary falling-factorial sums.
+The entry's separate semialgebraic-dimension conjecture is not addressed.
 -/
 import Mathlib
 
@@ -45,7 +21,7 @@ The entry has offset `1`; the value at `0` is the empty sum `0`. -/
 def a (n : ℕ) : ℕ :=
   ∑ k ∈ Icc 2 n, n.factorial / ((n - k).factorial * k)
 
-/-! ## Ground truth against the DATA line (offset 1) -/
+/-! ## Examples against the DATA line (offset 1) -/
 
 example : a 1 = 0 := by decide
 example : a 2 = 1 := by decide

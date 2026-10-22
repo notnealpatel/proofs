@@ -1,30 +1,11 @@
 /-
-# A001222 — Schulte: `(x+y)^Ω(n) = ∑_{d ∣ n} x^Ω(d) (x+y)^(Ω-ω)(n/d) y^ω(n/d)`
+Schulte's convolution identity for Ω (OEIS A001222; Werner Schulte, Feb 10 2018).
 
-## OEIS source (retrieved with `oeis show A001222`, 2026-10-21)
-
-```
-NAME:     Number of prime divisors of n counted with multiplicity (also called
-          big omega of n, bigomega(n) or Omega(n)).
-TERMS:    0,1,1,2,1,2,1,3,2,2,1,3,1,2,2,4,1,3,1,3,2,2,1,4,2,2,3,3,1,3,1,5,...
-COMMENT (the conjecture):
-  Conjecture: Let f(n) = (x+y)^a(n), and g(n) = x^a(n), and h(n) =
-  (x+y)^A046660(n) * y^A001221(n) with x, y complex numbers and 0^0 = 1.
-  Then f(n) = Sum_{d|n} g(d)*h(n/d). This is proved for x = 1-y (see
-  Dressler and van de Lune link). - _Werner Schulte_, Feb 10 2018
-COMMENT (the proved special case it generalizes):
-  Sum_{d|n} 2^(-A001221(d) - a(n/d)) = Sum_{d|n} 2^(-a(d) - A001221(n/d)) = 1
-  (see Dressler and van de Lune link). - _Michel Marcus_, Dec 18 2012
-```
-
-## Status
-
-Triage: "open" in the entry (stated as a conjecture, proved there only for
-`x + y = 1` via Dressler–van de Lune).  The triage noted the general case is
-routine: both sides are multiplicative in `n`, and at `n = p^e` the right side
-is `x^e + ∑_{j<e} x^j y (x+y)^(e-1-j) = (x+y)^e` by the geometric-difference
-identity.  This module proves the conjecture in full (over every commutative
-ring, specialized to `ℂ`), with no `sorry`.
+For nonzero n, (x+y)^Ω(n) = ∑_{d∣n} x^Ω(d) (x+y)^(Ω(n/d)-ω(n/d)) y^ω(n/d).
+The identity is proved over every commutative ring and specialized to ℂ, with 0^0 = 1.
+Here Ω counts prime factors with multiplicity, ω counts distinct prime factors
+(A001221), and Ω-ω is A046660. The guard n ≠ 0 is necessary.
+Dressler–van de Lune give the x+y=1 case cited in the entry.
 -/
 import Mathlib
 
@@ -162,13 +143,7 @@ theorem schulte_identity {R : Type*} [CommRing R] (x y : R) (n : ℕ) (hn : n �
     Nat.ne_of_gt (Nat.div_pos (Nat.divisor_le hd) (Nat.pos_of_ne_zero hd0))
   rw [powCardFactors_apply _ hd0, schulteH_apply _ _ hnd0, mul_assoc]
 
-/-- **Schulte's conjecture (A001222, Werner Schulte, Feb 10 2018).**
-Verbatim: "Let f(n) = (x+y)^a(n), and g(n) = x^a(n), and h(n) =
-(x+y)^A046660(n) * y^A001221(n) with x, y complex numbers and 0^0 = 1. Then
-f(n) = Sum_{d|n} g(d)*h(n/d)."  Here `a = Ω`, `A001221 = ω`,
-`A046660 = Ω - ω`; for complex `x, y` and every `n ≥ 1`:
-`(x+y)^Ω(n) = ∑_{d ∣ n} x^Ω(d) * (x+y)^(Ω(n/d) - ω(n/d)) * y^ω(n/d)`.
-`0 ^ 0 = 1` is Lean's convention. -/
+/-- Schulte's identity specialized to complex `x,y` and nonzero `n` (OEIS A001222). -/
 theorem schulte_conjecture (x y : ℂ) (n : ℕ) (hn : n ≠ 0) :
     (x + y) ^ Ω n =
       ∑ d ∈ n.divisors, x ^ Ω d * (x + y) ^ (Ω (n / d) - ω (n / d)) * y ^ ω (n / d) :=
@@ -176,17 +151,17 @@ theorem schulte_conjecture (x y : ℂ) (n : ℕ) (hn : n ≠ 0) :
 
 /-! ## Sanity layer -/
 
--- Ground truth: `Ω` agrees with the A001222 DATA line for `n = 1, …, 24`.
+-- `Ω` agrees with the A001222 DATA line for `n = 1, …, 24`.
 example : (List.range 24).map (fun n => Ω (n + 1)) =
     [0, 1, 1, 2, 1, 2, 1, 3, 2, 2, 1, 3, 1, 2, 2, 4, 1, 3, 1, 3, 2, 2, 1, 4] := by
   simp [List.range_succ, cardFactors_apply]
 
--- Ground truth: `ω` agrees with the A001221 DATA line for `n = 1, …, 12`.
+-- `ω` agrees with the A001221 DATA line for `n = 1, …, 12`.
 example : (List.range 12).map (fun n => ω (n + 1)) =
     [0, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2] := by
   simp [List.range_succ, cardDistinctFactors_apply]
 
--- The guard `n ≠ 0` is load-bearing: at `n = 0` the left side is `1` and the
+-- The guard `n ≠ 0` is key: at `n = 0` the left side is `1` and the
 -- divisor sum is empty.
 example : ¬ ∀ x y : ℂ, (x + y) ^ Ω 0 =
     ∑ d ∈ (0 : ℕ).divisors, x ^ Ω d * (x + y) ^ (Ω (0 / d) - ω (0 / d)) * y ^ ω (0 / d) := by

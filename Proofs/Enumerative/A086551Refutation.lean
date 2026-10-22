@@ -1,46 +1,12 @@
 /-
-# A086551 — Murthy: the least `k` with `tau(k) = n * tau(k-1)` has `k-1` prime (refuted)
+Refutation of part (2) of the A086551 conjectures (Amarnath Murthy, Aug 28 2003).
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A086551` and the live
-## entry https://oeis.org/A086551)
-
-```
-NAME:     a(n) = smallest k such that tau(k) = n*tau(k-1) where tau(k) =
-          number of divisors of k, or 0 if no such number exists.
-OFFSET:   1
-TERMS:    3,2,12,24,48,60,192,168,180,240,5120,360,20480,2112,720,840,
-          983040,1260,786432,3024,2880,15360,62914560,3360,22032,266240,...
-COMMENT:  Conjectures: (1) No term is zero. (2) a(n)-1 is a prime.
-COMMENT:  17 is the first n such that a(n)-1 is composite. a(17) =
-          2^16*3*5 and a(17)-1 is a product of two primes.
-          - _David Wasserman_, Mar 24 2005
-AUTHOR:   _Amarnath Murthy_, Aug 28 2003
-EXTENSIONS: More terms from _David Wasserman_, Mar 24 2005
-```
-
-The conjecture comment carries no separate signature; it belongs to the
-entry's author, Amarnath Murthy (Aug 28 2003).  The second comment
-(Wasserman, Mar 24 2005) already records the counterexample to part (2);
-no comment retracts or amends the conjecture text itself.
-
-## Status
-
-This module **refutes** the conjecture (its part (2)).  For `n = 17` the
-least `k` is `983040 = 2^16 * 3 * 5`, and `983039 = 241 * 4079` is
-composite (`a_seventeen`, `a_seventeen_pred_eq`).  Part (1) is open and is
-not addressed.
-
-Minimality of `983040` is proved without enumeration: `17 ∣ tau(k)` and
-`17` prime force some prime exponent `e` of `k` with `17 ∣ e + 1`; for
-`k < 983040 < 2^20` this means `e = 16` and the prime is `2`, so
-`k = 2^16 * m` with `m` odd and `m < 15`, leaving seven cases, each killed
-by `tau(k - 1) ≥ 4 > tau(m)`.
-
-Part (2) also fails at the boundary `n = 2`: `a(2) = 2` and `a(2) - 1 = 1`
-is not prime (`a_two`).  Wasserman's "first `n` with `a(n) - 1`
-composite" reading silently excludes this case; the `n = 17` counterexample
-refutes even the weakened readings "`a(n) - 1` is prime for `n ≥ 3`" and
-"`a(n) - 1` is never composite".
+For the least k≥2 with τ(k)=n τ(k-1), or zero if absent,
+a(17)=983040=2^16*3*5 and a(17)-1=241*4079 is composite.
+David Wasserman records this counterexample (Mar 24 2005).
+The proof establishes minimality, not just a solution of the divisor equation.
+Also a(2)=2, so a(2)-1=1 is not prime. The nonzeroness claim for every n,
+part (1), is not addressed; the conjunction is refuted through part (2).
 -/
 import Mathlib
 
@@ -75,7 +41,7 @@ theorem isLeast_tauMultSet {n k : ℕ} (hk : 2 ≤ k)
   by_contra hlt
   exact hmin j hj.1 (Nat.lt_of_not_le hlt) hj.2
 
-/-! ## Ground truth: the first listed terms `3, 2, 12, 24, 48, 60` -/
+/-! ## The first listed terms `3, 2, 12, 24, 48, 60` -/
 
 example : a 1 = 3 :=
   a_eq_of_isLeast (isLeast_tauMultSet (by norm_num) (by decide) (by decide))
@@ -97,14 +63,9 @@ example : a 6 = 60 :=
 
 /-! ## The conjecture -/
 
-/-- **Murthy's conjectures (A086551, Amarnath Murthy, Aug 28 2003).**
-
-Verbatim: "Conjectures: (1) No term is zero. (2) a(n)-1 is a prime."
-
-Part (2) is stated as `∃ p, p.Prime ∧ a n = p + 1`, which avoids truncated
-`ℕ` subtraction; an integer term `a(n) = 0` would give `a(n) - 1 = -1`,
-which is not prime, and indeed `a n = 0` admits no such `p`.  The range
-`1 ≤ n` is the entry's offset. -/
+/-- Murthy's two claims: no term is zero, and every predecessor is prime,
+for source indices `n≥1`. Writing the second clause as `a n=p+1` for prime
+`p` avoids truncated natural subtraction and excludes `a n=0`. -/
 def Conjecture : Prop :=
   (∀ n, 1 ≤ n → a n ≠ 0) ∧ (∀ n, 1 ≤ n → ∃ p, p.Prime ∧ a n = p + 1)
 
@@ -281,9 +242,8 @@ theorem a086551_false : ¬ Conjecture := by
   rw [hp_eq] at hp
   norm_num at hp
 
-/-- The `n = 17` counterexample also refutes the weakened readings the
-author may have intended: even restricted to `3 ≤ n` (excluding the boundary
-`a(2) - 1 = 1`), some `a(n) - 1` is composite. -/
+/-- Even with the boundary `n=2` excluded, some `a(n)-1` is composite
+at an index `n≥3`. -/
 theorem exists_a_pred_composite :
     ∃ n, 3 ≤ n ∧ ∃ q r, 1 < q ∧ 1 < r ∧ a n = q * r + 1 :=
   ⟨17, by norm_num, 241, 4079, by norm_num, by norm_num, a_seventeen_pred_eq.1⟩

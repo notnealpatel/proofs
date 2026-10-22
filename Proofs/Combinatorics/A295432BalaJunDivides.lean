@@ -1,22 +1,9 @@
 /-
 # A295432 — Bala (Jun 2026): `6 (6n+1) (12n-1)` divides `a(n)`
 
-## OEIS source (retrieved with `oeis show A295432`, 2026-10-21)
-
-```
-NAME:     a(n) = (12*n)!*(3*n)!*(2*n)!/((6*n)!*(6*n)!*(4*n)!*n!).
-TERMS:    1,462,579462,825012300,1240292449350,1922257130698212,...
-FORMULA:  a(n) = binomial(12*n,6*n)*binomial(2*n,n)/binomial(4*n,n). - _Chai Wah Wu_, Feb 15 2026
-FORMULA (From _Peter Bala_, Jun 10 2026):
-  For n >= 1, the 2-adic valuation v_2(a(n)) = s_2(n) = A000120(n) ...
-  For n >= 1, the 3-adic valuation v_3(a(n)) = (1/2) * s_3(2*n) >= 1 ...
-  Conjecture: for n >= 1, 6*(6*n + 1)*(12*n - 1) divides a(n).
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature found by the triage;
-numerically checked for `1 ≤ n ≤ 1600`).  This module proves it.
+Peter Bala's conjecture in OEIS A295432 (June 10, 2026) states that
+`6(6n+1)(12n-1)` divides `a(n)` for `n ≥ 1`, where
+`a(n) = (12n)! (3n)! (2n)! / ((6n)! (6n)! (4n)! n!)`.
 
 ## Proof outline
 
@@ -258,10 +245,9 @@ theorem twelve_sub_one_dvd_a (n : ℕ) (hn : 1 ≤ n) : 12 * n - 1 ∣ a n :=
   dvd_a_of_forall n (12 * n - 1) (by omega) (by omega)
     fun q hq hdvd => F_pos_of_dvd_twelve n q hn hq hdvd
 
-/-- **Bala's conjecture (A295432, _Peter Bala_, Jun 10 2026), proved.**
-Verbatim: "Conjecture: for n >= 1, 6*(6*n + 1)*(12*n - 1) divides a(n)."
-The guard `1 ≤ n` is the source's and keeps the `ℕ` subtraction `12 n - 1` off
-its truncated value. -/
+/-- Bala's conjecture (OEIS A295432, June 10, 2026):
+`6(6n+1)(12n-1)` divides `a(n)` for `1 ≤ n`. This guard also
+keeps the natural subtraction `12n-1` from truncating. -/
 theorem bala_conjecture (n : ℕ) (hn : 1 ≤ n) : 6 * (6 * n + 1) * (12 * n - 1) ∣ a n := by
   have hcop1 : Nat.Coprime (6 * n + 1) (12 * n - 1) := by
     rw [← Nat.isCoprime_iff_coprime]
@@ -285,7 +271,7 @@ theorem bala_conjecture (n : ℕ) (hn : 1 ≤ n) : 6 * (6 * n + 1) * (12 * n - 1
   rw [mul_assoc]
   exact (Nat.Coprime.mul_right hcop6a hcop6b).mul_dvd_of_dvd_of_dvd h6 hprod
 
-/-- Non-vacuity at `n = 1`: `6 · 7 · 11 = 462 = a(1)`. -/
+/-- At `n = 1`, `6 · 7 · 11 = 462 = a(1)`. -/
 example : 6 * (6 * 1 + 1) * (12 * 1 - 1) ∣ a 1 := bala_conjecture 1 le_rfl
 
 example : 6 * (6 * 1 + 1) * (12 * 1 - 1) = a 1 := by decide

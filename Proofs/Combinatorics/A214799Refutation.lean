@@ -1,40 +1,14 @@
 /-
-# A214799 — refutation of R. Israel's conjecture `a(n) = 15 * 2^(n-3)` for `n ≥ 6`
+# A214799 — counterexample to Israel's pairwise-gcd conjecture
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A214799` and the live
-## entry `https://oeis.org/A214799/internal`)
+OEIS A214799 (N. J. A. Sloane, Mar 07 2013) minimizes the largest member
+of an `n`-element set of positive integers with distinct pairwise gcds.
+Robert Israel's conjecture (2013) is `a(n) = 15 * 2^(n-3)` for `n ≥ 6`;
+Israel supplied `a(4)..a(8)` and Giovanni Resta supplied `a(9)..a(10)`.
 
-```
-%N A214799 Let S be a set of n positive numbers such that all n choose 2
-           pairwise GCD's are distinct, and let max(S) denote the largest
-           element of S; a(n) is the minimal value of max(S) over all choices
-           for S.
-%S A214799 1,2,6,18,54,120,240,480,960,1920
-%F A214799 Conjecture: a(n) = 15 * 2^(n-3) for n >= 6 (_Robert Israel_)
-%O A214799 1,2
-%A A214799 _N. J. A. Sloane_, Mar 07 2013
-%E A214799 a(4)-a(8) from _Robert Israel_, Mar 05 2013.
-%E A214799 a(9)-a(10) from _Giovanni Resta_, Mar 06 2013.
-```
-
-The conjecture line carries no date of its own; it was entered with the
-sequence (Mar 2013, `a(4)`–`a(8)` from Robert Israel, Mar 05 2013). The entry
-has no comment retracting or qualifying it.
-
-## Status
-
-This module **refutes** the conjecture. The 27-element set `witness27` below
-consists of positive integers, its `C(27,2) = 351` pairwise gcds are distinct,
-and its maximum is `233757342 < 251658240 = 15 * 2^24 = 15 * 2^(27-3)`.
-Hence `a(27) ≤ 233757342 < 15 * 2^24`. The witness was found by a randomized
-greedy search over smooth products (triage) and re-validated in Python
-before formalization; all facts used here are kernel-checked by `decide`.
-
-The search was not exhaustive: the least `n` at which the conjecture fails
-(somewhere in `11 ≤ n ≤ 27`) is not determined here. The listed data
-`a(6..10) = 120, …, 1920` agree with the formula; the doubling pattern holds
-only for small `n`, while sets built from products of a few small primes beat
-`15 * 2^(n-3)` once `n` is moderately large.
+The set `witness27` has 27 elements, 351 distinct pairwise gcds, and
+maximum `233757342 < 251658240 = 15 * 2^24`. Thus
+`a(27) ≤ 233757342 < 15 * 2^24`. The least failing index is not determined.
 -/
 import Mathlib
 
@@ -45,7 +19,7 @@ set_option Elab.async false
 
 namespace Candidates.A214799Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The `C(|S|, 2)` unordered pairs `{x, y}` of distinct elements of `S`, each
 encoded once as the ordered pair `(x, y)` with `x < y`. -/
@@ -90,7 +64,7 @@ theorem a_le_of_admissible {n M : ℕ} {S : Finset ℕ} (hS : Admissible n S)
     (hM : S.max = (M : WithBot ℕ)) : a n ≤ M :=
   Nat.sInf_le ⟨S, hS, hM⟩
 
-/-! ## Ground truth against the listed terms `1, 2, 6, 18, 54` -/
+/-! ## Examples: listed terms `1, 2, 6, 18, 54` -/
 
 /-- `a(1) = 1`, the first listed term. -/
 theorem a_one : a 1 = 1 := by
@@ -160,11 +134,8 @@ theorem a_four_le : a 4 ≤ 18 ∧ a 5 ≤ 54 := by
 
 /-! ## The conjecture -/
 
-/-- **Robert Israel's conjecture (A214799, 2013).** Verbatim from the entry:
-"Conjecture: a(n) = 15 * 2^(n-3) for n >= 6 (_Robert Israel_)".
-
-The `6 ≤ n` guard keeps the natural-number subtraction `n - 3` off its
-truncated values. -/
+/-- Robert Israel's conjecture (OEIS A214799, 2013):
+`a(n) = 15 * 2^(n-3)` for `n ≥ 6`. The guard keeps `n - 3` off truncated values. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 6 ≤ n → a n = 15 * 2 ^ (n - 3)
 
@@ -361,10 +332,7 @@ theorem a_27_lt : a 27 < 15 * 2 ^ (27 - 3) :=
 
 Counterexample at `n = 27`: the set `witness27` of 27 positive integers has
 351 distinct pairwise gcds and maximum `233757342 < 15 * 2^24 = 251658240`,
-so `a(27) < 15 * 2^(27-3)`. The formula fits the listed data `n = 6, …, 10`
-(extremal sets there are built around powers of `2`); the author presumably
-intended it only as a description of that small range, since sets assembled
-from products of a few small primes beat `15 * 2^(n-3)` for larger `n`. -/
+so `a(27) < 15 * 2^(27-3)`. The least failing index is not determined here. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have h27 : a 27 = 15 * 2 ^ (27 - 3) := hconj 27 (by norm_num)

@@ -1,36 +1,11 @@
 /-
 # A387737 — partitions with a large part and smallest part ≥ number of parts
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A387737`, `oeis show A387736`,
-## and the live entries `https://oeis.org/A387737`, `https://oeis.org/A387736`)
-
-```
-A387737
-NAME:     Number of partitions of n such that the largest part is >= n/2 and if
-          the partition has k parts then the smallest part is >= k.
-OFFSET:   1
-TERMS:    1,1,1,2,2,3,3,4,4,5,5,7,7,9,9,12,12,15,15,19,19,23,23,29,29,35,35,43,...
-EXAMPLE:  a(6)=3 because of the partitions 6, 4+2, and 3+3.
-FORMULA (the conjecture, in the entry by its author _Sean A. Irvine_, Sep 07 2025):
-          Conjecture: a(n) = A387736(n) + 1, n>=4.
-
-A387736
-NAME:     Number of partitions of n such that the largest part is >= n/2,
-          adjacent parts differ by at least 2, and the smallest part >= 2.
-OFFSET:   0
-TERMS:    0,0,1,1,1,1,2,2,3,3,4,4,6,6,8,8,11,11,14,14,18,18,22,22,28,28,34,34,...
-EXAMPLE:  a(6)=2 because of the partitions 6 and 4+2.
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  Computation (this campaign): the identity holds for every
-`4 ≤ n ≤ 70`, the brute-force counts agreeing with both data lines; for
-`n = 1, 2, 3` the differences are `1, 0, 0`, so the guard `4 ≤ n` is needed.
-
-This file proves the conjecture for all `n ≥ 4`
-(`a387737_eq_a387736_add_one`), with no `sorry`.
+OEIS A387737 and A387736, Sean A. Irvine (2025): for `4 ≤ n`,
+`A387737(n) = A387736(n) + 1`. Both count partitions with largest part at
+least `n/2`; A387737 requires smallest part at least the number of parts,
+while A387736 requires adjacent gaps at least `2` and smallest part at
+least `2`. The differences at `n = 1,2,3` are `1,0,0`, so the guard is needed.
 
 ## Proof idea
 
@@ -101,7 +76,7 @@ theorem decParts_ofList {n : ℕ} (L : List ℕ) (hpos : ∀ x ∈ L, 0 < x) (hs
   rw [decParts, ofList, Multiset.coe_sort]
   exact List.mergeSort_eq_self _ (List.isChain_iff_pairwise.1 hd)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- `A387737(1) = 1` (first data term): the only partition `(1)` qualifies. -/
 example : a387737 1 = 1 := by
@@ -592,8 +567,6 @@ theorem parts_ofList {n : ℕ} (L : List ℕ) (hpos : ∀ x ∈ L, 0 < x) (hs : 
     (ofList L hpos hs).parts = ↑L := rfl
 
 /-- **A387737 conjecture (Sean A. Irvine, Sep 2025), proved.**
-
-Verbatim (A387737, FORMULA): "Conjecture: a(n) = A387736(n) + 1, n>=4."
 
 For every `n ≥ 4`, the number of partitions of `n` with largest part `≥ n/2` and
 smallest part `≥` the number of parts equals one plus the number of partitions

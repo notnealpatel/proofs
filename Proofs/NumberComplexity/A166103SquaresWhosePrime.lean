@@ -1,41 +1,13 @@
 /-
 # A166103 — Karttunen: `a(n) = A166102(n) / 3`
 
-## OEIS source (pulled with `oeis show A166103`, `oeis show A166102`, `oeis show A166104`,
-## `oeis show A166100`, retrieved 2026-10-21)
-
-```
-A166103  NAME:     Squares of A166104.
-         TERMS:    1,9,25,81,121,225,289,529,625,729,841,1089,1681,2025,2209,
-                   2601,2809,3025,3481,4761,5041,5625,6561,...
-         COMMENT:  Conjecture: a(n)=A166102(n)/3. (Checked for terms a(1)-a(92).)
-         XREFS:    a(n) = A000290(A166104(n)).
-         KEYWORDS: nonn
-A166104  NAME:     Natural numbers whose prime factors are all congruent to 3 or 5
-                   mod 6 (i.e., are in the sequence A045410).
-         TERMS:    1,3,5,9,11,15,17,23,25,27,29,33,41,45,...
-A166102  NAME:     Odd numbers k such that A166100((k-1)/2)/k is not an integer.
-         TERMS:    3,27,75,243,363,675,867,1587,1875,2187,2523,3267,...
-         COMMENT:  Conjecture: a(n) = 3*A166103(n). (Checked for terms a(1)-a(92).)
-A166100  NAME:     Sum of those positive i <= 2n+1, for which J(i,2n+1)=+1.
-                   Here J(i,k) is the Jacobi symbol.
-```
-
-The conjecture line carries no separate signature; it is part of Antti Karttunen's
-original Oct 13 2009 submission (the mirror of the conjecture in A166102).
-
-## Status
-
-Triage: open (no proof in the entry or the literature found by the triage; the
-triage verified it for odd `k ≤ 40001`).  This module re-validated the
-characterisation for the 400 odd `k` in `[40803, 41601]`, for `k = 3m²` with `m`
-odd in `[261, 301]`, and for `3m² ± 2` at a few such `m` (431 cases, no mismatch).
-
-The conjecture is the same statement as the A166102 conjecture, which the
-production module `Enumerative.A166102OddJacobiSymbol` proves in full
-(`a166102_conjecture`, `a166102_eq_three_mul_a166103`).  This module restates the
-A166103 form `a(n) = A166102(n) / 3` (with the natural-number division shown to be
-exact) and derives it from that theorem.
+OEIS A166103, Antti Karttunen: `a(n) = A166102(n)/3`, with exact
+natural division. A166103 consists of squares of positive integers
+whose prime factors are `3` or `5 mod 6` (A166104). A166102 consists of
+odd `k` for which the sum of positive `i ≤ k` with Jacobi symbol
+`J(i,k) = 1` is not divisible by `k`.
+This follows from `Enumerative.A166102OddJacobiSymbol`; both
+enumerations use index `0` for the OEIS index `1`.
 -/
 import Mathlib
 import Enumerative.A166102OddJacobiSymbol
@@ -46,9 +18,9 @@ namespace Candidates.A166103SquaresWhosePrime
 
 open Candidates.A166102OddJacobiSymbol
 
-/-! ## Definition layer
+/-! ## Definitions
 
-The membership predicates are the production ones, reused verbatim:
+The imported membership predicates are:
 
 * `IsA166104 n := 0 < n ∧ ∀ p ∈ n.primeFactors, p % 6 = 3 ∨ p % 6 = 5`;
 * `IsA166103 x := ∃ n, IsA166104 n ∧ x = n ^ 2` (squares of A166104);
@@ -84,7 +56,7 @@ theorem isA166103_iff_of_lt {x : ℕ} (hx : x < 26) : IsA166103 x ↔ x = 1 ∨ 
     · exact ⟨3, ⟨by norm_num, by simp [Nat.prime_three.primeFactors]⟩, rfl⟩
     · exact ⟨5, ⟨by norm_num, by simp [Nat.prime_five.primeFactors]⟩, rfl⟩
 
-/-! ### Ground truth against the DATA lines -/
+/-! ### Examples against the DATA lines -/
 
 -- A166103: 1, 9, 25, ...
 example : A166103 0 = 1 := by
@@ -151,13 +123,10 @@ theorem three_dvd_A166102 (n : ℕ) : 3 ∣ A166102 n := by
   rw [A166102, a166102_eq_three_mul_a166103]
   exact dvd_mul_right 3 _
 
-/-- **Karttunen's conjecture (A166103, Antti Karttunen, Oct 13 2009).**
-
-Verbatim: "Conjecture: a(n)=A166102(n)/3. (Checked for terms a(1)-a(92).)"
-
-For every index `n`, the `n`-th square of a number whose prime factors are all `≡ 3` or
-`5 (mod 6)` equals one third of the `n`-th odd `k` with `k ∤ A166100((k-1)/2)`.  The
-division is exact (`three_dvd_A166102`).  Derived from the production theorem
+/-- Karttunen’s conjecture (A166103): each term is one third of the
+corresponding A166102 term, with both enumerations indexed from `0`
+here rather than `1` as in OEIS. Division is exact by `three_dvd_A166102`;
+the equality follows from
 `Candidates.A166102OddJacobiSymbol.a166102_eq_three_mul_a166103`. -/
 theorem a166103_conjecture (n : ℕ) : A166103 n = A166102 n / 3 := by
   rw [A166102, a166102_eq_three_mul_a166103, Nat.mul_div_cancel_left _ (by norm_num), A166103]

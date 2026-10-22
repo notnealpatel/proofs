@@ -1,43 +1,12 @@
 /-
-# A077199 — refutation of "every term is < 10"
+Refutation of the bound for OEIS A077199 (Amarnath Murthy, Nov 01 2002).
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A077199` and the live entry)
-
-```
-A077199   Smallest k such that both k and k+n are squarefree.
-OFFSET:   1,1
-AUTHOR:   Amarnath Murthy, Nov 01 2002
-TERMS:    2,3,2,2,2,5,3,2,2,3,2,2,2,3,2,3,2,3,2,2,2,7,3,2,5,3,2,2,2,3,2,2,2,3,
-          2,2,2,3,2,2,2,5,3,2,2,5,6,3,2,3,2,3,2,3,2,2,2,3,2,2,5,3,2,2,2,3,2,2,2,3
-COMMENT:  Conjecture: every term is < 10, i.e. for every n at least one of the
-          numbers n+2, n+3, n+5, n+6 or n+7 is squarefree.
-          (unattributed; it belongs to the original entry, Amarnath Murthy,
-          Nov 01 2002)
-COMMENT:  The conjecture is false.  Here are 9 counterexamples, each of which is
-          less than 10000: 1857, 2522, 3570, 4470, 6169, 6645, 7981, 9553, 9745.
-          There are 16 counterexamples within the first 10000 squarefree
-          numbers. - _Harvey P. Dale_, May 24 2014
-```
-
-## Status
-
-The entry itself retracts the conjecture (Dale, 2014).  This module gives a
-kernel-checked refutation at `n = 1857`, the least counterexample:
-
-* `1859 = 11 * 13^2`, `1860 = 2^2 * 3 * 5 * 31`, `1862 = 2 * 7^2 * 19`,
-  `1863 = 3^4 * 23`, `1864 = 2^3 * 233` are not squarefree, while
-  `1861` and `1867` are prime, so `a(1857) = 10`.
-
-A Python recheck (2026-10-21) over `1 ≤ n < 10000` finds the counterexamples
-`1857, 2522, 3570, 4470, 5041, 6169, 6645, 7981, 9553, 9745`; Dale's list omits
-`5041 = 71^2`, consistent with his search running over squarefree `n` only.
-
-## Convention
-
-The listed data force `k ≥ 2`: with `k = 1` allowed, `a(1)` would be `1`
-(both `1` and `2` are squarefree), but the entry lists `a(1) = 2`.  The
-conjecture's "i.e." clause confirms it: the squarefree `k` with `2 ≤ k < 10`
-are exactly `2, 3, 5, 6, 7`.
+The least k≥2 with k and k+n squarefree is 10 at n=1857:
+the shifts by 2, 3, 5, 6 and 7 all have explicit square divisors.
+Both the term bound and the five-shift version are refuted.
+Harvey P. Dale records n=1857 among counterexamples (May 24 2014).
+The convention k≥2 follows the listed terms and the five-shift statement;
+allowing k=1 would instead give a(1)=1.
 -/
 import Mathlib
 
@@ -49,7 +18,7 @@ namespace Candidates.A077199Refutation
 
 Mathlib's `Nat.instDecidablePredSquarefree` goes through `Nat.minSqFac`, which
 the kernel does not reduce under `decide`.  The bounded characterization below
-is used only to evaluate the ground-truth examples. -/
+is used only to evaluate the examples. -/
 
 /-- A natural number is squarefree iff it is nonzero and no `d` with
 `2 ≤ d ≤ m` has `d * d ∣ m`. -/
@@ -87,7 +56,7 @@ def IsA077199 (n k : ℕ) : Prop :=
   2 ≤ k ∧ Squarefree k ∧ Squarefree (k + n) ∧
     ∀ j, 2 ≤ j → j < k → ¬ (Squarefree j ∧ Squarefree (j + n))
 
-/-! ### Ground truth: the first ten listed terms `2,3,2,2,2,5,3,2,2,3` -/
+/-! ### the first ten listed terms `2,3,2,2,2,5,3,2,2,3` -/
 
 example : IsA077199 1 2 := by
   simp only [IsA077199, squarefree_iff_bounded]; decide
@@ -121,13 +90,7 @@ example : Squarefree (1 : ℕ) ∧ Squarefree (1 + 1 : ℕ) := by
 
 /-! ## The conjecture -/
 
-/-- **Conjecture in A077199 (original entry, Amarnath Murthy, Nov 01 2002).**
-
-Verbatim: "Conjecture: every term is < 10, i.e. for every n at least one of the
-numbers n+2, n+3, n+5, n+6 or n+7 is squarefree."
-
-First clause, "every term is < 10": for every index `n ≥ 1` (the entry's
-offset), the term `a(n)` is `< 10`. -/
+/-- The source's term-bound claim: every A077199 term at index `n≥1` is less than `10`. -/
 def Conjecture : Prop :=
   ∀ n, 1 ≤ n → ∀ k, IsA077199 n k → k < 10
 
@@ -201,11 +164,8 @@ theorem isA077199_1857 : IsA077199 1857 10 := by
   · exact not_squarefree_of_mul_self_dvd (d := 2) le_rfl ⟨2, by norm_num⟩ hjsq
   · exact not_squarefree_of_mul_self_dvd (d := 3) (by norm_num) ⟨1, by norm_num⟩ hjsq
 
-/-- **The A077199 conjecture is false.**  Counterexample `n = 1857`
-(Harvey P. Dale, May 24 2014): `a(1857) = 10`, since none of
-`1859, 1860, 1862, 1863, 1864` is squarefree.  No corrected uniform bound is
-evident: the conjecture was presumably extrapolated from the listed range
-`n ≤ 70`, where the largest term is `7`. -/
+/-- The A077199 bound fails at `n=1857` (Harvey P. Dale, May 24 2014):
+`a(1857)=10`, since none of `1859,1860,1862,1863,1864` is squarefree. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have hlt : (10 : ℕ) < 10 := hconj 1857 (by norm_num) 10 isA077199_1857

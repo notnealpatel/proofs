@@ -1,34 +1,21 @@
 /-
-# Power graph cograph implies enhanced power graph cograph
+# Power graph cographs and enhanced power graphs
 
-## Source
+D. Bubboloni, F. Fumagalli and C. E. Praeger, *Enhanced power graphs of finite
+groups with cograph structure*, arXiv:2510.18073v1, Section 4, "Some comments
+on power graphs", Conjecture `prob2`.
 
-D. Bubboloni, F. Fumagalli, C. E. Praeger, *Enhanced power graphs of finite
-groups with cograph structure*, arXiv:2510.18073v1, Section 4, subsection
-"Some comments on power graphs", Conjecture `prob2` (the only Conjecture
-environment of the paper).  Verbatim:
+This file proves the stated implication: for a finite group, if its power
+graph is a cograph, so is its enhanced power graph. Power adjacency means
+that the vertices are distinct and one is a natural-number power of the
+other; enhanced adjacency means that distinct vertices generate a cyclic
+subgroup. Cographs are graphs
+with no induced four-vertex path.
 
-> For every finite group $G$, if the power graph $\mathcal{P}(G)$ is a
-> cograph, then also the enhanced power graph $\mathcal{E}(G)$ is a cograph.
-
-Definitions (paper, Definition `d:EG` and `d:cograph/chordal`):
-* $\mathcal{P}(G)$ has vertex set $G$, and $\{x,y\}$ is an edge iff $x \ne y$
-  and $x = y^m$ or $y = x^m$ for some $m \in \mathbb{N}$;
-* $\mathcal{E}(G)$ has vertex set $G$, and $\{x,y\}$ is an edge iff $x \ne y$
-  and $\langle x, y\rangle$ is cyclic;
-* a graph is a cograph iff it is $P_4$-free, i.e. has no induced subgraph
-  isomorphic to the path on four vertices.
-
-Date: 2026-10-21.  Status in the paper: open (stated as a conjecture).
-Status here: proved (no `sorry`), see
-`isCograph_enhancedPowerGraph_of_isCograph_powerGraph`.
-
-## Argument formalized here
-
-If `w - x - y - z` is an induced `P₄` of `E(G)`, choose `h` with
-`w, x ∈ ⟨h⟩` and `g` with `x, y ∈ ⟨g⟩`.  Then `h - x - g - y` is an induced
-`P₄` of the (`ℤ`-)power graph.  This uses no finiteness; finiteness only
-identifies the `ℕ`-power graph of the paper with the `ℤ`-power graph.
+Given an enhanced induced path `w - x - y - z`, choose `h` with
+`w, x ∈ ⟨h⟩` and `g` with `x, y ∈ ⟨g⟩`. Then `h - x - g - y` is an induced
+path in the integer-power graph. This step holds for arbitrary groups;
+finiteness identifies the natural- and integer-power graphs.
 -/
 import Mathlib
 
@@ -183,15 +170,15 @@ theorem pathGraph_four_isIndContained_powerGraph_of_enhancedPowerGraph [Finite G
   refine (pathGraph_four_isIndContained_iff _).mpr ⟨h, x, g, y, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
     simpa only [powerGraph_adj_iff]
 
-/-- **Conjecture `prob2` of Bubboloni–Fumagalli–Praeger (arXiv:2510.18073,
-end of Section 4), proved.**  For every finite group `G`, if the power graph
+/-- Conjecture `prob2` of Bubboloni–Fumagalli–Praeger (arXiv:2510.18073,
+end of Section 4).  For every finite group `G`, if the power graph
 `𝒫(G)` is a cograph (`P₄`-free), then the enhanced power graph `ℰ(G)` is a
 cograph. -/
 theorem isCograph_enhancedPowerGraph_of_isCograph_powerGraph [Finite G]
     (hP : IsCograph (powerGraph G)) : IsCograph (enhancedPowerGraph G) :=
   fun hE => hP (pathGraph_four_isIndContained_powerGraph_of_enhancedPowerGraph hE)
 
-/-! ### Ground-truth checks and non-vacuity -/
+/-! ## Examples -/
 
 /-- In `C₄ = Multiplicative (ZMod 4)`, the generator and its square are adjacent
 in the power graph. -/

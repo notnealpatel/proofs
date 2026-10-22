@@ -1,42 +1,16 @@
 /-
-# A364906 — refutation of Wiseman's positions-of-ones conjecture
+# A364906 — counterexample to Wiseman's positions-of-ones conjecture
 
-## OEIS source (retrieved with `oeis show A364906` and checked against
-## https://oeis.org/A364906, 2026-10-21)
+Gus Wiseman (OEIS A364906, Aug 22 2023) conjectured that the positions
+of 1 are A319319, the numbers whose distinct prime-index submultisets
+have different gcds (equivalently, whose distinct divisors have different
+gcds of prime indices). A364906(n) counts nonnegative linear combinations
+of the prime-index multiset of `n` having sum A056239(n).
 
-```
-NAME:     Number of ways to write A056239(n) as a nonnegative linear
-          combination of the multiset of prime indices of n.
-TERMS:    1,1,1,3,1,2,1,10,3,2,1,9,1,2,1,35,1,6,1,9,2,2,1,34,3,2,10,10,1,7,
-          1,126,1,2,1,30,1,2,2,39,1,6,1,11,3,2,1,130,3,6,1,12,1,20,1,46,...
-AUTHOR:   Gus Wiseman, Aug 22 2023
-COMMENT (the conjecture; the line carries no separate attribution, so it
-         is the author's, Gus Wiseman, Aug 22 2023):
-  Conjecture: Positions of 1's are numbers whose distinct divisors all have
-  different GCDs of prime indices, listed by A319319, counted by A319318.
-XREF:     Positions of 1's appear to be A319319.
-MATHEMATICA:
-  prix[n_]:=If[n==1,{},Flatten[Cases[FactorInteger[n],{p_,k_}:>Table[PrimePi[p],{k}]]]];
-  combs[n_,y_]:=With[{s=Table[{k,i},{k,y},{i,0,Floor[n/k]}]},
-    Select[Tuples[s],Total[Times@@@#]==n&]];
-  Table[Length[combs[Total[prix[n]],prix[n]]],{n,100}]
-```
-
-A319319: "Heinz numbers of integer partitions such that every distinct
-submultiset has a different GCD." (Mathematica:
-`UnsameQ@@GCD@@@Union[Subsets[primeMS[#]]]`.)
-
-No later comment or extension of A364906 retracts the conjecture.
-
-## Status
-
-This module **refutes** the conjecture.  The counterexample is
-`n = 1547 = 7 * 13 * 17`, with prime indices `{4, 6, 7}` and sum `17`.
-The equation `4a + 6b + 7c = 17` has the unique solution `(1, 1, 1)`, so
-`A364906(1547) = 1`, but `gcd(4, 7) = gcd(6, 7) = 1`, so `1547` is not in
-A319319.  A bounded Python search finds `1547` as the least disagreement;
-there are 79 disagreements below `20000`, all with exactly three prime
-indices, and all of them have `A364906(n) = 1` with `n ∉ A319319`.
+At `n = 1547 = 7 * 13 * 17`, the prime indices are `{4,6,7}`. The equation
+`4a + 6b + 7c = 17` has the unique solution `(1,1,1)`, but
+`gcd(4,7) = gcd(6,7) = 1`. Thus A364906(1547) = 1 while 1547 is not in
+A319319. The converse inclusion is not proved here.
 -/
 import Mathlib
 
@@ -44,7 +18,7 @@ set_option autoImplicit false
 
 namespace Candidates.A364906Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The prime indices of `n`, listed in weakly increasing order with
 multiplicity (row `n` of A112798; Mathematica `prix`).  The index of a prime
@@ -84,7 +58,7 @@ theorem inA319319_iff_powerset (n : ℕ) :
 instance (n : ℕ) : Decidable (InA319319 n) :=
   decidable_of_iff _ (inA319319_iff_powerset n).symm
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : primeIndices 1 = [] := by
   simp [primeIndices]
@@ -203,10 +177,6 @@ example : ¬ InA319319 16 := by
 
 /-- **Wiseman's conjecture (A364906, Gus Wiseman, Aug 22 2023).**
 
-Verbatim: "Conjecture: Positions of 1's are numbers whose distinct divisors
-all have different GCDs of prime indices, listed by A319319, counted by
-A319318."
-
 Formally: for every positive `n`, `A364906(n) = 1` iff `n ∈ A319319`.  The
 divisors of `n` correspond bijectively to the submultisets of the prime
 indices of `n`, so "distinct divisors have different GCDs of prime indices"
@@ -243,11 +213,7 @@ theorem not_inA319319_1547 : ¬ InA319319 1547 := by
 (`a_1547`) but `1547 ∉ A319319` because `gcd(4, 7) = gcd(6, 7) = 1`
 (`not_inA319319_1547`).
 
-Only the direction `A364906(n) = 1 → n ∈ A319319` fails: a bounded search
-(evidence, not proof) finds no `n < 20000` in A319319 with `A364906(n) ≠ 1`,
-and every disagreement below `20000` has exactly three prime indices.  The
-intended statement was probably the inclusion `A319319 ⊆ {n : A364906(n) = 1}`;
-that inclusion is not proved here. -/
+The converse inclusion `A319319 ⊆ {n : A364906(n) = 1}` is not proved here. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   exact not_inA319319_1547 ((hconj 1547 (by norm_num)).mp a_1547)

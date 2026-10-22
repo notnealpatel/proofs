@@ -1,38 +1,10 @@
 /-
 # A159021 — Librandi: the squares in `a(n+1) = a(n) + ⌊√a(n)⌋`, `a(0) = 19`, are `(7·2^k)^2`
 
-## OEIS source (retrieved with `oeis show A159021`, 2026-10-21)
-
-```
-NAME:     a(0)=19; a(n) = a(n-1) + floor(sqrt(a(n-1))), n > 0.
-TERMS:    19,23,27,32,37,43,49,56,63,70,78,86,95,104,114,124,135,146,158,
-          170,183,196,210,224,238,253,268,284,300,317,334,352,370,389,408,
-          428,448,469,490,512,534,557,580,604,628,653,678,704,730,757,784,
-          812,840,868,897,926,956,986,1017
-COMMENT:  Row 3 in square array A159016.
-COMMENT:  This sequence contains infinitely many squares.
-          - _Philippe Deléham_, Apr 04 2009
-COMMENT (the conjecture):
-  Conjecture: The squares are of the form (7*2^k)^2 (see A005009).
-  - _Vincenzo Librandi_, Apr 10 2009
-PROGRAM:  NestList[#+Floor[Sqrt[#]]&,19,60] (* _Harvey P. Dale_, Jan 04 2013 *)
-```
-
-Formulation used here (from the triage card): for all `n`, `a(n)` is a
-perfect square iff `a(n) = (7*2^k)^2` for some `k ≥ 0`.  Equivalently, the
-squares in the sequence are exactly `49*4^k`, and every such value occurs.
-
-## Status
-
-Triage: "open" (no proof in the entry, which only has the comments by
-Deléham and Librandi; the same mechanism is stated without proof in the
-sibling entries A002984, A159018, A159020, A159022–A159027).  The mechanism
-is olympiad folklore, so the statement is unlikely to be new.  Proved below
-in full (no `sorry`).
-
-Computation (python, 2026-10-21): the first 2·10^6 terms contain exactly 18
-squares, `(7·2^k)^2` for `k = 0..17`, at indices `6, 21, 50, 107, …`, with
-index gaps `2·(7·2^k) + 1`.
+Vincenzo Librandi's conjecture in OEIS A159021 (2009): the squares in
+`a(0)=19`, `a(n+1)=a(n)+floor(sqrt(a(n)))` are exactly `(7·2^k)^2`.
+Every such value occurs, also establishing Philippe Deléham's infinitude
+comment (2009).
 
 ## Proof
 
@@ -50,7 +22,7 @@ set_option autoImplicit false
 
 namespace Candidates.A159021FloorSqrtPerfect
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A159021: `a(0) = 19`, `a(n+1) = a(n) + ⌊√a(n)⌋`.  `Nat.sqrt` is the
 floor of the real square root on `ℕ`, so this mirrors the entry exactly. -/
@@ -64,15 +36,15 @@ def squareIndex : ℕ → ℕ
   | 0 => 6
   | k + 1 => squareIndex k + (2 * (7 * 2 ^ k) + 1)
 
--- Ground truth: the first listed terms of the OEIS DATA line.
+-- Examples: the first listed terms of the OEIS DATA line.
 example : a 0 = 19 ∧ a 1 = 23 ∧ a 2 = 27 ∧ a 3 = 32 ∧ a 4 = 37 ∧ a 5 = 43 ∧
     a 6 = 49 ∧ a 7 = 56 ∧ a 8 = 63 ∧ a 9 = 70 ∧ a 21 = 196 := by
   decide +kernel
 
--- Ground truth: the last listed term, `a(58) = 1017`.
+-- Examples: the last listed term, `a(58) = 1017`.
 example : a 58 = 1017 := by decide +kernel
 
--- Ground truth: the square indices `6, 21, 50` match the computation.
+-- Examples: the square indices `6, 21, 50` match the computation.
 example : squareIndex 0 = 6 ∧ squareIndex 1 = 21 ∧ squareIndex 2 = 50 := by decide
 
 /-! ## Block arithmetic -/
@@ -239,9 +211,7 @@ theorem exists_of_isSquare_of_lt (k : ℕ) :
         exact absurd hsq
           ((next_square (squareIndex k) (7 * 2 ^ k) hpos (a_squareIndex k)).2 i hi0 hi)
 
-/-- **Librandi's conjecture (A159021, Vincenzo Librandi, Apr 10 2009).**
-
-Verbatim: "Conjecture: The squares are of the form (7*2^k)^2 (see A005009)."
+/-- **Librandi's conjecture (A159021, Vincenzo Librandi, 2009).**
 
 For `a(0) = 19`, `a(n+1) = a(n) + ⌊√a(n)⌋`, the term `a(n)` is a perfect square
 iff `a(n) = (7*2^k)^2` for some `k ≥ 0`. -/

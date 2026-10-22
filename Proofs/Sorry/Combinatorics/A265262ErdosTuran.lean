@@ -1,4 +1,4 @@
-import Combinatorics.ErdosTuranProfiles
+import Sorry.Combinatorics.ErdosTuranProfiles
 
 /-!
 # A265262 — Erdős–Turán profiles (open conjecture archive)

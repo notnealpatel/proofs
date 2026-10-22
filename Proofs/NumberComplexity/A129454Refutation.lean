@@ -1,37 +1,11 @@
 /-
 # A129454 — Bala's p-adic valuation conjecture is off by one
 
-## OEIS source (retrieved with `oeis show A129454` and the live
-## `oeis.org/A129454/internal` page, 2026-10-21)
-
-```
-NAME:    a(n) = Product{i=1..n-1} Product{j=1..n-1} Product{k=1..n-1} gcd(i,j,k).
-OFFSET:  0,4
-TERMS:   1,1,1,2,6,1536,7680,8806025134080,61642175938560,...
-FORMULA: a(n) = Product{i=1..n-1} Product{j=1..n-1} Product{k=1..n-1} gcd(i,j,k),
-         for n > 2, otherwise a(n) = 1.
-COMMENT: Conjecture: Let p be a prime and let ordp(n,p) denote the largest power
-         of p which divides n. For example, ordp(48,2)=4 since 48 = 3*(2^4). Then
-         we conjecture that the prime factorization of a(n) is given by
-         ordp(a(n),p)=(floor(n/p))^3 + (floor(n/p^2))^3 + (floor(n/p^3))^3 + . . ..
-         Compare with the comments in A092287.
-AUTHOR:  Peter Bala, Apr 16 2007
-```
-
-The comment is unsigned, so it belongs to the original submission by the entry
-author, Peter Bala (Apr 16 2007).  No later comment retracts or corrects it; the
-only later edit (G. C. Greubel, Feb 07 2024) touches the programs.
-
-## Status
-
-This module refutes the conjecture as printed: at `n = 4`, `p = 2` the entry
-gives `a(4) = 6`, so `ordp(a(4),2) = 1`, while the formula gives
-`floor(4/2)^3 + floor(4/4)^3 = 9` (the value `9` is `ordp(a(5),2)`, since
-`a(5) = 1536 = 2^9 * 3`).  The formula is off by one in the index: the
-corrected statement `ordp(a(n+1),p) = Σ_{t ≥ 1} floor(n/p^t)^3`, obtained by
-counting triples in `[1,n]^3` all divisible by `p^t`, is proved below as
-`padicValNat_a_succ`.  (Compare A092287, whose product runs over `[1,n]`
-rather than `[1,n-1]`.)
+OEIS A129454, Peter Bala: the printed valuation formula has an index
+shift. The product runs over `[1,n-1]³`, not `[1,n]³`. At `n = 4`,
+`p = 2`, the valuation is `1`, whereas the printed formula gives `9`.
+The corrected identity `v_p(a(n+1)) = ∑_{t≥1} ⌊n/p^t⌋³` is proved by
+counting triples divisible by each prime power.
 -/
 import Mathlib
 
@@ -48,7 +22,7 @@ entry's convention and its first terms. -/
 def a (n : ℕ) : ℕ :=
   ∏ i ∈ Ico 1 n, ∏ j ∈ Ico 1 n, ∏ k ∈ Ico 1 n, Nat.gcd (Nat.gcd i j) k
 
-/-! ## Ground truth against the listed terms `1,1,1,2,6,1536,7680,8806025134080` -/
+/-! ## Examples against the listed terms `1,1,1,2,6,1536,7680,8806025134080` -/
 
 example : a 0 = 1 := by decide
 example : a 1 = 1 := by decide
@@ -61,7 +35,7 @@ example : a 7 = 8806025134080 := by decide
 
 /-! ## The conjecture as printed -/
 
-/-- **Bala's conjecture (A129454, Peter Bala, Apr 16 2007), as printed.**
+/-- **Bala's conjecture (A129454, Peter Bala, 2007), as printed.**
 For every prime `p` and every `n`,
 `ordp(a(n),p) = floor(n/p)^3 + floor(n/p^2)^3 + floor(n/p^3)^3 + ⋯`.
 
@@ -72,11 +46,9 @@ omitted terms are `0`. -/
 def Conjecture : Prop :=
   ∀ p : ℕ, p.Prime → ∀ n : ℕ, padicValNat p (a n) = ∑ t ∈ Icc 1 n, (n / p ^ t) ^ 3
 
-/-- **The printed conjecture is false.** Counterexample `n = 4`, `p = 2`:
-`a 4 = gcd(2,2,2) · gcd(3,3,3) = 6` has `2`-adic valuation `1`, but the
-formula gives `(4/2)^3 + (4/4)^3 = 9`.  (Also `n = 2`, `p = 2`: `a 2 = 1`
-versus `1`.)  The author presumably intended the index shift
-`ordp(a(n+1),p) = Σ_t floor(n/p^t)^3`, proved as `padicValNat_a_succ`. -/
+/-- Bala’s printed formula fails at `n = 4`, `p = 2`: `a 4 = 6` has
+valuation `1`, whereas `(4/2)^3 + (4/4)^3 = 9`. The corrected index shift
+`v_p(a(n+1)) = ∑_t ⌊n/p^t⌋³` is proved as `padicValNat_a_succ`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   have h4 : padicValNat 2 (a 4) = ∑ t ∈ Icc 1 4, (4 / 2 ^ t) ^ 3 := h 2 Nat.prime_two 4
@@ -163,7 +135,7 @@ theorem padicValNat_a_succ (p n : ℕ) (hp : p.Prime) :
     _ = ∑ t ∈ Icc 1 n, (n / p ^ t) ^ 3 := sum_congr rfl fun t _ => by
         rw [sum_ite_dvd_Ico n (p ^ t)]
 
-/-- Sanity instance of the corrected form: `ordp(a(5),2) = 9`, matching
+/-- Example of the corrected form: `ordp(a(5),2) = 9`, matching
 `a(5) = 1536 = 2^9 · 3`. -/
 example : padicValNat 2 (a 5) = 9 := by
   rw [padicValNat_a_succ 2 4 Nat.prime_two]

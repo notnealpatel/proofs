@@ -1,32 +1,15 @@
 /-
-# Many antipodal pairs force many neighbouring pairs: the spectral core
+# Degree tails and the spectral bound for antipodal pairs
 
-## Source
+Gábor Damásdi, Laurențiu Ploscaru et al., *Many Antipodal Pairs Force
+Many Neighboring Pairs*, arXiv:2608.02605v1, Proposition 2.1 (Collatz–Wielandt),
+Lemma 4.3 (degree tails) and Proposition 4.4 (spectral bound).
 
-arXiv 2608.02605v1, Gábor Damásdi, Laurențiu Ploscaru et al.,
-"Many Antipodal Pairs Force Many Neighboring Pairs".
-Section 2, Prop. 2.1 (`vector-test-criterion`, Collatz-Wielandt bound);
-Section 4, Lemma 4.3 (`lem:tails`) and Prop. 4.4 (`prop:sqrt-control`).
-Recorded 2026-10-21.
-
-## Informal claim (combinatorial engine of Prop. 4.4)
-
-Lemma 4.3 supplies, for the box graph, the tail estimate
-"for every vertex `k` and integer `t ≥ 1`,
-`|{j ∼ k : d_j ≥ t}| ≤ c₀ (N/t) (ε₂/ε₁)²`", and Prop. 4.4 deduces
-`λ₁(G) ≤ 6 ε₂ ε₁⁻¹ √(c₀ N)` via the test vector `(√d_i)` and a dyadic
-decomposition. Abstracted: for a finite simple graph `G` and real `M` with
-`t · #{j ∈ N(k) : t ≤ deg j} ≤ M` for all `k` and all naturals `t ≥ 1`,
-`λ₁(G) ≤ C √M`. The paper proves `C = 6`.
-
-## Status
-
-Proved in the paper with constant `6`. This file proves the sharper
-constant `2`, stated as the quadratic-form bound
-`v ⬝ (A_G v) ≤ 2 √M (v ⬝ v)` for all real `v` (equivalent to
-`λ₁(A_G) ≤ 2√M`). The sharpening replaces the dyadic decomposition by
-a sorting argument: removing the neighbour of least degree `d₀` from
-a neighbourhood of size `n` gives `d₀ n ≤ M`, and
+For a finite simple graph, assume
+`t · #{j ∈ N(k) : t ≤ deg j} ≤ M` for every `k` and natural `t ≥ 1`.
+The quadratic-form bound below is `v ⬝ A_G v ≤ 2√M (v ⬝ v)`; the paper
+gives constant 6. The sorting argument removes a least-degree neighbour
+`d₀` from a neighbourhood of size `n`: `d₀ n ≤ M` and
 `√(M/n) + 2√(M(n-1)) ≤ 2√(Mn)`.
 -/
 import Mathlib
@@ -156,13 +139,13 @@ def tailCount {V : Type*} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
     (k : V) (t : ℕ) : ℕ :=
   ((G.neighborFinset k).filter (fun j => t ≤ G.degree j)).card
 
-/-- Ground truth: in the triangle `K₃` every vertex has two neighbours of
+/-- In the triangle `K₃` every vertex has two neighbours of
 degree `2`, so the tail at `t = 2` is `2` and at `t = 3` is `0`. -/
 example : tailCount (⊤ : SimpleGraph (Fin 3)) 0 2 = 2 := by decide
 
 example : tailCount (⊤ : SimpleGraph (Fin 3)) 0 3 = 0 := by decide
 
-/-- Ground truth on the path `0 - 1 - 2`: the leaf `0` has the single
+/-- On the path `0 - 1 - 2`: the leaf `0` has the single
 neighbour `1` of degree `2`; the centre `1` has two neighbours of
 degree `1`. -/
 example : tailCount (SimpleGraph.fromRel (fun a b : Fin 3 => b.val = a.val + 1)) 0 2 = 1 := by

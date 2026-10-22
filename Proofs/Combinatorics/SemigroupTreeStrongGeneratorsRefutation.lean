@@ -1,49 +1,20 @@
 /-
-# Strong generators in the semigroup tree: refutation and corrected bound
+# Strong generators in the semigroup tree: counterexample and sharp bound
 
-## Source
+M. Bras-Amorós and S. Bulygin, *Towards a better understanding of the
+semigroup tree*, arXiv:0810.1619 (Semigroup Forum 79, 2009), Section 2
+(definitions following `lemma:reasonforweakstrong`, Lemma `hyper`) and
+Section `sec:future` (conjecture following `start-from-arbitrary`).
+The conjecture bounds the number of strong generators in genus `g` by
+`⌊(g-1)/2⌋`.
 
-M. Bras-Amorós, S. Bulygin, "Towards a better understanding of the
-semigroup tree", arXiv:0810.1619 (Semigroup Forum 79 (2009)).
-Section 2 ("Behavior of known classes of numerical semigroups"): definition
-of effective and strong generators after Lemma `lemma:reasonforweakstrong`;
-Lemma `hyper` (hyperelliptic semigroups `⟨2, 2n+1⟩` have a strong
-generator).  Section `sec:future` ("Future directions ..."), the
-unnumbered conjecture after Proposition `start-from-arbitrary`.
+For `m ≥ 2`, `S_m = {0,m} ∪ [2m,∞)` has genus `2m-2` and exactly `m-1`
+strong generators `2m+1,…,3m-1`. This refutes the bound at every positive
+even genus; `S_2 = ⟨2,5⟩` is the paper's own hyperelliptic example.
+The sharp bound below for non-ordinary semigroups is `2s ≤ g`, attained
+by this family.
 
-Definitions, verbatim:
-
-  "we call the generators of a non-ordinary numerical semigroup that are
-  larger than or equal to its conductor, the *effective generators* and we
-  say that an effective generator `λ_{i_j}` is *strong* if the set of
-  effective generators of `Λ \ {λ_{i_j}}` is
-  `λ_{i_{j+1}}, …, λ_{i_n}, λ_{i_j} + λ_1`."
-
-  "A semigroup for which `λ_1 = c`, i.e. a semigroup of the form
-  `{0} ∪ [c, ∞)`, is called *ordinary*."
-
-Conjecture, verbatim:
-
-  "Let `n^i_g` be the number of numerical semigroups of genus `g` with `i`
-  strong generators.  Then we conjecture that `n^i_g = 0` for
-  `i > ⌊(g-1)/2⌋`."
-
-## Status (recorded 2026-10-21)
-
-Stated as a conjecture in the paper (open there).  It is false at every
-even genus: the semigroup `S_m = {0, m} ∪ [2m, ∞)`, `m ≥ 2`, has genus
-`2m - 2` and exactly `m - 1` strong generators `2m+1, …, 3m-1`, and
-`m - 1 > ⌊(2m-3)/2⌋`.  Already `m = 2` (the paper's own `⟨2, 5⟩` of Lemma
-`hyper`) is a counterexample at genus `2`.
-
-The corrected sharp bound proved here: a non-ordinary numerical semigroup
-of genus `g` has at most `⌊g/2⌋` strong generators, i.e. `2 s ≤ g`, with
-equality for every even genus attained by `S_m`.  Both the refutation
-(`not_printedConjecture`, `family_counterexample`) and the corrected bound
-(`two_mul_numStrong_le_genus`) are formalized below with no remaining
-`sorry`.  The corrected bound is not in the paper.
-
-## Formalization conventions
+## Conventions
 
 * A numerical semigroup is a set `S ⊆ ℕ` containing `0`, closed under
   addition, with finite complement (`IsNumericalSemigroup`).
@@ -506,7 +477,7 @@ theorem two_mul_numStrong_le_genus {S : Set ℕ} (hS : IsNumericalSemigroup S)
     rw [Nat.card_Ioo] at h3
     omega
 
-/-! ## Ground truth against the paper's examples -/
+/-! ## Examples from the paper -/
 
 -- Lemma `hyper` at `n = 2`: `S_2 = {0, 2} ∪ [4, ∞) = ⟨2, 5⟩` has genus `2`,
 -- conductor `4`, and its unique effective generator `5 = c + 1` is strong.

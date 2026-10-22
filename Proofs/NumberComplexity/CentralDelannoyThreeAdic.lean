@@ -1,43 +1,16 @@
 /-
 # 3-adic valuation of central Delannoy numbers
 
-## Source
-
-M. A. Alekseyev, T. Amdeberhan, J. Shallit, I. Vukusic,
-"On the p-adic valuations of values of Legendre polynomials",
-arXiv:2505.08935.  Recorded 2026-10-21.
-
-* Section "Motivation", Conjecture `jeffcon` (Shallit's conjecture,
-  Allouche--Shallit 2003, p. 453; numbered Conjecture 1 in the compiled
-  paper, Conjecture 2.1 in the dispatch spec):
-  with `a(n) := ∑_{0 ≤ i ≤ n} C(n,i) C(n+i,i)` (central Delannoy numbers,
-  OEIS A001850) and `b(n) := ν_3(a(n))` (OEIS A358360),
-
-  > b(i) = b(⌊i/3⌋) + (⌊i/3⌋ mod 2)  if i ≡ 0, 2 (mod 3);
-  > b(i) = b(⌊i/9⌋) + 1              if i ≡ 1 (mod 3).
-
-* Section "Main results", Theorem `thm:vp-Legendre_explicit_p3`
-  (Theorem 4 in the compiled paper; "Theorem 3.2" in the dispatch spec),
-  specialised to `p = 3`, where `a(n) = P_n(3)`:
-
-  > ν_p(P_{2m}(p)) = ν_p(C(2m, m));
-  > ν_p(P_{2m+1}(p)) = 1 + ν_p(2m+1) + ν_p(C(2m, m)).
-
-* Theorem `thm:main` (Theorem 6 in the compiled paper), `p = 3`:
-  `f(3n + a) = f(n) + (n mod 2)` for even `a`, `f(n) + 1 - (n mod 2)` for odd
-  `a`, where `f(n) = ν_3(P_n(3))`; equivalently `f(3n+a) = f(n) + ((n+a) mod 2)`.
-
-* OEIS A358360 (formula of R. Oudra, May 2026, listed there as conjectural):
-  `a(n) = ∑_{k ≥ 0} (⌊n/3^k⌋ mod 2)`.
-
-## Status
-
-All statements are proved in the paper (Shallit's conjecture was first proved
-by Shen, 2023).  The closed form `∑_k (⌊n/3^k⌋ mod 2)` is a direct consequence
-of the explicit formula together with Kummer's theorem; it is not stated in
-this form in the paper.
-
-## Proof route formalised here
+M. A. Alekseyev, T. Amdeberhan, J. Shallit and I. Vukusic,
+“On the p-adic valuations of values of Legendre polynomials”,
+arXiv:2505.08935: Theorems `thm:vp-Legendre_explicit_p3` and `thm:main`,
+specialized to `p = 3`, and Shallit's conjecture `jeffcon`
+(Allouche–Shallit, 2003, p. 453; first proved by Shen, 2023).
+For central Delannoy numbers `D(n) = P_n(3)` (A001850), the module
+proves the explicit valuations, recurrences, and Oudra's closed form
+`v₃(D(n)) = ∑_{k≥0} (⌊n/3^k⌋ mod 2)` (A358360).
+This closed form is derived here from the valuation identities; it is not
+stated in this form in the cited paper.
 
 Not the paper's route through the expansion of `P_n(x)` at `x = 0`, but an
 equivalent integer identity: `D(n) = [x^n] ((x+1)(x+2))^n`, and expanding
@@ -55,7 +28,7 @@ namespace CentralDelannoyThreeAdic
 
 open Polynomial Finset Nat
 
-/-! ## Definitions and ground truth -/
+/-! ## Definitions and examples -/
 
 /-- The central Delannoy number `D(n) = ∑_{0 ≤ k ≤ n} C(n,k) C(n+k,k)`
 (OEIS A001850), the source's `a(n)`; it equals `P_n(3)`, see
@@ -483,7 +456,7 @@ theorem shallit_of_mod_three_eq_one (i : ℕ) (hi : i % 3 = 1) :
     digitParitySum_eq_mod_two_add (i / 3), show i / 3 / 3 = i / 9 by omega]
   omega
 
-/-- Ground truth: `D(9) = 1462563 = 3^3 · 54169`, and the closed form gives `3`. -/
+/-- Examples: `D(9) = 1462563 = 3^3 · 54169`, and the closed form gives `3`. -/
 example : padicValNat 3 (centralDelannoy 9) = 3 := by
   rw [padicValNat_three_centralDelannoy_eq_digitParitySum]
   decide

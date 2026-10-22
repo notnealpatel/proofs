@@ -1,35 +1,16 @@
 /-
 # MO 287011 — the primes `≤ n` not dividing `n` determine `n` iff Dressler's conjecture
 
-## Source (re-pulled 2026-10-21 through the Stack Exchange API)
+MathOverflow 287011, BRP, 'A conjecture regarding prime numbers',
+<https://mathoverflow.net/questions/287011> (cross-posted from
+math.stackexchange 2536176). Lucia's accepted answer, following a comment
+by H. Pasten, identifies the claim with Dressler's conjecture; see
+Cochrane–Dressler, Math. Comp. 68 (1999), and Erdős–Selfridge (1971).
 
-MathOverflow question 287011, "A conjecture regarding prime numbers",
-<https://mathoverflow.net/questions/287011>, asked by BRP (cross-posted from
-math.stackexchange 2536176).  Verbatim question:
-
-```
-For n,m ≥ 3, define P_n = { p : p is a prime such that p ≤ n and p ∤ n }.
-For example: P_3 = {2}, P_4 = {3}, P_5 = {2, 3}, P_6 = {5} and so on.
-Claim: P_n ≠ P_m for m ≠ n.
-```
-
-Accepted answer (Lucia): the claim is true for large `m, n` under abc plus
-primes in `[x, x + x^{1/2-δ}]`, is likely very hard because of Hall's
-conjecture, and (after a comment by H. Pasten) "this problem is already in
-the literature and is known as Dressler's conjecture.  The conditional proof
-above is recorded in work of Cochrane and Dressler".
-
-Dressler's conjecture (Cochrane–Dressler, Math. Comp. 68 (1999); also
-recorded by Erdős–Selfridge, 1971): if `0 < n < m` have the same set of prime
-factors, then some prime `p` satisfies `n < p < m`.  No arXiv ids are
-involved.
-
-## Status
-
-Dressler's conjecture is open.  The thread identifies the MO claim with it
-but does not write out the equivalence; this file proves the equivalence
-`MOClaim ↔ DresslerConjecture` (a reformulation; neither side is proved).
-Numerical recheck (Python, 2026-10-21): no Dressler failure for `m ≤ 2·10^5`.
+For `n,m ≥ 3`, the MO claim says the set of primes `p ≤ n` not dividing `n`
+determines `n`. Dressler's conjecture says that if `0 < n < m` have the same
+prime factors, some prime lies strictly between them. This file proves the
+equivalence `MOClaim ↔ DresslerConjecture`, not either conjecture.
 -/
 import Mathlib
 
@@ -54,7 +35,7 @@ def DresslerConjecture : Prop :=
   ∀ n m : ℕ, 0 < n → n < m → n.primeFactors = m.primeFactors →
     ∃ p, p.Prime ∧ n < p ∧ p < m
 
-/-! ## Ground truth (the examples from the MO question) -/
+/-! ## Examples (the examples from the MO question) -/
 
 example : primesNotDividing 3 = {2} := by decide
 example : primesNotDividing 4 = {3} := by decide

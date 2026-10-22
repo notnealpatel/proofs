@@ -1,46 +1,15 @@
 /-
-# A007052 — Wiseman: ordered set partitions with non-adjacent blocks ordered
+# Ordered set partitions counted by A007052
 
-## OEIS source (retrieved with `oeis show A007052` and `oeis show A332872`, 2026-10-21)
+Sources: Gus Wiseman's OEIS A007052 comment (Mar 05 2020) and A332872.
+For blocks `B_i, B_j` with `i+2 ≤ j`, the condition means every element of
+`B_i` is smaller than every element of `B_j`, for all such pairs of blocks.
+The number of these ordered partitions of `Fin (n+1)` equals the recurrence
+`A007052 0 = 1`, `A007052 1 = 3`, `A007052 (n+2) = 4 A007052 (n+1)-2 A007052 n`.
 
-```
-A007052  NAME:  Number of order-consecutive partitions of n.
-         TERMS: 1,3,10,34,116,396,1352,4616,15760,53808,183712,627232,2141504,...
-         FORMULA: a(n) = 4*a(n-1) - 2*a(n-2), with a(0) = 1, a(1) = 3.
-         COMMENT (the conjecture, _Gus Wiseman_, Mar 05 2020):
-           Conjecture: Also the number of ordered set partitions of {1..n + 1}
-           where no element of any block is greater than any element of a
-           non-adjacent consecutive block.
-A332872  NAME:  Number of ordered set partitions of {1..n} where no element of any
-                block is greater than any element of a non-adjacent consecutive block.
-         TERMS: 1,1,3,10,34,116,396,1352,4616,15760
-         COMMENT: Conjectured to be the same as A007052, shifted right once.
-```
-
-## Reading of the condition
-
-"Non-adjacent consecutive block" is read as a later block that is not adjacent:
-for blocks `B_i, B_j` with `j ≥ i + 2`, every element of `B_i` is smaller than
-every element of `B_j`.  This reading reproduces Wiseman's listed examples
-(the 10 admissible ordered set partitions of `{1,2,3}` are the 13 ordered set
-partitions minus `{2},{3},{1}`, `{3},{1},{2}`, `{3},{2},{1}`).
-
-## Status
-
-Triage: open (no proof in the entry or the literature found by the triage;
-A332872 still says "Conjectured").  Brute force confirms the identity for
-`n + 1 ≤ 9`.  This module proves it for all `n`.
-
-## Proof outline
-
-Encode a partition by its block-index surjection `β : Fin m → Fin k`; the
-condition becomes `β x + 2 ≤ β y → x < y`.  Removing the smallest element `0`
-(which lies in block `0` or `1`) gives, with `admCount m k` the admissible
-surjections and `sepCount m k` those whose blocks `0`, `1` are also separated,
-`admCount (m+1) (j+2) = 2 admCount m (j+2) + admCount m (j+1) + sepCount m (j+1)`
-and `sepCount (m+1) (j+1) = sepCount m (j+1) + admCount m j`.  Summing over `k`
-gives `T (m+2) = 3 T (m+1) + S (m+1) - 1`, `S (m+2) = S (m+1) + T (m+1)`, hence
-`T (n+3) = 4 T (n+2) - 2 T (n+1)`.
+Encoding blocks by an admissible surjection and deleting the smallest
+element gives coupled recurrences for total counts and counts with the
+first two blocks separated.
 -/
 import Mathlib
 
@@ -50,7 +19,7 @@ open Finset
 
 namespace Candidates.A007052WisemanOrderedPartitions
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A007052, by its recurrence: `a 0 = 1`, `a 1 = 3`, `a (n+2) = 4 a (n+1) - 2 a n`
 (valued in `ℤ` so the subtraction is not truncated). -/
@@ -59,7 +28,7 @@ def A007052 : ℕ → ℤ
   | 1 => 3
   | (n+2) => 4 * A007052 (n+1) - 2 * A007052 n
 
-/-- Ground truth: the first thirteen listed terms of A007052. -/
+/-- The first thirteen listed terms of A007052. -/
 example : (List.range 13).map A007052 =
     [1, 3, 10, 34, 116, 396, 1352, 4616, 15760, 53808, 183712, 627232, 2141504] := by
   decide
@@ -82,7 +51,7 @@ instance {m k : ℕ} (B : Fin k → Finset (Fin m)) : Decidable (IsOrderedSetPar
 instance {m k : ℕ} (B : Fin k → Finset (Fin m)) : Decidable (NonAdjacentBlocksOrdered B) := by
   unfold NonAdjacentBlocksOrdered; infer_instance
 
-/-- Ground truth: `{1,2,3}` (here `Fin 3`) has 13 ordered set partitions in all
+/-- `{1,2,3}` (here `Fin 3`) has 13 ordered set partitions in all
 (the Fubini number), so the condition is not vacuous ... -/
 example : (∑ k ∈ range 4, (univ.filter fun B : Fin k → Finset (Fin 3) =>
     IsOrderedSetPartition B).card) = 13 := by
@@ -124,7 +93,7 @@ def sepCount (m k : ℕ) : ℕ :=
   (univ.filter fun β : Fin m → Fin k =>
     Function.Surjective β ∧ BlockIndexAdmissible β ∧ FirstBlocksSeparated β).card
 
-/-- Ground truth for the encoding: the first four totals are `1, 3, 10, 34`. -/
+/-- The encoding: the first four totals are `1, 3, 10, 34`. -/
 example : (∑ k ∈ range 2, admCount 1 k, ∑ k ∈ range 3, admCount 2 k,
     ∑ k ∈ range 4, admCount 3 k, ∑ k ∈ range 5, admCount 4 k) = (1, 3, 10, 34) := by
   decide
@@ -597,17 +566,9 @@ theorem card_orderedSetPartitions_eq_zero_of_lt {m k : ℕ} (h : m < k) :
       IsOrderedSetPartition B ∧ NonAdjacentBlocksOrdered B).card = 0 := by
   rw [card_orderedSetPartitions_eq_admCount, admCount_eq_zero_of_lt h]
 
-/-- **Wiseman's conjecture (A007052 / A332872, Gus Wiseman, Mar 05 2020).**
-
-Verbatim: "Conjecture: Also the number of ordered set partitions of {1..n + 1} where no
-element of any block is greater than any element of a non-adjacent consecutive block."
-
-For every `n`, the number of ordered set partitions `(B_0, …, B_{k-1})` of
-`Fin (n+1)` (order-isomorphic to `{1..n+1}`), over all block counts `k`, such that every
-element of `B_i` is smaller than every element of `B_j` whenever `i + 2 ≤ j`, equals
-`A007052 n`, where `A007052 0 = 1`, `A007052 1 = 3`,
-`A007052 (n+2) = 4 A007052 (n+1) - 2 A007052 n`.  Block counts `k ≥ n + 2` contribute
-nothing (`card_orderedSetPartitions_eq_zero_of_lt`). -/
+/-- Wiseman's count: ordered partitions of `Fin (n+1)` with every earlier
+block entirely below each non-adjacent later block are counted by A007052.
+Block counts at least `n+2` contribute zero. -/
 theorem a007052_wiseman (n : ℕ) :
     ((∑ k ∈ range (n + 2), (univ.filter fun B : Fin k → Finset (Fin (n + 1)) =>
       IsOrderedSetPartition B ∧ NonAdjacentBlocksOrdered B).card : ℕ) : ℤ) = A007052 n := by

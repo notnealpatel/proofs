@@ -1,54 +1,21 @@
 /-
-# Counterexamples to the Shifted Lonely Runner Conjecture: `n = 5` and `n = 6`
+# Counterexamples to the Shifted Lonely Runner Conjecture
 
-## Source
+Mónica Blanco, Francisco Criado and Francisco Santos, *Coloopless zonotopes
+and counterexamples to the Shifted Lonely Runner Conjecture*, arXiv:2603.24784:
+Conjecture `conj:sLRC`, Theorem `thm:12345`, Figure `fig:12345` and
+Propositions `prop:counters5`(1), `prop:counters6`(1),(2).
+The conjecture is attributed to Wills via Beck–Hosten–Schymura (2019), Conjecture 10.
 
-* arXiv:2603.24784, Mónica Blanco, Francisco Criado, Francisco Santos,
-  "Coloopless zonotopes and counterexamples to the Shifted Lonely Runner
-  Conjecture".
-* Introduction: Conjecture `conj:sLRC` (part (ii) of `conj:conj`; Beck–Hosten–
-  Schymura 2019, Conjecture 10, attributed to Wills), Definition `def:loneliness`,
-  Theorem `thm:12345` and Figure `fig:12345`; Section `sec:counter`:
-  Propositions `prop:counters5`(1) and `prop:counters6`(1),(2).
-* Recorded 2026-10-21.  Status: **proved in the paper** (by computer; the paper
-  notes that `sgap(1,2,3,4,5) ≤ 15/94` amounts to checking Figure `fig:12345`).  This
-  module re-proves the three upper bounds in Lean by an exact cell certificate.
-
-## Verbatim informal claims
-
-Conjecture `conj:sLRC`: "Let `v_1,…,v_n` be non-zero real numbers. […] If the
-`|v_i|` are all different, for every `s_1,…,s_n ∈ ℝ` there is a `t ∈ ℝ` such that
-`dist(s_i + v_i t, ℤ) ≥ 1/(n+1)` for all `i ∈ {1,…,n}`."
-
-Figure `fig:12345`: "The fact that for every `t ∈ [0,1]` there is some runner on or below
-the horizontal line `{y = 15/94}` shows that `sgap(1,2,3,4,5) ≤ 15/94`", for
-`v = (1,2,3,4,5)` and `s = (1/94)(0,46,38,47,72)`.
-
-Proposition `prop:counters6`: "`sgap(2,3,4,5,6,8) = 2/15 < 1/7`, attained with the
-starting positions `s = (1/30)(0,29,17,0,16,22)`"; "`sgap(1,2,3,4,5,6) = 9/67`,
-attained with the starting positions `s = (1/67)(0,39,37,51,62,54)`."
-
-## Formal reading
-
-* `distToInt x = |x - round x|` is `dist(x, ℤ)` (`distToInt_eq_norm_addCircle`
-  identifies it with the norm on `ℝ/ℤ`).
-* `ShiftedLonelyRunnerConjecture n` is Conjecture `conj:sLRC` for `n` runners.
-* `exists_distToInt_le_fifteen_div_ninetyFour` : for every `t`, some runner of
-  `(v, s) = ((1,2,3,4,5), (0,46,38,47,72)/94)` is within `15/94` of `ℤ`, i.e.
-  `gap(v; s) ≤ 15/94` and hence `sgap(1,2,3,4,5) ≤ 15/94 < 1/6`.
-* `not_shiftedLonelyRunnerConjecture_five` and
-  `not_shiftedLonelyRunnerConjecture_six` refute the conjecture at `n = 5, 6`.
-* Only the upper bounds `sgap ≤ ·` are formalized; the equalities
-  `sgap = 15/94` etc. need a minimum over all shifts and are not stated here.
-
-## Method
-
-All velocities are integers.  With `L = D · lcm(v)` (`D` the denominator of the
-shifts), the cells `[m/L, (m+1)/L]` for `m ∈ ℤ` cover `ℝ`, and a cell depends only
-on `m mod L` up to an integer translation of each runner.  For every residue
-`r < L` a kernel-checked Boolean certificate (`coverBlocks`, evaluated by
-`decide +kernel`, never `native_decide`) exhibits a runner `i` and an integer `k`
-with `L · |s_i + v_i t - k| ≤ R` on the whole cell.
+For every real time some runner is within the indicated distance of an integer:
+* velocities `(1,2,3,4,5)`, shifts `(0,46,38,47,72)/94`: distance at most `15/94`;
+* velocities `(2,3,4,5,6,8)`, shifts `(0,29,17,0,16,22)/30`: at most `2/15`;
+* velocities `(1,2,3,4,5,6)`, shifts `(0,39,37,51,62,54)/67`: at most `9/67`.
+These bounds refute the conjecture for five and six runners. Only upper bounds
+are proved, not the paper's optimized-gap equalities or other dimensions.
+`distToInt x=|x-round x|` is identified with the norm on `ℝ/ℤ`.
+Exact cell certificates cover all real times, using integer velocities and
+translation periodicity.
 -/
 import Mathlib
 
@@ -85,7 +52,7 @@ def ShiftedLonelyRunnerConjecture (n : ℕ) : Prop :=
   ∀ v : Fin n → ℝ, (∀ i, v i ≠ 0) → Function.Injective (fun i => |v i|) →
     ∀ s : Fin n → ℝ, ∃ t : ℝ, ∀ i, 1 / ((n : ℝ) + 1) ≤ distToInt (s i + v i * t)
 
-/-- Ground truth (non-vacuity of the definition): the conjecture holds for one
+/-- Examples (non-vacuity of the definition): the conjecture holds for one
 runner, by running it to the point `1/2`. -/
 theorem shiftedLonelyRunnerConjecture_one : ShiftedLonelyRunnerConjecture 1 := by
   intro v hv _ s
@@ -120,7 +87,7 @@ def coverBlocks {n : ℕ} (v S : Fin n → ℕ) (c L R B : ℕ) : ℕ → Bool
   | 0 => true
   | q + 1 => coverBlock v S c L R (q * B) B && coverBlocks v S c L R B q
 
-/- Ground truth: at `t ∈ [0, 1/5640]` runner `1` (velocity `1`, shift `0`) is
+/- at `t ∈ [0, 1/5640]` runner `1` (velocity `1`, shift `0`) is
 within `15/94` of `0`, while runner `2` (velocity `2`, shift `46/94`) is not
 within `15/94` of an integer. -/
 example : cellOk ![1, 2, 3, 4, 5] ![0, 46, 38, 47, 72] 60 5640 900 0 0 = true := by decide
@@ -238,7 +205,7 @@ noncomputable def v5 : Fin 5 → ℝ := ![1, 2, 3, 4, 5]
 /-- The starting positions `(1/94)(0, 46, 38, 47, 72)`. -/
 noncomputable def s5 : Fin 5 → ℝ := ![0, 46 / 94, 38 / 94, 47 / 94, 72 / 94]
 
-/-- Kernel-checked certificate for `(1,2,3,4,5)`, shifts `/94`, radius `15/94`:
+/-- Certificate for `(1,2,3,4,5)`, shifts `/94`, radius `15/94`:
 `L = 94 · lcm(1,…,5) = 5640`, radius `900 / 5640 = 15/94`, `12` blocks of `470`. -/
 theorem coverBlocks_five :
     coverBlocks ![1, 2, 3, 4, 5] ![0, 46, 38, 47, 72] 60 5640 900 470 12 = true := by
@@ -281,7 +248,7 @@ noncomputable def v6a : Fin 6 → ℝ := ![2, 3, 4, 5, 6, 8]
 /-- The starting positions `(1/30)(0, 29, 17, 0, 16, 22)`. -/
 noncomputable def s6a : Fin 6 → ℝ := ![0, 29 / 30, 17 / 30, 0, 16 / 30, 22 / 30]
 
-/-- Kernel-checked certificate for `(2,3,4,5,6,8)`, shifts `/30`, radius `2/15`:
+/-- Certificate for `(2,3,4,5,6,8)`, shifts `/30`, radius `2/15`:
 `L = 30 · lcm(2,3,4,5,6,8) = 3600`, radius `480 / 3600 = 2/15`, `8` blocks of `450`. -/
 theorem coverBlocks_six_a :
     coverBlocks ![2, 3, 4, 5, 6, 8] ![0, 29, 17, 0, 16, 22] 120 3600 480 450 8 = true := by
@@ -309,7 +276,7 @@ noncomputable def v6b : Fin 6 → ℝ := ![1, 2, 3, 4, 5, 6]
 /-- The starting positions `(1/67)(0, 39, 37, 51, 62, 54)`. -/
 noncomputable def s6b : Fin 6 → ℝ := ![0, 39 / 67, 37 / 67, 51 / 67, 62 / 67, 54 / 67]
 
-/-- Kernel-checked certificate for `(1,…,6)`, shifts `/67`, radius `9/67`:
+/-- Certificate for `(1,…,6)`, shifts `/67`, radius `9/67`:
 `L = 67 · lcm(1,…,6) = 4020`, radius `540 / 4020 = 9/67`, `12` blocks of `335`. -/
 theorem coverBlocks_six_b :
     coverBlocks ![1, 2, 3, 4, 5, 6] ![0, 39, 37, 51, 62, 54] 60 4020 540 335 12 = true := by

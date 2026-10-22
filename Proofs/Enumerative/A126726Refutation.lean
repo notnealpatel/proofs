@@ -1,45 +1,13 @@
 /-
-# A126726 — Mathar: `a(n) = A190568(n) - (-1)^n` for `n > 0`
-# (refuted as stated)
+# An index-sensitive identity for A126726
 
-## OEIS source (retrieved with `oeis show A126726`, `oeis show A190568`,
-## and checked against the live entries `https://oeis.org/A126726`,
-## `https://oeis.org/A190568`, 2026-10-21)
-
-```
-A126726   NAME:    Number of squares (of nonnegative integers) that require
-                   n binary (base-2) digits.
-          OFFSET:  0,2
-          DATA:    0,2,0,1,1,2,2,4,4,7,9,14,18,27,37,54,74,107,149,213,...
-          FORMULA: Conjecture: a(n) = A190568(n)-(-1)^n for n>0.
-                   - _R. J. Mathar_, May 21 2025
-          MAPLE:   r:= proc(n) local b; b:= isqrt(n); b+`if`(b^2<n, 1, 0) end:
-                   a:= n-> `if`(n=0, 0, r(2^n) -r(2^(n-1)) +`if`(n=1, 1, 0)):
-                   (Alois P. Heinz, Sep 13 2012)
-A190568   NAME:    Number of squares between powers of 2,
-                   floor(sqrt(2^(n+1))) - floor(sqrt(2^n)).
-          OFFSET:  -1,5
-          DATA:    1,0,1,0,2,1,3,3,5,6,10,13,19,26,38,53,75,106,150,212,...
-```
-
-The only comment of A126726 ("Binary equivalent to A062940, ...") does not
-touch the conjecture; nothing in either entry retracts or amends it.
-The integer `0` is written with one binary digit: `a(1) = 2` counts `0` and
-`1`.
-
-## Status
-
-**Refuted as stated** (`conjecture_false`).  With the OEIS offset `-1` of
-A190568, `A190568(2) = floor(sqrt 8) - floor(sqrt 4) = 2 - 2 = 0`, so the
-conjectured value at `n = 2` is `0 - 1 = -1`, while `a(2) = 0` (no square
-lies in `[2, 3]`).  A Python check (`/tmp/claude/a126726.py`, 2026-10-21)
-reproduced the 47 listed terms of A126726 and found the conjecture failing
-at `n = 2, 3, 4, 5, 7, 8, ...`.
-
-**Probable intent** (`a126726_eq_a190568_pred`, kernel-checked for every
-`n`).  An index slip by one: `a(n) = A190568(n-1) - (-1)^n` for `n ≥ 2`.
-(At `n = 1` the shifted form gives `1`, not `a(1) = 2`, because the one-digit
-range also contains the square `0`.)
+Source: R. J. Mathar's OEIS A126726 formula (May 21 2025),
+`a(n)=A190568(n)-(-1)^n` for `n > 0`. With A190568's offset -1,
+`A190568(n)=floor(sqrt(2^(n+1)))-floor(sqrt(2^n))`.
+The literal formula fails at `n=2`: `a(2)=0`, but the right side is -1.
+The shifted identity `a(n)=A190568(n-1)-(-1)^n` is proved for every `n ≥ 2`,
+without any claim about authorial intent. Zero has one binary digit,
+so `a(1)=2` counts both 0 and 1 and is excluded from the shifted identity.
 -/
 import Mathlib
 
@@ -47,7 +15,7 @@ set_option autoImplicit false
 
 namespace Candidates.A126726Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The number of binary digits needed to write `m`; the integer `0` is
 written with the single digit `0`. -/
@@ -78,7 +46,7 @@ require exactly `n` binary digits, counted by their roots `k < 2 ^ n`
 def a126726 (n : ℕ) : ℕ :=
   ((Finset.range (2 ^ n)).filter (fun k => binLen (k ^ 2) = n)).card
 
-/-- Ground truth: the first nine listed terms of A126726. -/
+/-- The first nine listed terms of A126726. -/
 example : (List.range 9).map a126726 = [0, 2, 0, 1, 1, 2, 2, 4, 4] := by decide
 
 /-- A190568 at an index `n ≥ 0`: `floor(sqrt(2^(n+1))) - floor(sqrt(2^n))`.
@@ -95,27 +63,22 @@ theorem a190568_eq_floor_sqrt (n : ℕ) :
   push_cast at h1 h0
   rw [a190568, h1, h0]
 
-/-- Ground truth: the listed terms `A190568(0), …, A190568(8)` (the OEIS data
+/-- The listed terms `A190568(0), …, A190568(8)` (the OEIS data
 starts at index `-1` with `1`). -/
 example : (List.range 9).map a190568 = [0, 1, 0, 2, 1, 3, 3, 5, 6] := by decide +kernel
 
 /-! ## The conjecture -/
 
-/-- **Mathar's conjecture (A126726, R. J. Mathar, May 21 2025).**
-
-Verbatim: "Conjecture: a(n) = A190568(n)-(-1)^n for n>0."
-
-`A190568` is read with its OEIS offset `-1`, so `A190568(n)` is
-`floor(sqrt(2^(n+1))) - floor(sqrt(2^n))`; the identity is stated in `ℤ`. -/
+/-- Mathar's literal A126726 formula at positive indices, with A190568
+read at its original offset -1. The subtraction is in `ℤ`. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 0 < n → (a126726 n : ℤ) = a190568 n - (-1) ^ n
 
 /-! ## Refutation -/
 
-/-- **Mathar's conjecture is false.**  Counterexample `n = 2`: no square has
-exactly two binary digits (`2` and `3` are not squares), so `a(2) = 0`, but
-`A190568(2) - (-1)^2 = (floor(sqrt 8) - floor(sqrt 4)) - 1 = -1`.  The author
-probably intended `A190568(n-1)`; that form is `a126726_eq_a190568_pred`. -/
+/-- Mathar's unshifted formula fails at `n=2`: no square has two binary
+digits, but `A190568(2)-(-1)^2=-1`. A separate shifted identity is
+`a126726_eq_a190568_pred`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   have h2 := h 2 (by norm_num)

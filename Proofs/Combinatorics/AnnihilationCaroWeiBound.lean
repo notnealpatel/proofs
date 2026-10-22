@@ -1,33 +1,13 @@
 /-
 # An annihilation-number Caro-Wei bound
 
-## Source
-
-Chakshu Gupta, "An annihilation-number Caro-Wei bound: a TxGraffiti
-conjecture and an independence-number bracket", arXiv:2606.29553
-(math.CO).  Retrieved with `fetch 2606.29553`, 2026-10-21.
-
-Statement location: Section 2 (Results), Theorem 1, together with the
-bracket of Corollary 4 and the Remark "Refining the Caro-Wei bracket"
-(residue-free form `W ≤ α ≤ a ≤ (Δ+1)/2 · W`).
-
-Verbatim informal claim (Theorem 1):
-
-> Every graphic degree sequence with maximum degree `Δ ≥ 1` satisfies
-> `a ≤ (Δ+1)/2 · W`.
-
-where, for the nondecreasing degree sequence `d_1 ≤ ⋯ ≤ d_n` of a graph
-with `m` edges, `a` (the annihilation number) is "the largest integer `j`
-such that `d_1 + ⋯ + d_j ≤ m`" and `W = ∑_i 1/(d_i+1)` is the Caro-Wei
-sum.  The bracket used in the Remark is `W ≤ α ≤ a ≤ (Δ+1)/2 · W`, built
-from the Caro-Wei bound `α ≥ W`, Pepper's annihilation bound `α ≤ a`,
-and Theorem 1.
-
-## Status
-
-Proved in the paper (elementary; the proof is reproduced here).  The
-paper is the source of Theorem 1; `α ≥ W` (Caro 1979, Wei 1981) and
-`α ≤ a` (Pepper 2009) are classical.
+Chakshu Gupta, *An annihilation-number Caro-Wei bound: a TxGraffiti
+conjecture and an independence-number bracket*, arXiv:2606.29553,
+Theorem 1, Corollary 4 and the remark "Refining the Caro-Wei bracket".
+For maximum degree `1 ≤ Δ`, the annihilation number satisfies
+`a ≤ (Δ+1)/2 · W`, where `W = Σᵥ 1/(deg v+1)`. Together with the
+Caro–Wei bound (Caro 1979, Wei 1981) and Pepper's bound (2009), this gives
+`W ≤ α ≤ a ≤ (Δ+1)/2 · W`.
 
 ## Definitional fidelity
 
@@ -40,12 +20,9 @@ paper is the source of Theorem 1; `α ≥ W` (Caro 1979, Wei 1981) and
 * `Δ` is Mathlib's `SimpleGraph.maxDegree`, `α` is Mathlib's
   `SimpleGraph.indepNum`.
 
-The Caro-Wei lower bound `W ≤ α` is already proved in the production
-module `Combinatorics.CaroWei` (`ErdosCandidates.CaroWei.exists_independent_set`).
-That module currently has no built `.olean` in this workspace (and a
-build attempt failed with a thread-creation error under the memory cap),
-so its short proof is reproduced verbatim as private lemmas here; a
-later promotion may replace them by the import.
+The Caro-Wei proof from `Combinatorics.CaroWei`
+(`ErdosCandidates.CaroWei.exists_independent_set`) is reproduced as private
+lemmas here.
 -/
 import Mathlib
 
@@ -86,7 +63,7 @@ def annihilationNumberSorted {V : Type*} [Fintype V] [DecidableEq V] (G : Simple
     [DecidableRel G.Adj] : ℕ :=
   Nat.findGreatest (fun j => ((sortedDegrees G).take j).sum ≤ #G.edgeFinset) (Fintype.card V)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The sorted degree sequence of `K₄` is `3,3,3,3`. -/
 theorem sortedDegrees_top_fin4 : sortedDegrees (⊤ : SimpleGraph (Fin 4)) = [3, 3, 3, 3] := by

@@ -1,27 +1,11 @@
 /-
 # A344611 — partitions of 2n with reverse-alternating sum ≥ 0 vs. A160786
 
-## OEIS source (retrieved with `oeis show A344611` and the live entry, 2026-10-21)
-
-```
-NAME:     Number of integer partitions of 2*n with reverse-alternating sum >= 0.
-TERMS:    1,2,4,8,15,27,48,81,135,220,352,553,859,1313,1986,2969,4394,6439,...
-AUTHOR:   Gus Wiseman, May 30 2021
-COMMENT:  The reverse-alternating sum of a partition (y_1,...,y_k) is
-          Sum_i (-1)^(k-i) y_i.
-FORMULA (the conjecture; unsigned, hence the author's, May 30 2021):
-  Conjecture: a(n) <= A160786(n). The difference is 0, 0, 0, 0, 1, 2, 4, 9,
-  16, 28, 48, 79, ...
-```
-
-A160786 ("The number of odd partitions of consecutive odd integers",
-terms `1,2,4,8,16,29,52,90,...`) is `A027193(2n+1)`, where A027193(m) counts
-partitions of `m` into an odd number of parts.
-
-## Status
-
-Triage: open (no proof in the entry; none found in the literature).  This
-module proves the conjecture for all `n` (`a344611_le_a160786`).
+OEIS A344611, Gus Wiseman (2021): the number of partitions of `2n` with
+nonnegative reverse-alternating sum is at most A160786(n). Here
+`A160786(n) = A027193(2n+1)` counts partitions of `2n+1` into an odd
+number of parts, and the reverse-alternating sum of `(y₁,…,yₖ)` is
+`Σᵢ (-1)^(k-i) yᵢ`.
 
 ## Proof
 
@@ -64,7 +48,7 @@ def a027193 (m : ℕ) : ℕ :=
 `2n+1` into an odd number of parts. -/
 def a160786 (n : ℕ) : ℕ := a027193 (2 * n + 1)
 
-/-! ## Ground truth for `revAltSum` -/
+/-! ## Examples for `revAltSum` -/
 
 /-- `(3,2,1)` has reverse-alternating sum `1 - 2 + 3 = 2`. -/
 example : revAltSum [3, 2, 1] = 2 := by decide
@@ -76,7 +60,7 @@ example : revAltSum [3, 1] = -2 := by decide
 example : revAltSum [2, 2] = 0 := by decide
 
 
-/-! ## Ground truth for the counts
+/-! ## Count examples
 
 `Finset.univ : Finset (Nat.Partition m)` does not reduce in the kernel, so the
 first terms are checked against a verified computable enumeration
@@ -349,7 +333,7 @@ theorem ne_zero_of_odd_card {s : Multiset ℕ} (h : Odd (card s)) : s ≠ 0 := b
 
 /-- **Conjecture (A344611, Gus Wiseman, May 30 2021), proved here.**
 
-Verbatim: "Conjecture: a(n) <= A160786(n)."  For all `n ≥ 0`, the number of
+For all `n ≥ 0`, the number of
 integer partitions of `2n` whose reverse-alternating sum is `≥ 0` is at most
 `A160786(n) = A027193(2n+1)`, the number of partitions of `2n+1` into an odd
 number of parts. -/

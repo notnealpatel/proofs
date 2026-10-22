@@ -1,30 +1,11 @@
 /-
 # A354062 — Song: Fermat-number divisibility of `Li_{-2^n}(1/3)` (refuted)
 
-## OEIS source (re-pulled with `oeis show A354062`, 2026-10-21)
+Jianing Song's conjecture in OEIS A354062 (2022):
+`a(n)=Li_{-2^n}(1/3)=Σ_{k≥1} k^(2^n)/3^k` should be divisible by
+`F_k=2^(2^k)+1` for `n ≥ 2^max(k,1)`. The entry starts at `n=2`.
 
-```
-NAME:     a(n) = Li(-2^n, 1/3), where Li(n, z) is the polylogarithm function.
-OFFSET:   2 (inferred: the local store lacks the field; `Array[a, 5, 2]`
-          and the "next term a(6)" comment fix it)
-TERMS:    15,17295,4229255279355,11811493418737804581195936694907475
-FORMULA:  a(n) = Sum_{k>=1} k^2^n/3^k. - _Jianing Song_, May 17 2022
-COMMENT:  a(n) is an integer for all n >= 2 (Aloff, 2022).
-COMMENT (the conjecture):
-  Conjecture: for k >= 0, a(n) is divisible by 2^2^k+1 = A000215(k) for all
-  n >= 2^max{k,1}. - _Jianing Song_, May 17 2022
-```
-
-## Status
-
-Triage status: false.  The triage found that `641 ∣ F_5` never divides
-`a(n)` for `n ≥ 7`, so the case `k = 5` (which requires `n ≥ 32`) fails.
-No proof or refutation in the entry or the literature as far as the triage
-could tell.
-
-## What this file proves
-
-* `not_songConjecture`: the conjecture is false, kernel-checked.  For every
+* `not_songConjecture`: the conjecture is false.  For every
   integer `z` with `a 32 = z`, `641 ∤ z`, hence `F_5 = 641 · 6700417 ∤ z`
   (`not_641_dvd_of_a_eq`, and more generally `not_641_dvd_of_seven_le`
   for every `n ≥ 7`).
@@ -41,8 +22,7 @@ difference of a `p`-periodic function vanishes in characteristic `p`) and
 `∑_{j<p} d(m,j) 2^{p-1-j} ≡ ∑_{i<p} i^m 3^{p-1-i}`
 (using `(-1)^t C(i+t,i) ≡ C(p-1-i,t)`), whence
 `2^p · a ≡ 3 · ∑_{i<p} i^m 3^{p-1-i} (mod p)`.  For `p = 641`, `m = 2^32`
-the right-hand sum is `≡ 43`, checked by `decide +kernel` (no
-`native_decide`).
+the right-hand sum is `≡ 43`, evaluated by `decide +kernel`.
 
 ## Definitional fidelity
 
@@ -63,7 +43,7 @@ open Finset fwdDiff
 
 namespace Candidates.A354062SongFermat
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `a n = Li_{-2^n}(1/3) = ∑_{k ≥ 1} k^(2^n) / 3^k` (A354062, FORMULA line). -/
 noncomputable def a (n : ℕ) : ℝ := ∑' k : ℕ, ((k : ℝ) + 1) ^ (2 ^ n) / 3 ^ (k + 1)
@@ -372,16 +352,16 @@ lemma dvd_iff_sum_eq_zero (p n : ℕ) [Fact p.Prime] (hp2 : p ≠ 2) (hp3 : p �
     rw [hs, mul_zero] at hkey
     exact (mul_eq_zero.1 hkey).resolve_left (pow_ne_zero p h2)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : N 4 = 160 := by decide +kernel
 
-/-- Ground truth: `a 2 = 15`, the first listed term. -/
+/-- Examples: `a 2 = 15`, the first listed term. -/
 lemma a_two : a 2 = 15 := by
   rw [a_eq, show N (2 ^ 2) = 160 by decide +kernel]
   norm_num
 
-/-- Ground truth: `a 3 = 17295`, the second listed term. -/
+/-- Examples: `a 3 = 17295`, the second listed term. -/
 lemma a_three : a 3 = 17295 := by
   rw [a_eq, show N (2 ^ 3) = 2951680 by decide +kernel]
   norm_num

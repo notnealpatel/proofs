@@ -1,45 +1,13 @@
 /-
-# A365794 — refutation of Bala's mod-`k` periodicity conjecture
+# A365794: a modulus-four counterexample
 
-## OEIS source (retrieved with `oeis show A365794` and checked against
-## https://oeis.org/A365794, 2026-10-21)
-
-```
-NAME:     Expansion of e.g.f. 1 / (3 - 2 * exp(2*x))^(3/4).
-TERMS:    1,3,27,369,6849,160803,4566987,152204769,5822610849,251445000483,
-          12098060349147,641736701136369,37204969609266849,
-          2340437711290748163,158770522442243864907,11553653430580844747169,
-          897732793887437892390849,74182365989862425679675843
-KEYWORDS: nonn,easy
-AUTHOR:   Seiichi Manyama, Nov 16 2023
-FORMULA:  a(n) = Sum_{k=0..n} 2^(n-k) * (Product_{j=0..k-1} (4*j+3)) * Stirling2(n,k).
-FORMULA:  a(0) = 1; a(n) = 3*a(n-1) - 3*Sum_{k=1..n-1} (-2)^k * binomial(n-1,k) * a(n-k).
-COMMENT (the conjecture, the entry's only comment):
-  Conjecture: the sequence a(n) taken modulo a positive integer k is eventually
-  periodic with the period dividing phi(k). For example, the sequence taken
-  modulo 7 begins [1, 3, 6, 5, 3, 6, 5, 3, 6, 5, ...] with an apparent period
-  of 3 (= phi(7)/2) starting at n = 1. - _Peter Bala_, Oct 23 2025
-```
-
-No later comment on the entry retracts or corrects the conjecture.
-
-## Status
-
-This module **refutes** the conjecture.  For `k = 4` the residues
-`a(n) mod 4` are `1, 3, 3, 1, 1, 3, 3, 1, ...` with exact period `4`, while
-`phi(4) = 2`; indeed `a(n + 2) ≡ -a(n) (mod 4)` with `a(n)` odd, so no
-period dividing `phi(4)` exists, at any starting index.  (A Python check of
-`n < 200`, eventual period `phi(k)`, `2 ≤ k < 60`, found `k = 4` to be the
-only failing modulus in that range; this is evidence, not part of the proof.)
-
-## Definition fidelity
-
-`a` is the entry's first FORMULA line (the Stirling2 sum), which is the
-coefficient extraction of the e.g.f.: with `t = e^{2x} - 1`,
-`(3 - 2e^{2x})^{-3/4} = (1 - 2t)^{-3/4} = Σ_k (∏_{j<k} (4j+3)) 2^{-k} t^k / k!`
-and `t^k / k! = Σ_n S2(n,k) 2^n x^n / n!`.  The identification with the
-e.g.f. is this classical computation and is *not* formalized here; the
-definition is pinned to the entry by the 18 ground-truth terms below.
+OEIS A365794, Seiichi Manyama (Nov 16 2023), and Peter Bala's periodicity
+conjecture (Oct 23 2025).
+For the entry's Stirling-sum formula, `a(n+2) ≡ -a(n) (mod 4)` and all
+values are odd; the residues have period `4`. No positive divisor of
+`φ(4) = 2` is an eventual period.
+The identification of the Stirling sum with the displayed fractional-power
+e.g.f. is not formalized; this is a formula-level refutation.
 -/
 import Mathlib
 
@@ -55,7 +23,7 @@ subtraction `n - k` is guarded by `k ∈ range (n + 1)`, i.e. `k ≤ n`. -/
 def a (n : ℕ) : ℕ :=
   ∑ k ∈ range (n + 1), 2 ^ (n - k) * (∏ j ∈ range k, (4 * j + 3)) * Nat.stirlingSecond n k
 
-/-- Ground truth: the first 18 listed terms of A365794. -/
+/-- Example: the first 18 listed terms of A365794. -/
 example : (List.range 18).map a =
     [1, 3, 27, 369, 6849, 160803, 4566987, 152204769, 5822610849, 251445000483,
       12098060349147, 641736701136369, 37204969609266849, 2340437711290748163,
@@ -141,14 +109,10 @@ theorem a_add_four_mod_four (n : ℕ) : a (n + 4) % 4 = a n % 4 := by
   rw [← ZMod.natCast_eq_natCast_iff']
   rw [show n + 4 = (n + 2) + 2 by ring, a_add_two_zmod_four, a_add_two_zmod_four, neg_neg]
 
-/-- **Bala's A365794 periodicity conjecture is false.**  Counterexample:
-`k = 4`.  Since `φ(4) = 2`, any period `p ∣ φ(4)` would give
-`a(n + 2) ≡ a(n) (mod 4)` for large `n`, but `a(n + 2) ≡ -a(n) (mod 4)` and
-`a(n)` is odd for every `n` (residues `1, 3, 3, 1` with exact period `4`).
-The modulo-7 example in the entry is consistent with the conjecture; the
-failure is specific to the modulus `4` among `k < 60` in our search, so the
-intended statement presumably needs an exception at `k = 4` (or a period
-dividing `2 φ(k)` there). -/
+/-- At modulus `4`, `a(n+2) ≡ -a(n)` and every `a(n)` is odd.
+Thus shift two fails at every index, so no positive divisor of
+`φ(4) = 2` can be an eventual period. No conclusion about other moduli
+is asserted. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   obtain ⟨p, N, hp, hpdvd, hper⟩ := hconj 4 (by norm_num)

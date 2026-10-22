@@ -1,39 +1,22 @@
 /-
-# Bényi–Ćurgus, Conjecture 4.5 for quadratic irrationals
+# Bényi–Ćurgus Conjecture 4.5 for quadratic irrationals
 
-## Source
+Source: Árpád Bényi and Branko Ćurgus, *Floor, ceiling and the space between*,
+arXiv:2507.14244, Section 4.2. Equation (1.2) defines
+`f_α(n) = ⌊α²n⌋ - ⌊α⌊αn⌋⌋` on positive integers.
+Conjecture 4.5 asks whether its range is `{0,1}` for every irrational
+`α ∈ (0,1)`; Remark 4.1 and Corollary 2.2 reduce this to attaining 1.
+The paper's Proposition 4.6 gives a partial result near square-root rationals.
 
-Árpád Bényi and Branko Ćurgus, *Floor, ceiling and the space between*,
-arXiv:2507.14244, Section 4.2.  For `α > 0` the paper defines
-`f_α : ℕ → ℤ`, `f_α(n) = ⌊α² n⌋ - ⌊α ⌊α n⌋⌋` (equation (1.2)), with
-`ℕ` the positive integers and `Range(f_α) = {f_α(n) : n ∈ ℕ}`.
+Here the range equality is proved under the additional rational quadratic
+relation `α² = uα+v`, `u,v : ℚ`. This covers quadratic irrationals in
+`(0,1)`, not arbitrary irrational `α`. The argument below is not the
+paper's proof.
 
-Conjecture 4.5 (verbatim): "For all irrational numbers α ∈ (0, 1) we have
-Range(f_α) = {0, 1}."  Remark 4.1: by Corollary 2.2 this is equivalent to
-`1 ∈ Range(f_α)`.
-
-## Status
-
-Conjecture 4.5 is open in the paper (recorded 2026-10-21); the paper proves
-only the partial result Proposition 4.6 (right neighbourhoods of
-square-root rationals).  This module proves the special case where `α`
-satisfies a rational quadratic relation `α² = u α + v` with `u v : ℚ`,
-which covers every quadratic irrational in `(0, 1)` (and every `α` with
-`α²` rational).  The argument is ours, not the paper's.
-
-## Argument
-
-Pick `D ≥ 1` with `D u = a` and `D v = b` integers, so `D α² = a α + b`.
-Put `w = a - α D`, which is nonzero because `α` is irrational.  For
-`n = D m + 1` and `s = m α - k` (`k` an integer) one computes
-
-* `α n = D k + (D s + α)`,
-* `α² n = (a k + b m) + (a s + α²)`,
-* `α ⌊α n⌋ = (a k + b m) + s w` whenever `⌊α n⌋ = D k`.
-
-So if `s` is small with `s w < 0`, then `f_α(n) = 1`.  Such `s` exist
-on either side of `0` by Dirichlet's approximation theorem and the
-irrationality of `α` (one-dimensional density of `m α mod 1`).
+Clear denominators to obtain `Dα² = aα+b`, with `D ≥ 1` and integer `a,b`.
+For `n = Dm+1` and `s = mα-k`, the floor computation gives `f_α(n)=1`
+when `s` is sufficiently small and `s(a-αD) < 0`. Irrationality makes
+`a-αD` nonzero, and two-sided Dirichlet approximation supplies such `s`.
 -/
 import Mathlib
 
@@ -45,7 +28,7 @@ namespace FloorCeilingQuadraticIrrational
 (arXiv:2507.14244, equation (1.2)). -/
 noncomputable def f (α : ℝ) (n : ℕ) : ℤ := ⌊α ^ 2 * n⌋ - ⌊α * ⌊α * n⌋⌋
 
-/-- Ground truth: `f_{3/2}(1) = ⌊9/4⌋ - ⌊3/2 · ⌊3/2⌋⌋ = 2 - 1 = 1`. -/
+/-- Examples: `f_{3/2}(1) = ⌊9/4⌋ - ⌊3/2 · ⌊3/2⌋⌋ = 2 - 1 = 1`. -/
 example : f (3 / 2) 1 = 1 := by
   have h1 : ⌊(3 / 2 : ℝ) ^ 2 * ((1 : ℕ) : ℝ)⌋ = 2 := by
     rw [Int.floor_eq_iff]; norm_num
@@ -55,7 +38,7 @@ example : f (3 / 2) 1 = 1 := by
     rw [Int.floor_eq_iff]; norm_num
   rw [f, h1, h2, h3]; norm_num
 
-/-- Ground truth: `f_{3/2}(2) = ⌊9/2⌋ - ⌊3/2 · ⌊3⌋⌋ = 4 - 4 = 0`. -/
+/-- Examples: `f_{3/2}(2) = ⌊9/2⌋ - ⌊3/2 · ⌊3⌋⌋ = 4 - 4 = 0`. -/
 example : f (3 / 2) 2 = 0 := by
   have h1 : ⌊(3 / 2 : ℝ) ^ 2 * ((2 : ℕ) : ℝ)⌋ = 4 := by
     rw [Int.floor_eq_iff]; norm_num

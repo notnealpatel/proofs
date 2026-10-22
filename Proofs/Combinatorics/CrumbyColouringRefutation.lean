@@ -1,38 +1,17 @@
 /-
 # Crumby colourings: refutation of Conjecture 16 of Barát–Blázsik–Damásdi
 
-## Source
-
 József Pintér, *Subcubic K4-minor-free graphs without crumby colorings*,
-arXiv:2605.04706 (retrieved with `fetch 2605.04706`, 2026-10-21).
-Section 2: Lemma 1 (rooted gadget `F`), Theorem 2 (the graph `G18`).
+arXiv:2605.04706, Section 2, Lemma 1 and Theorem 2, refutes Conjecture 16
+of Barát, Blázsik and Damásdi, *Crumby colorings — red-blue vertex
+partition of subcubic graphs regarding a conjecture of Thomassen*.
 
-Conjecture refuted (Barát, Blázsik, Damásdi, *Crumby colorings — red-blue
-vertex partition of subcubic graphs regarding a conjecture of Thomassen*,
-Conjecture 16), quoted verbatim in the source:
-
-> Every K4-minor-free graph admits a crumby coloring.
-
-Definition, verbatim from the source:
-
-> A red-blue coloring of the vertices of a graph G is called *crumby* if the
-> subgraph induced by the blue vertices has maximum degree at most 1, while the
-> subgraph induced by the red vertices has minimum degree at least 1 and
-> contains no path on four vertices. Throughout, a P4 means a simple path on
-> four vertices, not necessarily an induced path.
-
-Theorem 2, verbatim:
-
-> The graph G18 is connected, subcubic, K4-minor-free, and has no crumby
-> coloring.
-
-`G18` is two copies of the rooted 9-vertex graph `F` with edge set
-`{xa, xb, ac, bd, cd, ce, df, eg, eh, fg, fh}` joined by the edge `x₁x₂`.
-
-## Status
-
-Proved in the paper (2026). This module is a known-result formalization.
-Everything here is kernel-checked; there is no `sorry`.
+The counterexample `G18` is connected, subcubic, K4-minor-free, and has
+no crumby colouring. It consists of two rooted copies of the 9-vertex
+graph `F`, with edges `{xa, xb, ac, bd, cd, ce, df, eg, eh, fg, fh}`,
+joined by `x₁x₂`. A crumby colouring has blue maximum degree at most 1,
+red minimum degree at least 1, and no red simple path on four vertices;
+the path need not be induced.
 
 ## Formalization choices
 
@@ -77,24 +56,24 @@ structure IsCrumby {V : Type*} (G : SimpleGraph V) (c : V → Bool) : Prop where
   no_red_P4 : ∀ p q r s, G.Adj p q → G.Adj q r → G.Adj r s → p ≠ r → q ≠ s → p ≠ s →
     ¬ (c p = true ∧ c q = true ∧ c r = true ∧ c s = true)
 
-/-- Ground truth: a single red edge is crumby. -/
+/-- A single red edge is crumby. -/
 example : IsCrumby (⊤ : SimpleGraph (Fin 2)) (fun _ => true) :=
   ⟨by decide, by decide, by decide⟩
 
-/-- Adjacency of the path graph `P4` is decidable (used by the ground-truth examples). -/
+/-- Adjacency of the path graph `P4` is decidable (used by the examples). -/
 instance : DecidableRel (SimpleGraph.pathGraph 4).Adj := fun _ _ =>
   decidable_of_iff _ SimpleGraph.pathGraph_adj.symm
 
-/-- Ground truth: the path `0 — 1 — 2 — 3` coloured red, red, blue, blue is crumby. -/
+/-- The path `0 — 1 — 2 — 3` coloured red, red, blue, blue is crumby. -/
 example : IsCrumby (SimpleGraph.pathGraph 4) ![true, true, false, false] :=
   ⟨by decide, by decide, by decide⟩
 
-/-- Ground truth: an isolated red vertex violates the red minimum-degree condition. -/
+/-- An isolated red vertex violates the red minimum-degree condition. -/
 example : ¬ IsCrumby (⊥ : SimpleGraph (Fin 1)) (fun _ => true) := fun h => by
   obtain ⟨u, hu, -⟩ := h.red_pos 0 rfl
   exact hu
 
-/-- Ground truth: an all-red `P4` is not crumby. -/
+/-- An all-red `P4` is not crumby. -/
 example : ¬ IsCrumby (SimpleGraph.pathGraph 4) (fun _ => true) := fun h =>
   h.no_red_P4 0 1 2 3 (by decide) (by decide) (by decide) (by decide) (by decide) (by decide)
     ⟨rfl, rfl, rfl, rfl⟩
@@ -109,7 +88,7 @@ def HasK4Minor {V : Type*} (G : SimpleGraph V) : Prop :=
     Pairwise (fun i j => Disjoint (B i) (B j)) ∧
     Pairwise (fun i j => ∃ u ∈ B i, ∃ w ∈ B j, G.Adj u w)
 
-/-- Ground truth: `K4` has a `K4` minor (singleton branch sets). -/
+/-- `K4` has a `K4` minor (singleton branch sets). -/
 example : HasK4Minor (⊤ : SimpleGraph (Fin 4)) := by
   refine ⟨fun i => {i}, fun i => ?_, fun i j hij => ?_, fun i j hij => ⟨i, rfl, j, rfl, hij⟩⟩
   · haveI : Nonempty ({i} : Set (Fin 4)) := ⟨⟨i, rfl⟩⟩
@@ -291,7 +270,7 @@ theorem not_hasK4Minor_of_elimOrder (G : SimpleGraph V) (r : V → ℕ)
   exact not_hasK4Minor_bot ((hall N).mono fun x _ (hxy : (rankRestrict G r N).Adj x _) =>
     absurd hxy.2.1 (not_le.2 (hN x)))
 
-/-- Ground truth for the bridge: the triangle `K3` has no `K4` minor. -/
+/-- The triangle `K3` has no `K4` minor. -/
 example : ¬ HasK4Minor (⊤ : SimpleGraph (Fin 3)) :=
   not_hasK4Minor_of_elimOrder _ Fin.val Fin.val_injective 3 (fun v => v.isLt)
     (by decide) (by decide)
@@ -374,13 +353,13 @@ def G18 : SimpleGraph (Fin 18) where
 instance : DecidableRel G18.Adj := fun _ _ =>
   inferInstanceAs (Decidable (_ ∨ _))
 
-/-- Ground truth: `G18` has the `23` edges listed in the paper. -/
+/-- `G18` has the `23` edges listed in the paper. -/
 example : G18.edgeFinset.card = 23 := by decide
 
-/-- Ground truth: the bridge edge `x₁x₂` is present; `x₁c₁` is not. -/
+/-- The bridge edge `x₁x₂` is present; `x₁c₁` is not. -/
 example : G18.Adj 0 9 ∧ ¬ G18.Adj 0 3 := by decide
 
-/-- Ground truth: degrees as in the paper (`x₁` and `c₁` have degree 3, `a₁`
+/-- Degrees as in the paper (`x₁` and `c₁` have degree 3, `a₁`
 and `g₁` have degree 2). -/
 example : G18.degree 0 = 3 ∧ G18.degree 3 = 3 ∧ G18.degree 1 = 2 ∧ G18.degree 7 = 2 := by
   decide

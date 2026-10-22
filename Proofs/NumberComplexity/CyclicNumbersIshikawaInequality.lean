@@ -1,31 +1,12 @@
 /-
 # Ishikawa analog for cyclic numbers: `c_n + c_{n+1} > c_{n+2}`
 
-## Source
-
-* Joel E. Cohen, "Conjectures about cyclic numbers" (arXiv:2508.08335;
-  J. Integer Seq. 28 (2025), Article 25.4.7), Section "Additive and
-  multiplicative inequalities", Conjecture `conj:Ishik1` ("Ishikawa analog
-  for cyclics"; Conjecture 54 in the JIS version). Verbatim:
-
-  > For all $n>2$,
-  > $$c_n + c_{n+1} > c_{n+2}.$$
-  > When $n=1$ or $n=2$, equality holds: $c_1 + c_2 = c_3 = 3$ and
-  > $c_2+c_3=c_4 = 5$.
-
-  Here $c_1 = 1 < c_2 = 2 < c_3 = 3 < c_4 = 5 < \dots$ enumerates the cyclic
-  numbers (OEIS A003277): $n \in \mathbb{N}$ is cyclic iff
-  $\gcd(n, \varphi(n)) = 1$ (Szele's criterion, which the paper uses as the
-  working definition).
-
-Date recorded: 2026-10-21.
-
-## Status
-
-Stated as a conjecture in the paper (checked there for the cyclics below
-`10^8`); no refereed proof was located (a withdrawn preprint,
-arXiv:2509.26138v1, sketches one via Nagura's theorem). This module proves
-it in full.
+Joel E. Cohen, 'Conjectures about cyclic numbers', arXiv:2508.08335;
+J. Integer Seq. 28 (2025), Article 25.4.7, Conjecture 54 (`conj:Ishik1`).
+With `c₁=1 < c₂=2 < c₃=3 < c₄=5 < …` the cyclic numbers (OEIS A003277),
+the claim is `c_{n+2} < c_n+c_{n+1}` for `n > 2`; equality holds for
+`n=1,2`. Cyclic means `gcd(n,φ(n))=1` (Szele's criterion). A withdrawn preprint, arXiv:2509.26138v1, sketches
+a route via Nagura's theorem; the proof below uses a two-prime Bertrand bound.
 
 ## Proof
 

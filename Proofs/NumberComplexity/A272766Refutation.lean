@@ -1,40 +1,12 @@
 /-
 # A272766 — refutation of the primorial conjecture
 
-## OEIS source (retrieved with `oeis show A272766` and checked against the
-## live entry https://oeis.org/A272766, 2026-10-21)
-
-```
-NAME:     Numbers n such that A281363(n) = n-1.
-TERMS:    2,3,4,6,7,10,15,19,22,30,31,34,36,51,52,54,70,75,90,91,96,99,100,
-          106,114,115,120,135,136,156,174,190,199,210,231,244,271,286,300,...
-COMMENT:  Conjecture: primorial numbers (A002110) are terms of this sequence.
-AUTHOR:   Juri-Stepan Gerasimov, May 06 2016
-```
-
-with the auxiliary sequence
-
-```
-A281363   NAME: Smallest m>0 such that (2*n)^2 - 1 divides (2^m)^(2*n) - 1.
-          TERMS: 1,1,2,3,3,5,6,1,4,9,3,55,90,9,14,5,30,1,18,3,10,21,6,161,...
-```
-
-The conjecture comment carries no separate signature; it is by the entry's
-author, Juri-Stepan Gerasimov (May 06 2016).  No later comment in the live
-entry retracts or qualifies it (checked 2026-10-21).
-
-## Status of this module
-
-This module **refutes** the conjecture.  It holds for the primorials
-`2, 6, 30, 210`, but fails at `11# = 2310`: with `q = 4 * 2310^2 - 1 =
-21344399` the least `m > 0` with `q ∣ (2^m)^4620 - 1` is `m = 37`, not
-`2309`.  A bounded Python computation also gives `A281363(30030) = 5298 ≠
-30029`.  The term `p_0# = 1` of A002110 is excluded from the formal
-statement (`A281363(1) = 1 ≠ 0`); the conjecture is stated for `k ≥ 1`, the
-reading under which it matches the listed data `2, 6, 30, 210`.
-
-`Elab.async false` keeps the kernel checks sequential; under a virtual-memory
-cap the default asynchronous elaboration fails to create its worker threads.
+Juri-Stepan Gerasimov's conjecture in OEIS A272766 says that primorials
+belong to the sequence `A281363(n) = n-1`, where A281363 is the least positive
+`m` with `(2n)²-1 ∣ (2^m)^(2n)-1`.
+At the fifth primorial `11# = 2310`, this least exponent is `37`, not `2309`.
+The conjecture is stated for positive primorial indices: the zeroth
+primorial `1` already fails, whereas `2,6,30,210` satisfy it.
 -/
 import Mathlib
 
@@ -95,7 +67,7 @@ theorem a281363_eq_of_admissible {n v : ℕ} (hv : Admissible n v)
   le_antisymm (Nat.sInf_le hv)
     (le_csInf ⟨v, hv⟩ fun m hm => not_lt.1 fun h => hlt m h hm)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : a281363 1 = 1 := a281363_eq_of_admissible (by decide) (by decide)
 example : a281363 2 = 1 := a281363_eq_of_admissible (by decide) (by decide)
@@ -133,10 +105,9 @@ example : ¬ InA272766 5 := fun h => by
 
 /-! ## The conjecture -/
 
-/-- **Gerasimov's primorial conjecture (A272766, Juri-Stepan Gerasimov,
-May 06 2016).**
+/-- **Gerasimov's primorial conjecture (A272766, Juri-Stepan Gerasimov).**
 
-Verbatim: "Conjecture: primorial numbers (A002110) are terms of this
+"Conjecture: primorial numbers (A002110) are terms of this
 sequence."  Stated for `p_k#` with `k ≥ 1`, i.e. `A281363(p_k#) = p_k# - 1`
 for every `k ≥ 1`. -/
 def Conjecture : Prop :=
@@ -155,8 +126,7 @@ theorem a281363_2310 : a281363 2310 = 37 :=
 
 /-- **Refutation.**  The conjecture fails at `k = 5`: `p_5# = 11# = 2310`
 but `A281363(2310) = 37 ≠ 2309`, so `2310` is not a term of A272766.  It
-holds for `k = 1, 2, 3, 4` (`2, 6, 30, 210`); no corrected form is evident
-from the entry. -/
+holds for `k = 1, 2, 3, 4` (`2, 6, 30, 210`). -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   have hmem : InA272766 (a002110 5) := h 5 (by norm_num)

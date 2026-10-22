@@ -1,27 +1,10 @@
 /-
 # A229989 — Kimberling: the drops of a(n) occur exactly at n = 2*prime(m+1) - 1
 
-## OEIS source (retrieved with `oeis show A229989` and https://oeis.org/A229989, 2026-10-21)
+Clark Kimberling's conjectures in OEIS A229989 (2013), where `a(n)` counts
+primes in `[floor(n/2),floor(3n/2)]` (offset 1).
 
-```
-NAME:     Number of primes in the interval [floor(n/2), floor(3n/2)].
-OFFSET:   1
-TERMS:    0,2,2,3,4,3,3,3,4,4,4,4,5,5,5,5,5,5,5,6,7,7,7,6,7,7,7,7,8,8,8,9,9,9,9,
-          9,9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12,13,13,13,14,14,14,14,14,
-          14,14,14,13,14,14,14,15,16,16,16,17,18,18,18
-COMMENT:  Conjectures:
-          (1) a(n+1) - a(n) = 1 for infinitely many n;
-          (2) a(n+1) - a(n) = -1 for infinitely many n;
-          (3) a(n+1) - a(n) = -1 if and only if n = 2*prime(m+1) - 1.
-AUTHOR:   Clark Kimberling, Oct 09 2013
-```
-
-No later comment in the entry retracts or amends the conjectures.
-
-## Status
-
-This module **refutes** the conjunction of the three conjectures by refuting
-part (3).  At `n = 23` we have `a(23) = 7` (primes 11..31 in `[11, 34]`) and
+Part (3), hence the conjunction of the three conjectures, is false.  At `n = 23` we have `a(23) = 7` (primes 11..31 in `[11, 34]`) and
 `a(24) = 6` (primes 13..31 in `[12, 36]`), so `a(24) - a(23) = -1`, yet
 `23 = 2*q - 1` forces `q = 12`, which is not prime.  This holds whatever the
 range of the index `m`.  The converse direction also fails: `9 = 2*prime(3) - 1`
@@ -42,35 +25,35 @@ namespace Candidates.A229989Refutation
 
 open Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A229989: `a(n)` is the number of primes in the closed interval
 `[⌊n/2⌋, ⌊3n/2⌋]` (OEIS offset 1; `a 0 = 0` is a harmless extension). -/
 def a229989 (n : ℕ) : ℕ := #{p ∈ Icc (n / 2) (3 * n / 2) | p.Prime}
 
-/-- Ground truth: `a(1), …, a(40)` match the OEIS data. -/
+/-- Examples: `a(1), …, a(40)` match the OEIS data. -/
 example : (List.range 40).map (fun i => a229989 (i + 1)) =
     [0, 2, 2, 3, 4, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 6, 7, 7, 7, 6, 7, 7, 7, 7, 8, 8,
       8, 9, 9, 9, 9, 9, 9, 9, 9, 9] := by
   decide
 
-/-- Ground truth: `a(41), …, a(47)` match the OEIS data. -/
+/-- Examples: `a(41), …, a(47)` match the OEIS data. -/
 example : (List.range 7).map (fun i => a229989 (i + 41)) = [10, 10, 10, 10, 11, 11, 11] := by
   decide
 
-/-- Ground truth: `a(48), …, a(54)` match the OEIS data. -/
+/-- Examples: `a(48), …, a(54)` match the OEIS data. -/
 example : (List.range 7).map (fun i => a229989 (i + 48)) = [11, 12, 12, 12, 12, 13, 13] := by
   decide
 
-/-- Ground truth: `a(55), …, a(61)` match the OEIS data. -/
+/-- Examples: `a(55), …, a(61)` match the OEIS data. -/
 example : (List.range 7).map (fun i => a229989 (i + 55)) = [13, 14, 14, 14, 14, 14, 14] := by
   decide
 
-/-- Ground truth: `a(62), …, a(68)` match the OEIS data. -/
+/-- Examples: `a(62), …, a(68)` match the OEIS data. -/
 example : (List.range 7).map (fun i => a229989 (i + 62)) = [14, 14, 13, 14, 14, 14, 15] := by
   decide
 
-/-- Ground truth: `a(69), …, a(75)` match the OEIS data. -/
+/-- Examples: `a(69), …, a(75)` match the OEIS data. -/
 example : (List.range 7).map (fun i => a229989 (i + 69)) = [16, 16, 16, 17, 18, 18, 18] := by
   decide
 
@@ -100,7 +83,7 @@ theorem a229989_twentyfour : a229989 24 = 6 := by decide
 
 /-- Kimberling's conjecture on A229989 is false: part (3) fails at `n = 23`,
 where `a(24) - a(23) = 6 - 7 = -1` although `23 = 2q - 1` would need `q = 12`,
-which is not prime.  The characterization the author probably intended is
+which is not prime.  The corrected characterization is
 `a(n+1) - a(n) = -1 ↔ n = 2p + 1` with `p` prime and `3p + 2` composite
 (`a229989_drop_iff`). -/
 theorem a229989_conjecture_false : ¬ Conjecture := by

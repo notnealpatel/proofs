@@ -1,40 +1,10 @@
 /-
 # A111205 — Hilliard: infinitely many nonsquare composites share a factor with `2⌊√k⌋+1`
 
-## OEIS source (pulled with `oeis show A111205`; author line from
-## `https://oeis.org/A111205/internal`; retrieved 2026-10-21)
-
-```
-NAME:     Nonsquare composite numbers k such that the difference between the
-          closest squares surrounding k and k have a common divisor greater
-          than 1.
-TERMS:    14,18,21,24,33,39,50,51,54,55,57,60,63,68,95,102,105,108,111,112,
-          114,117,119,120,138,145,150,155,160,165,171,174,177,180,183,186,189,
-          192,195,203,248,258,261,264,267,270,273,275,276,279,282,285,286,288,290
-COMMENT:  Conjecture: The number of terms in this sequence is infinite.
-FORMULA:  Let k be a nonsquare composite number and r = floor(sqrt(k)). Then
-          the closest surrounding squares of k are r^2 and (r+1)^2. So
-          d = (r+1)^2 - r^2 = 2*r+1. If gcd(k, d) > 1 then k is a term.
-MMA:      Select[Range[290],!PrimeQ[#]&&!IntegerQ[Sqrt[#]]&&
-          GCD[#,1+2Floor[Sqrt[#]]]>1 &]  (* Stefano Spezia, Jan 07 2026 *)
-AUTHOR:   Cino Hilliard, Nov 12 2005
-KEYWORDS: easy,nonn
-```
-
-The conjecture line carries no separate signature; it is part of Cino
-Hilliard's original Nov 12 2005 submission.
-
-## Status
-
-Triage: open (no proof in the entry or the literature found by the triage),
-with the remark that the claim is elementary.  This module re-validated the
-listed terms (exact match on `[1, 290]`), counted 37792 terms `≤ 200000`, and
-checked the explicit family `k = (3t+1)^2 + 2` for `t ∈ [1, 20000]`.
-
-The conjecture is proved below by that explicit family: with `r = 3t+4` and
-`k = r^2 + 2`, one has `⌊√k⌋ = r`, `k` lies strictly between `r^2` and
-`(r+1)^2` (so is not a square), `3 ∣ k` with `k > 3` (so `k` is composite), and
-`3 ∣ 2r+1 = 6t+9`, so `3 ∣ gcd(k, 2r+1)`.
+OEIS A111205, Cino Hilliard: infinitely many nonsquare composites
+`k` have `gcd(k, 2⌊√k⌋+1) > 1`.
+For `r = 3t+4`, the family `k = r²+2` lies strictly between `r²` and
+`(r+1)²`; both `k > 3` and `2r+1` are divisible by `3`.
 -/
 import Mathlib
 
@@ -42,7 +12,7 @@ set_option autoImplicit false
 
 namespace Candidates.A111205ThereInfinitelyMany
 
-/-! ## Definition layer
+/-! ## Definitions
 
 `IsA111205 k` mirrors the entry's definition (and its Mathematica program):
 `k` is composite (`1 < k` and not prime), not a perfect square, and
@@ -57,7 +27,7 @@ def IsA111205 (k : ℕ) : Prop :=
 instance : DecidablePred IsA111205 := fun k => by
   unfold IsA111205; infer_instance
 
-/-- Ground truth: the terms of A111205 up to `290` are exactly the 55 listed
+/-- Examples: the terms of A111205 up to `290` are exactly the 55 listed
 terms of the entry. -/
 example : (Finset.range 291).filter IsA111205 =
     {14, 18, 21, 24, 33, 39, 50, 51, 54, 55, 57, 60, 63, 68, 95, 102, 105, 108,
@@ -71,7 +41,7 @@ example : (Finset.range 291).filter IsA111205 =
 /-- The witness family: `a111205Witness t = (3t+4)^2 + 2`. -/
 def a111205Witness (t : ℕ) : ℕ := (3 * t + 4) ^ 2 + 2
 
-/-- Ground truth for the witness family: its first values `18, 51, 102` are
+/-- Examples for the witness family: its first values `18, 51, 102` are
 listed terms. -/
 example : (a111205Witness 0, a111205Witness 1, a111205Witness 2) = (18, 51, 102) := rfl
 
@@ -125,11 +95,9 @@ theorem a111205Witness_strictMono : StrictMono a111205Witness := by
 
 /-! ## The conjecture -/
 
-/-- **Hilliard's conjecture (A111205, Cino Hilliard, Nov 12 2005).**
+/-- **Hilliard's conjecture (A111205, Cino Hilliard, 2005).**
 
-Verbatim: "Conjecture: The number of terms in this sequence is infinite."
-
-That is, there are infinitely many nonsquare composite `k` with
+There are infinitely many nonsquare composite `k` with
 `gcd(k, 2 * floor(sqrt k) + 1) > 1`.  Proved here by the explicit family
 `k = (3t+4)^2 + 2`. -/
 theorem a111205_infinite : {k : ℕ | IsA111205 k}.Infinite :=

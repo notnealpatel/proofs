@@ -1,30 +1,9 @@
 /-
 # A091258 — denominators of sigma_3(n)/sigma(n) are exactly A004611
 
-## OEIS source (retrieved with `oeis show A091258`, 2026-10-21)
-
-```
-A091258
-NAME:     Denominator of sigma_3(n)/sigma(n).
-TERMS:    1,1,1,7,1,1,1,1,13,1,1,1,1,1,1,1,1,13,1,1,1,1,1,1,31,1,1,7,1,1,1,7,
-          1,1,1,91,1,1,1,1,1,1,1,7,13,1,1,1,19,31,1,7,...
-KEYWORDS: easy,nonn,frac
-PROGRAM:  (PARI) a(n) = denominator(sigma(n, 3)/sigma(n));
-COMMENT (the conjecture):
-  Conjecture: The set of distinct terms is A004611. - _Michel Marcus_, Aug 10 2024
-
-A004611
-NAME:     Divisible only by primes congruent to 1 mod 3.
-TERMS:    1,7,13,19,31,37,43,49,61,67,73,79,91,97,103,109,127,133,139,...
-```
-
-## Status
-
-Triage: open (the entry gives no proof; no proof found in the literature by
-the triage).  Computation (2026-10-21): every reduced denominator for
-`n ≤ 400000` has only prime factors `≡ 1 (mod 3)`.
-
-This module proves the conjecture, both inclusions, with no `sorry`:
+Michel Marcus's conjecture in OEIS A091258 (2024): the reduced denominators
+of `σ₃(n)/σ₁(n)` for `n ≥ 1` are exactly A004611, the positive integers with
+all prime factors `1 mod 3`, including `1`.
 
 * `⊆` — local identity `σ₁(p^k)·(X²+X+1) = σ₃(p^k)·(p²+p+1)` with
   `X = p^(k+1)`; the local denominator divides `p²+p+1`, whose prime factors
@@ -43,7 +22,7 @@ namespace Candidates.A091258SigmaThreeDenominator
 open ArithmeticFunction
 open scoped ArithmeticFunction.sigma
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The rational number `σ₃(n)/σ₁(n)` (the value at `n = 0` is the junk `0/0 = 0`;
 every statement below restricts to `0 < n`). -/
@@ -56,7 +35,7 @@ noncomputable def a091258 (n : ℕ) : ℕ := (sigmaRatio n).den
 (`1` included). -/
 def IsA004611 (m : ℕ) : Prop := 0 < m ∧ ∀ q ∈ m.primeFactors, q % 3 = 1
 
-/-! ### Ground truth against the listed terms -/
+/-! ### Examples against the listed terms -/
 
 example : a091258 1 = 1 := by
   rw [a091258, sigmaRatio, show σ 3 1 = 1 by decide, show σ 1 1 = 1 by decide]
@@ -582,9 +561,7 @@ theorem exists_a091258_eq {m : ℕ} (hm : IsA004611 m) : ∃ n, 0 < n ∧ a09125
   obtain ⟨n, hn, -, hden, -⟩ := realizable_of_isA004611 m hm 1 0 one_pos (by norm_num)
   exact ⟨n, hn, hden⟩
 
-/-- **Marcus's conjecture (A091258, Michel Marcus, Aug 10 2024).**
-
-Verbatim: "Conjecture: The set of distinct terms is A004611."
+/-- **Marcus's conjecture (A091258, Michel Marcus, 2024).**
 
 The set of reduced denominators of `σ₃(n)/σ₁(n)` over `n ≥ 1` equals the set of positive
 integers all of whose prime factors are `≡ 1 (mod 3)`. -/

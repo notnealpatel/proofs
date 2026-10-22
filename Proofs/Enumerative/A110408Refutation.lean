@@ -1,54 +1,14 @@
 /-
-# A110408 — Murthy: `a(n) = 0` iff `n` is a palindromic prime or `3 ∣ n` (refuted)
+# A110408: a counterexample to the palindromic-prime criterion
 
-## OEIS source (retrieved with `oeis show A110408` and checked against
-## `https://oeis.org/A110408/internal`, 2026-10-21)
-
-```
-A110408   NAME:   Smallest prime which is the repeated reverse concatenation of n
-                  followed by n (ending in n), where n == 1,3,7 or 9 (mod 10), or
-                  0 if no such prime exists.
-          OFFSET: 0,1
-          DATA:   11,0,0,0,0,3131313131313131313113,71717117,9191919191919119,0,
-                  32323223,0,9292929292929292929229,13131331,0,
-                  7373737373737373737373737373737373737373737337,0,
-                  14141414141414141414141414141414141414141414141414141414141414
-                  141414141414141414141414141414141414141414141441
-          AUTHOR: Amarnath Murthy, Jul 30 2005
-COMMENT (first comment, unsigned, hence by the author, Jul 30 2005):
-  Conjecture: a(n) is 0 iff n is a palindromic prime == 1,3,7 or 9 (mod 10)
-  and/or n ==0 (mod 3). As rev(n) followed by n is == 0 (mod 11), hence every
-  nonzero term contains at least two reverse concatenations of n followed by n.
-COMMENT: The larger numbers are probable primes. - _Joshua Zucker_, May 10 2006
-COMMENT: The Magma Calculator (...) verified each of the nine nonzero terms as
-  prime. - _Jon E. Schoenfield_, Aug 24 2009
-```
-
-The DATA line lists the values at `n = 1, 3, 7, 9, 11, 13, 17, 19, 21, 23,
-27, 29, 31, 33, 37, 39, 41` (the offset `0` counts these `n`, it is not `n`).
-The terms show that the candidates are `rev(n)^k n` (the decimal word
-`rev(n)` written `k` times, then `n`) with `k ≥ 1`: e.g.
-`71717117 = 71·71·71·17` for `n = 17`, and `a(7) = 0` although `7` is prime,
-so the bare `n` (`k = 0`) is not a candidate.  No later comment retracts or
-amends the conjecture.
-
-## Status
-
-**Refuted.**  `n = 121 ≡ 1 (mod 10)` is a palindrome, is not prime
-(`121 = 11²`), and is not a multiple of `3`.  Every candidate
-`121121…121` is a proper multiple of `121`, so `a(121) = 0`, contradicting
-the "only if" direction.  A Sage check (`/tmp/claude/a110408.sage`,
-2026-10-21) reproduced the nonzero DATA terms (the first prime candidate is
-at `k = 10, 3, 7, 3, 10, 3, 22, 51` for `n = 13, 17, 19, 23, 29, 31, 37, 41`)
-and confirmed `121 ∣ rev(121)^k 121` for `1 ≤ k < 500`.
-
-The author probably meant "palindrome" rather than "palindromic prime": the
-"if" direction holds for every palindrome `n ≥ 2` and every `3 ∣ n`
-(`a110408_eq_zero_of_palindrome_or_three_dvd`, proved below).  The converse
-of this corrected form asserts the existence of a prime in each remaining
-family and is not attempted.
-
-This module **refutes** the conjecture as stated (`conjecture_false`).
+OEIS A110408, Amarnath Murthy (Jul 30 2005).
+For inputs ending in `1, 3, 7, 9`, candidates are the decimal word `rev(n)`
+repeated `k ≥ 1` times and followed by `n`; the sequence is the least prime
+candidate, or `0` if there is none. The source offset enumerates these
+inputs, rather than all natural numbers.
+At `n = 121`, every candidate is a proper multiple of `121`, although `121`
+is neither prime nor divisible by `3`. A sufficient zero condition is
+proved for palindromes `n ≥ 2` or multiples of `3`; its converse is not proved.
 -/
 import Mathlib
 
@@ -56,7 +16,7 @@ set_option autoImplicit false
 
 namespace Candidates.A110408Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- Decimal reversal `rev(n)`: the number whose decimal digits are those of
 `n` in reverse order (leading zeros of the reversed word are dropped). -/
@@ -199,7 +159,7 @@ theorem a110408_eq_zero_of_palindrome_or_three_dvd {n : ℕ}
     · omega
     · omega
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- Reversal and the candidate words.
 example : rev 13 = 31 ∧ rev 121 = 121 ∧ rev 7 = 7 := by norm_num [rev, Nat.ofDigits_cons]
@@ -254,12 +214,10 @@ def Conjecture : Prop :=
   ∀ n : ℕ, n % 10 ∈ ({1, 3, 7, 9} : Finset ℕ) →
     (a110408 n = 0 ↔ (rev n = n ∧ n.Prime) ∨ 3 ∣ n)
 
-/-- **The conjecture is false; counterexample `n = 121`.**  `121 ≡ 1 (mod 10)`
-is a palindrome, so every candidate `121121…121` is a multiple of `121`
-larger than `121` and `a(121) = 0`; but `121 = 11²` is not prime and
-`3 ∤ 121`.  The author probably intended "palindrome" (other than `1`) in
-place of "palindromic prime"; that form of the "if" direction is
-`a110408_eq_zero_of_palindrome_or_three_dvd`. -/
+/-- At `n = 121`, every candidate is a proper multiple of the palindrome
+`121`, so `a(121) = 0`; but `121 = 11²` is not prime and `3 ∤ 121`.
+The sufficient zero condition for palindromes or multiples of `3` is
+`a110408_eq_zero_of_palindrome_or_three_dvd`; no converse is proved. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have h10 : (121 : ℕ) % 10 ∈ ({1, 3, 7, 9} : Finset ℕ) := by decide

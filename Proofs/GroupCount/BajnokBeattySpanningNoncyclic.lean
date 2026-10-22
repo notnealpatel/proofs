@@ -1,44 +1,18 @@
 /-
 # Bajnok–Beatty: largest noncyclic abelian group with an `s`-spanning pair
 
-## Source
-
 B. Bajnok and W. K. Beatty, *On the Diameter of Undirected Cayley Graphs of
-Finite Abelian Groups*, arXiv:2406.04045 (2024); published in Combinatorial
-and Number Theory 14 (2025) 1–12.  Section 1, Conjecture 1.6 (numbered
-`conj on f pm (2,s) noncyclic` in the source); lower bounds in Theorem 1.7 and
-Section 2; partial upper bounds (for `s`-regular groups) in Section 3,
-Theorems 3.1–3.3; the case `c = 2` in Section 4, Theorem 4.2.
+Finite Abelian Groups*, arXiv:2406.04045 (2024), Conjecture 1.6.
 
-Verbatim (Conjecture 1.6):
+For `3 ≤ s`, this module proves the conjectured upper bound for every finite
+noncyclic abelian group with an `s`-spanning pair, including the product form
+`ℤ_c × ℤ_{ck}` for `2 ≤ c`. It also proves `|G| ≤ 2s² + 2s - 4`.
+The general lower bounds of the paper's Theorem 1.7 are not formalized here;
+sharpness is exhibited only at `s = 3`. The paper proves partial upper bounds
+for `s`-regular groups (Theorems 3.1–3.3) and for `c = 2` (Theorem 4.2).
 
-  "Let $s \geq 3$ be an integer.
-   * If $2s+1$ is prime, then the largest noncyclic group with an
-     $s$-spanning set of size $2$ has order $2s^2$.
-   * If $2s+1$ is composite and $p$ is its smallest prime divisor, then the
-     largest noncyclic group with an $s$-spanning set of size $2$ has order
-     $2s^2 +2s - (p^2-1)/2$.
-   In particular, for any noncyclic group $G$ with an $s$-spanning set of
-   size $2$ we have $|G| \leq 2s^2+2s-4.$"
-
-and (Section 1): "a noncyclic group that has a spanning set of size $2$ must
-have rank $2$ and thus is isomorphic to $\mathbb{Z}_c \times \mathbb{Z}_{kc}$
-for some integers $c \geq 2$ and $k \geq 1$."  An `s`-spanning set
-`{a₁, a₂}` means (Section 2) that every element is `λ₁ a₁ + λ₂ a₂` with
-`λᵢ ∈ ℤ`, `|λ₁| + |λ₂| ≤ s`.
-
-## Status (recorded 2026-10-21)
-
-Open in the paper: the paper proves the lower bounds and only proves upper
-bounds for `s`-regular groups and for `c = 2`.  This module states and proves
-the full UPPER bound of Conjecture 1.6 for every group
-`ℤ_c × ℤ_{ck}` (`c ≥ 2`; `bajnok_beatty_upper`) and, without the structure
-theorem, for every finite noncyclic abelian group
-(`card_le_bbBound_of_not_isAddCyclic`), together with the "in particular"
-clause `|G| ≤ 2s² + 2s - 4`.  With the paper's lower bounds (Theorem 1.7,
-not formalized here) this settles Conjecture 1.6.  The proof is new (found
-in triage, not in the paper); it has not been externally refereed, but every
-step below is kernel-checked.
+An `s`-spanning pair `{a₁, a₂}` means that every element is
+`λ₁ a₁ + λ₂ a₂` with `λᵢ ∈ ℤ` and `|λ₁| + |λ₂| ≤ s`.
 
 ## Proof (elementary, two steps)
 
@@ -55,11 +29,6 @@ step below is kernel-checked.
    an explicit class (`α = s + 1`, `β ∈ {0, ⌊c/2⌋}`) has
    `c² · count ≤ 2 s²`, except when `c ∣ 2s + 1`, where
    `c² · count ≤ 2s² + 2s - (c² - 1)/2 ≤ bbBound s` as `c ≥ minFac (2s+1)`.
-
-Computational evidence (Python, bounded): the explicit class satisfies the
-bound for all `3 ≤ s ≤ 89`, `2 ≤ c ≤ 2s + 1`, with maximum exactly `B(s)`;
-brute force confirms no group of order `> B(s)` has an `s`-spanning pair for
-`s = 9, 10` (and the triage checked `s = 3..8`).
 -/
 import Mathlib
 
@@ -96,7 +65,7 @@ noncomputable def classCount (s c : ℕ) (r : ZMod c × ZMod c) : ℕ :=
 noncomputable def resSet (s : ℕ) (M x : ℤ) : Finset ℤ :=
   (Finset.Icc (-(s : ℤ)) s).filter (fun y => y ≡ x [ZMOD M])
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- `B(3) = 18` (`7` prime). -/
 example : bbBound 3 = 18 := by decide
@@ -416,7 +385,7 @@ theorem exists_classCount_le (s c : ℕ) (hs : 3 ≤ s) (hc : 2 ≤ c) :
 
 /-! ## Main theorem -/
 
-/-- **Upper bound of Bajnok–Beatty Conjecture 1.6** (arXiv:2406.04045; open in the paper).
+/-- **Upper bound of Bajnok–Beatty Conjecture 1.6** (arXiv:2406.04045).
 Let `s ≥ 3` and `c ≥ 2`.  If `ℤ_c × ℤ_{ck}` has an `s`-spanning pair `{a₁, a₂}`, then its
 order `c² k` is at most `B(s)`, where `B(s) = 2s²` if `2s + 1` is prime and
 `B(s) = 2s² + 2s - (p² - 1)/2` (`p` the least prime factor of `2s + 1`) otherwise. -/
@@ -618,7 +587,7 @@ theorem card_le_of_spanning_of_lt_card_quotient {G : Type*} [AddCommGroup G] [Fi
 /-- **Conjecture 1.6 upper bound, general form.**  For `s ≥ 3`, every finite NONCYCLIC abelian
 group `G` with an `s`-spanning pair `{a₁, a₂}` has `|G| ≤ B(s)`, where `B(s) = 2s²` if
 `2s + 1` is prime and `B(s) = 2s² + 2s - (p² - 1)/2` (`p` the least prime factor of `2s + 1`)
-otherwise (Bajnok–Beatty, arXiv:2406.04045, Conjecture 1.6; open in the paper).  No structure
+otherwise (Bajnok–Beatty, arXiv:2406.04045, Conjecture 1.6).  No structure
 theorem is used: a prime `p` with `|G / pG| > p` replaces the invariant factor `c`. -/
 theorem card_le_bbBound_of_not_isAddCyclic {G : Type*} [AddCommGroup G] [Finite G]
     (hG : ¬ IsAddCyclic G) {s : ℕ} (hs : 3 ≤ s) {a₁ a₂ : G} (h : IsSSpanning s a₁ a₂) :

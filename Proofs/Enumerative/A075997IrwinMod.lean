@@ -1,38 +1,13 @@
 /-
-# A075997 — Irwin: a carry-defect count reproduces `Σ (-1)^k ⌊n/k⌋`
+# An alternating floor sum as a carry count (A075997)
 
-## OEIS source (retrieved with `oeis show A075997`, 2026-10-21)
-
-```
-NAME:     a(n) = [n/2] - [n/3] + [n/4] - [n/5] + [n/6] - ..., where [n/k] = floor(n/k).
-TERMS:    0,0,1,0,2,1,2,1,4,2,3,2,5,4,5,2,6,5,6,5,8,5,6,5,10,8,9,6,9,8,9,8,13,...
-          (offset 0)
-COMMENT:  a(n) is the number of terms among {floor(n/k)}, 1<=k<=n, which are
-          even. - _Leroy Quet_, Jan 19 2006
-FORMULA (the conjecture):
-  Conjecture: Let f(a,b)=1, if (a+b) mod |a-b| != (a mod |a-b|)+(b mod |a-b|),
-  and 0 otherwise. a(n) = Sum_{k=1..n-1} f(n+k,n-k).
-  - _Benedict W. J. Irwin_, Sep 23 2016
-PROGRAM:  (PARI) a(n) = sum(k=2, n, (-1)^k*(n\k)); \\ _Michel Marcus_, Dec 20 2020
-```
-
-## Status
-
-Triage status: open (no proof in the entry; the triage found none in the
-literature, while noting a short informal argument).  Numerically checked
-for `0 ≤ n ≤ 3000` (Python, 2026-10-21) before formalization.
-
-## Proof outline (proved below, no `sorry`)
-
-1. *Carry criterion* (`f_eq_ite_even`).  For `1 ≤ k ≤ n`, `|(n+k)-(n-k)| = 2k`
-   and `n+k ≡ n-k (mod 2k)`, so `f (n+k) (n-k) = 1` iff the two equal residues
-   `r` overflow, `2r ≥ 2k`, iff `n mod 2k < k`, iff `⌊n/k⌋` is even.
-2. *Quet's comment* (`sum_ite_even_div_eq_a`).  Using
-   `[q even] = 1 + Σ_{j=1}^{q} (-1)^j` and swapping the double sum over
-   `{(j,k) : j k ≤ n}`, `#{k ≤ n : ⌊n/k⌋ even} = n + Σ_{j=1}^{n} (-1)^j ⌊n/j⌋`,
-   which is `a(n)` after peeling off the `j = 1` term.
-3. The `k = n` term of Quet's count vanishes (`⌊n/n⌋ = 1` is odd), giving
-   Irwin's range `1 ≤ k ≤ n-1`.
+Source: Benedict W. J. Irwin's OEIS A075997 formula (Sep 23 2016), with
+Leroy Quet's even-quotient interpretation (Jan 19 2006).
+For every natural `n`, `Σ_{k=1}^{n-1} f(n+k,n-k) = Σ_{k=2}^n (-1)^k floor(n/k)`,
+where `f(x,y)` detects a carry modulo `|x-y|`. The absolute difference is
+taken in `ℤ`, and the sum identity is in `ℤ`. Both sides vanish for `n ≤ 1`.
+The carry criterion reduces to an even quotient; swapping the finite
+hyperbola sum gives Quet's count.
 -/
 import Mathlib
 
@@ -40,7 +15,7 @@ set_option autoImplicit false
 
 namespace Candidates.A075997IrwinMod
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A075997 (NAME): `a(n) = ⌊n/2⌋ - ⌊n/3⌋ + ⌊n/4⌋ - ⌊n/5⌋ + ...`, i.e.
 `a(n) = Σ_{k=2}^{n} (-1)^k ⌊n/k⌋` (the PARI program in the entry), as an integer. -/
@@ -58,7 +33,7 @@ def f (x y : ℕ) : ℕ :=
 subtraction `n - k` exact. -/
 def irwinSum (n : ℕ) : ℕ := ∑ k ∈ Finset.Ico 1 n, f (n + k) (n - k)
 
-/-! ### Ground truth against the listed terms `a(0..19)` -/
+/-! ### Listed terms `a(0..19)` -/
 
 example : (List.range 20).map a = [0, 0, 1, 0, 2, 1, 2, 1, 4, 2, 3, 2, 5, 4, 5, 2, 6, 5, 6, 5] := by
   decide
@@ -193,12 +168,8 @@ theorem sum_ite_even_div_eq_a (n : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Irwin's conjecture (A075997, Benedict W. J. Irwin, Sep 23 2016).**
-
-Verbatim: "Conjecture: Let f(a,b)=1, if (a+b) mod |a-b| != (a mod |a-b|)+(b mod |a-b|),
-and 0 otherwise. a(n) = Sum_{k=1..n-1} f(n+k,n-k)."
-
-Stated for every `n : ℕ` (the entry has offset 0; for `n ≤ 1` both sides are `0`). -/
+/-- Irwin's carry sum equals the alternating floor sum for every natural
+`n`, including `n ≤ 1` where both sums vanish (A075997). -/
 theorem irwin_conjecture (n : ℕ) : (irwinSum n : ℤ) = a n := by
   rw [← sum_ite_even_div_eq_a, irwinSum, Nat.cast_sum]
   rcases Nat.eq_zero_or_pos n with rfl | hn

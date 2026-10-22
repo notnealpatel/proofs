@@ -1,34 +1,20 @@
 /-
-# Verrill: `‖((b+1)n) ⊖_b n‖ = n ⊕_{-b} (-n)`; for `b = 2`, OEIS A178729
-
-## Source
+# Verrill's base-`b` digit identity
 
 H. A. Verrill, *Note on the negative base xor sequence `n ⊕_{-b} (-n)`*,
-arXiv:2506.09509 (retrieved with `fetch 2506.09509`, 2026-10-21).
+arXiv:2506.09509, equation (1.1), Definition `def:ominus`, Theorem `thm:main`.
+The identity is `‖((b+1)n) ⊖_b n‖ = n ⊕_{-b} (-n)`.
+Here `⊖_b` subtracts base-`b` digits modulo `b`, the double bar replaces
+each nonzero digit by `1`, and `⊕_{-b}` adds base-`-b` digits modulo `b`
+then evaluates them in positive base `b`.
 
-* Section 1, equation (1.1) (`equ:originalconjecture`), the A178729 conjecture:
-  "It was conjectured [A178729] that for non-negative integers `n`,
-  `n ⊕ (3n) = n ⊕_{-2} (-n)`", where `⊕` is bitwise XOR and
-  `(∑ aᵢ (-2)ⁱ) ⊕_{-2} (∑ bᵢ (-2)ⁱ) = ∑ ((aᵢ + bᵢ) mod 2) 2ⁱ`.
-* Definition `def:ominus`: for `α = ∑ aᵢ bⁱ`, `β = ∑ bᵢ bⁱ` (base `b`),
-  `α ⊖_b β = ∑ ((aᵢ - bᵢ) mod b) bⁱ`; for integers `α = ∑ aᵢ (-b)ⁱ`,
-  `β = ∑ bᵢ (-b)ⁱ` with `aᵢ, bᵢ ∈ {0, …, b-1}`,
-  `α ⊕_{-b} β = ∑ ((aᵢ + bᵢ) mod b) bⁱ`; and `‖α‖ = ∑ min(aᵢ, 1) bⁱ`.
-* Theorem `thm:main` (verbatim): "For all positive integers `b` and `n`, we have
-  `‖((b+1)n) ⊖_b n‖ = n ⊕_{-b} (-n)`" (the double bar is the paper's
-  `\overline{\overline{·}}`). "In the case that `b = 2`, (generalresult) is exactly the
-  same as (originalconjecture)."
+At `b = 2` this gives OEIS A178729: `n XOR 3n` equals the XOR of the
+negabinary representations of `n` and `-n`, read in binary (A005351 and
+A005352 respectively; A005352 has offset 1).
 
-OEIS A178729 (`oeis show A178729`, 2026-10-21): "a(n) = n XOR 3n, where XOR is bitwise
-XOR." FORMULA: "a(n) = A005351(n) XOR A005352(n) (conjectured). Proved by Verrill link."
-A005351: "Base -2 representation for n regarded as base 2, then evaluated."
-A005352: "Base -2 representation of -n reinterpreted as binary." (offset 1).
-
-## Status
-
-Proved in the paper (by finite transducers). Formalized here, date 2026-10-21, with no
-`sorry`. Base `b = 1` has no base-`b` expansion, so the general theorem assumes `2 ≤ b`;
-`n = 0` is included (both sides are `0`).
+The paper states the result for positive `b,n`. Base `1` has no such
+expansion, so the general theorem assumes `2 ≤ b`; `n = 0` is included,
+with both sides zero.
 
 ## Proof route
 
@@ -433,7 +419,7 @@ theorem digitSub_digit_cast (b a c : ℕ) (hc : c < b) :
     rw [Nat.cast_add, Nat.cast_sub hc.le]; ring
   rw [Int.natCast_mod, hsub, Int.add_mul_emod_self_left]
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- OEIS A178729: `a(n) = n XOR 3n`. -/
 def a178729 (n : ℕ) : ℕ := n ^^^ (3 * n)

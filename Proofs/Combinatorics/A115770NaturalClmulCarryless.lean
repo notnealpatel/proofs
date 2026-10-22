@@ -1,45 +1,13 @@
 /-
-# A115770 — Karttunen: rows 7 and 5 of A115872 coincide
+# A115770 — carryless multiplication and binary runs
 
-## OEIS source (retrieved with `oeis show A115770`, 2026-10-21)
-
-```
-NAME:     Numbers k such that 7*k = A048720(11,k), where A048720 is carryless
-          base-2 multiplication.
-TERMS:    0,7,14,15,28,30,31,56,60,62,63,112,120,124,126,127,224,240,248,252,
-          254,255,448,455,480,496,504,508,510,511,896,903,910,911,960,967,992,...
-KEYWORDS: nonn,base
-COMMENT:  If n is a term, then 2*n is also a term, and vice versa.
-COMMENT (the conjecture):
-  Conjecture: also numbers k such that 5*k = A048720(13,k). This has been
-  checked for all k in range 0 .. 2^25. - _Antti Karttunen_, Dec 21 2025
-PROGRAM (PARI):
-  A048720(b, c) = fromdigits(Vec(Pol(binary(b))*Pol(binary(c)))%2, 2);
-  is_A115770(k) = (7*k == A048720(11, k)); \\ _Antti Karttunen_, Dec 21 2025
-XREF:     Row 7 of A115872 and by conjecture also the row 5.
-```
-
-A048720: "Multiplication table {0..i} X {0..j} of binary polynomials (polynomials
-over GF(2)) interpreted as binary vectors, then written in base 10; or, binary
-multiplication without carries."
-
-The sibling entry A115801 (numbers `k` with `9*k = A048720(25,k)`) carries the
-analogous conjecture "also k such that 15*k = A048720(19,k)" (Karttunen,
-Dec 21 2025); it is the case `m = 4` of the general theorem below.
-
-## Status
-
-Triage (2026-10-21): open. No proof in A115770, A115801, A391740–A391745,
-A391850 or A115872; the A115872 comments mark "row 5 = row 7" with "?".
-Computation: Karttunen checked `k < 2^25`; the triage checked the general
-characterization for `m = 2..7`, `k < 2^18`; re-checked here for `m = 3`,
-`k < 2^22` and `m = 2..9`, `k < 2^17` (no mismatch).
-
-This file proves the conjecture (`seven_mul_eq_clmul_eleven_iff_five_mul_eq_clmul_thirteen`)
-and the stronger general-`m` form found by the triage
-(`two_pow_sub_one_mul_eq_clmul_iff_two_pow_pred_add_one_mul_eq_clmul`), together with the
-characterization of both solution sets: every window of `m + 1` consecutive bits of `k`
-changes value at most once (runs of `1`s, and runs of `0`s between `1`s, have length `≥ m`).
+Antti Karttunen (OEIS A115770, Dec 21 2025) conjectured that
+`7*k = A048720(11,k)` iff `5*k = A048720(13,k)`, equivalently that rows
+7 and 5 of A115872 coincide. A048720 is carryless base-2 multiplication.
+The analogous conjecture in A115801 equates `9*k = A048720(25,k)` with
+`15*k = A048720(19,k)`. These are the cases `m = 3, 4` of the general
+equivalence below. Both solution sets are characterized by windows of
+`m + 1` bits changing value at most once.
 
 ## Proof outline
 
@@ -472,8 +440,7 @@ theorem two_pow_sub_one_mul_eq_clmul_iff_two_pow_pred_add_one_mul_eq_clmul (m : 
 
 /-! ## The conjectures -/
 
-/-- **Karttunen's conjecture for A115770 (Dec 21 2025), proved.** Verbatim: "Conjecture: also
-numbers k such that 5*k = A048720(13,k)." That is, for every natural `k`,
+/-- **Karttunen's conjecture for A115770 (Dec 21 2025).** For every natural `k`,
 `7 * k = A048720(11, k)` iff `5 * k = A048720(13, k)`; equivalently rows 7 and 5 of A115872
 coincide. This is the case `m = 3` of
 `two_pow_sub_one_mul_eq_clmul_iff_two_pow_pred_add_one_mul_eq_clmul`. -/
@@ -493,8 +460,7 @@ theorem seven_mul_eq_clmul_eleven_iff_atMostOneChange (k : ℕ) :
   have h := two_pow_sub_one_mul_eq_clmul_iff_atMostOneChange 3 (by norm_num) k
   rwa [show (2 : ℕ) ^ 3 - 1 = 7 by norm_num, show (2 : ℕ) ^ 3 + 3 = 11 by norm_num] at h
 
-/-- **Karttunen's conjecture for A115801 (Dec 21 2025), proved.** Verbatim: "Conjecture: also
-k such that 15*k = A048720(19,k)." That is, for every natural `k`, `9 * k = A048720(25, k)` iff
+/-- **Karttunen's conjecture for A115801 (Dec 21 2025).** For every natural `k`, `9 * k = A048720(25, k)` iff
 `15 * k = A048720(19, k)`. This is the case `m = 4` of
 `two_pow_sub_one_mul_eq_clmul_iff_two_pow_pred_add_one_mul_eq_clmul`. -/
 theorem nine_mul_eq_clmul_twentyfive_iff_fifteen_mul_eq_clmul_nineteen (k : ℕ) :
@@ -505,7 +471,7 @@ theorem nine_mul_eq_clmul_twentyfive_iff_fifteen_mul_eq_clmul_nineteen (k : ℕ)
     show (2 : ℕ) ^ 4 + 3 = 19 by norm_num, show (2 : ℕ) ^ (4 - 1) + 1 = 9 by norm_num] at h
   exact h.symm
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- `clmul` agrees with the first 91 terms (antidiagonals 0..12) of the A048720 table.
 example : ((List.range 13).flatMap fun n => (List.range (n + 1)).map fun i => clmul i (n - i)) =

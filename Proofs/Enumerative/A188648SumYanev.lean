@@ -1,30 +1,12 @@
 /-
-# A188648 — Yanev: the binomial square sum is a terminating 4F3
+# A188648: Yanev's terminating hypergeometric identity
 
-## OEIS source (retrieved with `oeis show A188648`, 2026-10-21)
-
-```
-NAME:     Binomial sums a(n) = Sum_{k=0..n} (binomial(2n-k,k))^2.
-TERMS:    1,2,11,63,376,2317,14545,92512,594169,3844787,25027296,163701327,...
-FORMULA (the conjecture):
-  Conjecture: a(n) = hypergeom([-n,-n,n+1,n+1], [1/2,1/2,1], 1/16).
-  - _Velin Yanev_, Oct 31 2019
-```
-
-## Status
-
-Triage status: open (no proof recorded in the entry or found in the
-literature).  The identity is elementary: the `k`-th hypergeometric term
-equals `C(n+k,2k)^2`, and reflecting `k ↦ n-k` in the defining sum gives
-`Σ C(n+k,2k)^2`.  Computationally re-checked (exact rationals) for
-`0 ≤ n < 80`.
-
-## Definitional choices
-
-* `hypergeom([a₁..a₄],[b₁..b₃],z) = Σ_{k ≥ 0} (a₁)_k⋯(a₄)_k / ((b₁)_k⋯(b₃)_k) · z^k / k!`
-  with `(x)_k` the rising factorial, Mathlib's `(ascPochhammer ℚ k).eval x`.
-  The series is stated as a genuine `tsum` over `ℚ`; it terminates because
-  `(-n)_k = 0` for `k > n` (`term_eq_zero_of_lt`).
+OEIS A188648, Velin Yanev (Oct 31 2019).
+The sum `Σ_{k=0}^n C(2n-k,k)^2` equals
+`₄F₃(-n,-n,n+1,n+1; 1/2,1/2,1; 1/16)` for every natural `n`.
+The rational hypergeometric series uses the standard rising-factorial
+normalization, including division by `k!`. It terminates after `n`;
+its kth term is `C(n+k,2k)^2`, and reflecting the index gives the identity.
 -/
 import Mathlib
 

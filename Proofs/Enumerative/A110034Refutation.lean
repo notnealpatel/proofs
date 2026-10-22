@@ -1,38 +1,13 @@
 /-
-# A110034 — Bergot's partial-sum conjecture fails at the boundary `n = 0`
+# A110034: a boundary failure of Bergot's partial-sum identity
 
-## OEIS source (retrieved 2026-10-21, `oeis show A110034` and the live entry)
-
-```
-A110034   Row sums of a characteristic triangle for the Fibonacci numbers.
-OFFSET    0,4
-DATA      1,0,-1,-4,-11,-30,-79,-208,-545,-1428,-3739,-9790,-25631,-67104,...
-G.f.:     (1-3x-x^2+2x^3)/((1-x^2)(1-3x+x^2)).
-LINK      ... linear recurrences with constant coefficients, signature (3,0,-3,1).
-COMMENT   Conjecture: |a(n)| = Sum_{k=1..n-1} A061646(k). - _J. M. Bergot_, Jun 10 2013
-```
-
-The cross-referenced sequence:
-
-```
-A061646   a(n) = 2*a(n-1) + 2*a(n-2) - a(n-3) with a(-1) = 1, a(0) = 1, a(1) = 1.
-OFFSET    -1
-DATA      1,1,1,3,7,19,49,129,337,883,2311,6051,15841,41473,108577,...
-```
-
-No later comment on A110034 retracts or restricts the conjecture.  (The
-entry's formula line `a(n) = a(n-1)-3a(n-3)+a(n-4)` is itself misprinted; the
-recurrence matching the g.f. and the signature `(3,0,-3,1)` is
-`a(n) = 3a(n-1) - 3a(n-3) + a(n-4)`, which is what this module uses, and
-`gf_spec` below certifies it against the g.f.)
-
-## Status
-
-This module **refutes** the conjecture as stated over the entry's full domain
-`n ≥ 0`: at `n = 0` we have `|a(0)| = 1` while `Sum_{k=1..-1}` is empty, so
-equals `0`.  (Under Karr's signed-sum convention the right side would be
-`-A061646(0) = -1`, still `≠ 1`.)  The identity does hold for every `n ≥ 1`;
-this is proved below as `abs_eq_sum_of_one_le`.
+OEIS A110034, J. M. Bergot (Jun 10 2013), with A061646.
+The recurrence used here is the one matching the entry's generating
+function and signature `(3,0,-3,1)`, not its misprinted recurrence line;
+`gf_spec` proves the generating-function identity. The Hankel-triangle
+counting interpretation is not formalized.
+The all-natural partial-sum statement fails at `n = 0`, where the sum is
+empty and `|a(0)| = 1`. The identity is proved for every `n ≥ 1`.
 -/
 import Mathlib
 
@@ -63,7 +38,7 @@ def A061646Seq : ℕ → ℤ
   | 2 => 1
   | n + 3 => 2 * A061646Seq (n + 2) + 2 * A061646Seq (n + 1) - A061646Seq n
 
-/-! ## Ground truth against the OEIS DATA lines -/
+/-! ## Examples against the OEIS DATA lines -/
 
 example : (List.range 12).map a =
     [1, 0, -1, -4, -11, -30, -79, -208, -545, -1428, -3739, -9790] := by
@@ -156,19 +131,16 @@ theorem neg_a_eq_sum (n : ℕ) (hn : 1 ≤ n) :
 
 /-! ## The conjecture -/
 
-/-- **Bergot's conjecture (A110034, J. M. Bergot, Jun 10 2013).**
-
-Verbatim: "Conjecture: |a(n)| = Sum_{k=1..n-1} A061646(k)."
-
-Stated over the entry's full domain `n ≥ 0` (offset `0`).  The OEIS sum
-`Sum_{k=1..n-1}` is `∑ k ∈ Finset.Ico 1 n` (no natural subtraction), and
-`A061646(k) = A061646Seq (k + 1)` because of the offset `-1`. -/
+/-- Bergot's A110034 conjecture `|a(n)| = Σ_{k=1}^{n-1} A061646(k)`,
+stated over the full offset-zero domain. The interval `Ico 1 n` avoids
+natural subtraction. Because A061646 starts at `-1`, its term at `k`
+is `A061646Seq(k+1)`. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, |a n| = ∑ k ∈ Finset.Ico 1 n, A061646Seq (k + 1)
 
-/-- **Refutation.** Bergot's conjecture fails at `n = 0`: `|a(0)| = 1` but the
-sum `Sum_{k=1..-1} A061646(k)` is empty, hence `0`.  The intended hypothesis is
-evidently `n ≥ 1`, under which the identity holds (`abs_eq_sum_of_one_le`). -/
+/-- The all-natural statement fails at `n = 0`: `|a(0)| = 1`, whereas
+the empty sum is `0`. The identity for `n ≥ 1` is
+`abs_eq_sum_of_one_le`. -/
 theorem bergot_conjecture_false : ¬ Conjecture := by
   intro h
   have h0 : |a 0| = ∑ k ∈ Finset.Ico 1 0, A061646Seq (k + 1) := h 0

@@ -1,47 +1,14 @@
 /-
-# A377109 — Kimberling: every prime divides infinitely many terms (refuted)
+# A prime dividing no term of A377109
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A377109` and the live
-## entry https://oeis.org/A377109)
-
-```
-NAME:     a(n) = coefficient of the term that is independent of sqrt(2),
-          sqrt(3), and sqrt(6) in the expansion of (2 + sqrt(2) + sqrt(3))^n.
-TERMS:    1,2,9,38,185,922,4689,23998,123217,633458,3258489,16765718,...
-AUTHOR:   Clark Kimberling, Oct 20 2024
-COMMENT (the conjecture):
-  Conjecture: every prime divides a(n) for infinitely many n, and if
-  K(p) = (k(1), k(2),...) is the maximal subsequence of indices n such that
-  p divides a(n), then the difference sequence of K(p) is eventually
-  periodic; indeed, K(p) is purely periodic for the first 7 primes, with
-  respective period lengths 1,5,7,17,3,11,35 and these periods: ...
-```
-
-The comment is unsigned; the entry author is Clark Kimberling (Oct 20 2024).
-The live entry (last modified Oct 21 2026) carries no retraction and no
-counterexample.
-
-## Status
-
-This module **refutes** the conjecture.  The prime `241` divides no term:
-modulo `241` the element `β = 2 + √2 + √3` satisfies `β ^ 240 = 1` (in
-`ℤ[√2, √3] / 241`), so the residues of `a(n)` are `240`-periodic, and none of
-`a(0), …, a(239)` is divisible by `241`.  (Other such primes below `500`:
-`311, 313, 359, 431, 433, 457`, all `≡ ±1 (mod 24)`, i.e. primes at which
-both `√2` and `√3` exist.)
-
-Informally (not formalized here), the second clause of the conjecture
-(eventual periodicity of the difference
-sequence of `K(p)`) is true whenever `K(p)` is infinite, since `a(n) mod p`
-is eventually periodic; it is the first clause that fails.
-
-## Definition layer
-
-`a(n)` is computed exactly as the entry describes: the four integer
-coordinates of `(2 + √2 + √3)^n` in the basis `{1, √2, √3, √6}` are iterated
-by multiplication by `2 + √2 + √3`, and `A377109 n` is the first coordinate.
-`coeffs_spec` proves the real identity
-`(2 + √2 + √3)^n = a + b √2 + c √3 + d √6` for these coordinates.
+Source: the unsigned conjecture in OEIS A377109, entry by Clark Kimberling
+(Oct 20 2024). Iterating integer coordinates in the radical basis computes
+the coefficient of 1 in `(2+√2+√3)^n`; `coeffs_spec` proves the real expansion.
+Linear independence of the radical basis is not formalized in this module.
+Modulo 241 the state has period 240 and its first coordinate never vanishes.
+Hence 241 divides no term, refuting the every-prime-infinitely-often clause
+and the source conjunction. The eventual-gap-periodicity clause under
+infinitude is not proved here.
 -/
 import Mathlib
 
@@ -67,11 +34,11 @@ def coeffs (n : ℕ) : ℤ × ℤ × ℤ × ℤ := step^[n] (1, 0, 0, 0)
 `(2 + √2 + √3)^n`. -/
 def A377109 (n : ℕ) : ℤ := (coeffs n).1
 
-/-- Ground truth: the first ten listed terms. -/
+/-- The first ten listed terms. -/
 example : (List.range 10).map A377109 =
     [1, 2, 9, 38, 185, 922, 4689, 23998, 123217, 633458] := by decide
 
-/-- Ground truth: the last listed term `a(23)`. -/
+/-- The last listed term `a(23)`. -/
 example : A377109 23 = 5784397706237854 := by decide
 
 /-- The coordinates `coeffs n` really are the coordinates of
@@ -102,10 +69,8 @@ noncomputable def gapSeq (p : ℕ) (i : ℕ) : ℤ :=
   (Nat.nth (fun n => (p : ℤ) ∣ A377109 n) (i + 1) : ℤ)
     - (Nat.nth (fun n => (p : ℤ) ∣ A377109 n) i : ℤ)
 
-/-- **Kimberling's conjecture (A377109, Oct 2024)**, verbatim: "every prime
-divides a(n) for infinitely many n, and if K(p) = (k(1), k(2),...) is the
-maximal subsequence of indices n such that p divides a(n), then the
-difference sequence of K(p) is eventually periodic". -/
+/-- Kimberling's A377109 conjecture: every prime divides infinitely many
+terms, and the gaps between successive divisible indices are eventually periodic. -/
 def Conjecture : Prop :=
   ∀ p : ℕ, p.Prime →
     {n : ℕ | (p : ℤ) ∣ A377109 n}.Infinite ∧
@@ -198,14 +163,9 @@ theorem not_dvd_A377109 (n : ℕ) : ¬ (241 : ℤ) ∣ A377109 n := by
 `3 ∣ a(2) = 9`. -/
 example : (2 : ℤ) ∣ A377109 1 ∧ (3 : ℤ) ∣ A377109 2 := by decide
 
-/-- **Kimberling's A377109 conjecture is false.**  Counterexample: the prime
-`p = 241` divides no term `a(n)` (`not_dvd_A377109`), so the set
-`{n | 241 ∣ a(n)}` is empty, not infinite.  Modulo `241`,
-`β = 2 + √2 + √3` has `β ^ 240 = 1` and none of the `240` residues of
-`a(0), …, a(239)` vanishes.  The failing primes observed below `500`
-(`241, 311, 313, 359, 431, 433, 457`) are all `≡ ±1 (mod 24)`, the primes
-at which `√2, √3 ∈ 𝔽_p`; no corrected hypothesis is evident beyond excluding
-some of these split primes. -/
+/-- The prime 241 divides no A377109 term, refuting Kimberling's conjunction.
+The coordinate state modulo 241 returns after 240 steps with no zero
+first coordinate. No claim about other primes is required. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have hprime : Nat.Prime 241 := by norm_num

@@ -1,40 +1,19 @@
 /-
 # Lev–Nagy–Pach: sum-full sets are not zero-sum-free
 
-## Source
+V. F. Lev, J. Nagy and P. P. Pach, *Sum-full sets are not zero-sum-free*,
+arXiv:2101.02586, Theorem 1 and Lemma 1 (Section 2). The theorem solves
+Problem 1 of T. Banakh and A. Ravsky, *Zero-sum subsets of decomposable
+sets in Abelian groups*, arXiv:1903.03577 (Algebra Discrete Math. 30, 2020),
+going back to G. Zaimi, MathOverflow question 16857 (2010).
 
-* Problem: T. Banakh and A. Ravsky, *Zero-sum subsets of decomposable sets in
-  Abelian groups*, arXiv:1903.03577 (Algebra Discrete Math. 30 (2020)),
-  Problem 1 in Section 1, going back to G. Zaimi, MathOverflow q/16857 (2010).
-* Solution: V. F. Lev, J. Nagy, P. P. Pach, *Sum-full sets are not
-  zero-sum-free*, arXiv:2101.02586, Theorem 1 and Lemma 1 (proof of Lemma 1
-  in Section 2).
-* Recorded: 2026-10-21.
-
-## Verbatim informal claims (arXiv:2101.02586)
-
-Theorem 1: "Let $A$ be a finite, nonempty subset of an abelian group. If $A$
-is sum-full, then it is not zero-sum-free; that is, if every element of $A$
-is representable as a sum of two other elements, then $A$ has a nonempty
-zero-sum subset."
-
-Here "sum-full" means $A \subseteq 2A = A + A$ (the two summands may be
-equal), and "zero-sum-free" means no nonempty subset sums to $0$.
-
-Lemma 1: "Let $\mathcal M_n$ denote the set of all integer square matrices of
-order $n$ with all elements on the main diagonal greater than or equal to
-$-1$, all elements off the main diagonal non-negative, and all row sums equal
-to $1$. For any matrix $M\in\mathcal M_n$ there exist nonzero vectors
-$u,v\in\{0,1\}^n$ such that $M^tu=v$; that is, there exists a system of rows
-of $M$ such that their sum is a nonzero, zero-one vector."
-
-## Status
-
-Proved in the source (arXiv:2101.02586, Section 2).  This module formalizes
-Lemma 1 (over a finite index set `S : Finset ι`, which avoids reindexing by
-`Fin n`) and derives Theorem 1, following the paper's induction.  Section 3
-of the paper (a second proof for elementary abelian 3-groups) is not
-formalized.
+A finite nonempty subset `A` of an abelian group with `A ⊆ A+A` has a
+nonempty zero-sum subset; the two summands may coincide. The proof follows
+the paper's matrix induction: an integer matrix with diagonal entries at
+least -1, nonnegative off-diagonal entries and row sums 1 has a nonempty
+set of rows summing to a nonzero zero-one vector. Lemma 1 is indexed by
+a finite set rather than `Fin n`. The second proof for elementary abelian
+3-groups (Section 3) is not formalized.
 -/
 import Mathlib
 
@@ -72,7 +51,7 @@ def IsZeroOneRowSystem {ι : Type*} (S : Finset ι) (M : ι → ι → ℤ) (I :
   I ⊆ S ∧ (∀ j ∈ S, ∑ i ∈ I, M i j = 0 ∨ ∑ i ∈ I, M i j = 1) ∧
     ∃ j ∈ S, ∑ i ∈ I, M i j = 1
 
-/-! ## Ground truth for the definitions -/
+/-! ## Examples -/
 
 /-- Sum-fullness agrees with the pointwise inclusion `A ⊆ A + A`. -/
 theorem isSumFull_iff_subset_add {G : Type*} [AddCommGroup G] [DecidableEq G]

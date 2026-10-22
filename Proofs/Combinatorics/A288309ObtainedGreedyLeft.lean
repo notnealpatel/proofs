@@ -1,33 +1,13 @@
 /-
 # A288309 — Kimberling: lengths of the iterates of 00 -> 0010, 1 -> 110
 
-## OEIS source (retrieved 2026-10-21, local `oeis show A288309` and the live
-## internal-format entry)
+OEIS A288309, Clark Kimberling (2017): the recurrence
+`a(n) = 2a(n-1) + 2a(n-2) - 3a(n-3)`, with initial values `2,4,8`,
+gives the lengths of the iterates of `00 ↦ 0010`, `1 ↦ 110` from `00`
+(A288306). Mathematica's `StringReplace` scans greedily from left to right
+and leaves a lone unmatched `0` unchanged.
 
-```
-NAME:     a(n) = 2*a(n-1) + 2*a(n-2) - 3*a(n-3), where a(0) = 2, a(1) = 4,
-          a(2) = 8.
-TERMS:    2,4,8,18,40,92,210,484,1112,2562,5896,13580,31266,72004,165800,...
-KEYWORDS: nonn,easy
-AUTHOR:   _Clark Kimberling_, Jun 09 2017
-COMMENT (the conjecture, by the entry author, Jun 09 2017):
-  Conjecture: a(n) is the number of letters (0's and 1's) in the n-th
-  iteration of the mapping 00->0010, 1->110, starting with 00; see A288306.
-PROGRAM (A288306, the defining word):
-  w[n_] := StringReplace[w[n - 1], {"00" -> "0010", "1" -> "110"}]
-```
-
-The mapping is Mathematica's `StringReplace`: a greedy left-to-right scan that
-rewrites a block `00` to `0010`, a letter `1` to `110`, and leaves a lone `0`
-(a `0` not followed by `0`) unchanged.
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  Evidence: direct rewriting for `n = 0..21` (re-checked here with
-Python's `re.sub`, which has the same greedy semantics).
-
-## Proof (this file)
+## Proof outline
 
 Parse a word greedily into tokens `00` (count `P`), lone `0` (count `C`) and
 `1` (count `O`); its length is `2P + C + O`.  For words beginning with `00`,
@@ -89,7 +69,7 @@ def lone : List Bool → ℕ
   | false :: true :: r => lone (true :: r) + 1
   | false :: false :: r => lone r
 
-/-! ### Ground truth -/
+/-! ### Examples -/
 
 example : w 1 = [false, false, true, false] := rfl
 example : w 2 = [false, false, true, false, true, true, false, false] := rfl
@@ -234,9 +214,8 @@ theorem counts_succ (n : ℕ) :
 
 /-- **Kimberling's conjecture (A288309, Clark Kimberling, Jun 09 2017).**
 
-Verbatim: "Conjecture: a(n) is the number of letters (0's and 1's) in the
-n-th iteration of the mapping 00->0010, 1->110, starting with 00; see
-A288306."  Here `w n` is the `n`-th iterate (`w 0 = 00`) of the greedy
+The length of `w n` equals `a n` for every natural `n`.
+Here `w n` is the `n`-th iterate (`w 0 = 00`) of the greedy
 left-to-right rewriting `step`, and `a` is the entry's defining recurrence. -/
 theorem length_w_eq_a (n : ℕ) : ((w n).length : ℤ) = a n := by
   induction n using Nat.strong_induction_on with

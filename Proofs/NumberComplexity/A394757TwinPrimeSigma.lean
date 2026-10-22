@@ -1,35 +1,8 @@
 /-
 # A394757 — Sulaiman: twin-prime averages `k` with `gcd(k, σ(k))` prime satisfy `18 ∣ k`
 
-## OEIS source (retrieved with `oeis show A394757` and the live text entry, 2026-10-21)
-
-```
-NAME:     Numbers k in A014574 (averages of twin prime pairs) such that
-          gcd(k, sigma(k)) is prime.
-TERMS:    18,72,1152,4050,5652,6948,15138,16452,20772,20808,27792,44532,46818,
-          65700,67428,126612,143568,176418,180288,194868,195732,206082,212868,
-          216900,218628,236772,276372,281250,299700,328788,362952,369828,377172,
-          388962,390672,400068,402768
-COMMENT (the conjectures, unsigned, in the entry of _Aied Sulaiman_, Mar 31 2026):
-  Conjecture: all terms are divisible by 18.
-  Conjecture: gcd(k, sigma(k)) is in {2,3}.
-EXAMPLE:
-  For k = 18: sigma(18) = 39 and gcd(18, 39) = 3, which is prime, so 18 is a term.
-  For k = 12: sigma(12) = 28 and gcd(12, 28) = 4, which is not prime, so 12 is
-  not a term.
-CROSSREF: Intersection of A014574 and A392199.
-AUTHOR:   _Aied Sulaiman_, Mar 31 2026
-```
-
-## Literature status (triage)
-
-Open as far as the triage could tell: the entry (Mar 2026) gives no proof, and
-the literature search was limited to the entry and its cross-references
-(A392199, A014574).  Computation (2026-10-21, Sage): all 529 terms below
-`2 · 10^7` satisfy both conjectures; the general form below (`6 ∣ k`, `k` not a
-square) has no counterexample with `k < 2 · 10^6`.
-
-## Proof (kernel-checked below)
+OEIS A394757, Aied Sulaiman: twin-prime averages `k` with
+`gcd(k,σ(k))` prime are divisible by `18`, and that gcd is `2` or `3`.
 
 Let `g = gcd(k, σ k)` be prime and `6 ∣ k`.
 * `9 ∣ k`: otherwise `k = 3 j` with `3 ∤ j`, so `σ k = 4 σ j` and `2 ∣ g`,
@@ -52,7 +25,7 @@ namespace Candidates.A394757TwinPrimeSigma
 
 open ArithmeticFunction
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A014574 membership: `k` is the average of a twin prime pair, i.e. `k - 1` and
 `k + 1` are both prime.  The guard `0 < k` keeps the truncated subtraction off
@@ -70,7 +43,7 @@ def IsTerm (k : ℕ) : Prop :=
 instance (k : ℕ) : Decidable (IsTerm k) := by
   unfold IsTerm; infer_instance
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The entry's worked examples: `σ(18) = 39`, `gcd(18, 39) = 3`; `σ(12) = 28`.
 example : sigma 1 18 = 39 ∧ Nat.gcd 18 39 = 3 ∧ sigma 1 12 = 28 := by decide
@@ -248,25 +221,25 @@ theorem not_isSquare_of_isTwinPrimeAverage {k : ℕ} (hk : IsTwinPrimeAverage k)
 
 /-! ## The conjectures -/
 
-/-- **A394757, first conjecture (Aied Sulaiman, Mar 31 2026).**
+/-- **A394757, first conjecture (Aied Sulaiman, 2026).**
 
-Verbatim: "Conjecture: all terms are divisible by 18."  That is: if `k - 1` and
+That is: if `k - 1` and
 `k + 1` are both prime and `gcd(k, σ(k))` is prime, then `18 ∣ k`. -/
 theorem a394757_eighteen_dvd {k : ℕ} (hk : IsTerm k) : 18 ∣ k := by
   have h6 := six_dvd_of_isTerm hk
   have h9 := nine_dvd_of_six_dvd h6 hk.2
   omega
 
-/-- **A394757, second conjecture (Aied Sulaiman, Mar 31 2026).**
+/-- **A394757, second conjecture (Aied Sulaiman, 2026).**
 
-Verbatim: "Conjecture: gcd(k, sigma(k)) is in {2,3}."  That is: if `k - 1` and
+That is: if `k - 1` and
 `k + 1` are both prime and `gcd(k, σ(k))` is prime, then that gcd is `2` or `3`. -/
 theorem a394757_gcd_sigma_eq_two_or_three {k : ℕ} (hk : IsTerm k) :
     Nat.gcd k (sigma 1 k) = 2 ∨ Nat.gcd k (sigma 1 k) = 3 := by
   have h6 := six_dvd_of_isTerm hk
   exact gcd_sigma_eq_two_or_three h6 (not_isSquare_of_isTwinPrimeAverage hk.1 h6) hk.2
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- Satisfiability of the hypotheses of the conjecture theorems: `18` is a term.
 example : IsTerm 18 := by decide

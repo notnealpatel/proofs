@@ -1,46 +1,12 @@
 /-
-# A061242 — Doug Bell: the repetend of `x / (9x - 1)` is the least `(x+1)/x` left-rotation number
+# A061242: the least left-rotation number
 
-## OEIS source (retrieved with `oeis show A061242`, 2026-10-21)
-
-```
-NAME:     Primes of the form 9*k - 1.
-TERMS:    17,53,71,89,107,179,197,233,251,269,359,431,449,467,503,521,557,593,
-          647,683,701,719,773,809,827,863,881,953,971,1061,1097,1151,1187,...
-COMMENT (the conjecture):
-  From _Doug Bell_, Mar 23 2009: (Start)
-  Conjecture: if a(n) = 9x - 1, the integer formed by the repeating digits in
-  the decimal fraction x/a(n) is the smallest integer such that rotating the
-  digits to the left produces a number which is (x+1)/x times larger.
-  Example: x = 2, a(n) = 17: 2/17 = 0.1176470588235294... repeating with a
-  cycle of 16.
-  1176470588235294 * 3/2 = 1764705882352941, which is 1176470588235294 rotated
-  to the left.
-  An additional conjecture is that the values of x from this sequence are the
-  only values where rotating an integer one to the left produces a value
-  (x+1)/x times as large. (End)
-COMMENT:
-  The last conjecture is false. For example, for x = 3 we have
-  230769*(4/3) = 307692, but 9*3-1 = 26 is not in the sequence.
-  - _Giovanni Resta_, Jul 28 2015
-```
-
-## Status
-
-Triage: "open" (no proof in the entry or located in the literature).  The
-companion "only these x" conjecture was refuted by Resta in the entry; that one
-is not formalized here.  This module proves Bell's first conjecture in full,
-by the elementary parasitic-number argument below.
-
-## Argument
-
-For a `k+1`-digit `N` with leading digit `a` and tail `r < 10^k`,
-`N = a 10^k + r` and `rot N = 10 r + a`.  Then `x rot N = (x+1) N` is
-equivalent to `p N = a x (10^(k+1) - 1)` with `p = 9x - 1`.  Since `p` is a
-prime exceeding `x` and `a ≤ 9`, this forces `10^(k+1) ≡ 1 (mod p)`, i.e.
-`ord_p(10) ∣ k + 1`; so `N ≥ x (10^d - 1) / p` with `d = ord_p(10)`.
-The repetend block `B = x (10^d - 1) / p` satisfies `10^(d-1) ≤ B < 2·10^(d-1)`,
-so it has `d` digits with leading digit `1`, and it does solve the equation.
+OEIS A061242, Doug Bell (Mar 23 2009).
+For prime `p = 9x - 1`, the repetend block of `x/p` is the least positive
+integer whose left rotation is `(x+1)/x` times itself.
+The proof uses decimal length and the multiplicative order of `10` modulo `p`.
+Bell's separate claim that these are the only possible `x`, refuted in the
+entry by Giovanni Resta (Jul 28 2015), is not formalized.
 -/
 import Mathlib
 
@@ -48,7 +14,7 @@ set_option autoImplicit false
 
 namespace Candidates.A061242PrimeRepetendBlock
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- Left digit rotation of `N` in base `10`: the most significant decimal digit
 is moved to the units place (e.g. `1176470588235294 ↦ 1764705882352941`,
@@ -74,7 +40,7 @@ expansion is purely periodic when `p` is a prime other than `2, 5`). -/
 noncomputable def repetendBlock (x p : ℕ) : ℕ :=
   Nat.ofDigits 10 (decimalDigits x p (orderOf (10 : ZMod p)))
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- Rotation examples from the entry (Bell's and Resta's) and a zero-digit case.
 example : rotL 1176470588235294 = 1764705882352941 := by decide
@@ -131,18 +97,11 @@ theorem pow_le_and_lt_of_length {N k : ℕ} (hk : (Nat.digits 10 N).length = k +
 
 /-! ## The conjecture -/
 
-/-- **Bell's conjecture (A061242, Doug Bell, Mar 23 2009), proved.**
-
-Verbatim: "Conjecture: if a(n) = 9x - 1, the integer formed by the repeating
-digits in the decimal fraction x/a(n) is the smallest integer such that rotating
-the digits to the left produces a number which is (x+1)/x times larger."
-
-Formal reading: for a prime `p` with `p + 1 = 9x`, the repetend block of `x / p`
-(one period, `ord_p(10)` digits) is the least positive `N` with
-`x · rotL N = (x + 1) · N`.  "Smallest integer" is read over positive integers
-(`N = 0` trivially satisfies the equation).  The relation `p + 1 = 9x` encodes
-`p = 9x - 1` without natural subtraction; the rational form `(x+1)/x` is the
-companion `bell_conjecture_rat`. -/
+/-- Bell's A061242 conjecture: for prime `p` with `p+1 = 9x`, the repetend
+block of `x/p` is the least positive `N` satisfying `x*rotL(N) = (x+1)*N`.
+The block has `ord_p(10)` digits. Positivity excludes the trivial solution
+`N = 0`, and `p+1 = 9x` avoids natural subtraction in `p = 9x-1`.
+The rational formulation is `bell_conjecture_rat`. -/
 theorem bell_conjecture (x p : ℕ) (hp : p.Prime) (hpx : p + 1 = 9 * x) :
     IsLeast {N : ℕ | 0 < N ∧ x * rotL N = (x + 1) * N} (repetendBlock x p) := by
   have hx2 : 2 ≤ x := by

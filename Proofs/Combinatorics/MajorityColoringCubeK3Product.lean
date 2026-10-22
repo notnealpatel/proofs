@@ -5,15 +5,13 @@
 
 arXiv 2608.27669, *Majority C-coloring in Cartesian products*, by
 Cs. Bujtás, M. Dettlaff, H. Furmańczyk, A. Laskowska and Zs. Tuza.
-Recorded 2026-10-21.
 
 Definition (Section 1.1, equation (1)): a surjective map
 `φ : V(G) → [p]` is a *majority C-coloring* if every vertex `v ∈ V_i`
 satisfies `|N_G(v) ∩ V_i| ≥ deg_G(v) / 2`; the *majority C-chromatic
 number* `χ̄_≥(G)` is the maximum number of colours in such a colouring.
 
-The statement sits under the third open problem of the concluding
-remarks, verbatim:
+The third open problem of the concluding remarks asks:
 
 > Determine `χ̄_≥(K_n^{□,k})` if `k ≥ 3` is odd and `n ≥ 3`.
 
@@ -21,7 +19,7 @@ The paper only gives `n^{(k-1)/2} ≤ χ̄_≥(K_n^{□,k})` (Proposition
 `prop:imbalanced`(ii)) and the improvement of Theorem `thm:Ham-power-odd`
 for `n = 5` or `n ≥ 7`; for `n = k = 3` it leaves `3 ≤ χ̄_≥ ≤ 5` open.
 
-## Target (the smallest open instance, settled here)
+## Result
 
 `χ̄_≥(K_3 □ K_3 □ K_3) = 4`.
 
@@ -31,13 +29,6 @@ for `n = 5` or `n ≥ 7`; for `n = k = 3` it leaves `3 ≤ χ̄_≥ ≤ 5` open.
 * Upper bound: every colour class `S` has `|S| ≥ 6` (every vertex of `S`
   has at least 3 neighbours in `S`, and the neighbourhood of a vertex is
   three disjoint edges), so there are at most `⌊27 / 6⌋ = 4` classes.
-
-Status in the literature: open in the paper (this instance is not
-decided there).  Computational re-validation (2026-10-21, Python): no
-subset of size at most 5 containing a fixed vertex has all inner degrees
-at least 3 (17902 subsets checked; vertex-transitivity covers the rest),
-and the colouring above is a majority C-colouring with class sizes
-6, 6, 6, 9.
 -/
 import Mathlib
 
@@ -87,7 +78,7 @@ instance : DecidableRel K333.Adj := fun x y => decidable_of_iff' _ (K333_adj x y
 on the layer `y = 2`. -/
 def fourColoring (v : V3) : Fin 4 := if v.2.1 = 2 then 3 else Fin.castSucc v.2.2
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 set_option maxRecDepth 10000 in
 /-- `K_3 □ K_3 □ K_3` is 6-regular. -/

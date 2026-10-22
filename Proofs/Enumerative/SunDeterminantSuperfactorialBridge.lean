@@ -1,41 +1,16 @@
 /-
-# Sun's determinant congruence, composite case, via a superfactorial-squared bridge
+# Sun's composite determinant congruence
 
-## Source
-
-arXiv:2605.19486, Yutong Zhang and Yaoran Yang, "A Determinant Congruence
-Conjectured by Sun" (Section 2, "The composite case": Lemma 2.1 and
-Proposition 2.2).  Recorded 2026-10-21.
-
-For an integer `n > 3` and `c, d ∈ ℤ` the paper puts (equation (1.1))
-
-  D_n(c,d) = det[(i^2 + c i j + d j^2)^(n-2)]_{0 ≤ i,j ≤ n-1}.
-
-Verbatim (Proposition 2.2): "Let $n>3$ be a composite integer. Then, for all
-$c,d\in\Z$, $D_n(c,d)\equiv 0\pmod {n^2}$."
-
-This strengthens the composite case of Sun's Conjecture 4.1 (Sun 2024), which
-asked for `n^2 ∣ D_n(c,d)` for odd `n > 3` whenever the Jacobi symbol
-`(d/n) = -1`: in the composite case neither parity nor the Jacobi condition
-is needed.
-
-Status: proved in the paper.  The paper factors the polynomial determinant
-`det[F(x_i, y_j)]` by two Vandermonde products (alternating polynomials,
-Lemma 2.1), specialises at `x_i = y_i = i`, and shows `n ∣ ∏_{r<s}(s-r)` by a
-`p`-adic valuation count.
-
-## Route formalized here
-
-We do not formalize Lemma 2.1.  Instead we prove the classical bridge
-`sf(n-1)^2 ∣ det[F(i,j)]_{0 ≤ i,j < n}` for every integer bivariate polynomial
-`F`, where `sf(n-1) = ∏_{k<n} k! = ∏_{0≤r<s≤n-1}(s-r)` is
-`Nat.superFactorial (n - 1)`.  Reduce `F` modulo the monic falling factorial
-`X(X-1)⋯(X-n+1)` (which vanishes on `0, …, n-1`) first in the outer variable
-and then coefficientwise in the inner variable.  This yields an integer matrix
-`A` with `[F(i,j)] = V A Vᵀ`, where `V = [i^k]` is the Vandermonde matrix at
-`0, …, n-1`, and `det V = sf(n-1)` by Mathlib.  The composite consumer is
-`n ∣ sf(n-1)`, proved with the factorisation `n = a b`, `a = minFac n`:
-`a ∣ a!`, `b ∣ (n-1)!`, and `a!`, `(n-1)!` are distinct factors of `sf(n-1)`.
+Yutong Zhang and Yaoran Yang, "A Determinant Congruence Conjectured by Sun",
+arXiv:2605.19486, Section 2, Lemma 2.1 and Proposition 2.2;
+Sun's Conjecture 4.1 (2024).
+For every integer bivariate polynomial `F`, `sf(n-1)^2` divides
+`det[F(i,j)]_(0≤i,j<n)`. Reduction modulo monic falling factorials
+factors the evaluation matrix as `V A Vᵀ`, with integral `A` and
+Vandermonde determinant `sf(n-1)`.
+For composite `n ≥ 4`, `n ∣ sf(n-1)`, giving the exact Sun determinant
+congruence without parity or Jacobi-symbol assumptions. The prime case
+and the paper's alternating-polynomial Lemma 2.1 are not formalized here.
 -/
 import Mathlib
 
@@ -66,7 +41,7 @@ falling factorial `Y(Y-1)⋯(Y-n+1)` and then each coefficient modulo
 noncomputable def redCoeff (F : ℤ[X][X]) (n : ℕ) : Matrix (Fin n) (Fin n) ℤ :=
   Matrix.of fun k l => ((F %ₘ descPochhammer ℤ[X] n).coeff l %ₘ descPochhammer ℤ n).coeff k
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- `sf(3) = 1! 2! 3! = 12`, the superfactorial used for `n = 4`. -/
 example : Nat.superFactorial 3 = 12 := by decide

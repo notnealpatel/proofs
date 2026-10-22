@@ -4,24 +4,15 @@
 ## Source
 
 J. M. Campbell, *Group maps on initial intervals*, arXiv:2610.12087 (October 2026),
-Section 2 ("A full solution"): Lemmas 1–4, Theorem 1 (`k ≥ 20`) and Theorem 2 (the full
-statement).  Record date: 2026-10-21.
+Section 2, Lemmas 1–4 and Theorems 1–2.
 
-Verbatim claim (abstract and Section 2):
-
-> We henceforth let `k` be a positive integer and let `G` be a group of size `k`, and we
-> assume that there is an injective mapping `φ : {1, 2, …, k} → G` such that
-> `φ(ab) = φ(a) φ(b)` whenever `a`, `b`, and `ab` are in `{1, 2, …, k}`.  A mapping of this
-> form is referred to as a *group map*, according to Forcade and Pollington.
-> In 1990, Forcade and Pollington conjectured that if `S = {1, 2, …, k}`, then `G` is
-> abelian. … We succeed in proving the Forcade–Pollington conjecture in the affirmative and
-> in full generality.
-
-## Status
-
-Proved in the paper, but Theorem 2 (the cases `k < 20`) rests on an unpublished bound of
-Hickerson (`|G| > 9696`, reported by Guy).  The proof below is self-contained and covers
-every `k ≥ 1` uniformly, with no appeal to Hickerson.
+A group map `φ : {1, …, k} → G` is injective and satisfies
+`φ(ab) = φ(a) φ(b)` whenever `a`, `b`, and `ab` lie in the interval.
+The Forcade–Pollington conjecture (1990) says that a group of positive
+order `k` admitting such a map is abelian. This module proves the claim
+uniformly for every `1 ≤ k`. Campbell's Theorem 2 uses an unpublished
+bound of Hickerson, reported by Guy, for `k < 20`; the proof here does
+not use that bound.
 
 ## Proof route (a uniform variant of the paper's argument)
 
@@ -65,7 +56,7 @@ def encode (p : ℕ × ℕ) : ℕ × ℕ :=
 def triangle (t : ℕ) : Finset (ℕ × ℕ) :=
   (Finset.Icc 1 t ×ˢ Finset.Icc 1 t).filter (fun p => p.1 ≤ p.2)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : encode (2, 4) = (3, 2) := by decide
 example : encode (6, 6) = (6, 1) := by decide

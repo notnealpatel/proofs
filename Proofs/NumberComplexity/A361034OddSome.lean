@@ -1,32 +1,10 @@
 /-
 # A361034 — Bala: `a(n)` is odd iff `n = 2^k - 2`
 
-## OEIS source (retrieved with `oeis show A361034` and the live entry, 2026-10-21)
-
-```
-NAME:     a(n) = 2520*(4*n)!/(n!*(n+2)!^3).
-TERMS:    315,280,3675,116424,5885880,399072960,33129291195,3190228041000,
-          344161801063080,40616781150254400,5155510596280207800,...
-KEYWORDS: nonn,easy
-AUTHOR:   Peter Bala, Mar 01 2023
-COMMENT (integrality, stated as an observation in the entry):
-  ... the numbers A008977(n) = (4*n)!/n!^4 appear to have the property that
-  2520*A008977(n) is divisible by ((n + 1)*(n + 2))^3, leading to the present
-  sequence.
-COMMENT (the conjecture; no separate attribution, so it is Peter Bala's,
-         Mar 01 2023, as part of the original entry):
-  Conjecture: a(n) is odd iff n = 2^k - 2 for some k >= 1.
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature found).  Re-validated
-numerically for `n < 1200` (integrality and the parity criterion).
-
-## Result
-
-Both the integrality observation (`dvd_numerator`) and the parity conjecture
-(`odd_a_iff`) are proved here.  Argument: Legendre's formula.  For `p = 2`,
+Peter Bala's conjecture in OEIS A361034 says that
+`a(n) = 2520(4n)!/(n!(n+2)!³)` is odd iff `n = 2^k-2` for some `k ≥ 1`.
+The integrality theorem is `dvd_numerator` and the parity theorem is
+`odd_a_iff`. The argument uses Legendre's formula.  For `p = 2`,
 `v₂(a(n)) = 3 + v₂((4n)!) - v₂(n!) - 3 v₂((n+2)!) = 3 (s₂(n+2) - 1)` with `s₂`
 the binary digit sum, which vanishes iff `n + 2` is a power of two.  For an
 odd prime `p`, the Legendre summands at modulus `q = p^i ≥ 8` are nonnegative,
@@ -238,7 +216,7 @@ theorem a_pos (n : ℕ) : 0 < a n := by
   have hN : 0 < 2520 * (4 * n)! := Nat.mul_pos (by norm_num) (factorial_pos _)
   exact Nat.div_pos (Nat.le_of_dvd hN (dvd_numerator n)) hd
 
-/-- **A361034 parity conjecture (Peter Bala, OEIS A361034, Mar 01 2023).**
+/-- **A361034 parity conjecture (Peter Bala, OEIS A361034).**
 `a(n) = 2520 (4n)! / (n! (n+2)!^3)` is odd if and only if `n = 2^k - 2` for some `k ≥ 1`.
 (The quotient is exact by `dvd_numerator`; `2^k - 2` is not truncated since `k ≥ 1`.) -/
 theorem odd_a_iff (n : ℕ) : Odd (a n) ↔ ∃ k : ℕ, 1 ≤ k ∧ n = 2 ^ k - 2 := by

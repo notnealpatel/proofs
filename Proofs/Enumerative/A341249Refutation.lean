@@ -1,31 +1,9 @@
 /-
-# A341249 — Kimberling: `1 < r*s*n - a(n) < 2` (refuted)
+Refutation and bounds for OEIS A341249 (Clark Kimberling, Feb 13 2021).
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A341249` and the live
-## entry https://oeis.org/A341249)
-
-```
-NAME:     a(n) = floor(r*floor(s*n)), where r = 2 + sqrt(2) and s = sqrt(2).
-TERMS:    3,6,13,17,23,27,30,37,40,47,51,54,61,64,71,75,81,85,88,95,...
-COMMENT:  Conjecture:  1 < r*s*n - a(n) < 2 for n >= 1.
-AUTHOR:   _Clark Kimberling_, Feb 13 2021
-```
-
-The conjecture comment carries no separate signature; it belongs to the
-entry's author, Clark Kimberling (Feb 13 2021).  No later comment
-retracts or corrects it.
-
-## Status
-
-This module **refutes** the conjecture.  At `n = 2` we have
-`floor(2 * sqrt 2) = 2` and `a(2) = floor(2 * (2 + sqrt 2)) = 6`, while
-`r * s * 2 = 4 + 4 * sqrt 2 ≈ 9.657`, so `r*s*n - a(n) = 4 * sqrt 2 - 2 ≈
-3.657`, which is not `< 2`.  (A float check finds 19 violations among
-`n ≤ 40`: `n = 2, 4, 7, 9, 11, 12, ...`.)
-
-With `e = frac(n * sqrt 2)` one has `r*s*n - a(n) = 2e - floor(-sqrt 2 * e)`,
-which lies in `(1, 1 + sqrt 2)` or in `(2 + sqrt 2, 4)`.  The corrected
-bound `1 < r*s*n - a(n) < 4` is proved below as `corrected_bounds`.
+Let r=2+√2, s=√2 and a(n)=floor(r*floor(sn)). At n=2, a(2)=6 and
+rsn-a(n)=4√2-2 exceeds 2, refuting the proposed bound 1<rsn-a(n)<2.
+The proved replacement is 1<rsn-a(n)<4 for every n≥1.
 -/
 import Mathlib
 
@@ -42,7 +20,7 @@ noncomputable def s : ℝ := √2
 /-- A341249: `a(n) = floor(r * floor(s * n))` with `r = 2 + sqrt 2`, `s = sqrt 2`. -/
 noncomputable def a (n : ℕ) : ℤ := ⌊r * ⌊s * n⌋⌋
 
-/-- Rational bounds `1.41 < sqrt 2 < 1.42` used for the ground-truth checks. -/
+/-- Rational bounds `1.41 < sqrt 2 < 1.42` used for the examples. -/
 theorem sqrt_two_bounds : (141 / 100 : ℝ) < √2 ∧ √2 < 142 / 100 := by
   constructor
   · rw [Real.lt_sqrt (by norm_num)]
@@ -50,7 +28,7 @@ theorem sqrt_two_bounds : (141 / 100 : ℝ) < √2 ∧ √2 < 142 / 100 := by
   · rw [Real.sqrt_lt' (by norm_num)]
     norm_num
 
-/-! ## Ground truth: the first listed terms `3, 6, 13`. -/
+/-! ## The first listed terms `3, 6, 13`. -/
 
 example : a 1 = 3 := by
   obtain ⟨hlo, hhi⟩ := sqrt_two_bounds
@@ -89,9 +67,7 @@ example : a 3 = 13 := by
 
 /-! ## The conjecture and its refutation -/
 
-/-- **Kimberling's conjecture (A341249, Feb 13 2021).**
-Verbatim: "Conjecture:  1 < r*s*n - a(n) < 2 for n >= 1."
-Here `r*s*n - a(n)` is computed in `ℝ`, with `a(n)` cast from `ℤ`. -/
+/-- Kimberling's proposed bounds `1<rsn-a(n)<2` for `n≥1`, with subtraction in `ℝ`. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 1 ≤ n → 1 < r * s * n - a n ∧ r * s * n - a n < 2
 

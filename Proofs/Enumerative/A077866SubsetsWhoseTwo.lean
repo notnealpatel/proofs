@@ -1,37 +1,12 @@
 /-
-# A077866 — Kimberling: subsets whose two least elements sum to the maximum
+Subsets counted by OEIS A077866 (Clark Kimberling, Sep 27 2022).
 
-## OEIS source (retrieved with `oeis show A077866`, 2026-10-21)
-
-```
-NAME:     Expansion of (1-x)^(-1)/(1 - x - 2*x^2 + 2*x^3).
-TERMS:    1,2,5,8,15,22,37,52,83,114,177,240,367,494,749,1004,1515,2026,3049,
-          4072,6119,8166,12261,16356,24547,32738,49121,65504,98271,131038,...
-FORMULA:  G.f.: 1/((1 - x)^2 * (1 - 2*x^2)). - _Michael Somos_, Aug 11 2021
-COMMENT (the conjecture):
-  Conjecture:  let b(n) be the number of subsets S of {1,2,...,n} having more
-  than one element such that (sum of least two elements of S) = max(S).  Then
-  b(0) = b(1) = b(2) = 0 and b(n+3) = a(n) for n >= 0.
-  - _Clark Kimberling_ Sep 27 2022
-```
-
-Note `(1-x)(1 - x - 2x^2 + 2x^3) = (1-x)^2 (1-2x^2)`, so the NAME and the
-Somos g.f. agree.
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  Computational evidence before this file: brute force for
-`n + 3 ≤ 18`, the pair-sum formula for `n + 3 ≤ 44`.
-
-## Proof (kernel-checked below)
-
-Fix the two least elements `x < y` of `S`.  Then `max S = x + y > y`, and the
-remaining elements form an arbitrary subset of the open interval `(y, x + y)`,
-which has `x - 1` integers.  Hence `b(N) = ∑_{1 ≤ x < y, x + y ≤ N} 2^(x-1)`
-(`b_eq_s`).  Splitting off `x = 1` and shifting `(x, y) ↦ (x - 1, y - 1)`
-gives `b(N + 2) = 2 b(N) + N` (`s_add_two`), which is the recurrence
-`a(n + 2) = 2 a(n) + n + 3` obtained by multiplying the g.f. by `1 - 2x^2`.
+Let b(N) count subsets of {1,…,N} with at least two elements whose two least
+elements sum to their maximum. Then b(0)=b(1)=b(2)=0 and b(n+3)=a(n),
+where a has generating function 1/((1-x)²(1-2x²))
+(Michael Somos, Aug 11 2021; equivalent to the entry's NAME).
+Fixing the least elements 0<x<y leaves an arbitrary subset of (y,x+y),
+giving b(N)=∑_{0<x<y, x+y≤N} 2^(x-1) and the recurrence.
 -/
 import Mathlib
 
@@ -79,7 +54,7 @@ def a : ℕ → ℕ
   | 1 => 2
   | n + 2 => 2 * a n + (n + 3)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The first twelve terms of the OEIS DATA line.
 example : (List.range 12).map a = [1, 2, 5, 8, 15, 22, 37, 52, 83, 114, 177, 240] := by decide

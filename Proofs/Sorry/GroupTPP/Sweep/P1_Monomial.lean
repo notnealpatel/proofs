@@ -1,10 +1,10 @@
-import GroupTPP.MonomialRealization
-import GroupTPP.MonomialInterface
-import GroupTPP.MonomialSemanticConverse
-import GroupTPP.MonomialClassification
-import GroupTPP.MonomialTPPBridge
-import GroupTPP.MonomialTPPConstruction
-import GroupTPP.MonomialCapacity
+import Sorry.GroupTPP.MonomialRealization
+import Sorry.GroupTPP.MonomialInterface
+import Sorry.GroupTPP.MonomialSemanticConverse
+import Sorry.GroupTPP.MonomialClassification
+import Sorry.GroupTPP.MonomialTPPBridge
+import Sorry.GroupTPP.MonomialTPPConstruction
+import Sorry.GroupTPP.MonomialCapacity
 
 set_option autoImplicit false
 

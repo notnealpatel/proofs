@@ -1,58 +1,19 @@
 /-
-# Mu–Welker coefficient conjecture `h_i ≤ g_i` in degree 3
+# Mu–Welker coefficient inequalities in degree three
 
-## Source
+Lili Mu and Volkmar Welker, *On a question about real-rooted polynomials and
+f-polynomials of simplicial complexes*, arXiv:2503.24076, Section 3,
+Conjecture 3.8 (`con:second`). See also Feihu Liu, Ying Wang and Zihao Zhang,
+*Counterexamples to the Mu–Welker recursive decomposition in every degree*,
+arXiv:2609.23694, concerning the separate real-rootedness Question 3.10.
 
-* Lili Mu and Volkmar Welker, *On a question about real-rooted polynomials and
-  f-polynomials of simplicial complexes*, arXiv:2503.24076, Section 3
-  ("Second approach"), Conjecture 3.8 (`con:second`) and the Proposition
-  right after it.
-* Feihu Liu, Ying Wang and Zihao Zhang, *Counterexamples to the Mu–Welker
-  recursive decomposition in every degree*, arXiv:2609.23694 (they refute the
-  companion real-rootedness Question 3.10 for every degree `d ≥ 3` and state
-  explicitly that Conjecture 3.8 "is a separate issue and [is] not
-  contradicted by our result").
-
-Recorded 2026-10-21.
-
-## Verbatim informal claim (Mu–Welker, Conjecture 3.8)
-
-Let `f(t) = 1 + f_0 t + ⋯ + f_{d-1} t^d ∈ ℕ[t]`.  For `i ≥ 1` let
-`f_{i-1} = C(a_i, i) + C(a_{i-1}, i-1) + ⋯ + C(a_j, j)`,
-`a_i > ⋯ > a_j ≥ j ≥ 1`, be the `i`-th binomial expansion of `f_{i-1}`, and
-define `g_i = C(a_i - 1, i) + ⋯ + C(a_j - 1, j)` and
-`h_{i-1} = C(a_i - 1, i - 1) + ⋯ + C(a_j - 1, j - 1)`, so that
-`f(t) = g(t) + t h(t)` (the *recursive decomposition*).
-
-> **Conjecture 3.8.** Let `f(t) = 1 + f_0 t + ⋯ + f_{d-1} t^d ∈ ℕ[t]` have
-> only real roots and recursive decomposition `f(t) = g(t) + t h(t)`, with
-> `g(t) = 1 + g_1 t + ⋯ + g_d t^d`, `h(t) = 1 + h_1 t + ⋯ + h_{d-1} t^{d-1}`.
-> Then for `i = 1, …, d-1`, we have `h_i ≤ g_i`.
-
-Mu–Welker show (Proposition after Conjecture 3.8) that the conjecture implies
-a positive answer to the Bell–Skandera question (a real-rooted `f` with
-positive integer coefficients is the `f`-polynomial of a simplicial complex).
-
-## Status
-
-Open in the source (stated as a conjecture, all degrees).  This module proves
-the **degree `d = 3` case** (`i = 1, 2`) unconditionally; in fact it proves the
-stronger statement that only the two Newton inequalities
-`3 c₂ ≤ c₁²`, `3 c₁ c₃ ≤ c₂²` and `0 < c₂` are needed.  No source settling
-degree 3 was located (one web search plus the two papers); this is not a
-novelty claim.  Note that Liu–Wang–Zhang's colex argument shows
-`h_i ≤ g_i` whenever `(1, c₁, …, c_d)` is an `f`-vector, so in each degree the
-conjecture is equivalent to the Bell–Skandera question there.
-
-## Encoding
-
-Coefficients are indexed as `c_i = f_{i-1}`, the coefficient of `t^i`.
-`cascade m i` is the greedy `i`-th binomial expansion of `m` as the list of
-pairs `(a_r, r)`; `mwG m i` and `mwH m i` are the paper's `g_i` and `h_{i-1}`
-computed from the `i`-th expansion of `m = c_i`.  So the conjecture's
-`h_i ≤ g_i` reads `mwH c_{i+1} (i+1) ≤ mwG c_i i`.
-"Only real roots" for `f ∈ ℕ[t]` of degree 3 is the statement that its image
-in `ℝ[t]` has as many real roots (with multiplicity) as its degree.
+For a degree-3 polynomial in `ℕ[t]` with constant coefficient 1 and all roots
+real (counted with multiplicity), the recursive decomposition `f=g+th`
+satisfies `h_i ≤ g_i` for `i=1,2`. It suffices that
+`0<c₂`, `3c₂≤c₁²`, `3c₁c₃≤c₂²`, where `c_i=f.coeff i`.
+The greedy binomial cascade computes `mwG c_i i = g_i` and
+`mwH c_i i = h_{i-1}`, so the comparisons use adjacent coefficient levels.
+No all-degree assertion is made.
 -/
 import Mathlib
 
@@ -85,7 +46,7 @@ def mwG (m i : ℕ) : ℕ := ((cascade m i).map fun p => (p.1 - 1).choose p.2).s
 `m = f_{i-1}`, `h_{i-1} = ∑ C(a_r - 1, r - 1)`. -/
 def mwH (m i : ℕ) : ℕ := ((cascade m i).map fun p => (p.1 - 1).choose (p.2 - 1)).sum
 
-/-! ### Ground truth: the example `f = (1 + 3t)^3 = 1 + 9t + 27t² + 27t³` from the papers.
+/-! ### Example `f = (1 + 3t)^3 = 1 + 9t + 27t² + 27t³` from the papers.
 
 Mu–Welker (end of Section 3) and Liu–Wang–Zhang record the recursive decomposition
 `g = (1 + t)(1 + 7t + 13t²) = 1 + 8t + 20t² + 13t³` and `h = 1 + 7t + 14t²`. -/

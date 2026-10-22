@@ -1,44 +1,25 @@
 /-
 # √Δ-fine rings are fine
 
-## Source
+P. Danchev, O. Hasanzadeh, A. Moussavi, A. Javan, *√Δ-Fine Rings*,
+arXiv:2608.30734 (v2), Problem `basic` at the end of Section 4, restated in
+Section 5 and the Introduction.  The source asks whether a √Δ-fine ring can
+fail to be fine and describes this as open, rather than proving it there.
 
-P. Danchev, O. Hasanzadeh, A. Moussavi, A. Javan, "√Δ-Fine Rings",
-arXiv:2608.30734 (v2).  Problem `basic` (end of Section 4, "Group
-Rings of √Δ-Fine and Generalized Fine Rings"), restated in Section 5
-(Concluding Discussion) and in the Introduction.
+For a possibly noncommutative ring, `Δ(R)` consists of the elements `a` such
+that `1 - u * a` is a unit for every unit `u`; `√Δ(R)` consists of elements
+with a positive power in `Δ(R)`.  A ring is √Δ-fine if every nonzero element
+is a unit plus an element of `√Δ(R)`, and fine if every nonzero element is a
+unit plus a nilpotent.
 
-Definitions (Introduction and Definition `def`, Section 2):
-
-* `Δ(R)`: "an element `a ∈ R` belongs to `Δ(R)` exactly when `1 - ua`
-  is a unit for every unit `u ∈ U(R)`."
-* `√Δ(R)`: "all elements `x ∈ R` such that `x^n ∈ Δ(R)` for some
-  `n ≥ 1`."
-* A ring is *√Δ-fine* if every nonzero element can be written as a sum
-  of a unit and an element of `√Δ(R)`; it is *fine* (Călugăreanu–Lam)
-  if every nonzero element is a unit plus a nilpotent.
-
-Verbatim problem (Problem `basic`):
-
-> Is there a `√Δ`-fine ring which is *not* fine?
-
-Section 5: "whether every `√Δ`-fine ring is necessarily fine remains an
-open problem (Problem `basic`)".
-
-## Status (2026-10-21)
-
-Open in the paper.  This module answers it negatively: a ring is
-`√Δ`-fine if and only if it is fine.  The argument is elementary:
-in a `√Δ`-fine ring every element is a sum of units, so `Δ(R)` is a
-two-sided ideal-like set (closed under addition and multiplication by
-arbitrary elements on both sides, using Jacobson's lemma for right
-multiplication); a nonzero `d ∈ Δ(R)` would give `d = u + a` with
-`a^n ∈ Δ(R)`, whence `u^n ∈ Δ(R)`, `1 ∈ Δ(R)` and `R = 0`.  Hence
-`Δ(R) = 0` and `√Δ(R) = Nil(R)`.
-
-Computational sanity check (not proof): brute force on `ℤ/n`
-(`2 ≤ n ≤ 40`), `𝔽₄`, `M₂(ℤ/4)`, `T₂(ℤ/4)`, `T₂(𝔽₅)`, `M₂(𝔽₅)`
-agrees with the equivalence and with `Δ(R) = 0` for the `√Δ`-fine ones.
+`isSqrtDeltaFine_iff_isFineRing` proves the equivalence, and
+`not_exists_isSqrtDeltaFine_and_not_isFineRing` gives a negative answer to the
+existence question.  In a √Δ-fine ring every element is a sum of units, so
+`Δ(R)` is closed under addition and multiplication by arbitrary elements on
+both sides (using Jacobson's lemma for right multiplication).  A nonzero
+`d ∈ Δ(R)` would admit `d = u + a` with `a^n ∈ Δ(R)`, forcing `u^n ∈ Δ(R)`,
+then `1 ∈ Δ(R)` and `R = 0`.  Hence `Δ(R) = {0}` and `√Δ(R)` is exactly the
+set of nilpotent elements.
 -/
 import Mathlib
 
@@ -252,14 +233,14 @@ end Fine
 
 section Examples
 
-/-- Ground truth: `Δ(ℤ/4) = {0, 2}` (it equals the Jacobson radical `2ℤ/4`). -/
+/-- `Δ(ℤ/4) = {0, 2}` (it equals the Jacobson radical `2ℤ/4`). -/
 example : deltaSet (ZMod 4) = {0, 2} := by
   ext x
   simp only [deltaSet, Set.mem_ofPred_eq, Set.mem_insert_iff, Set.mem_singleton_iff]
   revert x
   decide
 
-/-- Ground truth: `2 ∈ √Δ(ℤ/4)` (it is nilpotent), while `1 ∉ √Δ(ℤ/4)`. -/
+/-- `2 ∈ √Δ(ℤ/4)` (it is nilpotent), while `1 ∉ √Δ(ℤ/4)`. -/
 example : (2 : ZMod 4) ∈ sqrtDelta (ZMod 4) ∧ (1 : ZMod 4) ∉ sqrtDelta (ZMod 4) := by
   refine ⟨mem_sqrtDelta_of_isNilpotent ⟨2, by decide⟩, ?_⟩
   rintro ⟨n, -, hn⟩
@@ -267,7 +248,7 @@ example : (2 : ZMod 4) ∈ sqrtDelta (ZMod 4) ∧ (1 : ZMod 4) ∉ sqrtDelta (ZM
   rw [one_pow, Units.val_one, mul_one, sub_self] at h
   exact absurd h (by decide)
 
-/-- Ground truth: `ℤ/4` is not fine, since `2` is not a unit plus a nilpotent. -/
+/-- `ℤ/4` is not fine, since `2` is not a unit plus a nilpotent. -/
 example : ¬ IsFineRing (ZMod 4) := by
   intro h
   obtain ⟨u, a, ha, h2⟩ := h 2 (by decide)
@@ -276,8 +257,7 @@ example : ¬ IsFineRing (ZMod 4) := by
   rw [← h2] at hunit
   exact absurd hunit (by decide)
 
-/-- Non-vacuity: the field `ℤ/3` is `√Δ`-fine (every nonzero element is a unit plus `0`),
-so the hypothesis of the main theorems is satisfiable. -/
+/-- The field `ℤ/3` is `√Δ`-fine: every nonzero element is a unit plus `0`. -/
 example : IsSqrtDeltaFine (ZMod 3) := by
   intro r hr
   exact ⟨Units.mk0 r hr, 0, mem_sqrtDelta_of_isNilpotent IsNilpotent.zero, by simp⟩

@@ -1,62 +1,24 @@
 /-
-# Gurland's ratio: the Hurwitz-zeta expansion of `ln G*` always converges
+# Gurland's ratio: convergence of the Hurwitz-series expansion
 
-## Source
+Source: Halina Wiśniewska, *Some inequalities for Gurland's ratio of the
+gamma functions*, arXiv:2512.07028, Section 2: Theorem 1 (`tw-zmi`),
+Corollary 1 (`wn1`), and Open problems 1–2 after Corollary 3 (`wn3`).
+For `G*(x,y) = Γ(1+x)Γ(1+y)/Γ(1+(x+y)/2)²`, those problems ask whether
+the expansion of `log G*` converges and its remainder tends to zero for
+all `x,y > 0`, beyond the sufficient condition
+`Q(x,y) = |x-y|/(2(1+√(xy))) < 1`.
 
-arXiv:2512.07028, Halina Wiśniewska, "Some inequalities for Gurland's ratio
-of the gamma functions".  Section 2 ("Main results"): Theorem 1 (`tw-zmi`),
-Corollary 1 (`wn1`), and the list "Open problems", items 1 and 2, after
-Corollary 3 (`wn3`).  Retrieved and re-read 2026-10-21.
+Both conclusions are proved here for positive `x,y`. With `a=(x+y)/2`
+and `d=(x-y)/2`, Euler's log-Gamma limit gives
+`log G* = ∑_{n≥1} -log(1-d²/(n+a)²)`. Each ratio lies in `[0,1)`;
+expanding `-log(1-u)` and interchanging nonnegative sums gives
+`∑_{k≥1} d^{2k} ζ(2k,1+a)/k`.
 
-Verbatim (Section 1 and Section 2):
-
-> ${\mathcal{G}}_{\star} (x,y) = \frac{\Gamma (1+x) \cdot \Gamma (1+y)}
-> {{\Gamma}^2 \left (1+ \frac{x+y}{2} \right )}.$
->
-> Let $\zeta$ denote the Hurwitz zeta function defined as:
-> $\zeta (a,x) = \sum_{n=0}^{\infty} {(n+x)}^{-a}.$
->
-> **Theorem 1.** ... for all $x, y > 0$ and integers $m \geq 2$:
-> $\ln {\mathcal{G}}_{\star} (x,y) = \sum_{k=1}^{m-1} \frac{1}{k}
-> {\left (\frac{x-y}{2} \right )}^{2k} \zeta \left ( 2k, 1 + \frac{x+y}{2}
-> \right ) + R_n^m (x,y)$, where $0 \leq R_n^m (x,y) \leq \dots$
->
-> **Corollary 1.** If $x, y >0$, then the condition
-> $Q(x,y) = \frac{|x-y|}{2(1+ \sqrt{xy})} < 1$ implies that
-> $\ln {\mathcal{G}}_{\star} (x,y) = S_{\infty} (x,y)$, where
-> $S_{\infty} (x,y) = \lim_{m \to \infty} S_m (x,y)$ and
-> $S_m (x,y) = \sum_{k=1}^{m-1} \frac{1}{k} {\left (\frac{x-y}{2} \right )}^{2k}
-> \zeta \left ( 2k, 1 + \frac{x+y}{2} \right )$ ...
->
-> **Open problems:**
-> 1. In Corollary 1 we showed that $R_n^m (x,y) \to 0$ under a sufficient
->    condition. Does $R_n^m (x,y) \to 0$ hold for every $x,y > 0$?
-> 2. Does $\ln {\mathcal{G}}_{\star} (x,y) = S_{\infty} (x,y)$ hold generally,
->    and if not, how large the difference
->    $\ln {\mathcal{G}}_{\star} (x,y) - S_{\infty} (x,y)$ can be?
-
-## Status
-
-Open problems 1 and 2 are posed as open in the paper.  Both have the answer
-"yes" for every `x, y > 0` by a classical argument (the Taylor expansion of
-`log Γ` about `1 + (x + y)/2`, whose radius `1 + (x + y)/2` exceeds
-`|x - y|/2`), so the claim is a known result, proved elsewhere.  Argument
-formalized here: with `a = (x+y)/2`, `d = (x-y)/2`, one has
-`(n+x)(n+y) = (n+a)^2 - d^2`, so `ln G* = ∑_{n ≥ 1} -log(1 - d²/(n+a)²)`
-(Euler's limit for `log Γ`, Mathlib's `BohrMollerup.tendsto_log_gamma`);
-each `u_n = d²/(n+a)²` lies in `[0, 1)`, so `-log(1 - u_n) = ∑_k u_n^k / k`;
-all terms are nonnegative, so the double series may be summed in either
-order, giving `ln G* = ∑_{k ≥ 1} (1/k) d^{2k} ζ(2k, 1 + a)`.
-
-## Formalization
-
-* `gurlandStar x y` is the paper's `G*(x, y)` verbatim.
-* `hurwitzZetaSeries s q` is the paper's defining series
-  `ζ(s, q) = ∑_{n ≥ 0} (n + q)^{-s}`, taken as an explicit `tsum` with a
-  natural-number exponent (the paper only evaluates it at `s = 2k`).  No
-  bridge to Mathlib's `HurwitzZeta.hurwitzZeta` is claimed.
-* `partialSum m x y` is `S_m(x, y)` and `remainder m x y` is
-  `R^m(x, y) = ln G*(x, y) - S_m(x, y)`.
+`hurwitzZetaSeries` is the explicit real series with a natural exponent,
+not Mathlib's `HurwitzZeta.hurwitzZeta`; no bridge to that function is
+claimed. `partialSum m` is the source's `S_m`, and `remainder m` is the
+actual difference `log G* - S_m`, whose limit is zero.
 -/
 import Mathlib
 
@@ -90,7 +52,7 @@ noncomputable def partialSum (m : ℕ) (x y : ℝ) : ℝ :=
 noncomputable def remainder (m : ℕ) (x y : ℝ) : ℝ :=
   log (gurlandStar x y) - partialSum m x y
 
-/-! ## Ground truth for the definitions -/
+/-! ## Examples for the definitions -/
 
 example : gurlandStar 1 1 = 1 := by
   have h2 : Gamma 2 = 1 := Gamma_two
@@ -247,8 +209,8 @@ theorem hasSum_log_gurlandStar {x y : ℝ} (hx : 0 < x) (hy : 0 < y) :
   simp only [tsum_ratioU_pow_eq_zetaTerm] at h
   exact h
 
-/-- **Open problem 2 of arXiv:2512.07028: yes.**  For every `x, y > 0` the partial sums
-`S_m(x, y)` converge to `ln G*(x, y)`, i.e. `ln G*(x, y) = S_∞(x, y)`. -/
+/-- For positive `x, y`, the partial sums `S_m(x,y)` converge to `ln G*(x,y)`
+(arXiv:2512.07028, Open problem 2). -/
 theorem tendsto_partialSum {x y : ℝ} (hx : 0 < x) (hy : 0 < y) :
     Tendsto (fun m : ℕ => partialSum m x y) atTop (𝓝 (log (gurlandStar x y))) := by
   have h := (hasSum_log_gurlandStar hx hy).tendsto_sum_nat.comp (tendsto_sub_atTop_nat 1)
@@ -261,8 +223,8 @@ theorem limUnder_partialSum {x y : ℝ} (hx : 0 < x) (hy : 0 < y) :
     limUnder atTop (fun m : ℕ => partialSum m x y) = log (gurlandStar x y) :=
   (tendsto_partialSum hx hy).limUnder_eq
 
-/-- **Open problem 1 of arXiv:2512.07028: yes.**  For every `x, y > 0`, the remainder
-`R^m(x, y) = ln G*(x, y) - S_m(x, y)` tends to `0` as `m → ∞`. -/
+/-- For positive `x, y`, the remainder `ln G*(x,y) - S_m(x,y)` tends to zero
+(arXiv:2512.07028, Open problem 1). -/
 theorem tendsto_remainder {x y : ℝ} (hx : 0 < x) (hy : 0 < y) :
     Tendsto (fun m : ℕ => remainder m x y) atTop (𝓝 0) := by
   have h := (tendsto_const_nhds (x := log (gurlandStar x y))).sub (tendsto_partialSum hx hy)

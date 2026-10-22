@@ -1,46 +1,12 @@
 /-
-# A110734 — the "eventually nonzero" conjecture is false
+# A110734: an unbounded family of zeros
 
-## OEIS source (retrieved 2026-10-21, `oeis show A110734`)
-
-```
-A110734   Let n = a_1a_2...a_k, where the a_i are digits. a(n) = least multiple
-          of n of the form a_1b_1a_2b_2...b_{k-1}a_k, obtained by inserting
-          single digits b_i in the gaps; 0 if no such number exists.
-DATA      1,2,3,4,5,6,7,8,9,100,121,132,143,154,105,176,187,108,0,200,231,242,
-          253,264,225,286,297,0,0,300,341,352,363,374,315,396,0,0,0,400,451,
-          462,473,484,405,0,0,0,0,500,561,572,583,594,0,0,0,0,0,600,671,682,
-          693,0,0
-COMMENT   Conjecture: for large n, a(n) is nonzero. For a k-digit number there
-          are k-1 gaps and 10^(k-1) candidates, so the chances that one of them
-          is a multiple of n increases with k on the one hand though the
-          probability decreases because n becomes large.
-COMMENT   Pursuing the probability argument, ... we would expect that only a
-          small but nonzero fraction of all n have a(n) nonzero. Of course, it
-          is not clear that the probability argument is accurate.
-          - _Franklin T. Adams-Watters_, Sep 25 2006
-```
-
-The conjecture comment is unsigned (it belongs to the original submission,
-2005).  The entry has no formula or program lines.
-
-## Status
-
-Literature status (triage): no proof or disproof is recorded in the entry or
-on the live page; the entry's own heuristic (Adams-Watters, 2006) already
-predicts infinitely many zeros.  This module **refutes** the conjecture: for
-every `j ≥ 1`, `n = 2·10^j - 1 = 199…9` has `a(n) = 0`
-(`a_two_mul_ten_pow_sub_one`), so there is no `N` with `a(n) ≠ 0` for all
-`n ≥ N` (`not_conjecture`).
-
-Proof of the family.  Put `X = 10^j` and `n = 2X - 1`.  A candidate `C` has
-digit `1` at position `2j` and `2j + 1` digits, so `X² ≤ C < 2X²`.  If
-`C = n q`, then `X < 2q` and `q ≤ X`, hence `C = (2q - 1) X + (X - q)` with
-`0 ≤ X - q < X`: the low `j` digits of `C` are `r = X - q` and the high block
-is `2q - 1`.  The units digit of `C` is `9`, so `r ≡ 9 (mod 10)`.  If `j` is
-odd, digit position `j - 1` is even, so `r ≥ 9·10^(j-1)`, contradicting
-`2r < X`.  If `j` is even, digit position `j` is even, so `2q - 1 ≡ 9`, i.e.
-`5 ∣ q`, contradicting `X - q ≡ 9 (mod 10)`.
+OEIS A110734, the conjecture that digit-interleaving multiples eventually
+exist; heuristic discussion by Franklin T. Adams-Watters (Sep 25 2006).
+For every `j ≥ 1`, `a(2*10^j - 1) = 0`, refuting eventual nonvanishing.
+Writing `X = 10^j`, a candidate multiple of `2X-1` must lie in `[X²,2X²)`;
+its prescribed digits contradict the resulting quotient bounds.
+The argument uses the literal finite insertion range, not a probability model.
 -/
 import Mathlib
 
@@ -83,7 +49,7 @@ def a (n : ℕ) : ℕ :=
   let k := numDigits n
   ((List.range (10 ^ (2 * k - 1))).find? (fun m => decide (Weave k n m ∧ n ∣ m))).getD 0
 
-/-! ## Ground truth against the OEIS DATA line (offset 1) -/
+/-! ## Examples against the OEIS DATA line (offset 1) -/
 
 -- Checked in blocks of ten: a single `decide +kernel` over all 65 terms
 -- exhausts memory, while each block below checks in about two seconds.

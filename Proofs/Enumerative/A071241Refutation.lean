@@ -1,40 +1,12 @@
 /-
-# A071241 — the "only primes are 2, 11, 101" conjecture is false
+Prime terms of OEIS A071241 (Amarnath Murthy, May 20 2002).
 
-## OEIS source (retrieved with `oeis show A071241`, 2026-10-21)
-
-```
-NAME:     Arithmetic mean of k and R(k) where k is the n-th nonnegative number
-          using only even digits and R(k) is its digit reversal (A004086).
-TERMS:    0,2,4,6,8,11,22,33,44,55,22,33,44,55,66,33,44,55,66,77,44,55,66,77,
-          88,101,202,303,404,505,121,222,323,424,525,141,242,343,444,545,161,
-          262,363,464,565,181,282,383,484,585,202,303,404,505,606,222,323,424,
-          525
-AUTHOR:   Amarnath Murthy, May 20 2002 (live entry %A line; the conjecture
-          comment carries no separate signature, so it is the author's;
-          more terms from James Sellers, May 28 2002)
-COMMENT (the conjecture):
-  Conjecture: 101 is the largest prime term, the only other primes being 2
-  and 11.
-COMMENT (later retraction already present in the entry):
-  The conjecture is false: for example, 181 and 383 are prime terms. There
-  are 150 prime terms less than 75000. - _Harvey P. Dale_, Sep 02 2016
-```
-
-## Status
-
-The entry itself already records the refutation (Dale, 2016).  This module
-kernel-checks it: `k = 280` has only even digits, `R(280) = 82`, and
-`(280 + 82) / 2 = 181` is prime.
-
-Independent recomputation (Python, 2026-10-21): the first 59 values for even-
-digit `k < 427` reproduce the DATA line exactly; the distinct prime values
-begin `2, 11, 101, 181, 383, 727, 787, 10601, …`; counted with multiplicity
-there are exactly 150 prime terms below 75000, matching Dale's comment.
-
-This module refutes the conjecture (`a071241_conjecture_false`) and proves the
-corrected bounded classification of prime terms below 1000
-(`prime_term_lt_thousand_iff`).
+The claim that the only prime means (k+reverse(k))/2 for even-digit k are
+2, 11 and 101 is refuted by k=280, reverse(k)=82 and mean 181.
+Harvey P. Dale records the refutation in the entry (Sep 02 2016).
+The formal relation is k+reverse(k)=2m, without rounding.
+The prime values below 1000 are classified as 2, 11, 101, 181, 383, 727 and 787;
+no unbounded classification is claimed.
 -/
 import Mathlib
 
@@ -59,7 +31,7 @@ instance : DecidablePred AllEvenDigits := fun k => by
   unfold AllEvenDigits
   infer_instance
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : digitRev 280 = 82 := by decide
 example : digitRev 1230 = 321 := by decide
@@ -78,31 +50,21 @@ example : ((List.range 427).filter (fun k => decide (AllEvenDigits k))).map
 
 /-! ## The conjecture -/
 
-/-- **The A071241 conjecture (as recorded in the entry).**
-
-Verbatim (Amarnath Murthy, May 20 2002): "Conjecture: 101 is the largest
-prime term, the only other primes being 2 and 11."
-
-Every term is `m` with `k + R(k) = 2 * m` for some even-digit `k`; stating the
-mean through `k + R(k) = 2 * m` avoids truncating `Nat` division (the sum is
-always even here, but the statement does not rely on that).  The conjecture
-says every prime term is `2`, `11` or `101`. -/
+/-- Murthy's A071241 conjecture: every prime `m` with `k+R(k)=2m` for an
+even-digit `k` belongs to `{2,11,101}`. The equation states the mean without
+truncated natural division. -/
 def Conjecture : Prop :=
   ∀ k m : ℕ, AllEvenDigits k → k + digitRev k = 2 * m → m.Prime →
     m = 2 ∨ m = 11 ∨ m = 101
 
--- Non-vacuity: the hypotheses are jointly satisfiable, at `k = 20`, `m = 11`.
+-- The hypotheses are jointly satisfiable, at `k = 20`, `m = 11`.
 example : AllEvenDigits 20 ∧ 20 + digitRev 20 = 2 * 11 ∧ Nat.Prime 11 := by
   refine ⟨by decide, by decide, by norm_num⟩
 
 /-! ## Refutation -/
 
-/-- **The A071241 conjecture is false.**  Counterexample (Harvey P. Dale,
-2016): `k = 280` has only even digits, `R(280) = 82`, and the term
-`(280 + 82) / 2 = 181` is prime but is none of `2`, `11`, `101`.
-The claim the author probably intended holds only for prime terms below
-`181`; see `prime_term_lt_thousand_iff` for the true classification below
-`1000`. -/
+/-- Dale's counterexample to A071241: `280` has even digits, reverses to
+`82`, and gives the prime mean `181`, outside `{2,11,101}`. -/
 theorem a071241_conjecture_false : ¬ Conjecture := by
   intro hconj
   have hdigits : AllEvenDigits 280 := by decide

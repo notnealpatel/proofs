@@ -33,10 +33,10 @@ landmarks: Melfi's theorem (proved) below it, Goldbach (open) above it.
 with a `DecidablePred` instance.  Statement cost is essentially zero.
 -/
 import Mathlib
-import Enumerative.Practical
-import Enumerative.StewartCriterion
-import Enumerative.MelfiPracticalSum
-import Enumerative.SwitkayParity
+import Sorry.Quarantine.Enumerative.Practical
+import Sorry.Enumerative.StewartCriterion
+import Sorry.Enumerative.MelfiPracticalSum
+import Sorry.Enumerative.SwitkayParity
 
 set_option autoImplicit false
 

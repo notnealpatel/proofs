@@ -1,36 +1,15 @@
 /-
-# A284521 — sum of largest prime power factors is O(n^2 / log n)
+# A284521: sums of largest prime-power factors
 
-## OEIS source (retrieved with `oeis show A284521`, 2026-10-21)
+OEIS A284521 is the partial sum of A034699, the largest prime-power
+factor `L(k)`, with `L(1) = 1`. Its conjecture is `a(n) = O(n²/log n)`.
 
-```
-NAME:     Sum of largest prime power factors of numbers <= n.
-TERMS:    1,3,6,10,15,18,25,33,42,47,58,62,75,82,87,103,120,129,148,153,160,
-          171,194,202,227,240,267,274,303,308,339,371,382,399,406,415,452,471,
-          484,492,533,540,583,594,603,626,673,689,738,763,780,793,846,873,884,
-          892,911,940,999,1004,1065,1096,1105,1169,1182
-COMMENT:  Partial sums of A034699.
-FORMULA (the conjecture; the local store carries no author/date on the line):
-  Conjecture: a(n) = O(n^2/log(n)).
-```
-
-A034699 is "largest prime power factor of n" with A034699(1) = 1.
-
-## Status
-
-Triage status: open — neither the entry nor a web search turned up a printed
-proof of this prime-power version.  (Alladi–Erdős give `∑ P(k) ~ π²/12 ·
-n²/log n` for the largest prime factor `P(k)`.)  Numerically (re-checked here
-up to 3·10^6) `a(n) log n / n^2` is 1.033 at 10^3, 0.900 at 10^6 and 0.893 at
-3·10^6, with maximum 1.256 at n = 32 over 2 ≤ n ≤ 3·10^6.
-
-## Proof route (elementary, Chebyshev-level)
-
-Every `k ≥ 2` has `L(k)` equal to a prime power `q ≤ n` dividing `k`, so
-`a(n) ≤ n + ∑_{q ≤ n prime power} q · ⌊n/q⌋ ≤ n + n · Π(n)` where `Π(n)` counts
-prime powers in `[1, n]`.  Then `Π(n) ≤ π(n) + ⌊√n⌋ · ⌊log₂ n⌋`, and Mathlib's
-`Chebyshev.pi_le_log4_mul_div` together with `log x ≤ x^ε/ε` gives
-`a(n) ≤ (3 + 2 log 4 + 16 / log 2) · n^2 / log n` for every `n ≥ 2`.
+Bound each largest prime power by the sum of prime-power divisors and
+interchange the divisor sums. Then `a(n) ≤ n + n·Π(n)`, where `Π(n)` counts
+prime powers at most `n`. The bound
+`Π(n) ≤ π(n) + ⌊√n⌋⌊log₂ n⌋`, Mathlib's Chebyshev estimate, and
+`log x ≤ x^ε/ε` give
+`a(n) ≤ (3 + 2 log 4 + 16/log 2)·n²/log n` for every `n ≥ 2`.
 -/
 import Mathlib
 
@@ -52,15 +31,15 @@ def largestPrimePowerDivisor (k : ℕ) : ℕ :=
 def a (n : ℕ) : ℕ :=
   ∑ k ∈ Icc 1 n, largestPrimePowerDivisor k
 
-/-- Ground truth: `L(12) = 4`. -/
+/-- Examples: `L(12) = 4`. -/
 example : largestPrimePowerDivisor 12 = 4 := by decide +kernel
 
-/-- Ground truth: the first twenty terms of A034699. -/
+/-- Examples: the first twenty terms of A034699. -/
 example : (List.range 20).map (fun i => largestPrimePowerDivisor (i + 1)) =
     [1, 2, 3, 4, 5, 3, 7, 8, 9, 5, 11, 4, 13, 7, 5, 16, 17, 9, 19, 5] := by
   decide +kernel
 
-/-- Ground truth: all sixty-five listed terms of A284521. -/
+/-- Examples: all sixty-five listed terms of A284521. -/
 example : (List.range 65).map (fun i => a (i + 1)) =
     [1, 3, 6, 10, 15, 18, 25, 33, 42, 47, 58, 62, 75, 82, 87, 103, 120, 129, 148, 153, 160,
       171, 194, 202, 227, 240, 267, 274, 303, 308, 339, 371, 382, 399, 406, 415, 452, 471,

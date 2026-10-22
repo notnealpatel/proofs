@@ -1,22 +1,11 @@
 /-
 # A000384 — Chu: minimal basis pair for `{0, …, 2·a(n)}` has size `2n`
 
-## OEIS source (retrieved with `oeis show A000384`, 2026-10-21)
+Michael Chu's conjecture in OEIS A000384 (March 9, 2022) states that, for
+`n ≥ 1` and `N = n(2n-1)`, the least size of sets `A, B ⊆ {0, …, N}`
+with `|A| = |B|` and `A + B = {0, …, 2N}` is `2n`.
 
-```
-NAME:     Hexagonal numbers: a(n) = n*(2*n-1).
-TERMS:    0,1,6,15,28,45,66,91,120,153,190,231,276,325,378,435,496,561,630,...
-COMMENT (the conjecture):
-  Conjecture: For n>0, min{k such that there exist subsets A,B of
-  {0,1,2,...,a(n)} such that |A|=|B|=k and A+B={0,1,2,...,2*a(n)}} = 2*n.
-  - _Michael Chu_, Mar 09 2022
-```
-
-## Status
-
-Triage status: open (no proof in the entry or the literature as far as the
-triage could tell).  An elementary argument settles it, and this module
-kernel-checks it:
+The proof uses the following bounds:
 
 * lower bound: `|A + B| ≤ |A|·|B| = k²` must reach `2N + 1 = 4n² - 2n + 1`,
   which exceeds `(2n - 1)²`, so `2n ≤ k`;
@@ -49,7 +38,7 @@ def admissibleSizes (N : ℕ) : Set ℕ :=
   {k | ∃ A B : Finset ℕ, A ⊆ Finset.range (N + 1) ∧ B ⊆ Finset.range (N + 1) ∧
     A.card = k ∧ B.card = k ∧ A + B = Finset.range (2 * N + 1)}
 
-/-- Sanity check of the definition at `N = 1` (`n = 1`): `A = B = {0, 1}`
+/-- At `N = 1` (`n = 1`), `A = B = {0, 1}`
 works with `k = 2`. -/
 example : 2 ∈ admissibleSizes 1 :=
   ⟨{0, 1}, {0, 1}, by decide, by decide, rfl, rfl, by decide⟩
@@ -145,14 +134,10 @@ theorem two_mul_mem_admissibleSizes (n : ℕ) (hn : 1 ≤ n) :
         simp only [A, Finset.mem_union, Finset.mem_Icc]
         exact Or.inr ⟨by omega, by omega⟩
 
-/-- **Chu's conjecture (A000384, Michael Chu, Mar 09 2022).**
-
-Verbatim: "Conjecture: For n>0, min{k such that there exist subsets A,B of
-{0,1,2,...,a(n)} such that |A|=|B|=k and A+B={0,1,2,...,2*a(n)}} = 2*n."
-
-Formal reading: for `1 ≤ n` and `N = a(n) = n(2n-1)`, `2n` is the least `k`
-for which there are `A, B ⊆ {0, …, N}` with `|A| = |B| = k` and
-`A + B = {0, …, 2N}`. -/
+/-- Chu's conjecture (OEIS A000384, Michael Chu, March 9, 2022):
+for `1 ≤ n` and `N = n(2n-1)`, the least `k` admitting sets
+`A, B ⊆ {0, …, N}` with `|A| = |B| = k` and
+`A + B = {0, …, 2N}` is `2n`. -/
 theorem chu_conjecture (n : ℕ) (hn : 1 ≤ n) :
     IsLeast (admissibleSizes (hexagonal n)) (2 * n) :=
   ⟨two_mul_mem_admissibleSizes n hn, fun k hk => two_mul_le_of_mem_admissibleSizes n hn k hk⟩

@@ -1,43 +1,18 @@
 /-
-# A010786 — Kotesovec: the growth constant of the floor-factorial numbers
+# Floor-factorial growth and the constant A085361
 
-## OEIS source (retrieved with `oeis show A010786`, 2026-10-21)
+OEIS A010786 is `a(n) = ∏_{k=1}^n ⌊n/k⌋`, with `a(0) = 1`.
+Vaclav Kotesovec's conjecture (2018-10-03) is
+`log a(n) ~ c · (n - log(2πn)/2)`, with `c = A085361`.
+Here A085361 is `∑_{n≥1} (ζ(n+1) - 1)/n`.
 
-```
-NAME:     Floor-factorial numbers: a(n) = Product_{k=1..n} floor(n/k).
-TERMS:    1,1,2,3,8,10,36,42,128,216,600,660,3456,3744,9408,18900,61440,65280,
-          279936,295488,1152000,2116800,4878720,5100480,31850496,41472000,...
-FORMULA (the conjecture):
-          From _Vaclav Kotesovec_, Oct 03 2018: (Start)
-          log(a(n)) ~ c * (n - log(2*Pi*n)/2), where c = 0.7885...
-          Conjecture: c = A085361. (End)
-FORMULA:  From _Ridouane Oudra_, Jan 18 2025:
-          a(n) = Product_{k=1..n} ((k+1)/k)^floor(n/(k+1)).
-```
-
-A085361 (`oeis show A085361`): "Decimal expansion of the number
-c = Sum_{n>=1} (zeta(n+1)-1)/n", with the formula
-"Equals Sum_{n>=2} log(n/(n-1))/n".
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  This module proves the conjecture: `conjecture_A010786` (the
-printed `~` form with the constant written as A085361's zeta series) and
-`tendsto_log_a_div_A085361` (the equivalent limit form).
-
-## Proof outline
-
-Writing `log m = Σ_{i<m-1} log((i+2)/(i+1))` and swapping the order of
-summation, using `#{k ≤ n : i + 2 ≤ ⌊n/k⌋} = ⌊n/(i+2)⌋`, gives Oudra's formula
-`log a(n) = Σ_{i<n} ⌊n/(i+2)⌋ log((i+2)/(i+1))` (`log_a_eq`).  Comparing with
-`n Σ_{i<n} log((i+2)/(i+1))/(i+2)` termwise gives an error in
-`[0, Σ_{i<n} log((i+2)/(i+1))] = [0, log(n+1)]` (`error_bounds`), so
-`log a(n)/n → cAG := Σ_{i≥0} log((i+2)/(i+1))/(i+2)`.  Since `cAG > 0` and
-`log(2πn)/n → 0`, the `~` form follows.  Expanding
-`log((j+2)/(j+1)) = -log(1 - 1/(j+2)) = Σ_m 1/((m+1)(j+2)^(m+1))` and swapping
-the nonnegative double series identifies `cAG` with A085361's zeta series
-(`cAG_eq_A085361`).
+Ridouane Oudra's product formula (2025-01-18) gives `log_a_eq`.
+Comparing its floor sum with the corresponding real sum gives an error in
+`[0, log(n+1)]`, hence the limit
+`log a(n)/n → cAG`. A nonnegative double-series interchange identifies
+`cAG = ∑_{j≥2} log(j/(j-1))/j` with A085361's zeta series.
+`conjecture_A010786` gives the asymptotic and `tendsto_log_a_div_A085361`
+the limit form.
 -/
 import Mathlib
 
@@ -49,7 +24,7 @@ open Real Filter Topology Asymptotics
 
 noncomputable section
 
-/-! ## Definitions and ground truth -/
+/-! ## Definitions and examples -/
 
 /-- The floor-factorial number `a(n) = ∏_{k=1}^{n} ⌊n/k⌋` (OEIS A010786);
 `n / k` is natural-number (floor) division, and `a 0 = 1` (empty product). -/
@@ -384,15 +359,10 @@ theorem cAG_eq_A085361 : cAG = A085361 := by
 
 /-! ## The conjecture -/
 
-/-- **Kotesovec's conjecture (A010786, Vaclav Kotesovec, Oct 03 2018).**
-
-Verbatim: "log(a(n)) ~ c * (n - log(2*Pi*n)/2), where c = 0.7885...
-Conjecture: c = A085361."
-
-Here `a(n) = ∏_{k=1}^n ⌊n/k⌋` and `A085361 = Σ_{n≥1} (ζ(n+1) - 1)/n` (the
-definition in the name of A085361).  The statement is the `IsEquivalent`
-relation `~[atTop]` along `ℕ`; at `n = 0` the junk value `log 0 = 0` is
-irrelevant to an asymptotic statement. -/
+/-- Kotesovec's conjecture (OEIS A010786, 2018-10-03):
+`log a(n) ~ A085361 · (n - log(2πn)/2)`, with A085361 given by its zeta series.
+The relation is `IsEquivalent` along `ℕ` at infinity; the totalized value
+of `log 0` at `n = 0` is irrelevant. -/
 theorem conjecture_A010786 :
     (fun n : ℕ => Real.log (a n : ℝ)) ~[atTop]
       (fun n : ℕ => A085361 * ((n : ℝ) - Real.log (2 * π * n) / 2)) := by

@@ -1,28 +1,9 @@
 /-
 # A226898 — Greathouse: Hooley's `Δ(n) ≤ τ(n)/2` for `n > 4`
 
-## OEIS source (retrieved with `oeis show A226898`, 2026-10-21)
-
-```
-NAME:     Hooley's Delta function: maximum number of divisors of n in [u, e*u]
-          for all u. (Here e is Euler's number 2.718... = A001113.)
-TERMS:    1,2,1,2,1,2,1,2,1,2,1,3,1,2,2,2,1,2,1,3,2,2,1,4,1,2,1,2,1,3,1,2,1,2,
-          2,3,1,2,1,4,1,3,1,2,2,2,1,4,1,2,1,2,1,2,2,3,1,2,1,4,1,2,2,2,2,2,1,2,
-          1,3,1,4,1,2,2,2,2,2,1,4,1,2,1,4,1,2,1,2,1,4,2,2
-COMMENT (equivalent definition):
-  Equivalent definition: Let D be the set of divisors of n, then
-  Delta(n) = Max_{d in D} #([d, e*d] INTERSECT D).
-COMMENT (the conjecture):
-  Conjecture: For n > 4, a(n) <= d(n)/2 where d(n) is A000005.
-  - _Charles R Greathouse IV_, Jan 24 2026
-```
-
-## Status
-
-Triage status: open (no proof in the entry or in the literature found by the
-triage).  Computation: `2·Δ(n) ≤ τ(n)` holds for every `n ≤ 400000` except
-`n = 1, 2, 4`, which the hypothesis `n > 4` excludes.  This module proves the
-conjecture (`greathouse_conjecture`), sorry-free.
+Charles R. Greathouse IV's conjecture in OEIS A226898 (2026):
+`2Δ(n) ≤ τ(n)` for `n > 4`, where Hooley's `Δ` counts the most divisors
+in a window `[u,eu]`.
 
 ## Formalization
 
@@ -173,18 +154,18 @@ theorem hooleyDelta_eq_hooleyDeltaRat {n : ℕ} (hn : n ≤ 100) :
   refine Finset.filter_congr (fun d' _ => ?_)
   rw [Nat.cast_le, natCast_le_exp_one_mul_iff hdn]
 
-/-- Ground truth: `Δ(1), …, Δ(92)` agree with the 92 terms listed in A226898. -/
+/-- Examples: `Δ(1), …, Δ(92)` agree with the 92 terms listed in A226898. -/
 example : (List.range 92).map (fun i => hooleyDeltaRat (i + 1)) =
     [1,2,1,2,1,2,1,2,1,2,1,3,1,2,2,2,1,2,1,3,2,2,1,4,1,2,1,2,1,3,1,2,1,2,2,3,1,2,1,4,1,3,1,2,
       2,2,1,4,1,2,1,2,1,2,2,3,1,2,1,4,1,2,2,2,2,2,1,2,1,3,1,4,1,2,2,2,2,2,1,4,1,2,1,4,1,2,1,2,
       1,4,2,2] := by
   decide
 
-/-- Ground truth for the real-valued definition: `Δ(12) = 3` (window `[2, 2e]` holds `2, 3, 4`). -/
+/-- Examples for the real-valued definition: `Δ(12) = 3` (window `[2, 2e]` holds `2, 3, 4`). -/
 example : hooleyDelta 12 = 3 := by
   rw [hooleyDelta_eq_hooleyDeltaRat (by norm_num)]; decide
 
-/-- Ground truth: `Δ(24) = 4` (window `[3, 3e]` holds `3, 4, 6, 8`). -/
+/-- Examples: `Δ(24) = 4` (window `[3, 3e]` holds `3, 4, 6, 8`). -/
 example : hooleyDelta 24 = 4 := by
   rw [hooleyDelta_eq_hooleyDeltaRat (by norm_num)]; decide
 
@@ -270,12 +251,9 @@ theorem two_mul_card_hooleyWindow_le {n : ℕ} (hn : 4 < n) (u : ℝ) :
     calc 2 * (hooleyWindow n u).card ≤ 2 * (ordCompl[p] n).divisors.card := by gcongr
       _ ≤ (n.factorization p + 1) * (ordCompl[p] n).divisors.card := by gcongr; omega
 
-/-- **Greathouse's conjecture (A226898, Charles R Greathouse IV, Jan 24 2026).**
-
-Verbatim: "Conjecture: For n > 4, a(n) <= d(n)/2 where d(n) is A000005."
-Here `a(n) = Δ(n)` is Hooley's Delta function and `d(n) = τ(n)` the number of
-divisors; the inequality is stated without division as `2 Δ(n) ≤ τ(n)`.  The
-hypothesis `4 < n` is sharp: the bound fails at `n = 1, 2, 4`. -/
+/-- Greathouse's conjecture (OEIS A226898, 2026): for `4 < n`,
+`2Δ(n) ≤ τ(n)`, equivalently `Δ(n) ≤ τ(n)/2` over the rationals.
+The bound fails at `n=1,2,4`. -/
 theorem greathouse_conjecture {n : ℕ} (hn : 4 < n) : 2 * hooleyDelta n ≤ n.divisors.card := by
   rw [hooleyDelta]
   have hne : n.divisors.Nonempty := Nat.nonempty_divisors.mpr (by omega)

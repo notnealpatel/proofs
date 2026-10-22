@@ -1,37 +1,13 @@
 /-
-# A110194 — the two-block conjecture for the differences of A110095 is false
+Refutation of the two-block conjecture for OEIS A110194
+(Alexandre Wajnberg and Eric Angelini, Sep 06 2005).
 
-## OEIS source (retrieved 2026-10-21; `oeis show A110194` and the live entry)
-
-```
-A110194   First differences of A110095 (least nonprime sequence whose first
-          differences are nonprime).
-OFFSET:   1
-DATA:     1,8,1,4,1,1,4,1,1,4,1,1,4,1,1,1,1,4,4,1,1,4,1,1,4,1,1,4,1,1,1,1,4,4,
-          1,1,1,1,4,4,1,1,4,1,1,1,1,4,4,1,1,4,1,1,4,1,1,1,1,1,1,1,1,1,1,4,4,...
-COMMENT:  Conjecture: from a(5) on, are there only substrings <1 1 4> and
-          <1 1 1 1 4 4 >?
-AUTHOR:   Alexandre Wajnberg and Eric Angelini, Sep 06 2005
-EXTENSIONS: More terms from Michel Marcus, Aug 09 2022
-```
-
-A110095: "Least increasing sequence of nonprimes whose first differences are
-also nonprime", offset 1, data `0,1,9,10,14,15,16,20,21,22,26,...`; PARI
-(Michel Marcus): `new = last+1; while(isprime(new) || isprime(new-last), new++)`.
-No later comment on either entry retracts the conjecture.
-
-## Status
-
-This module **refutes** the conjecture.  Reading the conjecture as "the word
-`a(5) a(6) a(7) ...` is a concatenation of the blocks `1 1 4` and
-`1 1 1 1 4 4`", the parse is forced (a block starting at position `p` is
-`1 1 4` exactly when `a(p+2) = 4`), and it reaches position `56` after the
-blocks starting at `5, 8, 11, 14, 20, 23, 26, 29, 35, 41, 44, 50, 53`.  But
-`a(56) = ... = a(65) = 1` (ten consecutive ones: A110095 runs
-`112, 116, 117, ..., 126`, caused by the prime gap from `113` to `127`), so
-neither block fits at `56`.  The OEIS DATA line itself already exhibits the
-run.  In general every prime gap `g` produces a run of `g - 4` ones, so the
-two-block pattern can only persist while all prime gaps are `≤ 8`.
+A110194 is the first-difference sequence of A110095, the least increasing
+sequence of nonprimes with nonprime differences (Michel Marcus's PARI rule).
+The proposed decomposition from source index 5 into blocks 1,1,4 and
+1,1,1,1,4,4 has a forced parse. After thirteen blocks it reaches index 56,
+where neither block fits; the fourteenth parse step fails.
+No general prime-gap/run-length theorem is claimed.
 -/
 import Mathlib
 
@@ -133,7 +109,7 @@ theorem A110095_lt_succ {n : ℕ} (hn : 1 ≤ n) : A110095 n < A110095 (n + 1) :
   rw [A110095_succ hn]
   exact (next_isLeast (A110095 n)).1.1
 
-/-! ## Ground truth against the OEIS data -/
+/-! ## Examples against the OEIS data -/
 
 /-- `A110095 (1), ..., A110095 (62)` agree with the OEIS data. -/
 example : (List.range 62).map (fun i => A110095 (i + 1)) =
@@ -167,14 +143,8 @@ instance (p : ℕ) : Decidable (Block114 p) := by unfold Block114; infer_instanc
 /-- `Block111144 p` is decidable (a conjunction of natural-number equalities). -/
 instance (p : ℕ) : Decidable (Block111144 p) := by unfold Block111144; infer_instance
 
-/-- **Wajnberg–Angelini conjecture (A110194, Sep 06 2005).**  Verbatim:
-"Conjecture: from a(5) on, are there only substrings <1 1 4> and
-<1 1 1 1 4 4 >?"
-
-Formalized: the infinite word `a(5) a(6) a(7) ...` is a concatenation of the
-blocks `1 1 4` and `1 1 1 1 4 4`, i.e. there are block start positions
-`b 0 = 5 < b 1 < b 2 < ...` such that each block `b i` is one of the two
-words and the next block starts right after it. -/
+/-- The proposed A110194 decomposition from source index `5` into blocks
+`114` and `111144`, with successive block starts and no gaps. -/
 def Conjecture : Prop :=
   ∃ b : ℕ → ℕ, b 0 = 5 ∧ ∀ i,
     (Block114 (b i) ∧ b (i + 1) = b i + 3) ∨ (Block111144 (b i) ∧ b (i + 1) = b i + 6)
@@ -213,7 +183,7 @@ theorem parse_eq_some {b : ℕ → ℕ} (h0 : b 0 = 5) (h : ∀ i,
   | zero => simp only [parse, h0]
   | succ i ih => simp only [parse, ih, Option.bind_some, parseStep_eq (h i)]
 
-/-- Non-vacuity of the parse: the first thirteen blocks (from position `5`)
+/-- Example for the parse: the first thirteen blocks (from position `5`)
 genuinely fit, and the parse reaches position `56`. -/
 example : parse 13 = some 56 := by
   decide +kernel
@@ -223,14 +193,9 @@ example : parse 13 = some 56 := by
 theorem parse_fourteen : parse 14 = none := by
   decide +kernel
 
-/-- **The A110194 conjecture is false.**  The block decomposition of
-`a(5) a(6) ...` is forced and reaches position `56` (blocks start at
-`5, 8, 11, 14, 20, 23, 26, 29, 35, 41, 44, 50, 53, 56`), but
-`a(56), ..., a(65)` are ten consecutive `1`s, coming from the prime gap
-`113, 127` (A110095 runs `112, 116, 117, ..., 126`).  Every prime gap `g`
-gives a run of `g - 4` ones, so the conjectured pattern only holds while
-prime gaps are at most `8`; the authors presumably extrapolated from the
-initial range, where all relevant prime gaps are `≤ 8`. -/
+/-- The block decomposition from source index `5` is forced and reaches
+index `56` after thirteen blocks, where neither `114` nor `111144` fits.
+Thus the proposed infinite decomposition does not exist. -/
 theorem A110194_conjecture_false : ¬ Conjecture := by
   rintro ⟨b, h0, h⟩
   have hparse := parse_eq_some h0 h 14

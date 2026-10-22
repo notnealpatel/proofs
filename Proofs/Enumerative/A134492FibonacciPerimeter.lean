@@ -1,36 +1,11 @@
 /-
-# A134492 — Huber: Fibonacci Pythagorean perimeters are exactly `F(6n)` (FALSE)
+# A134492: Fibonacci Pythagorean perimeters
 
-## OEIS source (retrieved with `oeis show A134492`, 2026-10-21)
-
-```
-NAME:     a(n) = Fibonacci(6*n).
-TERMS:    0,8,144,2584,46368,832040,14930352,267914296,4807526976,...
-COMMENT (the conjecture):
-  Conjecture: For n >= 2, the terms of this sequence are exactly those
-  Fibonacci numbers which are the sum of the three numbers of a Pythagorean
-  triple (checked up to F(80)). - _Felix Huber_, Nov 03 2023
-FORMULA (used here, in the form F(3m) = 5 F(m)^3 + 3 F(m) for even m):
-  a(n) = Fibonacci(3*n) * Lucas(3*n). - _Amiram Eldar_, Jan 11 2022
-```
-
-## Status
-
-Triage status: **false**.  No proof or refutation was found in the entry or
-the literature; the triage found the counterexample
-`F(45) = 1134903170 = 344191945 + 320443248 + 470267977` with
-`344191945^2 + 320443248^2 = 470267977^2`, contradicting "checked up to
-F(80)".  Re-validated here (python, 2026-10-21): among `j < 80`, `F(j)` is a
-Pythagorean perimeter exactly for `j ∈ {12, 18, …, 78}` (multiples of 6) and
-`j ∈ {45, 57, 63, 69, 75}` (not multiples of 6).
-
-## Results in this file (all kernel-checked, no `sorry`)
-
-* `not_huberConjecture` — the conjecture, as stated, is false (witness `F(45)`).
-* `exists_not_dvd_isPythagoreanPerimeter_fib` — the failing direction in
-  explicit form: some `F(j)` with `6 ∤ j` is a perimeter.
-* `isPythagoreanPerimeter_fib_six_mul` — the true direction: `F(6n)` is a
-  Pythagorean perimeter for every `n ≥ 2`.
+OEIS A134492, Felix Huber (Nov 03 2023); Fibonacci-Lucas formula by
+Amiram Eldar (Jan 11 2022).
+For every `n ≥ 2`, `F(6n)` is a Pythagorean perimeter. The converse fails:
+`F(45) = 1134903170 = 344191945 + 320443248 + 470267977`, with the three
+summands forming a Pythagorean triple. This refutes the source biconditional.
 -/
 import Mathlib
 
@@ -183,16 +158,9 @@ theorem isPythagoreanPerimeter_fib_45 : IsPythagoreanPerimeter (Nat.fib 45) := b
   refine ⟨344191945, 320443248, 470267977, by norm_num, by norm_num, by norm_num, ?_⟩
   rw [show Nat.fib 45 = 1134903170 by decide]
 
-/-- **Huber's conjecture (A134492, Felix Huber, Nov 03 2023)**, as a
-proposition.
-
-Verbatim: "Conjecture: For n >= 2, the terms of this sequence are exactly
-those Fibonacci numbers which are the sum of the three numbers of a
-Pythagorean triple (checked up to F(80))."
-
-Formally: a natural number `x` is both a Fibonacci number and a Pythagorean
-perimeter iff `x = F(6n)` for some `n ≥ 2`.  The `n ≥ 2` guard is from the
-source and is needed: `F(6) = 8` is not a perimeter. -/
+/-- Huber's A134492 biconditional: a natural number is both Fibonacci and
+a Pythagorean perimeter iff it is `F(6n)` for some `n ≥ 2`.
+The lower bound is necessary: `F(6) = 8` is not a perimeter. -/
 def HuberConjecture : Prop :=
   ∀ x : ℕ, ((∃ j, Nat.fib j = x) ∧ IsPythagoreanPerimeter x) ↔
     ∃ n, 2 ≤ n ∧ Nat.fib (6 * n) = x
@@ -223,16 +191,16 @@ theorem huberConjecture_mpr (x : ℕ) (h : ∃ n, 2 ≤ n ∧ Nat.fib (6 * n) = 
   obtain ⟨n, hn, rfl⟩ := h
   exact ⟨⟨6 * n, rfl⟩, isPythagoreanPerimeter_fib_six_mul n hn⟩
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
--- Ground truth: the first listed terms `0, 8, 144, 2584, 46368` of A134492.
+-- Example: the first listed terms `0, 8, 144, 2584, 46368` of A134492.
 example : Nat.fib (6 * 0) = 0 ∧ Nat.fib (6 * 1) = 8 ∧ Nat.fib (6 * 2) = 144 ∧
     Nat.fib (6 * 3) = 2584 ∧ Nat.fib (6 * 4) = 46368 := by decide
 
--- Ground truth for the perimeter predicate: `12 = 3 + 4 + 5` is a perimeter.
+-- Examples for the perimeter predicate: `12 = 3 + 4 + 5` is a perimeter.
 example : IsPythagoreanPerimeter 12 := ⟨3, 4, 5, by norm_num, by norm_num, by norm_num, rfl⟩
 
--- Ground truth: `144 = F(12) = 36 + 48 + 60` is a perimeter, so the conjecture's
+-- Example: `144 = F(12) = 36 + 48 + 60` is a perimeter, so the conjecture's
 -- left-hand side is satisfiable.
 example : (∃ j, Nat.fib j = 144) ∧ IsPythagoreanPerimeter 144 :=
   ⟨⟨12, by decide⟩, 36, 48, 60, by norm_num, by norm_num, by norm_num, rfl⟩

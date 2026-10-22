@@ -1,33 +1,14 @@
 /-
 # A Markov-type equation `x² + y² + z² + 2yz = kxyz`
 
-## Source
-
 Zhichao Chen and Yimin Huang, *Mutation-preserving generalized cluster
-algebras and Laurent mutation invariants*, arXiv:2608.10551, Section 4
-("A Markov-type Diophantine equation with multiple orbits"):
-Proposition `prop: k larger than 5`, Theorem `thm: main`,
-Theorem `thm: 12345`.  Recorded 2026-10-21.
+algebras and Laurent mutation invariants*, arXiv:2608.10551, §4,
+Theorem `thm: 12345`, characterizes existence of positive integer solutions
+as `k ∈ {1,2,3,4,5}`. The orbit-structure part of the theorem is not treated.
 
-Verbatim (Theorem `thm: 12345`, first sentence):
-
-> There exist positive integer solutions to the Diophantine equations
-> `x^2+y^2+z^2+2yz=kxyz` if and only if `k=1,2,3,4,5`.
-
-Verbatim (Proposition `prop: k larger than 5`):
-
-> Let `k ∈ ℕ` and the Diophantine equation be as follows:
-> `x^2+y^2+z^2+2yz=kxyz`.  Then, if `k ≥ 6`, there is no positive
-> integer solution.
-
-## Status
-
-Proved in the paper.  The existence half uses explicit solutions; the
-nonexistence half (`k ≥ 6`) is a Vieta-jumping descent on the maximal
-coordinate with the generalized mutations
-`x ↦ (y+z)²/x = kyz - x` and `y ↦ (x²+z²)/y = kxz - 2z - y`.
-The second sentence of `thm: 12345` (orbit structure) is not formalized
-here.
+Existence uses explicit solutions; nonexistence for `k ≥ 6` uses
+Vieta-jumping descent at a maximal coordinate, with mutations
+`x ↦ kyz-x` and `y ↦ kxz-2z-y`.
 
 Note on the source proof: in the case `B ≥ C ≥ A` the paper writes
 `H_k(C) = 2C² + A² + 2AC - kAC²`; the correct value is
@@ -45,7 +26,7 @@ set_option autoImplicit false
 
 namespace Candidates.MarkovTypeEquation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `IsPosSol k x y z` says that `(x, y, z)` is a positive integer solution of the
 Markov-type equation `x² + y² + z² + 2yz = kxyz` of Chen–Huang (arXiv:2608.10551, §4). -/
@@ -55,7 +36,7 @@ def IsPosSol (k x y z : ℕ) : Prop :=
 instance (k x y z : ℕ) : Decidable (IsPosSol k x y z) := by
   unfold IsPosSol; infer_instance
 
-/-! ### Ground truth: the witnesses, a solution from the paper's comments, and non-solutions -/
+/-! ### the witnesses, a solution from the paper's comments, and non-solutions -/
 
 example : IsPosSol 1 5 5 5 := by decide
 example : IsPosSol 1 9 6 3 := by decide

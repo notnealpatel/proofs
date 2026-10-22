@@ -1,39 +1,20 @@
 /-
-# Dirichlet divisor problem: `∑_{n ≤ N} d(n) = N log N + (2γ - 1) N + O(√N)`
+# Dirichlet's divisor-sum estimate
 
-## Classical source
+For every natural `N ≥ 1`,
+`|∑_{n=1}^N d(n) - N log N - (2γ-1)N| ≤ 8√N`,
+where `γ` is the Euler–Mascheroni constant.
 
-* P. G. L. Dirichlet, "Über die Bestimmung der mittleren Werte in der
-  Zahlentheorie", Abh. Akad. Wiss. Berlin (1849).
-* G. H. Hardy and E. M. Wright, *An Introduction to the Theory of Numbers*,
-  Theorem 320.
-* T. M. Apostol, *Introduction to Analytic Number Theory*, Theorem 3.3.
+References: P. G. L. Dirichlet, "Über die Bestimmung der mittleren Werte in
+der Zahlentheorie" (1849); Hardy and Wright, *An Introduction to the Theory
+of Numbers*, Theorem 320; Apostol, *Introduction to Analytic Number Theory*,
+Theorem 3.3. This is the classical `O(√N)` estimate, not an optimal-exponent
+solution of the Dirichlet divisor problem.
 
-## Informal statement (verbatim from the target spec)
-
-```
-There is a constant C such that for all N >= 1,
-|sum_{n=1}^N d(n) - N log N - (2 gamma - 1) N| <= C sqrt N,
-where gamma is the Euler-Mascheroni constant.
-```
-
-## Status
-
-Classical theorem (1849).  Mathlib (checked 2026-10-21 with `leandoc`) has only
-the exact identity `ArithmeticFunction.sum_Ioc_sigma0_eq_sum_div` and the
-literal comment `--TODO: Dirichlet hyperbola method to get sums of length
-sqrt N` in `Mathlib/NumberTheory/ArithmeticFunction/Misc.lean`; no asymptotic.
-
-## Proof outline (hyperbola method)
-
-With `s = ⌊√N⌋`:
-1. `∑_{n ≤ N} d(n) + s² = 2 ∑_{a ≤ s} ⌊N / a⌋`  (`sum_card_divisors_add_sqrt_mul_sqrt`).
-2. `N H_s - s ≤ ∑_{a ≤ s} ⌊N / a⌋ ≤ N H_s`  (`floor_sum_bounds`).
-3. `0 < H_s - log s - γ ≤ 1 / s`  (`harmonic_sub_log_sub_gamma_bounds`).
-4. `0 ≤ log N - 2 log s ≤ 2 / s`  (`log_sub_two_log_sqrt_bounds`).
-5. Combine; the error is at most `4 s + 4 ≤ 8 s ≤ 8 √N`.
-
-Date: 2026-10-21.
+With `s = ⌊√N⌋`, the hyperbola identity is
+`∑_{n≤N} d(n) + s² = 2∑_{a≤s} ⌊N/a⌋`. Removing floors, bounding
+`H_s-log s-γ` by `1/s`, and comparing `log N` with `2 log s` give the
+explicit error bound.
 -/
 import Mathlib
 
@@ -43,7 +24,7 @@ namespace Candidates.DirichletDivisorSum
 
 open Finset Real
 
-/-! ## Ground truth
+/-! ## Examples
 
 No new definitions are introduced: `d(n)` is Mathlib's `n.divisors.card`
 (equal to `ArithmeticFunction.sigma 0 n` by `ArithmeticFunction.sigma_zero_apply`),

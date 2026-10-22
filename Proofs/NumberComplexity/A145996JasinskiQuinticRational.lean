@@ -1,31 +1,10 @@
 /-
 # A145996 — Jasinski: the quintic `F_k` has a rational root only for `k ∈ {0, 1, 2, 4, 243}`
 
-## OEIS source (retrieved with `oeis show A145996`, 2026-10-21)
-
-```
-NAME:     Numbers k such that quintic polynomial 4*k - k^2 + 5*k^2*x
-          + (20*k - 20*k^2)*x^3 + (16 - 32*k + 16*k^2)*x^5 has a rational root.
-TERMS:    0,1,2,4,243
-KEYWORDS: nonn
-COMMENT:  When k = 1 the polynomial degenerates to degree 1.
-COMMENT (the conjecture):
-          Conjecture: This sequence is finite and complete.
-COMMENT:  No more values of k less than 2*10^7.
-COMMENT:  Precisely for k belonging to this sequence,
-          Hypergeometric2F1(1/5,4/5,1/2,1/k) is algebraic number of 4 degree,
-          otherwise it is of degree 5. [_Artur Jasinski_, Oct 26 2008]
-```
-
-The conjecture comment is unsigned; the entry (and the neighbouring signed
-comments of Oct 26/29 2008) are by Artur Jasinski.
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell; the entry only reports a search up to `2*10^7`).
-
-## Proof idea (formalized below)
+Artur Jasinski's conjecture in OEIS A145996 says that the nonnegative
+parameters for which the quintic `F_k` has a rational root are exactly
+`0,1,2,4,243`; at `k = 1` it degenerates to degree one.
+The proof below gives the characterization for all integer parameters.
 
 Write `F = a(x) k^2 + b(x) k + c(x)` with `a = (x-1)(4x^2+2x-1)^2`,
 `b = -32x^5+20x^3+4`, `c = 16x^5`.  The discriminant in `k` is
@@ -48,7 +27,7 @@ def F (k : ℤ) (x : ℚ) : ℚ :=
   4 * k - k ^ 2 + 5 * k ^ 2 * x + (20 * k - 20 * k ^ 2) * x ^ 3 +
     (16 - 32 * k + 16 * k ^ 2) * x ^ 5
 
-/-! ## Ground truth: explicit rational roots for the listed terms -/
+/-! ## explicit rational roots for the listed terms -/
 
 example : F 0 0 = 0 := by norm_num [F]
 example : F 1 (-3 / 5) = 0 := by norm_num [F]
@@ -154,8 +133,7 @@ theorem mem_of_mul_eq_128 (k : ℤ) (u : ℚ)
 /-- Elimination step (genus-0 parametrization). If `x (5 - u^2) = 2 (1 + u)`,
 `s = 1 + u x` and `2 a(x) k + b(x) = 4 (x^2 - x - 1) s` with
 `a(x) = (x-1)(4x^2+2x-1)^2 ≠ 0` and `b(x) = -32x^5 + 20x^3 + 4`, then
-`k (u+3) (u^2-4u-1)^2 = 128`. The cofactor of the first relation was found by
-polynomial division in Sage. -/
+`k (u+3) (u^2-4u-1)^2 = 128`. -/
 theorem key_identity (k x u s : ℚ) (h1 : x * (5 - u ^ 2) = 2 * (1 + u))
     (h2 : s = 1 + u * x)
     (h3 : 2 * ((x - 1) * (4 * x ^ 2 + 2 * x - 1) ^ 2) * k + (-32 * x ^ 5 + 20 * x ^ 3 + 4) =

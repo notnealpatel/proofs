@@ -1,38 +1,13 @@
 /-
 # A245664 — Gribble: an explicit family of prime-partitionable numbers
 
-## OEIS source (retrieved with `oeis show A245664` and the live entry, 2026-10-21)
-
-```
-NAME:     Prime-partitionable numbers a(n) for which there exists a 2-partition
-          of the set of primes < a(n) that has one subset containing two primes
-          only.
-TERMS:    16,34,36,66,70,78,88,92,100,120,124,144,154,160,162,186,210,216,248,
-          250,256,260,262,268,300,330,336,340,342,366,378,394,396,404,428,474,
-          484,486,512,520,538,552,574,582,630,636,640,696,700,706,708,714,718,722
-AUTHOR:   Christopher Hunt Gribble, Jul 28 2014
-COMMENT:  Prime-partitionable numbers are defined in A059756.
-COMMENT:  To demonstrate that a number is prime-partitionable a suitable
-          2-partition {P1, P2} of the set of primes < a(n) must be found. In this
-          sequence we are interested in prime-partitionable numbers such that P1
-          contains 2 odd primes.
-COMMENT (the conjecture, part of Gribble's entry, no separate attribution):
-  Conjecture: If P1 = {p1a, p1b} with p1a and p1b odd primes, p1a < p1b and
-  p1b = 2*k*p1a + 1 for some natural k such that 2*k <= p1a - 3 and if
-  m = p1a + p1b then m is prime-partitionable and belongs to {a(n)}.
-```
-
-A059756 (Hasler, Jun 29 2014) recalls the Holsztynski–Strube definition:
-`n` is prime-partitionable if there is a partition `{P1, P2}` of the primes
-less than `n` such that for every composition `n1 + n2 = n` (`n1, n2 ≥ 1`)
-some `p1 ∈ P1` divides `n1` or some `p2 ∈ P2` divides `n2`.
-
-## Status
-
-Triage: open (no proof in the entry; none found in A059756 or in a limited
-search of the Hasler–Mathar corrigendum arXiv:1510.07997).  This module
-proves the conjecture by a short elementary argument; the search behind the
-triage was limited, so no novelty claim is made beyond "not in the entry".
+OEIS A245664, Christopher Hunt Gribble (2014). For odd primes `p < q` with
+`q = 2kp + 1`, `1 ≤ k` and `2k + 3 ≤ p`, the block `{p,q}` witnesses that
+`p + q` is prime-partitionable and belongs to A245664.
+Prime-partitionability uses the Holsztynski–Strube definition recalled in
+OEIS A059756 (M. F. Hasler, 2014): partition the primes below `m` into
+`P1, P2` so every positive composition `n1 + n2 = m` has a prime of `P1`
+dividing `n1` or a prime of `P2` dividing `n2`.
 -/
 import Mathlib
 
@@ -117,7 +92,7 @@ theorem primePartitionable_iff_exists_subset (m : ℕ) :
 instance (m : ℕ) : Decidable (PrimePartitionable m) :=
   decidable_of_iff _ (primePartitionable_iff_exists_subset m).symm
 
-/-! ## Ground truth
+/-! ## Examples
 
 The first terms of A245664 are `16, 34, 36`, with two-prime blocks
 `{5, 11}`, `{11, 23}` (for `34`; `23 = 2·11 + 1`) and `{7, 29}` (for `36`; `29 = 2·2·7 + 1`). -/
@@ -185,11 +160,6 @@ theorem dvd_of_primeFactors_subset {p q k n1 n2 : ℕ} (hp : p.Prime) (hq : q.Pr
     exact ⟨2 * k + 1, by subst hn2one; rw [hqd] at hsum; nlinarith⟩
 
 /-- **Gribble's conjecture (OEIS A245664, Christopher Hunt Gribble, Jul 28 2014).**
-
-Verbatim: "Conjecture: If P1 = {p1a, p1b} with p1a and p1b odd primes,
-p1a < p1b and p1b = 2*k*p1a + 1 for some natural k such that
-2*k <= p1a - 3 and if m = p1a + p1b then m is prime-partitionable and
-belongs to {a(n)}."
 
 Formal reading: for odd primes `p < q` with `q = 2kp + 1`, `k ≥ 1` and
 `2k ≤ p - 3` (stated without truncated subtraction as `2k + 3 ≤ p`; the two

@@ -1,60 +1,24 @@
 /-
-# Small counterexamples to the Gaussian Moments Conjecture: `¬ GMC(n)` for `n ≥ 4`
+# Gaussian moments: a four-variable counterexample
 
-## Source
+Christopher D. Long, "Small Counterexamples to the Gaussian Moments Conjecture",
+arXiv:2607.18186 (2026), Sections 1, 3 and 4, Proposition 4.1.
 
-arXiv 2607.18186, Christopher D. Long, "Small Counterexamples to the Gaussian
-Moments Conjecture" (dated July 20, 2026). Retrieved 2026-10-21
-(`fetch 2607.18186`, LaTeX source).
+For complex polynomials evaluated at independent standard real Gaussians, `GMC(n)`
+asserts that vanishing of all positive moments of `P` implies eventual vanishing
+of the mixed moments `Q P^m` for every polynomial `Q`.
 
-Where: Section 1 (statement of `GMC(n)`); Section 3, eqs. `contraction` and
-`coefficient-contraction`; Section 4, Proposition 4.1 (the four-variable cubic
-`P_4`). The three-variable quartic of Section 5 (Theorem 5.1, Corollary 5.2) is
-**not** formalized here.
+With `Z_j = (X_j + iY_j)/√2` and `W_j = (X_j - iY_j)/√2`, the four-variable cubic
+`P₄ = (1 + Z₂)(W₁(1 - Z₁) + W₂)` and `Q₄ = Z₂` satisfy
+`E(P₄^m) = 0` and `E(Q₄ P₄^m) = m!` for `1 ≤ m`. This gives `¬ GMC(n)` for
+`4 ≤ n` by padding with independent Gaussian variables. The three-variable
+quartic of Section 5 is not formalized here.
 
-Verbatim (Section 1):
-
-> Let `X=(X_1,…,X_n)` be a vector of independent standard real Gaussian random
-> variables. Derksen, van den Essen, and Zhao formulated the Gaussian Moments
-> Conjecture `GMC(n)` as follows: if `P ∈ ℂ[x_1,…,x_n]` satisfies
-> `E(P(X)^m)=0 (m ≥ 1)`, then, for every `Q ∈ ℂ[x_1,…,x_n]`, `E(Q(X)P(X)^m)=0`
-> for all sufficiently large `m` [DVEZ, Conjecture 1.1].
-
-Verbatim (Section 3):
-
-> Let `X,Y` be independent standard real Gaussians and put `Z=(X+iY)/√2`,
-> `W=(X-iY)/√2`. [...] Rotational invariance gives `E(W^a Z^b)=δ_{ab} a!`
-> `(a,b ≥ 0)`. Equivalently, for every polynomial `R ∈ ℂ[z]`,
-> `E(W^a R(Z)) = a! [z^a] R(z)`.
-
-Verbatim (Section 4):
-
-> Set `P_4=(1+Z_2)(W_1(1-Z_1)+W_2)`, `Q_4=Z_2`. [...]
-> **Proposition 4.1.** For every `A ∈ ℂ[z]` and `m ≥ 1`,
-> `E(A(Z_2)P_4^m) = m! [z^m] A(z)(1+z)^{m-1}`. In particular,
-> `E(P_4^m)=0`, `E(Q_4P_4^m)=m!` `(m ≥ 1)`.
-
-Verbatim (abstract): "We also give a six-term cubic example in four variables,
-which was found first and already proves failure for every `n ≥ 4`."
-
-## Status
-
-Proved in the paper (known result). This file is a kernel-checked
-formalization of the four-variable refutation; it contains no `sorry`.
-
-## What is formalized
-
-* `integral_Wc_pow_mul_Zc_pow`: the contraction rule `E(W^a Z^b) = δ_{ab} a!`
-  for the Gaussian law on `ℝ²` (off-diagonal by Mathlib's rotation invariance
-  `IsGaussian.map_rotation_eq_self`; diagonal from `E(X^{2k}) = (2k-1)!!`).
-* `integral_Wc_pow_mul_eval_Zc`: the coefficient form `E(W^k R(Z)) = k! [z^k] R`.
-* `integral_eval_mul_P4_pow` (Proposition 4.1, master formula), with
-  `integral_P4_pow` and `integral_Q4_mul_P4_pow`.
-* `GMC n`, stated with `MvPolynomial (Fin n) ℂ` evaluated at a vector of `n`
-  independent standard real Gaussians (`Measure.pi` of `gaussianReal 0 1`).
-* `not_GMC_four : ¬ GMC 4` and `not_GMC_of_four_le : 4 ≤ n → ¬ GMC n`.
-
-Indices: the paper's `(X_1, Y_1, X_2, Y_2)` are the coordinates `0, 1, 2, 3`.
+The proof uses the contraction rule `E(W^a Z^b) = δ_{ab} a!` and its coefficient
+form to obtain `E(A(Z₂) P₄^m) = m! [z^m] A(z)(1+z)^{m-1}`. The expectations
+used in the counterexample are evaluated from explicitly integrable polynomial
+expansions.
+The paper's `(X₁, Y₁, X₂, Y₂)` are coordinates `0, 1, 2, 3`.
 -/
 import Mathlib
 
@@ -289,7 +253,7 @@ lemma integral_Wc_pow_mul_Zc_pow_self (a : ℕ) :
   exact_mod_cast hchoose.symm
 
 
-/-- **Gaussian contraction rule** (paper, Section 3, eq. `contraction`): for independent
+/-- Gaussian contraction rule (paper, Section 3, eq. `contraction`): for independent
 standard real Gaussians `X, Y`, with `Z = (X+iY)/√2`, `W = (X-iY)/√2`,
 `E(W^a Z^b) = δ_{ab} a!`. -/
 lemma integral_Wc_pow_mul_Zc_pow (a b : ℕ) :
@@ -307,7 +271,7 @@ lemma integrable_Wc_pow_mul_eval_Zc (k : ℕ) (R : Polynomial ℂ) :
   refine this.congr (Filter.Eventually.of_forall fun p => ?_)
   simp only; ring
 
-/-- **Coefficient form of the contraction rule** (paper, Section 3, eq.
+/-- Coefficient form of the contraction rule (paper, Section 3, eq.
 `coefficient-contraction`): `E(W^k R(Z)) = k! [z^k] R(z)` for every `R ∈ ℂ[z]`. -/
 lemma integral_Wc_pow_mul_eval_Zc (k : ℕ) (R : Polynomial ℂ) :
     ∫ p, Wc p ^ k * R.eval (Zc p) ∂γ2 = (k ! : ℂ) * R.coeff k := by
@@ -439,7 +403,7 @@ lemma integral_prod_term (a b : ℕ) (R S : Polynomial ℂ) :
     (g := fun p => Wc p ^ b * S.eval (Zc p)), integral_Wc_pow_mul_eval_Zc,
     integral_Wc_pow_mul_eval_Zc]
 
-/-- **Proposition 4.1 (master formula)** of arXiv 2607.18186: for every `A ∈ ℂ[z]` and
+/-- Proposition 4.1 (master formula) of arXiv 2607.18186: for every `A ∈ ℂ[z]` and
 `m ≥ 1`, `E(A(Z₂) P₄^m) = m! [z^m] A(z)(1+z)^{m-1}`. -/
 theorem integral_eval_mul_P4_pow (A : Polynomial ℂ) (m : ℕ) (hm : 1 ≤ m) :
     ∫ v, A.eval (Zc (v 2, v 3)) * P4 v ^ m ∂μ4
@@ -477,14 +441,14 @@ lemma coeff_X_add_one_pow (n k : ℕ) :
     ((Polynomial.X + 1 : Polynomial ℂ) ^ n).coeff k = (n.choose k : ℂ) := by
   rw [← Polynomial.C_1, Polynomial.coeff_X_add_C_pow, one_pow, one_mul]
 
-/-- **Proposition 4.1, first moment family**: `E(P₄^m) = 0` for every `m ≥ 1`. -/
+/-- Proposition 4.1, first moment family: `E(P₄^m) = 0` for every `m ≥ 1`. -/
 theorem integral_P4_pow (m : ℕ) (hm : 1 ≤ m) : ∫ v, P4 v ^ m ∂μ4 = 0 := by
   have h := integral_eval_mul_P4_pow 1 m hm
   simp only [Polynomial.eval_one, one_mul] at h
   rw [h, coeff_X_add_one_pow, Nat.choose_eq_zero_of_lt (by omega)]
   simp
 
-/-- **Proposition 4.1, mixed moments**: `E(Q₄ P₄^m) = m!` for every `m ≥ 1`, where
+/-- Proposition 4.1, mixed moments: `E(Q₄ P₄^m) = m!` for every `m ≥ 1`, where
 `Q₄ = Z₂`. -/
 theorem integral_Q4_mul_P4_pow (m : ℕ) (hm : 1 ≤ m) :
     ∫ v, Zc (v 2, v 3) * P4 v ^ m ∂μ4 = (m ! : ℂ) := by
@@ -500,7 +464,7 @@ Gaussians. -/
 noncomputable abbrev gaussVec (n : ℕ) : Measure (Fin n → ℝ) :=
   Measure.pi fun _ => gaussianReal 0 1
 
-/-- The **Gaussian Moments Conjecture** `GMC(n)` (Derksen–van den Essen–Zhao, Israel J.
+/-- The Gaussian Moments Conjecture `GMC(n)` (Derksen–van den Essen–Zhao, Israel J.
 Math. 219 (2017), Conj. 1.1), as stated in arXiv 2607.18186, Section 1: if
 `P ∈ ℂ[x_1, …, x_n]` satisfies `E(P(X)^m) = 0` for all `m ≥ 1`, then for every
 `Q ∈ ℂ[x_1, …, x_n]`, `E(Q(X) P(X)^m) = 0` for all sufficiently large `m`; here `X` is a
@@ -551,7 +515,7 @@ lemma eval_P4poly (v : Fin 4 → ℝ) :
 lemma eval_Q4poly (v : Fin 4 → ℝ) :
     MvPolynomial.eval (fun k => (v k : ℂ)) Q4poly = Zc (v 2, v 3) := eval_zPoly 2 3 v
 
-/-- **`GMC(4)` is false** (arXiv 2607.18186, Proposition 4.1): `P₄` has all moments
+/-- `GMC(4)` is false (arXiv 2607.18186, Proposition 4.1): `P₄` has all moments
 `E(P₄^m) = 0` (`m ≥ 1`), yet `E(Q₄ P₄^m) = m! ≠ 0` for every `m ≥ 1`. -/
 theorem not_GMC_four : ¬ GMC 4 := by
   intro h
@@ -633,9 +597,8 @@ lemma continuous_eval_ofReal (P : MvPolynomial (Fin 4) ℂ) :
     Continuous fun y : Fin 4 → ℝ => MvPolynomial.eval (fun k => (y k : ℂ)) P :=
   (MvPolynomial.continuous_eval P).comp (by fun_prop)
 
-/-- **`GMC(n)` is false for every `n ≥ 4`** (arXiv 2607.18186, abstract and Section 4:
-"already proves failure for every `n ≥ 4`"): use `P₄, Q₄` in the first four variables and
-ignore the remaining independent Gaussian variables. -/
+/-- `GMC(n)` is false for `4 ≤ n`: use `P₄, Q₄` in the first four variables
+and ignore the remaining independent Gaussian variables. -/
 theorem not_GMC_of_four_le {n : ℕ} (hn : 4 ≤ n) : ¬ GMC n := by
   intro h
   have hP : ∀ m : ℕ, 1 ≤ m → ∫ x, (MvPolynomial.eval (fun i => (x i : ℂ))
@@ -655,7 +618,7 @@ theorem not_GMC_of_four_le {n : ℕ} (hn : 4 ≤ n) : ¬ GMC n := by
   rw [integral_Q4_mul_P4_pow (N + 1) (by omega)] at hval
   exact (Nat.cast_ne_zero.mpr (Nat.factorial_ne_zero (N + 1))) hval
 
-/-! ## Ground-truth checks -/
+/-! ## Examples -/
 
 /-- `W` is the complex conjugate of `Z` pointwise (paper: "`W = conj Z` as random
 variables"). -/
@@ -675,11 +638,11 @@ example : ∫ v, P4 v ∂μ4 = 0 := by simpa using integral_P4_pow 1 le_rfl
 example : ∫ v, Zc (v 2, v 3) * P4 v ∂μ4 = 1 := by
   simpa using integral_Q4_mul_P4_pow 1 le_rfl
 
-/-- Contraction-rule sanity check: `E(W Z) = E(|Z|²) = 1`. -/
+/-- Contraction example: `E(W Z) = E(|Z|²) = 1`. -/
 example : ∫ p, Wc p * Zc p ∂γ2 = 1 := by
   simpa using integral_Wc_pow_mul_Zc_pow 1 1
 
-/-- Non-vacuity of the `GMC` hypothesis at `n = 4`: `P4poly` satisfies it. -/
+/-- `P4poly` has vanishing positive moments at `n = 4`. -/
 example : ∀ m : ℕ, 1 ≤ m →
     ∫ x, (MvPolynomial.eval (fun i => (x i : ℂ)) P4poly) ^ m ∂gaussVec 4 = 0 := fun m hm => by
   simpa only [eval_P4poly] using integral_P4_pow m hm

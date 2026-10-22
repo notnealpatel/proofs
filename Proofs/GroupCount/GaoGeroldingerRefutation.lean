@@ -7,32 +7,23 @@ Guoqing Wang, "Disproof of a Conjectured Upper Bound for the Davenport
 Constant", arXiv:2609.29878v4.  Section 3.1 ("An explicit family with
 unbounded excess"): Lemma 3.2 (`lem:binary`) and Theorem 3.1 (`thm:main`),
 specifically the core group `B_m` in the proof of Theorem 3.1.
-Retrieved 2026-10-21.
+The Gao–Geroldinger conjecture [GG06, Conjecture 3.7] asserts
+`δ(G) ≤ r(G) - 1` for every nontrivial finite abelian group, where
+`δ(G) = D(G) - D*(G)` and `D*(G) = 1 + ∑_i (n_i - 1)` for invariant
+factors `1 < n_1 ∣ ⋯ ∣ n_r`.
 
-## Verbatim informal claims
+This module formalizes Wang's core family
+`B_m = C_m^3 ⊕ C_{2m}^4 ⊕ C_{6m}`. The sequence
+`S_m = e^{4m-1} ∏_{j=1}^7 q_j^{2m-1}`, for `1 ≤ m`, is zero-sum free,
+has length `18m - 8 = d*(B_m) + m`, and its support generates `B_m`.
+For `8 ≤ m` this refutes the
+conjecture, in particular at `C_8^3 ⊕ C_16^4 ⊕ C_48`.
+The padding by `C_m^{r-8}` is not formalized.
 
-Conjecture (Gao–Geroldinger, [GG06, Conjecture 3.7]): "Every nontrivial finite
-abelian group `G` satisfies `δ(G) ≤ r(G) - 1`", where `δ(G) = D(G) - D*(G)`,
-`D*(G) = 1 + ∑ (n_i - 1)` for `G = C_{n_1} ⊕ ⋯ ⊕ C_{n_r}`, `1 < n_1 ∣ ⋯ ∣ n_r`.
-
-Theorem 3.1 (core case `r = 8`, proof of the theorem): over
-`B_m = C_m^3 ⊕ C_{2m}^4 ⊕ C_{6m}` with generators `z_1,z_2,z_3` (order `m`),
-`y_1,…,y_4` (order `2m`), `e` (order `6m`), put
-  `q_j = y_j + 2e` (`1 ≤ j ≤ 4`),
-  `q_{4+i} = z_i + ∑_{1 ≤ j ≤ 4, j ≠ i} y_j + 2e` (`1 ≤ i ≤ 3`),
-  `S_m = e^{4m-1} ∏_{j=1}^7 q_j^{2m-1}`.
-"We have `|S_m| = 18m - 8`. Moreover, `supp(S_m)` generates `B_m` … `S_m` is
-zero-sum free."  With `d*(B_m) = 17m - 8` this gives `δ(B_m) ≥ m`, and for
-`m ≥ 8 = r(B_m)` it contradicts the Gao–Geroldinger conjecture.
-
-## Status
-
-Proved in the paper (Section 3.1).  This module formalizes the core case
-`B_m` (the padding by `C_m^{r-8}` is not formalized) and the resulting
-refutation at every `m ≥ 8`, in particular at `G = C_8^3 ⊕ C_16^4 ⊕ C_48`.
-Mathlib has no Davenport constant; `D(G) ≤ ℓ` is expressed by
-`HasDavenportBound G ℓ` ("every sequence of length at least `ℓ` has a nonempty
-zero-sum subsequence"), and a sequence is a `Multiset`.
+Sequences are multisets. `D(G) ≤ ℓ` is expressed by `HasDavenportBound G ℓ`,
+meaning that every sequence of length at least `ℓ` has a nonempty zero-sum
+subsequence. The invariant-factor list is explicit; no abstract rank or
+Davenport-constant API is used.
 -/
 import Mathlib
 
@@ -70,17 +61,17 @@ theorem not_hasDavenportBound_of_zeroSumFree {G : Type*} [AddCommMonoid G]
   obtain ⟨t, hts, hne, hsum⟩ := hD s le_rfl
   exact hs t hts hne hsum
 
-/-- Ground truth: in `C_3`, the sequence `1·1` is zero-sum free. -/
+/-- In `C_3`, the sequence `1·1` is zero-sum free. -/
 example : ZeroSumFree ({1, 1} : Multiset (ZMod 3)) := by
   rw [zeroSumFree_iff_powerset]
   decide
 
-/-- Ground truth: in `C_3`, the sequence `1·2` is not zero-sum free. -/
+/-- In `C_3`, the sequence `1·2` is not zero-sum free. -/
 example : ¬ ZeroSumFree ({1, 2} : Multiset (ZMod 3)) := by
   rw [zeroSumFree_iff_powerset]
   decide
 
-/-- Ground truth: Baayen's group `C_2^4 ⊕ C_6` has `d* = 9`. -/
+/-- Baayen's group `C_2^4 ⊕ C_6` has `d* = 9`. -/
 example : dStar [2, 2, 2, 2, 6] = 9 := rfl
 
 /-! ## The group `B_m` and the sequence `S_m` -/
@@ -113,10 +104,10 @@ def q (m : ℕ) : Fin 7 → B m := ![qy m 0, qy m 1, qy m 2, qy m 3, qz m 0, qz 
 def S (m : ℕ) : Multiset (B m) :=
   Multiset.replicate (4 * m - 1) (e m) + ∑ j : Fin 7, Multiset.replicate (2 * m - 1) (q m j)
 
-/-- Ground truth: `q_5 = z_1 + y_2 + y_3 + y_4 + 2e` in `B_2`. -/
+/-- `q_5 = z_1 + y_2 + y_3 + y_4 + 2e` in `B_2`. -/
 example : q 2 4 = (![1, 0, 0], ![0, 1, 1, 1], 2) := by decide
 
-/-- Ground truth: `q_2 = y_2 + 2e` in `B_2`. -/
+/-- `q_2 = y_2 + 2e` in `B_2`. -/
 example : q 2 1 = (0, ![0, 1, 0, 0], 2) := by decide
 
 /-! ## Coordinates of the support -/
@@ -344,14 +335,14 @@ theorem card_S_add_eight (m : ℕ) (hm : 1 ≤ m) : (S m).card + 8 = 18 * m := b
 /-- The invariant factors of `B_m`: `m ∣ m ∣ m ∣ 2m ∣ 2m ∣ 2m ∣ 2m ∣ 6m`. -/
 def invariants (m : ℕ) : List ℕ := [m, m, m, 2 * m, 2 * m, 2 * m, 2 * m, 6 * m]
 
-/-- Ground truth: the factors of `B_8 = C_8^3 ⊕ C_16^4 ⊕ C_48` form a divisor chain
+/-- The factors of `B_8 = C_8^3 ⊕ C_16^4 ⊕ C_48` form a divisor chain
 starting above `1`, so they are its invariant factors and `r(B_8) = 8`. -/
 example : (invariants 8).IsChain (· ∣ ·) ∧ 1 < (invariants 8).head! ∧
     (invariants 8).length = 8 := by
   refine ⟨?_, by decide, rfl⟩
   simp [invariants]
 
-/-- Ground truth: `d*(B_8) = 7·3 + 15·4 + 47 = 128`. -/
+/-- `d*(B_8) = 7·3 + 15·4 + 47 = 128`. -/
 example : dStar (invariants 8) = 128 := by decide
 
 /-- `d*(B_m) = 17m - 8`, stated as `d*(B_m) + 8 = 17m`. -/

@@ -1,46 +1,12 @@
 /-
-# A084569 — Mathar: order-3 perimeter-magic squares up to rotation
+Order-3 perimeter-magic squares (OEIS A084569; R. J. Mathar, Mar 08 2025).
 
-## OEIS source (pulled with `oeis show A084569`, 2026-10-21)
-
-```
-NAME:     Partial sums of A084570.
-TERMS:    1,3,9,21,44,82,142,230,355,525,751,1043,1414,1876,2444,3132,3957,
-          4935,6085,7425,8976,10758,12794,15106,17719,20657,23947,27615,...
-FORMULA:  a(n) = (-1)^n/8 + (n^4 + 6*n^3 + 17*n^2 + 30*n + 21)/24.
-FORMULA:  a(n) = Sum_{k=0..n} Sum_{j=0..k} Sum_{i=0..j} (i + (-1)^i).
-COMMENT (the conjecture):
-  Conjecture: a(n) is the number of perimeter-magic (hollow) squares of order
-  3 with magic sum n+3. Order 3 means each of the 4 edges has 3 elements >=1;
-  the square has 8 elements. The elements do not need to be distinct, and
-  squares obtained by rotations are counted only once. The square (read ccw)
-  for magic sum 3 has elements 1 1 1 1 1 1 1 1. The 3 squares with magic sum
-  4 are 1 1 2 1 1 1 2 1, 1 1 2 1 1 2 1 2 and 1 2 1 2 1 2 1 2.
-  - _R. J. Mathar_, Mar 08 2025
-```
-
-A084570 is "Partial sums of A084263" and A084263 is
-"a(n) = (-1)^n/2+(n^2+n+1)/2".
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  Brute force confirms the conjecture for `n = 0..30`
-(orbit count of 8-tuples under the quarter turn, Python, 2026-10-21).
-
-This file proves the conjecture.  The proof is Burnside's lemma for the
-cyclic group of quarter turns, done by hand (`four_mul_card_image_orb`), plus
-explicit counts of the squares fixed by the identity, the half turn and the
-quarter turn.
-
-## Encoding
-
-A square of order 3 has 4 corners `c 0, …, c 3` and 4 edge middles
-`e 0, …, e 3`, read counterclockwise as `c 0, e 0, c 1, e 1, c 2, e 2, c 3, e 3`.
-Side `i` is `c i, e i, c (i + 1)` (indices in `Fin 4`, so cyclic), and all
-entries are `≥ 1`.  A quarter turn shifts both index sets by one.  "Counted up to
-rotation" is the number of distinct rotation classes
-`{p, r p, r² p, r³ p}` among the squares.
+A084569(n) counts rotation classes of squares with eight positive entries,
+three on each edge, and common side sum n+3. Entries need not be distinct;
+reflections are not identified. Corners c(i) and edge middles e(i) use Fin 4,
+with side i given by c(i), e(i), c(i+1).
+Burnside counting gives the parity-dependent quartic formula. Two partial
+sums identify it with A084569, via A084570 and A084263.
 -/
 import Mathlib
 
@@ -94,7 +60,7 @@ def a084570 (n : ℕ) : ℚ := ∑ j ∈ Finset.range (n + 1), a084263 j
 /-- OEIS A084569: partial sums of A084570. -/
 def a084569 (n : ℕ) : ℚ := ∑ k ∈ Finset.range (n + 1), a084570 k
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- Membership in `squares S` is exactly the perimeter-magic condition. -/
 theorem mem_squares {S : ℕ} {p : Square} : p ∈ squares S ↔ IsPerimeterMagic S p.1 p.2 := by

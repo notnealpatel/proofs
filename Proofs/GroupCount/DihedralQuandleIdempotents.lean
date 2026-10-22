@@ -4,23 +4,12 @@
 ## Source
 
 Dilpreet Kaur and Pushpendra Singh, *A note on idempotents in quandle rings*,
-arXiv:2609.09183. Recorded 2026-10-21.
-
-* Section 1, Conjecture 1.1 (= Elhamdadi–Nelson–Swain–Ditzler, Conjecture
-  3.10): "The integral quandle ring of a semi-latin quandle has only trivial
-  idempotents. In particular, the integral quandle ring of a finite latin
-  quandle has only trivial idempotents." (False in general: Jabłonowski's
-  counterexample over `Aff(ℤ_37, 18x)`, Section 4 of the paper.)
-* Section 2, setup: "The quandle operation on $\mathbb Z_n$ is
-  $x\triangleright y=2y-x$. The quandle ring $\mathbb Z[\mathcal R_n]$ is a
-  free $\mathbb Z$-module with basis $\{e_x\}$ with the multiplication on basis
-  elements given as $e_xe_y=e_{x\triangleright y}=e_{2y-x}$."
-* Section 2, Theorem (unnumbered, Theorem 2.5 in the numbering of the
-  section): "The set of idempotents of $\mathbb Z[\mathcal R_n]$ for $n$ odd is
-  $\{0,e_x\;; x\in \mathcal R_n\}$."
-
-Status: proved in the paper (by a discrete Fourier transform argument).
-Every statement below is kernel-checked here.
+arXiv:2609.09183, Section 2, Theorem 2.5: for odd `n`, the idempotents of
+`ℤ[R_n]` are exactly `0` and the basis vectors `e_x`. The quandle operation
+is `x ▷ y = 2y - x`, extended bilinearly to the integral quandle ring.
+The paper proves the result by discrete Fourier analysis. The broader
+Elhamdadi–Nelson–Swain–Ditzler conjecture for semi-latin quandles is false
+(Jabłonowski’s counterexample over `Aff(ℤ_37, 18x)`, discussed in Section 4).
 
 ## Formalization notes
 
@@ -74,11 +63,11 @@ theorem quandleRingMul_single [NeZero n] (x y : ZMod n) :
     simp [Pi.single_eq_of_ne hb]
   · intro h; exact absurd (Finset.mem_univ x) h
 
-/-- Ground truth in `ℤ[R_3]`: `e_0 e_1 = e_2`. -/
+/-- In `ℤ[R_3]`: `e_0 e_1 = e_2`. -/
 example : quandleRingMul (n := 3) (Pi.single 0 1) (Pi.single 1 1) = Pi.single 2 1 := by
   rw [quandleRingMul_single]; rfl
 
-/-- Ground truth in `ℤ[R_5]`: `e_4 e_1 = e_3` (`2·1 - 4 = -2 = 3` in `ZMod 5`). -/
+/-- In `ℤ[R_5]`: `e_4 e_1 = e_3` (`2·1 - 4 = -2 = 3` in `ZMod 5`). -/
 example : quandleRingMul (n := 5) (Pi.single 4 1) (Pi.single 1 1) = Pi.single 3 1 := by
   rw [quandleRingMul_single]; rfl
 
@@ -263,10 +252,8 @@ theorem sum_sq_le_one_of_idempotent [NeZero n] (hn : Odd n) (a : ZMod n → ℤ)
   rw [← hS]
   nlinarith
 
-/-- **Kaur–Singh, arXiv:2609.09183, Section 2, Theorem.** "The set of
-idempotents of `ℤ[R_n]` for `n` odd is `{0, e_x ; x ∈ R_n}`."
-
-For odd `n`, an element `u` of the integral quandle ring of the dihedral quandle
+/-- Kaur–Singh, arXiv:2609.09183, Section 2: for odd `n`, an element `u` of the
+integral quandle ring of the dihedral quandle
 `R_n` (coefficient function `ZMod n → ℤ`, product `e_x e_y = e_{2y - x}`)
 satisfies `u² = u` if and only if `u = 0` or `u = e_x` for some `x`. -/
 theorem idempotent_iff [NeZero n] (hn : Odd n) (u : ZMod n → ℤ) :
@@ -313,7 +300,7 @@ theorem idempotent_iff [NeZero n] (hn : Odd n) (u : ZMod n → ℤ) :
     · funext z; simp [quandleRingMul]
     · exact quandleRingMul_single_self x
 
-/-- The coefficient form used in the paper and in the target specification: for
+/-- The coefficient form used in the paper: for
 odd `n`, an integer solution `a : ZMod n → ℤ` of the system
 `a_z = ∑_y a_{2y - z} a_y` (all `z`) is `0` or a basis vector `e_x`. -/
 theorem eq_zero_or_eq_single_of_forall_eq_sum [NeZero n] (hn : Odd n) (a : ZMod n → ℤ)

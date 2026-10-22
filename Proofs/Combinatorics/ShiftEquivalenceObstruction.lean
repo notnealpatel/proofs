@@ -1,33 +1,16 @@
 /-
-# Shift-equivalence obstruction for `E_n = [[1,n],[2,1]]` versus `F_n = [[1,2n],[1,1]]`
-
-## Source
+# Shift-equivalence obstruction for `E_n` and `F_n`
 
 Emmanuel Jeandel, *Combinatorial Search for Strong Shift Equivalence*,
-arXiv:2609.03567.  Retrieved 2026-10-21.
+arXiv:2609.03567, §Background (Definition `defn:se`) and §Results,
+"Other 2 by 2 matrices" (Lemma and Theorem).
 
-* Definitions (§Background, "Definitions" and Definition `defn:se`):
-  ESSE (`A = RS`, `B = SR`), SSE (chain `A = A_1, ..., A_l = B` with
-  `A_i` ESSE to `A_{i+1}`) and shift equivalence of lag `k`
-  (`AR = RB`, `SA = BS`, `A^k = RS`, `B^k = SR`).  The paper notes
-  (after `defn:se`) that an SSE `A = R_1 S_1, S_1 R_1 = M_2, ...` yields an
-  SE with `R = R_1 ⋯ R_n`, `S = S_n ⋯ S_1` (Williams).
-* §Results, "Other 2 by 2 matrices", the Lemma (verbatim):
-
-  > Let $n$ and $p$ be integers. Let $A = \begin{pmatrix} 1 & n \\ p & 1
-  > \end{pmatrix}$ and $B = \begin{pmatrix} 1 & np \\ 1 & 1\end{pmatrix}$.
-  > If $np - 1$ is prime and neither $p$ nor $-p$ is a square modulo $n$,
-  > then $A$ is not shift equivalent to $B$.
-
-* The Theorem it serves (verbatim): "The matrices $E_n$ and $F_n$ are SSE
-  for all odd $n < 50$ except $n = 15, 21, 37, 45$. For these four values,
-  the matrices are not even shift equivalent, and hence not SSE."
-
-## Status
-
-Proved in the paper (the Lemma and the negative half of the Theorem).  The
-positive half (SSE certificates for the other odd `n < 50`) lives on the
-author's website and is *not* formalized here.
+The lemma rules out shift equivalence between `[[1,n],[p,1]]` and
+`[[1,np],[1,1]]` when `np-1` is prime and neither `p` nor `-p` is a
+square modulo `n`. The negative half of the theorem applies this to
+`E_n = [[1,n],[2,1]]` and `F_n = [[1,2n],[1,1]]` at `n = 15,21,37,45`.
+The positive half (SSE certificates for the other odd `n < 50`) is not
+formalized here.
 
 ## What is formalized
 
@@ -262,7 +245,7 @@ def matF (n : ℕ) : Matrix (Fin 2) (Fin 2) ℕ := !![1, 2 * n; 1, 1]
 example : matE 15 = !![1, 15; 2, 1] := rfl
 example : matF 15 = !![1, 30; 1, 1] := rfl
 
-/-- Sanity check of `ESSE`: `[[1, 1], [1, 1]] = (column of ones) (row of ones)`
+/-- Example of `ESSE`: `[[1, 1], [1, 1]] = (column of ones) (row of ones)`
 and `(row of ones) (column of ones) = [2]`. -/
 example : ESSE (⟨2, !![1, 1; 1, 1]⟩ : SqMat ℕ) ⟨1, !![2]⟩ :=
   ⟨!![1; 1], !![1, 1], by decide, by decide⟩

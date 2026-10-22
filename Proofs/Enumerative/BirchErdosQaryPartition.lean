@@ -1,54 +1,16 @@
 /-
-# Birch–Erdős: `f_{2,q}` is the `q`-ary partition function
-
-## Source
+# Birch–Erdős representations and q-ary partitions
 
 Yuchen Ding, Honghu Liu and Zi Wang, *Note on a theorem of Birch–Erdős and
-`m`-ary partitions*, arXiv:2503.11676 (fetched 2026-10-21 to
-`/tmp/claude/refs/2503.11676.tex`).
-
-Setting (Section 1): for coprime `p, q > 1`, `f_{p,q}(n)` is "the number of
-different expressions of `n` written as a sum of distinct terms taken from
-`{p^α q^β : α, β ∈ ℕ}`".  Definition 1: `b_m(n)` is "the number of partitions
-of `n` into powers of `m`".
-
-Verbatim claims formalized here (all in Section 1):
-
-* Theorem 2.  "Let `q > 2` be an odd integer. Then for any `n ≥ 1`, we have
-  `f_{2,q}(n+1) = f_{2,q}(n)` if `q ∤ n+1`; `f_{2,q}(n) + f_{2,q}((n+1)/q)`
-  otherwise."
-* Corollary 4.  "Let `q > 2` be an odd integer. Then for any `n ≥ 1`, we have
-  `f_{2,q}(n+1) ≥ f_{2,q}(n)`."
-* Corollary 6.  "Let `q > 2` be an odd integer. Suppose that `n = qm + r`
-  with `0 ≤ r < q` and `m ≥ 1`, then we have
-  `f_{2,q}(n) = 1 + f_{2,q}(1) + f_{2,q}(2) + ⋯ + f_{2,q}(m)`."
-* Corollary 7.  "Let `q_2 > q_1` be odd integers. Then for any `n ≥ 1` we have
-  `f_{2,q_1}(n) ≥ f_{2,q_2}(n)`."
-* Proposition 1.  "Let `q > 2` be an odd number. Then `f_{2,q}(n) = b_q(n)`
-  for any `n ≥ 1`."  (For `q = 3` this is OEIS A062051.)
-
-## Status
-
-Proved in the paper (Theorem 2 combinatorially in Section 3; Proposition 1 by
-binary expansion in Section 1).  Recorded 2026-10-21.
-
-## Formal route
-
-Both counts satisfy the "bottom level" recursion
-`F(n) = ∑_{k ≤ n/q} F(k)` (Corollary 6 in the form `n/q = m`):
-
-* for `f_{2,q}`, the summands of a representation split into those not
-  divisible by `q` (a set of powers of two, fixed by its sum by uniqueness of
-  binary expansion) and those divisible by `q` (`q` times a representation of
-  some `k` with `qk ≤ n`);
-* for `b_q`, a partition splits into its parts equal to `1` and `q` times a
-  partition of some `k` with `qk ≤ n`.
-
-Equal values at `0` and strong induction give Proposition 1; Theorem 2,
-Corollary 4, Corollary 6 and Corollary 7 follow from the recursion.  The
-recurrence and Corollaries 6 and 7 are stated here for every `n` (including
-`n = 0`, and `m = 0` in Corollary 6), which is slightly stronger than the
-paper's `n ≥ 1`, `m ≥ 1`.  "Odd `q > 2`" is spelled `Odd q ∧ 1 < q`.
+m-ary partitions*, arXiv:2503.11676, Section 1: Theorem 2, Corollaries 4, 6, 7
+and Proposition 1.
+For odd `q > 1`, the number `f_{2,q}(n)` of representations as a sum of distinct
+`2^a q^b` equals the q-ary partition count. Both counts satisfy
+`F(n)=Σ_{k≤n/q} F(k)`. This gives the successor recursion, monotonicity in `n`,
+the block partial-sum identity and antitonicity in `q`.
+The recurrence and the latter two identities include `n=0` (and block index 0),
+extending the paper's positive-index statements. Asymptotic, density and
+parity results and conjectures for bases `p>2` are outside this module.
 -/
 import Mathlib
 
@@ -538,7 +500,7 @@ theorem f2q_anti {q₁ q₂ : ℕ} (hq₁ : Odd q₁) (hq₂ : Odd q₂) (h1 : 1
             have := Nat.div_le_div_left h12.le (by omega : 0 < q₁) (a := n)
             omega
 
-/-! ## Ground truth
+/-! ## Examples
 
 `f_{2,3}` against OEIS A062051 (`1,1,1,2,2,2,3,3,3,5,…` from `n = 0`). -/
 

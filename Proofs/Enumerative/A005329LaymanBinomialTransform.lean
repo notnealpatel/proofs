@@ -1,37 +1,11 @@
 /-
-# A005329 — Layman: A005329 is the inverse binomial transform of A075272
+Layman's binomial-transform identity (OEIS A005329; John W. Layman, Sep 12 2002).
 
-## OEIS source (retrieved with `oeis show A005329`, `A075271`, `A075272`, 2026-10-21)
-
-```
-A005329  NAME:  a(n) = Product_{i=1..n} (2^i - 1). Also called 2-factorial numbers.
-         TERMS: 1,1,3,21,315,9765,615195,78129765,19923090075,...
-         COMMENT (the conjecture):
-           Conjecture: this sequence is the inverse binomial transform of A075272
-           or, equivalently, the inverse binomial transform of the BinomialMean
-           transform of A075271. - _John W. Layman_, Sep 12 2002
-A075271  NAME:  a(0) = 1 and, for n >= 1, (BM)a(n) = 2*a(n-1), where BM is the
-                BinomialMean transform.
-         TERMS: 1,3,17,211,5793,339491,41326513,...
-         COMMENT: The BinomialMean transform BM is defined by
-           (BM)a(n) = (M^n)a(0) where (M)a(n) is the mean (a(n) + a(n+1))/2, or,
-           alternatively, by (BM)a(n) = (Sum_{k=0..n} binomial(n,k)*a(k))/(2^n).
-A075272  NAME:  BinomialMean (BM) transform of A075271, which see for the
-                definition of (BM).
-         TERMS: 1,2,6,34,422,11586,678982,82653026,...
-         COMMENT: Binomial transform of A005329. - _Vladimir Reshetnikov_, Nov 20 2015
-```
-
-## Status
-
-Triage status: open (no proof in the entry; the A075272 comment asserts the
-binomial-transform form without proof).  Checked numerically for `n ≤ 60`
-(2026-10-21).  This module proves it: with `d = A005329` and `e` its binomial
-transform, the relation `d(j) + d(j+1) = 2^(j+1) d(j)` gives
-`Σ_k C(n,k) e(k+1) = 2^(n+1) e(n)`, which is exactly the recursion making
-`e(m+1)/2` satisfy the defining relation of A075271; uniqueness of that
-recursion closes the argument.  (Equivalently, on exponential generating
-functions: `D + D' = 2 D(2x)`.)
+A005329(n) = ∏_{i=1}^n (2^i-1) is the inverse binomial transform of A075272
+at every natural index. A075272 is the BinomialMean transform of A075271,
+whose defining rational recursion is proved to determine it uniquely.
+The forward-transform identity is also recorded by Vladimir Reshetnikov
+in A075272 (Nov 20 2015).
 -/
 import Mathlib
 
@@ -69,7 +43,7 @@ noncomputable def a075272 (n : ℕ) : ℚ := binomialMean (fun k => (a075271 k :
 def binomialTransform (a : ℕ → ℤ) (n : ℕ) : ℤ :=
   ∑ k ∈ range (n + 1), (n.choose k : ℤ) * a k
 
-/-! ## Ground truth against the DATA lines -/
+/-! ## Examples against the DATA lines -/
 
 example : (List.range 6).map a005329 = [1, 1, 3, 21, 315, 9765] := by decide
 
@@ -199,7 +173,7 @@ theorem sum_neg_one_pow_mul_binomialTransform (a : ℕ → ℤ) (n : ℕ) :
     rw [hinner j (mem_range.mpr (by omega)), if_neg (by omega), zero_mul]
   rw [hlow, zero_add, hinner n (self_mem_range_succ n), if_pos rfl, one_mul]
 
-/-! ## The load-bearing identity -/
+/-! ## The key identity -/
 
 /-- The recursion of A005329 in additive form:
 `d(k) + d(k+1) = 2^(k+1) d(k)`, from `d(k+1) = (2^(k+1) - 1) d(k)`. -/
@@ -334,10 +308,8 @@ theorem a075272_eq_sum_choose_mul_a005329 (n : ℕ) :
     push_cast
     ring
 
-/-- **Layman's conjecture (A005329, John W. Layman, Sep 12 2002), verbatim form.**
-"This sequence is the inverse binomial transform of A075272":
-`A005329(n) = Sum_{k=0..n} (-1)^(n-k) C(n,k) A075272(k)`, with the sign written
-`(-1)^(n+k)` (equal for `k ≤ n`) to avoid natural subtraction. -/
+/-- A005329 is the inverse binomial transform of A075272. The sign is
+written `(-1)^(n+k)`, equal to `(-1)^(n-k)` for `k≤n`, avoiding natural subtraction. -/
 theorem a005329_eq_inverseBinomial_a075272 (n : ℕ) :
     (a005329 n : ℚ) = ∑ k ∈ range (n + 1), (-1) ^ (n + k) * (n.choose k : ℚ) * a075272 k := by
   have hinv := sum_neg_one_pow_mul_binomialTransform (fun j => (a005329 j : ℤ)) n

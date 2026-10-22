@@ -1,44 +1,17 @@
 /-
-# Canon permutations avoiding the S₃-orbit of 1213 (lattice-word form)
+# Lattice words avoiding the S₃-orbit of 1213
 
-Source: Robert Laudone, "Pattern avoidance in canon permutations",
-arXiv:2608.21351.  Section "Further Directions", subsection "Changing the
-patterns", Conjecture `conj: 1213`.  The reduction to lattice words is the
-paper's Theorem `thm: symmetric` (Section "sec: symmetry"):
-`c_n^k(Λ) = n! |L_n^k(Λ)|` for every symmetric pattern set `Λ`.
-
-Verbatim (paper):
-  "Conjecture. For n ≥ 2 and k ≥ 2, c_n^k(O(1213)) = n! C_k, where C_k is the
-   k-th Catalan number. In particular the lattice word enumeration does not
-   depend on n."
-  "Recall O(1213) = {1213,1312,2123,2321,3132,3231}."
-  "a lattice word π on [n] is a word with the property that in every prefix
-   of the word, the number of occurrences of the letter i is greater than or
-   equal to the number of occurrences of the letter i+1 for all
-   1 ≤ i ≤ n−1. We let L_n^k denote the set of k-regular lattice words of
-   length kn on the alphabet [n]."
-
-Formalized target (lattice-word form): for all `n ≥ 2` and all `k`
-(including `k = 0, 1`), the number of `k`-regular lattice words on `Fin n`
-containing no subsequence `x y x z` with `x, y, z` pairwise distinct is
-`catalan k`.  A word contains some pattern of `O(1213)` (classical
-containment, i.e. a subsequence order-isomorphic to it) exactly when it has a
-subsequence `x y x z` with `x, y, z` pairwise distinct, since `O(1213)` is the
-set of all relabelings of `1213` by permutations of `[3]`.
-
-Status in the paper: open (stated as a conjecture, 2026); proved below,
-sorry-free, for all `n ≥ 2` and all `k`.  Date of this
-module: 2026-10-21.
-
-Computational evidence (Python, bounded): the count equals `C_k` for
-(n,k) ∈ {2,3}×{0..7}, {4}×{2..7}, {5}×{2,3,4}, {6}×{3,4}; every avoiding word has
-the form `0^k 1^k ⋯ (n-3)^k` followed by a two-letter Dyck word on
-`{n-2, n-1}`.
-
-Proof route (formalized below): an avoiding regular lattice word on
-`Fin (m+2)` satisfies `b < m → a ≤ b` for every subsequence `a b`; hence it is
-the block word `0^k ⋯ (m-1)^k` followed by a Dyck word in the letters
-`m, m+1`, and conversely every such word avoids the patterns.
+Robert Laudone, *Pattern avoidance in canon permutations*, arXiv:2608.21351,
+"Further Directions", "Changing the patterns", Conjecture `conj: 1213`.
+For every `n ≥ 2` and every `k ≥ 0`, the number of k-regular lattice words
+on `Fin n` with no subsequence `x y x z` of pairwise distinct letters is
+`catalan k`. The first `n-2` letters form forced constant blocks; the last
+two encode a Dyck word.
+The paper's orbit is `{1213,1312,2123,2321,3132,3231}`. Its Theorem
+`thm: symmetric` converts this lattice-word count to the canon-permutation
+count `n! C_k`; that conversion and the equivalence with the six standardized
+patterns are not separate formal bridges here. The lattice-word theorem
+also includes `k=0,1`, beyond the conjecture's `k ≥ 2`.
 -/
 import Mathlib
 
@@ -65,13 +38,13 @@ letter.  Every avoiding regular lattice word is sorted for it (`pairwise_of_avoi
 def SortedBelow (m : ℕ) (a b : Fin (m + 2)) : Prop := b.val < m → a ≤ b
 
 /-- Prefix quantification in `IsRegLatticeWord` ranges over the finite list `w.inits`;
-this form is decidable and is used for the ground-truth checks below. -/
+this form is decidable and is used for the examples below. -/
 theorem isRegLatticeWord_iff_inits (n k : ℕ) (w : List (Fin n)) :
     IsRegLatticeWord n k w ↔ (∀ i : Fin n, w.count i = k) ∧
       ∀ u ∈ w.inits, ∀ i j : Fin n, i.val + 1 = j.val → u.count j ≤ u.count i := by
   simp only [IsRegLatticeWord, List.mem_inits]
 
-/-! ### Ground-truth checks -/
+/-! ### Examples -/
 
 /-- `001212` (the paper's `112323`, 0-indexed) is a `2`-regular lattice word on `[3]`. -/
 example : IsRegLatticeWord 3 2 [0, 0, 1, 2, 1, 2] := by

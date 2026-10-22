@@ -1,46 +1,25 @@
 /-
-# `S₅` is an Ingleton violator: an explicit offender
+# An explicit Ingleton offender in `S₅`
 
-## Source
+David A. Craven, *The Ingleton inequality holds for metacyclic groups and
+fails for supersoluble groups*, arXiv:2505.22565, Introduction and Section 3,
+Tables 1 and 3. The first violators `PGL₂(p)` for `p ≥ 5`, including
+`PGL₂(5) ≅ S₅`, are attributed there to Mao and Hassibi (2009).
 
-arXiv:2505.22565, David A. Craven, "The Ingleton inequality holds for
-metacyclic groups and fails for supersoluble groups".  Introduction
-(definition of Ingleton offender / violator), Section 3 ("Ingleton offenders
-of small order"), Table 1 (first row: order `120`, SmallGroup `34`, `S_5`) and
-Table 3 (row `S_5`: one offender class, ratio `16/15`).  The first Ingleton
-violators, `PGL₂(p)` for `p ≥ 5` (so `PGL₂(5) ≅ S₅`), are due to Mao and
-Hassibi (2009).  Recorded 2026-10-21.
+This file gives four generated subgroups of `S₅` violating the Ingleton
+inequality, with ratio `16/15` as in Table 3. It does not prove the table's
+uniqueness-of-offender-class assertion. The table does not give an explicit
+representative.
 
-Definition (paper, Introduction, verbatim): "let $G$ be a finite group and let
-$\mathbf H=(H_1,H_2,H_3,H_4)$ be a quadruple of subgroups of $G$. Write
-$H_{12}$ for the intersection $H_1\cap H_2$ and so on. We call $\mathbf H$ an
-*Ingleton offender* if the inequality
-$|H_1|\cdot|H_2|\cdot|H_{34}|\cdot|H_{123}|\cdot|H_{124}|\geq
-|H_{12}|\cdot|H_{13}|\cdot|H_{14}|\cdot|H_{23}|\cdot|H_{24}|$
-is not satisfied by the $H_i$. [...] If $G$ contains an Ingleton offender, we
-call $G$ an *Ingleton violator*."
+In points `1..5` (represented by `0..4` in `Fin 5`), the generators are:
+* `H₁ = ⟨(1 3)(4 5), (1 2 3)⟩`, order `6`;
+* `H₂ = ⟨(1 3)(4 5), (1 2 4 3)⟩`, order `20`;
+* `H₃ = ⟨(3 4), (2 3)(4 5)⟩`, order `8`;
+* `H₄ = ⟨(2 4), (1 2)(4 5)⟩`, order `8`.
 
-Claim (paper, Table 1 and Table 3): `S_5` is an Ingleton violator, with a
-single class of Ingleton offenders, of ratio `16/15`.
-
-## Status
-
-Known (Mao–Hassibi 2009; recomputed in the paper with Magma).  The paper does
-not print an explicit offender; the witness below was found by a computer
-search over the subgroups of `S₅` and re-checked independently.  Everything in
-this module is kernel-checked by `decide`; it carries no `sorry`.
-
-## Witness (points `1..5` in the paper's notation, `0..4` in `Fin 5`)
-
-* `H₁ = ⟨(1 3)(4 5), (1 2 3)⟩ ≅ S₃`, order `6`;
-* `H₂ = ⟨(1 3)(4 5), (1 2 4 3)⟩ ≅ F₂₀`, order `20`;
-* `H₃ = ⟨(3 4), (2 3)(4 5)⟩ ≅ D₈`, order `8`;
-* `H₄ = ⟨(2 4), (1 2)(4 5)⟩ ≅ D₈`, order `8`.
-
-Intersections: `|H₁₂| = |H₁₃| = |H₁₄| = 2`, `|H₂₃| = |H₂₄| = 4`,
-`|H₃₄| = |H₁₂₃| = |H₁₂₄| = 1`, so
-`|H₁|·|H₂|·|H₃₄|·|H₁₂₃|·|H₁₂₄| = 120 < 128 = |H₁₂|·|H₁₃|·|H₁₄|·|H₂₃|·|H₂₄|`,
-ratio `128/120 = 16/15`.
+Their pair and triple intersection orders give `128` on the intersection
+side and `120` on the order side of the inequality. Finite carrier checks
+are connected to the generated subgroups by closure and reachability lemmas.
 -/
 import Mathlib
 
@@ -72,7 +51,7 @@ Ingleton inequality. -/
 def IngletonViolator (G : Type*) [Group G] : Prop :=
   ∃ H₁ H₂ H₃ H₄ : Subgroup G, ¬ Ingleton H₁ H₂ H₃ H₄
 
-/-! Ground truth for `Ingleton` in `C₂ = Multiplicative (ZMod 2)`: with
+/-! Examples for `Ingleton` in `C₂ = Multiplicative (ZMod 2)`: with
 `(H₁, H₂, H₃, H₄) = (C₂, C₂, C₂, 1)` both sides are `2·2·1·2·1`; with
 `(C₂, 1, C₂, C₂)` the two sides are `1·2·2·1·1` and `2·1·2·1·1`. -/
 example : Ingleton (⊤ : Subgroup (Multiplicative (ZMod 2))) ⊤ ⊤ ⊥ ↔
@@ -217,7 +196,7 @@ def H₃ : Subgroup (Perm (Fin 5)) := Subgroup.closure (gens₃ : Set (Perm (Fin
 /-- `H₄ = ⟨(2 4), (1 2)(4 5)⟩ ≤ S₅`. -/
 def H₄ : Subgroup (Perm (Fin 5)) := Subgroup.closure (gens₄ : Set (Perm (Fin 5)))
 
-/-! Ground truth: the generators are the intended permutations (images of
+/-! The generators are the intended permutations (images of
 `0, 1, 2, 3, 4`), and the carriers have the expected sizes. -/
 example : ⇑(swap (0 : Fin 5) 2 * swap 0 1 : Perm (Fin 5)) = ![1, 2, 0, 3, 4] := by decide
 example : ⇑(swap (0 : Fin 5) 2 * swap 0 3 * swap 0 1 : Perm (Fin 5)) = ![1, 3, 0, 2, 4] := by decide

@@ -1,29 +1,9 @@
 /-
 # A221130 — Krizek: least start of a run of `n` consecutive members of A221129
 
-## OEIS source (retrieved with `oeis show A221130` and https://oeis.org/A221130, 2026-10-21)
-
-```
-NAME:     a(n) = 2^(2*n - 1) + n.
-TERMS:    3,10,35,132,517,2054,8199,32776,131081,524298,2097163,8388620,...
-AUTHOR:   Jaroslav Krizek, Jan 02 2013
-COMMENT (the conjecture; unattributed comment in the entry by its author):
-  Conjecture: a(n) = the smallest numbers w such that numbers w, w+1, ...,
-  w+k-1 for k=1..n are numbers of form h*2^m + m, where 1 <= h < 2^m,
-  m = natural number (see A221129).
-COMMENT:
-  a(5) = 517 because numbers 517, 518, 519, 520, 521 are numbers of that form.
-  517 = 16*2^5 + 5, 518 = 8*2^6 + 6, 519 = 4*2^7 + 7, 520 = 2*2^8 + 8,
-  521 = 1*2^9 + 9 (that is, numbers (2^(n-k))*(2^(n+k-1))+n+k-1, for k=1..n).
-A221129 NAME: Numbers of form k*2^n + n where 1 <= k < 2^n and n > 0.
-A221129 TERMS: 3,6,10,11,14,19,20,27,35,36,37,43,51,52,59,68,69,70,84,100,...
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  Computational evidence: exhaustive search up to `2^26 + 13`
-(triage) and up to `2^22` (this card) confirms `n = 1..13`.
+Jaroslav Krizek's conjecture in OEIS A221130 (January 2, 2013) identifies
+`2^(2n-1) + n` as the least start of a run of `n ≥ 1` consecutive members
+of A221129, the numbers `h*2^m + m` with `m ≥ 1` and `1 ≤ h < 2^m`.
 
 ## Proof outline (proved below)
 
@@ -109,17 +89,17 @@ theorem inT_iff_bounded (x : ℕ) :
 /-- Decidability of `InT` through the bounded form `inT_iff_bounded`. -/
 instance : DecidablePred InT := fun x => decidable_of_iff _ (inT_iff_bounded x).symm
 
-/-- Ground truth: the members of `T` below `30` are the first terms of A221129. -/
+/-- The members of `T` below `30` are the first terms of A221129. -/
 example : (List.range 30).filter (fun x => decide (InT x)) = [3, 6, 10, 11, 14, 19, 20, 27] := by
   decide
 
 /-- The OEIS sequence A221130: `a(n) = 2^(2n-1) + n` (for `n ≥ 1`). -/
 def a (n : ℕ) : ℕ := 2 ^ (2 * n - 1) + n
 
-/-- Ground truth: the first listed terms of A221130. -/
+/-- The first listed terms of A221130. -/
 example : (List.range 6).map (fun i => a (i + 1)) = [3, 10, 35, 132, 517, 2054] := by decide
 
-/-- Ground truth: the run `517, ..., 521` from the entry's example comment. -/
+/-- The run `517, ..., 521` from the entry's example comment. -/
 example : ∀ i < 5, InT (517 + i) := by
   intro i hi
   interval_cases i

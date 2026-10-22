@@ -1,29 +1,10 @@
 /-
 # A298865 — Kimberling: unique difference-of-squares representations
 
-## OEIS source (retrieved with `oeis show A298865` and the live entry, 2026-10-21)
-
-```
-NAME:     The primes p and products 4*p in increasing order.
-TERMS:    2,3,5,7,8,11,12,13,17,19,20,23,28,29,31,37,41,43,44,47,52,53,59,61,
-          67,68,71,73,76,79,83,89,92,97,101,103,107,109,113,116,124,127,131,
-          137,139,148,149,151,157,163,164,167,172,173,179,181,188,191,193
-KEYWORDS: nonn,easy
-COMMENT (the conjecture):
-  Conjecture: except for the first term, these are the nonsquares n for which
-  there is a unique pair (x,y) such that x^2 - y^2 = n and x > y >= 0; see
-  A257408.
-AUTHOR:   Clark Kimberling, Feb 13 2018 (the comment carries no separate
-          signature; it is part of the original submission).
-```
-
-## Status
-
-Triage: "open" in the sense that the entry gives no proof. Mathematically it is
-the classical textbook fact that representations `n = x^2 - y^2` with
-`x > y ≥ 0` correspond to factorizations `n = d * e` with `d < e` and
-`d ≡ e (mod 2)`. Brute force over nonsquares `n < 20000` agrees (2026-10-21).
-This file proves it.
+Clark Kimberling's conjecture in OEIS A298865 characterizes positive
+nonsquares with a unique representation `x²-y² = n`, `x > y ≥ 0`, as the
+primes and four times primes, except for `2`. Representations correspond
+to factorizations into two factors of the same parity.
 
 ## Formalization choices
 
@@ -47,7 +28,7 @@ def A298865 (n : ℕ) : Prop := n.Prime ∨ ∃ p : ℕ, p.Prime ∧ n = 4 * p
 def IsDiffSqPair (n : ℕ) (q : ℕ × ℕ) : Prop :=
   q.2 < q.1 ∧ (q.1 : ℤ) ^ 2 - (q.2 : ℤ) ^ 2 = n
 
-/-- Decidable reformulation of `A298865`, used for the ground-truth check. -/
+/-- Decidable reformulation of `A298865`, used for the example. -/
 theorem a298865_iff (n : ℕ) : A298865 n ↔ n.Prime ∨ (4 ∣ n ∧ (n / 4).Prime) := by
   unfold A298865
   constructor
@@ -59,7 +40,7 @@ theorem a298865_iff (n : ℕ) : A298865 n ↔ n.Prime ∨ (4 ∣ n ∧ (n / 4).P
     · exact Or.inl hp
     · exact Or.inr ⟨n / 4, hp, (Nat.mul_div_cancel' h4).symm⟩
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The definition reproduces every listed term (all terms `< 194`).
 set_option maxRecDepth 20000 in
@@ -239,11 +220,7 @@ theorem a298865_of_existsUnique {n : ℕ} (hpos : 0 < n) (hsq : ¬ IsSquare n)
 
 /-! ## The conjecture -/
 
-/-- **Kimberling's conjecture (A298865, Clark Kimberling, Feb 13 2018).**
-
-Verbatim: "Conjecture: except for the first term, these are the nonsquares n for
-which there is a unique pair (x,y) such that x^2 - y^2 = n and x > y >= 0; see
-A257408."
+/-- **Kimberling's conjecture (A298865, Clark Kimberling).**
 
 For every positive nonsquare `n`, there is exactly one pair `(x, y)` of naturals
 with `y < x` and `x^2 - y^2 = n` if and only if `n` is a term of A298865 other

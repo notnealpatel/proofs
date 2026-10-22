@@ -1,32 +1,14 @@
 /-
 # A294646 — refutation of the conjecture "a(n) is never 2 or 2n or 2n-2"
 
-## OEIS source (retrieved 2026-10-21, `oeis show A294646` and https://oeis.org/A294646)
+The unsigned conjecture in OEIS A294646, an entry by Robert Israel and
+Thomas Ordowski (2017): the inverse power `(1/2)^(2n) mod (2n+1)` is never
+`2`, `2n` or `2n-2` for `n ≥ 1`.
 
-```
-NAME:     a(n) = (1/2)^(2*n) mod (2*n+1).
-TERMS:    1,1,1,7,1,1,4,1,1,16,1,11,25,1,1,25,4,1,10,1,1,16,1,36,13,1,9,43,1,1,...
-COMMENT:  a(n) is the smallest k > 0 such that k*2^(2*n) == 1 (mod 2*n+1).
-COMMENT:  1 <= a(n) <= 2*n, and is always coprime to 2*n+1.
-COMMENT (the conjecture, unsigned; entry authors below):
-  Conjecture: a(n) is never 2 or 2*n or 2*n-2.
-AUTHOR:   Robert Israel and Thomas Ordowski, Nov 05 2017
-PROGRAM:  (PARI) a(n) = (1/2)^(2*n) % (2*n+1); \\ _Michel Marcus_, Nov 06 2017
-```
-
-No later comment in the entry retracts or qualifies the conjecture.
-
-## Status
-
-This module **refutes** the conjecture.  Let `q = 3 * 2^66 + 1` (prime) and
-`N = 67 * q = 14831182235262479499331 = 2n + 1` with
-`n = 7415591117631239749665`.  Since `3 * 2^(N-1) ≡ -1 (mod N)`, the inverse
-power `(1/2)^(2n) mod N` equals `N - 3 = 2n - 2`.  The kernel check uses
-`reduce_mod_char` (fast modular exponentiation with a proof term) in
-`ZMod N`; no `native_decide`.
-
-The other two clauses (`a(n) ≠ 2`, i.e. `N ∤ 2^N - 1`, and `a(n) ≠ 2n`, i.e.
-`2^(N-1) ≢ -1 (mod N)`) are classical and true; they are not formalized here.
+The last exclusion fails at `n = 7415591117631239749665`, where
+`2n+1 = 67(3·2^66+1) = 14831182235262479499331` and
+`3·2^(2n) ≡ -1 (mod 2n+1)`, so `a(n)=2n-2`.
+The other two exclusions are not formalized here.
 -/
 import Mathlib
 
@@ -59,7 +41,7 @@ theorem a294646_eq_of_mul_pow_eq_one (n k : ℕ) (hk : k < 2 * n + 1)
   unfold a294646
   rw [hk', ZMod.val_natCast_of_lt hk]
 
-/-! ## Ground truth: the first ten listed terms `1,1,1,7,1,1,4,1,1,16` -/
+/-! ## Examples: the first ten listed terms `1,1,1,7,1,1,4,1,1,16` -/
 
 example : a294646 1 = 1 := a294646_eq_of_mul_pow_eq_one 1 1 (by norm_num) (by decide)
 example : a294646 2 = 1 := a294646_eq_of_mul_pow_eq_one 2 1 (by norm_num) (by decide)
@@ -74,8 +56,8 @@ example : a294646 10 = 16 := a294646_eq_of_mul_pow_eq_one 10 16 (by norm_num) (b
 
 /-! ## The conjecture -/
 
-/-- **Conjecture (A294646, entry of Robert Israel and Thomas Ordowski, Nov 05 2017).**
-Verbatim: "Conjecture: a(n) is never 2 or 2*n or 2*n-2."
+/-- **Conjecture (A294646, entry of Robert Israel and Thomas Ordowski, 2017).**
+"Conjecture: a(n) is never 2 or 2*n or 2*n-2."
 
 Stated for `n ≥ 1` (the entry's offset); the value `2n - 2` is formed in `ℤ`
 after casting, so no truncated subtraction occurs. -/
@@ -96,8 +78,7 @@ theorem a294646_counterexample :
 /-- **The A294646 conjecture is false.**  At `n = 7415591117631239749665`,
 `2n + 1 = 67 * (3 * 2^66 + 1)` with `3 * 2^66 + 1` prime, and
 `3 * 2^(2n) ≡ -1 (mod 2n+1)`, so `a(n) = 2n - 2`.  The clause `a(n) ≠ 2n - 2`
-fails; the clauses `a(n) ≠ 2` and `a(n) ≠ 2n` are classically true, so the
-intended statement presumably was the latter two only. -/
+fails; the other two clauses are not formalized here. -/
 theorem a294646_false : ¬ Conjecture := by
   intro hconj
   have hce := (hconj 7415591117631239749665 (by norm_num)).2.2

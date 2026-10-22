@@ -1,52 +1,14 @@
 /-
-# A064414 — Kleinwaks: every j divides some term of every Fibonacci-type sequence
+Kleinwaks's Fibonacci-type divisor criterion (OEIS A064414; Logan J. Kleinwaks,
+Oct 29 2017), with the companion count A232656 (Oct 28 2017; restated by
+Richard L. Ollerton, May 09 2021).
 
-## OEIS source (pulled with `oeis show A064414`, retrieved 2026-10-21)
-
-```
-NAME:     Numbers that divide at least one term in every Fibonacci sequence.
-TERMS:    1,2,3,4,6,7,9,14,23,27,43,49,67,81,83,86,98,103,127,134,163,167,
-          206,223,227,243,254,283,326,343,367,383,443,446,463,467,487,503,...
-KEYWORDS: easy,nonn,nice
-COMMENT (previous name — the definition used here):
-  Fix a > 0, b > 0, k > 0 and define G_1 = a, G_2 = b, G_k = G_(k-1) + G_(k-2);
-  sequence gives m such that for any (a,b), some G_k is divisible by m.
-COMMENT (the conjecture):
-  From _Logan J. Kleinwaks_, Oct 29 2017: (Start)
-  The squares of this sequence are the squares in A232656.
-  Conjecture: these are the numbers j such that j^2 = Sum_{d|j} phi(d)*A001177(d),
-  where phi = Euler's totient function (A000010). See A232656. (End)
-```
-
-A232656 (number of residue pairs mod `n` whose Fibonacci-like orbit contains
-zero) carries the companion formula, conjectured by Kleinwaks (Oct 28 2017)
-and restated without proof by Richard L. Ollerton (May 09 2021):
-`a(n) = Sum_{d|n} phi(d)*A001177(d)`.  A001177 is the Fibonacci entry point
-"least k >= 1 such that n divides F_k".
-
-## Status
-
-Triage literature status: unclear (no proof in the entry; the count might be
-implicit in M. Renault's 1996 thesis "The Fibonacci Sequence Under Various
-Moduli", but a reading of that thesis found only the classical zero-counting
-for the standard Fibonacci sequence, not for generalized sequences).
-Computation (Python cycle enumeration, this campaign): the orbit count equals
-`Sum_{d|j} phi(d) alpha(d)` for every `1 ≤ j ≤ 600`, and the members up to 600
-match the DATA line.
-
-**This file proves both conjectures** (`card_hitsZero` for A232656 and
-`kleinwaks_A064414` for A064414), transitively sorry-free.
-
-## Proof outline
-
-`T (x, y) = (y, x + y)` is a permutation of `(ℤ/j)²`.  The pairs whose forward
-orbit meets first coordinate `0` are exactly the `T^k (0, c)` =
-`(c F_k, c F_{k+1})` with `k < α(ord c)`, each represented once: `c F_k = 0`
-iff `α(ord c) ∣ k` (rank-of-apparition law from `Nat.fib_gcd`), which gives
-injectivity, and stepping back to the nearest zero (finite order of `T`) gives
-surjectivity.  Grouping `c` by additive order (`φ(d)` elements of order `d`)
-gives the count.  Membership in A064414 is "every residue pair hits zero",
-since positive integers realise every residue pair.
+For positive j, every Fibonacci-type sequence with positive initial terms
+has a term divisible by j iff j² = ∑_{d∣j} φ(d) α(d), where α is the positive
+Fibonacci entry point A001177. The sum counts residue pairs modulo j whose
+orbit under (x,y) ↦ (y,x+y) meets a zero coordinate.
+Grouping the zero-hitting pairs by additive order proves both the count
+and its equivalence to the universal divisibility property.
 -/
 import Mathlib
 
@@ -70,7 +32,7 @@ noncomputable def fibEntry (d : ℕ) : ℕ := by
   classical
   exact if h : ∃ k, 0 < k ∧ d ∣ Nat.fib k then Nat.find h else 0
 
-/-! ## Ground truth for the definitions -/
+/-! ## Examples for the definitions -/
 
 -- `fibType 1 1` is the Fibonacci sequence (A000045 shifted) and `fibType 2 1`
 -- the Lucas sequence (A000032).
@@ -133,7 +95,7 @@ theorem fibEntry_spec (d : ℕ) (hd : 0 < d) :
   refine ⟨(Nat.find_spec h).1, (Nat.find_spec h).2, fun k hk hlt hdvd => ?_⟩
   exact Nat.find_min h hlt ⟨hk, hdvd⟩
 
-/-- Characterisation used for ground-truth checks: if `k` is a positive index
+/-- Characterisation used for examples: if `k` is a positive index
 with `d ∣ F_k` and no smaller positive index works, then `fibEntry d = k`. -/
 theorem fibEntry_eq_of (d k : ℕ) (hk : 0 < k) (hdvd : d ∣ Nat.fib k)
     (hmin : ∀ i < k, 0 < i → ¬ d ∣ Nat.fib i) : fibEntry d = k := by
@@ -176,7 +138,7 @@ theorem mul_fib_eq_zero_iff (j : ℕ) [NeZero j] (c : ZMod j) (m : ℕ) :
   rw [← dvd_fib_iff_fibEntry_dvd _ _ (addOrderOf_pos c), addOrderOf_dvd_iff_nsmul_eq_zero,
     nsmul_eq_mul, mul_comm]
 
-/-! ## Ground truth for `fibEntry` against the A001177 DATA line `1,3,4,6,5,12,8,6,12,15` -/
+/-! ## Examples for `fibEntry` against the A001177 DATA line `1,3,4,6,5,12,8,6,12,15` -/
 
 example : fibEntry 1 = 1 := fibEntry_eq_of 1 1 (by norm_num) (by decide) (by decide)
 example : fibEntry 2 = 3 := fibEntry_eq_of 2 3 (by norm_num) (by decide) (by decide)

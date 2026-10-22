@@ -1,31 +1,12 @@
 /-
-# A088226 — block formula for `a(n) = |a(n-1) - a(n-2) - a(n-3)|`
+Block formula and shifted distance interpretation for OEIS A088226
+(Ralf Stephan, Sep 23 2013).
 
-## OEIS source (retrieved with `oeis show A088226`, 2026-10-21)
-
-```
-NAME:     a(1)=0, a(2)=0, a(3)=1; for n>3, a(n) = abs(a(n-1) - a(n-2) - a(n-3)).
-TERMS:    0,0,1,1,0,2,1,1,2,0,3,1,2,2,1,3,0,4,1,3,2,2,3,1,4,0,5,1,4,2,3,3,2,4,
-          1,5,0,6,1,5,2,4,3,3,4,2,5,1,6,0,7,1,6,2,5,3,4,4,3,5,2,6,1,7,0,8,...
-KEYWORDS: nonn
-COMMENT:  Conjecture: a(n) = m/2 where m is the smallest even distance from n
-          to a square. - _Ralf Stephan_, Sep 23 2013
-FORMULA:  a(k^2 + 2*m + 2) = k-m and a(k^2 + 2*m + 1) = m, for k >= 0 and
-          0 <= m <= k.            (unattributed, unproved in the entry)
-PROGRAM:  (PARI) a(n)=t=sqrtint(n);if((n-t*t)%2==0,(n-t*t)/2,((t+1)^2-n)/2)
-          \\ _Ralf Stephan_, Sep 23 2013
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature found).  The `%F`
-block formula is the precise form of Stephan's conjecture (Stephan's PARI
-program is shifted by one index: `a(n) = f(n-1)`).  Computationally checked
-for `n ≤ 400000` before formalization.  This file proves the block formula
-by a nested induction (outer over the block index `k`, inner over `m`),
-and derives Stephan's comment in its index-shifted form (`stephan_shifted`);
-the literal offset-1 reading of the comment fails at `n = 2`
-(`stephan_unshifted_fails`).
+For a(1)=a(2)=0, a(3)=1 and a(n)=|a(n-1)-a(n-2)-a(n-3)|,
+ a(k²+2m+1)=m and a(k²+2m+2)=k-m for 0≤m≤k.
+It follows that 2a(n+1), not 2a(n), is the smallest even distance from n
+to a square. The source's unshifted literal comment fails at n=2;
+Stephan's PARI formula has the same one-index shift.
 -/
 import Mathlib
 
@@ -43,7 +24,7 @@ def a : ℕ → ℕ
   | 3 => 1
   | n + 4 => ((a (n + 3) : ℤ) - a (n + 2) - a (n + 1)).natAbs
 
-/-- Ground truth: the first 30 listed terms `a 1, …, a 30`. -/
+/-- The first 30 listed terms `a 1, …, a 30`. -/
 example : (List.range 30).map (fun i => a (i + 1)) =
     [0,0,1,1,0,2,1,1,2,0,3,1,2,2,1,3,0,4,1,3,2,2,3,1,4,0,5,1,4,2] := by
   decide

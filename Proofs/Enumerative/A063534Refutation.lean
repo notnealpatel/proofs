@@ -1,41 +1,13 @@
 /-
-# A063534 — Mathar's conjecture `A063534 = A001748` (index 2 excepted) is false
+Refutation of Mathar's A063534 conjecture (R. J. Mathar, Dec 15 2008).
 
-## OEIS source (retrieved with `oeis show A063534`, 2026-10-21)
-
-```
-NAME:     Numbers k such that C(k) = H(k) + d(k), where C(k) is Chowla's
-          function A048050, H(k) is the half-totient function A023022 and
-          d(k) is the number of divisors function A000005.
-TERMS:    6,8,15,21,33,39,51,57,69,87,93,111,123,129,141,159,177,183,201,213,
-          219,237,249,267,291,303,309,321,327,339,381,393,411,417,447,453,...
-FORMULA (the conjecture):
-  Conjecture: a(n) = A001748(n), n <> 2. - _R. J. Mathar_, Dec 15 2008
-FORMULA (later, already recording the failure):
-  The conjecture is false. The least counterexample is a(11546) = 368335 =
-  5 * 11 * 37 * 181. The next counterexample is 4922335, and there are no
-  more below 10^10. - _Amiram Eldar_, Apr 15 2024
-```
-
-`A001748(n) = 3 * prime(n)`, so the conjecture says that, apart from the
-second term `a(2) = 8`, the members of A063534 are exactly the numbers
-`3 * p` with `p` prime (`p ≠ 3`, since `A001748(2) = 9` is the excluded index).
-
-Auxiliary entries (retrieved 2026-10-21):
-* A048050 "Chowla's function: sum of divisors of n except for 1 and n",
-  terms `0,0,0,2,0,5,0,6,3,7,0,15,...`.
-* A023022 "Number of partitions of n into two relatively prime parts. After
-  initial term, this is the "half-totient" function phi(n)/2", terms
-  `1,1,1,2,1,3,2,3,2,5,2,6,...`, formula `a(n) = phi(n)/2 for n >= 3`.
-* A000005 the number of divisors.
-
-## This module
-
-Refutes the conjecture (kernel-checked) at Eldar's least counterexample
-`k = 368335 = 5 * 11 * 37 * 181`, which is not divisible by `3` yet satisfies
-`C(k) = 129616 = 129600 + 16 = H(k) + d(k)`.  Re-validated in Sage on
-2026-10-21: the set statement below fails on `1 ≤ k < 400000` only at
-`k = 368335`.
+The sequence consists of k with C(k)=H(k)+d(k): Chowla's function A048050,
+half-totient A023022 and divisor count A000005. The proposed equality with
+A001748 (three times primes), except at the second index, is refuted by
+k=368335=5*11*37*181: C(k)=129616=129600+16=H(k)+d(k), but 3 does not divide k.
+This counterexample is recorded by Amiram Eldar (Apr 15 2024).
+The formal refutation is of the value-set statement; it does not establish
+the counterexample's position in an increasing enumeration.
 -/
 import Mathlib
 
@@ -62,7 +34,7 @@ def IsA063534 (k : ℕ) : Prop := chowla k = halfTotient k + k.divisors.card
 instance : DecidablePred IsA063534 := fun k => by
   unfold IsA063534; infer_instance
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- A048050, first twelve terms. -/
 example : (List.range 12).map (fun n => chowla (n + 1)) =
@@ -78,14 +50,9 @@ example : (List.range 61).filter IsA063534 = [6, 8, 15, 21, 33, 39, 51, 57] := b
 
 /-! ## The conjecture -/
 
-/-- **Mathar's conjecture (A063534, R. J. Mathar, Dec 15 2008).**
-
-Verbatim: "Conjecture: a(n) = A001748(n), n <> 2."
-
-Since `A001748(n) = 3 * prime(n)` and the entry lists `a(2) = 8` (whereas
-`A001748(2) = 9`), the indexwise statement is equivalent to the set
-statement used here: a positive integer `k` lies in A063534 iff `k = 8` or
-`k = 3 * p` for a prime `p ≠ 3`. -/
+/-- The value-set reading of Mathar's indexed conjecture: a positive member
+is `8` or `3p` for prime `p≠3`. The source proposes equality with A001748
+except at index `2`; no formal enumeration bridge is supplied here. -/
 def Conjecture : Prop :=
   ∀ k : ℕ, 0 < k → (IsA063534 k ↔ k = 8 ∨ ∃ p : ℕ, p.Prime ∧ p ≠ 3 ∧ k = 3 * p)
 
@@ -123,12 +90,9 @@ theorem isA063534_368335 : IsA063534 368335 := by
   unfold IsA063534
   rw [hC, hH, hd]
 
-/-- **Mathar's conjecture on A063534 is false.**  Counterexample (Eldar,
-Apr 15 2024): `k = 368335 = 5 * 11 * 37 * 181` satisfies
-`C(k) = H(k) + d(k)` but is neither `8` nor `3 * p` (it is not divisible by
-`3`).  The heuristic behind the conjecture — `k = 3p` gives
-`C = p + 3`, `H = p - 1`, `d = 4` — is exact for those `k`, so only the
-"only if" direction fails; no evident corrected form is recorded. -/
+/-- Mathar's A063534 value-set conjecture is false: Eldar's counterexample
+`368335 = 5*11*37*181` satisfies `C(k)=H(k)+d(k)` but is neither `8` nor
+three times a prime. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have hmem := (hconj 368335 (by norm_num)).mp isA063534_368335

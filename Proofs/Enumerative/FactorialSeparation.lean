@@ -1,59 +1,19 @@
 /-
-# Factorial Separation (arXiv:2610.25661, Section 2)
+# Elementary factorial separation results
 
-Squares never lie just below `n!`, and `|n! - m^k| > n` when every prime factor of `m` is at
-most `n + 2`.
+Valmir Krasniqi, *The Factorial Separation Conjecture*, arXiv:2610.25661,
+Section 2: Lemmas 2.1–2.3, Theorems 2.4 and 2.6, Lemma 2.7, Theorem 2.8
+and Corollary 2.9.
+For `n ≥ 4`, a square below `n!` is more than `n` below it. Squares within
+`n` above `n!` have the factorization classified in Theorem 2.6, with its
+converse. For `n ≥ 8` and `m,k ≥ 2`, if every prime factor of `m` is at most
+`n+2`, then `|n!-m^k| > n`; thus any counterexample needs a larger prime factor.
+The full Conjecture 1.1 is recorded only as a proposition, not proved here.
 
-## Source
-
-Valmir Krasniqi, *The Factorial Separation Conjecture*, arXiv:2610.25661.
-Retrieved with `fetch 2610.25661` (LaTeX source) on 2026-10-21.
-
-Where the statements sit: Section 2 ("Elementary reductions"; the triage note numbered it
-Section 3): Lemma 2.1 (`lem:valuation`), Lemma 2.2 (`lem:dichotomy`), Lemma 2.3
-(`lem:not-power`), Theorem 2.4 (`thm:lower`, eq. `lower`), Lemma 2.5 (`lem:nonresidue`),
-Theorem 2.6 (`thm:classification`), and Subsection 2.3 "Bases with bounded prime divisors":
-Lemma 2.7 (`lem:two-part-growth`), the 2-adic bound (eq. `LTE-bound`), Theorem 2.8
-(`thm:bounded-base`) and Corollary 2.9 (`cor:large-base-prime`). Conjecture 1.1
-(`conj:fsc`) is in Section 1.
-
-Verbatim informal claims:
-
-* Conjecture 1.1 (FSC): "For every integer $n\ge8$ and all integers $m,k\ge2$,
-  $|n!-m^k|>n$."
-* Theorem 2.4: "Let $n\ge4$ and $m\ge1$ be integers. If $m^2<n!$, then $n!-m^2>n$."
-* Theorem 2.6: "Let $n\ge4$ and $m\ge1$ be integers. If $|n!-m^2|\le n$, then there are
-  integers $a,b\ge1$ such that $m=ab$, $m^2-n!=a^2$, $a^2\le n$, $n!=a^2(b^2-1)$, with
-  $\gcd(a,b)=1$ and $b$ odd. In addition, $\gcd(b,n!)=1$, $\gcd(m,n!)=a$, $b\ge n+1$.
-  Conversely, any positive integers $a,b$ satisfying $a^2\le n$ and $n!=a^2(b^2-1)$ give a
-  square $(ab)^2$ within distance $n$ above $n!$."
-* Theorem 2.8: "Let $n\ge8$ and $m,k\ge2$ be integers. Then
-  $P^+(m)\le n+2 \Longrightarrow |n!-m^k|>n$."
-* Corollary 2.9: "Every counterexample to Conjecture 1.1 satisfies $P^+(m)>n+2$."
-
-## Status
-
-Theorems 2.4, 2.6 and 2.8 (and Corollary 2.9) are **proved in the paper**; they are
-formalized and proved below without `sorry`. Conjecture 1.1 itself is **open**
-(the paper proves it only in the special cases listed in its Theorem 1.2); it is recorded
-here only as the `Prop` `FactorialSeparationConjecture`, with no proof claimed.
-
-## Formalization notes
-
-* `P⁺(m) ≤ n + 2` is rendered as `∀ p ∈ m.primeFactors, p ≤ n + 2` (for `m ≥ 2` the two are
-  equivalent).
-* Differences are taken in `ℤ` after casting, so no truncated `ℕ` subtraction occurs in the
-  statements.
-* Theorems 2.4 and 2.6 are stated for all `m : ℕ` (the paper assumes `m ≥ 1`; for `m = 0`
-  the hypotheses fail or the claim is immediate).
-* The proofs follow the paper: Lemma 2.1 is proved in divisibility form (`p ^ e ∣ d` implies
-  `p ^ (e + 1) ∣ n!`), the dichotomy of Lemma 2.2 through `exists_eq_pow_of_mul_eq_pow`, the
-  prime alternative of Theorem 2.4 through the Jacobi symbol `J(-1 | (p - 1)/2) = -1`
-  (instead of choosing a prime factor `q ≡ 3 (mod 4)`), Lemma 2.5 in the Jacobi form
-  "`J(x | p) = 1` for all `0 < x < p` is impossible" (via Jacobi reciprocity for
-  `p ≡ 1 (mod 4)` and `J(2 | p) = 1` for `p ≡ 1 (mod 8)`), Wilson's theorem
-  `ZMod.wilsons_lemma`, and the 2-adic bound through Mathlib's `padicValNat.pow_two_sub_pow`
-  (even exponents) and an explicit odd-cofactor factorization (odd exponents).
+Differences are in `ℤ` after casting. The square results allow `m=0`, a
+harmless extension of the paper's `m ≥ 1`. The prime alternatives use Jacobi
+symbols rather than extracting a prime congruent to 3 modulo 4; the growth
+argument uses Wilson's theorem and 2-adic valuation bounds.
 -/
 import Mathlib
 
@@ -63,7 +23,7 @@ open Nat
 
 namespace FactorialSeparation
 
-/-! ## The conjecture and ground truth -/
+/-! ## The conjecture and examples -/
 
 /-- **Factorial Separation Conjecture** (Conjecture 1.1 of arXiv:2610.25661, open):
 for every `n ≥ 8` and all `m, k ≥ 2`, `|n! - m ^ k| > n`. Recorded as a `Prop` only. -/

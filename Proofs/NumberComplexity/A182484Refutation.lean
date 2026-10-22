@@ -1,38 +1,10 @@
 /-
 # A182484 — Layman's refutation: `∏ k^(2k-p-1)` square iff `p` prime
 
-## OEIS source (retrieved with `oeis show A182484`, 2026-10-21)
-
-```
-NAME:     a(n) = Product_{k=1..p-1} k^(2k-p-1), where p = prime(n).
-TERMS:    1,1,4,225,8930250000,9001015156742400,
-          377177413291384771899817984000000,
-          17617791710438789613561393948051882397138944
-COMMENT:  a(n) is always an integer [Vandendriessche and Lee, Problem A13].
-          - _N. J. A. Sloane_, Jan 10 2017
-COMMENT (the conjecture, as recorded in the entry; no author or date is
-         attached to the conjecture line itself):
-  Conjecture (false!): a(n) = Product_{k=1..p-1} k^(2k-p-1) is a perfect
-  square if, and only if p = prime(n).
-COMMENT (the next comment, already recording the refutation):
-  The conjecture above is disproved by the counterexample p=63 for which the
-  indicated product is a square, yet 63 is not a prime.
-  [_John W. Layman_, May 01 2012]
-```
-
-## Status
-
-**False** (already marked "false!" in the entry, refuted by Layman,
-May 01 2012).  No later comment retracts the refutation.  This module refutes
-the conjecture and kernel-checks Layman's counterexample `p = 63`:
-`∏_{k=1}^{62} k^(2k-64)` is the square of an explicit 348-digit integer, while
-`63 = 3^2 · 7` is composite.
-
-Computational re-validation (Python `fractions`, 2026-10-21): for
-`2 ≤ p < 120` the product is an integer perfect square exactly for the primes
-and for the composites `p = 63` and `p = 105`.  For the other odd composites
-the product is a square of a rational but not an integer; for even `p` the
-exponents `2k - p - 1` are odd.
+The conjecture in OEIS A182484, refuted by John W. Layman (2012):
+at the composite `p = 63`, `∏_{k=1}^{62} k^(2k-64)` is an integer square.
+The entry's integrality claim for prime `p` cites Vandendriessche–Lee,
+Problem A13.
 
 ## Formal conventions
 
@@ -53,7 +25,7 @@ set_option autoImplicit false
 
 namespace Candidates.A182484Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The A182484 product at an arbitrary natural `p`:
 `∏_{k=1}^{p-1} k ^ (2k - p - 1)`, computed in `ℚ` with the exponent in `ℤ`. -/
@@ -66,7 +38,7 @@ noncomputable def seqA (i : ℕ) : ℚ := prodA (Nat.nth Nat.Prime i)
 /-- `x` is a perfect square of an integer. -/
 def IsIntSquare (x : ℚ) : Prop := ∃ m : ℤ, x = (m : ℚ) ^ 2
 
-/-! ## Ground truth
+/-! ## Examples
 
 The first six listed terms `1, 1, 4, 225, 8930250000, 9001015156742400`
 at `p = 2, 3, 5, 7, 11, 13`. -/
@@ -99,9 +71,6 @@ example : prodA 9 = 2458624 / 9 := by decide +kernel
 
 /-- **The A182484 conjecture** (recorded in the entry as "Conjecture (false!)").
 
-Verbatim: "a(n) = Product_{k=1..p-1} k^(2k-p-1) is a perfect square if, and
-only if p = prime(n)."
-
 Formalized: for every natural `p` with `1 < p`, the product
 `∏_{k=1}^{p-1} k^(2k-p-1)` is the square of an integer iff `p` is prime. -/
 def Conjecture : Prop := ∀ p : ℕ, 1 < p → (IsIntSquare (prodA p) ↔ p.Prime)
@@ -118,7 +87,7 @@ theorem isIntSquare_prodA_sixtyThree : IsIntSquare (prodA 63) :=
 theorem not_prime_sixtyThree : ¬ Nat.Prime 63 := by norm_num
 
 /-- **The A182484 conjecture is false.** Counterexample (John W. Layman,
-May 01 2012): at `p = 63` the product `∏_{k=1}^{62} k^(2k-64)` is the square
+2012): at `p = 63` the product `∏_{k=1}^{62} k^(2k-64)` is the square
 of an integer, yet `63` is not prime.  The true statement behind the entry is
 the one-directional integrality comment (`a(n)` is an integer for prime `p`,
 Vandendriessche–Lee, Problem A13); squareness does not characterize primes. -/

@@ -1,34 +1,13 @@
 /-
 # A137328 — "every prime appears" fails at the prime `2`
 
-## OEIS source (retrieved with `oeis show A137328` and the live entry, 2026-10-21)
+Ctibor O. Zizka's conjecture in OEIS A137328 (2008). Here `primorial(k)`
+(A002110) is the product of the first `k` primes, not the primes at most `k`.
 
-```
-NAME:     a(n) = prime(n) - primorial(k), where k is the greatest number for
-          which primorial(k) <= prime(n).
-OFFSET:   1,3
-AUTHOR:   Ctibor O. Zizka, Apr 07 2008
-TERMS:    0,1,3,1,5,7,11,13,17,23,1,7,11,13,17,23,29,31,37,41,43,49,53,59,67,
-          71,73,77,79,83,97,101,107,109,119,121,127,133,137,143,149,151,161,...
-COMMENT (the conjecture; unsigned, hence the entry author's, Apr 07 2008):
-  Conjecture: Each prime number appears in this sequence at least once.
-COMMENT:  Is there any general asymptotic formula for the appearance of
-          prime(n) in this sequence?
-XREFS:    Cf. A000040, A002110, A136437.
-```
-
-`primorial(k)` is A002110, the product of the first `k` primes (the PARI and
-Python programs of the entry confirm this reading). No later comment retracts
-or restricts the conjecture.
-
-## Status
-
-Refuted here, literally, at the prime `q = 2`.  Since `primorial(1) = 2 ≤
-prime(n)` for every `n`, the chosen index satisfies `k ≥ 1`, so `primorial(k)`
-is even.  If `a(n) = 2` then `prime(n) = primorial(k) + 2` is even and at least
-`4`, which is impossible.  (Computation: `2` is absent among the first 78498
-terms, while `3, 5, 7, 11, 13` occur.)  The probably intended statement, "every
-odd prime appears", is open and is not formalized here.
+The prime `2` never occurs: for `n ≥ 1`, the chosen primorial index is at
+least one, hence the chosen primorial is even. If `a(n)=2`, the prime
+`prime(n)` would be even and at least `4`. The variant that every odd prime
+occurs is not formalized here.
 -/
 import Mathlib
 
@@ -113,9 +92,9 @@ theorem primorialFirst_primorialIndex_le {p : ℕ} (hp : 2 ≤ p) :
   Nat.findGreatest_spec (P := fun k => primorialFirst k ≤ p) (m := 1) (by omega)
     (by rw [primorialFirst_one]; exact hp)
 
-/-! ## Ground truth against the DATA line -/
+/-! ## Examples against the DATA line -/
 
-/-- Small values of `prime(n)` used by the ground-truth checks. -/
+/-- Small values of `prime(n)` used by the examples. -/
 theorem nth_prime_ten : Nat.nth Nat.Prime 10 = 31 := by
   have hc : Nat.count Nat.Prime 31 = 10 := by
     rw [Nat.count_eq_card_filter_range]
@@ -129,7 +108,7 @@ theorem primorialFirst_two_three_four :
   simp [primorialFirst, Finset.prod_range_succ, Nat.nth_prime_zero_eq_two,
     Nat.nth_prime_one_eq_three, Nat.nth_prime_two_eq_five, Nat.nth_prime_three_eq_seven]
 
-/-- Ground truth: `a(1), …, a(5) = 0, 1, 3, 1, 5` and `a(11) = 31 - 30 = 1`. -/
+/-- Examples: `a(1), …, a(5) = 0, 1, 3, 1, 5` and `a(11) = 31 - 30 = 1`. -/
 example : a 1 = 0 ∧ a 2 = 1 ∧ a 3 = 3 ∧ a 4 = 1 ∧ a 5 = 5 ∧ a 11 = 1 := by
   obtain ⟨h2, h3, h4⟩ := primorialFirst_two_three_four
   have hp1 : primeAt 1 = 2 := Nat.nth_prime_zero_eq_two
@@ -153,9 +132,8 @@ example : a 1 = 0 ∧ a 2 = 1 ∧ a 3 = 3 ∧ a 4 = 1 ∧ a 5 = 5 ∧ a 11 = 1 :
 
 /-! ## The conjecture and its refutation -/
 
-/-- **Zizka's conjecture (A137328, Apr 07 2008).** Verbatim: "Conjecture: Each
-prime number appears in this sequence at least once."  Indices range over the
-OEIS offset `n ≥ 1`. -/
+/-- Zizka's conjecture (OEIS A137328, 2008): every prime occurs as `a(n)`
+for some `n ≥ 1`, the entry's offset. -/
 def Conjecture : Prop := ∀ q : ℕ, q.Prime → ∃ n : ℕ, 1 ≤ n ∧ a n = q
 
 /-- No term of A137328 equals `2`: `primorial(k)` is even for the chosen
@@ -176,9 +154,7 @@ theorem a_ne_two (n : ℕ) : a n ≠ 2 := by
   omega
 
 /-- **Refutation of A137328's conjecture.**  Counterexample: the prime `q = 2`
-never occurs (`a_ne_two`).  The author probably intended "every odd prime
-appears", which remains open (a search over odd primes `3 ≤ q < 20000` found
-witnesses for all of them). -/
+never occurs (`a_ne_two`).  The variant "every odd prime appears" is not proved here. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   obtain ⟨n, -, hn⟩ := hconj 2 Nat.prime_two

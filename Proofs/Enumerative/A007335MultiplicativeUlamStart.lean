@@ -1,35 +1,15 @@
 /-
-# A007335 — Multiplicative Ulam (MU) numbers: Eldar's reciprocal sum and Sigrist's structure
+# A007335: multiplicative Ulam numbers
 
-## OEIS source (pulled with `oeis show A007335`, retrieval date 2026-10-21)
-
-```
-NAME:     MU-numbers: next term is uniquely the product of 2 earlier terms.
-TERMS:    2,3,6,12,18,24,48,54,96,162,192,216,384,486,768,864,1458,1536,1944,
-          3072,3456,4374,6144,7776,12288,13122,13824,17496,24576,31104,39366,...
-COMMENT:  Empirically, this sequence corresponds to numbers of the form
-          2^v * 3^w with v = 1 or w = 1 or v and w both odd (see illustration
-          in Links section). - _Rémy Sigrist_, Feb 16 2023
-FORMULA (the conjecture):
-          Conjecture: Sum_{n>=1} 1/a(n) = 181/144. - _Amiram Eldar_, Jul 31 2022
-```
-
-The entry's definition (programs): start with `2, 3`; repeatedly append the least number
-greater than the last term that is the product of two distinct earlier terms in exactly
-one way.
-
-## Literature status (triage)
-
-Triage status: proved-elsewhere. Mapping `2^a 3^b ↦ (a, b)` turns the MU-numbers into the
-Ulam set of `{(1,0), (0,1)}` in `ℕ²`; the triage cites Kravitz–Steinerberger, *Ulam
-sequences and Ulam sets* (arXiv:1705.01883), "Lattice in two dimensions", for that Ulam
-set's structure (not independently re-read here). Neither the entry nor the conjecture
-cites it. This file gives a self-contained kernel-checked proof of both Sigrist's
-characterization and Eldar's sum (`1/4 + 9/16 + 4/9 = 181/144`).
-
-## Computational re-validation (2026-10-21)
-
-The greedy rule run to `10^7` gives 61 terms, exactly Sigrist's set below `10^7`.
+OEIS A007335: Rémy Sigrist's characterization (Feb 16 2023) and Amiram
+Eldar's reciprocal-sum conjecture (Jul 31 2022).
+Related reference: Kravitz-Steinerberger, "Ulam sequences and Ulam sets",
+arXiv:1705.01883. The proof below is self-contained.
+Starting from `2, 3`, append the least larger number that is a product of
+two distinct earlier terms in exactly one way. The members are exactly
+`2^v 3^w` with `v = 1`, `w = 1`, or both exponents odd.
+The greedy-rule theorem identifies the nth enumeration, and its reciprocal
+series has sum `181/144 = 1/4 + 9/16 + 4/9`.
 -/
 import Mathlib
 
@@ -37,7 +17,7 @@ set_option autoImplicit false
 
 namespace Candidates.A007335MultiplicativeUlamStart
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `Admits S n`: given the finite set `S` of earlier terms, the number `n` is admitted to
 the sequence, i.e. `n` is one of the seeds `2, 3`, or `n > 3` and `n` is the product `u * w`
@@ -45,7 +25,7 @@ of two distinct elements `u < w` of `S` in exactly one way. -/
 def Admits (S : Finset ℕ) (n : ℕ) : Prop :=
   n = 2 ∨ n = 3 ∨ (3 < n ∧ ((S ×ˢ S).filter (fun p => p.1 < p.2 ∧ p.1 * p.2 = n)).card = 1)
 
-/-- Decidability of `Admits`, for ground-truth checks. -/
+/-- Decidability of `Admits`, for finite checks. -/
 instance (S : Finset ℕ) (n : ℕ) : Decidable (Admits S n) := by
   unfold Admits; infer_instance
 
@@ -60,7 +40,7 @@ this is the strong recursion: `n` is `2` or `3`, or `3 < n` and `n` is a product
 of two MU-numbers `u < w` in exactly one way. -/
 def IsMU (n : ℕ) : Prop := n ∈ muUpTo n
 
-/-- Decidability of `IsMU`, for ground-truth checks. -/
+/-- Decidability of `IsMU`, for finite checks. -/
 instance : DecidablePred IsMU := fun n => by unfold IsMU; infer_instance
 
 /-- `mu k` is the MU-number of index `k`, counted from `0`: OEIS `a(k + 1) = mu k`
@@ -84,7 +64,7 @@ def Good (x y : ℕ) : Prop := x = 1 ∨ y = 1 ∨ (x % 2 = 1 ∧ y % 2 = 1)
 odd. -/
 def InT (n : ℕ) : Prop := ∃ a b, n = 2 ^ a * 3 ^ b ∧ (a = 1 ∨ b = 1 ∨ (Odd a ∧ Odd b))
 
-/-! ## Ground truth against the OEIS DATA line -/
+/-! ## Examples against the OEIS DATA line -/
 
 set_option maxRecDepth 20000 in
 -- The MU-numbers below `217` are exactly the first twelve listed terms.
@@ -622,7 +602,7 @@ lemma greedy_iff {k n : ℕ} (hlo : mu (k + 1) < n) (hhi : n ≤ mu (k + 2)) :
     have hun : u < n := by omega
     exact ⟨hlt, hprod, (earlier_iff (by omega)).mpr hu, (earlier_iff (by omega)).mpr hw⟩
 
-/-- **Faithfulness of the definition: the greedy rule.** For every `k`, `mu (k + 2)` is the
+/-- The greedy rule: for every `k`, `mu (k + 2)` is the
 least number exceeding the last term `mu (k + 1)` that is the product `u * w` of two distinct
 earlier terms `u < w` (both among `mu 0, …, mu (k + 1)`) in exactly one way. Together with
 `mu_zero`, `mu_one` this is exactly the entry's definition of A007335. -/
@@ -660,14 +640,9 @@ theorem sigrist_characterization (n : ℕ) :
     IsMU n ↔ ∃ v w : ℕ, n = 2 ^ v * 3 ^ w ∧ (v = 1 ∨ w = 1 ∨ (Odd v ∧ Odd w)) :=
   isMU_iff_inT n
 
-/-- **Eldar's conjecture (A007335, Amiram Eldar, Jul 31 2022).**
-
-Verbatim: "Conjecture: Sum_{n>=1} 1/a(n) = 181/144."
-
-Here `a(n) = mu (n - 1)` (offset shift), and the sum is stated as `HasSum` over the
-whole sequence, which is stronger than equality of the `tsum`. The proof splits the
-MU-numbers into the families `2^odd 3^odd`, `2 * 9^j`, `4^i * 3` and sums geometric series:
-`1/4 + 9/16 + 4/9 = 181/144`. -/
+/-- Eldar's A007335 reciprocal sum, stated as `HasSum` over all `mu k`.
+The OEIS offset-one term is `a(n) = mu(n-1)`. Splitting into the families
+`2^odd 3^odd`, `2*9^j` and `4^i*3` gives `1/4 + 9/16 + 4/9 = 181/144`. -/
 theorem eldar_reciprocal_sum : HasSum (fun k : ℕ => 1 / (mu k : ℝ)) (181 / 144) :=
   hasSum_one_div_mu
 

@@ -385,10 +385,9 @@ private theorem patternPolynomial_congr_length (K L L' : ℕ) (hL : L = L')
   subst hL
   rw [Fin.ext hi, Fin.ext hj]
 
-/-- UNPROVED global regrouping target: for every cutoff `K≥3`, the actual
-pair-count Bernstein polynomial equals the source profile approximation at
-index `K-3`, on the whole real plane. This requires the unpaid interleaving /
-block-cell regrouping identity, not merely the finite coefficient results. -/
+/-- For every cutoff `K ≥ 3`, the pair-count Bernstein polynomial equals
+the profile approximation at index `K-3` on the whole real plane. The proof
+regroups weighted shuffle fibers and then uses symmetry to order the coordinates. -/
 theorem BernsteinQK_eq_profileApprox (K : ℕ) (hK : 3 ≤ K) (x y : ℝ) :
     BernsteinQK K x y = PermutationEndpointProfile.profileApprox (K - 3) (x, y) := by
   obtain ⟨m, rfl⟩ : ∃ m, K = m + 3 := ⟨K - 3, by omega⟩

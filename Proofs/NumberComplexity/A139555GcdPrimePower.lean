@@ -1,33 +1,12 @@
 /-
 # A139555 — Zumkeller: a(n) < phi(n) for every n > 60
 
-## OEIS source (retrieved with `oeis show A139555`, 2026-10-21)
+Reinhard Zumkeller's conjecture in OEIS A139555 (2010). The related
+A051250 classification has a proof sketch by C. R. Greathouse IV (2011)
+using Dusart-type bounds and finite checks; the proof here uses Bertrand's
+postulate instead.
 
-```
-NAME:     a(n) = number of prime-powers (including 1) that each are <= n and
-          are coprime to n.
-TERMS:    1,1,2,2,4,2,5,4,6,4,8,4,9,6,7,7,11,6,12,8,10,8,13,8,13,10,13,11,16,
-          8,17,14,15,13,16,11,19,14,16,13,20,12,21,16,17,16,22,15,22,17,20,18,
-          24,17,22,18,21,19,25,16,26,21,22,22,25,18,28,22,25,19,29,21,30,24,
-          26,24
-COMMENT (the conjecture):
-  From _Reinhard Zumkeller_, Oct 27 2010: (Start)
-  a(n) <= A000010(n); a(A051250(n)) = A000010(A051250(n)), 1 <= n <= 17.
-  Conjecture: a(n) < A000010(n) for n > 60, cf. A051250. (End)
-```
-
-## Status
-
-Triage: proved elsewhere.  The cross-referenced entry A051250 (numbers all
-of whose reduced residues are 1 or prime powers) carries a proof sketch by
-C. R. Greathouse IV (2011) that its last term is 60, via Dusart-type bounds
-and finite checks.  A139555 itself still prints the statement as a
-conjecture.  Re-validated here by computation: `a(n) = phi(n)` for `n ≤ 3000`
-exactly at `1,2,3,4,5,6,8,9,10,12,14,18,20,24,30,42,60` (= A051250), and for
-`61 ≤ n ≤ 2·10^6` the product of the two least primes not dividing `n` is
-at most `n`.
-
-## Proof used here (elementary, no Dusart)
+## Proof
 
 Let `p < q` be the two least primes not dividing `n`.  Then `p * q` is a
 totative of `n` that is neither `1` nor a prime power, so it suffices that
@@ -43,7 +22,7 @@ set_option autoImplicit false
 
 namespace Candidates.A139555GcdPrimePower
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A139555: `a n` is the number of `k` with `1 ≤ k ≤ n`, `gcd(k, n) = 1`,
 and `k` equal to `1` or a prime power. -/
@@ -51,7 +30,7 @@ def a (n : ℕ) : ℕ :=
   ((Finset.Icc 1 n).filter (fun k => Nat.Coprime k n ∧ (k = 1 ∨ IsPrimePow k))).card
 
 /-- Kernel-reducible restatement of `a`, with the prime-power test written as a
-bounded search (`p ≤ k`, `e ≤ k`); used only for ground-truth evaluation. -/
+bounded search (`p ≤ k`, `e ≤ k`); used only for evaluation. -/
 def aBounded (n : ℕ) : ℕ :=
   ((Finset.Icc 1 n).filter (fun k => Nat.Coprime k n ∧
     (k = 1 ∨ ∃ p : ℕ, p ≤ k ∧ ∃ e : ℕ, e ≤ k ∧ p.Prime ∧ 0 < e ∧ p ^ e = k))).card
@@ -61,7 +40,7 @@ theorem a_eq_aBounded (n : ℕ) : a n = aBounded n := by
   unfold a aBounded
   simp_rw [isPrimePow_nat_iff_bounded]
 
-/-- Ground truth: the first twelve listed terms of A139555. -/
+/-- Examples: the first twelve listed terms of A139555. -/
 example : (List.range 12).map (fun i => a (i + 1)) = [1, 1, 2, 2, 4, 2, 5, 4, 6, 4, 8, 4] := by
   simp only [a_eq_aBounded]
   decide
@@ -200,13 +179,10 @@ theorem not_isPrimePow_mul_of_prime {p q : ℕ} (hp : p.Prime) (hq : q.Prime) (h
   have hqr : q = r := huniq q ⟨hq, Dvd.intro_left p rfl⟩
   exact hpq (hpr.trans hqr.symm)
 
-/-- **Zumkeller's conjecture (A139555, Reinhard Zumkeller, Oct 27 2010).**
-
-Verbatim: "Conjecture: a(n) < A000010(n) for n > 60, cf. A051250."  Here
-`a n` counts the `k` with `1 ≤ k ≤ n`, `gcd(k, n) = 1`, and `k` equal to `1`
-or a prime power, and `A000010` is Euler's totient `Nat.totient`.  The bound
-`60` is sharp: `a 60 = φ 60 = 16`.  Proved here from the existence of two
-distinct primes `p`, `q` not dividing `n` with `p * q ≤ n`. -/
+/-- Zumkeller's conjecture (OEIS A139555, 2010): for `60 < n`, the number of
+totatives equal to `1` or a prime power is less than `φ(n)`. The threshold
+is sharp: `a 60 = φ 60 = 16`. The proof constructs distinct primes `p,q`
+not dividing `n` with `pq ≤ n`. -/
 theorem conjecture (n : ℕ) (hn : 60 < n) : a n < Nat.totient n := by
   classical
   obtain ⟨p, q, hp, hq, hpq, hpn, hqn, hle⟩ := exists_primes_mul_le hn

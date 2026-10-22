@@ -1,40 +1,17 @@
 /-
 # A109864 — the zero set of "least palindromic prime beginning with n"
 
-## OEIS source (retrieved with `oeis show A109864` and the live entry, 2026-10-21)
+The unsigned conjecture in OEIS A109864, an entry by Amarnath Murthy
+(2005), corrected and extended by Giovanni Resta (2006). The sequence gives
+the least palindromic prime beginning with `n`, or `0` if none exists.
 
-```
-NAME:     Least palindromic prime beginning with n, or 0 if no such prime exists.
-OFFSET:   1
-TERMS:    11,2,3,0,5,0,7,0,919,101,11,12421,131,14341,151,16061,17471,181,191,
-          0,0,0,0,0,0,0,0,0,0,30103,313,32323,33533,34543,353,36263,373,383,
-          39293,0,0,0,...
-KEYWORDS: base,nonn
-COMMENT (the conjecture; unsigned in the entry):
-  Conjecture: a(n) = 0 if and only if n > 3 and n begins with 2,4,6,8 or 5
-  (most significant digit).
-AUTHOR:   Amarnath Murthy, Jul 08 2005
-EXTENSIONS: Corrected and extended by Giovanni Resta, Feb 07 2006
-```
+The stated zero-set characterization fails at `n = 5`: its right-hand side
+holds, but `5` is itself a palindromic prime, so `a(5) = 5`.
 
-No later comment retracts or corrects the conjecture.
-
-## Status
-
-**False** as literally stated.  This module refutes it at `n = 5`: the
-right-hand side holds (`5 > 3` and `5` begins with `5`), but `5` is itself a
-palindromic prime beginning with `5`, so `a(5) = 5 ≠ 0` (the fifth listed term).
-
-Computational re-validation (Python, 2026-10-21): the first 39 listed terms are
-reproduced by a direct search up to `10^6`, `a(5) = 5`, and for `n < 100` the
-two sides of the conjecture disagree only at `n = 5` (and at `n = 99`, an
-artefact of the search bound: `a(99)` exceeds `10^6`).
-
-The evidently intended statement replaces `n > 3` by `n ∉ {2, 5}`.  Its "if"
-direction is proved below as `a_eq_zero_of_beginsWith` (a palindrome beginning
-with `d` ends with `d`, so it is divisible by `2` or `5`).  Its "only if"
-direction — every `n` with leading digit `1, 3, 7` or `9` begins some
-palindromic prime — is open and is not claimed here.
+Replacing `n > 3` by `n ∉ {2,5}` gives the direction
+`a_eq_zero_of_beginsWith` below: a palindrome beginning with `2,4,5,6,8`
+ends with that digit. The converse for leading digits `1,3,7,9` is not
+claimed here.
 
 ## Formal conventions
 
@@ -50,7 +27,7 @@ set_option autoImplicit false
 
 namespace Candidates.A109864Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The decimal expansion of `p` begins with the decimal expansion of `n`
 (most significant digits first). -/
@@ -98,7 +75,7 @@ theorem a_eq_zero_iff {n : ℕ} : a n = 0 ↔ ¬ ∃ p, IsCandidate n p := by
   · rw [a, dif_neg hex]
     simp only [hex, not_false_eq_true]
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : BeginsWith 12 12421 ∧ IsPalindrome 12421 := by decide
 example : ¬ BeginsWith 12 1342 ∧ ¬ IsPalindrome 12 := by decide
@@ -122,9 +99,6 @@ example : a 19 = 191 := a_eq_of_isLeast ⟨by decide, by decide, by norm_num⟩ 
 
 /-- **The A109864 conjecture (unsigned comment in the entry).**
 
-Verbatim: "Conjecture: a(n) = 0 if and only if n > 3 and n begins with
-2,4,6,8 or 5 (most significant digit)."
-
 Stated for `0 < n` (the offset is `1`); "n begins with the digit `d`" is
 `BeginsWith d n`. -/
 def Conjecture : Prop :=
@@ -140,15 +114,15 @@ theorem a_five_ne_zero : a 5 ≠ 0 := by
 
 /-- **The A109864 conjecture is false**, with counterexample `n = 5`: the
 right-hand side holds (`3 < 5` and `5` begins with the digit `5`), but
-`a(5) = 5 ≠ 0`.  The author presumably intended the hypothesis `n ∉ {2, 5}`
-in place of `n > 3`; see `a_eq_zero_of_beginsWith` for its "if" direction. -/
+`a(5) = 5 ≠ 0`.  Replacing `n > 3` by `n ∉ {2, 5}` gives the
+"if" direction `a_eq_zero_of_beginsWith`; no converse is proved here. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have hrhs : 3 < 5 ∧ ∃ d ∈ ({2, 4, 5, 6, 8} : Finset ℕ), BeginsWith d 5 :=
     ⟨by norm_num, 5, by decide, by decide⟩
   exact a_five_ne_zero ((hconj 5 (by norm_num)).2 hrhs)
 
-/-! ## The intended "if" direction -/
+/-! ## A corrected "if" direction -/
 
 /-- A palindrome whose expansion begins with the nonzero digit `d` ends in `d`. -/
 theorem mod_ten_eq_of_beginsWith {d p : ℕ} (hd0 : d ≠ 0) (hd : d < 10)

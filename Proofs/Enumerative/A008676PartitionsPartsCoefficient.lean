@@ -1,33 +1,12 @@
 /-
-# A008676 — Layman: floor formula for partitions into parts 3 and 5
+# Partitions into parts 3 and 5 (A008676)
 
-## OEIS source (retrieved with `oeis show A008676`, 2026-10-21)
-
-```
-NAME:     Expansion of 1/((1-x^3)*(1-x^5)).
-TERMS:    1,0,0,1,0,1,1,0,1,1,1,1,1,1,1,2,1,1,2,1,2,2,1,2,2,2,2,2,2,2,3,2,2,3,
-          2,3,3,2,3,3,3,3,3,3,3,4,3,3,4,3,4,4,3,4,4,4,4,4,4,4,5,4,4,5,4,5,5,4,
-          5,5,5,5,5,5,5,6,5,5
-COMMENT:  a(n) gives the number of partitions of n using only the parts 3 and 5.
-          e.g. a(25)=2: 5+5+5+5+5 and 5+5+3+3+3+3+3+3. - _Andrew Baxter_, Jun 20 2011
-COMMENT (the conjecture):
-  Conjecture: a(n) = Floor(2*(n + 3)/3) - Floor(3*(n + 3)/5).
-  - _John W. Layman_, Sep 23 2009
-FORMULA:  a(n) = floor((2*n+5)/5) - floor((n+2)/3). - _Tani Akinari_, Aug 07 2013
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature located by the triage).
-The entry carries Akinari's equivalent floor formula without proof.  Computation
-(this campaign): Layman's formula agrees with the direct count for `n ≤ 6000`.
-
-## Proof outline (kernel-checked below)
-
-A partition of `n` into parts 3 and 5 is a pair `(a, b)` with `3a + 5b = n`; it
-is determined by `b`, which ranges over `b ≤ n / 5` with `b ≡ 2n (mod 3)`.
-`Nat.count_modEq_card` counts that residue class, and the resulting closed form
-agrees with Layman's expression on every residue of `n` modulo 15.
+Source: John W. Layman's OEIS A008676 formula (Sep 23 2009), with the
+partition interpretation recorded by Andrew Baxter (Jun 20 2011).
+For every `n`, the number of pairs `3a+5b=n` equals the coefficient of
+`x^n` in `1/((1-x³)(1-x⁵))` and equals
+`floor(2(n+3)/3)-floor(3(n+3)/5)`. Subtraction is in `ℤ` after casting.
+The count is a residue-class count for `b ≤ n/5`, `b ≡ 2n (mod 3)`.
 -/
 import Mathlib
 
@@ -35,7 +14,7 @@ set_option autoImplicit false
 
 namespace Candidates.A008676PartitionsPartsCoefficient
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `partsThreeFive n` is the number of partitions of `n` into parts 3 and 5:
 the number of pairs `(a, b)` of naturals with `3a + 5b = n` (`a` threes and `b`
@@ -81,7 +60,7 @@ theorem partsThreeFive_eq_count (n : ℕ) :
   rw [partsThreeFive_eq_card_filter_modEq, ← Nat.count_eq_card_filter_range,
     Nat.count_modEq_card _ (by norm_num : 0 < 3)]
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The definition reproduces the first 30 DATA terms directly.
 example : (List.range 30).map partsThreeFive =
@@ -115,7 +94,7 @@ coefficient `1` at multiples of `k` and `0` elsewhere. -/
 noncomputable def multiplesSeries (k : ℕ) : PowerSeries ℚ :=
   PowerSeries.mk fun i => if k ∣ i then 1 else 0
 
--- Ground truth: `1/(1-x^3) = 1 + x^3 + x^6 + ⋯`.
+-- `1/(1-x^3) = 1 + x^3 + x^6 + ⋯`.
 example : PowerSeries.coeff 6 (multiplesSeries 3) = 1 ∧
     PowerSeries.coeff 7 (multiplesSeries 3) = 0 := by
   simp [multiplesSeries]
@@ -194,14 +173,9 @@ theorem coeff_inv_eq_partsThreeFive (n : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Layman's conjecture (A008676, John W. Layman, Sep 23 2009).**
-
-Verbatim: "Conjecture: a(n) = Floor(2*(n + 3)/3) - Floor(3*(n + 3)/5)."
-
-For every `n ≥ 0` the number of partitions of `n` into parts 3 and 5 equals
-`⌊2(n+3)/3⌋ - ⌊3(n+3)/5⌋`.  Both floors are natural-number divisions of
-nonnegative quantities, and the subtraction is taken in `ℤ` after casting, so
-the statement is not about truncated subtraction. -/
+/-- Layman's formula: the number of partitions into parts 3 and 5 is
+`floor(2(n+3)/3)-floor(3(n+3)/5)`. The floors are natural divisions;
+subtraction is in `ℤ` after casting. -/
 theorem layman_partsThreeFive_eq (n : ℕ) :
     (partsThreeFive n : ℤ) = ((2 * (n + 3) / 3 : ℕ) : ℤ) - ((3 * (n + 3) / 5 : ℕ) : ℤ) := by
   rw [partsThreeFive_eq_count]

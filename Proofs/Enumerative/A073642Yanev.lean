@@ -1,36 +1,13 @@
 /-
-# A073642 — Yanev: `2·a(n) = 3·Σ v₂(k) − Σ v₂(k)²`
+# Set-bit indices and 2-adic valuations (A073642)
 
-## OEIS source (retrieved with `oeis show A073642`, 2026-10-21)
-
-```
-NAME:     Replace 2^k in the binary representation of n with k (i.e., if
-          n = 2^b + 2^c + 2^d + ... then a(n) = b + c + d + ...).
-TERMS:    0,0,1,1,2,2,3,3,3,3,4,4,5,5,6,6,4,4,5,5,6,6,7,7,7,7,8,8,9,9,10,10,
-          5,5,6,6,7,7,8,8,8,8,9,9,10,10,11,11,9,9,10,10,11,11,12,12,...
-KEYWORDS: easy,nonn,base
-FORMULA (the conjecture):
-  Conjecture: a(n) = (3*A011371(n) - Sum_{k=1..n} A007814(k)^2)/2 for n > 0.
-  - _Velin Yanev_, Sep 09 2017
-```
-
-Here `A011371(n) = Σ_{k=1..n} v₂(k)` (the 2-adic valuation of `n!`) and
-`A007814(k) = v₂(k)`.  The statement below writes `A011371(n)` as that sum
-and clears the denominator, working in `ℤ` so the subtraction is genuine.
-
-## Status
-
-Triage: open (the entry leaves the formula as a conjecture; no proof found in
-the entry or literature by the triage).  Numerically re-checked for all
-`1 ≤ n ≤ 400000` (Python, 2026-10-21).  Proved below, sorry-free.
-
-## Proof idea
-
-With `c(n)` the binary digit sum, `P(n) = Σ_{k≤n} v₂(k)` and
-`F(n) = Σ_{k≤n} (3 v₂(k) − v₂(k)²)`, the even/odd recursions are
-`a(2m) = a(m) + c(m)`, `a(2m+1) = a(2m)`, `F(2m) = F(m) + 2m − 2P(m)`,
-`F(2m+1) = F(2m)`, and Legendre's `P(m) + c(m) = m`.  Hence
-`F(2m) = F(m) + 2c(m)` and `2a = F` follows by even/odd recursion on `n`.
+Source: Velin Yanev's OEIS A073642 formula (Sep 09 2017).
+With `a(n)` the sum of the indices of set bits of `n`,
+`2a(n) = 3 Σ_{k=1}^n v₂(k) - Σ_{k=1}^n v₂(k)²`.
+The first sum is A011371 and `v₂` is A007814. Subtraction is in `ℤ`;
+the division-form theorem uses exact division by 2. The source guard `n > 0`
+is retained, though the cleared identity also holds at 0.
+The proof uses even/odd recursions and Legendre's digit-sum identity.
 -/
 import Mathlib
 
@@ -38,14 +15,14 @@ set_option autoImplicit false
 
 namespace Candidates.A073642Yanev
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A073642: if `n = Σ b_i 2^i` in binary, then `a(n) = Σ i · b_i`,
 the sum of the positions of the `1`-bits of `n`. -/
 def a (n : ℕ) : ℕ :=
   ∑ i ∈ Finset.range n.size, if n.testBit i then i else 0
 
--- Ground truth: the first 34 terms of the OEIS DATA line.
+-- The first 34 terms of the OEIS DATA line.
 example : (List.range 34).map a =
     [0, 0, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 6, 6, 4, 4, 5, 5, 6, 6, 7, 7,
       7, 7, 8, 8, 9, 9, 10, 10, 5, 5] := by
@@ -56,14 +33,14 @@ example : (List.range 34).map a =
 def bitSum (f : ℕ → ℕ) (n : ℕ) : ℕ :=
   ∑ i ∈ Finset.range n.size, if n.testBit i then f i else 0
 
--- Ground truth: the binary digit sum of `11 = 1011₂` is `3`.
+-- The binary digit sum of `11 = 1011₂` is `3`.
 example : bitSum (fun _ => 1) 11 = 3 := by decide
 
 /-- Sum of `g (v₂ k)` over `1 ≤ k ≤ n`. -/
 def vSum (g : ℕ → ℤ) (n : ℕ) : ℤ :=
   ∑ k ∈ Finset.Icc 1 n, g (padicValNat 2 k)
 
--- Ground truth: `vSum` with `g = id` at `n = 0` is the empty sum.
+-- `vSum` with `g = id` at `n = 0` is the empty sum.
 example : vSum (fun v => (v : ℤ)) 0 = 0 := by simp [vSum]
 
 /-! ## Bit-sum recursions -/
@@ -198,13 +175,9 @@ theorem two_mul_a_eq_vSum (n : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Yanev's formula (A073642, Velin Yanev, Sep 09 2017), proved.**
-
-Verbatim: "Conjecture: a(n) = (3*A011371(n) - Sum_{k=1..n} A007814(k)^2)/2 for
-n > 0."  With `A011371(n) = Σ_{k=1..n} v₂(k)` and `A007814(k) = v₂(k)`, the
-cleared form is `2·a(n) = 3·Σ_{k=1..n} v₂(k) − Σ_{k=1..n} v₂(k)²`, stated in
-`ℤ` so the subtraction is not truncated.  (The identity also holds at `n = 0`;
-the guard `0 < n` is kept from the source.) -/
+/-- Yanev's A073642 identity in cleared integer form. Here A011371 is
+`Σ_{k=1}^n v₂(k)` and A007814 is `v₂`. The source guard `n > 0` is retained,
+though `two_mul_a_eq_vSum` also covers 0. -/
 theorem yanev (n : ℕ) (_hn : 0 < n) :
     (2 * a n : ℤ) = 3 * ∑ k ∈ Finset.Icc 1 n, (padicValNat 2 k : ℤ)
       - ∑ k ∈ Finset.Icc 1 n, (padicValNat 2 k : ℤ) ^ 2 := by

@@ -1,50 +1,13 @@
 /-
-# A068991 — squarefree members of `{k : ∑_{d ∣ k} σ(d)/φ(d) ∈ ℤ}` divide `den B_{2k}`
+Squarefree members of OEIS A068991 and Bernoulli denominators.
+The entry (Benoit Cloitre, Apr 06 2002) asks whether a squarefree k with
+∑_{d∣k} σ(d)/φ(d) integral divides the denominator of B_{2k}.
+Here “contains k” means divisibility, as in the entry's example.
 
-## OEIS source (retrieved with `oeis show A068991`, 2026-10-21; attribution
-checked against the live entry)
-
-```
-NAME:     Numbers k such that Sum_{d divides k} sigma(d)/phi(d) is an integer.
-TERMS:    1,2,3,6,10,21,30,42,78,110,210,330,390,930,1218,1830,2025,2310,2530,
-          4050,4134,4290,6090,7590,14175,14910,22110,28350,51090,52650,53130,
-          66990,71862,98670,118910,159975,214650,319950,356730,359310,442338,
-          635850,684450
-KEYWORDS: nonn
-AUTHOR:   Benoit Cloitre, Apr 06 2002
-COMMENT (the conjecture; unsigned, hence by the entry author, Apr 06 2002):
-  Conjecture: if k is in the sequence and k is squarefree then the
-  denominator of the 2k-th Bernoulli's number contains k. E.g., 2310 is
-  squarefree, is in the sequence and A002445(2310)=744535159372016163713900138929458330
-  is divisible by 2310.
-```
-
-"Contains k" is read as divisibility, as the entry's own example shows
-("is divisible by 2310").
-
-## Status
-
-Triage status: open.  The entry has no proof or refutation, and the triage
-found none in the literature (its literature search was not exhaustive).
-Computation: an exhaustive search over `k ≤ 10^7` found 40 squarefree members
-and no counterexample (the triage checked `k ≤ 3·10^6`).
-
-This module proves the conjecture.  It has no `sorry`.
-
-## Proof outline
-
-1. For squarefree `k`, `S(k) = ∏_{p ∣ k} 2p/(p-1)`, because `σ/φ` is
-   multiplicative (`S_eq_prod_primeFactors`).
-2. If `S(k)` is an integer, then `D := ∏_{p ∣ k} (p - 1)` divides
-   `2^ω(k) · k` (`prod_sub_one_dvd_of_isA068991`).
-3. A 2-adic count plus a minimality argument on the odd prime factors gives
-   `p - 1 ∣ 2k` for every prime `p ∣ k` (`sub_one_dvd_two_mul_of_dvd`).  The only
-   delicate configuration is ruled out by `false_of_bad_config`: there the least
-   odd prime factor outside `{3, 7}` would have to be `43 = 2·21 + 1`, which
-   forces `9 ∣ (7-1)(43-1) ∣ 2^ω(k) · k`, contradicting squarefreeness.
-4. Mathlib's `Bernoulli.vonStaudt_clausen` turns `p - 1 ∣ 2k` into
-   `p ∣ den B_{2k}` (`prime_dvd_den_bernoulli`), and a squarefree `k` is the
-   product of its prime factors.
+The proof writes the sum as ∏_{p∣k} 2p/(p-1), obtains
+∏_{p∣k}(p-1) ∣ 2^ω(k) k, and derives p-1 ∣ 2k for every prime p∣k.
+The exceptional 2-adic configuration forces primes 7 and 43 and hence 9∣k,
+contrary to squarefreeness. Von Staudt–Clausen then gives the denominator result.
 -/
 import Mathlib
 
@@ -66,7 +29,7 @@ def IsA068991 (k : ℕ) : Prop :=
   0 < k ∧ ∃ z : ℤ, S k = z
 
 /-- Being an integer is the same as having denominator `1`.  This makes
-membership decidable for ground-truth checks. -/
+membership decidable for examples. -/
 theorem exists_intCast_eq_iff_den_eq_one (q : ℚ) : (∃ z : ℤ, q = z) ↔ q.den = 1 := by
   constructor
   · rintro ⟨z, rfl⟩
@@ -74,7 +37,7 @@ theorem exists_intCast_eq_iff_den_eq_one (q : ℚ) : (∃ z : ℤ, q = z) ↔ q.
   · intro h
     exact ⟨q.num, (Rat.coe_int_num_of_den_eq_one h).symm⟩
 
-/-! ### Ground truth -/
+/-! ### Examples -/
 
 example : S 1 = 1 := by decide +kernel
 example : S 2 = 4 := by decide +kernel
@@ -94,7 +57,7 @@ example : ¬ IsA068991 4 := fun h =>
 
 example : ¬ IsA068991 0 := fun h => absurd h.1 (lt_irrefl 0)
 
-/-- Non-vacuity: the hypotheses of the conjecture hold jointly at `k = 30`. -/
+/-- The hypotheses of the conjecture hold jointly at `k = 30`. -/
 example : Squarefree 30 ∧ IsA068991 30 :=
   ⟨by decide +kernel, ⟨by norm_num, (exists_intCast_eq_iff_den_eq_one _).mpr (by decide +kernel)⟩⟩
 
@@ -464,21 +427,14 @@ theorem prime_dvd_den_bernoulli {k p : ℕ} (hp : p.Prime) (hpk : p - 1 ∣ 2 * 
 
 /-! ## The conjecture -/
 
-/-- **Equivalent form (triage).** If `k` is a squarefree member of A068991,
+/-- **Prime-divisor consequence.** If `k` is a squarefree member of A068991,
 then `p - 1 ∣ 2k` for every prime `p ∣ k`. -/
 theorem sub_one_dvd_two_mul_of_isA068991 {k : ℕ} (hmem : IsA068991 k) (hk : Squarefree k) :
     ∀ p ∈ k.primeFactors, p - 1 ∣ 2 * k :=
   sub_one_dvd_two_mul_of_dvd k hk (prod_sub_one_dvd_of_isA068991 hk hmem)
 
-/-- **A068991 conjecture (unsigned comment, entry author Benoit Cloitre,
-Apr 06 2002).**
-
-Verbatim: "Conjecture: if k is in the sequence and k is squarefree then the
-denominator of the 2k-th Bernoulli's number contains k."
-
-Formal reading: if `k` is a positive integer with `∑_{d ∣ k} σ(d)/φ(d) ∈ ℤ`
-and `k` is squarefree, then `k` divides the denominator of `B_{2k}`.
-Mathlib's `bernoulli` and `bernoulli'` agree at the even index `2k ≥ 2`. -/
+/-- A squarefree positive member `k` of A068991 divides the denominator
+of `B_{2k}`. At this even index the two Bernoulli sign conventions agree. -/
 theorem a068991_conjecture (k : ℕ) (hmem : IsA068991 k) (hk : Squarefree k) :
     k ∣ (bernoulli (2 * k)).den := by
   have hdvd := sub_one_dvd_two_mul_of_isA068991 hmem hk

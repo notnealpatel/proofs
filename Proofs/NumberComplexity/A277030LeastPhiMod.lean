@@ -1,36 +1,10 @@
 /-
 # A277030 — Ordowski–Alkan: the least exponent `m` with `b ^ φ(n) ≡ b ^ m (mod n)`
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A277030`; author line
-## from the live entry)
-
-```
-NAME:     Smallest m such that b^phi(n) == b^m (mod n) for every integer b,
-          where phi(n) = A000010(n).
-TERMS:    0,1,2,2,4,2,6,4,6,4,10,2,12,6,4,4,16,6,18,4,6,10,22,4,20,12,18,6,
-          28,4,30,8,10,16,12,6,36,18,12,4,40,6,42,10,12,22,46,4,42,20,...
-AUTHOR:   Thomas Ordowski and Altug Alkan, Sep 25 2016
-KEYWORDS: nonn
-COMMENT (the conjecture formalized here; no separate attribution, so it is
-the authors', Sep 25 2016):
-  Conjecture: a(n) > A002322(n) only for n = 8 and 24.
-FORMULA (no separate attribution):
-  Conjectured: a(n) = A002322(n), except for a(1) = 0 and a(8) = a(24) = 4.
-```
-
-`A002322` is the Carmichael function `λ`, Mathlib's
-`ArithmeticFunction.carmichael`.
-
-## Status
-
-The triage recorded the conjecture as open: the entry gives no proof and no
-later comment resolves it.  It follows from the folklore description of the
-multiplicative semigroup of `ℤ/n` (index `max_p v_p(n)`, period `λ(n)`), so
-it is a corollary of a known mechanism rather than a deep statement.  A
-brute-force check (python, 2026-10-21, all bases `0 ≤ b < n`) for
-`1 ≤ n ≤ 2600` finds `a(n) ≠ λ(n)` exactly at `n = 1, 8, 24`.
-
-## Proof (formalized below, no `sorry`)
+OEIS A277030, Thomas Ordowski and Altug Alkan: the least exponent
+`m` with `b^φ(n) ≡ b^m (mod n)` for all integer `b` equals the
+Carmichael function `λ(n)` for `n ≥ 2` except `n = 8,24`, where it is `4`.
+At `n = 1` it is `0`.
 
 * Upper bound.  If every prime power `p ^ k ∣ n` has `k ≤ λ(n)`, then
   `b ^ φ(n) ≡ b ^ λ(n) (mod p ^ k)` for every `b`: if `p ∣ b` both sides are
@@ -305,7 +279,7 @@ theorem a277030_formula {n : ℕ} (hn : 0 < n) :
     simp [a277030_twentyFour]
   rw [if_neg h1, if_neg (by tauto), a277030_eq_carmichael (by omega) h8 h24]
 
-/-! ## Ground truth: the first twelve listed terms `0,1,2,2,4,2,6,4,6,4,10,2` -/
+/-! ## Examples: the first twelve listed terms `0,1,2,2,4,2,6,4,6,4,10,2` -/
 
 example : a277030 1 = 0 := a277030_one
 
@@ -361,7 +335,7 @@ example : a277030 12 = 2 := by
   simp only [phiPowAgree_iff_zmod]
   exact ⟨by decide, fun m hm => by interval_cases m <;> decide⟩
 
-/-! ## Sanity: the main statements are non-vacuous -/
+/-! ## Examples: the main statements are non-vacuous -/
 
 -- The hypotheses of `a277030_eq_carmichael` are jointly satisfiable (`n = 12`),
 -- and the conclusion there is the nontrivial value `λ(12) = 2`.

@@ -6,20 +6,16 @@
 C. Gaze-Maillot and A. E. Porreca, *Profiles of dynamical systems and their algebra*,
 arXiv 2008.00843. Definitions: Section 1 (profile of a dynamical system), Section 2
 (Definition `def:product`, Lemma `thm:count-points`, Theorem: `(P, +, ×)` is a commutative
-semiring with unit `(1)`). The question sits in Section `sec:conclusions`, last sentence,
-verbatim:
-
-  "And, from a more algebraic perspective, what are the prime elements of P? Do they exist
-  at all?"
+semiring with unit `(1)`). The Conclusions ask whether the profile semiring
+has any prime elements.
 
 The product is `(p × q)_i = p_i * |q|_{≤ i} + q_i * |p|_{≤ i} - p_i * q_i` (the printed
 formula writes `∑_{j=0}^i q_i`; the intended summand is `q_j`, as Lemma `thm:count-points`
 and the multiplication table of Fig. `fig:products` confirm).
 
-## Status
+## Results
 
-Open in the paper (posed as a question). This module answers it: there are
-no prime elements. For every profile `p ∉ {(0), (1)}` there are profiles `q, r` with
+There are no prime elements. For every profile `p ∉ {(0), (1)}` there are profiles `q, r` with
 `p ∣ q × r`, `p ∤ q`, `p ∤ r` (`exists_not_prime_witness`, hence `not_pPrime`). The key
 lemma `pre_pmul` says prefix sums turn `×` into the pointwise product. Witnesses, with
 `c = |p| ≥ 2` and `h` the height of `p`:
@@ -28,8 +24,6 @@ lemma `pre_pmul` says prefix sums turn `×` into the pointwise product. Witnesse
   `h` on; the quotient has prefix sums `c (i + 1)` then `c h + 1`.
 Also proved: the only unit is `(1)` (`pIsUnit_iff`) and there are no zero divisors
 (`pmul_eq_zero`).
-
-Date: 2026-10-21.
 -/
 import Mathlib
 
@@ -72,7 +66,7 @@ def PPrime (p : ℕ → ℕ) : Prop :=
 /-- The profile written as a finite list, padded by zeros. -/
 def ofList (l : List ℕ) (i : ℕ) : ℕ := l.getD i 0
 
-/-! Ground truth: entries of the paper's multiplication table (Fig. `fig:products`). -/
+/-! Entries of the paper's multiplication table (Fig. `fig:products`). -/
 
 example : (List.range 4).map (pmul (ofList [1, 1]) (ofList [1, 1, 1])) = [1, 3, 2, 0] := by
   decide

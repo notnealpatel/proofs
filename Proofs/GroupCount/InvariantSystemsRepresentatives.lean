@@ -1,39 +1,22 @@
 /-
-# Invariant systems of representatives (Klyachko–Luneva, "The cost of symmetry")
+# Invariant systems of representatives
 
-## Source
+A. A. Klyachko and N. M. Luneva, *Invariant systems of representatives,
+or The cost of symmetry*, arXiv:1908.03315, Main theorem (Introduction)
+and Section 3.
 
-* arXiv:1908.03315, A. A. Klyachko and N. M. Luneva, *Invariant systems of
-  representatives, or The cost of symmetry*.  The statement is the "Main theorem" of the
-  Introduction; its proof is Section 3 ("Proof of the main theorem"), via
-  B. H. Neumann's coset-covering inequality ([Neu54], Proposition 4.5).  Verbatim:
+For an arbitrary group acting on `U`, a finite hitting set `X` for an
+invariant family of finite subsets of size at most `m` yields an invariant
+finite hitting set `Y` with `|Y| ≤ m · |X|`. The unordered family is represented
+by `Set (Finset U)`; `m` is any uniform bound, rather than a chosen maximum.
 
-  > Main theorem. Suppose that a group G acts on a set U, and F is a G-invariant family
-  > of finite subsets of U of uniformly bounded cardinality (i.e. max_{F∈F} |F| < ∞).
-  > Let X ⊆ U be a finite system of representatives for this family (i.e. X ∩ F ≠ ∅ for
-  > any F ∈ F). Then there exists a G-invariant system of representatives Y such that
-  > |Y| ⩽ |X| · max_{F∈F} |F|.
-  >
-  > Here, the word family means an unordered family, i.e., F is a set of subsets of U.
-  > The invariance of F means that gF = F for all g ∈ G, i.e.,
-  > gF = {gf | f ∈ F} ∈ F for all g ∈ G and F ∈ F.
-
-* Status: proved in the paper (known result).  Formalized 2026-10-21.
-
-## Formalization notes
-
-* The family is `F : Set (Finset U)`; invariance is `s.image (g • ·) ∈ F`.
-* "Uniformly bounded cardinality" with bound `max |F|` is replaced by an arbitrary
-  uniform bound `m` (`∀ s ∈ F, s.card ≤ m`); taking `m` to be the maximum gives the
-  paper's inequality verbatim, and every uniform bound dominates the maximum, so the
-  statement is equivalent.
-* `Y` is the paper's set `{y | |Gy ∩ X| ⩾ |Gy| / m}` restricted to finite orbits
-  (`costSet`), written multiplicatively as `|Gy| ≤ m · |Gy ∩ X|`.
-* The Neumann step uses Mathlib's `Subgroup.one_le_sum_inv_index_of_leftCoset_cover`
-  (index of an infinite-index subgroup is `0`, whose inverse in `ℚ` is `0`, matching
-  the paper's convention), together with `MulAction.index_stabilizer`.
-* The cardinality bound is proved by double counting `∑_{y ∈ Y} ∑_{x ∈ X ∩ Gy} 1/|Gy|`
-  instead of the paper's orbitwise count; both give `|Y| ≤ m · |X|`.
+`costSet` consists of points with finite orbit satisfying
+`|Gy| ≤ m · |Gy ∩ X|`. The proof uses B. H. Neumann's coset-covering inequality
+([Neu54], Proposition 4.5, as cited in Section 3), via Mathlib's
+`Subgroup.one_le_sum_inv_index_of_leftCoset_cover` and
+`MulAction.index_stabilizer`. Infinite indices and their rational inverses
+contribute zero, matching the paper's convention. Double counting the orbit
+weights gives the cardinality bound.
 -/
 import Mathlib
 
@@ -261,9 +244,9 @@ theorem main_theorem (F : Set (Finset U)) (hF : ∀ g : G, ∀ s ∈ F, s.image 
 
 end Main
 
-/-! ## Ground truth and non-vacuity -/
+/-! ## Examples -/
 
-/-- Ground truth for `costSet`: for `S₂` acting on `Fin 2` and `X = {0}`, the single orbit
+/-- For `costSet`, with `S₂` acting on `Fin 2` and `X = {0}`, the single orbit
 has size `2` and meets `X` once, so with `m = 2` both points lie in `Y`. -/
 example : (0 : Fin 2) ∈ costSet (Equiv.Perm (Fin 2)) {0} 2 ∧
     (1 : Fin 2) ∈ costSet (Equiv.Perm (Fin 2)) {0} 2 := by
@@ -273,7 +256,7 @@ example : (0 : Fin 2) ∈ costSet (Equiv.Perm (Fin 2)) {0} 2 ∧
     simp only [horb, hinter, Set.ncard_univ, Nat.card_eq_fintype_card, Fintype.card_fin,
       Set.ncard_singleton, Set.finite_univ, mul_one, le_refl]
 
-/-- Ground truth for `costSet`: with `m = 1` the same instance has `|Gy| = 2 > 1 · 1`, so
+/-- For `costSet`, with `m = 1` the same instance has `|Gy| = 2 > 1 · 1`, so
 `Y` is empty. -/
 example : (0 : Fin 2) ∉ costSet (Equiv.Perm (Fin 2)) {0} 1 := by
   have horb : orbit (Equiv.Perm (Fin 2)) (0 : Fin 2) = Set.univ := orbit_eq_univ _ _
@@ -283,7 +266,7 @@ example : (0 : Fin 2) ∉ costSet (Equiv.Perm (Fin 2)) {0} 1 := by
     Set.ncard_singleton] at h
   omega
 
-/-- Non-vacuity: the hypotheses of the main theorem hold jointly for `S₃` acting on
+/-- The hypotheses of the main theorem hold jointly for `S₃` acting on
 `Fin 3`, `F` the family of all `2`-element subsets, `m = 2`, and `X = {0, 1}`. -/
 example : (∀ g : Equiv.Perm (Fin 3), ∀ s ∈ {s : Finset (Fin 3) | s.card = 2},
       s.image (g • ·) ∈ {s : Finset (Fin 3) | s.card = 2}) ∧

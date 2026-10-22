@@ -1,47 +1,15 @@
 /-
-# Touchard's congruence and the mod-78 restriction on zeros of complementary Bell numbers
+# Touchard congruences and a restriction on complementary Bell zeros
 
-## Source
-
-arXiv:2608.00575, John M. Campbell, "The finitude of the fibers of the complementary Bell
-numbers", Section 1 (Introduction and background), the discussion of Wilf's conjecture after
-eq. `(displaymain)`; background problems: Subbarao–Verma (2001), Problems 5.5–5.7.
-Recorded 2026-10-21.
-
-Verbatim context from the paper (Section 1):
-
-```
-we may express Bell polynomials in terms of Stirling numbers of the second kind so that
-  B_{n}(x) = \sum_{k=0}^{n} {n \brace k} x^k,
-... since f(k) = B_k(-1).
-The c=0 case of (displaymain) has been studied extensively in connection with Wilf's
-conjecture, which asserts that f(k) \neq 0 for every k > 2 (noting that f(2)=0).
-```
-
-## Status of the formalized claim
-
-Known result, proved elsewhere (not in this paper).  Wilf's conjecture itself is open; the
-paper's own theorem is the finiteness of every fiber `f⁻¹(c)`, which is *not* formalized
-here.  This module formalizes the classical Touchard-type package:
-
-1. Touchard's congruence `S(n+p,k) ≡ S(n,k-p) + S(n+1,k) (mod p)` for prime `p`, and its
-   consequences `B_{n+p}(x) = x^p B_n(x) + B_{n+1}(x)` in characteristic `p`,
-   `Bell(n+p) ≡ Bell(n) + Bell(n+1)`, `f(n+p) ≡ (-1)^p f(n) + f(n+1) (mod p)`.
-2. `f(n)` is odd iff `n ≢ 2 (mod 3)`; `f mod 3` has period `26` with zero classes
-   `{2,6,7,9,15,19,20,22}`.
-3. Hence `f(n) = 0` forces `n mod 78 ∈ {2,20,32,35,41,59,71,74}`: a special case of Wilf's
-   conjecture, not the full conjecture.
-
-Computational evidence (Python, 2026-10-21): the coefficient congruence for
-`p ∈ {2,3,5,7,11}`, `n < 60`; the mod-2/mod-3 periodicities for `n ≤ 500`; the only zero of
-`f` with `n ≤ 500` is `n = 2`.
-
-## Repo adjacency
-
-`Nat.stirlingSecond` and `Nat.bell` are Mathlib's.  The bridge
-`Σ_k S(n,k) = Nat.bell n` is `StirlingBellCombinatorial.sum_stirlingSecond_eq_bell`, and the
-expansion `x^n = Σ_l S(n,l) x^{\underline l}` is
-`Candidates.A055203AllenRelationsMod.pow_eq_sum_stirlingSecond` (both production modules).
+John M. Campbell, "The finitude of the fibers of the complementary Bell
+numbers", arXiv:2608.00575, Section 1, discussion after `(displaymain)`;
+Subbarao-Verma (2001), Problems 5.5-5.7. Complementary Bell numbers are
+`f(n) = B_n(-1)` (OEIS A000587).
+This module proves the classical Touchard-type coefficient and Bell
+polynomial congruences, parity of `f`, and its period-26 residues modulo `3`.
+Thus `f(n) = 0` forces `n mod 78 ∈ {2,20,32,35,41,59,71,74}`.
+This is a supporting restriction, not a proof of Wilf's full nonvanishing
+conjecture or Campbell's finite-fiber theorem.
 -/
 import Mathlib
 import Enumerative.StirlingBellCombinatorial
@@ -219,7 +187,7 @@ theorem bellEval_add_prime {R : Type*} [CommRing R] (p : ℕ) [Fact p.Prime] [Ch
 def compBell (n : ℕ) : ℤ :=
   ∑ k ∈ range (n + 1), (-1) ^ k * (n.stirlingSecond k : ℤ)
 
-/-- Ground truth: `f(0..11) = 1, -1, 0, 1, 1, -2, -9, -9, 50, 267, 413, -2180`
+/-- Example: `f(0..11) = 1, -1, 0, 1, 1, -2, -9, -9, 50, 267, 413, -2180`
 (OEIS A000587); in particular `f(2) = 0`, the known zero. -/
 example : (List.range 12).map compBell = [1, -1, 0, 1, 1, -2, -9, -9, 50, 267, 413, -2180] := by
   decide
@@ -360,7 +328,7 @@ theorem compBell_add_26_modEq_three (n : ℕ) : compBell (n + 26) ≡ compBell n
   rw [← ZMod.intCast_eq_intCast_iff, compBell_zmod_three, compBell_zmod_three,
     show (n + 26) % 26 = n % 26 by omega]
 
-/-- Ground truth: `B_3(2) = 2 + 3·4 + 8 = 22` and `B_4(1) = Bell(4) = 15`. -/
+/-- Example: `B_3(2) = 2 + 3·4 + 8 = 22` and `B_4(1) = Bell(4) = 15`. -/
 example : bellEval 3 (2 : ℤ) = 22 ∧ bellEval 4 (1 : ℤ) = 15 := by decide
 
 /-- Non-vacuity: the hypothesis of `mod_78_of_compBell_eq_zero` is met at `n = 2`. -/

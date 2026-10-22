@@ -2,30 +2,11 @@
 # A222955 — Wiseman: a binary word is counted iff it has the same sum of
 # positions of 1's as its reverse
 
-## OEIS source (retrieved with `oeis show A222955`, 2026-10-21)
-
-```
-NAME:     Number of n X 1 0..1 arrays with every row and column least squares
-          fitting to a zero slope straight line, with a single point array
-          taken as having zero slope.
-TERMS:    2,2,4,4,8,8,20,18,52,48,152,138,472,428,1520,1392,5044,4652,17112,...
-KEYWORDS: nonn
-COMMENT (the conjecture):
-  Conjecture: A binary word is counted iff it has the same sum of positions of
-  1's as its reverse, or, equivalently, the same sum of partial sums as its
-  reverse. - _Gus Wiseman_, Jan 07 2023
-```
-
-## Status
-
-Triage: "open" (printed as a conjecture in the entry; no proof in the entry or
-the literature as far as the triage could tell), but it holds by direct
-algebra: for points `(i, x_i)`, `i = 1..n`, `n ≥ 2`, the least-squares slope is
-`∑ (i - (n+1)/2) (x_i - x̄) / ∑ (i - (n+1)/2)^2`, and its numerator equals
+Gus Wiseman's conjecture in OEIS A222955 (January 7, 2023) characterizes
+the counted binary words by equality of the position sums of their 1's
+with those of their reverses, equivalently by equality of partial-sum totals.
+For `n ≥ 2`, the least-squares numerator is
 `∑ i x_i - (n+1)/2 ∑ x_i = (∑ i x_i - ∑ (n+1-i) x_i) / 2`.
-
-Computational re-validation (exact rationals, 2026-10-21): the slope-zero count
-and the Wiseman count agree word-by-word and with the DATA for `1 ≤ n ≤ 18`.
 
 ## Modelling
 
@@ -92,7 +73,7 @@ def posSum {n : ℕ} (w : Fin n → Fin 2) : ℕ :=
 def partialSumTotal {n : ℕ} (w : Fin n → Fin 2) : ℕ :=
   ∑ k : Fin n, ∑ i ∈ univ.filter (fun i : Fin n => i ≤ k), (w i : ℕ)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The first DATA terms `2, 2, 4, 4, 8` straight from the slope definition.
 example : a 1 = 2 := by decide
@@ -121,9 +102,8 @@ theorem sum_fin_succ_cast (m : ℕ) : ∑ i : Fin m, (((i : ℕ) : ℚ) + 1) = m
     push_cast
     ring
 
-/-- **Load-bearing step.** For `m ≥ 2` points `(k, y_k)`, the least-squares slope
-vanishes iff `∑ k y_k = ∑ (m + 1 - k) y_k`, i.e. the position-weighted sum
-equals the one of the reversed sequence. -/
+/-- For `m ≥ 2` points `(k,y_k)`, the least-squares slope vanishes iff
+`∑ k y_k = ∑ (m+1-k) y_k`, the position-weighted sum of the reversed sequence. -/
 theorem lsSlope_eq_zero_iff {m : ℕ} (hm : 2 ≤ m) (y : Fin m → ℚ) :
     lsSlope y = 0 ↔
       ∑ i : Fin m, (((i : ℕ) : ℚ) + 1) * y i =
@@ -201,16 +181,10 @@ theorem partialSumTotal_eq_posSum_comp_rev {n : ℕ} (w : Fin n → Fin 2) :
 
 /-! ## The conjecture -/
 
-/-- **Wiseman's conjecture (A222955, Gus Wiseman, Jan 07 2023), first form.**
-
-Verbatim: "Conjecture: A binary word is counted iff it has the same sum of
-positions of 1's as its reverse, or, equivalently, the same sum of partial sums
-as its reverse."
-
-An `n X 1` `0..1` array `A` (word `w = (A 1 1, ..., A n 1)`) has every row and
-column least-squares fitting a zero-slope line iff the sum of positions of the
-1's of `w` equals that of its reverse.  Proved for every `n` (for `n ≤ 1` both
-sides hold trivially). -/
+/-- Wiseman's conjecture (OEIS A222955, January 7, 2023), position-sum form:
+an `n × 1` binary array has zero-slope least-squares fits in every row
+and column iff its word has the same sum of positions of 1's as its reverse.
+For `n ≤ 1`, both sides hold trivially. -/
 theorem counted_iff_posSum_eq_posSum_reverse {n : ℕ} (A : Fin n → Fin 1 → Fin 2) :
     Counted A ↔ posSum (fun i => A i 0) = posSum (fun i => A (Fin.rev i) 0) := by
   have hrows : ∀ r : Fin n, ZeroSlope (fun j : Fin 1 => ((A r j : ℕ) : ℚ)) :=
@@ -279,7 +253,7 @@ theorem a_eq_card_posSum_eq_reverse (n : ℕ) :
     rw [hcol, hcolr]
     exact hw
 
-/-- Satisfiability/non-vacuity: at `n = 3` the word `101` is counted and the
+/-- At `n = 3` the word `101` is counted and the
 word `100` is not, so both sides of the equivalence take both truth values. -/
 example : Counted (n := 3) (fun i _ => ![1, 0, 1] i) ∧
     ¬ Counted (n := 3) (fun i _ => ![1, 0, 0] i) := by

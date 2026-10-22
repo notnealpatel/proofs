@@ -1,37 +1,12 @@
 /-
 # A195608 — Shevelev: gaps, runs and first terms for `Σ E(i) = E(n)E(n+1)/4`
 
-## OEIS source (retrieved with `oeis show A195608` and the live entry, 2026-10-21)
+OEIS A195608, Vladimir Shevelev (2011): gaps, runs and series starts for
+`Σ_{i=1..n} E(i) = E(n)E(n+1)/4`, where `E` is the evil-number sequence
+A001969 with offset 1 (`E(1) = 0`). The results give gaps in `{1,4,6}`,
+maximal run lengths `1` or `3`, and `E(m+1)-E(m-1)=5` at series starts `1 < m`.
 
-```
-NAME:     Numbers n such that Sum_{i=1..n} A(i) = A(n)*A(n+1)/4,
-          where A(n) = A001969(n).
-OFFSET:   1
-AUTHOR:   Vladimir Shevelev, Sep 21 2011
-TERMS:    1,7,11,12,13,19,20,21,25,31,35,36,37,41,47,48,49,55,59,60,61,67,68,
-          69,73,79,80,81,87,91,92,93,97,103,107,108,109,115,116,117,121,127,
-          131,132,133,137,143,144,145,151,155,156,157,161,167,171,172,173,179
-COMMENT (the conjecture; no separate signature, so it is Shevelev's,
-         Sep 21 2011):
-  Conjectures: 1) there are only 3 different first differences 1,4,6; 2) the
-  sequence contains either isolated series of terms, e.g., {1},{7},{25},
-  {31},..., or series of 3 consecutive integers, e.g., {11,12,13},
-  {19,20,21}, etc.; 3)the first terms m of every series satisfy the condition
-  A(m+1)-A(m-1)=5, where A(n)=A001969(n).
-A001969:  Evil numbers: nonnegative integers with an even number of 1's in
-          their binary expansion.  0,3,5,6,9,10,12,15,...  (offset 1)
-```
-
-## Literature status (triage)
-
-Open: no proof in the entry or in the literature as far as the triage could
-tell.  Re-validated here (Python, exact integers, 2026-10-21): the
-characterisation below, the gap set `{1, 4, 6}`, the run lengths `{1, 3}` and
-claim 3 for every series start `m > 1` all hold for `n ≤ 400000`.
-
-## Result of this module
-
-All three conjectures are proved, with no remaining `sorry`.
+## Proof outline
 
 * `evil_succ`: `E(k+1) = 2k + t(k)`, with `t` the Thue–Morse sequence
   (exactly one of `2k`, `2k+1` is evil).
@@ -400,15 +375,15 @@ theorem first_term_evil_sub (m : ℕ) (hm1 : 1 < m) (hm : IsTerm m) (hprev : ¬ 
     exact absurd
       ((isTerm_iff_of_eq_four_mul_add_three (n := m - 1) (j := j) (by omega)).mpr hj12.1) hprev
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
--- Ground truth for `evil` against the A001969 data `0, 3, 5, 6, 9, 10, 12, 15`.
+-- Examples for `evil` against the A001969 data `0, 3, 5, 6, 9, 10, 12, 15`.
 example : evil 1 = 0 ∧ evil 2 = 3 ∧ evil 3 = 5 ∧ evil 4 = 6 ∧ evil 5 = 9 ∧
     evil 6 = 10 ∧ evil 7 = 12 ∧ evil 8 = 15 := by
   simp only [evil_succ (0 : ℕ), show (2 : ℕ) = 1 + 1 from rfl, evil_succ]
   decide
 
--- Ground truth for `IsTerm` against the A195608 data: the terms `≤ 49` are
+-- Examples for `IsTerm` against the A195608 data: the terms `≤ 49` are
 -- exactly `1, 7, 11, 12, 13, 19, 20, 21, 25, 31, 35, 36, 37, 41, 47, 48, 49`.
 example : ∀ k < 49, (IsTerm (k + 1) ↔
     k + 1 ∈ ({1, 7, 11, 12, 13, 19, 20, 21, 25, 31, 35, 36, 37, 41, 47, 48, 49} :

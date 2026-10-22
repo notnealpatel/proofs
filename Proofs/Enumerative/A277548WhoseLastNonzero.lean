@@ -1,36 +1,11 @@
 /-
-# A277548 — Corneth: `a(n) = 4n` iff `n` has only base-5 digits 0 and 1
+# Last nonzero base-5 digits (A277548)
 
-## OEIS source (retrieved with `oeis show A277548`, 2026-10-21)
-
-```
-NAME:     Numbers k such that k/5^m == 4 (mod 5), where 5^m is the greatest
-          power of 5 that divides k.
-TERMS:    4,9,14,19,20,24,29,34,39,44,45,49,54,59,64,69,70,74,79,84,89,94,95,
-          99,100,104,109,114,119,120,124,129,134,139,144,145,149,154,159,164,
-          169,170,174,179,184,189,194,195,199,204,209,214,219,220,224,225,229
-KEYWORDS: nonn,easy
-COMMENT:  Positions of 4 in A277543. Numbers that have 4 as their rightmost
-          nonzero digit when written in base 5.
-FORMULA (the conjecture):
-  Conjecture: a(n) = 4*n if and only if n is in A033042.
-  - _David A. Corneth_, Oct 23 2016
-```
-
-A033042: "Sums of distinct powers of 5."  Its first comment: "Numbers without
-any base-5 digits larger than 1."  The conjecture concerns `n ≥ 1` (the offset
-of A277548 is 1, `a(1) = 4`).
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  Numerically re-checked for `n < 3·10^6` (2026-10-21).
-
-This module proves the conjecture.  The argument: with
-`F(N) = #{1 ≤ k ≤ N : k ∈ A277548}` one has `F(5q + r) = q + [r = 4] + F(q)`
-for `r < 5`, hence `4 F(N) + Σ_{d digit of N} pen(d) = N` where
-`pen d = 0` if `d = 4` and `pen d = d` otherwise.  Thus `F(4n) = n` iff every
-base-5 digit of `4n` is `0` or `4`, iff every base-5 digit of `n` is `0` or `1`.
+Source: David A. Corneth's OEIS A277548 formula (Oct 23 2016), with A033042.
+For every positive `n`, the nth positive integer with last nonzero base-5
+digit 4 equals `4n` iff all base-5 digits of `n` are at most 1, equivalently
+`n` is a sum of distinct powers of 5. The sequence is indexed from 1.
+A recursive counting identity measures the deficit by a sum of digit penalties.
 -/
 import Mathlib
 
@@ -38,7 +13,7 @@ set_option autoImplicit false
 
 namespace Candidates.A277548WhoseLastNonzero
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- Membership in A277548, mirroring the entry's NAME: `k` is a positive
 integer and `k / 5^m ≡ 4 (mod 5)`, where `5^m` is the greatest power of `5`
@@ -103,7 +78,7 @@ instance : DecidablePred InSeq := fun k =>
 member (`n ≥ 1`); `Nat.nth` is 0-indexed. -/
 noncomputable def a (n : ℕ) : ℕ := Nat.nth InSeq (n - 1)
 
-/-! ### Ground truth -/
+/-! ### Examples -/
 
 /-- The members below `230` are exactly the listed terms of the entry. -/
 example : (List.range 230).filter (fun k => decide (InSeq k)) =
@@ -245,14 +220,9 @@ theorem inSeq_infinite : (Set.ofPred InSeq).Infinite := by
 
 /-! ## The conjecture -/
 
-/-- **Corneth's conjecture (A277548, David A. Corneth, Oct 23 2016), proved.**
-
-Verbatim: "Conjecture: a(n) = 4*n if and only if n is in A033042."
-
-Here `a n` is the `n`-th (1-indexed) positive integer whose last nonzero base-5
-digit is `4` (equivalently `k / 5^m ≡ 4 (mod 5)` with `5^m ‖ k`), and A033042
-membership is spelled by its first comment, "Numbers without any base-5 digits
-larger than 1".  The guard `0 < n` matches the entry's offset 1. -/
+/-- Corneth's identity: the nth positive integer with last nonzero base-5
+digit 4 is `4n` iff every base-5 digit of `n` is at most 1 (A033042).
+The guard `n > 0` matches the source's offset 1. -/
 theorem a_eq_four_mul_iff (n : ℕ) (hn : 0 < n) :
     a n = 4 * n ↔ ∀ d ∈ Nat.digits 5 n, d ≤ 1 := by
   have key := four_mul_count_add_sum_pen (4 * n)
@@ -272,10 +242,10 @@ theorem a_eq_four_mul_iff (n : ℕ) (hn : 0 < n) :
     rw [← hcount]
     exact Nat.nth_count hmem
 
-/-- Non-vacuity, true side: `a 6 = 24` and `6 = (11)₅`. -/
+/-- `a 6 = 24` and `6 = (11)₅`. -/
 example : a 6 = 24 := (a_eq_four_mul_iff 6 (by norm_num)).2 (by norm_num)
 
-/-- Non-vacuity, false side: `a 2 ≠ 8` since `2` has base-5 digit `2`. -/
+/-- `a 2 ≠ 8` since `2` has base-5 digit `2`. -/
 example : a 2 ≠ 8 := fun h =>
   absurd ((a_eq_four_mul_iff 2 (by norm_num)).1 h 2 (by norm_num)) (by norm_num)
 

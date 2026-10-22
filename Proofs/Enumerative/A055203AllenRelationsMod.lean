@@ -1,44 +1,14 @@
 /-
-# A055203 — Bala: Allen relation counts are `1 (mod 12)` and eventually periodic
+# A055203: congruences for Allen relation counts
 
-## OEIS source (retrieved with `oeis show A055203`, 2026-10-21)
-
-```
-NAME:     Number of different relations between n intervals on a line.
-TERMS:    1,1,13,409,23917,2244361,308682013,58514835289,14623910308237,
-          4659168491711401,1843200116875263613,886470355671907534969,...
-FORMULA (Bala, the definition used here):
-  a(n) = Sum_{k = 2..2*n} Sum_{i = 0..k} (-1)^(k-i)*binomial(k,i)*(i*(i-1)/2)^n.
-  (with a(0) = 1)
-FORMULA (Jovovic, Aug 25 2006):
-  a(n) = Sum_{k=0..n} k!*Stirling2(n,k)*A121251(k).
-COMMENT (the conjecture):
-  From _Peter Bala_, Jan 30 2018: (Start) ...
-  Conjectures: a(n) == 1 (mod 12); for fixed k, the sequence a(n) (mod k)
-  eventually becomes periodic with exact period a divisor of phi(k), where
-  phi(k) is Euler's totient function A000010. (End)
-```
-
-## Status
-
-Triage: open (the entry still calls both statements conjectures; no published
-proof was found by the triage).  This module proves both, with the short
-Stirling-number argument suggested by the triage:
-
-* `C(i,2)^n = Σ_l S₂(n,l) l! C(C(i,2),l)`, so by linearity of finite
-  differences `a(n) = Σ_{l ≤ n} l! S₂(n,l) U(l)` with
-  `U(l) = Σ_{j ≤ 2l} Δ^j[i ↦ C(C(i,2),l)](0)` (= A121251; the higher
-  differences vanish because `i ↦ C(C(i,2),l)` is a polynomial of degree `2l`).
-* `l! S₂(n,l) = Δ^l[x ↦ x^n](0) = Σ_i (-1)^(l-i) C(l,i) i^n`.
-* Modulo `m`, the terms with `l ≥ m` die (`m ∣ l!`), and `i^(n+φ(m)) ≡ i^n`
-  for `n ≥ m`; this gives period `φ(m)` from `n = m` on.
-* Modulo `12`, `U(0..3) = 1, 1, 6, 62`, so
-  `a(n) ≡ S₂(n,0) + S₂(n,1) = 1`.
-
-The definition `allen` sums `k` over `0..2n` rather than Bala's `2..2n`; the
-extra terms vanish for `n ≥ 1` (`allen_eq_bala`) and make `a(0) = 1` come out
-of the same formula.  `C(i,2)` is written `i.choose 2`, which equals Bala's
-`i*(i-1)/2` (`Nat.choose_two_right`).
+OEIS A055203, Peter Bala (Jan 30 2018); related weighted-Stirling formula
+by Vladeta Jovovic (Aug 25 2006).
+For the entry's finite binomial formula, `a(n) ≡ 1 (mod 12)` for every `n`.
+For each positive modulus `m`, `φ(m)` is an eventual period, and the least
+positive eventual period exists and divides it.
+The sum extends Bala's range `2..2n` to `0..2n`; the extra terms vanish for
+positive `n` and give `a(0) = 1`. The interval-relations counting
+interpretation is not reconstructed.
 -/
 import Mathlib
 
@@ -48,7 +18,7 @@ namespace Candidates.A055203AllenRelationsMod
 
 open Finset Polynomial
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The OEIS A055203 sequence, via Bala's double-sum formula
 `a(n) = Σ_{k=0}^{2n} Σ_{i=0}^{k} (-1)^(k-i) C(k,i) C(i,2)^n`.
@@ -394,16 +364,10 @@ theorem exists_least_period (m : ℕ) (hm : 0 < m) :
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjectures on A055203 (Peter Bala, Jan 30 2018), proved.**
-
-Verbatim: "Conjectures: a(n) == 1 (mod 12); for fixed k, the sequence a(n)
-(mod k) eventually becomes periodic with exact period a divisor of phi(k), where
-phi(k) is Euler's totient function A000010."
-
-Formalized as: (i) `a(n) ≡ 1 (mod 12)` for every `n ≥ 0`; (ii) for every modulus
-`m ≥ 1`, `φ(m)` is an eventual period of `a(n) mod m`, and every least positive
-eventual period (the "exact period", which exists by `exists_least_period`)
-divides `φ(m)`. -/
+/-- Bala's A055203 congruences: `a(n) ≡ 1 (mod 12)` for all `n`;
+for every positive modulus `m`, `φ(m)` is an eventual period and every
+least positive eventual period divides it. Such a least period exists
+by `exists_least_period`. -/
 theorem bala_conjecture :
     (∀ n, allen n ≡ 1 [ZMOD 12]) ∧
       ∀ m, 0 < m → IsEventualPeriodMod allen m m.totient ∧

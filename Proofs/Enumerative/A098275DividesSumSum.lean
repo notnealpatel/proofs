@@ -1,37 +1,11 @@
 /-
-# A098275 — Chapoton: `n + 1` divides the double sum `a(n)`
+Divisibility of the double sum in OEIS A098275 (F. Chapoton, Jan 28 2026).
 
-## OEIS source (pulled with `oeis show A098275`, retrieved 2026-10-21)
-
-```
-NAME:     Coefficients in a simultaneous approximation to Li(2,-1) and Li(3,-1).
-TERMS:    1,8,264,13040,778840,51955008,3725735664,281152383072,
-          22035642730200,1778348612268800,...
-KEYWORDS: nonn,easy
-FORMULA:  a(n) = Sum_{i=0..n} Sum_{j=0..n} C(n, i)^2*C(n, j)^2*C(n+i, n)*C(i+j, i).
-COMMENT (the conjecture):
-  Conjecture: a(n) is divisible by n+1. - _F. Chapoton_, Jan 28 2026
-COMMENT (a second, separate conjecture, NOT addressed here):
-  Conjecture: The g.f. has a fourth root with integer coefficients
-  1, 2, 60, 2892... - _F. Chapoton_, Apr 23 2026
-```
-
-## Status
-
-Open per triage: the entry gives no proof, and the triage's web search found
-nothing on the divisibility (Zudilin, math/0409023, gives only lcm-based
-integrality).  No matches is not novelty.  Computationally `(n+1) ∣ a(n)` was
-checked exactly for `n ≤ 200`.
-
-## Proof outline (formalized below)
-
-1. Vandermonde: `C(i+j,i) = ∑_k C(i,k) C(j,k)`, and
-   `∑_j C(n,j)^2 C(j,k) = C(n,k) C(2n-k,n)` (written `C(n+(n-k),n)`), so
-   `a(n) = ∑_i ∑_{k ≤ n} C(n,i)^2 C(n+i,n) C(i,k) C(n,k) C(n+(n-k),n)`.
-2. `(n+1) ∣ t * C(n+t,n)` for every `t` (since `t C(n+t,t) = (n+1) C(n+t,t-1)`).
-3. Each term `T` satisfies `(n+1) ∣ k T` (because `i ∣ k C(i,k)` and
-   `(n+1) ∣ i C(n+i,n)`) and `(n+1) ∣ (n-k) T` (by step 2 with `t = n-k`),
-   hence `(n+1) ∣ n T`, and `gcd(n+1, n) = 1` gives `(n+1) ∣ T`.
+For a(n)=∑_{i,j=0}^n C(n,i)² C(n,j)² C(n+i,n) C(i+j,i), (n+1) divides a(n).
+Vandermonde reduction gives terms divisible after multiplication by k and
+by n-k; coprimality of n and n+1 then gives termwise divisibility.
+This is a result about the entry's explicit finite sum; the separate
+fourth-root generating-function conjecture (Apr 23 2026) is not addressed.
 -/
 import Mathlib
 
@@ -43,13 +17,13 @@ open Finset
 
 /-! ## Definition layer -/
 
-/-- OEIS A098275, verbatim from the entry's formula:
+/-- OEIS A098275, by the entry's formula:
 `a(n) = ∑_{i=0..n} ∑_{j=0..n} C(n,i)^2 C(n,j)^2 C(n+i,n) C(i+j,i)`. -/
 def a (n : ℕ) : ℕ :=
   ∑ i ∈ range (n + 1), ∑ j ∈ range (n + 1),
     n.choose i ^ 2 * n.choose j ^ 2 * (n + i).choose n * (i + j).choose i
 
-/-- Ground truth: the first listed terms `1, 8, 264, 13040, 778840`. -/
+/-- The first listed terms `1, 8, 264, 13040, 778840`. -/
 example : [a 0, a 1, a 2, a 3, a 4] = [1, 8, 264, 13040, 778840] := by decide
 
 /-! ## Binomial helpers -/
@@ -166,11 +140,7 @@ theorem succ_dvd_term (n i k : ℕ) (hk : k ≤ n) :
 
 /-! ## The conjecture -/
 
-/-- **Chapoton's divisibility conjecture (A098275, F. Chapoton, Jan 28 2026).**
-
-Verbatim: "Conjecture: a(n) is divisible by n+1."  Here `a` is the entry's
-double-sum formula, and the claim is proved for every `n : ℕ` (the entry's
-offset is `0`). -/
+/-- For every natural `n`, `n+1` divides the explicit double sum A098275(n). -/
 theorem succ_dvd_a (n : ℕ) : (n + 1) ∣ a n := by
   have hrw : a n = ∑ i ∈ range (n + 1), n.choose i ^ 2 * (n + i).choose n *
       ∑ j ∈ range (n + 1), n.choose j ^ 2 * (i + j).choose i := by

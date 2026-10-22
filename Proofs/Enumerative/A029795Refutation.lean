@@ -1,33 +1,11 @@
 /-
-# A029795 — refutation of Greathouse's "eventually a(n) = m + n" conjecture
+# A029795: refutation of eventual consecutive enumeration
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A029795`; offset from
-the live entry `%O 1,3`)
-
-```
-A029795   Numbers k such that k and k^3 have the same set of digits.
-OFFSET:   1
-TERMS:    0,1,10,100,1000,10000,100000,107624,109573,132485,138624,159406,
-          165640,192574,205738,215806,251894,281536,318725,419375,427863,
-          568314,642510,713960,953867,954086,963218,965760,1000000,1008529,
-          1023479
-COMMENT:  Conjecture: there exists some m and N for which a(n) = m + n for
-          all n >= N. - _Charles R Greathouse IV_, Jun 28 2011
-```
-
-This is the only comment in the entry; no later comment retracts the
-conjecture.  The sibling entry A029797 (`k^2` and `k^3`) carries the identical
-conjecture together with David A. Corneth's refutation (Nov 13 2023).
-
-## Status
-
-This module refutes the conjecture.  If `a(n) = m + n` for all `n ≥ N`, then
-consecutive terms of the sequence are consecutive integers from `a(N)` on, so
-every integer `k ≥ a(N)` belongs to the sequence.  But for every `e`, the
-number `k = 2 * 10^e` has digit set `{0, 2}` (or `{2}`) while
-`k^3 = 8 * 10^(3e)` has digit set `{0, 8}` (or `{8}`), so `k` is never a term.
-A Python recheck (2026-10-21) confirms the 31 listed terms and the exclusion
-of `2 * 10^e` for `1 ≤ e ≤ 39`.
+OEIS A029795, Charles R Greathouse IV (Jun 28 2011).
+The conjecture `a(n) = m + n` eventually, even with an integer shift `m`,
+would make every sufficiently large integer a member. But `2*10^e` never
+has the same decimal digit set as its cube. The sequence is indexed from `1`.
+The sibling A029797 has a refutation by David A. Corneth (Nov 13 2023).
 -/
 import Mathlib
 
@@ -35,7 +13,7 @@ set_option autoImplicit false
 
 namespace Candidates.A029795Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `k` and `k^3` have the same set of decimal digits.  (`Nat.digits 10 0 = []`,
 so `0` qualifies, matching the first listed term.) -/
@@ -59,7 +37,7 @@ theorem a_eq {n k : ℕ} (hk : SameDigitsCube k) (hc : Nat.count SameDigitsCube 
   simp only [a, Nat.add_sub_cancel]
   exact Nat.nth_count hk
 
-/-! ## Ground truth: the first listed terms `0, 1, 10, 100, 1000` -/
+/-! ## Example: the first listed terms `0, 1, 10, 100, 1000` -/
 
 example : a 1 = 0 := a_eq (by decide) (by decide +kernel)
 example : a 2 = 1 := a_eq (by decide) (by decide +kernel)
@@ -142,13 +120,10 @@ theorem eventually_sameDigitsCube_of_conjecture (h : Conjecture) :
   rw [← hval]
   exact Nat.nth_mem_of_infinite infinite_ofPred_sameDigitsCube _
 
-/-- **The A029795 conjecture is false.**  Counterexample family: for every
-`e`, `2 * 10^e` has digit set `{0, 2}` while its cube `8 * 10^(3e)` has digit
-set `{0, 8}`, so `2 * 10^e` is never a term, whereas the conjecture forces
-every integer `≥ a(N + 1)` to be a term.  Greathouse probably intended the
-density statement that almost all integers are terms (`a(n) ~ n`, since
-almost all `k` and `k^3` contain all ten digits); that form is not proved
-here. -/
+/-- The conjecture would force every sufficiently large integer to be a term,
+but `2*10^e` never has the same decimal digit set as its cube.
+For `e = 0` the sets are `{2}` and `{8}`; for `e > 0` they are
+`{0,2}` and `{0,8}`. No asymptotic density assertion is proved. -/
 theorem conjecture_false : ¬ Conjecture := fun h =>
   not_eventually_sameDigitsCube (eventually_sameDigitsCube_of_conjecture h)
 

@@ -1,4 +1,4 @@
-import GroupCount.CdoIteration
+import Sorry.Quarantine.GroupCount.CdoIteration
 
 /-!
 # The admitted Conway–Dietrich–O'Brien iteration conjecture (OEIS A000001)

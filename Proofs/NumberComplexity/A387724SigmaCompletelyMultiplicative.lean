@@ -1,34 +1,12 @@
 /-
 # A387724 — Karttunen: 6 is the only nondeficient term
 
-## OEIS source (retrieved with `oeis show A387724` and the live entry, 2026-10-21)
-
-```
-NAME:     Numbers k such that sigma(k)^2 >= k * sigma(A003961(k)), where A003961
-          is fully multiplicative with a(p) = nextprime(p).
-TERMS:    1,2,6,10,22,34,58,74,82,86,94,106,118,122,134,142,146,158,166,178,
-          194,202,206,214,218,226,254,262,274,278,298,302,314,326,334,346,358,...
-COMMENT:  Numbers k such that sigma(A003961(k)) / sigma(k) does not exceed
-          sigma(k) / k.
-COMMENT:  After 1, all terms are of the form 4u+2 (in A016825).
-COMMENT (the conjecture):
-          Conjecture: 6 is the only nondeficient term, and all other terms are
-          in A337382 (which is a subsequence of A005100).
-AUTHOR:   Antti Karttunen, Sep 13 2025
-```
-
-The conjecture comment is unsigned, so it is the author's (Antti Karttunen,
-Sep 13 2025).  A337382: "Numbers k for which A003973(k) < 2*sigma(k)", where
-A003973(k) = sigma(A003961(k)).  The entry also carries a separate question of
-David A. Corneth (Sep 13 2025) about `2 * prime(k)`; it is not formalized here.
-
-## Status
-
-Triage (2026-10-21): open; no proof in the entry or the literature found.
-This module **proves** the conjecture (`a387724_conjecture`).  Computational
-re-validation (Python, 2026-10-21): the definitions reproduce the 66 listed
-terms, and for `k ≤ 10^6` (96849 terms) the only nondeficient term is `6`, the
-only term outside A337382 is `6`, and every term `> 1` is `2 mod 4`.
+Antti Karttunen's conjecture in OEIS A387724 says that `6` is the only
+nondeficient term, and every other term lies in A337382.
+A387724 consists of positive `k` with `k σ(A003961(k)) ≤ σ(k)²`;
+A337382 requires `σ(A003961(k)) < 2σ(k)`. A003961 is completely multiplicative
+and maps each prime to the next prime. David A. Corneth's separate question
+about twice a prime is not treated.
 
 ## Proof outline
 
@@ -49,8 +27,6 @@ deficient term has `σ(A003961 k) ≤ σ(k)^2/k < 2σ(k)`.
 * Sequence memberships are stated in `ℕ` without division:
   `k · σ(A003961 k) ≤ σ(k)^2` and `σ(A003961 k) < 2 σ(k)`.
 * "Nondeficient" is `2k ≤ σ(k)`.
-* Imports are narrowed below `Mathlib`, and small divisor sums are computed from
-  multiplicativity rather than kernel `decide`, to keep elaboration memory low.
 -/
 import Mathlib.NumberTheory.ArithmeticFunction.Misc
 import Mathlib.Data.Nat.Factorization.Induction
@@ -588,7 +564,7 @@ theorem a387724_conjecture :
   rintro rfl
   exact isA387724_six
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The prime after `5` is `7`. -/
 theorem nextPrime_five : nextPrime 5 = 7 :=
@@ -622,7 +598,7 @@ theorem a003961_one_to_ten :
   · rw [show (10 : ℕ) = 2 * 5 by norm_num, a003961_mul (by norm_num) (by norm_num),
       hp Nat.prime_two, hp (by norm_num), nextPrime_two, nextPrime_five]
 
-/-- Divisor sums used by the ground-truth checks: `σ(n)` for
+/-- Divisor sums used by the examples: `σ(n)` for
 `n = 1..11, 15, 21, 25, 27` (OEIS A000203). -/
 theorem sigma_table :
     σ 1 1 = 1 ∧ σ 1 2 = 3 ∧ σ 1 3 = 4 ∧ σ 1 4 = 7 ∧ σ 1 5 = 6 ∧ σ 1 6 = 12 ∧

@@ -1,12 +1,13 @@
 /-
 # Concentration-two numerical semigroups: height of the tree `G(C̄₂[m])` for odd `m`
 
-## Source
-
-arXiv:2103.16723, J. C. Rosales, M. B. Branco, M. A. Traesel, *Numerical semigroups
-with concentration two*.  End of Section 3 ("The genus of the elements in
-`C₂[m]`"), after Example 16, open problem (2); restated as open in Traesel's 2022
-Évora PhD thesis.
+J. C. Rosales, M. B. Branco and M. A. Traesel, “Numerical semigroups
+with concentration two”, arXiv:2103.16723, §3, Problem 2.
+For odd multiplicity `m ≥ 3` and concentration at most `2`, the maximum
+genus is `2m-2`, attained uniquely by `⟨m,m+2,…,2m-1⟩`. Proposition
+14(1), relating depth to genus by `g(S) = m-1+k`, then gives tree
+height `m-1`. The excluded `m = 1` and even multiplicities are not
+covered by this height formula.
 
 Definitions (Section 1–2).  A numerical semigroup is a submonoid `S` of `(ℕ, +)`
 with `ℕ \ S` finite; `m(S)` is its least nonzero element, `g(S) = #(ℕ \ S)` its
@@ -16,33 +17,6 @@ and the concentration is `C(S) = max {next_S(s) - s | s ∈ S \ {0}}`.
 `G(C̄₂[m])` is the graph on `C̄₂[m]` with an edge `(S, T)` when `T = S ∪ {F(S)}`;
 it is a tree rooted at `Δ(m) = {0, m, →}` (Theorem 6).  The height of a rooted
 tree is the largest depth of a vertex.
-
-Verbatim printed problem:
-
-> We finished this section by putting two problems :
-> 1. What is the cardinality of $\mathsf{C}_2[m]$ if $m$ is odd belongs to
->    $\N\backslash \{0,1\}$?
-> 2. What is the height of the tree $G(\overline {\mathsf{C}_2[m]})$ if $m$ is odd
->    belongs to $\N\backslash \{0,1\}$?
-
-Proposition 14(1) of the paper: depth `k` vertices are exactly the `S ∈ C̄₂[m]` with
-`g(S) = m - 1 + k`.
-
-Status (2026-10-21): open in the paper (printed as a problem, no answer given).
-Target answer (triage conjecture, re-validated by exhaustive enumeration for odd
-`m = 3, …, 15`): for odd `m ≥ 3` the maximum genus in `C̄₂[m]` is `2m - 2`, attained
-only by `⟨m, m+2, m+4, …, 2m-1⟩`, so the height is `m - 1`.  (For `m = 1`,
-excluded by the paper's `m ∈ ℕ \ {0,1}`.)
-
-## What this module proves (no `sorry`)
-
-* `genus_le_two_mul_sub_two`: odd `m ≥ 3`, multiplicity `m`, `C(S) ≤ 2` ⟹ `S` is a
-  numerical semigroup and `g(S) ≤ 2m - 2`;
-* `genus_topSemigroup`: `g(⟨m, m+2, …, 2m-1⟩) = 2m - 2`;
-* `eq_topSemigroup_of_genus_eq`: that semigroup is the unique one of genus `2m - 2`;
-* `isGreatest_genus`: the maximum genus over `C̄₂[m]` is `2m - 2`;
-* `isAtDepth_iff`: Proposition 14(1) (depth `k` ⇔ genus `m - 1 + k`);
-* `isGreatest_depth`: the height of `G(C̄₂[m])` is `m - 1` — the answer to Problem 2.
 
 Proof idea: if `C(S) ≤ 2` then gaps `h > m` are isolated (`h + 1 ∈ S`); hence every
 even number `2c + 2m` (`c ≥ 1`) lies in `S` (from `c + m`, or from `c - 1 + m` and
@@ -631,7 +605,7 @@ theorem ordinary_mem_C2Bar {m : ℕ} (hm : 0 < m) : InC2Bar m (ordinary m) := by
   · rw [mem_ordinary] at hs
     exact ⟨s + 1, Or.inr (by omega), by omega, by omega⟩
 
-/-! ## Ground truth and boundary checks -/
+/-! ## Examples and boundary checks -/
 
 -- Paper Example 2: `⟨5, 7, 9⟩` is the case `m = 5` of `topSemigroup`, and it has
 -- concentration `2` (in particular `≤ 2`).

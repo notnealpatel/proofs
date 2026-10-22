@@ -1,34 +1,8 @@
 /-
 # A394399 — Sulaiman: twin-prime averages `k` with `gcd(k, σ(k)) = 3` are twice a square
 
-## OEIS source (retrieved with `oeis show A394399` and the live internal entry, 2026-10-21)
-
-```
-NAME:     Numbers k in A014574 (averages of twin prime pairs) such that
-          gcd(k, sigma(k)) = 3.
-TERMS:    18,72,1152,4050,15138,20808,46818,176418,206082,281250,362952,388962,
-          472392,538722,734472,1080450,1152162,1566450,1685448,1808802,2268450,
-          2544768,4339458,4464072,4536072,6118002,6329682,7746048,9305298,
-          14612418,14709888,16623378,18471042,19244808
-COMMENT (the conjecture, unsigned, in the entry of _Aied Sulaiman_, Apr 24 2026):
-  Conjecture: all terms are of the form 2*m^2 (twice a perfect square; A001105).
-EXAMPLE:
-  For k = 18: sigma(18) = 39 and gcd(18, 39) = 3, so 18 is a term; moreover
-  18 = 2*3^2.
-  For k = 5652: sigma(5652) = 14378 and gcd(5652, 14378) = 2, so 5652 is not
-  a term.
-CROSSREF: Conjectural intersection of A014574, A392199 and A001105.
-          Subsequence of A394757.
-AUTHOR:   _Aied Sulaiman_, Apr 24 2026
-```
-
-## Literature status (triage)
-
-Open as far as the triage could tell: the entry gives no proof and calls the
-intersection with A001105 "conjectural".  Computation (2026-10-21, Python):
-all 46 terms below `4 · 10^7` are twice a square.
-
-## Proof (kernel-checked below)
+OEIS A394399, Aied Sulaiman: twin-prime averages `k` with
+`gcd(k,σ(k)) = 3` are twice a square.
 
 A term `k` satisfies `6 ∣ k` and is not a square (A394757 module).  Since
 `2 ∣ k` and `gcd(k, σ k) = 3`, `σ k` is odd, so `k = 2^e s²`
@@ -46,7 +20,7 @@ namespace Candidates.A394399BothPrimeGcd
 open ArithmeticFunction
 open Candidates.A394757TwinPrimeSigma (IsTwinPrimeAverage)
 
-/-! ## Definition layer
+/-! ## Definitions
 
 `IsTwinPrimeAverage k := 0 < k ∧ (k - 1).Prime ∧ (k + 1).Prime` (A014574
 membership) is reused from `Proofs/NumberComplexity/A394757TwinPrimeSigma.lean`.
@@ -60,7 +34,7 @@ def IsTerm (k : ℕ) : Prop :=
 instance (k : ℕ) : Decidable (IsTerm k) := by
   unfold IsTerm; infer_instance
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- `σ(18) = 39` and `gcd(18, 39) = 3`.
 example : sigma 1 18 = 39 ∧ Nat.gcd 18 39 = 3 := by decide
@@ -87,10 +61,9 @@ theorem odd_sigma_of_two_dvd_of_gcd_eq_three {k : ℕ} (h2 : 2 ∣ k)
     omega
   · exact ho
 
-/-- **A394399 conjecture (Aied Sulaiman, Apr 24 2026).**
+/-- **A394399 conjecture (Aied Sulaiman, 2026).**
 
-Verbatim: "Conjecture: all terms are of the form 2*m^2 (twice a perfect
-square; A001105)."  That is: if `k - 1` and `k + 1` are both prime and
+That is: if `k - 1` and `k + 1` are both prime and
 `gcd(k, σ(k)) = 3`, then `k = 2 m²` for some natural `m`. -/
 theorem a394399_exists_eq_two_mul_sq {k : ℕ} (hk : IsTerm k) :
     ∃ m : ℕ, k = 2 * m ^ 2 := by
@@ -106,7 +79,7 @@ theorem a394399_exists_eq_two_mul_sq {k : ℕ} (hk : IsTerm k) :
   · exact absurd ⟨2 ^ j * s, by rw [hes, hj, pow_add]; ring⟩ hsq
   · exact ⟨2 ^ j * s, by rw [hes, hj]; ring⟩
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- Satisfiability of the hypothesis: `18 = 2 · 3²` is a term.
 example : IsTerm 18 := by decide

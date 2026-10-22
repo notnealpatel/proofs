@@ -1,53 +1,18 @@
 /-
-# Ore — a finite group is cyclic iff its subgroup lattice is distributive
-
-## Source
+# Ore's theorem on cyclic groups and distributive subgroup lattices
 
 S. Palcoux, *Ore's theorem on cyclic subfactor planar algebras and beyond*,
-arXiv:1702.02124, Section 2.2, Theorem `ore1` and Theorem `ore2`
-(with Claims `max`, `preore2`, `topred`).  Both are classical results of
-O. Ore, *Structures and group theory II*, Duke Math. J. 4 (1938), Theorems 4
-and 7, which the paper reproves.
+arXiv:1702.02124, Section 2.2, Theorems `ore1` and `ore2`, reproves O. Ore,
+*Structures and group theory II*, Duke Math. J. 4 (1938), Theorems 4 and 7.
 
-Verbatim (LaTeX of the source):
+A finite group is cyclic iff its subgroup lattice is distributive. More
+generally, for finite `G`, a distributive interval `[H, G]` is `H`-cyclic: some `g` satisfies
+`⟨H, g⟩ = G`.
 
-```
-\begin{theorem} \label{ore1}
-A finite group $ G $ is cyclic if and only if its subgroup lattice
-$ \mathcal{L}(G) $ is distributive.
-\end{theorem}
-
-\begin{definition} \label{Hcy}
-An interval of finite groups $ [H,G] $ is said to be $ H $-cyclic if there
-is $ g \in G $ such that $ \langle H,g \rangle = G $.
-\end{definition}
-
-\begin{theorem} \label{ore2}
-A distributive interval $ [H,G] $ is $ H $-cyclic.
-\end{theorem}
-```
-
-The paper proves (⇐) of `ore1` as the case `H = {e}` of `ore2`, and (⇒) by
-the correspondence between subgroups of `ℤ/n` and divisors of `n`
-(join = lcm, meet = gcd).
-
-## Status
-
-Known (Ore 1938), reproved in the paper.  Date of this card: 2026-10-21.
-
-## Proof here
-
-* (⇒) In a finite cyclic group, `x ∈ H ↔ orderOf x ∣ |H|` (counting:
-  `#{a | a ^ |H| = 1} ≤ |H|`), every divisor of `|G|` is the order of a
-  subgroup, so `|A ⊓ B| = gcd`, `|A ⊔ B| = lcm`, `A ≤ B ↔ |A| ∣ |B|`, and the
-  law reduces to `lcm a (gcd b c) = gcd (lcm a b) (lcm a c)`.
-* `ore2` is proved without the paper's Boolean top-interval lemma: for any
-  finite family of distinct coatoms `M, M₁, …, Mₖ` above `H`, distributivity
-  gives `M ⊔ (M₁ ⊓ ⋯ ⊓ Mₖ) = G`; by induction one finds `g` outside every
-  coatom above `H` (if `b` avoids `M₁ … Mₖ` but `b ∈ M`, take
-  `a ∈ (M₁ ⊓ ⋯ ⊓ Mₖ) \ M` and `g = a b`), and then `⟨H, g⟩ = G` because a
-  proper subgroup lies below a coatom.
-* (⇐) of `ore1` is `ore2` at `H = ⊥`, as in the paper.
+For cyclic groups, subgroup orders identify meet and join with gcd and lcm.
+For the interval theorem, distributivity lets one choose an element outside
+every coatom above `H`; adjoining it to `H` gives `G`. This avoids the paper's
+Boolean top-interval lemma. The converse of `ore1` is `ore2` at `H = ⊥`.
 -/
 import Mathlib
 
@@ -258,7 +223,7 @@ theorem isCyclic_iff_sup_inf_eq {G : Type*} [Group G] [Finite G] :
   rw [bot_sup_eq] at hg
   exact isCyclic_iff_exists_zpowers_eq_top.mpr ⟨g, hg⟩
 
-/-! ## Non-vacuity: both sides of the equivalence occur -/
+/-! ## Examples -/
 
 /-- The cyclic group `ℤ/6` has a distributive subgroup lattice. -/
 example : ∀ A B C : Subgroup (Multiplicative (ZMod 6)),

@@ -1,29 +1,14 @@
 /-
 # A327123 — Yanev–Kotesovec: coefficient sum of `phi(k) x^k / (1 + x^(2k))`
 
-## OEIS source (retrieved with `oeis show A327123`, 2026-10-21)
+Velin Yanev and Vaclav Kotesovec's conjecture in OEIS A327123 identifies
+the coefficient of `x^n` in `Σ_{k ≥ 1} φ(k)x^k/(1+x^(2k))` with
+`Σ_{k=1..n} sin(gcd(k,n)π/2)`.
+The expansion `x^k/(1+x^(2k)) = Σ_{d ≥ 1} χ₄(d)x^(kd)` gives the Dirichlet
+convolution `φ * χ₄`. Regrouping the gcd sum gives the same convolution,
+using `sin(mπ/2) = χ₄(m)`.
 
-```
-NAME:     Expansion of Sum_{k>=1} phi(k) * x^k / (1 + x^(2*k)), where phi = A000010.
-TERMS:    1,1,1,2,5,1,5,4,5,5,9,2,13,5,5,8,17,5,17,10,5,9,21,4,25,13,13,10,29,5,29,
-          16,9,17,25,10,37,17,13,20,41,5,41,18,25,21,45,8,37,25,17,26,53,13,45,20,...
-COMMENT:  Moebius transform of A050469.
-FORMULA (the conjecture):
-  Conjecture: a(n) = Sum_{k=1..n} sin(GCD(k,n) * Pi/2). - _Velin Yanev_ and
-  _Vaclav Kotesovec_, Jun 01 2024
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature found by the triage).
-Computation: identity checked for `n = 1..1200` by direct series expansion
-(Python, 2026-10-21).  Proved below; the argument is the standard one:
-`x^k / (1 + x^(2k)) = Sum_{d>=1} chi4(d) x^(k d)` gives `a = phi * chi4`
-(Dirichlet convolution), the Pillai-type regrouping
-`Sum_{k=1..n} f(gcd(k,n)) = Sum_{d | n} phi(n/d) f(d)` turns the right side
-into the same convolution, and `sin(m Pi / 2) = chi4(m)`.
-
-## Definition layer
+## Definitions
 
 `a n` is the coefficient of `X^n` in `Sum_{k=1..n} phi(k) X^k (1 + X^(2k))⁻¹`
 in `ℚ⟦X⟧`; `coeff_sum_summand_of_le` shows any longer truncation gives the
@@ -201,7 +186,7 @@ lemma coeff_sum_summand_of_le {n N : ℕ} (hnN : n ≤ N) :
     · exact absurd (Nat.le_of_dvd hn hdvd) (by omega)
   · rfl
 
-/-- Computable closed form `Sum_{d | n} phi(n/d) chi4(d)` used for ground-truth checks. -/
+/-- Computable closed form `Sum_{d | n} phi(n/d) chi4(d)` used for examples. -/
 def closedForm (n : ℕ) : ℤ :=
   ∑ d ∈ n.divisors, (Nat.totient (n / d) : ℤ) * ZMod.χ₄ (d : ZMod 4)
 
@@ -217,7 +202,7 @@ example : (List.range 30).map (fun n => closedForm (n + 1)) =
       10, 29, 5] := by
   decide
 
-/-- Ground truth for the power-series definition itself: `a(5) = 5`. -/
+/-- Examples for the power-series definition itself: `a(5) = 5`. -/
 example : a 5 = 5 := by
   rw [a_eq_closedForm]
   norm_cast
@@ -241,7 +226,7 @@ theorem a_eq_sum_sin_gcd (n : ℕ) :
   push_cast
   rfl
 
-/-- **Conjecture of A327123** (Velin Yanev and Vaclav Kotesovec, Jun 01 2024), proved:
+/-- **Conjecture of A327123** (Velin Yanev and Vaclav Kotesovec), proved:
 for all `n ≥ 1`, the coefficient `a(n)` of `x^n` in `Sum_{k>=1} phi(k) x^k / (1 + x^(2k))`
 equals `Sum_{k=1..n} sin(gcd(k, n) * Pi / 2)`. The guard `1 ≤ n` from the source is kept
 for fidelity; it is not needed (see `a_eq_sum_sin_gcd`). -/

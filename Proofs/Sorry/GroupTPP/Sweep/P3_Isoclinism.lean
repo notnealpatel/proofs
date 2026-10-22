@@ -1,11 +1,11 @@
-import GroupTPP.IsoclinismInvariants
-import GroupTPP.CharDegrees
-import GroupTPP.CharacterDegreeZeroLocus
-import GroupTPP.CharDegreesMul
-import GroupTPP.STPPWreath
-import GroupTPP.TPPCapacityPadding
-import GroupTPP.LinearCharacterCount
-import GroupTPP.WreathCommutator
+import Sorry.GroupTPP.IsoclinismInvariants
+import Sorry.GroupTPP.CharDegrees
+import Sorry.GroupTPP.CharacterDegreeZeroLocus
+import Sorry.GroupTPP.CharDegreesMul
+import Sorry.Quarantine.GroupTPP.STPPWreath
+import Sorry.GroupTPP.TPPCapacityPadding
+import Sorry.GroupTPP.LinearCharacterCount
+import Sorry.GroupTPP.WreathCommutator
 
 set_option autoImplicit false
 

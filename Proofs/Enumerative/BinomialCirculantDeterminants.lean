@@ -1,43 +1,16 @@
 /-
 # Determinants of binomial-related circulant matrices
 
-## Source
-
-arXiv:1804.01196, T. Jantaramas, S. Jitman, P. Kaewsaard,
-"Determinants of Binomial-Related Circulant Matrices".
-Recorded 2026-10-21.
-
-* Section 2.1 defines the right circulant `rcir(a)` (row `i` is `a` rotated
-  `i` places to the right, so entry `(i, j)` is `a_{j - i mod n}`) and the
-  left circulant `lcir(a)` (entry `(i, j)` is `a_{i + j mod n}`).
-* Lemma 1.3 (cited, classical): the eigenvalues of `rcir(a)` are
-  `λ_m = ∑_{k=0}^{n-1} a_k e^{2kmπi/n}`, `m = 0, …, n-1`; with Lemma 2.5
-  (`det = ∏ eigenvalues`) this gives `det rcir(a) = ∏_m λ_m`.
-* Corollary cor-left: `det lcir(a) = (-1)^{⌊(n-1)/2⌋} det rcir(a)`.
-* Section 2.2: `c_n(z) = (C(n-1,0) z^0, …, C(n-1,n-1) z^{n-1})`, the
-  coefficients of `(x + z y)^{n-1}`. Lemma Eigen: the eigenvalues of
-  `rcir(c_n(z))` are `(1 + z e^{2mπi/n})^{n-1}`.
-* Sections 3-4 compute `det rcir(c_n(z))`, `det lcir(c_n(z))` only for
-  `z ∈ {1, -1, i, -i}`.
-* Section 5, verbatim: "It is of natural interest to investigate the
-  eigenvalues and the determinants of such matrices for other forms of `z`.
-  This issue is remained as an open problem."
-
-## Status
-
-The circulant determinant formula (Lemma 1.3 + 2.5) is classical and cited,
-not proved, in the paper; Mathlib (at the pinned version) has `circulant`
-but no determinant formula, so it is formalized here
-(`det_rcir_eq_prod`, `det_rcir_eq_prod_exp`, `det_circulant_eq_prod`).
-
-The printed open problem is closed here for every `z` in every commutative
-ring: `det rcir(c_n(z)) = (1 - (-z)^n)^{n-1}` (`det_rcir_binomVec`) and
-`det lcir(c_n(z)) = (-1)^{⌊(n-1)/2⌋} (1 - (-z)^n)^{n-1}`
-(`det_lcir_binomVec`).  This is a short consequence of the classical
-eigenvalue formula together with `∏_m (1 + z ω^m) = 1 - (-z)^n`; it is not
-stated in the paper.  The general-ring statement is obtained by proving the
-identity for the indeterminate `X` in `ℤ[X]` (inside `ℂ[X]`, where a
-primitive root of unity exists) and specializing.
+T. Jantaramas, S. Jitman and P. Kaewsaard, "Determinants of Binomial-Related
+Circulant Matrices", arXiv:1804.01196, Sections 2-5.
+For positive `n`, `rcir(a)_(i,j) = a_(j-i mod n)` and
+`lcir(a)_(i,j) = a_(i+j mod n)`. With
+`c_n(z)_k = C(n-1,k) z^k`, the determinant formulas over every commutative
+ring are `(1-(-z)^n)^(n-1)` and
+`(-1)^floor((n-1)/2) * (1-(-z)^n)^(n-1)`, respectively.
+The paper treats `z = ±1, ±i`; the formulas here allow arbitrary `z`.
+The proof uses the classical eigenvalue product, then proves a polynomial
+identity over `ℤ` and specializes it to the ring.
 -/
 import Mathlib
 
@@ -65,7 +38,7 @@ of `(x + z y)^{n-1}`. -/
 def binomVec {R : Type*} [CommRing R] (n : ℕ) (z : R) : Fin n → R :=
   fun k => ((n - 1).choose (k : ℕ) : R) * z ^ (k : ℕ)
 
-/-! ### Ground truth on small instances -/
+/-! ### Examples on small instances -/
 
 example (a b c : ℤ) : rcir ![a, b, c] = !![a, b, c; c, a, b; b, c, a] := by
   ext i j
@@ -271,7 +244,7 @@ theorem det_rcir_binomVec_X (n : ℕ) [NeZero n] :
   rw [RingHom.map_det, rcir_map, binomVec_map, det_rcir_binomVec_of_isPrimitiveRoot hω]
   simp [f]
 
-/-- **Answer to the open problem of Section 5 (right circulants).**
+/-- The right-circulant formula for arbitrary `z` (cf. Section 5).
 For every commutative ring `R`, every `n ≥ 1` and every `z ∈ R`,
 `det rcir(c_n(z)) = (1 - (-z)^n)^{n-1}`.  The paper proves only the cases
 `z ∈ {1, -1, i, -i}` over `ℂ`. -/

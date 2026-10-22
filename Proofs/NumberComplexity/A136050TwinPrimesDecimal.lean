@@ -1,27 +1,9 @@
 /-
 # A136050 — digit sum of a twin-prime product is one less than a multiple of 9
 
-## OEIS source (retrieved with `oeis show A136050`, 2026-10-21)
-
-```
-NAME:     Sum of digits of product of twin primes A037074.
-TERMS:    6,8,8,8,26,17,26,17,8,17,17,26,26,26,17,26,35,35,26,26,8,35,26,17,26,35,
-          44,26,17,35,35,35,35,26,35,26,17,26,26,26,17,35,26,35,26,35,26,17,26,17,
-          35,35,26,26,35,35,26,35,26,35,26,26,26,35,26,44,35,26,26,35,44,35
-FORMULA:  a(n) = A007953(A037074(n)). - _Michel Marcus_, Nov 04 2013
-COMMENT (the conjecture):
-          Conjecture: except for the initial term, each term is one less than a
-          multiple of 9. - _Harvey P. Dale_, Dec 02 2016
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature found by the triage), flagged as
-elementary.  The initial term is the pair `(3, 5)`; "except for the initial term" is read
-as `3 < p` for the lesser twin prime `p`.  Computation (2026-10-21) confirmed the claim for
-all 14870 twin pairs with `5 ≤ p < 2 * 10 ^ 6`.
-
-## Proof outline (all kernel-checked below)
+OEIS A136050, Harvey P. Dale: the decimal digit sum of the product
+of twin primes `(p,p+2)` is `8 mod 9` when `3 < p`.
+The excluded pair `(3,5)` gives digit sum `6`.
 
 For `3 < p` with `p` and `p + 2` prime, `p` is odd and `p ≢ 0, 1 (mod 3)`, so
 `p = 6 k + 5` and `p (p + 2) = 9 (4 k ^ 2 + 8 k + 3) + 8`.  The decimal digit sum is
@@ -33,7 +15,7 @@ set_option autoImplicit false
 
 namespace Candidates.A136050TwinPrimesDecimal
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The product `p (p + 2)` of a twin-prime pair `(p, p + 2)`, the terms of A037074 when
 `p` runs over the lesser twin primes (A001359). -/
@@ -43,7 +25,7 @@ def twinProduct (p : ℕ) : ℕ := p * (p + 2)
 (A007953) of the twin-prime product `p (p + 2)` (A037074). -/
 def twinDigitSum (p : ℕ) : ℕ := (Nat.digits 10 (twinProduct p)).sum
 
-/-! ### Ground truth: the first terms of A037074 and A136050
+/-! ### Examples: the first terms of A037074 and A136050
 
 The lesser twin primes begin `3, 5, 11, 17, 29, 41, 59, 71, 101`; A037074 begins
 `15, 35, 143, 323, 899, 1763, 3599, 5183, 10403` and A136050 begins
@@ -94,10 +76,9 @@ theorem twinProduct_mod_nine {p : ℕ} (hp : p.Prime) (hq : (p + 2).Prime) (h3 :
     rw [twinProduct, hk]; ring
   rw [hprod, Nat.add_mul_mod_self_left]
 
-/-- **Dale's conjecture (A136050, Harvey P. Dale, Dec 02 2016).**
+/-- **Dale's conjecture (A136050, Harvey P. Dale, 2016).**
 
-Verbatim: "Conjecture: except for the initial term, each term is one less than a multiple
-of 9."  Here the terms are indexed by the lesser twin prime `p` (A001359), the initial
+Here the terms are indexed by the lesser twin prime `p` (A001359), the initial
 term is `p = 3`, and the term is the decimal digit sum of `p (p + 2)`.  Stated as the
 residue: for twin primes `(p, p + 2)` with `3 < p`, the digit sum is `≡ 8 (mod 9)`. -/
 theorem twinDigitSum_mod_nine {p : ℕ} (hp : p.Prime) (hq : (p + 2).Prime) (h3 : 3 < p) :
@@ -106,9 +87,9 @@ theorem twinDigitSum_mod_nine {p : ℕ} (hp : p.Prime) (hq : (p + 2).Prime) (h3 
   rw [← hcong]
   exact twinProduct_mod_nine hp hq h3
 
-/-- **Dale's conjecture (A136050), divisibility form.** Verbatim: "except for the initial
-term, each term is one less than a multiple of 9": for twin primes `(p, p + 2)` with
-`3 < p`, `9` divides the digit sum of `p (p + 2)` plus one. -/
+/-- Dale’s conjecture (A136050), divisibility form: for twin primes
+`(p,p+2)` with `3 < p`, the decimal digit sum of `p(p+2)` plus one
+is divisible by `9`. -/
 theorem nine_dvd_twinDigitSum_add_one {p : ℕ} (hp : p.Prime) (hq : (p + 2).Prime)
     (h3 : 3 < p) : 9 ∣ twinDigitSum p + 1 := by
   have hres := twinDigitSum_mod_nine hp hq h3

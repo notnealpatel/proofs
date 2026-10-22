@@ -1,53 +1,16 @@
 /-
-# A110735 — the "no term is zero" conjecture is false
+# Zero terms of A110735
 
-## OEIS source (retrieved 2026-10-21, `oeis show A110735`)
+The unsigned conjecture in OEIS A110735 says that no term is zero;
+Franklin T. Adams-Watters (Sep 25 2006) cautions against its probabilistic
+justification. The sequence inserts one digit in every gap and at both ends
+of the decimal numeral, taking the least resulting multiple or zero if none
+exists. The inserted leading digit is nonzero: a `k`-digit input gives
+exactly `2k+1` digits, consistent with the source data.
 
-```
-A110735   Let n = a_1a_2...a_k, where the a_i are digits. a(n) = least multiple
-          of n of the type b_1a_1b_2a_2...a_kb_{k+1}, obtained by inserting
-          single digits b_i in the gaps and both ends; 0 if no such number
-          exists.
-DATA      110,120,132,140,150,162,175,184,198,11000,11011,11028,11037,11046,
-          11055,11168,11271,11088,11096,12000,12012,12122,12236,12048,12050,
-          12064,12177,12180,12093,13200,13113,13024,13035,13940,13055,13068
-COMMENT   Conjecture: no term is zero. For a k-digit number there are k+1
-          spaces and 10^(k+1) candidates, so the chances that one of them is a
-          multiple of n increases with k on the one hand although the
-          probability decreases because n becomes large.
-COMMENT   It may well be the case that no term is zero, but the probabilistic
-          argument above is not sufficient to establish it. ...
-          - _Franklin T. Adams-Watters_, Sep 25 2006
-```
-
-The conjecture comment is unsigned (it belongs to the original 2005
-submission).  The entry has no formula or program lines.  The DATA values
-(`a(1) = 110`, `a(10) = 11000`) show that the inserted leading digit `b_1` is
-nonzero: a candidate for a `k`-digit `n` has exactly `2k + 1` digits.
-
-## Status
-
-Literature status (triage): no proof or disproof is recorded in the entry or on
-the live page (which still has data only for `n ≤ 36`); no zero term has been
-recorded anywhere.  This module **refutes** the conjecture: `a(101) = 0`
-(`a_101`, `not_conjecture`).  It also proves the infinite zero family
-`a(10^(2m) + 1) = 0` for every `m ≥ 1` (`a_ten_pow_two_mul_add_one`), so even
-the weakening "a(n) ≠ 0 for all large n" is false (`not_eventually_ne_zero`).
-Computation (outside Lean) lists the zeros below 1000 as 101, 202, 303, 398,
-404, 597, 606, 625, 707, 804, 808, 909.
-
-Proof for `n = 101`.  A candidate is
-`C = b₁·10⁶ + 10⁵ + b₂·10⁴ + b₃·10² + 10 + b₄`, and
-`C + b₁ + b₃ = 101·K + (20 + b₂ + b₄)`, so `101 ∣ C` would force
-`b₁ + b₃ ≡ 20 + b₂ + b₄ (mod 101)`, impossible since `b₁ + b₃ ≤ 18 < 20`.
-
-Proof of the family (`m ≥ 2`).  Put `X = 10^(2m)` and split a candidate as
-`C = (H·X + M)·X + L` with `L, M < X`.  Then
-`C = (X + 1)(H·X - H + M) + (H - M + L)`.  The digit constraints give
-`H < 1000`, `10·L < X` (digit `2m - 1` of `C` is `0`), so
-`|H - M + L| < X + 1`, whence `H - M + L = 0`.  Reducing mod `100` with the
-tens digits `H ≡ 10`, `L ≡ 10`, `M ≡ 0` gives `20 + h₀ + l₀ ≡ m₀ (mod 100)` for
-units digits `h₀, l₀, m₀ ≤ 9`, impossible.  The case `m = 1` is `n = 101`.
+Here `a(101)=0` and, more generally, `a(10^(2m)+1)=0` for every `m ≥ 1`.
+Consequently even eventual nonvanishing fails. The proof uses the forced
+digit positions and reduction modulo `10^(2m)+1`.
 -/
 import Mathlib
 
@@ -93,7 +56,7 @@ def a (n : ℕ) : ℕ :=
   let k := numDigits n
   n * ((List.range (10 ^ (2 * k + 1))).find? (fun q => decide (Weave k n (n * q)))).getD 0
 
-/-! ## Ground truth against the OEIS DATA line (offset 1) -/
+/-! ## Listed terms from the OEIS DATA line (offset 1) -/
 
 example : (List.range' 1 36).map a =
     [110, 120, 132, 140, 150, 162, 175, 184, 198, 11000, 11011, 11028, 11037, 11046, 11055,

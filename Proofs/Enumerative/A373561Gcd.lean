@@ -1,38 +1,12 @@
 /-
-# A373561 — gcd-indicator sum of x^2 + y^2 - z^2
+The gcd-indicator identity for OEIS A373561 (unsigned source conjecture).
 
-## OEIS source (retrieved with `oeis show A373561`, 2026-10-21)
-
-```
-NAME:     a(n) = (1/3)*n^5 + (1/2)*n^4 + (1/6)*n^3.
-TERMS:    0,1,20,126,480,1375,3276,6860,13056,23085,38500,61226,93600,...
-FORMULA:  a(n) = n^3*(n+1)*(2*n+1)/6.
-FORMULA:  a(n) = n^2 * A000330(n).
-FORMULA (the conjecture, unsigned in the entry; no author or date attached):
-  Conjecture: a(n) = Sum_{k=1..n} Sum_{z=1..n} Sum_{y=1..n} Sum_{x=1..n}
-  [GCD(f(x,y,z), n) = k] * f(x,y,z), where f(x,y,z) = x^2 + y^2 - z^2.
-```
-
-The second Mathematica program of the entry computes exactly this sum
-with `p = 2`.
-
-## Status
-
-Triage: "open" (no proof in the entry or found in the literature), but
-tractability "trivial": for `n ≥ 1`, `gcd(f, n)` is a positive divisor of
-`n`, so it lies in `[1, n]` and the sum over `k` collapses to
-`Σ_{x,y,z} f = n^2 · Σ_{x=1}^n x^2 = n^2 · n(n+1)(2n+1)/6`.
-Numerically re-checked for `0 ≤ n ≤ 15` (python, 2026-10-21).
-
-## Formalization
-
-* `f x y z = x^2 + y^2 - z^2` evaluated in `ℤ` (it can be negative);
-  `GCD(f, n)` is `Int.gcd (f x y z) n`, which is nonnegative and agrees
-  with Mathematica's `GCD` (including `GCD[0, n] = n`).
-* `a n = n^3 (n+1) (2n+1) / 6` in `ℕ`; the division is exact
-  (`six_mul_a`), so it is not a truncation artefact.
-* The conjecture is `conjecture` (for `1 ≤ n`, as stated); it is derived
-  from `gcdSum_eq_a`, which also covers `n = 0` (both sides `0`).
+With f(x,y,z)=x²+y²-z² in ℤ, the sum over k,x,y,z∈{1,…,n}
+of [gcd(f(x,y,z),n)=k]*f(x,y,z) equals n³(n+1)(2n+1)/6.
+For positive n the gcd is in {1,…,n}, collapsing the indicator sum;
+the remaining sum is n² times the sum of squares. The theorem also covers n=0,
+when both sides vanish. Int.gcd is nonnegative, including gcd(0,n)=n;
+the natural-number division defining a is proved exact.
 -/
 import Mathlib
 
@@ -55,7 +29,7 @@ def gcdSum (n : ℕ) : ℤ :=
   ∑ k ∈ Icc 1 n, ∑ z ∈ Icc 1 n, ∑ y ∈ Icc 1 n, ∑ x ∈ Icc 1 n,
     if Int.gcd (f x y z) n = k then f x y z else 0
 
-/-! ## Ground truth against the listed terms -/
+/-! ## Examples against the listed terms -/
 
 example : a 0 = 0 := rfl
 example : a 1 = 1 := rfl

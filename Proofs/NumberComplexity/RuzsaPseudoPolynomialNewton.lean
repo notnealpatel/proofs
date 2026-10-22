@@ -1,51 +1,14 @@
 /-
 # Ruzsa pseudo-polynomials: Hall's lcm characterization of the Newton coefficients
 
-## Source
-
-* MathOverflow answer 219702, https://mathoverflow.net/a/219702, posted by
-  V. Dimitrov in the community-wiki thread "Proposals for polymath projects"
-  (question 219638), proposing Ruzsa's problem.
-* Status of Ruzsa's conjecture checked against E. Delaygue, arXiv:2502.13068
-  (February 2025).
-* Hall's characterization: R. R. Hall, "On pseudo-polynomials", Mathematika 18
-  (1971); restated in the work of Cegielski, Grigorieff and Guessarian on
-  congruence preserving functions (arXiv ids not re-verified here).
-
-## Informal claims
-
-Ruzsa (1971), as quoted in the MathOverflow answer: if `f : ℕ → ℤ` preserves
-congruences, meaning `(n - m) ∣ f(n) - f(m)` for all `n, m`, and
-`limsup |f(n)|^{1/n} < e`, then `f` is a polynomial sequence.  Hall and Ruzsa
-proved this with `e - 1` in place of `e`, Perelli–Zannier with `e^0.66`, Zannier
-with `e^0.75`; Delaygue (2025) proves it when the generating series has at most
-two singular directions.  The general conjecture is **open** (as of 2025).
-
-The target of this module is the classical lemma underlying all of these
-results (Hall 1971; proved in the literature, not in the thread):
-
-> `f : ℕ → ℤ` satisfies `k ∣ f(n + k) - f(n)` for all `n, k` if and only if
-> `lcm(1, …, k)` divides the `k`-th forward difference `(Δ^k f)(0)` for every
-> `k`.
-
-## Status (2026-10-21)
-
-Hall's lemma is a known (1971) result; Ruzsa's conjecture itself stays open and
-is not claimed here.  This module proves Hall's characterization
-(`isPseudoPoly_iff`) completely, together with the cheap corollary
-`two_pow_le_succ_mul_natAbs_fwdDiff_iter`: a nonzero `k`-th Newton coefficient
-of a pseudo-polynomial has absolute value at least `2^k / (k + 1)` (from
-Mathlib's `Chebyshev.two_pow_le_mul_lcmUpto`).  The `e - 1` theorem needs
-`lcm(1..k)^{1/k} → e` (prime-number-theorem strength) and is not attempted.
-
-Computational re-validation (`/tmp/claude/ruzsa/check.py`): the finite-window
-version of the equivalence (indices `< L`) was checked exhaustively for
-`L = 4` with values in `[-12, 17]` and `L = 5` with values in `[0, 12]`; no
-mismatch.
-
-Mathlib (checked with `leandoc`, 2026-10-21) has `Nat.lcmUpto`, `fwdDiff`,
-the Newton formulae `shift_eq_sum_fwdDiff_iter`, `fwdDiff_iter_eq_sum_shift`,
-but no notion of pseudo-polynomial and no lcm characterization.
+R. R. Hall, “On pseudo-polynomials”, Mathematika 18 (1971):
+`f : ℕ → ℤ` preserves congruences iff `lcm(1,…,k)` divides its `k`-th
+Newton coefficient `(Δ^k f)(0)` for every `k`. See also
+Cegielski–Grigorieff–Guessarian on congruence-preserving functions
+and V. Dimitrov's MathOverflow proposal, https://mathoverflow.net/a/219702 .
+A nonzero Newton coefficient satisfies `2^k ≤ (k+1)|a_k|`.
+This module does not prove Ruzsa's growth conjecture, nor the `e-1`
+theorem, which needs the asymptotic `lcm(1,…,k)^{1/k} → e`.
 -/
 import Mathlib
 
@@ -223,7 +186,7 @@ theorem two_pow_le_succ_mul_natAbs_fwdDiff_iter {f : ℕ → ℤ} (hf : IsPseudo
   calc 2 ^ k ≤ (k + 1) * Nat.lcmUpto k := Chebyshev.two_pow_le_mul_lcmUpto k
     _ ≤ (k + 1) * ((fwdDiff 1)^[k] f 0).natAbs := Nat.mul_le_mul_left _ hle
 
-/-! ## Ground-truth checks -/
+/-! ## Examples -/
 
 example : Nat.lcmUpto 4 = 12 := by decide
 

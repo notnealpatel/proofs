@@ -1,32 +1,11 @@
 /-
-# A051064 — 3-adic valuation of Fibonacci numbers (R. J. Mathar, Jun 28 2025)
+# A051064 — 3-adic valuation of Fibonacci numbers (R. J. Mathar, 2025)
 
-## OEIS source (retrieved with `oeis show A051064`, 2026-10-21)
-
-```
-NAME:     3^a(n) exactly divides 3n. Or, 3-adic valuation of 3n.
-TERMS:    1,1,2,1,1,2,1,1,3,1,1,2,1,1,2,1,1,3,1,1,2,1,1,2,1,1,4,1,1,2,1,1,2,
-          1,1,3,1,1,2,1,1,2,1,1,3,1,1,2,1,1,2,1,1,4,1,1,2,1,1,2,1,1,3,...
-FORMULA (cross-reference used below):
-  a(n) = A007949(n) + 1 = A004128(n) - A004128(n-1).
-FORMULA (the conjecture):
-  Conjecture: a(n) = A007949(A000045(4*n)), all other 3-adic quadrisections
-  A007949(A000045(.))=0. [Lengyel?]. - _R. J. Mathar_, Jun 28 2025
-```
-
-Here `A007949(n)` is the 3-adic valuation of `n` and `A000045` is the
-Fibonacci sequence.  Formalized reading: for all `n ≥ 1`,
-`v_3(F(4n)) = a(n) = v_3(n) + 1`, and `v_3(F(m)) = 0` whenever `4 ∤ m`.
-
-## Status
-
-Triage status: proved-elsewhere.  This is the classical rank-of-apparition
-law `v_p(F_n) = v_p(n) + v_p(F_{α(p)})` for `α(p) ∣ n` (Lucas, Carmichael;
-T. Lengyel, "The order of the Fibonacci and Lucas numbers",
-Fibonacci Quart. 33 (1995)), here with `α(3) = 4` and `v_3(F_4) = 1`.
-No `padicValNat`-of-`fib` result was found in Mathlib.
-
-## Proof outline (kernel-checked below)
+OEIS A051064, R. J. Mathar: for `n ≥ 1`,
+`v_3(F(4n)) = v_3(n) + 1`, and `v_3(F(m)) = 0` when `4 ∤ m`.
+This is the classical rank-of-apparition law with `α(3) = 4`; see
+T. Lengyel, “The order of the Fibonacci and Lucas numbers”,
+Fibonacci Quart. 33 (1995).
 
 * `F(n+24) ≡ F(n) (mod 9)` from `Nat.fib_add`, so `F mod 9` is read off a
   finite table; this gives `3 ∤ F(m)` for `4 ∤ m` and `v_3(F(4k)) = 1` for
@@ -51,17 +30,17 @@ def a (n : ℕ) : ℕ := padicValNat 3 (3 * n)
 Mathlib junk convention; the conjecture only evaluates it at `F(m)`). -/
 def A007949 (n : ℕ) : ℕ := padicValNat 3 n
 
-/-- Ground truth: the first twelve listed terms of A051064. -/
+/-- Examples: the first twelve listed terms of A051064. -/
 example : (List.range 12).map (fun n => a (n + 1)) = [1, 1, 2, 1, 1, 2, 1, 1, 3, 1, 1, 2] := by
   simp only [a, ← Nat.fst_maxPowDvdDiv]
   decide +kernel
 
-/-- Ground truth: terms 25..30 of A051064 (containing the first `4`). -/
+/-- Examples: terms 25..30 of A051064 (containing the first `4`). -/
 example : (List.range 6).map (fun n => a (n + 25)) = [1, 1, 4, 1, 1, 2] := by
   simp only [a, ← Nat.fst_maxPowDvdDiv]
   decide +kernel
 
-/-- Ground truth: `A007949(F(12)) = A007949(144) = 2 = a(3)`. -/
+/-- Examples: `A007949(F(12)) = A007949(144) = 2 = a(3)`. -/
 example : A007949 (Nat.fib 12) = 2 := by
   simp only [A007949, ← Nat.fst_maxPowDvdDiv]
   decide +kernel
@@ -231,12 +210,9 @@ theorem a_eq_padicValNat_add_one (n : ℕ) (hn : 1 ≤ n) : a n = padicValNat 3 
 
 /-! ## The conjecture -/
 
-/-- **Mathar's conjecture (A051064, R. J. Mathar, Jun 28 2025).**
+/-- **Mathar's conjecture (A051064, R. J. Mathar, 2025).**
 
-Verbatim: "Conjecture: a(n) = A007949(A000045(4*n)), all other 3-adic
-quadrisections A007949(A000045(.))=0. [Lengyel?]."
-
-Formal reading: for every `n ≥ 1`, `a(n) = v_3(F(4n))`; and for every `m`
+For every `n ≥ 1`, `a(n) = v_3(F(4n))`; and for every `m`
 with `4 ∤ m`, `v_3(F(m)) = 0`.  The guard `1 ≤ n` mirrors the entry's
 offset (A051064 starts at `n = 1`); at `n = 0` both sides are the junk value
 `padicValNat 3 0 = 0`, so the guard is not needed for this form, but it is

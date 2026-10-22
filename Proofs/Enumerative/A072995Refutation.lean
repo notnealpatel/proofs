@@ -1,44 +1,13 @@
 /-
-# A072995 — Wilson: `a(n) = 0` iff `n/2` is an odd non-prime-power (refuted)
+# A072995: a counterexample to the zero criterion
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A072995`)
-
-```
-NAME:     Least k > 0 such that the number of solutions to x^k == 1 (mod k)
-          1 <= x <= k is equal to n, or 0 if no such k exists.
-TERMS:    1,4,9,8,25,18,49,16,27,50,121,36,169,98,225,32,289,54,361,110,
-          147,242,529,72,125,338,81,196,841,0,961,64,1089,578,1225,108,...
-COMMENT:  a(30) doesn't exist: If N is even, and divisible by D different
-          odd primes, but not divisible by 2^D, then a(N) doesn't exist.
-          - _Don Reble_, Feb 23 2014
-COMMENT:  Conjecture: a(n)=0 iff n/2 is in A061346.
-          - _Robert G. Wilson v_, Feb 23 2014
-COMMENT:  [n=420 seems to be a counterexample to the above conjecture.
-          - _M. F. Hasler_, Feb 24 2014]
-COMMENT:  (Wilson, Mar 05 2014) If n (an odd number) is {273, 399, 651,
-          741, 777, 903, ...}, then a(n) = 0;
-FORMULA:  First occurrence of n in A072994.
-```
-
-A061346 is "Odd numbers that are neither primes nor prime powers"
-(`15, 21, 33, 35, 39, 45, ...`; `1` is not a term).
-
-The conjecture line is not withdrawn by any later comment; Hasler's
-bracketed comment only flags `n = 420` as a probable counterexample, and
-Wilson's later observations implicitly contradict it as well.
-
-## Status
-
-This module **refutes** the conjecture (`conjecture_false`): `a(420) = 0`
-(`a_four_hundred_twenty`) although `420 / 2 = 210` is even, hence not in
-A061346.  The proof follows Reble's criterion with `N = 420 = 4 * 3 * 5 * 7`,
-`D = 3`, `8 ∤ 420`: the solution set is the group `rootsOfUnity k (ZMod k)`;
-Cauchy's theorem forces `2, 3, 5, 7 ∣ k`; the Chinese remainder theorem
-splits off the `3`-, `5`- and `7`-primary components, each of which
-contains the element `-1` of order `2`, so `8` divides the count.
-
-The reverse implication of the conjecture is true and is proved here as
-`a_eq_zero_of_A061346` (Reble's criterion with `D ≥ 2`, `4 ∤ n`).
+OEIS A072995, Robert G. Wilson v and Don Reble (Feb 23 2014);
+M. F. Hasler's counterexample comment (Feb 24 2014).
+The sequence is the least positive modulus with exactly `n` solutions to
+`x^n ≡ 1`, or `0` if none exists. No modulus has exactly `420` solutions:
+root-count divisibility would force `8 ∣ 420`. Thus `a(420) = 0`, while
+`210` is even and not in A061346. The reverse-direction family
+`m ∈ A061346 → a(2m) = 0` is proved separately.
 -/
 import Mathlib
 
@@ -46,7 +15,7 @@ set_option autoImplicit false
 
 namespace Candidates.A072995Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A072994(k): the number of `x` with `1 ≤ x ≤ k` and `x ^ k ≡ 1 (mod k)`. -/
 def numSol (k : ℕ) : ℕ :=
@@ -69,7 +38,7 @@ theorem a_eq_of_forall {n k : ℕ} (hk : 0 < k) (hsol : numSol k = n)
   by_contra hlt
   exact hmin j (Nat.lt_of_not_le hlt) hj.1 hj.2
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : (List.range 12).map (fun k => numSol (k + 1)) = [1, 1, 1, 2, 1, 2, 1, 4, 3, 2, 1, 4] := by
   decide
@@ -264,12 +233,8 @@ offset. -/
 def Conjecture : Prop :=
   ∀ n, 1 ≤ n → (a n = 0 ↔ ∃ m, n = 2 * m ∧ A061346 m)
 
-/-- **Wilson's conjecture is false.**  Counterexample `n = 420` (flagged by
-M. F. Hasler, Feb 24 2014): `a(420) = 0` by Reble's criterion (`420` is even,
-divisible by the three odd primes `3, 5, 7`, and not by `2^3`), yet
-`420 / 2 = 210` is even, hence not in A061346.  The author presumably intended
-the zeros to be exactly the cases of Reble's criterion with `n ≡ 2 (mod 4)`;
-the criterion also produces zeros with `4 ∣ n`. -/
+/-- Wilson's zero criterion fails at `n = 420` (M. F. Hasler, Feb 24 2014):
+`a(420) = 0`, yet `420/2 = 210` is even and not in A061346. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   obtain ⟨m, hm, hodd, -, -⟩ := (hconj 420 (by norm_num)).mp a_four_hundred_twenty

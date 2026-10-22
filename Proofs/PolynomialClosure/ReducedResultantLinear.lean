@@ -1,37 +1,25 @@
 /-
-# Reduced resultant of two linear integer polynomials: closed form
+# Reduced resultant of two linear integer polynomials
 
-## Source
+Zhiqian Liu, Xiaoting Li, Wenheng Liu, Min Sha, *Three integers arising from
+Bézout's identity and resultants of integer polynomials*, arXiv:2506.10838,
+Section 6 ("Numerical data").  The closing remark records
+`B(ax+b, cx+d) = |ad - bc| / gcd(a,c)`.
 
-arXiv:2506.10838 — Zhiqian Liu, Xiaoting Li, Wenheng Liu, Min Sha,
-"Three integers arising from Bézout's identity and resultants of integer
-polynomials".  Section 6 ("Numerical data"): Conjecture 6.1 (the frequency of
-`B(f,g) = r(f,g)` is at least `9/10`) and the closing remark of the section,
-which records `B(ax+b, cx+d) = |ad - bc| / gcd(a,c)`.
+The reduced resultant `r(f,g)` is the smallest positive integer in
+`f(x)ℤ[x] + g(x)ℤ[x]`.  The formula below is an additional bridge for the
+primitive linear case, not a theorem stated in the paper, and makes no
+frequency or density claim toward Conjecture 6.1.
 
-The paper defines the *reduced resultant* `r(f,g)` as the smallest positive
-integer in `f(x)ℤ[x] + g(x)ℤ[x]`, so that
-`(f(x)ℤ[x] + g(x)ℤ[x]) ∩ ℤ = r(f,g)ℤ`.  It computes `r` by Gröbner bases and
-gives no closed form for `r` in the linear case.
+For integers `a, b, c, d` with `ad - bc ≠ 0` and `gcd(a,b,c,d) = 1`, let
+`g = gcd(a,c)`, `B = |ad - bc| / g` and `B₁ = B / gcd(B, g^B)`, the largest
+divisor of `B` coprime to `g`.  Then `(ax+b, cx+d)ℤ[x] ∩ ℤ = B₁ℤ`, where
+intersection with `ℤ` means preimage under the constant-polynomial map `C`.
 
-## Claim formalized here (bridge lemma for the `(m,n) = (1,1)` case, 2026-10-21)
-
-For `a, b, c, d ∈ ℤ` with `a, c ≠ 0`, `ad - bc ≠ 0` and `gcd(a,b,c,d) = 1`,
-let `g = gcd(a,c)`, `Δ = |ad - bc|` and `B = Δ/g`.  Then
-`(ax+b, cx+d)ℤ[x] ∩ ℤ = B₁·ℤ`, where `B₁ = B / gcd(B, g^B)` is the largest
-divisor of `B` coprime to `g`.
-
-## Status
-
-Not stated or proved in the paper (the paper only computes `r(f,g)`
-numerically); the closed form was proposed by the triage of this campaign
-and checked against Sage Gröbner bases over `ℤ` (all pairs with height `≤ 4`,
-several thousand random primitive pairs, and 353 further random and
-structured pairs on 2026-10-21).  Proved below.
-
-The hypotheses `a ≠ 0` and `c ≠ 0` are not used by the proof; the general
-form `comap_C_linIdeal_eq_span` assumes only `ad - bc ≠ 0` and primitivity,
-and the faithful statement `reducedResultant_linear` is its specialization.
+The general contraction lemma `comap_C_linIdeal_eq_span` needs only the
+nonzero determinant and primitivity assumptions.  The source-facing
+specialization `reducedResultant_linear` also assumes `a ≠ 0` and `c ≠ 0`,
+so both polynomials have degree one.
 -/
 import Mathlib
 
@@ -56,7 +44,7 @@ coprime to `g`. -/
 def reducedB1 (a b c d : ℤ) : ℕ :=
   reducedB a b c d / Nat.gcd (reducedB a b c d) (Int.gcd a c ^ reducedB a b c d)
 
-/-! ### Ground truth on small instances -/
+/-! ### Examples on small instances -/
 
 /-- `f = 2x + 1`, `g = 2x + 7`: `Δ = 12`, `g = 2`, `B = 6`, `B₁ = 3`. -/
 example : reducedB 2 1 2 7 = 6 ∧ reducedB1 2 1 2 7 = 3 := by decide
@@ -272,8 +260,7 @@ theorem C_mem_linIdeal_iff (a b c d : ℤ) (hΔ : a * d - b * c ≠ 0)
   rw [← Ideal.mem_comap, comap_C_linIdeal_eq_span a b c d hΔ hprim,
     Ideal.mem_span_singleton]
 
-/-- Corollary (the triage's criterion for `B(f,g) = r(f,g)` in degree
-`(1,1)`): when `ad - bc ≠ 0`, `B₁ = B` iff `gcd(g, B) = 1`, where
+/-- When `ad - bc ≠ 0`, `B₁ = B` iff `gcd(g, B) = 1`, where
 `g = gcd(a,c)` and `B = |ad - bc| / g`. -/
 theorem reducedB1_eq_reducedB_iff (a b c d : ℤ) (hΔ : a * d - b * c ≠ 0) :
     reducedB1 a b c d = reducedB a b c d ↔ Nat.Coprime (reducedB a b c d) (Int.gcd a c) := by
@@ -281,8 +268,8 @@ theorem reducedB1_eq_reducedB_iff (a b c d : ℤ) (hΔ : a * d - b * c ≠ 0) :
   rw [reducedB1, Nat.div_eq_self, ← Nat.coprime_pow_right_iff (Nat.pos_of_ne_zero hBne)]
   simp only [hBne, false_or]
 
-/-- Non-vacuity and ground truth: `f = 2x + 1`, `g = 2x + 7` satisfy all
-hypotheses, and `(2x+1, 2x+7) ∩ ℤ = 3ℤ` (matching a Sage Gröbner basis). -/
+/-- `f = 2x + 1`, `g = 2x + 7` satisfy all hypotheses of
+`reducedResultant_linear`, and `(2x+1, 2x+7) ∩ ℤ = 3ℤ`. -/
 example : Ideal.comap (C : ℤ →+* ℤ[X]) (Ideal.span {C 2 * X + C 1, C 2 * X + C 7}) =
     Ideal.span {(3 : ℤ)} := by
   have h := reducedResultant_linear 2 1 2 7 (by decide) (by decide) (by decide) (by decide)

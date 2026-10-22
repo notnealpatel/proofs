@@ -1,36 +1,16 @@
 /-
 # A128381 — Adamson's "only k = 6 and k = 24" conjecture is false
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A128381`; author line
-## from the live entry https://oeis.org/A128381/internal)
+Gary W. Adamson's conjecture in OEIS A128381 says that only `k = 6, 24`
+produce a zero after `k` binomial transforms of A000594, taken with offset
+zero. The value `k = 42` also produces a zero.
 
-```
-NAME:     A007318^24 * A000594.
-TERMS:    1,0,-324,-10976,-260898,-4919184,-67536616,-212659776,28757879829,...
-FORMULA:  Binomial transform operation performed 24 times on A000594, assuming
-          A000594 has offset zero.
-COMMENT:  Conjecture: given the bto performed any k times on A000594
-          (k = 1, 2, 3, ...); k = 6 and k = 24 are the only members of the set
-          with zeros. k = 6 generates (1, -18, 0, 688, 4494, 5508, ...).
-AUTHOR:   Gary W. Adamson, Feb 28 2007
-MATHEMATICA: Nest[Table[Sum[Binomial[n-1, k-1] * #[[k]], {k, 1, n}],
-          {n, 1, Length[#]}] &, RamanujanTau[Range[19]], 24]
-          (* _Amiram Eldar_, Jan 08 2025 *)
-```
-
-No later comment in the entry retracts or amends the conjecture.
-
-## Status
-
-This module **refutes** the conjecture.  With `b j = τ (j + 1)` (A000594 taken
+With `b j = τ (j + 1)` (A000594 taken
 with offset zero), `k` binomial transforms give
 `B_k(n) = ∑_{j ≤ n} C(n, j) k^(n - j) τ(j + 1)`, so
 `B_k(1) = k - 24` and `B_k(2) = k² - 48k + 252 = (k - 6)(k - 42)`.
 The printed `k = 6` zero is one root of this quadratic; the other root
 `k = 42` also produces a zero, `B_42(2) = 0`.
-
-`Elab.async false` keeps the kernel checks sequential; under a virtual-memory
-cap the default asynchronous elaboration fails to create its worker threads.
 -/
 import Mathlib
 
@@ -64,7 +44,7 @@ def deltaCoeffs (N : ℕ) : List ℤ :=
 def tau (n : ℕ) : ℤ :=
   if n = 0 then 0 else (deltaCoeffs n).getD (n - 1) 0
 
-/-- Ground truth: the first twelve terms of A000594. -/
+/-- the first twelve terms of A000594. -/
 example : (List.range' 1 12).map tau =
     [1, -24, 252, -1472, 4830, -6048, -16744, 84480, -113643, -115920, 534612,
       -370944] := by
@@ -155,13 +135,13 @@ theorem iterBT_eq (k n : ℕ) :
       ∑ j ∈ Finset.range (n + 1), (n.choose j : ℤ) * (k : ℤ) ^ (n - j) * tau (j + 1) :=
   iterate_bt b k n
 
-/-- Ground truth: the first terms of A128381 (`k = 24`). -/
+/-- the first terms of A128381 (`k = 24`). -/
 example : (List.range 6).map (fun n => iterBT 24 n) =
     [1, 0, -324, -10976, -260898, -4919184] := by
   simp only [iterBT_eq]
   decide +kernel
 
-/-- Ground truth: the `k = 6` terms printed in the conjecture comment. -/
+/-- the `k = 6` terms printed in the conjecture comment. -/
 example : (List.range 6).map (fun n => iterBT 6 n) =
     [1, -18, 0, 688, 4494, 5508] := by
   simp only [iterBT_eq]
@@ -169,11 +149,7 @@ example : (List.range 6).map (fun n => iterBT 6 n) =
 
 /-! ## The conjecture -/
 
-/-- **Adamson's conjecture (A128381, Gary W. Adamson, Feb 28 2007).**
-Verbatim: "Conjecture: given the bto performed any k times on A000594
-(k = 1, 2, 3, ...); k = 6 and k = 24 are the only members of the set with
-zeros."
-
+/-- **Adamson's conjecture (A128381, Gary W. Adamson).**
 Formally: for every `k ≥ 1`, the `k`-fold binomial transform of A000594 (offset
 zero) has a zero term if and only if `k = 6` or `k = 24`. -/
 def AdamsonConjecture : Prop :=
@@ -209,9 +185,7 @@ theorem iterBT_fortyTwo_two : iterBT 42 2 = 0 := by
 
 /-- **Refutation of Adamson's conjecture (A128381).**  Counterexample `k = 42`,
 `n = 2`: `B_42(2) = 42² - 48·42 + 252 = 0`, the second root of
-`B_k(2) = (k - 6)(k - 42)`, whose first root is the printed `k = 6`.  The author
-evidently found the root `k = 6` of this quadratic but missed `k = 42`; the
-corrected statement for `n ≤ 2` is `zero_iff_of_le_two`. -/
+`B_k(2) = (k - 6)(k - 42)`, whose first root is the printed `k = 6`.  The corrected statement for `n ≤ 2` is `zero_iff_of_le_two`. -/
 theorem adamsonConjecture_false : ¬ AdamsonConjecture := by
   intro h
   have hk : (42 : ℕ) = 6 ∨ (42 : ℕ) = 24 := (h 42 (by norm_num)).mp ⟨2, iterBT_fortyTwo_two⟩

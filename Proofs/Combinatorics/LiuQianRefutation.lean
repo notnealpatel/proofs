@@ -1,51 +1,17 @@
 /-
-# Liu–Qian Conjecture 1.7 and the "refined inverse theorem" (Theorem A) are false
+# Counterexamples to Liu–Qian Conjecture 1.7 and Li–Liang Theorem A
 
-## Source
+Jiantao Li and Xinyi Liang, *Infinite Families of Counterexamples to a
+Conjecture of Liu and Qian and a Refined Inverse Theorem for Restricted
+Sumsets in Z_p*, arXiv:2609.10148v2: Conjecture 1.3 (Liu–Qian, FFA 116,
+2026, Conjecture 1.7), Theorems 2.1, 2.3 and 3.1 (Theorem A).
+Li, Li and Yuan, arXiv:2609.23343, Example 4.1, give a counterexample to
+Theorem 3.1 with `(|A|,|B|) = (7,4)` in `F_13`.
 
-* arXiv:2609.10148 (version 2), Jiantao Li and Xinyi Liang, "Infinite Families of
-  Counterexamples to a Conjecture of Liu and Qian and a Refined Inverse Theorem for
-  Restricted Sumsets in Z_p".
-  - Conjecture 1.3 there is Liu–Qian [FFA 116, 2026] Conjecture 1.7.
-  - Theorem 2.1 (first boundary family) and Theorem 2.3 (second boundary family).
-  - Theorem 3.1 = Theorem A (refined inverse theorem).
-* arXiv:2609.23343, lines 158–172: Li, Li and Yuan [Example 4.1] exhibit a critical
-  pair in F_13 with (|A|, |B|) = (7, 4), |A| + |B| = p - 2, and conclude that
-  "[Theorem 3.1, version 2] does not hold as stated".
-
-Recorded 2026-10-21.
-
-## Verbatim informal claims
-
-Restricted sumset: `A ∔ B = {a + b : a ∈ A, b ∈ B, a ≠ b}`.
-
-Conjecture 1.7 (Liu–Qian): "Let A, B ⊂ Z_p. Suppose that |B| = l ≥ 3, |A| = k ≥ |B| + 3,
-|A| + |B| ≤ p. Then |A ∔ B| = |A| + |B| - 2 if and only if A and B are arithmetic
-progressions with the same common difference, and B consists precisely of the first l
-terms or the last l terms of A."
-
-Theorem A (Li–Liang, v2, Theorem 3.1): "Let A, B ⊂ Z_p be nonempty subsets such that
-|B| ≥ 3, |A| ≥ |B| + 3, |A| + |B| ≤ p - 1. Then |A ∔ B| = |A| + |B| - 2 if and only if
-A and B are arithmetic progressions with the same common difference, and B consists
-precisely of the first |B| terms or the last |B| terms of A."
-
-Theorem 2.1 (Li–Liang, first family): for a prime p ≥ 11 and 3c ≡ 1 (mod p),
-B = {0, 1, c}, A = Z_p \ {-1, -c, 2c} satisfy |A ∔ B| = p - 2, and neither A nor B is
-an arithmetic progression.
-
-## Status
-
-Conjecture 1.7 is refuted in the paper itself at the boundary |A| + |B| = p (Theorem B).
-Theorem A is claimed proved in the paper, but it is false: the F_13 pair
-A = {0,1,3,7,8,9,11}, B = {0,1,3,9} (an affine image of the Li–Li–Yuan exception
-A* = {0,1,3,4,5,6,10}, B* = {0,1,4,6}) is critical with |A| + |B| = 11 ≤ p - 1 and A is
-not an arithmetic progression.  The flaw in the paper's "only if" argument is the
-integer ordering of residues ignoring wraparound.  This module records:
-
-* `not_theoremA`: Theorem A is false (the F_13 counterexample, by `decide`);
-* `not_liuQianConj17`: hence Conjecture 1.7 is false below the boundary as well;
-* `family1_rsum`, `exists_boundary_counterexample`: the paper's first boundary family
-  (Theorem 2.1) for every prime p ≥ 11, proved symbolically.
+The restricted sumset is `A ∔ B = {a+b : a ∈ A, b ∈ B, a ≠ b}`. The
+F_13 pair below is an affine image of their exception and refutes both
+Theorem A and Conjecture 1.7 below the boundary `|A|+|B| = p`. The first
+boundary family (Li–Liang Theorem 2.1) is proved for every prime `p ≥ 11`.
 
 Arithmetic conventions: "|A ∔ B| = |A| + |B| - 2" is stated subtraction-free as
 `(rsum A B).card + 2 = A.card + B.card` (equivalent since |A| + |B| ≥ 9), and
@@ -99,7 +65,7 @@ def TheoremA : Prop :=
   ∀ p : ℕ, p.Prime → ∀ A B : Finset (ZMod p), 3 ≤ B.card → B.card + 3 ≤ A.card →
     A.card + B.card + 1 ≤ p → ((rsum A B).card + 2 = A.card + B.card ↔ IsLQPair A B)
 
-/-! ## Ground truth on small instances -/
+/-! ## Small examples -/
 
 example : apSet (0 : ZMod 13) 1 3 = {0, 1, 2} := by decide
 

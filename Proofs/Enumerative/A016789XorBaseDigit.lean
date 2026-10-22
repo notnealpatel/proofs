@@ -1,42 +1,11 @@
 /-
-# A016789 — Breysens: `3n + 2 = n XOR A005351(n+1) XOR A005352(n+1)`
+# A016789: Breysens's XOR identity
 
-## OEIS source (retrieved with `oeis show A016789`, 2026-10-21)
-
-```
-NAME:     a(n) = 3*n + 2.
-TERMS:    2,5,8,11,14,17,20,23,26,29,32,35,38,41,44,47,50,53,56,59,62,65,68,...
-FORMULA (the conjecture):
-  Conjecture: a(n) = n XOR A005351(n+1) XOR A005352(n+1).
-  - Gilian Breysens, Jul 21 2017
-```
-
-Cross-referenced entries (retrieved with `oeis show`, 2026-10-21):
-
-```
-A005351  NAME:  Base -2 representation for n regarded as base 2, then evaluated.
-         TERMS: 0,1,6,7,4,5,26,27,24,25,30,31,28,29,18,19,16,17,22,23,...  (offset 0)
-A005352  NAME:  Base -2 representation of -n reinterpreted as binary.
-         TERMS: 3,2,13,12,15,14,9,8,11,10,53,52,55,54,49,48,51,50,61,60,...  (offset 1)
-```
-
-## Status
-
-Triage: open. The entry records the identity as a conjecture; the entry's
-"mentions proof" flag refers to a different (Detlefs) comment, so no proof of
-this XOR identity is recorded in the entry, and the triage found none in the
-literature. Numerically checked for `n < 400000` and 20000 random `n < 10^30`
-(2026-10-21) before formalization.
-
-## Result
-
-Proved here (`breysens_xor`), with no `sorry`. The argument is a simultaneous
-strong induction on two companion identities
-* `P(n)`: `nb(n+1) XOR nb(-(n+1)) = n XOR (3n+2)`;
-* `Q(n)`: `nb(-n) XOR nb(n+1) = n XOR (3n+1)`;
-using the digit recursions `nb(2k) = 2 nb(-k)`, `nb(2k+1) = 2 nb(-k) + 1`,
-the bitwise rules `(2a+r) XOR (2b+s) = 2 (a XOR b) + (r XOR s)`, and the
-carry lemma `(j+1) XOR (3j+3) = j XOR (3j+2)`.
+OEIS A016789, Gilian Breysens (Jul 21 2017), with A005351 and A005352.
+For every natural `n`, `3n + 2 = n XOR A005351(n+1) XOR A005352(n+1)`.
+The companion sequences read the negabinary digits of positive and negative
+inputs as binary digits. The proof is a simultaneous strong induction on
+two companion XOR identities, using the digit recursions and a carry lemma.
 -/
 import Mathlib
 
@@ -44,7 +13,7 @@ set_option autoImplicit false
 
 namespace Candidates.A016789XorBaseDigit
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The base `-2` (negabinary) digit string of the integer `x`, read as a binary
 numeral. The least digit is `x % 2 ∈ {0, 1}` and the remaining digits are those
@@ -65,7 +34,7 @@ def a005352 (n : ℕ) : ℕ := negabin (-(n : ℤ))
 /-- OEIS A016789: `a(n) = 3 n + 2`. -/
 def a016789 (n : ℕ) : ℕ := 3 * n + 2
 
-/-! ## Ground truth against the DATA lines -/
+/-! ## Examples against the DATA lines -/
 
 example : (List.range 30).map a005351 =
     [0, 1, 6, 7, 4, 5, 26, 27, 24, 25, 30, 31, 28, 29, 18, 19, 16, 17, 22, 23,

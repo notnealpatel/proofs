@@ -1,45 +1,18 @@
 /-
 # Cyclic Hamilton decompositions of the carousel tournaments `T_33` and `T_35`
 
-## Source
+Hongci Liao, Yongju Peng, Guang Li and Yingbin Ma, *Cyclic Hamilton Cycle
+Decompositions of Carousel Tournaments of Order pq*, arXiv:2610.07102,
+Problem 1.2, asks which odd orders admit such decompositions. Theorem 1.3
+treats primes `7 ≤ p < q`; the concluding remarks leave `p ∈ {3,5}` open.
 
-Hongci Liao, Yongju Peng, Guang Li, Yingbin Ma, *Cyclic Hamilton Cycle
-Decompositions of Carousel Tournaments of Order pq*, arXiv:2610.07102.
-Retrieved and read 2026-10-21.
+This file gives explicit decompositions of `T_33` and `T_35`, using the
+directed base paths and cyclic developments of Lemma 2.1 (`bpd`).
+Their difference sequences are:
 
-* Introduction: for odd `n`, the carousel tournament is
-  `T_n = Cay(ℤ_n, S_n)` with `S_n = {1, 2, …, (n-1)/2}`; there is an arc
-  `(x, y)` iff `y - x ∈ S_n`.  A Hamilton cycle decomposition `𝒞` is
-  *cyclic* if `C + 1 ∈ 𝒞` for every `C ∈ 𝒞` (Section 2).
-* Problem 1.2 (verbatim): "For which odd integers `n` does the carousel
-  tournament `T_n` admit a cyclic Hamilton cycle decomposition?"
-* Theorem 1.3 (proved in the paper): for primes `7 ≤ p < q`, `T_{p,q}` has a
-  cyclic Hamilton cycle decomposition.
-* Concluding remarks (verbatim): "The remaining products `pq` with
-  `p ∈ {3,5}`, and more generally all odd composite orders, remain open."
-
-## Claim formalized here
-
-`T_33` (`p = 3`, `q = 11`) and `T_35` (`p = 5`, `q = 7`) each admit a cyclic
-Hamilton cycle decomposition.  These are cases the paper leaves **open**; the
-witnesses are explicit base paths in the sense of the paper's Lemma 2.1
-(`\label{bpd}`: directed base paths and their cyclic developments `𝒞(P)`), found by
-computer search during triage and re-verified independently in Python on
-2026-10-21 (`T_15` is excluded for this method by counting,
-`p + q > (pq-1)/2`, and an exhaustive search found no two-long-path system
-for `T_21`).
-
-* `T_33`: base paths with difference sequences
-  `[3,1,2,4,6,8,7,9,12,15,10]` (length 11), `[11,5,14]` (length 3),
-  `[13]`, `[16]` (length 1).
-* `T_35`: `[5,3,10,16,17,15,11]` (length 7), `[7,4,13,14,12]` (length 5),
-  `[1]`, `[2]`, `[6]`, `[8]`, `[9]` (length 1).
-
-## Status
-
-Open in the source (concluding remarks).  Both cases are proved in this file
-without `sorry`; the finite checks run by `decide +kernel` (no
-`native_decide`).
+* `T_33`: `[3,1,2,4,6,8,7,9,12,15,10]`, `[11,5,14]`, `[13]`, `[16]`.
+* `T_35`: `[5,3,10,16,17,15,11]`, `[7,4,13,14,12]`,
+  `[1]`, `[2]`, `[6]`, `[8]`, `[9]`.
 
 ## Encoding
 
@@ -96,7 +69,7 @@ def IsCyclicHamiltonDecomposition (n : ℕ) [NeZero n]
     (D : Finset (Perm (ZMod n))) : Prop :=
   IsHamiltonDecomposition (carouselArc n) D ∧ ∀ σ ∈ D, translate 1 σ ∈ D
 
-/-! ## Ground truth for the arc relation -/
+/-! ## Examples for the arc relation -/
 
 example : carouselArc 33 0 16 := by decide
 example : ¬ carouselArc 33 0 17 := by decide
@@ -261,7 +234,7 @@ theorem translate_one_mem_development {n : ℕ} [NeZero n] {δ : List ℕ}
     ext x
     simp
 
-/-! ### Ground truth: the development follows the base path -/
+/-! ### Examples: the development follows the base path -/
 
 /-- The long base path for `T_33`: `P = (0, 3, 4, 6, 10, 16, 24, 31, 7, 19, 1, 11)`. -/
 def δ33A : List ℕ := [3, 1, 2, 4, 6, 8, 7, 9, 12, 15, 10]
@@ -271,7 +244,7 @@ example : List.iterate (devSucc 33 δ33A) 0 12 = [0, 3, 4, 6, 10, 16, 24, 31, 7,
   decide
 example : devSucc 33 [16] 5 = 21 := by decide
 
-/-- Ground truth: the translation `x ↦ x + 3` of `ℤ_33` steps along arcs of
+/-- The translation `x ↦ x + 3` of `ℤ_33` steps along arcs of
 `T_33` but is not a Hamilton cycle (it splits into three 11-cycles). -/
 example : ¬ IsHamiltonCycle (carouselArc 33) (Equiv.addRight (3 : ZMod 33)) := by
   rintro ⟨hcyc, -, -⟩
@@ -300,8 +273,7 @@ private theorem dev5One : DevelopsToHamiltonCycle 5 [1] := by decide
 /-- Certificate for the unit difference `2` of `T_5`. -/
 private theorem dev5Two : DevelopsToHamiltonCycle 5 [2] := by decide
 
-/-- Ground truth (satisfiability at a prime order, the paper's immediate case):
-`T_5` has the cyclic Hamilton decomposition `{x ↦ x + 1, x ↦ x + 2}`. -/
+/-- `T_5` has the cyclic Hamilton decomposition `{x ↦ x + 1, x ↦ x + 2}`. -/
 example : ∃ D, IsCyclicHamiltonDecomposition 5 D := by
   refine ⟨_, isCyclicHamiltonDecomposition_of_list (development 5 [1] dev5One ++
     development 5 [2] dev5Two)

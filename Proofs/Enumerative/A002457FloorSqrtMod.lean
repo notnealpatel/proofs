@@ -1,33 +1,13 @@
 /-
-# A002457 — Shunia: `a(n) = floor(sqrt((16^n + 1)^(2n+1))) mod 16^n`
+# A floor-square-root identity for A002457
 
-## OEIS source (`oeis show A002457`, retrieved 2026-10-21)
+Joseph M. Shunia's formula in OEIS A002457 (Sep 11 2025) is proved for `n > 0`:
+`(2n+1)!/(n!)² = floor(sqrt((16^n+1)^(2n+1))) mod 16^n`.
+The identity fails at `n = 0`.
 
-```
-NAME:     a(n) = (2n+1)!/n!^2.
-TERMS:    1,6,30,140,630,2772,12012,51480,218790,923780,3879876,16224936,...
-FORMULA (the conjecture, verbatim):
-  Conjecture: a(n) = floor(sqrt((16^n + 1)^(2*n+1))) mod 16^n, for n > 0.
-  - _Joseph M. Shunia_, Sep 11 2025
-```
-
-## Status
-
-Triage literature status: open (no proof in the entry or the literature as far
-as the triage could tell).  Verified numerically for `1 ≤ n ≤ 120` (Python
-`math.isqrt`, 2026-10-21).  This module proves it for all `n > 0`.
-
-## Proof
-
-Put `X = 4^n`, `t = 1/X^2 = 16^(-n)`, and let `P_n(t) = ∑_{j ≤ n} C(n+1/2, j) t^j`
-be the Taylor polynomial of `(1+t)^(n+1/2)`.  By induction on `n` with
-`d/dt (1+t)^(n+3/2) = (n+3/2)(1+t)^(n+1/2)` one gets, for `t ≥ 0`,
-`0 ≤ (1+t)^(n+1/2) - P_n(t) ≤ C(n+1/2, n+1) t^(n+1)` (`taylor_bound`).
-Multiplying by `X^(2n+1)`: `G = sqrt((16^n+1)^(2n+1))` and
-`N = X^(2n+1) P_n(t)` satisfy `N ≤ G ≤ N + C(n+1/2,n+1)/X < N + 1`.  Since
-`4^j C(n+1/2, j)` is a natural number (`c_integral`), `N` is the natural number
-`∑_{j ≤ n} 4^j C(n+1/2,j) (4·16^n)^(n-j)`, so `floor G = N`; every term with
-`j < n` is divisible by `16^n`, and the `j = n` term is `4^n C(n+1/2,n) = a(n) < 16^n`.
+A Taylor bound for `(1+t)^(n+1/2)` at `t = 16^(-n)` places the square root
+between an integer `N` and `N+1`. All but the final term of `N` are divisible
+by `16^n`, and the final term is the required factorial quotient.
 -/
 import Mathlib
 
@@ -417,7 +397,7 @@ theorem floor_sqrt_mod (n : ℕ) (hn : 0 < n) :
   obtain ⟨q, hq⟩ := hdvd
   rw [hq, Nat.mul_add_mod, Nat.mod_eq_of_lt (a_lt_sixteen_pow hn)]
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- The statement at `n = 1`: `Nat.sqrt (17^3) = 70` and `70 % 16 = 6 = a 1`.
 example : Nat.sqrt ((16 ^ 1 + 1) ^ (2 * 1 + 1)) = 70 :=
@@ -429,7 +409,7 @@ example : Nat.sqrt ((16 ^ 1 + 1) ^ (2 * 1 + 1)) % 16 ^ 1 = a 1 := floor_sqrt_mod
 example : Nat.sqrt ((16 ^ 0 + 1) ^ (2 * 0 + 1)) % 16 ^ 0 ≠ a 0 := by
   rw [pow_zero, Nat.mod_one]; decide
 
--- Ground truth for the coefficients: `C(3/2, 1) = 3/2`, `C(3/2, 2) = 3/8`.
+-- The coefficients: `C(3/2, 1) = 3/2`, `C(3/2, 2) = 3/8`.
 example : c 1 1 = 3 / 2 := by rw [c_succ_right, c_zero_right]; norm_num
 example : c 1 2 = 3 / 8 := by rw [c_succ_right, c_succ_right, c_zero_right]; norm_num
 

@@ -1,50 +1,14 @@
 /-
-# A087726 — Branman: `a(n) = n^2` exactly for squarefree `n`
+Square-zero matrices over ZMod n (OEIS A087726; Ben Branman, Mar 22 2013).
 
-## OEIS source (pulled with `oeis show A087726`, 2026-10-21)
-
-```
-NAME:     Number of elements X in the matrix ring M_2(Z_n) such that
-          X^2 == 0 mod n.
-TERMS:    1,4,9,28,25,36,49,112,153,100,121,252,169,196,225,640,289,612,361,
-          700,441,484,529,1008,1225,676,1377,1372,841,900,961,2560,...
-COMMENT (the conjecture):
-  Conjecture: a(n)=n^2 if and only if n is squarefree.
-  [_Ben Branman_, Mar 22 2013]
-COMMENT:
-  Preceding conjecture is true in the case where n is squarefree.
-  - _Eric M. Schmidt_, Mar 23 2013
-COMMENT:
-  It appears that a(p^k) = (1+3*p^2 + 2*k*(p^2-1) + (-1)^k*(p^2-1))*p^(2*k-2)/4
-  for primes p.  Since the sequence is multiplicative, this would imply the
-  conjecture. - _Robert Israel_, Jun 10 2015
-COMMENT:
-  A proof of the formula for k=1 can be done easily (see pdf).
-  - _Manfred Scheucher_, Jun 10 2015
-```
-
-## Status
-
-Triage status: open.  The entry records the squarefree direction as true
-(Schmidt) but gives no proof of the converse; Israel's prime-power formula,
-which would imply it, is marked "it appears".  The triage's single web search
-found no literature count of square-zero `2 × 2` matrices over `ℤ/p^kℤ`.
-Brute force (C, `/tmp/claude/a087726/a.c`) confirms the equivalence for all
-`n ≤ 220`.
-
-## Proof outline (proved below, no CRT, no multiplicativity)
-
-1. A trace-zero matrix `!![a, b; c, -a]` squares to `(a^2 + bc) • 1`, so the
-   triples `a^2 + bc = 0` inject into the solutions: `N(n) ≤ a(n)`.
-2. Fibre count: `N(n) = ∑_a ∑_b F_b(-a^2)` with `F_b(r) = #{c | bc = r}`,
-   while `n^2 = ∑_a ∑_b F_b(a)`.  Fibres of `c ↦ bc` over its range are
-   translates, so `F_b(a) ≤ F_b(-a^2)` pointwise, strictly when `a ∉ bR` but
-   `-a^2 ∈ bR`.  If `p^2 ∣ n` the pair `a = p`, `b = p^2` is strict, so
-   `n^2 < N(n) ≤ a(n)`.
-3. For squarefree `n`, `ZMod n` is reduced; a square-zero `2 × 2` matrix over a
-   reduced ring has trace zero (`(tr X)^3 = 0`), so `a(n) = N(n)`; and a finite
-   reduced ring is von Neumann regular, so `-a^2 ∈ bR → a ∈ bR`, making every
-   fibre comparison an equality and `N(n) = n^2`.
+For nonzero n, the number of 2×2 matrices X with X²=0 is n² iff n is squarefree;
+for nonsquarefree n it is strictly larger.
+Trace-zero matrices !![a,b;c,-a] give a parameter count. A prime square dividing n
+makes a fiber inequality strict; for squarefree n the ring is reduced and all
+comparisons are equalities.
+The squarefree direction is recorded by Eric M. Schmidt (Mar 23 2013);
+the entry also gives Robert Israel's prime-power formula (Jun 10 2015)
+and Manfred Scheucher's proof reference for its k=1 case (Jun 10 2015).
 -/
 import Mathlib
 
@@ -62,7 +26,7 @@ open Finset
 def a087726 (n : ℕ) [NeZero n] : ℕ :=
   Fintype.card {X : Matrix (Fin 2) (Fin 2) (ZMod n) // X ^ 2 = 0}
 
--- Ground truth against the OEIS DATA line `1, 4, 9, 28, 25, 36, ...`.
+-- Examples against the OEIS DATA line `1, 4, 9, 28, 25, 36, ...`.
 example : a087726 1 = 1 := by decide
 example : a087726 2 = 4 := by decide
 example : a087726 3 = 9 := by decide
@@ -303,14 +267,7 @@ theorem le_tripleCount {n : ℕ} [NeZero n] [IsReduced (ZMod n)] : a087726 n ≤
 
 /-! ## The conjecture -/
 
-/-- **Branman's conjecture (A087726, Ben Branman, Mar 22 2013), proved.**
-
-Verbatim: "Conjecture: a(n)=n^2 if and only if n is squarefree."
-
-Here `a087726 n` is the number of `X ∈ M_2(ℤ/nℤ)` with `X ^ 2 = 0`, for every
-`n ≥ 1` (the entry's offset).  The squarefree direction is the one Schmidt
-records as true; the converse (non-squarefree `n` gives `a(n) > n^2`) is the
-part the entry leaves open.  Both directions are proved here. -/
+/-- For nonzero `n`, the square-zero matrix count is `n²` iff `n` is squarefree. -/
 theorem a087726_eq_sq_iff_squarefree (n : ℕ) [NeZero n] :
     a087726 n = n ^ 2 ↔ Squarefree n := by
   constructor

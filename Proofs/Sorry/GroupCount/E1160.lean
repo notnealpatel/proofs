@@ -29,9 +29,9 @@
   14, …).
 -/
 import Mathlib
-import GroupCount.SmallCases
-import GroupCount.OrderEightBound
-import GroupCount.OrderEightClassification
+import Sorry.GroupCount.SmallCases
+import Sorry.GroupCount.OrderEightBound
+import Sorry.GroupCount.OrderEightClassification
 
 set_option autoImplicit false
 

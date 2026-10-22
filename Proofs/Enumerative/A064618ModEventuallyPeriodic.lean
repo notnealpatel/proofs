@@ -1,36 +1,12 @@
 /-
-# A064618 — Bala: the Stirling transform of `(n!)^2` is eventually periodic mod `k`
+Eventual periodicity of OEIS A064618 (Peter Bala, Jan 15 2018).
 
-## OEIS source (retrieved with `oeis show A064618`, 2026-10-21)
-
-```
-NAME:     Stirling transform of (n!)^2.
-TERMS:    1,1,5,49,821,21121,775205,38516689,2490976661,203419086241,...
-FORMULA:  a(n) = Sum_{k=0..n} Stirling2(n, k)*(k!)^2.
-COMMENT (the conjecture):
-  Conjecture: for fixed k = 1,2,..., the sequence a(n) (mod k) is eventually
-  periodic with the exact period dividing phi(k), where phi(k) is the Euler
-  totient function A000010. For example, modulo 10 the sequence becomes
-  (1, 1, 5, 9, 1, 1, 5, 9, ...), with an apparent period 1, 1, 5, 9 of length
-  4 = phi(10) beginning at a(0). - _Peter Bala_, Jan 15 2018
-```
-
-## Status
-
-Triage: "proved-elsewhere".  The entry itself carries no proof.  The
-statement is an instance of the folklore argument for Stirling transforms
-`∑ S(n,j) b(j)` with `k ∣ b(j)` for all large `j`: modulo `k` only finitely
-many `j` contribute, `j! S(n,j) = ∑ (-1)^(j-i) C(j,i) i^n`, and
-`i^(n + φ(k)) ≡ i^n (mod k)` once `n` is at least the largest exponent in
-`k`.  This file formalizes exactly that argument.
-
-## Reading of "exact period dividing φ(k)"
-
-The minimal eventual period of a sequence divides every eventual period, so
-"the exact (minimal) period divides `φ(k)`" is equivalent to "`φ(k)` is an
-eventual period", which is what `conjecture` states.  The threshold proved
-here is `n ≥ k` (the entry's mod-10 example starts at `a(0)`, which is a
-stronger, `k`-specific observation not claimed in general).
+For a(n)=∑_{j=0}^n S(n,j)(j!)² and positive k,
+ a(n+φ(k)) ≡ a(n) (mod k) for n ≥ k.
+A separate theorem proves that any least positive eventual period divides φ(k).
+The least period is not defined or constructed here. The uniform threshold k
+does not assert the entry's stronger modulus-specific starting indices.
+The proof truncates the factorial tail and uses a finite power-sum expansion.
 -/
 import Mathlib
 
@@ -65,7 +41,7 @@ def surjSum (n j : ℕ) : ℤ :=
 `F(n+1, j+1) = (j+1) (F(n, j+1) + F(n, j))`, where `F = surjSum`. -/
 theorem surjSum_succ_succ (n j : ℕ) :
     surjSum (n + 1) (j + 1) = ((j : ℤ) + 1) * (surjSum n (j + 1) + surjSum n j) := by
-  -- the common shifted sum `G = ∑_{i ≤ j} (-1)^(j+i) C(j,i) (i+1)^n`
+  -- The common shifted sum `G = ∑_{i ≤ j} (-1)^(j+i) C(j,i) (i+1)^n`
   set G : ℤ := ∑ i ∈ range (j + 1), (-1) ^ (j + i) * (j.choose i : ℤ) * ((i : ℤ) + 1) ^ n
     with hG
   have hsign (i : ℕ) : ((-1 : ℤ)) ^ (j + 1 + (i + 1)) = (-1) ^ (j + i) := by
@@ -213,16 +189,9 @@ theorem a_add_mul_modEq_of_period (k P N : ℕ)
     rw [Nat.succ_mul, ← add_assoc]
     exact (hPer (n + q * P) (by omega)).trans ih
 
-/-- **Bala's conjecture (A064618, Peter Bala, Jan 15 2018).**
-
-Verbatim: "Conjecture: for fixed k = 1,2,..., the sequence a(n) (mod k) is eventually
-periodic with the exact period dividing phi(k), where phi(k) is the Euler totient
-function A000010."
-
-Stated as: for every `k ≥ 1` there is `N` such that `a(n + φ(k)) ≡ a(n) (mod k)` for all
-`n ≥ N` (one may take `N = k`).  Since the minimal eventual period divides every eventual
-period, this is equivalent to the "exact period divides `φ(k)`" reading; that
-equivalence direction is `dvd_totient_of_minimal_eventual_period`. -/
+/-- For every positive modulus `k`, `φ(k)` is an eventual period of A064618,
+with threshold `k` (Peter Bala, Jan 15 2018). The minimal-period divisibility
+consequence is `dvd_totient_of_minimal_eventual_period`. -/
 theorem conjecture (k : ℕ) (hk : 0 < k) :
     ∃ N, ∀ n, N ≤ n → a (n + Nat.totient k) ≡ a n [MOD k] :=
   ⟨k, fun n hn => a_add_totient_modEq_of_le k n hk hn⟩
@@ -245,13 +214,13 @@ theorem dvd_totient_of_minimal_eventual_period (k : ℕ) (hk : 0 < k) (P : ℕ) 
   rw [hsplit] at h1
   exact h1.symm.trans (a_add_totient_modEq_of_le k n hk (by omega))
 
-/-- Non-vacuity of the hypotheses of `dvd_totient_of_minimal_eventual_period`: at `k = 1`,
+/-- Example for the hypotheses of `dvd_totient_of_minimal_eventual_period`: at `k = 1`,
 `P = 1` they hold jointly (every sequence is constant mod `1`). -/
 example : 1 ∣ Nat.totient 1 :=
   dvd_totient_of_minimal_eventual_period 1 one_pos 1 one_pos
     ⟨0, fun n _ => Nat.modEq_one⟩ (fun p hp hp1 => absurd hp1 (by omega))
 
-/-- Ground truth for the entry's mod-10 example `1, 1, 5, 9, 1, 1, 5, 9, ...`. -/
+/-- Examples for the entry's mod-10 example `1, 1, 5, 9, 1, 1, 5, 9, ...`. -/
 example : (List.range 8).map (fun n => a n % 10) = [1, 1, 5, 9, 1, 1, 5, 9] := by decide
 
 end Candidates.A064618ModEventuallyPeriodic

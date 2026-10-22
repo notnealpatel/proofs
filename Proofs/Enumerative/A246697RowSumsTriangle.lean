@@ -1,42 +1,11 @@
 /-
-# A246697 — Etienne: closed form for the row sums of triangle A246696
+# Row sums of A246696 (A246697)
 
-## OEIS source (retrieved with `oeis show A246697` / `oeis show A246696`, 2026-10-21)
-
-```
-A246697 NAME: Row sums of the triangular array A246696.
-TERMS:    1,5,16,34,67,111,178,260,373,505,676,870,1111,1379,1702,2056,...
-KEYWORDS: nonn,easy
-FORMULA (the conjecture):
-  Conjecture: a(n) = (2*n^3+6*n^2+9*n+4+n*(-1)^n)/4. - _Luce ETIENNE_, Oct 16 2016
-FORMULA (equivalent conjectured recurrence, same entry):
-  Conjectured linear recurrence: a(n) = 2*a(n-1) + a(n-2) - 4*a(n-3) + a(n-4)
-  + 2*a(n-5) - a(n-6), with a(0) = 1, a(1) = 5, a(2) = 16, a(3) = 34,
-  a(4) = 67, a(5) = 111, a(6) = 178.
-
-A246696 NAME: Triangle t(n,k) = t(n,k-2) + 2 if n > 1 and 2 <= k <= n;
-  t(0,0) = 1, t(1,0) = 2, t(1,1) = 3; if n > 1 is odd, then
-  t(n,0) = t(n-1,n-2) + 2 and t(n,1) = t(n-1,n-1) + 2; if n > 1 is even,
-  then t(n,0) = t(n-1,n-1) + 2 and t(n,1) = t(n-1,n-2) + 2.
-TERMS:    1,2,3,5,4,7,6,9,8,11,13,10,15,12,17,...
-```
-
-## Status
-
-Triage: open (marked "Conjecture" in the entry; no proof in the entry or the
-literature found by the triage).  Computational re-validation (Python, from
-the recursive definition): the closed form holds for every `n < 600`.
-
-This module proves the closed form and the order-6 recurrence outright.
-
-## Proof outline
-
-1. Within a row `n ≥ 2`, `t(n,k) = t(n, k mod 2) + 2 * (k / 2)` (`t_row`).
-2. By induction on `m`, the two row heads have closed forms
-   `t(2m+1,0) = 2m²+2m+2`, `t(2m+1,1) = 2m²+4m+3`,
-   `t(2m+2,0) = 2(m+1)²+2(m+1)+1`, `t(2m+2,1) = 2(m+1)²+2` (`t_closed`).
-3. Summing the two interleaved arithmetic progressions (`sum_pairs`) gives
-   `4 a(n) = 2n³+6n²+9n+4+n(-1)^n` (`four_mul_a`).
+Source: Luce Etienne's OEIS A246697 formula (Oct 16 2016) and the entry's
+order-6 recurrence. For every `n ≥ 0`, the row sum of the recursively
+defined triangle A246696 is `(2n³+6n²+9n+4+n(-1)^n)/4` in `ℚ`.
+The recurrence with signature `(2,1,-4,1,2,-1)` follows over `ℤ`.
+The proof sums the two interleaved arithmetic progressions in each row.
 -/
 import Mathlib
 
@@ -44,7 +13,7 @@ set_option autoImplicit false
 
 namespace Candidates.A246697RowSumsTriangle
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The triangle A246696, transcribed from the entry's recursive definition:
 `t(0,0) = 1`, `t(1,0) = 2`, `t(1,1) = 3`; for `n > 1`, the row heads
@@ -64,14 +33,14 @@ termination_by n k => (n, k)
 /-- A246697: the row sums `a(n) = ∑_{k=0}^{n} t(n,k)` of the triangle A246696. -/
 def a (n : ℕ) : ℕ := ∑ k ∈ Finset.range (n + 1), t n k
 
--- Ground truth: rows 0..4 of A246696 against the DATA line
+-- Rows 0..4 of A246696 against the DATA line
 -- `1; 2,3; 5,4,7; 6,9,8,11; 13,10,15,12,17`.
 example : [t 0 0, t 1 0, t 1 1, t 2 0, t 2 1, t 2 2, t 3 0, t 3 1, t 3 2, t 3 3,
     t 4 0, t 4 1, t 4 2, t 4 3, t 4 4] =
     [1, 2, 3, 5, 4, 7, 6, 9, 8, 11, 13, 10, 15, 12, 17] := by
   simp [t, Nat.odd_iff]
 
--- Ground truth: the first seven terms of A246697 against its DATA line.
+-- The first seven terms of A246697 against its DATA line.
 example : [a 0, a 1, a 2, a 3, a 4, a 5, a 6] = [1, 5, 16, 34, 67, 111, 178] := by
   simp [a, Finset.sum_range_succ, t, Nat.odd_iff]
 
@@ -220,13 +189,8 @@ theorem four_mul_a (n : ℕ) :
       push_cast
       linear_combination 4 * hrow + 4 * hs
 
-/-- **Etienne's conjecture (A246697, Luce Etienne, Oct 16 2016).**
-
-Verbatim: "Conjecture: a(n) = (2*n^3+6*n^2+9*n+4+n*(-1)^n)/4."
-
-Stated over `ℚ` so that the division by `4` is exact field division (no
-truncation): for every `n ≥ 0`, the row sum of A246696 equals
-`(2n³ + 6n² + 9n + 4 + n(-1)^n) / 4`. -/
+/-- Etienne's formula for the row sums of A246696, with division by 4 in
+`ℚ`, not truncated natural division. -/
 theorem a246697_closed_form (n : ℕ) :
     (a n : ℚ) = (2 * n ^ 3 + 6 * n ^ 2 + 9 * n + 4 + n * (-1) ^ n) / 4 := by
   have hz := four_mul_a n
@@ -234,12 +198,8 @@ theorem a246697_closed_form (n : ℕ) :
     exact_mod_cast hz
   linear_combination hq / 4
 
-/-- **The conjectured recurrence of A246697 (same entry).**
-
-Verbatim: "Conjectured linear recurrence: a(n) = 2*a(n-1) + a(n-2) - 4*a(n-3) +
-a(n-4) + 2*a(n-5) - a(n-6)", i.e. signature `(2,1,-4,1,2,-1)`, stated over `ℤ`
-with the index shifted so that no natural-number subtraction occurs.  The listed
-initial values are the ground-truth example above. -/
+/-- The A246697 recurrence with signature `(2,1,-4,1,2,-1)`, stated in `ℤ`
+and shifted to avoid natural index subtraction. -/
 theorem a246697_recurrence (n : ℕ) :
     (a (n + 6) : ℤ) = 2 * a (n + 5) + a (n + 4) - 4 * a (n + 3) + a (n + 2)
       + 2 * a (n + 1) - a n := by

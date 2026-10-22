@@ -1,38 +1,12 @@
 /-
-# A173693 — Mathar: order-36 linear recurrence for ceiling(A107293(n)/2)
+# A ceiling recurrence for A173693
 
-## OEIS source (retrieved with `oeis show A173693`, 2026-10-21)
-
-```
-NAME:     a(n) = ceiling(A107293(n)/2).
-TERMS:    0,0,0,0,1,1,1,1,2,2,3,5,7,10,14,20,28,41,59,85,122,176,254,367,529,
-          764,1102,1591,2296,3313,4782,6901,9960,14375,20747,29944,43217,62373,
-          90021,129925,187516,270636,390601,563742,813631,1174288,1694813,2446070
-FORMULA:  a(n) = A107293(n) - floor(A107293(n)/2) = ceiling(A107293(n)/2).
-FORMULA (the conjecture):
-  Conjecture: a(n) = a(n-1) + a(n-2) - a(n-3) + a(n-5) + a(n-31) - a(n-32)
-  - a(n-33) + a(n-34) - a(n-36). - _R. J. Mathar_, Feb 18 2016
-PROGRAM (Maple, R. J. Mathar, Feb 18 2016):
-  A107293(n) = [0,0,0,0,1][n+1] for n <= 4, else
-  A107293(n-1) + A107293(n-2) - A107293(n-3) + A107293(n-5).
-```
-
-A107293 (retrieved 2026-10-21) begins
-0,0,0,0,1,1,2,2,3,4,6,9,13,19,27,39,56,81,117,169,244,...
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  This file proves it (kernel-checked, no `sorry`).
-
-## Argument
-
-Write `p(n) = A107293(n) mod 2`, so `2 a(n) = A107293(n) + p(n)`.  The
-characteristic polynomial of the claimed recurrence is
-`(x^5 - x^4 - x^3 + x^2 - 1)(x^31 - 1)`.  The first factor annihilates
-`A107293`; the second annihilates `p`, which is `31`-periodic because the
-5-term state of `A107293 mod 2` returns after `31` steps (checked on the
-initial window, then propagated by the recurrence).
+Source: R. J. Mathar's OEIS A173693 formula and A107293 program (Feb 18 2016).
+The sequence `ceil(A107293(n)/2)` satisfies the stated order-36 recurrence
+for `n ≥ 36`. Twice the ceiling is `A107293(n)` plus its parity indicator;
+the latter is 31-periodic by the five-term state recurrence modulo 2.
+The claimed characteristic polynomial factors as
+`(x^5-x^4-x^3+x²-1)(x^31-1)`.
 -/
 import Mathlib
 
@@ -53,14 +27,14 @@ def b : ℕ → ℤ
 /-- `A173693`: `a(n) = ceiling(A107293(n)/2)`, with the division taken in `ℚ`. -/
 def a (n : ℕ) : ℤ := ⌈(b n : ℚ) / 2⌉
 
-/-- Ground truth: the first 46 listed terms of A107293. -/
+/-- The first 46 listed terms of A107293. -/
 example : (List.range 46).map b = [0, 0, 0, 0, 1, 1, 2, 2, 3, 4, 6, 9, 13, 19, 27, 39, 56,
     81, 117, 169, 244, 352, 508, 733, 1058, 1527, 2204, 3181, 4591, 6626, 9563, 13802, 19920,
     28750, 41494, 59887, 86433, 124746, 180042, 259849, 375032, 541272, 781201, 1127483,
     1627261, 2348575] := by
   decide +kernel
 
-/-- Ground truth: all 48 listed terms of A173693. -/
+/-- All 48 listed terms of A173693. -/
 example : (List.range 48).map a = [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 5, 7, 10, 14, 20, 28,
     41, 59, 85, 122, 176, 254, 367, 529, 764, 1102, 1591, 2296, 3313, 4782, 6901, 9960, 14375,
     20747, 29944, 43217, 62373, 90021, 129925, 187516, 270636, 390601, 563742, 813631, 1174288,
@@ -131,14 +105,8 @@ theorem a_add_thirtySix (n : ℕ) :
   have e0 := two_mul_a n
   linarith
 
-/-- **Mathar's conjecture (A173693, R. J. Mathar, Feb 18 2016).**
-
-Verbatim: "Conjecture: a(n) = a(n-1) + a(n-2) - a(n-3) + a(n-5) + a(n-31)
-- a(n-32) - a(n-33) + a(n-34) - a(n-36)."
-
-Here `a(n) = ceiling(A107293(n)/2)` and the recurrence is claimed for every
-`n ≥ 36`; the guard `36 ≤ n` keeps every natural-number index subtraction
-exact. -/
+/-- Mathar's order-36 recurrence for `ceil(A107293(n)/2)`.
+The guard `36 ≤ n` makes every natural index subtraction exact. -/
 theorem mathar_conjecture (n : ℕ) (hn : 36 ≤ n) :
     a n = a (n - 1) + a (n - 2) - a (n - 3) + a (n - 5) + a (n - 31) - a (n - 32)
       - a (n - 33) + a (n - 34) - a (n - 36) := by

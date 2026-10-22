@@ -1,29 +1,10 @@
 /-
 # A373725 — 4p² − 1 is a term when p ≠ 3 and 2p − 1 are prime
 
-## OEIS source (retrieved with `oeis show A373725`, 2026-10-21)
-
-```
-NAME:     Numbers k such that A011776(k) = A011776(k+1).
-TERMS:    1,2,3,4,8,9,15,27,63,195,728,1443,3843,5475,6174,11913,13376,24963,...
-AUTHOR:   Amiram Eldar, Jun 15 2024
-COMMENT (the conjecture, unsigned; entry author Amiram Eldar, Jun 15 2024):
-  Conjecture: if p != 3 is a prime such that 2*p-1 is also a prime (p is in
-  A005382 \ {3}), then 4*p^2 - 1 is a term of this sequence.
-```
-
-A011776 (`oeis show A011776`): "a(1) = 1; for n > 1, a(n) is defined by the
-property that n^a(n) divides n! but n^(a(n)+1) does not."
-TERMS: 1,1,1,1,1,2,1,2,2,2,1,5,1,2,3,3,1,4,1,4,...
-
-## Status
-
-Triage: open (no proof in the entry or the literature found).  Computation:
-the claim holds for all 448 primes `p < 30000`, `p ≠ 3`, with `2p − 1` prime
-(exact Legendre computation, 2026-10-21); for `p ≥ 5` the common value is
-`2p + 2`.  This file proves the conjecture in full.
-
-## Proof outline
+OEIS A373725, Amiram Eldar: if `p ≠ 3` and `2p-1` are prime, then
+`4p²-1` and `4p²` have the same maximal factorial-divisibility exponent
+(A011776). A011776 sets `a(1) = 1`; for `n > 1` it is the largest
+`e` with `n^e ∣ n!`.
 
 `p = 2` gives `k = 15`, checked by `decide`.  For `p ≥ 5` put `q = 2p − 1`
 (prime) and `m = q + 2 = 2p + 1`, so `4p² − 1 = q·m` and `3 ∣ m`.
@@ -56,7 +37,7 @@ def IsA373725 (k : ℕ) : Prop := 0 < k ∧ A011776 k = A011776 (k + 1)
 
 instance : DecidablePred IsA373725 := fun _ => instDecidableAnd
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : (List.range 20).map (fun i => A011776 (i + 1)) =
     [1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 1, 5, 1, 2, 3, 3, 1, 4, 1, 4] := by decide
@@ -64,7 +45,7 @@ example : (List.range 20).map (fun i => A011776 (i + 1)) =
 example : (List.range 64).filter (fun k => decide (IsA373725 k)) =
     [1, 2, 3, 4, 8, 9, 15, 27, 63] := by decide
 
-/-- Fidelity bridge: for `2 ≤ n`, `n ^ e ∣ n!` holds exactly for `e ≤ A011776 n`,
+/-- Bridge: for `2 ≤ n`, `n ^ e ∣ n!` holds exactly for `e ≤ A011776 n`,
 so `A011776 n` is the maximal exponent of the OEIS definition. -/
 theorem pow_dvd_factorial_iff_le_A011776 {n : ℕ} (hn : 2 ≤ n) (e : ℕ) :
     n ^ e ∣ n.factorial ↔ e ≤ A011776 n := by
@@ -213,10 +194,7 @@ theorem A011776_mul_add_two {q : ℕ} (hq : q.Prime) (h9 : 9 ≤ q) (h3 : 3 ∣ 
 
 /-! ## The conjecture -/
 
-/-- **Eldar's conjecture (A373725, entry by Amiram Eldar, Jun 15 2024).**
-
-Verbatim: "Conjecture: if p != 3 is a prime such that 2*p-1 is also a prime
-(p is in A005382 \ {3}), then 4*p^2 - 1 is a term of this sequence."
+/-- **Eldar's conjecture (A373725, entry by Amiram Eldar, 2024).**
 
 Equality form: for every prime `p ≠ 3` with `2p − 1` prime,
 `A011776 (4p² − 1) = A011776 (4p²)`.  The natural subtractions are harmless:

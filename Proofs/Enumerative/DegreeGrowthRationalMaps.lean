@@ -1,43 +1,15 @@
 /-
-# Degree growth of rational maps with Laurent property: the three-term
-# Gale-Robinson tropical growth conjecture (reduction lemma and new instances)
+# Degree growth of three-term Gale-Robinson recurrences
 
-## Source
-
-arXiv 2610.21627, Melih Emin Can, "Degree Growth of Rational Maps with
-Laurent Property" (retrieved 2026-10-21).  Section 3, Conjecture 1
-(label `conj`), with Theorem 2 (label `thm on 3order growth rate of GR`)
-proving the family `(p, q, r) = (1, 2, r)`, `r ≥ 3`.
-
-Verbatim setup and claim:
-
-> Let $\{k_n\}_{n\geq 1}$ be the sequence of integers such that
-> $$k_1=\ldots=k_{m-1}=0 \text{ and } k_m=1$$ and given by the following
-> recurrence
-> $$k_{n+m}=\max(k_{n+p}+k_{n+m-p},k_{n+q}+k_{n+m-q},k_{n+r}+k_{n+m-r})-k_n$$
-> where $1\leq p < q < r$ and $m=p+q+r$. We call this $\{k_n\}_{n\geq 1}$
-> growth rate sequence of three-term Gale--Robinson.
->
-> Conjecture. If $\gcd(p,q,r)=1$ then $$k_n=\dfrac{n^2+c_n}{2N}$$ for all
-> $n\geq1$ where $\{c_n\}_{n\geq 1}$ is a periodic sequence with period
-> $$N=\gcd(p,q)r^2+\gcd(p,r)q^2+\gcd(q,r)p^2+pqr.$$
-
-## Status
-
-The conjecture is open in general (2026-10-21); the paper proves only the
-family `(1, 2, r)`.  This module proves:
-
-* `grConjecture_iff_window` (reduction lemma, for every triple of positive
-  integers, coprime or not): the conjecture for `(p, q, r)` is equivalent to
-  the finite window check `2 (k_{n+N} - k_n) = 2n + N` for `1 ≤ n ≤ m`.
-  The paper uses the same shift-plus-arithmetic-progression argument inside
-  its proof for `(1, 2, r)`; the general reduction is not stated there.
-* `grConjecture_*` instances for every triple with `gcd(p, q, r) = 1` and
-  `r ≤ 6`; all those outside the `(1, 2, r)` family are new.
-* `not_grConjecture_2_4_6`: the gcd hypothesis cannot be dropped.
-
-Computational evidence (Python, outside Lean): the window check holds for all
-8410 coprime triples with `r ≤ 40`.
+Melih Emin Can, "Degree Growth of Rational Maps with Laurent Property",
+arXiv:2610.21627, Section 3, Conjecture 1 and Theorem 2.
+For the specified initial-value tropical recurrence, the periodic quadratic
+correction conjecture is equivalent to `m = p+q+r` shift identities
+`2(k_(n+N)-k_n) = 2n+N` for `1 ≤ n ≤ m`.
+This reduction holds for all positive triples. Finite certificates prove
+every ordered coprime triple with `1 ≤ p < q < r ≤ 6`; `(2,4,6)` shows that
+the gcd condition cannot simply be omitted. The general conjecture is not
+proved here. The source's theorem covers the family `(1,2,r)`, `r ≥ 3`.
 -/
 import Mathlib.Data.List.GetD
 import Mathlib.Data.Rat.Cast.Order
@@ -221,12 +193,12 @@ def windowCheck (p q r N : ℕ) : Bool :=
   (List.range' 1 (p + q + r)).all fun n =>
     2 * (t.getD (n + N) 0 - t.getD n 0) == 2 * (n : ℤ) + N
 
-/-! ### Ground truth -/
+/-! ### Examples -/
 
 -- Somos-6, `(p, q, r) = (1, 2, 3)`: `k_0, …, k_19` (`k_0 = 0` is padding).
 example : (List.range 20).map (grK 1 2 3) =
     [0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 7, 8, 9] := by decide
--- `(1, 3, 4)`, matching an independent Python evaluation.
+-- The triple `(1, 3, 4)`.
 example : (List.range 20).map (grK 1 3 4) =
     [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 5] := by decide
 -- The paper's periods for Somos-6 and Somos-7 (`N = 20, 30`).

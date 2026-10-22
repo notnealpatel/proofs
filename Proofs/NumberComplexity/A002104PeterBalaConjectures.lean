@@ -1,32 +1,9 @@
 /-
 # A002104 — Peter Bala's prime-power congruences for the logarithmic numbers
 
-## OEIS source (retrieved with `oeis show A002104`, 2026-10-21)
-
-```
-NAME:     Logarithmic numbers.
-TERMS:    0,1,3,8,24,89,415,2372,16072,125673,1112083,10976184,...
-FORMULA:  E.g.f.: -log(1 - x) * exp(x).
-FORMULA:  a(n) = Sum_{k=1..n} n(n-1)...(n-k+1)/k
-FORMULA:  a(n+1) - a(n) = A000522(n).
-FORMULA (the conjectures):
-  From _Peter Bala_, Sep 12 2022: (Start)
-  For n, m >= 0, a(n) - a(n + m) == ( a(1) - a(m) ) (mod m). ...
-  Conjectures:
-  1) for n, m >= 0, k >= 2, a(n + m*2^k) - a(n) is divisible by 2^k.
-  2) for n >= 0, a(n + m*p^k) - a(n) + m*p^(k-1) is divisible by p^k for all
-  positive integers m and k, and for all odd primes p. The particular case
-  n = m = k = 1 is stated in the Comments section by Adamchuk. (End)
-```
-
-The definition used is `a(n) = Sum_{j=1..n} C(n,j) * (j-1)!`, the binomial form of
-the entry's `Sum_{k=1..n} n(n-1)...(n-k+1)/k` (since `C(n,j) (j-1)! = n^{(j)}/j`);
-it is checked against the first ten DATA terms below.
-
-## Status
-
-Triage: open (no proof in the entry; no source for the prime-power statements was
-found, which does not establish novelty).  Both conjectures are proved below.
+Peter Bala's prime-power congruences for the logarithmic numbers, OEIS
+A002104 (2022). We use `a(n) = Σ_{j=1..n} C(n,j)(j-1)!`, the binomial form
+of the entry's falling-factorial sum, with e.g.f. `-log(1-x) exp(x)`.
 
 ## Proof outline
 
@@ -322,8 +299,8 @@ theorem dvd_a_add_sub (n M : ℕ) : (M : ℤ) ∣ (a (n + M) : ℤ) - (a n + a M
   push_cast at h
   exact h
 
-/-- **Bala's conjecture (1), A002104 (Peter Bala, Sep 12 2022).**
-Verbatim: "for n, m >= 0, k >= 2, a(n + m*2^k) - a(n) is divisible by 2^k."
+/-- **Bala's conjecture (1), A002104 (Peter Bala, 2022).**
+"for n, m >= 0, k >= 2, a(n + m*2^k) - a(n) is divisible by 2^k."
 Stated in `ℤ` with the difference taken after casting. -/
 theorem bala_conjecture_one (n m k : ℕ) (hk : 2 ≤ k) :
     (2 : ℤ) ^ k ∣ (a (n + m * 2 ^ k) : ℤ) - a n := by
@@ -335,8 +312,8 @@ theorem bala_conjecture_one (n m k : ℕ) (hk : 2 ≤ k) :
   rw [hsplit]
   exact dvd_add h2 (hM.trans h1)
 
-/-- **Bala's conjecture (2), A002104 (Peter Bala, Sep 12 2022).**
-Verbatim: "for n >= 0, a(n + m*p^k) - a(n) + m*p^(k-1) is divisible by p^k for all
+/-- **Bala's conjecture (2), A002104 (Peter Bala, 2022).**
+"for n >= 0, a(n + m*p^k) - a(n) + m*p^(k-1) is divisible by p^k for all
 positive integers m and k, and for all odd primes p."
 Stated in `ℤ`; `k - 1` is guarded by `0 < k`.  The entry quantifies over positive `m`;
 the statement is proved for every `m : ℕ`, the case `m = 0` being the trivial
@@ -353,7 +330,7 @@ theorem bala_conjecture_two (p n m k : ℕ) (hp : p.Prime) (hp2 : p ≠ 2) (hk :
   rw [hsplit]
   exact dvd_add h2 (hM.trans h1)
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- Non-vacuity of (2): Adamchuk's case `p = 3, n = m = k = 1`, hypotheses jointly
 -- satisfiable, and the concrete instance `3 ∣ a 4 - a 1 + 1 = 24`.

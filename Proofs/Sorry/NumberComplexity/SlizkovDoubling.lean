@@ -1,4 +1,4 @@
-import NumberComplexity.SlizkovDoubling
+import Sorry.Quarantine.NumberComplexity.SlizkovDoubling
 
 /-!
 # Archived open admission: slizkov_doubling_gap

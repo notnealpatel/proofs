@@ -1,32 +1,12 @@
 /-
 # A295464 — Bala: the half-index Gamma ratio `a(n/2)` is an integer
 
-## OEIS source (retrieved with `oeis show A295464`, 2026-10-21)
+OEIS A295464, Peter Bala (2026): `a(n/2)` is an integer for every natural
+`n`, where `a(n) = (30n)!(5n)!(3n)! / ((15n)!(10n)!(7n)!(6n)!)` and
+`x! = Γ(x+1)`. The entry also gives a binomial-coefficient formula by
+Chai Wah Wu (2026).
 
-```
-NAME:     a(n) = (30*n)!*(5*n)!*(3*n)!/((15*n)!*(10*n)!*(7*n)!*(6*n)!).
-TERMS:    1,11090902680,806752594470299009400,
-          67926864195319506846345904076280,...
-COMMENT (the conjecture):
-  Conjecture: for n >= 0, a(n/2) = (15*n)!*(5*n/2)!*(3*n/2)!/((15*n/2)!*
-  (5*n)!*(7*n/2)!*(3*n)!) is an integer, where fractional factorials are
-  defined using the Gamma function - for example, (5*n/2)! :=
-  Gamma(5*n/2 + 1). - _Peter Bala_, Aug 03 2026
-FORMULA:
-  a(n) = binomial(30*n,15*n)*binomial(15*n,5*n)*binomial(3*n,n)/
-  (binomial(7*n,2*n)*binomial(6*n,n)). - _Chai Wah Wu_, Feb 16 2026
-```
-
-## Literature status (triage)
-
-Open: no proof in the entry or in the literature as far as the triage could
-tell. Triage evidence: integral for `n ≤ 300`. Re-validated here for
-`n ≤ 400` (exact integer arithmetic), and the two step functions below were
-checked over a full period.
-
-## Result of this module
-
-The conjecture is proved for every `n`, with no remaining `sorry`.
+## Proof outline
 
 * Odd `n`: `Γ(k/2 + 1) = k! √π / (2^k ⌊k/2⌋!)` for odd `k`, so the ratio
   equals `2^(14n) ⌊15n/2⌋! ⌊7n/2⌋! / (⌊5n/2⌋! ⌊3n/2⌋! (7n)!)`. Landau's
@@ -309,7 +289,7 @@ theorem balaRatio_two_mul (m : ℕ) : balaRatio (2 * m) = (a295464 m : ℝ) := b
   rw [div_eq_iff (by positivity)]
   linear_combination -hmul
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : a295464 0 = 1 := by decide
 example : a295464 1 = 11090902680 := by decide
@@ -346,10 +326,8 @@ theorem bala_integrality_of_odd (n : ℕ) (hn : Odd n) : ∃ z : ℤ, balaRatio 
   ring
 
 /-- **Bala's conjecture (A295464, Peter Bala, Aug 03 2026).**
-Verbatim: "Conjecture: for n >= 0, a(n/2) = (15*n)!*(5*n/2)!*(3*n/2)!/((15*n/2)!*
-(5*n)!*(7*n/2)!*(3*n)!) is an integer, where fractional factorials are defined
-using the Gamma function - for example, (5*n/2)! := Gamma(5*n/2 + 1)."
-Here `balaRatio n` is `a(n/2)`; the triage found no proof in the literature. -/
+For every natural `n`, `balaRatio n` (the value `a(n/2)`) is an integer, with
+fractional factorials interpreted as `x! = Γ(x+1)`. -/
 theorem bala_integrality (n : ℕ) : ∃ z : ℤ, balaRatio n = z := by
   rcases Nat.even_or_odd n with ⟨m, rfl⟩ | hn
   · refine ⟨a295464 m, ?_⟩

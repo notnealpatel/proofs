@@ -1,41 +1,13 @@
 /-
 # A066488 — Eldar–Ordowski: a Fermat-type criterion modulo `M(k)^2 + M(k) + 1`
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A066488`)
+Amiram Eldar and Thomas Ordowski's conjecture in OEIS A066488 (2019).
+The terms are composite `k` dividing the Jacobsthal number `J(k-1)`, where
+`J(0)=0`, `J(1)=1`, `J(n+2)=J(n+1)+2J(n)` and `3J(n)=2^n-(-1)^n`.
+The exponent `2^M(k-1)` means `2^(2^(k-1)-1)`, not `2^(M(k)-1)`
+(the latter never satisfies the congruence for `k > 1`).
 
-```
-NAME:     Composite numbers k which divide A001045(k-1).
-TERMS:    341,1105,1387,1729,2047,2465,2701,2821,3277,4033,4369,4681,5461,
-          6601,7957,8321,8911,10261,10585,11305,13741,13747,13981,14491,...
-COMMENT:  Also composite numbers k such that (2^k - 2)/3 + 1 == 2^k - 1 == 1
-          (mod k).
-COMMENT:  An equivalent definition of this sequence: pseudoprimes to base 2
-          that are not divisible by 3. - Arkadiusz Wesolowski, Nov 15 2011
-COMMENT (the conjecture):
-  Conjecture: these are composites k such that 2^M(k-1) == -1
-  (mod M(k)^2 + M(k) + 1), where M(k) = 2^k - 1.
-  - Amiram Eldar and Thomas Ordowski, Dec 19 2019
-COMMENT:  These are composites k such that 2^(m-1) == 1 (mod (m+1)^6 - 1),
-          where m = 2^k - 1. - Thomas Ordowski, Sep 17 2023
-```
-
-`A001045` is the Jacobsthal sequence `0, 1, 1, 3, 5, 11, 21, 43, 85, …`,
-`a(n) = a(n-1) + 2 a(n-2)`, `a(n) = (2^n - (-1)^n)/3`.
-
-The exponent `2^M(k-1)` is read as `2^(M(k-1)) = 2^(2^(k-1) - 1)`; the
-other reading `2^(M(k) - 1)` never satisfies the congruence for `k > 1`.
-
-## Status
-
-Triage: open (no proof in the entry; Ordowski's 2023 comment is a
-different reformulation; no other source found by a grep of the local
-OEIS data, which is not a novelty claim).
-
-Computation (Python, 2026-10-21): the equivalence
-`k ∣ A001045(k-1) ↔ 2^(2^(k-1)-1) ≡ -1 (mod 4^k - 2^k + 1)` holds for
-every `2 ≤ k ≤ 1200`, primes included, with no mismatch.
-
-## Proof (formalized below)
+## Proof
 
 Put `B = M(k) = 2^k - 1` and `N = B^2 + B + 1`.  Modulo `N`,
 `(2^k)^2 = (B + 1)^2 = B`, so `2^(3k) = B (B + 1) = -1` and `2^(6k) = 1`.
@@ -55,7 +27,7 @@ set_option autoImplicit false
 
 namespace Candidates.A066488EldarOrdowskiDec
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The Mersenne number `M(j) = 2^j - 1` of the entry.  The natural
 subtraction is never truncated because `1 ≤ 2^j`. -/
@@ -77,7 +49,7 @@ stated in `ZMod (M(k)^2 + M(k) + 1)`. -/
 def EldarOrdowskiCongr (k : ℕ) : Prop :=
   (2 : ZMod (M k ^ 2 + M k + 1)) ^ M (k - 1) = -1
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- `A001045`: 0, 1, 1, 3, 5, 11, 21, 43, 85, 171, 341.
 example : (List.range 11).map jacobsthal = [0, 1, 1, 3, 5, 11, 21, 43, 85, 171, 341] := by
@@ -310,13 +282,9 @@ theorem dvd_jacobsthal_iff_congr {k : ℕ} (hk : 2 ≤ k) :
     k ∣ jacobsthal (k - 1) ↔ EldarOrdowskiCongr k := by
   rw [EldarOrdowskiCongr, two_pow_eq_neg_one_iff hk, M_mod_eq_iff_dvd_jacobsthal hk]
 
-/-- **Eldar–Ordowski conjecture (A066488, Amiram Eldar and Thomas Ordowski,
-Dec 19 2019).**
-
-Verbatim: "Conjecture: these are composites k such that 2^M(k-1) == -1
-(mod M(k)^2 + M(k) + 1), where M(k) = 2^k - 1."  Here "these" are the terms
-of A066488, the composite `k` dividing `A001045(k-1)`.  For composite `k`
-(`1 < k`, `¬ k.Prime`): `k ∣ A001045(k-1)` iff the congruence holds. -/
+/-- Eldar–Ordowski's conjecture (OEIS A066488, 2019): for composite `k`
+(`1 < k`, `¬ k.Prime`), `k ∣ J(k-1)` iff
+`2^(M(k-1)) ≡ -1 (mod M(k)²+M(k)+1)`, with `M(k)=2^k-1`. -/
 theorem eldar_ordowski {k : ℕ} (hk : 1 < k) (_hcomp : ¬ k.Prime) :
     k ∣ jacobsthal (k - 1) ↔ EldarOrdowskiCongr k :=
   dvd_jacobsthal_iff_congr hk
@@ -331,7 +299,7 @@ theorem isA066488_iff (k : ℕ) :
   · rintro ⟨hk, hp, hc⟩
     exact ⟨hk, hp, (dvd_jacobsthal_iff_congr hk).mpr hc⟩
 
-/-! ## Non-vacuity -/
+/-! ## Examples -/
 
 -- `341 = 11 * 31`, the first term, satisfies the hypotheses and the
 -- divisibility, so both sides of `eldar_ordowski` hold at `k = 341`.

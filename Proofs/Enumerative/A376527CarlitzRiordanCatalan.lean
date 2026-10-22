@@ -1,28 +1,12 @@
 /-
-# A376527 — parity of the sum of squares of the Carlitz-Riordan q-Catalan coefficients
+# A376527: parity of squared q-Catalan coefficients
 
-## OEIS source (`oeis show A376527`, retrieved 2026-10-21)
-
-```
-NAME:     a(n) = Sum_{k=0..n*(n-1)/2} A227543(n,k)^2 for n >= 0.
-TERMS:    1,1,2,7,34,216,1610,13461,122254,1183568,12054498,127960158,...
-COMMENT:  G.f. F(x,q) of triangle A227543 satisfies F(x,q) = 1 + x*F(x,q)*F(q*x,q).
-COMMENT (the conjecture):
-  Conjecture: a(n) is odd iff n = 2^k - 1 for some k >= 0.
-AUTHOR:   _Paul D. Hanna_, Oct 11 2024 (the conjecture line carries no separate
-          attribution; it is part of Hanna's original entry).
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature found by triage).  It follows
-from the classical parity of the Catalan numbers: `c^2 ≡ c (mod 2)`, so
-`a(n) ≡ R_n(1) = C_n (mod 2)`, and `C_n` is odd iff `n + 1` is a power of two.
-This file proves it completely (`odd_a_iff`, `odd_a_iff_eq_two_pow_sub_one`).
-
-## Computation
-
-Parity checked for `n ≤ 80` with Python (rows built by the recursion below).
+OEIS A376527, Paul D. Hanna (Oct 11 2024), with triangle A227543.
+The sum of squared coefficients of the Carlitz-Riordan polynomial has the
+same parity as `R_n(1) = Catalan(n)`. Hence it is odd exactly when
+`n+1` is a power of two. Catalan parity is proved here from its recurrence.
+The sum uses all polynomial coefficients; the source's degree-cutoff
+interpretation is not packaged as a separate formal theorem.
 -/
 import Mathlib
 
@@ -170,7 +154,7 @@ theorem R_four : R 4 = 1 + 3 * X + 3 * X ^ 2 + 3 * X ^ 3 + 2 * X ^ 4 + X ^ 5 + X
     Fin.default_eq_zero, Fin.val_eq_zero, tsub_self, sum_const, card_singleton, one_smul]
   ring
 
-/-! ## Ground truth: the first listed terms `1, 1, 2, 7, 34` -/
+/-! ## Example: the first listed terms `1, 1, 2, 7, 34` -/
 
 example : a 0 = 1 := by simp [a, R_zero]
 example : a 1 = 1 := by simp [a, R_one]

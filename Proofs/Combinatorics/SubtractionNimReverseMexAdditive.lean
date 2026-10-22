@@ -1,32 +1,14 @@
 /-
-# Reverse-mex for the additive subtraction sets `{a, ab, a(b+1)}`
+# Reverse-mex for additive subtraction sets `{a,ab,a(b+1)}`
 
-## Source
+U. Larsson, H. Manabe and R. Miyadera, *A Subtraction Nim with a Pass*,
+arXiv:2605.14321, Definition `inversemex` and Section `conject`, second
+conjecture under “Prediction on the Reverse-Mex Property”. Combined with
+Conjecture `conditiona`, this predicts reverse-mex for every
+`{s₁,s₂,s₁+s₂}`. Reverse-mex means `𝒢(x) = mex{𝒢(x+s) : s ∈ S}`.
 
-U. Larsson, H. Manabe, R. Miyadera, *A Subtraction Nim with a Pass*,
-arXiv:2605.14321.  Definition `inversemex` (Section `subtractionnim`) and
-Section "Conjectures" (label `conject`), subsection "Prediction on the
-Reverse-Mex Property", second conjecture.
-
-Definition (verbatim, Definition `inversemex`): "A subtraction Nim is said to
-satisfy *reverse-mex* property if
-`𝒢(x) = mex({𝒢(x+s_1), 𝒢(x+s_2), 𝒢(x+s_3)})`."
-
-Conjecture (verbatim): "If `s_3 = s_1 + s_2`, then the subtraction Nim
-satisfies the condition (a) in Conjecture `conditiona`."  Combined with the
-paper's Conjecture `conditiona` ("A subtraction Nim has the reverse-mex
-property if and only if this Nim satisfies the following (a)") this predicts:
-every subtraction Nim with `S = {s_1, s_2, s_1 + s_2}` has the reverse-mex
-property.  The paper proves reverse-mex only for `{2, 4n, 4n+2}`, `n ≥ 3`.
-
-Status in the paper: conjecture based on computer calculation (open).
-
-## This module (2026-10-21)
-
-Special case of the conjecture (target `a6-22`): for every `a ≥ 1` and
-`b ≥ 2`, the subtraction game with `S = {a, ab, a(b+1)}` (so
-`s_3 = s_1 + s_2`) satisfies reverse-mex at every `x ≥ 0`.  The proof
-combines
+The special case below is `S = {a,ab,a(b+1)}` with `a ≥ 1`, `b ≥ 2`.
+The proof combines
 
 * the scaling lemma `𝒢_{aS}(x) = 𝒢_S(⌊x/a⌋)` (`grundy_scale`), and
 * the closed form for `S = {1, b, b+1}` (`grundy_one_b_closed`):
@@ -210,7 +192,7 @@ theorem mod_add_facts (m y t : ℕ) (hm : 0 < m) (ht : t ≤ m) :
 
 /-! ### The closed form for `S = {1, b, b+1}` -/
 
-/-- The closed form of the Grundy sequence of `S = {1, b, b+1}` (target spec):
+/-- The closed form of the Grundy sequence of `S = {1, b, b+1}`:
 for even `b`, `2·[x mod 2b ≥ b] + (x mod 2)`; for odd `b`, with
 `r = x mod (2b+1)`, `r mod 2` if `r ≤ b` and `2 + ((r-b-1) mod 2)` otherwise
 (the subtraction `r - b - 1` is guarded by `b < r`). -/
@@ -483,7 +465,7 @@ theorem reverseMex_setA (a n : ℕ) (ha : 0 < a) (hn : 0 < n) (x : ℕ) :
   rw [hS]
   exact reverseMex_additive_multiple a (2 * n) ha (by omega) x
 
-/-! ### Ground-truth checks -/
+/-! ### Examples -/
 
 example : mex {0, 1, 3} = 2 := (mex_eq_iff _ _).mpr (by decide)
 

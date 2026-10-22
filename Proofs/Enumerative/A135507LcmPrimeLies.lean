@@ -1,46 +1,14 @@
 /-
-# A135507 — McEachen: prime ratios `a(n+1)/a(n) - 2` lie in A140460 or 2 above it
+Prime ratios in OEIS A135507 (Bill McEachen, Apr 04 2024).
 
-## OEIS source (retrieved with `oeis show A135507` and `oeis show A140460`, 2026-10-21)
-
-```
-A135507
-NAME:     a(1) = 1; for n > 1, a(n) = 2*a(n-1) + lcm(a(n-1),n).
-TERMS:    1,4,20,60,180,540,4860,19440,58320,174960,2274480,6823440,20470320,
-          184232880,552698640,1658095920,31503822480,94511467440,...
-KEYWORDS: nonn,nice
-COMMENT:  Conjecture: Let p = a(n+1)/a(n)-2. If p is prime then p = A140460(m)
-          or p = A140460(m) + 2 for some m. - _Bill McEachen_, Apr 04 2024
-
-A140460
-NAME:     a(0) = 2; thereafter a(n) = smallest integer not a multiple of an
-          earlier terms nor a sum of two earlier terms.
-TERMS:    2,3,7,11,17,23,29,37,41,47,53,59,65,71,79,83,89,95,101,107,113,125,...
-PROGRAMS: Mathematica (McMahon) and C (sieve): `m` is kept iff `m ≥ 2`, no
-          kept `d < m` divides `m`, and `m` is not `i + j` with kept `j < i`.
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature found).  The A135507
-hypothesis is in fact not needed: every prime `p` satisfies "`p` or `p - 2` is a
-term of A140460".  This module proves that stronger statement and derives the
-conjecture from it (no `sorry`).
-
-Argument: `2, 3` are terms, so every later term is coprime to `6`, i.e.
-`≡ ±1 (mod 6)`.  A prime `p ≥ 5` is `≡ ±1 (mod 6)` and has no term `< p`
-dividing it, so if it is not a term it is `i + j` with terms `j < i`.  Two
-terms `> 3` sum to `0, ±2 (mod 6)`, and `3 + i` with `i > 3` is even; hence
-`j = 2` and `p - 2 = i` is a term.
-
-## Definitional-fidelity note
-
-A140460 is encoded through its sieve (the entry's C program): `termsBelow n` is
-the increasing list of terms `< n`, `IsTerm m` is membership, and
-`a140460 = Nat.nth IsTerm` enumerates the terms in increasing order.  The
-recursive specification `isTerm_iff` is the greedy rule; whether "sum of two
-earlier terms" requires distinct terms is immaterial, because `2 * t` is a
-multiple of the earlier term `t`.  Ground-truth checks pin the first 13 terms.
+Every prime p is a term of A140460 or two more than a term, implying the
+claim for prime p=a(n+1)/a(n)-2 in A135507. The latter sequence starts a(1)=1
+and satisfies a(n)=2a(n-1)+lcm(a(n-1),n).
+A140460 is encoded by its greedy sieve: start with 2, then retain integers
+that are neither multiples nor sums of two earlier terms. The recursive
+support specification and increasing enumeration are proved.
+Requiring distinct summands does not change the sieve, since 2t is already
+a multiple of the earlier t. Residues modulo 6 prove the prime disjunction.
 -/
 import Mathlib
 
@@ -278,7 +246,7 @@ theorem isTerm_sub_two_of_prime {p : ℕ} (hp : p.Prime) (hnot : ¬ IsTerm p) :
   · -- `p = i + 3` with `i > 3` a term: parity contradiction
     have hi6 := mod_six_of_isTerm hi hji
     omega
-  · -- both summands are terms `> 3`: residue contradiction mod 6
+  · -- Both summands are terms `> 3`: residue contradiction mod 6
     have hi6 := mod_six_of_isTerm hi (lt_trans hj3 hji)
     have hj6 := mod_six_of_isTerm hj hj3
     omega
@@ -301,21 +269,16 @@ theorem prime_eq_a140460_or_add_two (p : ℕ) (hp : p.Prime) :
     obtain ⟨m, hm⟩ := exists_a140460_eq hT2
     exact ⟨m, Or.inr (by omega)⟩
 
-/-- **McEachen's conjecture (A135507, Bill McEachen, Apr 04 2024).**
-
-Verbatim: "Conjecture: Let p = a(n+1)/a(n)-2. If p is prime then p = A140460(m)
-or p = A140460(m) + 2 for some m."
-
-Here `a = A135507` with `n ≥ 1` (the entry's offset), and the ratio is taken in
-`ℚ` so no truncated division or subtraction enters (`A135507_pos` shows the
-denominator is nonzero).  Proved via `prime_eq_a140460_or_add_two`. -/
+/-- A prime ratio `A135507(n+1)/A135507(n)-2` is an A140460 term or two
+more than one. The ratio is rational, and its denominator is positive for
+`n≥1`. This follows from the disjunction for every prime. -/
 theorem conjecture (n : ℕ) (_hn : 1 ≤ n) (p : ℕ)
     (_hratio : (p : ℚ) = (A135507 (n + 1) : ℚ) / (A135507 n : ℚ) - 2) (hp : p.Prime) :
     ∃ m, p = a140460 m ∨ p = a140460 m + 2 := by
   -- The ratio hypothesis is not needed: the conclusion holds for every prime.
   exact prime_eq_a140460_or_add_two p hp
 
-/-- Non-vacuity: at `n = 2` the ratio is `A135507(3)/A135507(2) - 2 = 20/4 - 2 = 3`,
+/-- At `n = 2` the ratio is `A135507(3)/A135507(2) - 2 = 20/4 - 2 = 3`,
 a prime, so the hypotheses of `conjecture` are jointly satisfiable. -/
 example : (1 ≤ 2) ∧ ((3 : ℕ) : ℚ) = (A135507 (2 + 1) : ℚ) / (A135507 2 : ℚ) - 2 ∧
     (3 : ℕ).Prime := by

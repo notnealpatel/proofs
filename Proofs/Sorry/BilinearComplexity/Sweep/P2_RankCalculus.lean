@@ -36,8 +36,8 @@
   AI disclosure: produced with AI assistance (see Proofs/README).
 -/
 import Mathlib.Data.ZMod.Basic
-import BilinearComplexity.P2ResidualStabilizer
-import BilinearComplexity.P2CyclicCounterexample
+import Sorry.BilinearComplexity.P2ResidualStabilizer
+import Sorry.BilinearComplexity.P2CyclicCounterexample
 
 set_option autoImplicit false
 

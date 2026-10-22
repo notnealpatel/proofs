@@ -1,29 +1,8 @@
 /-
 # A135659 — Jasinski: every Mersenne prime greater than 3 is `≡ 7 (mod 24)`
 
-## OEIS source (retrieved with `oeis show A135659`, 2026-10-21)
-
-```
-NAME:     a(n) = 24*n + 7.
-TERMS:    7,31,55,79,103,127,151,175,199,223,247,271,295,319,343,367,391,...
-AUTHOR:   Artur Jasinski, Nov 25 2007
-COMMENT (the conjecture, no separate attribution or date in the entry):
-  Conjecture: All Mersenne Primes (A000668) > 3 are in this sequence.
-```
-
-The comment carries no signature; the entry's author line is
-_Artur Jasinski_, Nov 25 2007 (checked against the live entry).
-A000668: "Mersenne primes (primes of the form 2^n - 1)", DATA
-`3, 7, 31, 127, 8191, 131071, ...`.
-
-## Status
-
-Triage: "open" (no proof in the entry or the literature as far as the triage
-could tell), tractability "trivial".  It is a folklore congruence and is
-proved below (`jasinski_mersenne_prime_mem`).  Computation (Sage,
-2026-10-21): every Mersenne prime `2^n - 1` with `n < 2300` other than `3`
-is `≡ 7 (mod 24)`, and `2^p ≡ 8 (mod 24)` for each of the 35 further known
-Mersenne exponents `3217 ≤ p ≤ 136279841`.
+Artur Jasinski's conjecture in OEIS A135659 (`24n+7`) says that every
+Mersenne prime (A000668) greater than `3` belongs to this sequence.
 
 ## Argument
 
@@ -46,7 +25,7 @@ def IsTerm (m : ℕ) : Prop :=
 def IsMersennePrime (m : ℕ) : Prop :=
   m.Prime ∧ ∃ n : ℕ, m = 2 ^ n - 1
 
-/-! ## Ground truth against the DATA lines -/
+/-! ## Examples against the DATA lines -/
 
 -- The first listed terms of A135659 are `24 * n + 7` for `n = 0, 1, 2`.
 example : IsTerm 7 ∧ IsTerm 31 ∧ IsTerm 55 :=
@@ -105,10 +84,9 @@ theorem exists_eq_two_mul_add_three {n : ℕ} (hp : (2 ^ n - 1).Prime)
 
 /-! ## The conjecture -/
 
-/-- **Jasinski's conjecture (A135659, comment in the entry by Artur Jasinski,
-Nov 25 2007), proved.**
+/-- **Jasinski's conjecture (A135659, comment in the entry by Artur Jasinski), proved.**
 
-Verbatim: "Conjecture: All Mersenne Primes (A000668) > 3 are in this
+"Conjecture: All Mersenne Primes (A000668) > 3 are in this
 sequence."  Stated as: every prime `M` of the form `2^n - 1` with `3 < M`
 is of the form `24 * k + 7`.  The guard `3 < M` is from the source and is
 load-bearing: `3 = 2^2 - 1` is a Mersenne prime that is not a term. -/
@@ -121,14 +99,14 @@ theorem jasinski_mersenne_prime_mem (M : ℕ) (hM : IsMersennePrime M) (h3 : 3 <
   have hdiv := Nat.div_add_mod (2 ^ (2 * k + 3)) 24
   omega
 
-/-- The same statement in the triage's form: if `2^p - 1` is a prime greater
+/-- Equivalently: if `2^p - 1` is a prime greater
 than `3`, then `(2^p - 1) % 24 = 7`. -/
 theorem mersenne_mod_twentyFour {p : ℕ} (h : (2 ^ p - 1).Prime) (h3 : 3 < 2 ^ p - 1) :
     (2 ^ p - 1) % 24 = 7 := by
   obtain ⟨k, hk⟩ := jasinski_mersenne_prime_mem (2 ^ p - 1) ⟨h, p, rfl⟩ h3
   omega
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- Non-vacuity: the hypotheses are jointly satisfiable at `M = 7`.
 example : IsMersennePrime 7 ∧ 3 < 7 := ⟨⟨by norm_num, 3, rfl⟩, by norm_num⟩

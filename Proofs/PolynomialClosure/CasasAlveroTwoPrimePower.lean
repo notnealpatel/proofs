@@ -1,54 +1,33 @@
 /-
-# Casas-Alvero conjecture in degree `2 p ^ k` (characteristic zero)
+# Casas-Alvero conjecture in twice-prime-power degree
 
-## Source
+Over a field of characteristic zero, a monic polynomial `f` of degree
+`2 p ^ k` (`p` prime, `k : ℕ`) sharing a nonconstant factor with each derivative of
+order `1 ≤ i < 2 p ^ k` is `(X - a) ^ (2 p ^ k)` for some `a` in the field.
+This module covers twice-prime-power degrees, not the general conjecture.
 
-arXiv:math/0605090, Hans-Christian Graf von Bothmer, Oliver Labs, Josef Schicho,
+Source: Hans-Christian Graf von Bothmer, Oliver Labs, Josef Schicho and
 Christiaan van de Woestijne, "The Casas-Alvero conjecture for infinitely many
-degrees", J. Algebra 316 (2007).  Section 2 ("Mixing characteristics, or There
-and Back Again"): Proposition `prop:case12` (degrees 1 and 2 over any field),
-the Kummer Lemma, Proposition `prop:induc` (induction `d = n p ^ k`), and the
-main Theorem (second family `d = 2 p ^ k`).  Recorded 2026-10-21.
+degrees", J. Algebra 316 (2007), arXiv:math/0605090, main Theorem, second
+family, and Section 2: `prop:case12`, the Kummer Lemma and `prop:induc`.
 
-Verbatim statements:
+`SharesFactorWithDerivatives` from `NumberComplexity.CasasAlveroDegreeFour`
+uses ordinary derivatives. In characteristic zero these differ from the
+paper's Hasse derivatives by the units `i!`, giving the same condition.
 
-> **Conjecture (Casas-Alvero).** Let $P$ be a monic univariate polynomial of
-> degree $d$ over a field $\KK$.  Then $\gcd(P,P_i)$ is nontrivial for
-> $i=1,\ldots,d-1$ if and only if $P=(X-\alpha)^d$ for some $\alpha\in\KK$.
+Here the paper's properness-based mixed-characteristic transfer
+(`prop:frompto0`) is replaced by the valuation argument of Draisma and de Jong
+(EMS Newsletter 2011): translate and rescale
+roots into a valuation ring with `p` in its maximal ideal, retaining roots
+`0` and `1` after reduction. In characteristic `p`, coefficient elimination
+leaves only degrees `0, p ^ k, 2 p ^ k`; the Hasse derivative of order `p ^ k`
+then forces `g = (X ^ (p ^ k) - s) ^ 2`, incompatible with `g(0) = g(1) = 0`.
+This implements `prop:induc` with `n = 2` and `prop:case12` without taking
+`p ^ k`-th roots.
 
-> **Theorem.** Let $d$ be of the form $p^k$ or $2p^k$ for some prime number
-> $p$.  Then the Casas-Alvero Conjecture holds in characteristic $0$ for
-> polynomials of degree $d$.
-
-## Status
-
-Proved in the paper (the case `d = 2 p ^ k` formalized here).  The conjecture
-itself is open in general.
-
-## Formalization
-
-The hypothesis `gcd(f, f^(i)) ≠ 1` for `1 ≤ i < d` is the repository predicate
-`SharesFactorWithDerivatives` of `NumberComplexity.CasasAlveroDegreeFour`
-(non-coprimality of `f` and its `i`-th ordinary derivative; in characteristic
-zero this is equivalent to the paper's Hasse-derivative condition).
-
-The paper's transfer from characteristic `p` to characteristic `0`
-(Proposition `prop:frompto0`, properness of a weighted projective scheme over
-`Spec ℤ`) is replaced by the elementary valuation argument of Draisma and
-de Jong (EMS Newsletter 2011): over `L = AlgebraicClosure K` choose a valuation
-subring `B` with `p` in its maximal ideal, translate one root to `0` and rescale
-by the root difference of largest valuation, so that the rescaled polynomial
-has coefficients in `B`, roots `0` and `1`, and reduces to a polynomial over the
-residue field (characteristic `p`) that still shares a root with each of its
-Hasse derivatives.  The characteristic-`p` core (`charP_core`) is the paper's
-`prop:induc` with `n = 2` combined with `prop:case12`, carried out without
-taking `p ^ k`-th roots: all coefficients outside degrees `0, p ^ k, 2 p ^ k`
-vanish, and the Hasse derivative of order `p ^ k` then forces
-`g = (X ^ (p ^ k) - s) ^ 2`, incompatible with `g(0) = g(1) = 0`.
-
-The reduction `casasAlvero_of_charP_core` is stated for an arbitrary degree `d`
-and prime `p`; it reduces Casas-Alvero in degree `d` (characteristic zero) to
-the non-existence of characteristic-`p` examples with roots `0` and `1`.
+The helper `casasAlvero_of_charP_core` gives the transfer for arbitrary degree
+`d`, conditional on the absence of characteristic-`p` examples with roots
+`0` and `1` sharing a root with every intermediate Hasse derivative.
 -/
 import Mathlib
 import NumberComplexity.CasasAlveroDegreeFour
@@ -430,11 +409,10 @@ theorem casasAlvero_two_mul_prime_pow {K : Type u} [Field K] [CharZero K] (f : K
   exact casasAlvero_of_charP_core hp
     (fun F _ _ g hgm hgd hg0 hg1 hgi => charP_core k g hgm hgd hg0 hg1 hgi) f hm hd h
 
-/-! ## Non-vacuity -/
+/-! ## Examples -/
 
-/-- Ground truth / satisfiability: `X ^ 6 = X ^ (2 · 3 ^ 1)` over `ℚ` satisfies every
-hypothesis of `casasAlvero_two_mul_prime_pow` (with `p = 3`, `k = 1`), and the
-theorem returns the expected form. -/
+/-- `X ^ 6 ∈ ℚ[X]` has degree `2 · 3 ^ 1` and shares a factor with each
+intermediate derivative. -/
 example : ∃ a : ℚ, (X ^ 6 : ℚ[X]) = (X - C a) ^ (X ^ 6 : ℚ[X]).natDegree := by
   have hsh : SharesFactorWithDerivatives (X ^ 6 : ℚ[X]) := by
     intro i hi1 hi
@@ -448,7 +426,7 @@ example : ∃ a : ℚ, (X ^ 6 : ℚ[X]) = (X - C a) ^ (X ^ 6 : ℚ[X]).natDegree
   exact casasAlvero_two_mul_prime_pow (X ^ 6) (monic_X_pow 6) (k := 1) Nat.prime_three
     (by rw [natDegree_X_pow]; norm_num) hsh
 
-/-- Ground truth for `choose_mul_eq`: in characteristic `3`, `(2 · 3).choose 3 = 2`
+/-- In characteristic `3`, `(2 · 3).choose 3 = 2`
 and `(2 · 3).choose 2 = 0`. -/
 example : (((2 * 3).choose 3 : ℕ) : ZMod 3) = 2 ∧ (((2 * 3).choose 2 : ℕ) : ZMod 3) = 0 := by
   decide

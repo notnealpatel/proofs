@@ -1,37 +1,13 @@
 /-
-# A218002 — refutation of the "prime order permutations" conjecture
+# A known refutation for A218002
 
-## OEIS source (retrieved with `oeis show A218002` and the live internal
-## format at https://oeis.org/A218002/internal, 2026-10-21)
-
-```
-NAME:     E.g.f.: exp( Sum_{n>=1} x^prime(n) / prime(n) ).
-OFFSET:   0,4
-TERMS:    1,0,1,2,3,44,55,1434,3913,39752,392481,5109290,...
-AUTHOR:   Paul D. Hanna, Oct 17 2012
-COMMENT (the conjecture, unsigned; it predates the 2015 comment below):
-  Conjecture: a(n) = number of degree-n permutations of prime order.
-COMMENT (later, in the same entry):
-  The conjecture is false. Cf. A214003. This sequence gives the number of
-  n-permutations whose cycle lengths are restricted to the prime numbers.
-  - _Geoffrey Critzer_, Nov 08 2015
-```
-
-## Status
-
-This module refutes the conjecture with a kernel-checked counterexample.
-The refutation is already recorded in the entry (Critzer, 2015), so
-this is a known result. It is not a new one.
-
-Counterexample `n = 3`: `a(3) = 2`, but `S_3` contains at least three
-permutations of prime order, namely its three transpositions. (It has
-five in total, adding the two 3-cycles.) The exponential formula shows
-that `a(n)` counts permutations whose cycle lengths are all prime. Such
-a permutation can have order `lcm` of distinct primes, e.g. cycle type
-`(2,3)` in `S_5` has order `6`. Conversely, a prime-order permutation
-may have fixed points (cycles of length `1`). For `n = 5` the counts are
-`44` against `69`. The degenerate case `n = 0` (`1` against `0`)
-also fails, but the `n = 3` witness does not depend on the offset.
+Source: OEIS A218002, entry by Paul D. Hanna (Oct 17 2012), and Geoffrey
+Critzer's refutation comment (Nov 08 2015).
+The factorial-scaled coefficients of `exp(Σ_{p prime} x^p/p)` do not count
+permutations of prime order: at `n=3` the coefficient gives 2, while the
+three transpositions already have prime order.
+The source's cycle-length interpretation is not proved here; only the
+counterexample to the prime-order assertion is formalized.
 -/
 import Mathlib.RingTheory.PowerSeries.Exp
 import Mathlib.RingTheory.PowerSeries.Substitution
@@ -46,7 +22,7 @@ namespace Candidates.A218002Refutation
 
 open PowerSeries
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The inner series `∑_{p prime} x^p / p` of the entry's e.g.f., over `ℚ`. -/
 noncomputable def primeSeries : PowerSeries ℚ :=
@@ -111,7 +87,7 @@ theorem coeff_egf (n : ℕ) :
   by_contra hlt
   exact hd (by rw [coeff_primeSeries_pow_of_lt (by omega), mul_zero])
 
-/-! ## Ground truth against the listed terms `1, 0, 1, 2, 3, 44` -/
+/-! ## Listed terms `1, 0, 1, 2, 3, 44` -/
 
 example : a 0 = 1 := by
   rw [a, coeff_egf]
@@ -159,7 +135,7 @@ example : a 5 = 44 := by
     Finset.Nat.sum_antidiagonal_succ]
   norm_num
 
-/-- Ground truth for `primeOrderCount`: the only permutation of one point is
+/-- `primeOrderCount`: the only permutation of one point is
 the identity, of order `1`, which is not prime. -/
 example : primeOrderCount 1 = 0 := by
   rw [primeOrderCount, Nat.card_eq_zero]
@@ -185,21 +161,15 @@ theorem three_le_primeOrderCount_three : 3 ≤ primeOrderCount 3 := by
 
 /-! ## The conjecture and its refutation -/
 
-/-- **The A218002 conjecture (unsigned comment; entry by Paul D. Hanna,
-Oct 17 2012).** Verbatim: "Conjecture: a(n) = number of degree-n
-permutations of prime order."
-
-Stated for every `n` in the offset `0` range, with `a n` the factorial-scaled
-coefficient of `exp(∑_{p prime} x^p / p)`. -/
+/-- The unsigned A218002 conjecture: each factorial-scaled coefficient
+of `exp(Σ_{p prime} x^p/p)` counts degree-n permutations of prime order.
+Indices begin at 0. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, a n = (primeOrderCount n : ℚ)
 
-/-- **The A218002 conjecture is false.** Counterexample `n = 3`:
-`a(3) = 2`, while the three transpositions of `S_3` already have prime
-order `2`. (The exact count is `5`.) The author probably had in mind the
-true statement, recorded in the entry by Geoffrey Critzer (Nov 08 2015),
-that `a(n)` counts degree-`n` permutations whose cycle lengths are all
-prime. That statement is not proved here. -/
+/-- The prime-order conjecture fails at `n=3`: `a(3)=2`, while the three
+transpositions already have prime order. This refutation is recorded by
+Critzer in OEIS A218002; the cycle-length interpretation is not proved here. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have h3 := hconj 3

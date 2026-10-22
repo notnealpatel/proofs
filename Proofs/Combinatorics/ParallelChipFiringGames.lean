@@ -11,14 +11,6 @@ Section 3: Lemma `lem:selection`, Lemma `lem:edge-charge`, Lemma
 `lem:summation`, Lemma `lem:low-density`, Lemma `lem:high-density`, and the
 common firing count Lemma `lem:common-count` (Jiang 2010, Prop. 2.5).
 
-Verbatim informal claim of Theorem 1.2:
-
-  Let G=(V,E) be a finite connected simple graph and let σ:V→ℕ₀ be the initial
-  chip configuration of a parallel chip-firing game on G. If
-  2|E|-|V| < |σ| < 2|E|, then the game has T=2 and activity 1/2.
-
-Recorded 2026-10-21.  Status: proved in the paper.
-
 ## What is formalized
 
 The activity-one-half part: if `U^T σ = σ` for some `T ≥ 1` (any return length,
@@ -33,7 +25,7 @@ edge charges).  For the high-density side the paper passes to the complement
 game, which needs the Kominers–Kominers no-abundant-vertex lemma; here we use
 instead the symmetric maximum-prefix-height argument (pick the round before a
 maximum of `h_v(t) = T u_v(t) - q t`; there `v` fires, and each edge charge is
-`≥ 0`), which is not in the paper.  The common firing count is derived from
+`≥ 0`). The common firing count is derived from
 `SimpleGraph.lapMatrix_mulVec_eq_zero_iff_forall_reachable`.
 -/
 import Mathlib
@@ -323,7 +315,7 @@ theorem even_of_periodic (hG : G.Connected) (σ : V → ℕ) (T : ℕ) (hT : 0 <
   obtain ⟨v⟩ := hG.nonempty
   exact ⟨_, (two_mul_card_fire_rounds_eq G hG σ T hT hper hlo hhi v).symm.trans (two_mul _)⟩
 
-/-! ### Ground-truth checks
+/-! ### Examples
 
 `K₂`: `(1,0) ↦ (0,1) ↦ (1,0)`, period 2.  `K₃`: the stable configurations
 `σ = d - 1 = (1,1,1)` (activity 0, `|σ| = 2|E| - |V|`) and `σ = d = (2,2,2)`

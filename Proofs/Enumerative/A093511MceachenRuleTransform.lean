@@ -1,58 +1,13 @@
 /-
-# A093511 — McEachen: the Rule 45 transform of the primes is a "bookend" construction
+Rule 45 transform of the primes (OEIS A093511; Bill McEachen, Jun 12 2024).
 
-## OEIS source (retrieved with `oeis show A093511`, 2026-10-21)
-
-```
-NAME:     Transform of the prime sequence by the Rule45 cellular automaton.
-TERMS:    1,3,5,6,7,8,10,12,13,14,16,18,19,20,22,24,26,27,28,30,31,32,34,35,36,
-          38,40,42,43,44,46,48,50,51,52,54,56,57,58,60,61,62,64,65,66,68,70,72,
-          73,74,76,77,78,80,82,84,86,87,88,90,92,93,94,95,96,98,100,102,103,104
-KEYWORDS: easy,nonn
-COMMENT (definition): As described in A051006, a monotonic sequence can be
-  mapped into a fractional real. Then the binary digits of that real can be
-  treated (transformed) by an elementary cellular automaton. If we take the
-  resulting sequence of binary digits as a fractional real, it can be mapped
-  back into a sequence, as in A092855.
-PROGRAM (PARI, ca_tr): for i = 1 .. k+2: j = (2*j + [i in v]) % 8;
-  if bit j of the rule is set, i is a term.
-COMMENT (the conjecture):
-  Conjecture: For n > 3, the a(n) correspond to the following construct (in
-  numerical order). a(n) terms include "bookend" values at every prime p + 1
-  (6,8,12,14,18,20,...). Additionally, the values between the bookends are
-  included, unless adjacent to non-"twin composite" bookends. For example,
-  consider bookends 6 and 8. There is only a single value 7 between these, so
-  it is included. This means terms 6, 7 and 8 are included.  Consider bookends
-  89 + 1, 97 + 1. Ignoring 91 and 97 adjacencies, values 92 through 96 are
-  included. This means terms 90, 92-96 and 98 are included.
-  - _Bill McEachen_, Jun 12 2024
-```
-
-## Status
-
-Triage: "unclear" (no proof in the entry or the literature found by the
-triage). Computation (python, 2026-10-21) confirms the definition below
-against all 70 listed terms and the construction against the transform
-for every term below 2·10^6. This file proves the conjecture in full.
-
-## Reading of the definition
-
-The PARI loop reads the window `(i-2, i-1, i)` (the newest bit is the least
-significant) and keeps `i` when bit `4·[i-2 prime] + 2·[i-1 prime] + [i prime]`
-of `45` is set; positions before `1` read as `0`. Rule 45 has bits
-`0, 2, 3, 5` set. The PARI routine works on a finite prefix of the primes;
-the infinite sequence is the stable limit, which is what `IsTerm` describes.
-
-## Reading of the conjecture
-
-Bookends are `p + 1` for primes `p ≥ 5` (the listed bookends start at `6`).
-For consecutive primes `p < q`, the values strictly between the bookends
-`p + 1` and `q + 1` are `p + 2, …, q`. The bookend pair is "twin composite"
-when the bookends differ by `2` (`q = p + 2`); then the single value between
-them is kept. Otherwise the two values adjacent to a bookend, `p + 2` and
-`q`, are dropped and the rest are kept. Both worked examples in the comment
-(`6, 7, 8` and `90, 92–96, 98`) are checked below. "In numerical order" is
-stated as `a n = Nat.nth InConstruct (n - 4)` for `3 < n`.
+The source's window (i-2,i-1,i) encodes the bit index
+4*[i-2 prime]+2*[i-1 prime]+[i prime]; Rule 45 keeps indices 0,2,3,5.
+The infinite sequence uses the stable limit of the finite-prefix program.
+For i≥6 the support is McEachen's bookend construction: between consecutive
+prime bookends p+1,q+1 (p≥5), keep the middle value when q=p+2;
+otherwise omit p+2 and q and retain the interior values.
+With one-based sequence indexing, a(n)=Nat.nth InConstruct (n-4) for n>3.
 -/
 import Mathlib
 
@@ -257,15 +212,9 @@ theorem inConstruct_infinite : (Set.ofPred InConstruct).Infinite := by
   obtain ⟨p, hp, hpp⟩ := Nat.exists_infinite_primes (n + 5)
   exact ⟨p + 1, Or.inl ⟨p, hpp, by omega, rfl⟩, by omega⟩
 
-/-- **McEachen's conjecture (A093511, Bill McEachen, Jun 12 2024).**
-
-Verbatim: "Conjecture: For n > 3, the a(n) correspond to the following construct (in
-numerical order). a(n) terms include "bookend" values at every prime p + 1 ... the values
-between the bookends are included, unless adjacent to non-"twin composite" bookends."
-
-Formal reading: for `3 < n`, the `n`-th term of A093511 is the `(n - 4)`-th element
-(0-indexed) of the bookend construction `InConstruct`. Then `a 4, a 5, …` lists the
-construction in increasing order. The `Nat` subtraction `n - 4` is guarded by `3 < n`. -/
+/-- From one-based index `4`, A093511 enumerates the bookend construction
+in increasing order (Bill McEachen, Jun 12 2024). The `n-4` index in `Nat.nth`
+is zero-based and guarded by `3<n`. -/
 theorem mceachen_a093511 (n : ℕ) (hn : 3 < n) : a n = Nat.nth InConstruct (n - 4) := by
   classical
   set m := n - 4 with hm

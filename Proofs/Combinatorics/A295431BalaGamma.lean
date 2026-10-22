@@ -1,31 +1,11 @@
 /-
 # A295431 — Bala: the half-index Gamma ratio `a(n/2)` is an integer
 
-## OEIS source (retrieved with `oeis show A295431`, 2026-10-21)
-
-```
-NAME:     a(n) = (12*n)!*n! / ((6*n)!*(4*n)!*(3*n)!).
-TERMS:    1,4620,89237148,2005604901300,47913489552349980,...
-COMMENT (the conjecture):
-  For n >= 0, we conjecture that both a(n/2) = (6*n)!*(n/2)! /
-  ((3*n)!*(2*n)!*(3*n/2)!) = A347854(n) and a(n/3) = (4*n)!*(n/3)! /
-  ((2*n)!*(4*n/3)!*n!) = A347855(n) are integers, where fractional
-  factorials are defined using the Gamma function; for example,
-  (n/2)! := Gamma(n/2 + 1). - _Peter Bala_, Jun 09 2026
-```
-
-This module treats the first half, `a(n/2) = A347854(n)`. The companion
-claim `a(n/3) = A347855(n)` is a separate target.
-
-## Literature status (triage)
-
-Open: no proof in the entry or in the literature as far as the triage could
-tell. A347854 still says "conjectured to be integral". The even case `n = 2m`
-is the integrality of `a(m)` itself, which is classical (Landau's criterion).
-
-## Result of this module
-
-The conjecture is proved for every `n`, with no remaining `sorry`.
+Peter Bala's conjecture in OEIS A295431 (June 9, 2026) asserts integrality
+of both `a(n/2)` and `a(n/3)`, interpreting `x!` as `Γ(x+1)`.
+Here `a(n) = (12n)! n! / ((6n)! (4n)! (3n)!)`.
+This file proves the integrality of the half-index ratio `a(n/2)`;
+the third-index assertion is not formalized.
 
 * Odd `n`: `Γ(k/2 + 1) = k! √π / (2^k ⌊k/2⌋!)` for odd `k`, so the ratio
   equals `2^(2n) (6n)! n! ⌊3n/2⌋! / ((3n)! (2n)! (3n)! ⌊n/2⌋!)`. Landau's
@@ -286,7 +266,7 @@ theorem balaRatio_two_mul (m : ℕ) : balaRatio (2 * m) = (a295431 m : ℝ) := b
   rw [div_eq_iff (by positivity)]
   linear_combination -hmul
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : a295431 0 = 1 := by decide
 example : a295431 1 = 4620 := by decide
@@ -319,11 +299,10 @@ theorem bala_integrality_of_odd (n : ℕ) (hn : Odd n) : ∃ z : ℤ, balaRatio 
   push_cast
   ring
 
-/-- **Bala's conjecture (A295431, Peter Bala, Jun 09 2026), the `a(n/2)` half.**
-Verbatim: "For n >= 0, we conjecture that both a(n/2) = (6*n)!*(n/2)! /
-((3*n)!*(2*n)!*(3*n/2)!) = A347854(n) and a(n/3) = ... are integers, where
-fractional factorials are defined using the Gamma function; for example,
-(n/2)! := Gamma(n/2 + 1)." Here `balaRatio n` is `a(n/2)`. -/
+/-- Bala's conjecture (OEIS A295431, June 9, 2026), half-index part:
+`balaRatio n = a(n/2)` is an integer for every natural `n`, with
+fractional factorials interpreted as `x! = Γ(x+1)`.
+The companion third-index assertion is not part of this theorem. -/
 theorem bala_integrality (n : ℕ) : ∃ z : ℤ, balaRatio n = z := by
   rcases Nat.even_or_odd n with ⟨m, rfl⟩ | hn
   · refine ⟨a295431 m, ?_⟩

@@ -1,39 +1,23 @@
 /-
-# Greedy 3-subsumfree sequences `S_{1,g,g+d}`: the Bosma–Bruin–Fokkink–Grube–Reuijl–Tromp
-# meta-conjecture (`d ≥ 2`)
+# Greedy 3-subsumfree sequences `S_{1,g,g+d}`
 
-## Source
+W. Bosma, R. Bruin, R. Fokkink, J. Grube, A. Reuijl and T. Tromp,
+*Using Walnut to solve problems from the OEIS*, arXiv:2503.04122,
+J. Integer Seq. 28 (2025), Art. 25.3.8, §"Subsumfreeness", Conjecture 17
+(`conj_d_g`). A greedy 3-subsumfree sequence starts at `x < y < z` and
+then takes the least larger integer not expressible as a sum of three
+distinct earlier entries.
 
-W. Bosma, R. Bruin, R. Fokkink, J. Grube, A. Reuijl, T. Tromp, *Using Walnut to solve problems
-from the OEIS*, arXiv:2503.04122 (J. Integer Seq. 28 (2025), Art. 25.3.8), Section
-"Subsumfreeness", Conjecture `conj_d_g` (printed as Conjecture 17), followed by the Walnut check of
-`S_{1,4,8}`. Statement re-read from the arXiv TeX source on 2026-10-21.
+For `2 ≤ d`, `d+1 ≤ g`, the conjectured set consists of
+`{1,g,2g+d-1,2g+d}` together with `z > g+d` whose residue modulo
+`5g+2d` lies in `[g+d-2,2g+d-2]`. As printed this omits the start value
+`g+d` (`printed_conj_17_false`). The paper's Walnut code for `S_{1,4,8}`
+uses `z ≥ 8`; the corrected set `conjSet` uses `z ≥ g+d`.
 
-Definition (verbatim): "Consider a sequence `a` with start values `a_1, a_2, a_3` and further
-values `a_n`, for `n > 3` satisfying that `a_n` is the smallest number exceeding `a_{n-1}` which is
-not the sum of three different previous entries: so `a_n ≠ a_i + a_j + a_k` for
-`1 ≤ i < j < k < n`. [...] We will use the notation `S_{x,y,z}` for the greedy 3-subsumfree
-sequence with starting values `x < y < z`."
+The argument adapts the interval-sumset proof of the `d = 1` case by
+O. Shtrezi, arXiv:2606.17447.
 
-Conjecture (verbatim): "Let `d ≥ 2`. For every `g ≥ d+1` the greedy 3-subsumfree sequence
-`S_{1,g,g+d}` is characterized as follows:
-  `z ∈ S_{1,g,g+d} ⟺ z ∈ {1, g, 2g+d-1, 2g+d}` or `z > g+d` and
-  `z mod 5g+2d ∈ {g+d-2, g+d-1, ..., 2g+d-2}`.
-In particular, for `d ≥ 2` and every `g ≥ d+1` after the first `g+3` entries (in a preperiod) the
-sequence `S_{1,g,g+d}` modulo `5g+2d` is periodic with period `g+1`."
-
-## Status
-
-Open in the source (a conjecture backed by Magma computations; the paper proves only single
-instances with Walnut). The sibling `d = 1` conjecture (Conjecture 16) was proved by O. Shtrezi,
-arXiv:2606.17447, by an interval-sumset argument; this module adapts that template to `d ≥ 2`.
-
-**Correction.** As printed the conjecture is false at `z = g + d`: the start value `g + d` belongs
-to `S_{1,g,g+d}` but is not in `{1, g, 2g+d-1, 2g+d}` and fails `z > g + d`
-(`printed_conj_17_false`). The paper's own Walnut code for `S_{1,4,8}` uses `z ≥ 8 = g + d`. The
-corrected statement replaces `z > g + d` by `z ≥ g + d` (`conjSet`).
-
-## Results (kernel-checked here)
+## Results
 
 * `conj_17`: for `d ≥ 2`, `g ≥ d + 1`, every set obeying the greedy rule with start values
   `1, g, g + d` equals the corrected set `T_{g,d}` (`conjSet g d`).
@@ -43,10 +27,6 @@ corrected statement replaces `z > g + d` by `z ≥ g + d` (`conjSet`).
   pair `g = d = 2` genuinely fails (simulation), as do all `g < d` tested.
 * The "in particular" periodicity remark is an immediate reading of the formula and is not
   separately formalized.
-
-Computation (evidence only, not proof): a Python simulation of the greedy rule (not kept)
-matched the corrected formula on `[1, 6(5g+2d)]` for all `2 ≤ d ≤ 24`, `d ≤ g ≤ 3d + 3`
-(`(g,d) ≠ (2,2)`), and on `[1, 5(5g+2d)]` for `2 ≤ d ≤ 6`, `d + 1 ≤ g ≤ 69`.
 -/
 import Mathlib
 
@@ -96,11 +76,11 @@ def printedConjSet (g d : ℕ) : Set ℕ :=
   {z | z = 1 ∨ z = g ∨ z = 2 * g + d - 1 ∨ z = 2 * g + d ∨
     (g + d < z ∧ g + d - 2 ≤ z % (5 * g + 2 * d) ∧ z % (5 * g + 2 * d) ≤ 2 * g + d - 2)}
 
-/-- Membership in `conjSet g d` is decidable (used only for the ground-truth checks below). -/
+/-- Membership in `conjSet g d` is decidable (used only for the examples below). -/
 instance (g d : ℕ) : DecidablePred (· ∈ conjSet g d) := fun z => by
   unfold conjSet; infer_instance
 
-/-! ## Ground truth
+/-! ## Examples
 
 The greedy prefixes below were computed by direct simulation of the greedy rule;
 `S_{1,4,8}` is the paper's Walnut example (`g = d = 4`, modulus `28`, residues `6..10`), and

@@ -1,38 +1,16 @@
 /-
-# A050931 — Granvik: vanishing of a Möbius-weighted cube-root-of-unity sum
+# A Möbius-weighted cube-root sum (A050931)
 
-## OEIS source (retrieved with `oeis show A050931`, 2026-10-21)
+Source: Mats Granvik's OEIS A050931 comment (Jul 06 2024).
+For `m > 0`, the norm of `Σ_{d∣m} μ(d)(-1)^(2d/3)` vanishes exactly when
+`m` has a prime factor congruent to 1 modulo 6.
+The fractional power is interpreted as the principal complex power
+`Complex.cpow`, equal to `ω^d` for `ω = exp(2πi/3)`; the source does not
+explicitly specify a branch.
 
-```
-NAME:     Numbers having a prime factor congruent to 1 mod 6.
-TERMS:    7,13,14,19,21,26,28,31,35,37,38,39,42,43,49,52,56,57,61,62,63,65,67,
-          70,73,74,76,77,78,79,84,86,91,93,95,97,98,103,104,105,109,111,112,...
-COMMENT (the conjecture):
-  Conjecture: Numbers m such that abs(Sum_{k=1..m} [k|m]*A008683(k)*(-1)^(2*k/3))
-  = 0. - _Mats Granvik_, Jul 06 2024
-```
-
-Here `A008683` is the Möbius function `μ` and `(-1)^(2*k/3)` is the principal
-value `exp(log(-1) · 2k/3) = exp(2πik/3) = ω^k` with `ω = exp(2πi/3)`; this file
-states the conjecture with that literal complex power (`Complex.cpow`) and proves
-the bridge `(-1)^(2k/3) = ω^k`.
-
-## Status
-
-Triage: open — no proof in the entry or in the literature as far as the triage
-could tell (floating-point check of all `m ≤ 5000`).  Re-validated here by
-exact arithmetic in `ℤ[ω]` for all `1 ≤ m ≤ 30000` (Sage, no mismatches).
-This module proves the conjecture in full (`granvik`), sorry-free.
-
-## Proof (formalized below)
-
-With `χ` the nontrivial character mod 3 and `χ₀` the principal one,
-`2ω^d = 2 - 3χ₀(d) + (ω - ω²)χ(d)` for every `d`.  Hence, for `m ≥ 1`,
-`2 S(m) = 2[m = 1] - 3 ∏_{p ∣ m}(1 - χ₀(p)) + (ω - ω²) ∏_{p ∣ m}(1 - χ(p))`,
-using `∑_{d ∣ m} μ(d) f(d) = ∏_{p ∣ m} (1 - f(p))` for multiplicative `f`.
-A prime `p ≡ 1 (mod 6)` dividing `m` kills both products and forces `m ≠ 1`;
-otherwise every factor `1 - χ(p)` is `1` or `2`, so the imaginary part
-`√3 · ∏(1 - χ(p))` of `2 S(m)` is nonzero.
+Characters modulo 3 turn the divisor sum into Euler products. A prime
+congruent to 1 modulo 6 kills both products; otherwise the imaginary
+part of the relevant product is nonzero.
 -/
 import Mathlib
 
@@ -43,7 +21,7 @@ namespace Candidates.A050931GranvikExpHas
 open ArithmeticFunction Complex
 open scoped ArithmeticFunction.Moebius ArithmeticFunction.zeta
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- Membership predicate of A050931: `m` has a prime factor congruent to `1` mod `6`
 (the entry's NAME; the sequence lists the positive `m` satisfying it). -/
@@ -59,7 +37,7 @@ noncomputable def granvikSum (m : ℕ) : ℂ :=
 /-- The primitive cube root of unity `ω = exp(2πi/3)`. -/
 noncomputable def ω : ℂ := Complex.exp (2 * Real.pi * I / 3)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- Bounded reformulation of `HasPrimeFactorOneModSix`, used for decidable checks. -/
 theorem hasPrimeFactorOneModSix_iff_bounded {m : ℕ} (hm : 0 < m) :
@@ -245,14 +223,9 @@ theorem mod_six_eq_one_of_prime {p : ℕ} (hp : p.Prime) (h3 : p % 3 = 1) : p % 
   · obtain ⟨k, rfl⟩ := hodd
     omega
 
-/-- **Granvik's conjecture (A050931, Mats Granvik, Jul 06 2024)** — proved.
-
-Verbatim: "Conjecture: Numbers m such that
-abs(Sum_{k=1..m} [k|m]*A008683(k)*(-1)^(2*k/3)) = 0."
-
-That is: for every `m ≥ 1`, `|∑_{k=1}^{m} [k ∣ m] μ(k) (-1)^{2k/3}| = 0` (principal
-complex power) if and only if `m` has a prime factor congruent to `1` mod `6`, i.e.
-`m` is a term of A050931.  The guard `0 < m` matches the sequence's range `m ≥ 1`. -/
+/-- Granvik's A050931 characterization for `m > 0`: the norm of the
+Möbius-weighted principal-complex-power sum is zero iff `m` has a prime
+factor congruent to 1 modulo 6. -/
 theorem granvik (m : ℕ) (hm : 0 < m) :
     ‖granvikSum m‖ = 0 ↔ HasPrimeFactorOneModSix m := by
   rw [norm_eq_zero, granvikSum_eq_sum_divisors hm]
@@ -294,11 +267,11 @@ theorem granvik (m : ℕ) (hm : 0 < m) :
     simpa using h2
 
 
-/-- Non-vacuity, vanishing side: `m = 7` (prime `≡ 1 mod 6`) gives a zero sum. -/
+/-- Vanishing example: `m = 7` (prime `≡ 1 mod 6`) gives a zero sum. -/
 example : ‖granvikSum 7‖ = 0 :=
   (granvik 7 (by norm_num)).2 ⟨7, by norm_num, dvd_rfl, rfl⟩
 
-/-- Non-vacuity, non-vanishing side: `m = 6` has no prime factor `≡ 1 mod 6`. -/
+/-- Nonvanishing example: `m = 6` has no prime factor `≡ 1 mod 6`. -/
 example : ‖granvikSum 6‖ ≠ 0 := by
   rw [Ne, granvik 6 (by norm_num), hasPrimeFactorOneModSix_iff_bounded (by norm_num)]
   decide

@@ -9,7 +9,7 @@ are formalized in Enumerative.E124. The two elementary arithmetic sanity checks
 below are proved; they do not establish the archived completeness or necessity
 claims. In particular no density estimate or BEGL proof is certified here.
 -/
-import Enumerative.E124
+import Sorry.Quarantine.Enumerative.E124
 
 set_option autoImplicit false
 

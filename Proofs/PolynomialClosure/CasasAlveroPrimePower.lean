@@ -1,57 +1,29 @@
 /-
-# Casas-Alvero conjecture in prime-power degree (characteristic zero)
+# Casas-Alvero conjecture in prime-power degree
 
-## Source
+Over a field of characteristic zero, a monic polynomial `f` of degree `p ^ k`
+(`p` prime, `k : ℕ`) sharing a nonconstant factor with each derivative of order
+`1 ≤ i < p ^ k` is `(X - a) ^ (p ^ k)` for some `a` in the field. This module
+covers prime-power degrees, not the general conjecture.
 
-arXiv:math/0605090, H.-Chr. Graf von Bothmer, O. Labs, J. Schicho and
-C. van de Woestijne, "The Casas-Alvero conjecture for infinitely many
-degrees", J. Algebra 316 (2007).  Main Theorem (stated in the Introduction
-and proved at the end of Section 2, "Mixing characteristics, or There and
-Back Again"), case `d = p ^ k`; the characteristic-`p` input is the
-Proposition `prop:prime` of Section 2 (Prop 2.4).  Retrieved and re-read
-2026-10-21.
+Source: H.-Chr. Graf von Bothmer, O. Labs, J. Schicho and C. van de Woestijne,
+"The Casas-Alvero conjecture for infinitely many degrees", J. Algebra 316
+(2007), arXiv:math/0605090, main Theorem, case `d = p ^ k`, and Section 2,
+Proposition 2.4 (`prop:prime`).
 
-Verbatim (Introduction):
+`Candidates.CasasAlveroDegreeFour.SharesFactorWithDerivatives` expresses
+`¬ IsCoprime f (derivative^[i] f)` for `1 ≤ i < natDegree f`. In characteristic
+zero, ordinary and Hasse derivatives differ by the unit `i!`, so this agrees
+with the paper's derivative convention.
 
-> **Conjecture (Casas-Alvero).** Let $P$ be a monic univariate polynomial of
-> degree $d$ over a field $\KK$.  Then $\gcd(P,P_i)$ is nontrivial for
-> $i=1,\ldots,d-1$ if and only if $P=(X-\alpha)^d$ for some $\alpha\in\KK$.
->
-> **Theorem.** Let $d$ be of the form $p^k$ or $2p^k$ for some prime number
-> $p$.  Then the Casas-Alvero Conjecture holds in characteristic $0$ for
-> polynomials of degree $d$.
-
-> **Proposition (prop:prime).** Let $d\ge 1$ be an integer.  If $d$ is a power
-> of some prime number $p$, then $X_d(\barF_p)$ is empty.
-
-## Status
-
-Proved in the paper (the case `d = p ^ k` formalized here; the case
-`d = 2 p ^ k` is not formalized).  The conjecture is open in general.
-
-## Formalization
-
-The hypothesis `gcd(f, f^(i)) ≠ 1` is the repo predicate
-`Candidates.CasasAlveroDegreeFour.SharesFactorWithDerivatives`
-(`¬ IsCoprime f (derivative^[i] f)` for `1 ≤ i < natDegree f`).  In
-characteristic `0` the ordinary and Hasse derivatives differ by the unit
-`i !`, so the paper's `P_i` and `P^(i)` give the same condition.
-
-Instead of the paper's transfer through the proper scheme `X_d` over `ℤ`
-(Prop `prop:frompto0`), the proof uses the elementary valuation form of the
-same idea (Draisma-de Jong, EMS Newsletter 2011):
-
-* `eq_X_pow_of_hasseDeriv_roots` (Prop `prop:prime`): over a commutative
-  ring with `p = 0`, a monic `g` of degree `p ^ k` with `g(0) = 0` whose
-  Hasse derivatives `D_i g` (`1 ≤ i < p ^ k`) all have a root is `X ^ (p ^ k)`.
-* `exists_valuationSubring_natCast_mem_maximalIdeal`: a characteristic-zero
-  field has a valuation subring in which `p` is not a unit.
-* `eq_of_mem_of_taylor_coeff_eq_zero`: over a characteristic-zero field, the
-  roots of a Casas-Alvero polynomial of degree `p ^ k` are all equal (rescale
-  the roots into the valuation ring, so that one becomes `0` and another `1`,
-  and reduce to the residue field).
-* `casasAlvero_natDegree_eq_prime_pow`: the main theorem, by passing to the
-  algebraic closure and descending the root `α = -a_{d-1} / d`.
+Instead of transfer through the proper scheme `X_d` over `ℤ`
+(`prop:frompto0`), the proof uses the valuation argument of Draisma and de Jong
+(EMS Newsletter 2011). Translate and rescale distinct roots into a valuation
+ring with `p` in its maximal ideal so that two roots become `0` and `1`.
+In the residue field, descending coefficient elimination forces the monic
+polynomial to be `X ^ (p ^ k)`, a contradiction. Applying this over the algebraic
+closure shows that all roots coincide; the common root descends using
+`a = -a_{d-1}/d`.
 -/
 import NumberComplexity.CasasAlveroDegreeFour
 
@@ -357,10 +329,10 @@ theorem casasAlvero_natDegree_eq_prime_pow {K : Type*} [Field K] [CharZero K] (f
     field_simp
   rw [← hFdef, hFα, hd, Polynomial.map_pow, Polynomial.map_sub, map_X, map_C, hβ]
 
-/-! ## Ground truth and non-vacuity -/
+/-! ## Examples -/
 
-/-- Non-vacuity: `X ^ 4 ∈ ℚ[X]` (degree `2 ^ 2`) satisfies every hypothesis of
-`casasAlvero_natDegree_eq_prime_pow` jointly; the theorem then yields `X ^ 4 = (X - C a) ^ 4`. -/
+/-- `X ^ 4 ∈ ℚ[X]` has prime-power degree `2 ^ 2` and shares a factor with
+each intermediate derivative. -/
 example : ∃ a : ℚ, (X ^ 4 : ℚ[X]) = (X - C a) ^ (X ^ 4 : ℚ[X]).natDegree := by
   have hshare : Candidates.CasasAlveroDegreeFour.SharesFactorWithDerivatives (X ^ 4 : ℚ[X]) := by
     intro i hi1 hi
@@ -374,13 +346,13 @@ example : ∃ a : ℚ, (X ^ 4 : ℚ[X]) = (X - C a) ^ (X ^ 4 : ℚ[X]).natDegree
   exact casasAlvero_natDegree_eq_prime_pow (X ^ 4 : ℚ[X]) (monic_X_pow 4) (k := 2)
     Nat.prime_two (by rw [natDegree_X_pow]; norm_num) hshare
 
-/-- Ground truth for the char-`p` core: in `ZMod 2`, `C(4, j) = 0` for `j = 1, 2, 3`. -/
+/-- In `ZMod 2`, `C(4, j) = 0` for `j = 1, 2, 3`. -/
 example : ((Nat.choose (2 ^ 2) 1 : ZMod 2) = 0) ∧ ((Nat.choose (2 ^ 2) 2 : ZMod 2) = 0) ∧
     ((Nat.choose (2 ^ 2) 3 : ZMod 2) = 0) := by decide
 
-/-- Ground truth for the char-`p` core: `X ^ 2 + X` over `ZMod 2` has `g(0) = 0` but its first
+/-- `X ^ 2 + X` over `ZMod 2` has `g(0) = 0` but its first
 Hasse derivative `2 X + 1 = 1` has no root, so the hypothesis of
-`eq_X_pow_of_hasseDeriv_roots` correctly excludes it. -/
+`eq_X_pow_of_hasseDeriv_roots` excludes it. -/
 example : ∀ r : ZMod 2, (hasseDeriv 1 (X ^ 2 + X : (ZMod 2)[X])).eval r ≠ 0 := by
   intro r
   rw [hasseDeriv_one, derivative_add, derivative_X_pow, derivative_X]

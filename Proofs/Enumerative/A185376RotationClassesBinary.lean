@@ -1,39 +1,13 @@
 /-
-# A185376 — rotation classes of binary words of length 2n with a palindromic cut
+# A185376: binary necklaces with a palindromic cut
 
-## OEIS source (retrieved with `oeis show A185376`, 2026-10-21)
-
-```
-NAME:     Number of binary necklaces of 2n beads for which a cut exists producing a
-          palindrome.
-TERMS:    2,3,6,9,20,34,72,129,272,516,1056,2050,4160,8200,16512,32769,65792,...
-KEYWORDS: nonn
-COMMENT:  These are the values of A185333 for even n.
-COMMENT (the conjecture, no author or date attached in the entry):
-  Conjecture: a(n) = 2^(n-1) + 2^((n-2^t)/(2^(t+1))), where t = number of factors
-  of 2 in n.
-FORMULA:  a(n) = A185333(2n).
-PROGRAMS: Mathematica (Robert G. Wilson v, Aug 08 2011) and Python (Indranil Ghosh,
-          Jun 29 2017, "after the formula") implement the conjectured formula.
-```
-
-## Status
-
-Triage status: open.  The entry gives only the formula and programs implementing it,
-with no proof; the triage found no source proving it (one web search; arXiv 1804.00992
-does not treat this class), and noted it may be classical.  Brute-force orbit counts
-agree for `n = 1..11` (triage `n ≤ 10`, re-validated here through `n = 11`: 1056).
-
-## Proof (formalized below)
-
-Write `N = 2n = 2^(t+1) m` with `m` odd.  For a palindrome `v`, the rotation by `k` is a
-palindrome iff `2k` is a period of `v`; these rotations are indexed by the elements of
-order dividing 2 in the cyclic group `ZMod N ⧸ periods v`, so there are at most two.
-There is exactly one iff `m` is a period of `v` (odd `m` makes halving possible inside
-the period group; conversely halving-closure from `N = 2^(t+1) m ≡ 0` forces `m`).
-Double counting the `2^n` palindromes by necklace gives
-`2^n + #(m-periodic palindromes) = 2 * #(good necklaces)`, and there are `2^((m+1)/2)`
-`m`-periodic palindromes.
+OEIS A185376, with A185333; the conjecture comment is unattributed.
+For `n > 0`, the number of rotation classes of binary words of length `2n`
+with a palindromic representative is
+`2^(n-1) + 2^((n-2^t)/2^(t+1))`, where `t` is the exponent of `2` in `n`.
+Writing `n = 2^t m` with odd `m`, double counting palindromes by necklace
+reduces the count to the `m`-periodic palindromes. The positive-length
+restriction excludes the different `ZMod 0 = ℤ` model.
 -/
 import Mathlib
 
@@ -41,7 +15,7 @@ set_option autoImplicit false
 
 namespace Candidates.A185376RotationClassesBinary
 
-/-! ## Definition layer
+/-! ## Definitions
 
 A binary word of length `N` is a function `ZMod N → Bool` (letter `i` at position `i`).
 Cutting a necklace at position `k` reads the word `rotate k w`.  A necklace is a rotation
@@ -85,7 +59,7 @@ as a palindrome. -/
 def HasPalindromicCut {N : ℕ} (c : Necklace N) : Prop :=
   ∃ w : ZMod N → Bool, IsPalindrome w ∧ Quotient.mk (rotSetoid N) w = c
 
-/-! ## Proof layer -/
+/-! ## Proofs -/
 
 /-- The periods of a word `w`: the rotations fixing `w`, an additive subgroup of `ZMod N`. -/
 def periods {N : ℕ} (w : ZMod N → Bool) : AddSubgroup (ZMod N) where
@@ -473,16 +447,11 @@ theorem card_hasPalindromicCut_two_pow_mul_odd (t m : ℕ) (hm : Odd m) :
   rw [h3, pow_succ] at key
   omega
 
-/-- **A185376 conjecture (proved here).**
-
-Verbatim (OEIS A185376, unattributed comment): "Conjecture: a(n) = 2^(n-1) +
-2^((n-2^t)/(2^(t+1))), where t = number of factors of 2 in n."
-
-Here `a(n)` is the number of binary necklaces of `2n` beads for which a cut exists
-producing a palindrome, i.e. `Nat.card {c : Necklace (2 * n) // HasPalindromicCut c}`, and
-`t = n.factorization 2`.  The guard `0 < n` matches the OEIS offset `n ≥ 1` (for `n = 0`,
-`ZMod 0 = ℤ`).  The subtraction `n - 2 ^ t` is not truncated since `2 ^ t ∣ n`, and the
-division is exact. -/
+/-- The A185376 count for `n > 0`, with `t = n.factorization 2`.
+Binary necklaces of length `2n` with a palindromic cut number
+`2^(n-1) + 2^((n-2^t)/2^(t+1))`. The subtraction is untruncated since
+`2^t ∣ n`, and the division is exact. The positive-length guard excludes
+`ZMod 0 = ℤ`. -/
 theorem card_hasPalindromicCut (n : ℕ) (hn : 0 < n) :
     Nat.card {c : Necklace (2 * n) // HasPalindromicCut c} =
       2 ^ (n - 1) + 2 ^ ((n - 2 ^ n.factorization 2) / 2 ^ (n.factorization 2 + 1)) := by
@@ -500,7 +469,7 @@ theorem card_hasPalindromicCut (n : ℕ) (hn : 0 < n) :
   rw [show 2 ^ t * m - 2 ^ t = 2 ^ t * (m - 1) by rw [Nat.mul_sub_one], pow_succ,
     Nat.mul_div_mul_left _ _ (Nat.two_pow_pos t)]
 
-/-! ## Ground truth
+/-! ## Examples
 
 Decidable checks of the definitions against the first OEIS terms `2, 3, 6`
 (`a(1), a(2), a(3)`), computed directly from the definitions, independently of the proof. -/

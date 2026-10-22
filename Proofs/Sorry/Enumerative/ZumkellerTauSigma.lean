@@ -1,4 +1,4 @@
-import Enumerative.ZumkellerTauSigma
+import Sorry.Quarantine.Enumerative.ZumkellerTauSigma
 
 /-!
 # Archived open admission

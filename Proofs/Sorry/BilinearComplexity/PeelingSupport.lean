@@ -1,4 +1,4 @@
-import BilinearComplexity.PeelingSupport
+import Sorry.Quarantine.BilinearComplexity.PeelingSupport
 
 /-!
 Quarantined admissions and their dependent consequences. Production supplies the

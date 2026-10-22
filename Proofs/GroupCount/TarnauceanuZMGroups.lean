@@ -1,45 +1,22 @@
 /-
-# Tarnauceanu — a characterization of ZM-groups
-
-## Source
+# Tărnăuceanu's characterization of ZM-groups
 
 M. Tărnăuceanu, *A characterization of ZM-groups*, arXiv:1704.03083
-(April 11, 2017).  Theorem 1.1 and Corollary 1.2; Corollary 1.2 settles
-Conjecture 6 of Tărnăuceanu, *On a generalization of the Gauss formula*,
-Asian-Eur. J. Math. 10 (2017), no. 1, 1750008.
+(2017), Theorem 1.1 and Corollary 1.2. The latter addresses Conjecture 6
+of *On a generalization of the Gauss formula*, Asian-Eur. J. Math. 10
+(2017), no. 1, 1750008.
 
-Verbatim (LaTeX of the source):
+For a finite group, let `φ(G)` count elements whose order equals `exp(G)`,
+and let `S(G) = ∑_{H ≤ G} φ(H)`. Then `|G| ≤ S(G)`, with equality iff all
+Sylow subgroups are cyclic (Mathlib's `IsZGroup`). For nilpotent groups,
+equality is equivalent to cyclicity.
 
-```
-Given a finite group $G$, we consider the functions
-$$\varphi(G)=|\{a\in G \mid o(a)=\exp(G)\}| \mbox{ and }
-  S(G)=\dd\sum_{H\leq\, G}\varphi(H).$$
-
-Theorem 1.1. Let $G$ be a finite group. Then $S(G)\geq |G|, and we have
-equality if and only if $G$ is a ZM-group, i.e. a group with all Sylow
-subgroups cyclic.
-
-Corollary 1.2. Let $G$ be a finite nilpotent group. Then $S(G)\geq |G|$,
-and we have equality if and only if $G$ is cyclic.
-```
-
-## Status
-
-Proved in the paper (date of this card: 2026-10-21).  The paper's
-"if" direction goes through Hölder's presentation `ZM(m,n,r)` and
-Calhoun's classification of its subgroups.  The proof here avoids both:
-
-* the map `a ↦ (zpowers a, a)` injects `G` into the disjoint union of
-  the sets `{a ∈ H | o(a) = exp H}`, because `o(a) = |⟨a⟩| = exp ⟨a⟩`;
-  this is `S(G) ≥ |G|`;
-* equality holds iff that injection is surjective, i.e. iff every
-  `a ∈ H` with `o(a) = exp H` generates `H`;
-* in a Z-group every subgroup `H` is a Z-group, so `exp H = |H|`
-  (`IsZGroup.exponent_eq_card`) and such an `a` generates `H`;
-* if a Sylow `p`-subgroup `P` is not cyclic, a `p`-group has an element
-  of order `exp P`, and that element cannot generate `P`.
-
-"ZM-group" is Mathlib's `IsZGroup` (all Sylow subgroups cyclic).
+The injection `a ↦ (⟨a⟩, a)` into the disjoint union counted by `S(G)` gives
+the inequality. Equality means that every exponent-order element of every
+subgroup generates it. For Z-groups, subgroup exponent equals subgroup order;
+conversely, each Sylow subgroup has an element of order its exponent. This
+proof avoids the paper's use of Hölder's presentation and Calhoun's subgroup
+classification.
 -/
 import Mathlib
 
@@ -181,7 +158,7 @@ theorem cor_1_2 [Finite G] [Group.IsNilpotent G] :
   rw [tarnS_eq_card_iff_isZGroup]
   exact ⟨fun _ => inferInstance, fun _ => inferInstance⟩
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- For a finite cyclic group of order `n`, `φ(G) = φ(n)` (Euler's totient). -/
 theorem tarnPhi_eq_totient [Finite G] [IsCyclic G] : tarnPhi G = (Nat.card G).totient := by

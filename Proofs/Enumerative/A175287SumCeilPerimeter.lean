@@ -1,43 +1,12 @@
 /-
-# A175287 — Mathar: partial sums of ceil(n^2/4) count perimeter-magic triangles
+# A175287: perimeter-magic triangles modulo rotation
 
-## OEIS source (retrieved with `oeis show A175287`, 2026-10-21)
-
-```
-NAME:     Partial sums of ceiling(n^2/4).
-TERMS:    0,1,2,5,9,16,25,38,54,75,100,131,167,210,259,316,380,453,534,625,725,...
-KEYWORDS: nonn,easy
-FORMULA:  a(n) = (2*n*(2*n^2+3*n+10)-9*(-1)^n+9)/48. - _Bruno Berselli_, Dec 03 2010
-COMMENT (the conjecture):
-  Conjecture: a(n) is the number of perimeter-magic (hollow) triangles of order 3
-  with magic sum n+2. Order 3 means each of the 3 edges has 3 elements >=1; the
-  triangle has 6 elements. The elements do not need to be distinct, and triangles
-  obtained by rotations are counted only once. The triangle (read ccw) for magic
-  sum 3 has elements 1 1 1 1 1 1. The 2 triangles with magic sum 4 are
-  1 1 2 1 1 2 and 1 2 1 2 1 2. - _R. J. Mathar_, Mar 08 2025
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell; sage brute force agreed for n = 0..37).  Re-validated here by a
-Python orbit count for n = 0..60.  This module proves the conjecture for all
-`n` (`perimeterMagic_count_eq_a175287`).
-
-## Proof outline
-
-* A triangle is read counterclockwise as `t 0, …, t 5` with corners at even
-  positions; a rotation shifts every entry two places (`rot`).
-* Orbit counting (`three_mul_numTriangles`): every rotation orbit has 1 or 3
-  elements, so `3 · #orbits = #triangles + 2 · #fixed`.
-* A triangle with magic sum `m + 1` is determined by its corners `(A, B, C)`,
-  all `≥ 1` with pairwise sums `≤ m` (`card_triangles`); fixed triangles are
-  those with `A = B = C`, `2A ≤ m` (`card_fixed_triangles`).
-* Corner triples obey `T(k + 4) = T(k + 2) + P(k + 2) + P(k + 1) + P(k)`, where
-  `P(j) = (j + 1)(j + 2)/2` counts pairs with sum `≤ j` (subtract one from every
-  corner, then split by the first vanishing coordinate).
-* The two-step recurrence matches `⌈(k+2)²/4⌉ + ⌈(k+3)²/4⌉`
-  (`ceil_step_identity`).
+OEIS A175287, R. J. Mathar (Mar 08 2025); closed form by Bruno Berselli
+(Dec 03 2010).
+For every natural `n`, `Σ_{i=0}^n ceil(i²/4)` counts the rotation orbits
+of six positive entries on a hollow order-three triangle of magic sum `n+2`.
+Entries need not be distinct. Rotations, but not reflections, are identified.
+Orbit counting reduces the count to corner triples and fixed triangles.
 -/
 import Mathlib
 
@@ -491,7 +460,7 @@ theorem a175287_eq (n : ℕ) :
   push_cast
   rfl
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The definition of `a175287` against the DATA line `0, 1, 2, 5, 9, 16, 25, 38`.
 example : (List.range 8).map a175287 = [0, 1, 2, 5, 9, 16, 25, 38] := by
@@ -512,16 +481,10 @@ example : numTriangles 4 = 2 := by decide +kernel
 
 /-! ## The conjecture -/
 
-/-- **Mathar's conjecture (A175287, R. J. Mathar, Mar 08 2025), proved.**
-
-Verbatim: "Conjecture: a(n) is the number of perimeter-magic (hollow) triangles
-of order 3 with magic sum n+2. Order 3 means each of the 3 edges has 3 elements
->=1; the triangle has 6 elements. The elements do not need to be distinct, and
-triangles obtained by rotations are counted only once."
-
-For every `n ≥ 0`, the number of rotation orbits of six-tuples of positive
-integers `(A, x, B, y, C, z)` (read counterclockwise, corners `A, B, C`) with
-`A + x + B = B + y + C = C + z + A = n + 2` equals `∑_{i=0}^{n} ⌈i²/4⌉`. -/
+/-- Mathar's A175287 identity: the rotation orbits of positive six-tuples
+`(A,x,B,y,C,z)` with `A+x+B = B+y+C = C+z+A = n+2` are counted by
+`Σ_{i=0}^n ceil(i²/4)`. Corners are `A,B,C`; repeated entries are allowed
+and reflections are not identified. -/
 theorem perimeterMagic_count_eq_a175287 (n : ℕ) :
     numTriangles (n + 2) = a175287 n := by
   have h3 := three_mul_numTriangles (n + 2)

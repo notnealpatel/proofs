@@ -1,39 +1,11 @@
 /-
 # A115038 — every prime is `y^k - x^2` with `x ≥ 1`, `k ≥ 2`
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A115038` and the live
-## entry `https://oeis.org/A115038/internal`)
-
-```
-NAME:     a(n) is the smallest x such that x^2 + prime(n) is a perfect power.
-OFFSET:   1
-TERMS:    5,1,2,1,4,6,8,9,2,14,1,18,20,21,9,26,29,8,33,21,36,7,41,6,48,50,...
-COMMENT:  Conjecture: There will always be an x,y,n such that x^2 + p = y^n
-          for all primes p. In otherwords, there is a one-one mapping of the
-          prime numbers to y^n - x^2 for some x,y,n. Therefore primes of the
-          form y^n - x^2 are infinite in number.
-EXAMPLE:  5 is the smallest number that when we add its square to prime 2,
-          we get a perfect power, 3^3. 1 is the smallest number that when we
-          add its square to prime 3, we get a perfect power, 2^2.
-FORMULA:  a(n)^2 + prime(n) = A115041(n)^A115039(n). - _Robert Israel_,
-          Mar 09 2026
-AUTHOR:   _Cino Hilliard_, Feb 26 2006
-```
-
-The comment carries no separate attribution; it is the original author's
-(Cino Hilliard, Feb 26 2006).  The programs search `x` from `1` and call a
-number a perfect power when the gcd of its prime exponents exceeds `1`, so
-the conjecture reads: for every prime `p` there are `x ≥ 1`, `y`, `k ≥ 2`
-with `x^2 + p = y^k`.
-
-## Status
-
-Triage: proved-elsewhere / trivial.  For odd `p`,
-`((p-1)/2)^2 + p = ((p+1)/2)^2` (difference of squares; the entry's own
-example `498^2 + 997 = 499^2` is this identity), and for `p = 2`,
-`5^2 + 2 = 3^3`.  Both are proved below.  Validated numerically
-(2026-10-21, Sage) for every prime `< 200000`, and the least `x` was
-recomputed and matches all 72 listed terms.
+OEIS A115038, Cino Hilliard: for every prime `p` there are `x ≥ 1`,
+`y` and `k ≥ 2` with `x² + p = y^k`. These bounds follow the entry's
+positive search range and perfect-power convention.
+For odd `p`, use `((p-1)/2)² + p = ((p+1)/2)²`; for `p = 2`, use
+`5² + 2 = 3³`. The least-`x` sequence uses OEIS offset `1`.
 -/
 import Mathlib
 
@@ -41,14 +13,14 @@ set_option autoImplicit false
 
 namespace Candidates.A115038PrimeThereExist
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `m` is a perfect power: `m = y^k` for some `y` and some exponent `k ≥ 2`
 (the entry's "perfect power", with exponent `n ≥ 2` in the comment). -/
 def IsPerfectPower (m : ℕ) : Prop := ∃ y k : ℕ, 2 ≤ k ∧ y ^ k = m
 
 /-- For `m ≥ 2` the witnesses of `IsPerfectPower m` are bounded by `m`, so
-the predicate is a finite search.  Used for the ground-truth checks. -/
+the predicate is a finite search.  Used for the examples. -/
 theorem isPerfectPower_iff_bounded {m : ℕ} (hm : 2 ≤ m) :
     IsPerfectPower m ↔
       ∃ y ∈ Finset.range (m + 1), ∃ k ∈ Finset.range (m + 1), 2 ≤ k ∧ y ^ k = m := by
@@ -74,10 +46,9 @@ theorem isPerfectPower_iff_bounded {m : ℕ} (hm : 2 ≤ m) :
 
 /-! ## The conjecture -/
 
-/-- **Hilliard's conjecture (A115038, Cino Hilliard, Feb 26 2006).**
+/-- **Hilliard's conjecture (A115038, Cino Hilliard, 2006).**
 
-Verbatim: "Conjecture: There will always be an x,y,n such that x^2 + p = y^n
-for all primes p."  With the entry's conventions (`x` searched from `1`,
+With the entry's conventions (`x` searched from `1`,
 perfect power exponent at least `2`): for every prime `p` there exist
 `x ≥ 1`, `y` and `k ≥ 2` with `x^2 + p = y^k`.
 
@@ -127,7 +98,7 @@ noncomputable def a115038 (n : ℕ) : ℕ :=
   Nat.find (exists_isPerfectPower_sq_add_prime (Nat.nth Nat.Prime (n - 1))
     (Nat.prime_nth_prime (n - 1)))
 
-/-! ## Sanity layer: ground truth against the DATA line `5, 1, 2, 1, …` -/
+/-! ## Examples: examples against the DATA line `5, 1, 2, 1, …` -/
 
 /-- `a115038 n = x` without `Nat.find`: `x ≥ 1` makes `x^2 + prime(n)` a
 perfect power and no smaller `x' ≥ 1` does. -/

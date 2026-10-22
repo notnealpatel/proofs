@@ -1,46 +1,18 @@
 /-
-# A327138 — Kimberling: `2.07 < n*π - a(n) < 3.08` for the `cos(2k) < cos(2k+2)` sequence
+# A327138: refutation of Kimberling's decimal bounds
 
-## OEIS source (retrieved with `oeis show A327138` and the live entry, 2026-10-21)
+OEIS A327138 (entry by Clark Kimberling, 2019-08-23) consists of integers
+`k` satisfying `cos(2k) < cos(2k+2)`. The entry conjectures
+`2.07 < nπ-a(n) < 3.08` for `n ≥ 1`.
 
-```
-NAME:     Numbers k such that cos(2k) < cos(2k+2).
-TERMS:    2,5,8,11,12,14,15,17,18,20,21,24,27,30,33,34,36,37,39,40,42,43,46,
-          49,52,55,56,58,59,61,62,64,65,68,71,74,77,78,80,81,83,84,86,87,90,...
-OFFSET:   1,1
-COMMENT:  The sequences A327138, A327139, A327140 partition the positive
-          integers.
-COMMENT (the conjecture, verbatim):
-  Conjecture:  2.07 < n*Pi - a(n) < 3.08 for n >= 1.
-AUTHOR:   _Clark Kimberling_, Aug 23 2019
-```
+Here `a(1) = 2` and `π-2 < 2.07` refute the lower bound. The first five
+terms are proved from the predicate; no density or sister-sequence
+formula is asserted as an additional formal result.
 
-The conjecture comment is unsigned; it is part of the entry as submitted by
-Clark Kimberling, Aug 23 2019.  No later comment in the entry retracts or
-amends it (the only later contribution is a Mathematica program by Harvey P.
-Dale, Oct 21 2024).
-
-## Status
-
-This module **refutes** the conjecture.  At `n = 1`, `a(1) = 2` and
-`π - 2 ≈ 1.1416 < 2.07`.  Computation (Sage/mpmath, 50 digits, `k < 20000`;
-evidence only) reproduces the 62 listed terms and shows the bounds fail for
-every `n ≤ 29` (e.g. `5π - 12 ≈ 3.708 > 3.08`): the sequence has density
-`1/2`, so `n*π - a(n)` grows without bound.  The bounds instead fit the sister
-sequence A327139 (`cos(2k) > cos(2k+2) < cos(2k+4)`), whose `n`-th term is
-`⌊((2n-1)π - 1)/2⌋`, giving `n*π - a(n) ∈ ((π+1)/2, (π+3)/2) ≈ (2.0708, 3.0708)`
-(observed for all terms below `20000`; not formalized here).
-
-## Definition layer
-
-`IsTerm k` is the entry's defining condition `cos(2k) < cos(2k+2)`, over
-`k : ℕ`; `k = 0` is not a term (`cos 0 = 1`), so the sequence is the same as
-when `k` ranges over the positive integers.  `a n` is the `n`-th term with the
-entry's offset `1`, i.e. `Nat.nth IsTerm (n - 1)`; `a 0` is a junk value and
-the conjecture quantifies over `n ≥ 1` only.  By the sum-to-product formula
-`cos(2k) - cos(2k+2) = 2 sin(2k+1) sin 1`, so `IsTerm k ↔ sin(2k+1) < 0`
-(`isTerm_iff_sin_neg`), which reduces the ground-truth checks to locating the
-odd integers `2k+1` between multiples of `π` (using `3.14 < π < 3.15`).
+`IsTerm` is defined on `ℕ`; `0` is not a term. The source offset is 1,
+so `a n = Nat.nth IsTerm (n-1)` and `a 0` is irrelevant to the conjecture.
+The sum-to-product identity gives `IsTerm k ↔ sin(2k+1) < 0`; bounds on `π`
+locate the small terms.
 -/
 import Mathlib
 
@@ -86,7 +58,7 @@ theorem not_isTerm_of_band (k m : ℕ) (h1 : 2 * m * π < 2 * k + 1)
   rw [isTerm_iff_sin_neg, not_lt, ← Real.sin_sub_nat_mul_two_pi _ m]
   exact (Real.sin_pos_of_pos_of_lt_pi (by linarith) (by linarith)).le
 
-/-! ### Ground truth against the OEIS DATA line -/
+/-! ### Examples against the OEIS DATA line -/
 
 /-- Among `k < 13`, the terms are exactly `2, 5, 8, 11, 12`. -/
 theorem isTerm_iff_of_lt_thirteen (k : ℕ) (hk : k < 13) :
@@ -143,23 +115,15 @@ theorem a_one_to_five : a 1 = 2 ∧ a 2 = 5 ∧ a 3 = 8 ∧ a 4 = 11 ∧ a 5 = 1
 
 /-! ### The conjecture -/
 
-/-- **Kimberling's conjecture (A327138, entry of Aug 23 2019).**
-
-Verbatim: "Conjecture:  2.07 < n*Pi - a(n) < 3.08 for n >= 1."
-
-Formalized: for every `n ≥ 1`, `2.07 < n·π - a(n)` and `n·π - a(n) < 3.08`,
-with the difference taken in `ℝ`. -/
+/-- The conjecture in Kimberling's OEIS A327138 entry (2019-08-23):
+for every `n ≥ 1`, `2.07 < n·π-a(n) < 3.08`, with subtraction in `ℝ`. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 1 ≤ n → (2.07 : ℝ) < n * π - a n ∧ (n : ℝ) * π - a n < 3.08
 
 /-! ### The refutation -/
 
-/-- **Kimberling's conjecture for A327138 is false.**  Counterexample: `n = 1`,
-where `a(1) = 2` and `π - 2 < 1.15 < 2.07` (the upper bound fails too, e.g. at
-`n = 5`: `5π - 12 ≈ 3.708`).  Since A327138 has density `1/2`, `n·π - a(n)` is
-unbounded.  The bounds were probably intended for the sister sequence A327139
-(`cos(2k) > cos(2k+2) < cos(2k+4)`), for which `n·π - a(n)` lies in
-`((π+1)/2, (π+3)/2) ⊂ (2.07, 3.08)`. -/
+/-- Kimberling's conjecture for A327138 is false at `n = 1`, where
+`a(1) = 2` and `π - 2 < 1.15 < 2.07`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   obtain ⟨hlo, -⟩ := h 1 le_rfl

@@ -1,36 +1,22 @@
 /-
-# Mixed thresholds in the Lonely Runner Conjecture: the exact space `MLPS₂`
+# Mixed loneliness thresholds for two speeds
 
-## Source
+Alathea Jensen, "Mixed thresholds in the Lonely Runner Conjecture",
+arXiv:2605.27941, Theorem A; definitions in Section 2.1 and proof in Section 4.2.
 
-* Alathea Jensen, "Mixed thresholds in the Lonely Runner Conjecture",
-  arXiv:2605.27941.  Statement: Theorem A (`thm:MLPS2`) in the introduction;
-  proof in Section 4.2 ("Proof of Theorem A"); definitions of `MLRC(d)` and
-  `MLPS_k` in Section 2.1.
+For distinct positive integer speeds, with no initial shifts, `MLRC(d₁, d₂)`
+requires a real time `t` with `dᵢ ≤ ‖sᵢ t‖`, where `‖x‖` is distance to the
+nearest integer. The threshold domain is `(0, 1/2]²`, including the upper
+boundary. Theorem A identifies it exactly:
+`MLPS₂ = {(d₁,d₂) ∈ (0,1/2]² : 2d₁ + d₂ ≤ 1 ∧ d₁ + 2d₂ ≤ 1}`.
 
-## Informal claim (verbatim from the paper)
-
-"Theorem A. The mixed loneliness parameter space `MLPS_2` is exactly
-`MLPS_2 = {(d_1,d_2) ∈ (0,1/2]^2 : 2d_1+d_2 ≤ 1 and d_1+2d_2 ≤ 1}`."
-
-Here, for `d = (d_1, …, d_k) ∈ (0,1/2]^k`, `MLRC(d)` is the statement "for every
-tuple of distinct positive integer speeds `(s_1,…,s_k)` there exists a time
-`t ∈ ℝ` such that `‖s_i t‖ ≥ d_i` for each `i`", where `‖x‖` is the distance from
-`x` to the nearest integer, and `MLPS_k = {d ∈ (0,1/2]^k : MLRC(d) holds}`.
-
-Recorded 2026-10-21.  Status: proved in the paper (Theorem A).  The equal
-threshold point `(1/3, 1/3)` is the three-runner lonely runner theorem
-(Wills 1967), formalized in `Proofs/Combinatorics/LonelyRunnerThree.lean`.
-
-## Proof sketch (following the paper)
-
-Sufficiency: divide both speeds by their gcd.  For coprime distinct `a, b`,
-pick odd `x, y` with `a x - b y = e ∈ {0, 1}` (`x = b, y = a, e = 0` if both
-speeds are odd; otherwise Bezout and a parity correction give `e = 1`).  The
-safe centers `y/(2a)` and `x/(2b)` are at distance `e/(2ab)`, and a time on the
-segment between them works because `1 ≤ b(1-2d_1) + a(1-2d_2)` on the polygon.
-Necessity: `‖2t‖ ≤ 1 - 2‖t‖` for every real `t`, so the speeds `(1,2)` and
-`(2,1)` force `2d_1 + d_2 ≤ 1` and `d_1 + 2d_2 ≤ 1`.
+For sufficiency, divide the speeds by their gcd. For distinct coprime `a, b`,
+choose odd `x, y` with `ax - by = e ∈ {0,1}`: use `x = b`, `y = a`, `e = 0`
+when both speeds are odd, and a parity-corrected Bezout identity otherwise.
+The safe centers `y/(2a)` and `x/(2b)` are at distance `e/(2ab)`. Their safe
+intervals overlap because `1 ≤ b(1-2d₁) + a(1-2d₂)` on the polygon.
+For necessity, `‖2t‖ ≤ 1 - 2‖t‖`, so speeds `(1,2)` and `(2,1)` force the two
+inequalities. The equal-threshold point `(1/3,1/3)` is the three-runner case.
 -/
 import Mathlib
 
@@ -53,19 +39,19 @@ def MLRC2 (d₁ d₂ : ℝ) : Prop :=
 def MLPS2 : Set (ℝ × ℝ) :=
   {d | (0 < d.1 ∧ d.1 ≤ 1 / 2) ∧ (0 < d.2 ∧ d.2 ≤ 1 / 2) ∧ MLRC2 d.1 d.2}
 
-/-! ### Ground truth for `distToInt` -/
+/-! ### Examples for `distToInt` -/
 
-/-- Ground truth: `‖1/3‖ = 1/3`. -/
+/-- `‖1/3‖ = 1/3`. -/
 example : distToInt (1 / 3) = 1 / 3 := by
   have h : round (1 / 3 : ℝ) = 0 := by rw [round_eq_zero_iff]; norm_num
   rw [distToInt, h]; norm_num [abs_of_pos]
 
-/-- Ground truth: `‖5/2‖ = 1/2`. -/
+/-- `‖5/2‖ = 1/2`. -/
 example : distToInt (5 / 2) = 1 / 2 := by
   have h : round (5 / 2 : ℝ) = 3 := by rw [round_eq, Int.floor_eq_iff]; norm_num
   rw [distToInt, h]; norm_num [abs_of_neg]
 
-/-- Ground truth: `‖3‖ = 0`. -/
+/-- `‖3‖ = 0`. -/
 example : distToInt 3 = 0 := by
   have h : round (3 : ℝ) = 3 := by exact_mod_cast round_natCast 3
   rw [distToInt, h]; norm_num
@@ -255,7 +241,7 @@ theorem le_of_mlrc2 {d₁ d₂ : ℝ} (h : MLRC2 d₁ d₂) :
     simp only [Nat.cast_one, one_mul, Nat.cast_ofNat] at ht₁ ht₂
     linarith
 
-/-- **Theorem A** (Jensen, arXiv:2605.27941, `thm:MLPS2`): the two-dimensional
+/-- Theorem A (Jensen, arXiv:2605.27941, `thm:MLPS2`): the two-dimensional
 mixed loneliness parameter space is exactly
 `MLPS₂ = {(d₁, d₂) ∈ (0,1/2]² : 2d₁ + d₂ ≤ 1 ∧ d₁ + 2d₂ ≤ 1}`. -/
 theorem thm_A :
@@ -269,16 +255,15 @@ theorem thm_A :
   · rintro ⟨hb₁, hb₂, h₁, h₂⟩
     exact ⟨hb₁, hb₂, mlrc2_of_le hb₁.1.le hb₂.1.le h₁ h₂⟩
 
-/-- Equivalent pointwise form of Theorem A: for `d₁, d₂ ∈ (0, 1/2]`,
+/-- Pointwise form of Theorem A: for positive `d₁, d₂`,
 `MLRC(d₁, d₂)` holds iff `2d₁ + d₂ ≤ 1` and `d₁ + 2d₂ ≤ 1`. -/
 theorem mlrc2_iff {d₁ d₂ : ℝ} (hd₁ : 0 < d₁) (hd₂ : 0 < d₂) :
     MLRC2 d₁ d₂ ↔ 2 * d₁ + d₂ ≤ 1 ∧ d₁ + 2 * d₂ ≤ 1 :=
   ⟨le_of_mlrc2, fun h => mlrc2_of_le hd₁.le hd₂.le h.1 h.2⟩
 
-/-! ### Non-vacuity checks -/
+/-! ### Examples -/
 
-/-- The classical three-runner point `(1/3, 1/3)` lies in `MLPS₂`
-(the lonely runner theorem for three runners, Wills 1967). -/
+/-- The three-runner point `(1/3, 1/3)` lies in `MLPS₂`. -/
 example : ((1 / 3 : ℝ), (1 / 3 : ℝ)) ∈ MLPS2 := by
   rw [thm_A]; norm_num
 

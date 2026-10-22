@@ -47,8 +47,8 @@ That guard is load-bearing: `a(1)^{1/1} = 1` and `a(2)^{1/2} = √2 ≈ 1.414` w
 The card separates them.
 -/
 import Mathlib
-import Enumerative.PracticalRoots
-import Enumerative.StewartCriterion
+import Sorry.Enumerative.PracticalRoots
+import Sorry.Enumerative.StewartCriterion
 
 set_option autoImplicit false
 

@@ -1,4 +1,4 @@
-import BilinearComplexity.CapsetSliceRank
+import Sorry.Quarantine.BilinearComplexity.CapsetSliceRank
 
 /-!
 # Archived open admission

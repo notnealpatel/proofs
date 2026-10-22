@@ -1,49 +1,14 @@
 /-
-# A084043 — palindromic multiples with `n` sandwiched inside: `a(n) = 0 ↔ 10 ∣ n`
+Palindromic multiples containing an interior digit string (OEIS A084043;
+Amarnath Murthy, May 26 2003; extension by Ray Chandler, Jun 11 2003).
 
-## OEIS source (retrieved with `oeis show A084043` and https://oeis.org/A084043, 2026-10-21)
-
-```
-NAME:     Smallest palindromic multiple of n in which the digit string of n
-          appears as sandwiched between at least a pair of digits, or 0 if
-          n = 10k or no such number exists.
-OFFSET:   1
-TERMS:    111,222,333,444,555,666,777,888,999,0,1111,82128,41314,414414,55155,
-          61616,317713,41814,41914,0,912219,2222,52325,2324232,52525,82628,
-          82728,828828,52925,0,2131312,23232,3333,2243422,535535,2136312,
-          43734,88388
-KEYWORDS: base,nonn
-AUTHOR:   Amarnath Murthy, May 26 2003
-EXTENSIONS: Corrected and extended by Ray Chandler, Jun 11 2003
-COMMENT (the conjecture; the entry gives no author or date for this line,
-         so it is attributed to the entry as of its 2003 creation/extension):
-  Conjecture: a(n) = 0 iff n = 10k.
-```
-
-## Status
-
-Triage: open (no proof in the entry, none found in the literature by the
-triage).  This file proves it (kernel-checked, no `sorry`).
-
-## Formalization
-
-Digit strings are `Nat.digits 10`, which is *little-endian*.  Reversing a
-decomposition `digits P = l ++ digits n ++ r` gives the big-endian decimal
-string `rev r ++ str n ++ rev l`, so "the digit string of `n` occurs in that of
-`P` with at least one digit on each side" is exactly `IsSandwiched n P` below;
-palindromicity is invariant under the reversal.
-
-## Proof
-
-(⇒) If `10 ∣ n ∣ P` then the units digit of `P` is `0`; a palindrome then has
-leading digit `0`, contradicting `Nat.getLast_digit_ne_zero`.
-
-(⇐) Write `n = q * m` with `q ∣ 10 ^ k` and `gcd(10, m) = 1`.  Let
-`Y = digits q ++ 0^k` (so `ofDigits Y = q` and `q ∣ 10 ^ |Y|`),
-`A = Y ++ digits n`, `R = A ++ reverse A` (a palindrome), and let `P` have digit
-list `R` repeated `t` times, `t = φ(m (10^|R| - 1))`.  Then `P` is a palindrome
-whose leading digit is `q % 10 ≠ 0`, `q ∣ ofDigits R`, and
-`m ∣ ∑_{i<t} 10^{|R| i}` by Euler's theorem, so `n ∣ P = ofDigits R * ∑ …`.
+The least-witness-or-zero value for positive palindromic multiples of n
+containing the digits of n with at least one digit on each side is zero
+iff 10∣n; zero denotes absence.
+Digits use Nat.digits 10, hence are little-endian. Reversing both strings
+preserves the sandwiched-occurrence condition and palindromicity.
+For 10∤n a repeated palindromic block constructs a witness; for 10∣n
+the units zero would force a forbidden leading zero.
 -/
 import Mathlib
 
@@ -71,7 +36,7 @@ noncomputable def a (n : ℕ) : ℕ := by
   classical
   exact if h : ∃ P, IsWitness n P then Nat.find h else 0
 
-/-! ## Ground truth against the listed terms -/
+/-! ## Examples against the listed terms -/
 
 /-- `111` is a witness for `n = 1` (first term). -/
 theorem isWitness_one_111 : IsWitness 1 111 := by
@@ -127,7 +92,7 @@ theorem le_of_isWitness_one {P : ℕ} (h : IsWitness 1 P) : 111 ≤ P := by
       exact hr hrest.2.symm
     · simp at hrest
 
-/-- Ground truth: `a 1 = 111`, the first listed term. -/
+/-- `a 1 = 111`, the first listed term. -/
 theorem a_one : a 1 = 111 := by
   classical
   have hex : ∃ P, IsWitness 1 P := ⟨111, isWitness_one_111⟩
@@ -313,10 +278,7 @@ positivity guard is needed; the entry's offset is `1`.) -/
 theorem exists_isWitness_iff (n : ℕ) : (∃ P, IsWitness n P) ↔ ¬ 10 ∣ n :=
   ⟨fun ⟨_, hP⟩ => not_ten_dvd_of_isWitness hP, exists_isWitness_of_not_ten_dvd n⟩
 
-/-- **Conjecture of OEIS A084043 (entry comment, Amarnath Murthy / Ray Chandler
-entry, 2003).**  Verbatim: "Conjecture: a(n) = 0 iff n = 10k."  Here `a n` is the
-smallest palindromic multiple of `n` in which the digit string of `n` appears
-sandwiched between at least a pair of digits, or `0` if none exists. -/
+/-- The least sandwiched palindromic multiple is zero iff `10∣n`. -/
 theorem a_eq_zero_iff (n : ℕ) : a n = 0 ↔ 10 ∣ n := by
   classical
   rw [← not_iff_not, ← exists_isWitness_iff]

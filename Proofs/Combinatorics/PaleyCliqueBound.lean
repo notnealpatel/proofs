@@ -7,22 +7,20 @@
   <https://mathoverflow.net/questions/48591>.  The question recalls the
   classical bounds `(1/2 - o(1)) log₂ p < c(p) ≤ sqrt p` for the clique number
   `c(p)` of the Paley graph `P(p)`, `p ≡ 1 (mod 4)`, and asks for improvements;
-  the accepted answer (2010) says no material improvement on the upper bound
-  was then known.
+  the accepted answer discusses the upper bound.
 * Later improvement outside the thread: B. Hanson and G. Petridis,
   "Refined estimates concerning sumsets contained in the roots of unity"
   (arXiv:1905.09134, Proc. LMS 2021), `c(p) ≤ (sqrt(2p - 1) + 1) / 2`.
   That sharper bound is not formalized here.
 
-## Verbatim informal claim (as recorded by the triage, 2026-10-21)
+## Statement
 
 "If `A` is a subset of `ZMod p` (`p` an odd prime) and every difference of
 distinct elements of `A` is a nonzero square, then `|A|^2 ≤ p`."
 
-## Status
+## Proof
 
-Classical, proved in the literature (folklore; stated as known in the thread).
-Not new.  Proof: for a fixed nonsquare `ν`, the map `(a, b) ↦ a + ν b` is
+For a fixed nonsquare `ν`, the map `(a, b) ↦ a + ν b` is
 injective on `A × A`; a collision with `b ≠ b'` would make `ν` the quotient of
 two nonzero squares.  The hypothesis is stated on ordered pairs, so `-1` being
 a square is not needed for the counting bound; it is needed only to make the
@@ -49,21 +47,21 @@ def paleyGraph (p : ℕ) [Fact p.Prime] (hp : p % 4 = 1) : SimpleGraph (ZMod p) 
     exact hneg.mul hsq
   loopless := ⟨fun a h => h.1 rfl⟩
 
-/-- `5` is prime; used only to instantiate the ground-truth examples on `P(5)`. -/
+/-- `5` is prime; used only to instantiate the examples on `P(5)`. -/
 local instance fact_prime_five : Fact (Nat.Prime 5) := ⟨by norm_num⟩
 
-/-- Ground truth: in `P(5)`, `0` and `1` are adjacent (`0 - 1 = -1 = 4 = 2²`). -/
+/-- In `P(5)`, `0` and `1` are adjacent (`0 - 1 = -1 = 4 = 2²`). -/
 example : (paleyGraph 5 (by norm_num)).Adj 0 1 :=
   ⟨by decide, ⟨2, by decide⟩⟩
 
-/-- Ground truth: in `P(5)`, `0` and `2` are not adjacent (`0 - 2 = 3` is a
+/-- In `P(5)`, `0` and `2` are not adjacent (`0 - 2 = 3` is a
 nonsquare mod 5). -/
 example : ¬ (paleyGraph 5 (by norm_num)).Adj 0 2 := by
   rintro ⟨-, r, hr⟩
   revert r
   decide
 
-/-- Ground truth: `{0, 1}` is a clique of `P(5)`, and `2² ≤ 5`. -/
+/-- `{0, 1}` is a clique of `P(5)`, and `2² ≤ 5`. -/
 example : (paleyGraph 5 (by norm_num)).IsClique ({0, 1} : Set (ZMod 5)) := by
   intro a ha b hb hab
   simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at ha hb

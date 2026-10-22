@@ -1,32 +1,13 @@
 /-
 # Infinitely many odd `n` divide `F_1 + ⋯ + F_n` (Fatehizadeh–Yaqubi conjecture)
 
-## Source
-
-Oisín Flynn-Connolly, *On the divisibility of sums of Fibonacci numbers*,
-arXiv:2504.09938.  Retrieved 2026-10-21 with `fetch 2504.09938`.
-
-* Introduction, Conjecture 1 (Fatehizadeh–Yaqubi, J. Integer Seq. 25 (2022)),
-  verbatim: "There are infinitely many odd integers $n$ that divide the sum of
-  the first $n$ nonzero Fibonacci numbers."
-* Section 2, Proposition `add`: $S_n = \sum_{i=1}^n F_i = F_{n+2} - 1$.
-* Section 3, Proposition `prop:pisano_period`: "Let $n > 1$ and $2 \mid n$.
-  Then $\pi(F_n) \mid 2n$."
-* Section 3, Theorem `thm:main`, verbatim: "Let $n = 2p$ or $n = 4p$, where
-  $p$ is an odd prime such that $p \equiv 2 \bmod 3$ and
-  $p \equiv \pm 2 \bmod 5$.  Then $F_n \equiv 1 \bmod 2$ and
-  $F_{F_n + 2} - 1 \equiv 0 \bmod{F_n}$."
-* Section 3, final Corollary: "There are infinitely many odd integers $k$ such
-  that $k$ divides the sum of the first $k$ Fibonacci numbers."
-
-## Status
-
-Proved in the paper.  This module formalizes the `n = 2p` case of Theorem
-`thm:main` and the final Corollary (the resolution of the conjecture).  The
-`n = 4p` case of Theorem `thm:main` is not formalized here; it is not needed
-for the corollary.
-
-## Proof route (differs from the paper at one step)
+Oisín Flynn-Connolly, “On the divisibility of sums of Fibonacci
+numbers”, arXiv:2504.09938, §3, Theorem `thm:main` and its corollary.
+There are infinitely many odd `N` dividing `F₁+⋯+F_N`, resolving the
+Fatehizadeh–Yaqubi conjecture (J. Integer Seq. 25 (2022)).
+The module proves the `n = 2p` case for odd primes `p ≡ 2 (mod 3)`,
+`p ≡ ±2 (mod 5)`; the paper's `n = 4p` case is not needed and is not
+formalized. Witnesses are `N = F_{2p}` with `p ≡ 17 (mod 30)`.
 
 The paper computes `F_{2p} mod 4p` through Wall's bound on the Pisano period
 `π(p) ∣ 2(p+1)`.  Here the only input is the congruence
@@ -266,10 +247,10 @@ theorem sum_Icc_fib_add_one (n : ℕ) :
 
 /-! ## Theorem `thm:main`, case `n = 2p` -/
 
-/-- Ground truth: `n = 77` is the first odd `n > 1` dividing `F_1 + ⋯ + F_n`. -/
+/-- The odd integer `n = 77` divides `F_1 + ⋯ + F_n`. -/
 example : 77 ∣ ∑ i ∈ Finset.Icc 1 77, Nat.fib i := by decide
 
-/-- Ground truth at `p = 17`: `F_{34} = 5702887 ≡ -1 (mod 68)`. -/
+/-- Examples at `p = 17`: `F_{34} = 5702887 ≡ -1 (mod 68)`. -/
 example : Nat.fib 34 = 5702887 ∧ Nat.fib 34 % 68 = 67 := by decide
 
 /-- The hypotheses of `thm_main_two_mul` are jointly satisfiable (`p = 17`). -/

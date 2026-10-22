@@ -1,37 +1,12 @@
 /-
 # A142591 — Bouhamida: composite members of A143578 are the semiprimes `p*q` with `p+q ∣ p*q+1`
 
-## OEIS source (retrieved with `oeis show A142591` / `oeis show A143578`, 2026-10-21)
-
-```
-A142591
-NAME:     Composite terms in A143578.
-TERMS:    15,35,95,119,143,209,287,319,323,377,527,559,779,899,923,989,1007,
-          1189,1199,1343,1349,1763,1919,2159,2507,2759,2911,3239,3599,3827,4031,
-          4607,5183,5207,5249,5459,5543,6439,6887,7067,7279,7739,8159,8639,9179,9593
-COMMENT (the conjecture):
-  Conjecture: This consists exactly of the semiprimes p*q for which p + q
-  divides p*q + 1. - _Mohamed Bouhamida_, Aug 17 2009 (Comment edited by
-  _N. J. A. Sloane_, Sep 01 2019.)
-
-A143578
-NAME:     A positive integer n is included if j+n/j divides k+n/k for every
-          divisor k of n, where j is the largest divisor of n that is <= sqrt(n).
-TERMS:    1,2,3,5,7,11,13,15,17,19,23,29,31,35,37,41,43,47,53,59,61,67,71,...
-COMMENT:  There is no term <= 5*10^7 with bigomega(n)>2, i.e., with more than
-          2 prime factors. - _M. F. Hasler_, Aug 25 2008. Compare A142591.
-COMMENT:  If it is always true that the terms have <= 2 prime divisors, then
-          this sequence is equal to {1} U primes U {pq: p, q prime,
-          p+q | p^2-1}. - _David W. Wilson_, Aug 25 2008
-```
-
-## Status
-
-Triage: open (neither entry contains a proof; Hasler checked `n ≤ 5*10^7`).
-Re-validated here by direct computation for `2 ≤ n ≤ 10^6` (482 composite
-members, no mismatch with the conjectured description).  This file proves the
-conjecture outright (`bouhamida_conjecture`), together with Hasler's
-"at most 2 prime factors" remark (`primeFactorsList_length_le_two`).
+Mohamed Bouhamida's conjecture in OEIS A142591 characterizes the composite
+members of A143578 as semiprimes `pq` with `p+q ∣ pq+1`.
+For A143578, let `j` be the largest divisor of positive `n` not exceeding
+`√n`; membership requires `j+n/j ∣ k+n/k` for every divisor `k`.
+The characterization and M. F. Hasler's bound of two prime factors counted
+with multiplicity are proved below.
 
 ## Definitional fidelity
 
@@ -70,7 +45,7 @@ def InA142591 (n : ℕ) : Prop :=
 instance : DecidablePred InA142591 := fun n => by
   unfold InA142591; infer_instance
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : lowDivisor 12 = 3 := by decide
 example : lowDivisor 15 = 3 := by decide
@@ -246,9 +221,9 @@ theorem inA143578_of_primes {p q : ℕ} (hp : p.Prime) (hq : q.Prime) (hpq : p <
 
 /-! ## The conjecture -/
 
-/-- **Bouhamida's conjecture (A142591, Mohamed Bouhamida, Aug 17 2009).**
+/-- **Bouhamida's conjecture (A142591, Mohamed Bouhamida).**
 
-Verbatim: "Conjecture: This consists exactly of the semiprimes p*q for which
+"Conjecture: This consists exactly of the semiprimes p*q for which
 p + q divides p*q + 1."  Here A142591 is the set of composite terms of A143578.
 Formally: a composite `n` (`1 < n`, `¬ n.Prime`) lies in A143578 iff
 `n = p * q` with primes `p < q` and `(p + q) ∣ p * q + 1`.

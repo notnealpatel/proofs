@@ -1,35 +1,12 @@
 /-
-# A029797 — refutation of Greathouse's "eventually consecutive" conjecture
+# A029797: refutation of eventual consecutive enumeration
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A029797`; offset
-checked against the live entry, `%O 1,3`)
-
-```
-A029797   Numbers k such that k^2 and k^3 have the same set of digits.
-TERMS:    0,1,10,100,146,1000,1203,1460,7652,8077,8751,8965,10000,10406,
-          11914,12030,12057,12586,12768,12961,13055,14202,14600,14625,16221,
-          19350,20450,21539,22040,22175,23682,24071,25089,25201,25708,26653,
-          26981
-OFFSET:   1
-COMMENT:  Conjecture: there exists some m and N for which a(n) = m + n for all
-          n >= N. [_Charles R Greathouse IV_, Jun 28 2011]
-COMMENT:  This conjecture is false. If the conjecture is true then for some N
-          we would have k is in the sequence if k >= n. But 10^e + 1 (A062397)
-          is not in the sequence for any integer e >= 0.
-          - _David A. Corneth_, Nov 13 2023
-```
-
-No later comment withdraws Corneth's refutation.
-
-## Status
-
-This module refutes Greathouse's conjecture (kernel-checked).  If
-`a(n) = m + n` for all `n ≥ N`, then every integer `k ≥ a(N)` lies in the
-sequence.  The witness used here is `k = 2 * 10^e` (rather than Corneth's
-`10^e + 1`): `k^2 = 4 * 10^(2e)` has digit set `{0, 4}` (or `{4}`), while
-`k^3 = 8 * 10^(3e)` has digit set `{0, 8}` (or `{8}`), so `4` separates them.
-A Python recheck (2026-10-21) confirms the 37 listed terms and that neither
-`2 * 10^e` nor `10^e + 1` lies in the sequence for `0 ≤ e < 40`.
+OEIS A029797, Charles R Greathouse IV (Jun 28 2011); David A. Corneth's
+refutation (Nov 13 2023) uses `10^e + 1` (A062397).
+Here the excluded family is `2*10^e`: its square and cube have different
+decimal digit sets. Eventual enumeration `a(n) = m + n`, even for an integer
+shift `m`, would contain every sufficiently large integer, a contradiction.
+The sequence has offset `1` and is infinite, since it contains `10^e`.
 -/
 import Mathlib
 
@@ -37,7 +14,7 @@ set_option autoImplicit false
 
 namespace Candidates.A029797Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `k` belongs to A029797: the decimal digit sets of `k^2` and `k^3`
 coincide (`Nat.digits 10 0 = []`, so `k = 0` qualifies, as in the entry). -/
@@ -53,7 +30,7 @@ instance : DecidablePred IsA029797 := fun k =>
 (meaningful for `1 ≤ n`; the conjecture below only uses such `n`). -/
 noncomputable def a (n : ℕ) : ℕ := Nat.nth IsA029797 (n - 1)
 
-/-! ## Ground truth against the listed terms -/
+/-! ## Examples against the listed terms -/
 
 example : IsA029797 0 := by decide
 example : IsA029797 1 := by decide
@@ -130,13 +107,10 @@ theorem not_isA029797_two_mul_ten_pow (e : ℕ) : ¬ IsA029797 (2 * 10 ^ e) := b
 
 /-! ## The refutation -/
 
-/-- **Greathouse's conjecture is false.**  If `a n = m + n` for all `n ≥ N`,
-then consecutive terms differ by `1` from `a N` on, so every `k ≥ a (max N 1)`
-is in the sequence; but `k = 2 * 10^e` (with `e = a (max N 1)`) is not,
-since `k^2 = 4 * 10^(2e)` contains the digit `4` and `k^3 = 8 * 10^(3e)` does
-not.  (Corneth's witness `10^e + 1` works equally.)  The intended statement was
-presumably a density claim (almost all `k` are in the sequence), which this
-module does not address. -/
+/-- Eventual affine enumeration would contain every integer from
+`a (max N 1)` onward. The excluded family `2*10^e` contradicts this:
+its square contains digit `4`, whereas its cube does not.
+No asymptotic density assertion is addressed. -/
 theorem greathouse_false : ¬ Conjecture := by
   rintro ⟨m, N, hN⟩
   set N' := max N 1 with hN'

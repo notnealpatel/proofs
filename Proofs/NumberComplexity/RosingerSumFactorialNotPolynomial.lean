@@ -1,11 +1,8 @@
 /-
 # Rosinger, "Synthesizing Sums", Open Problem 2 (answered: no)
 
-## Source
-
-arXiv:math/0702605, Elemér E. Rosinger, *Synthesizing Sums*, Section 2,
-Open Problem 2, equation (2.7) (retrieved with `fetch math/0702605`,
-2026-10-21).
+Elemér E. Rosinger, *Synthesizing Sums*, arXiv:math/0702605, §2,
+Open Problem 2, equation (2.7).
 
 Definitions in the paper (`ℕ₊ = {1, 2, 3, ...}`):
 
@@ -15,16 +12,8 @@ Definitions in the paper (`ℕ₊ = {1, 2, 3, ...}`):
 * (2.5)–(2.6) `SPF_ℤ` is the set of `f ∈ PF_ℤ` such that
   `∃ g ∈ PF_ℚ, ∀ n ∈ ℕ₊, f(1) + f(2) + ... + f(n) = g(n)`.
 
-Verbatim informal claim: "On the other hand, as far as we know, the function
-`f` given by `n ↦ n!` may, or may not belong to `SPF_ℤ`. ... **Open Problem 2.**
-Does the equality (2.7) `SPF_ℤ = PF_ℤ` hold ?"
-
-## Status
-
-Open in the paper.  This module answers it **negatively**, kernel-checked:
-`n ↦ n!` lies in `PF_ℤ` but not in `SPF_ℤ`, so `SPF_ℤ ⊊ PF_ℤ`.  The answer
-is folklore (Gosper's algorithm shows `∑ k!` has no hypergeometric closed
-form), but the paper records it as open.
+The answer is negative: `n ↦ n!` belongs to `PF_ℤ` but not `SPF_ℤ`, so
+`SPF_ℤ ⊊ PF_ℤ`.
 
 Proof outline.
 

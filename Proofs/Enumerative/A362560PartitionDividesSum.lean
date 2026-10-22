@@ -1,41 +1,11 @@
 /-
-# A362560 — Wiseman: weighted-sum divisibility is reversal invariant
+Reversal-invariant weighted-sum divisibility (OEIS A362560;
+Gus Wiseman, Apr 28 2023).
 
-## OEIS source (`oeis show A362560`, live entry https://oeis.org/A362560,
-## retrieved 2026-10-21)
-
-```
-NAME:     Number of integer partitions of n whose weighted sum is not
-          divisible by n.
-OFFSET:   1,4
-TERMS:    0,1,1,4,5,8,12,19,25,38,51,70,93,124,162,217,279,360,462,601,...
-COMMENT:  The (one-based) weighted sum of a sequence (y_1,...,y_k) is
-          Sum_{i=1..k} i*y_i. This is also the sum of partial sums of the
-          reverse.
-COMMENT (the conjecture):
-          Conjecture: A partition of n has weighted sum divisible by n iff its
-          reverse has weighted sum divisible by n.
-EXAMPLE:  The weighted sum of y = (3,3,1) is 1*3+2*3+3*1 = 12, which is not a
-          multiple of 7, so y is counted under a(7).
-AUTHOR:   Gus Wiseman, Apr 28 2023
-MATHEMATICA: Table[Length[Select[IntegerPartitions[n],
-          !Divisible[Total[Accumulate[Reverse[#]]],n]&]],{n,30}]
-```
-
-The conjecture comment carries no separate signature; the entry (and hence the
-comment) is by Gus Wiseman, Apr 28 2023.  `IntegerPartitions` lists parts in
-weakly decreasing order, so `y = (y_1 ≥ ... ≥ y_k)`.
-
-## Status
-
-Triage: "open" in the sense that the entry still labels it a conjecture and no
-proof was found in the entry or the literature.  It is in fact immediate: the
-weighted sum of the reverse is `Sum_i (k+1-i)*y_i = (k+1)*n - W`, which is
-`≡ -W (mod n)`.  This module proves it.
-
-Computation (2026-10-21, python, all partitions of `n ≤ 30`): no partition
-violates the equivalence, and the count of partitions with `n ∤ W` reproduces
-the 30 listed terms exactly.
+For any natural list y with sum n and length k, define W(y)=∑_{i=1}^k i*y_i.
+Then W(y)+W(reverse y)=(k+1)n, so n∣W(y) iff n∣W(reverse y).
+The result is specialized to the weakly decreasing list of parts of a
+Nat.Partition n, and includes n=0.
 -/
 import Mathlib
 
@@ -59,21 +29,21 @@ def decreasingParts {n : ℕ} (p : Nat.Partition n) : List ℕ :=
 def partition331 : Nat.Partition 7 :=
   ⟨(([1, 3, 3] : List ℕ) : Multiset ℕ), by decide, by decide⟩
 
-/-- Ground truth: the decreasing listing of the multiset `{1,3,3}` is `(3,3,1)`. -/
+/-- The decreasing listing of the multiset `{1,3,3}` is `(3,3,1)`. -/
 example : decreasingParts partition331 = [3, 3, 1] := by
   rw [decreasingParts, partition331, Multiset.coe_sort, List.mergeSort_eq_insertionSort]
   decide
 
-/-- Ground truth from the EXAMPLE: the weighted sum of `(3,3,1)` is
+/-- Examples from the EXAMPLE: the weighted sum of `(3,3,1)` is
 `1*3 + 2*3 + 3*1 = 12`. -/
 example : weightedSum [3, 3, 1] = 12 := by decide
 
-/-- Ground truth: `7 ∤ 12`, so `(3,3,1)` is counted under `a(7)`. -/
+/-- `7 ∤ 12`, so `(3,3,1)` is counted under `a(7)`. -/
 example : ¬ 7 ∣ weightedSum (decreasingParts partition331) := by
   rw [decreasingParts, partition331, Multiset.coe_sort, List.mergeSort_eq_insertionSort]
   decide
 
-/-- Ground truth for the reverse: `weightedSum (1,3,3) = 1 + 6 + 9 = 16`, and
+/-- Examples for the reverse: `weightedSum (1,3,3) = 1 + 6 + 9 = 16`, and
 `12 + 16 = (3 + 1) * 7`. -/
 example : weightedSum [1, 3, 3] = 16 := by decide
 
@@ -153,21 +123,15 @@ theorem dvd_weightedSum_iff_dvd_weightedSum_reverse (l : List ℕ) (n : ℕ) (hl
 
 /-! ## The conjecture -/
 
-/-- **Wiseman's conjecture (A362560, Gus Wiseman, Apr 28 2023), proved.**
-
-Verbatim: "Conjecture: A partition of n has weighted sum divisible by n iff its
-reverse has weighted sum divisible by n."
-
-For every `n` and every partition `p` of `n`, listed in weakly decreasing order
-as `y = (y_1 ≥ ... ≥ y_k)`, `n` divides the one-based weighted sum
-`Sum_i i * y_i` iff `n` divides the weighted sum of the reversed list. -/
+/-- For every partition of `n`, divisibility of its one-based weighted
+sum by `n` is unchanged when its decreasing list of parts is reversed. -/
 theorem a362560_conjecture (n : ℕ) (p : Nat.Partition n) :
     n ∣ weightedSum (decreasingParts p) ↔ n ∣ weightedSum (decreasingParts p).reverse := by
   have hsum : (decreasingParts p).sum = n := by
     rw [decreasingParts, ← Multiset.sum_coe, Multiset.sort_eq, p.parts_sum]
   exact dvd_weightedSum_iff_dvd_weightedSum_reverse _ n hsum
 
-/-- The conjecture in the triage's literal form: with `y = (y_1 ≥ ... ≥ y_k)`
+/-- The explicit partition statement: with `y = (y_1 ≥ ... ≥ y_k)`
 the decreasing parts of a partition of `n`, `n ∣ Sum_{i=1..k} i * y_i` iff
 `n ∣ Sum_{i=1..k} (k+1-i) * y_i` (both sums written zero-based). -/
 theorem a362560_conjecture_explicit (n : ℕ) (p : Nat.Partition n) :

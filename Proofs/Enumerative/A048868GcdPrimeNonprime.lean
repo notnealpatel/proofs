@@ -1,42 +1,13 @@
 /-
-# A048868 — if primes outnumber nonprimes in the reduced residue system of `n`, then `n` is even
+# A048868: primes in reduced residue systems
 
-## OEIS source (retrieved with `oeis show A048868`, 2026-10-21)
-
-```
-NAME:     Numbers whose reduced residue system contains more primes than
-          nonprimes.
-TERMS:    8,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,
-          56,60,62,64,66,68,70,72,74,76,78,80,84,88,90,96,98,100,102,104,108,
-          110,112,114,120,126,130,132,138,140,144,150,154,156,160,162,168,170
-COMMENT (the conjecture, inside the block "From _Michael De Vlieger_,
-  May 21 2017: (Start) ... (End)"):
-  Conjecture: all terms are even.
-PROGRAM (Mathematica, the definition this file mirrors):
-  Select[Range@ 170, Function[n, Count[Range@ n, _?(PrimeQ@ # &&
-    CoprimeQ[n, #] &)] > EulerPhi[n]/2]] (* _Michael De Vlieger_, May 21 2017 *)
-```
-
-## Status
-
-Open according to the triage: the entry contains no proof, and the b-file and
-David A. Corneth's search (PARI programs of Jun 09 2024) report no odd term
-below `10^8`.  Recomputed here (Python, 2026-10-21): no odd term `n ≤ 20000`,
-and the first 61 terms agree with the DATA line.
-
-This file proves the conjecture.  The argument is elementary: for odd `n` the
-reflection `k ↦ n - k` sends odd reduced residues to even ones, and even
-residues other than `2` are nonprime.  An explicit injection from the primes of
-the reduced residue system into its nonprimes is
-`2 ↦ 1`, `n - 2 ↦ n - 1` (when `n - 2` is prime), `p ↦ n - p` otherwise.
-
-## Definition layer
-
-* `reducedResidues n = {k : 1 ≤ k ≤ n, gcd(k, n) = 1}`, the entry's `Range@ n`
-  filtered by `CoprimeQ[n, #]`.  Its cardinality is `φ(n)` (checked below for
-  `n < 60`), so `nonprimeCount n < primeCount n` is De Vlieger's
-  `#primes > EulerPhi[n]/2`.
-* `IsA048868 n := nonprimeCount n < primeCount n`.
+OEIS A048868, Michael De Vlieger (May 21 2017).
+For odd `n`, the reduced residues `1 ≤ k ≤ n` with `gcd(k,n) = 1` contain
+at most as many primes as nonprimes. An explicit injection sends `2` to `1`,
+`n-2` to `n-1` when prime, and the other primes `p` to `n-p`.
+Thus every member of A048868 is even. The general cardinality identity
+with `Nat.totient` is not proved here; the result uses the prime/nonprime
+partition directly.
 -/
 import Mathlib
 
@@ -66,7 +37,7 @@ def IsA048868 (n : ℕ) : Prop :=
 instance : DecidablePred IsA048868 :=
   fun n => inferInstanceAs (Decidable (nonprimeCount n < primeCount n))
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The reduced residue system has `φ(n)` elements (here for `n < 60`).
 example : ∀ n ∈ Finset.range 60, (reducedResidues n).card = Nat.totient n := by

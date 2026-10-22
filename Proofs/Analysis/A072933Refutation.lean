@@ -1,51 +1,21 @@
 /-
-# A072933 — Cloitre: refutation of `lim a(n)/n = 10`
+# A072933: refutation of Cloitre's limit conjecture
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A072933`, cross-checked
-against `https://oeis.org/A072933/internal`, revision #7, Nov 05 2024)
+OEIS A072933 (Benoit Cloitre, 2002-08-13) consists of positive integers `m`
+for which the least positive `k` satisfying
+`⌊(1+1/k)^m⌋ = ⌊(1+1/m)^k⌋` differs from `round(91m/100)`.
+The entry conjectures `a(n)/n → 10`.
 
-```
-NAME:     Numbers m such that the least k such that
-          floor( (1+1/k)^m ) = floor( (1+1/m)^k ) is not equal to
-          round(m*91/100).
-TERMS:    39,128,139,206,217,228,239,284,295,306,317,328,339,362,373,384,395,
-          406,417,428,439,440,451,462,473,484,495,506,517,518,528,529,539,540,
-          551,562,573,584,595,596,606,607,617,618,628,629,639,640,651,662,673
-FORMULA:  Conjecture: lim n -> infinity a(n)/n = 10
-OFFSET:   1,1
-AUTHOR:   _Benoit Cloitre_, Aug 13 2002
-KEYWORDS: easy,nonn
-```
+For every `m ≥ 18000`, the rounded candidate is not a solution: its two
+floors are respectively at least `3` and at most `2`. Thus every such `m`
+is a member, the enumeration is eventually affine, and `a(n)/n → 1`.
+The threshold is a sufficient bound, not a sharpness claim.
 
-The entry has no comments or extensions; nothing retracts the conjecture.
-
-## Status
-
-This module **refutes** the conjecture (`conjecture_false`).  Every
-`m ≥ 18000` belongs to the sequence (`inS_of_le`), so `a(n) = n + O(1)` and
-`a(n)/n → 1` (`tendsto_a_div`), not `10`.
-
-Mechanism: the least `k` is about `m / log 3 - 1/2`, and
-`1 / log 3 = 0.91024… > 0.91`, so `round(91m/100)` eventually falls below the
-least solution.  Concretely, for `r = round(91m/100)` and large `m`,
-`floor((1+1/r)^m) ≥ 3` while `floor((1+1/m)^r) ≤ 2`, so `r` is not even a
-solution.  Exact integer computation (m ≤ 6000) reproduces all 51 listed
-terms and shows the largest non-member is `4150`; the threshold `18000` is
-chosen for a short analytic proof, not sharpness.
-
-Cloitre's `10` matches the empirical density only for `m` up to about `1000`
-(`1000 / #(S ∩ [1,1000]) ≈ 8.7`); the density tends to `1`.
-
-## Conventions
-
-* `k` ranges over positive integers (at `k = 0` the term `1/k` is undefined;
-  in `ℚ` it would be the junk value `0`, which would make `k = 0` match for
-  every `m`).
-* `m ≥ 1` (the entry's `1/m`; `m = 0` is excluded explicitly).
-* `round` is Mathlib's `round` on `ℚ` (ties round up).  Ties occur at
-  `m ≡ 50 (mod 100)`; the half-up convention reproduces all listed terms, and
-  the refutation is insensitive to the convention.
-* OEIS offset 1: `a 1 = 39`.  The junk value `a 0` does not affect the limit.
+The floor equality is computed in `ℚ`, with positive `k` to exclude the
+value of `1/0`; membership explicitly requires `m ≥ 1`. Mathlib's rational
+`round` rounds ties up (ties occur at `m ≡ 50 mod 100`). The refutation is
+insensitive to tie-breaking. The OEIS offset is 1: `a 1 = 39`; `a 0` is
+irrelevant to the limit.
 -/
 import Mathlib
 
@@ -140,7 +110,7 @@ instance : DecidablePred InSN := by unfold InSN; infer_instance
 
 instance : DecidablePred InS := fun m => decidable_of_iff _ (inS_iff_inSN m).symm
 
-/-! ## Ground truth against the listed terms -/
+/-! ## Examples from the listed terms -/
 
 example : round ((91 * ((50 : ℕ) : ℚ)) / 100) = 46 :=
   (round_mul_91_div_100 50).trans (by norm_num)
@@ -310,11 +280,8 @@ theorem tendsto_a_div : Tendsto (fun n : ℕ => (a n : ℝ) / n) atTop (𝓝 1) 
     exact h0
   exact hlim.congr' (eventually_atTop.2 ⟨c + 1, fun n hn => (key n hn).symm⟩)
 
-/-- **Refutation of Cloitre's conjecture (A072933).**  `a(n)/n` does not tend
-to `10`: every `m ≥ 18000` is a term (the largest non-term found by exact
-computation is `4150`), so `a(n)/n → 1`.  The constant `10` reflects only the
-density of terms below about `1000`; the threshold behind the sequence is
-`1 / log 3 = 0.91024… > 0.91`. -/
+/-- Cloitre's conjecture (A072933) is false: every `m ≥ 18000` is a term,
+so `a(n)/n → 1`, not `10`. -/
 theorem conjecture_false : ¬ Conjecture := fun h => by
   have h10 := tendsto_nhds_unique h tendsto_a_div
   norm_num at h10

@@ -1,51 +1,12 @@
 /-
-# A088827 — Rascoe: the dispersion array A191432 indexes the even numbers with odd abundance
+# A088827: Rascoe's dispersion-array identity
 
-## OEIS source (retrieved with `oeis show A088827`, 2026-10-21; live entry re-checked
-the same day: the formula is still marked "Conjecture")
-
-```
-NAME:     Even numbers with odd abundance: even squares or two times squares.
-TERMS:    2,4,8,16,18,32,36,50,64,72,98,100,128,144,162,196,200,242,256,288,
-          324,338,392,400,450,484,512,576,578,648,676,722,784,800,882,900,...
-COMMENT:  Sigma(k)-2k is odd means that sigma(k) is also odd.
-FORMULA (the conjecture):
-  Conjecture: a(n) = ((2*r) + 1)^2 * 2^(c+1) where r and c are the
-  corresponding row and column of n in the table format of A191432, where the
-  first row and column are 0. - _John Tyler Rascoe_, Jul 12 2022
-```
-
-Cross-referenced entries (retrieved with `oeis show`, 2026-10-21):
-
-```
-A191432  NAME: Dispersion of ([n*x+1/x]), where x=sqrt(2) and [ ]=floor, by
-               antidiagonals.
-         TERMS: 1,2,5,3,7,8,4,10,12,11,6,14,17,16,15,9,20,24,23,21,18,13,...
-         COMMENT: Suppose that s is an increasing sequence of positive
-           integers, that the complement t of s is infinite, and that t(1)=1.
-           The dispersion of s is the array D whose n-th row is
-           (t(n), s(t(n)), s(s(t(n))), s(s(s(t(n)))), ...).
-         PROGRAM: f[n_] := Floor[n*x + 1/x] (* f(n) is complement of column 1 *)
-A001953  NAME: a(n) = floor((n + 1/2) * sqrt(2)).
-         TERMS: 0,2,3,4,6,7,9,10,12,13,14,16,17,19,20,21,23,24,26,27,28,...
-```
-
-## Literature status (triage)
-
-Open as far as the triage could tell: neither entry gives a proof.  Computation
-(2026-10-21, Python, exact integer arithmetic): the formula holds for every
-`n ≤ 3 817 205` (all ranks of A088827 terms below `10^13`), extending the
-triage's check to `n ≤ 200 000`.
-
-## Proof (kernel-checked below)
-
-* A088827 consists of the numbers `4j²` and `2j²` (`j ≥ 1`), so the number of
-  terms `≤ X` is `⌊√(X/4)⌋ + ⌊√(X/2)⌋` (`4i² ≠ 2j²` by the 2-adic valuation).
-* Doubling acts on ranks as `s`: `s(rank b) = rank (2b)` for every term `b`
-  (`sNat_rank`), a floor computation in integers.
-* Hence the complement of `s` consists of the ranks of the terms that are not
-  twice a term, namely `2(2r+1)²`, listed in increasing order of `r`; so row
-  `r`, column `c` of the dispersion holds the rank of `(2r+1)² · 2^(c+1)`.
+OEIS A088827, John Tyler Rascoe (Jul 12 2022), with A191432 and A001953.
+Positive even numbers of odd abundance are exactly `4j²` or `2j²`, `j ≥ 1`.
+Doubling acts on their ranks by the Beatty map defining the dispersion.
+With rows and columns starting at zero, row `r`, column `c` contains the
+rank of `(2r+1)² * 2^(c+1)`. Every positive rank occurs in the array.
+Abundance is computed in `ℤ`.
 -/
 import Mathlib
 import Enumerative.A016957ContainsSomeBut
@@ -58,7 +19,7 @@ open ArithmeticFunction Finset
 open Candidates.A016957ContainsSomeBut (IsA088827 abundance odd_sigma_sq
   exists_two_pow_mul_sq_of_odd_sigma odd_abundance_iff odd_geom_sum_of_even)
 
-/-! ## Definition layer
+/-! ## Definitions
 
 Reused verbatim from `Proofs/Enumerative/A016957ContainsSomeBut.lean`:
 
@@ -86,7 +47,7 @@ noncomputable def rowStart (r : ℕ) : ℕ := Nat.nth IsRowStart r
 `t, s(t), s(s(t)), …` with `t = rowStart r`. -/
 noncomputable def T (r c : ℕ) : ℕ := s^[c] (rowStart r)
 
-/-! ## Ground truth for `a` -/
+/-! ## Examples for `a` -/
 
 /-- `a (count b + 1) = b` for every term `b` (used for the data checks). -/
 theorem a_count_add_one {b : ℕ} (hb : IsA088827 b) :
@@ -470,7 +431,7 @@ theorem exists_T_eq {n : ℕ} (hn : 0 < n) : ∃ r c, T r c = n := by
     congr 1
     ring
 
-/-! ## Ground truth for `s` and the array (checked through the proved formulas) -/
+/-! ## Examples for `s` and the array (checked through the proved formulas) -/
 
 -- A001953 data line: `s 0, …, s 9 = 0, 2, 3, 4, 6, 7, 9, 10, 12, 13`.
 example : s 0 = 0 ∧ s 1 = 2 ∧ s 2 = 3 ∧ s 3 = 4 ∧ s 4 = 6 ∧ s 5 = 7 ∧ s 6 = 9 ∧

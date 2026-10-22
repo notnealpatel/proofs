@@ -1,39 +1,10 @@
 /-
 # A321575 — Israel: the non-squarefree least composite pretenders are 4, 9, 49
 
-## OEIS source (re-pulled with `oeis show A321575`, 2026-10-21)
+Robert Israel's conjecture in OEIS A321575 (2018): the only non-squarefree
+least composite pretenders are `4,9,49`.
 
-```
-NAME:     Nexus primary pretenders: a(n) is the smallest composite k such that
-          n^k - (n-1)^k == 1 (mod k).
-OFFSET:   0
-TERMS:    9,4,341,4,6,4,9,4,14,4,6,4,9,4,21,4,6,4,9,4,15,4,6,4,9,4,10,4,6,4,9,
-          4,62,4,6,4,9,4,49,4,6,4,9,4,33,4,6,4,9,4,14,4,6,4,9,4,10,4,6,4,9,4,
-          65,4,6,4,9,4,49,4,6,4,9,4,111,4,6,4,9,4,15
-COMMENT:  The sequence is bounded, namely a(n) <= 561 (the smallest Carmichael
-          number), since if n^k == n (mod k) and (n-1)^k == n-1 (mod k), then
-          n^k - (n-1)^k == 1 (mod k).
-COMMENT:  Note that a(n) > 9 if and only if n == 2 (mod 6). ... Found
-          a(n) = 561 for the smallest n = 6*70+2 = 422.
-COMMENT (the conjecture):
-  From _Robert Israel_, Nov 27 2018: (Start)
-  Since a(n) depends only on the residues of n mod k for composites k <= 561,
-  it must be periodic with period at most the lcm of those composites.
-  Up to n=2*10^6, the last term to appear for the first time is
-  478 = a(184748).
-  Conjecture: the only terms of the sequence that are not squarefree are
-  4, 9 and 49. (End)
-```
-
-## Status
-
-Literature status (triage): open; no proof in the entry or the literature as
-far as the triage could tell.  Israel checked `n ≤ 2·10^6` numerically.
-
-## What this file proves
-
-The conjecture is settled here by a finite, kernel-checked certificate
-(`decide +kernel`, no `native_decide`):
+A finite certificate proves the result:
 
 * `a n ≤ 561` because `561` satisfies the congruence for every residue
   (`cong_561`);
@@ -41,8 +12,6 @@ The conjecture is settled here by a finite, kernel-checked certificate
   `r` mod `k` satisfying the congruence, some composite `j < k` from a fixed
   list of twenty witnesses satisfies the congruence at every lift of `r`
   modulo `k * j` (`certificate`), so `k` is never the *least* composite.
-
-The certificate check is the expensive step (about a minute of kernel time).
 
 ## Definitional fidelity
 
@@ -56,7 +25,7 @@ set_option autoImplicit false
 
 namespace Candidates.A321575LeastComposite
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The defining congruence of A321575: `n^k - (n-1)^k ≡ 1 (mod k)`, computed
 in `ℤ` (so that `n - 1` is a genuine integer at `n = 0`). -/
@@ -183,7 +152,7 @@ theorem a_min (n j : ℕ) (hj : j < a n) : ¬ (IsComposite j ∧ Cong j n) :=
 theorem a_le_561 (n : ℕ) : a n ≤ 561 :=
   Nat.find_min' _ ⟨isComposite_561, cong_561 n⟩
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- Boolean check that `m` is the least composite satisfying the congruence
 at `n`. -/
@@ -229,8 +198,7 @@ theorem a_422 : a 422 = 561 := a_eq_of_isLeast _ _ (by decide +kernel)
 
 /-! ## The certificate -/
 
-/-- The finite certificate: `certK k` holds for every `k ≤ 561`.  This is the
-expensive kernel computation of the file (about a minute). -/
+/-- The finite certificate: `certK k` holds for every `k ≤ 561`. -/
 theorem certificate : (List.range 562).all certK = true := by
   decide +kernel
 
@@ -271,10 +239,7 @@ theorem cong_of_lifts (k j n : ℕ) (hj : 0 < j)
 
 /-! ## The conjecture -/
 
-/-- **Israel's conjecture (A321575, Robert Israel, Nov 27 2018).**
-
-Verbatim: "Conjecture: the only terms of the sequence that are not squarefree
-are 4, 9 and 49."
+/-- **Israel's conjecture (A321575, Robert Israel, 2018).**
 
 This is the universal half: every term `a n` (`n ≥ 0`) is squarefree or lies
 in `{4, 9, 49}`.  Proved by the finite certificate `certificate`. -/

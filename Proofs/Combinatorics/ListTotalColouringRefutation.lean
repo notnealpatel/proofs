@@ -1,21 +1,12 @@
 /-
 # The List Total Colouring Conjecture is false
 
-## Source
-
-Jonathan A. Noel, "The List Total Colouring Conjecture is False",
-arXiv:2609.38417.  Theorem 1.1 (Section 1), proved in Section 2 via
-Lemma 2.1 and the argument after it; the total 4-colouring is the table
-and Figure 1, the list assignment is Figure 2.
-
-Verbatim (Theorem 1.1): "There exists a simple cubic graph $G$ on $20$
-vertices such that $\chi''(G)=4$ and $\chi''_\ell(G)=5$."
-
-The List Total Colouring Conjecture (Borodin--Kostochka--Woodall,
-Juvan--Mohar--Skrekovski, Hilton--Johnson) says $\chi''_\ell(G)=\chi''(G)$
-for every multigraph $G$.
-
-Recorded 2026-10-21.  Status: proved in the paper.
+Jonathan A. Noel, *The List Total Colouring Conjecture is False*,
+arXiv:2609.38417, Theorem 1.1, gives a simple cubic graph on 20 vertices
+with total chromatic number 4 and list total chromatic number 5.
+Section 2 uses Lemma 2.1, the colouring of Figure 1, and the list
+assignment of Figure 2. The conjecture is due to Borodin–Kostochka–Woodall,
+Juvan–Mohar–Škrekovski and Hilton–Johnson.
 
 ## What is formalized
 
@@ -616,7 +607,7 @@ theorem totalChromaticNumber_eq_four : (totalGraph noelGraph).chromaticNumber = 
     (n := 3)).2 ⟨totalGraph_colorable_four, totalGraph_not_colorable_three⟩
   exact_mod_cast h
 
-/-- Non-vacuity of the conflict relation: with the uniform lists `{1,2,3,4}` Noel's graph *is*
+/-- With the uniform lists `{1,2,3,4}` Noel's graph *is*
 total colourable from the lists (by the paper's colouring), so the failure for `noelLists`
 is caused by the lists. -/
 theorem uniform_lists_colourable :
@@ -627,7 +618,7 @@ theorem uniform_lists_colourable :
   simp only [Finset.mem_insert, Finset.mem_singleton]
   omega
 
-/-- Non-vacuity of `TotalChoosable`: the one-vertex graph is totally `1`-choosable. -/
+/-- The one-vertex graph is totally `1`-choosable. -/
 example : TotalChoosable (⊥ : SimpleGraph Unit) 1 := by
   intro L hL
   have hne : ∀ x, (L x).Nonempty := fun x => Finset.card_pos.1 (by rw [hL x]; norm_num)

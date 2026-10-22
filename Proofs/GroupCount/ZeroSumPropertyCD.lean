@@ -1,47 +1,28 @@
 /-
-# Inverse zero-sum problems: Property C and Property D fail for `C_6^r`, `r ≥ 4`
+# Property C and Property D fail for `C_6^r`, `4 ≤ r`
 
-## Source
+Guoqing Wang, *Inverse Zero-Sum Problems: The Property C and Property D
+Conjectures*, arXiv:2610.25271, Theorem 1.3 (`thm:main`) and Section 3:
+Proposition `prop:even`, Lemma `lem:delete`, the sequence `(S)` of
+Lemma `lemma:construction`, and the binary product construction `S_r`.
 
-Guoqing Wang, "Inverse Zero-Sum Problems: The Property C and Property D Conjectures",
-arXiv:2610.25271.  Theorem 1.3 (`thm:main`), proved in Section 3 via Proposition `prop:even`,
-Lemma `lem:delete`, Lemma `lemma:construction` (the sequence `S` of equation `(S)`) and the
-binary product construction `S_r` in the proof of `thm:main`.  Retrieved 2026-10-21.
+This file proves that `C_6^r` has neither Property C nor Property D for
+`4 ≤ r`, with the rank-four bounds `82 ≤ s(C_6^4)` and `77 ≤ η(C_6^4)`.
+For `G = C_n^r`, `2 ≤ n` and `1 ≤ r`, Property D (Gao–Geroldinger
+[GG06, Conjecture 7.2]) requires every sequence of length `s(G)-1` without an exponent-length zero sum to be `T^(n-1)`.
+Property C (Gao–Hou–Schmid–Thangadurai [GHST07, Open Problems 1.2(C3)])
+uses `η(G)-1` and excludes nonempty zero sums of length at most `n` instead.
 
-## Verbatim informal claims
+`C_n^r` is `Fin r → ZMod n`, sequences are multisets, and `T^(n-1)` is
+`(n-1) • T`. The constants are infima of admissible-length sets; nonemptiness
+is proved where used, giving genuine minima and extremal sequences.
 
-Conjecture (Property D, Gao–Geroldinger [GG06, Conjecture 7.2]): "Let `n ≥ 2` and `r ≥ 1` be
-integers, and let `G = C_n^r`. If a sequence `S` over `G` satisfies `|S| = s(G) - 1` and has
-no zero-sum subsequence of length exactly `n`, then `S = T^{n-1}` for some sequence `T` over
-`G`."
-
-Conjecture (Property C, Gao–Hou–Schmid–Thangadurai [GHST07, Open Problems 1.2(C3)]): the same
-with "`|S| = η(G) - 1` and has no nonempty zero-sum subsequence of length at most `n`".
-
-Theorem 1.3 (`thm:main`): "For every `r ≥ 4`, the group `C_6^r` has neither Property C nor
-Property D. In particular, Conjectures A and B do not hold in general."
-
-## Status
-
-Proved in the paper.  This module formalizes the full Theorem 1.3 (`thm_main`, every `r ≥ 4`)
-and the case `r = 4` separately (`not_propertyD_six_four`, `not_propertyC_six_four`), plus the
-numerical consequences `s(C_6^4) ≥ 82` and `η(C_6^4) ≥ 77`.
-
-## Formalization notes
-
-* `C_n^r` is `Fin r → ZMod n`; a sequence is a `Multiset`; `T^{n-1}` is `(n - 1) • T`.
-* `s(G)` and `η(G)` are `sInf`s of the sets of admissible lengths (`egzConst`, `etaConst`);
-  the sets are shown nonempty (`egz_set_nonempty`, `eta_set_nonempty`), so the `sInf` is the
-  genuine minimum, and extremal sequences exist (`exists_card_add_one_eq_sInf`).
-* Lemma `lemma:construction` is not proved by the paper's case analysis; instead the
-  `81`-term sequence `S` is checked by a kernel-evaluated enumeration (`decide +kernel`, no
-  `native_decide`) of all `69,752` six-term subsequences, with a proved soundness theorem
-  `checkNoZeroSum_sound`.  The coordinates of `S` in `(ℤ/6ℤ)^4` were obtained by CRT from the
-  paper's `𝔽_2^4 ⊕ 𝔽_3^4` description and cross-checked against the paper's label table by an
-  independent script (`/tmp/claude/pcd/crt.py`).
-* Of Proposition `prop:even` only the upper-bound half used by the disproof is formalized
-  (`card_le_two_pow_of_not_hasZeroSumOfLength`, `card_add_one_le_two_pow_of_not_hasShortZeroSum`);
-  Harborth's lower bounds are not needed.
+The 81-term seed uses CRT coordinates for the source's `𝔽₂⁴ ⊕ 𝔽₃⁴`
+construction. Its absence of six-term zero sums is proved by finite
+multiplicity enumeration with `decide +kernel` and `checkNoZeroSum_sound`,
+rather than the paper's case analysis. Only the upper-bound implication of
+Proposition `prop:even` needed for the disproof is formalized; Harborth's
+lower bounds and the equality half are not included.
 -/
 import Mathlib
 
@@ -76,24 +57,24 @@ theorem hasShortZeroSum_iff_powerset {G : Type*} [AddCommMonoid G] [DecidableEq 
       ∃ T ∈ S.powerset.toFinset, 0 < card T ∧ card T ≤ k ∧ T.sum = 0 := by
   simp only [HasShortZeroSum, Multiset.mem_toFinset, Multiset.mem_powerset]
 
-/-- Ground truth: in `C_3`, the sequence `0^2 1^2` (extremal for `s(C_3) = 5`) has no 3-term
+/-- In `C_3`, the sequence `0^2 1^2` (extremal for `s(C_3) = 5`) has no 3-term
 zero sum. -/
 example : ¬ HasZeroSumOfLength 3 ({0, 0, 1, 1} : Multiset (ZMod 3)) := by
   rw [hasZeroSumOfLength_iff_powerset]
   decide
 
-/-- Ground truth: in `C_3`, the sequence `0^2 1^3` has the 3-term zero sum `1^3`. -/
+/-- In `C_3`, the sequence `0^2 1^3` has the 3-term zero sum `1^3`. -/
 example : HasZeroSumOfLength 3 ({0, 0, 1, 1, 1} : Multiset (ZMod 3)) := by
   rw [hasZeroSumOfLength_iff_powerset]
   decide
 
-/-- Ground truth: in `C_3`, `1^2` has no short zero sum, but `1^2 2` has (`1 2`). -/
+/-- In `C_3`, `1^2` has no short zero sum, but `1^2 2` has (`1 2`). -/
 example : ¬ HasShortZeroSum 3 ({1, 1} : Multiset (ZMod 3)) ∧
     HasShortZeroSum 3 ({1, 1, 2} : Multiset (ZMod 3)) := by
   rw [hasShortZeroSum_iff_powerset, hasShortZeroSum_iff_powerset]
   decide
 
-/-- Ground truth: a zero-sum subsequence of length `0` always exists (the empty one), while
+/-- A zero-sum subsequence of length `0` always exists (the empty one), while
 a short zero sum must be nonempty. -/
 example : HasZeroSumOfLength 0 (0 : Multiset (ZMod 3)) ∧
     ¬ HasShortZeroSum 3 (0 : Multiset (ZMod 3)) := by
@@ -129,13 +110,13 @@ def seqOfList {M G : Type*} [AddCommMonoid M] [AddCommMonoid G] (π : M →+ G)
     (l : List (M × ℕ)) : Multiset G :=
   (l.map fun p => replicate p.2 (π p.1)).sum
 
-/-- Ground truth for the certificate: the `C_3` sequence `0^2 1^2` passes the check for
+/-- For the certificate: the `C_3` sequence `0^2 1^2` passes the check for
 `3`-term zero sums, while `0^2 1^3` fails it. -/
 example : checkNoZeroSum (fun x : ZMod 3 => x != 0) [(0, 2), (1, 2)] 3 0 = true ∧
     checkNoZeroSum (fun x : ZMod 3 => x != 0) [(0, 2), (1, 3)] 3 0 = false := by
   decide
 
-/-- Ground truth: `seqOfList` of `[(0, 2), (1, 2)]` is `0^2 1^2`. -/
+/-- `seqOfList` of `[(0, 2), (1, 2)]` is `0^2 1^2`. -/
 example : seqOfList (AddMonoidHom.id (ZMod 3)) [(0, 2), (1, 2)] = {0, 0, 1, 1} := by
   decide
 
@@ -443,10 +424,10 @@ def natVecHom : ℕ × ℕ × ℕ × ℕ →+ (Fin 4 → ZMod 6) where
 def goodSix (x : ℕ × ℕ × ℕ × ℕ) : Bool :=
   x.1 % 6 != 0 || x.2.1 % 6 != 0 || x.2.2.1 % 6 != 0 || x.2.2.2 % 6 != 0
 
-/-- Ground truth: `natVecHom` reduces coordinatewise modulo `6`. -/
+/-- `natVecHom` reduces coordinatewise modulo `6`. -/
 example : natVecHom (7, 6, 8, 11) = ![1, 0, 2, 5] := by decide
 
-/-- Ground truth: `goodSix` rejects a vector that vanishes modulo `6` and accepts `a`. -/
+/-- `goodSix` rejects a vector that vanishes modulo `6` and accepts `a`. -/
 example : goodSix (6, 12, 0, 18) = false ∧ goodSix (0, 0, 2, 2) = true := by decide
 
 /-- `goodSix` is a sound certificate of nonvanishing. -/

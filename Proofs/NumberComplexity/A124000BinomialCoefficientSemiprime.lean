@@ -1,30 +1,10 @@
 /-
 # A124000 — semiprime binomial coefficients are odd and of the form p(2p ± 1)
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A124000`, author line
-## from https://oeis.org/A124000)
+OEIS A124000, Alexander Adamchuk: semiprime binomial coefficients
+`C(n,k)` with `2 ≤ k ≤ n-2` are either `35` or `p(2p ± 1)`, with both
+factors prime. They are odd except for `6` and `10`.
 
-```
-NAME:     Semiprimes in A006987(n), or semiprime binomial coefficients:
-          C(n,k), 2 <= k <= n-2.
-TERMS:    6,10,15,21,35,55,91,253,703,1081,1711,1891,2701,3403,5671,12403,
-          13861,15931,18721,25651,34453,38503,49141,60031,64261,73153,...
-AUTHOR:   Alexander Adamchuk, Oct 31 2006
-COMMENT (the conjecture, unattributed in the entry, hence Alexander
-         Adamchuk, Oct 31 2006, as entry author):
-  Conjecture: all a(n) except a(1) = 6 and a(2) = 10 are odd. Conjecture:
-  all a(n) except a(5) = 35 are triangular numbers of the form p*(2p ± 1)
-  that belong to A068443(n) = {6, 10, 15, 21, 55, 91, 253, 703, 1081, 1711,
-  1891, 2701, ...} Triangular numbers with two distinct prime factors.
-(In the entry `±` is spelled plus, slash, minus; a slash followed by a
- minus would open a nested Lean comment.)
-PROGRAM (Mathematica, Robert G. Wilson v): ... If[PrimeOmega@ b == 2, ...]
-```
-
-## Status
-
-Triage: open (no proof in the entry; no published classification found).
-The proof below is the elementary argument recorded by the triage:
 every prime power `p ^ v_p(C(n,k))` is at most `n`
 (`Nat.pow_factorization_choose_le`), so a semiprime `C(n,k)` is at most
 `n ^ 2`; for `3 ≤ k ≤ n - 3` we have `C(n,k) ≥ C(n,3) > n ^ 2` once
@@ -53,7 +33,7 @@ def IsSemiprime (m : ℕ) : Prop := m.primeFactorsList.length = 2
 def IsTerm (m : ℕ) : Prop :=
   IsSemiprime m ∧ ∃ n k : ℕ, 2 ≤ k ∧ k + 2 ≤ n ∧ n.choose k = m
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : IsSemiprime 6 := by simp [IsSemiprime, Nat.primeFactorsList_ofNat]
 example : IsSemiprime 35 := by simp [IsSemiprime, Nat.primeFactorsList_ofNat]
@@ -171,9 +151,8 @@ theorem choose_two_of_isSemiprime {n : ℕ} (hn : 4 ≤ n) (h : IsSemiprime (n.c
 
 /-! ## The conjecture -/
 
-/-- **Conjecture (ii) of A124000 (Alexander Adamchuk, Oct 31 2006).**
-Verbatim: "Conjecture: all a(n) except a(5) = 35 are triangular numbers of the
-form p*(2p ± 1) that belong to A068443".  Every semiprime binomial coefficient
+/-- **Conjecture (ii) of A124000 (Alexander Adamchuk, 2006).**
+Every semiprime binomial coefficient
 `C(n,k)` with `2 ≤ k ≤ n - 2` is either `35` or `p(2p+1)` or `p(2p-1)` with `p`
 and `2p ± 1` both prime (such numbers are triangular, `T(2p)` resp. `T(2p-1)`,
 with two distinct prime factors). -/
@@ -191,8 +170,7 @@ theorem conjecture_ii {m : ℕ} (hm : IsTerm m) :
     · left; decide
     · left; decide
 
-/-- **Conjecture (i) of A124000 (Alexander Adamchuk, Oct 31 2006).**
-Verbatim: "Conjecture: all a(n) except a(1) = 6 and a(2) = 10 are odd."
+/-- **Conjecture (i) of A124000 (Alexander Adamchuk, 2006).**
 Every semiprime binomial coefficient `C(n,k)` with `2 ≤ k ≤ n - 2` is odd,
 or equal to `6` or `10`. -/
 theorem conjecture_i {m : ℕ} (hm : IsTerm m) : Odd m ∨ m = 6 ∨ m = 10 := by

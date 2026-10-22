@@ -1,6 +1,6 @@
 /- One general-Group STPP capacity admission remains. The CommGroup capacity
 assembly is proved in production by all-powers multinomial amplification. -/
-import GroupTPP.STPPCapacityComm
+import Sorry.GroupTPP.STPPCapacityComm
 
 /-!
 # Retired implementation card: CKSU STPP and wreath inequalities

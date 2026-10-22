@@ -1,40 +1,12 @@
 /-
-# A023105 — Neumann: distinct squares mod `2^n` versus A004215
+# Distinct squares modulo powers of two (A023105)
 
-## OEIS source (retrieved with `oeis show A023105`, 2026-10-21)
-
-```
-NAME:     Number of distinct quadratic residues mod 2^n.
-TERMS:    1,2,2,3,4,7,12,23,44,87,172,343,684,1367,2732,5463,10924,21847,
-          43692,87383,174764,349527,699052,1398103,2796204,5592407,...
-COMMENT (the conjecture):
-  Conjecture: a(n) = 2 + (the number of A004215 entries < 2^n), for n>0.
-  - _Tilman Neumann_, Sep 20 2020
-FORMULA (context, not used by the statement):
-  a(n) = floor( (2^n+10)/6 ).
-```
-
-A004215 is "Numbers that are the sum of 4 but no fewer nonzero squares",
-i.e. the numbers of the form `4^i (8 j + 7)` (Legendre/Gauss three-square
-theorem); the triage statement uses this explicit form, and so does
-`IsA004215` below.
-
-## Status
-
-Triage: open (no proof in the entry; none located in the literature by the
-triage).  The identity is an elementary consequence of the textbook
-classification of squares mod `2^n` (odd squares are exactly the residues
-`≡ 1 (mod 8)` once `n ≥ 3`, by Hensel lifting).  This file proves it.
-
-## Proof outline
-
-Both sides obey the recursion `f (n + 3) = 2^n + f (n + 1)`:
-* squares mod `2^(n+3)` split into the `2^n` residues `≡ 1 (mod 8)` and
-  `4 *` (squares mod `2^(n+1)`);
-* A004215 below `2^(n+3)` splits into the `2^n` residues `≡ 7 (mod 8)` and
-  `4 *` (A004215 below `2^(n+1)`).
-The base cases `n = 1, 2` give `2 = 2 + 0`.  The guard `1 ≤ n` is
-load-bearing: at `n = 0` the left side is `1` and the right side is `2`.
+Source: Tilman Neumann's OEIS A023105 comment (Sep 20 2020).
+For `n ≥ 1`, the number of distinct squares in `ZMod (2^n)` is 2 plus
+the number of integers below `2^n` of the form `4^i(8j+7)` (A004215).
+Membership in A004215 is defined by this explicit form, not by a
+formalization of the three-square theorem. The identity fails at `n = 0`.
+Both counts satisfy `f(n+3) = 2^n + f(n+1)`.
 -/
 import Mathlib
 
@@ -42,7 +14,7 @@ set_option autoImplicit false
 
 namespace Candidates.A023105DistinctSquaresMod
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A023105 `a(n)`: the number of distinct quadratic residues mod `2^n`, i.e. the
 cardinality of the image of `x ↦ x^2` on `ZMod (2^n)`. -/
@@ -72,7 +44,7 @@ theorem isA004215_iff_bounded (k : ℕ) :
 instance : DecidablePred IsA004215 := fun k =>
   decidable_of_iff _ (isA004215_iff_bounded k).symm
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- A023105 DATA, `a(0..6) = 1, 2, 2, 3, 4, 7, 12`.
 example : a 0 = 1 ∧ a 1 = 2 ∧ a 2 = 2 ∧ a 3 = 3 ∧ a 4 = 4 ∧ a 5 = 7 := by
@@ -268,13 +240,9 @@ theorem card_filter_isA004215_add_three (n : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Neumann's conjecture (A023105, Tilman Neumann, Sep 20 2020).**
-
-Verbatim: "Conjecture: a(n) = 2 + (the number of A004215 entries < 2^n), for n>0."
-
-For every `n ≥ 1`, the number of distinct squares in `ZMod (2^n)` equals `2`
-plus the number of `k < 2^n` of the form `4^i (8 j + 7)`.  The guard `1 ≤ n`
-is necessary: at `n = 0` the two sides are `1` and `2`. -/
+/-- Neumann's identity: for `n ≥ 1`, the number of squares modulo `2^n`
+is 2 plus the count below `2^n` of integers `4^i(8j+7)`. At `n=0`
+the two sides are 1 and 2. -/
 theorem a_eq_two_add_card_A004215 (n : ℕ) (hn : 1 ≤ n) :
     a n = 2 + ((Finset.range (2 ^ n)).filter IsA004215).card := by
   rw [a_eq_card_sqSet]

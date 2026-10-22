@@ -1,51 +1,16 @@
 /-
-# A084044 — palindromic multiples containing `n`: `a(n) = 0 ↔ 10 ∣ n`
+# Palindromic multiples containing the original numeral (A084044)
 
-## OEIS source (retrieved with `oeis show A084044`, 2026-10-21)
+Source: the unsigned comment in OEIS A084044 (entry by Amarnath Murthy,
+May 2003). A positive palindromic multiple of `n` containing its decimal
+numeral exists exactly when `10 ∤ n`. Thus the least such multiple, with
+default zero when none exists, is zero iff `10 ∣ n`.
+The result includes `n = 0`; the entry itself starts at 1.
 
-```
-NAME:     Smallest palindromic multiple of n in which n is a substring
-          (anywhere), or 0 if n = 10k or no such number exists.
-TERMS:    1,2,3,4,5,6,7,8,9,0,11,2112,31213,41314,5115,61216,71417,8118,41914,
-          0,12621,22,32223,4224,525,26962,27972,82628,52925,0,31713,23232,33,
-          2243422,53235,6336,43734,83638,93639,0,412214,42924,34443,44,5445
-KEYWORDS: base,nonn
-XREFS:    Cf. A084043, A077741.
-COMMENT (the conjecture; the entry gives no author or date for this line,
-         so it is attributed to the entry as of its 2003 creation, by
-         Amarnath Murthy, May 2003):
-  Conjecture: a(n) = 0 iff n = 10k. Though many terms match, not the same
-  as A077741.
-```
-
-## Status
-
-Triage: open (no proof in the entry, none found in the literature by the
-triage; Harminc–Šoták, Fibonacci Quart. 36 (1998) 259–262, give palindromic
-multiples of every `n` with `10 ∤ n` but not containment of `n`).  This file
-proves it (kernel-checked, no `sorry`).  The argument is the one used for the
-sibling entry A084043 (`Proofs/Sorry/Enumerative/A084043PositivePalindromicBase.lean`),
-adapted here since `Sorry.*` modules are not imported.
-
-## Formalization
-
-`decimalString m := (Nat.digits 10 m).reverse` is the big-endian decimal
-string of `m` (empty for `m = 0`, which never matters since witnesses are
-positive).  "n is a substring of P" is `decimalString n <:+: decimalString P`
-(contiguous infix), and "P is palindromic" is
-`(decimalString P).reverse = decimalString P`.
-
-## Proof
-
-(⇒) If `10 ∣ n ∣ P` with `P > 0` then the units digit of `P` is `0`; a
-palindrome then has leading digit `0`, contradicting `Nat.getLast_digit_ne_zero`.
-
-(⇐) Write `n = q * m` with `q ∣ 10 ^ k` and `gcd(10, m) = 1`.  With
-little-endian digit lists let `Y = digits q ++ 0^k` (so `ofDigits Y = q` and
-`q ∣ 10 ^ |Y|`), `A = Y ++ digits n`, `R = A ++ reverse A` (a palindrome), and
-let `P` have digit list `R` repeated `t` times, `t = φ(m (10^|R| - 1))`.  Then
-`P` is a palindrome whose leading digit is `q % 10 ≠ 0`, `q ∣ ofDigits R`, and
-`m ∣ ∑_{i<t} 10^{|R| i}` by Euler's theorem, so `n ∣ P = ofDigits R * ∑ …`.
+Containment is contiguous infix containment of big-endian digit lists.
+For the construction, factor `n = qm` with `q` dividing a power of 10 and
+`m` coprime to 10, form a palindrome containing `n`, then repeat it using
+Euler's theorem to ensure divisibility by `m`.
 -/
 import Mathlib
 
@@ -55,7 +20,7 @@ namespace Candidates.A084044PositiveBasePalindrome
 
 open Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The big-endian base-10 digit string of `m` (most significant digit first);
 `decimalString 0 = []`. -/
@@ -75,7 +40,7 @@ noncomputable def a (n : ℕ) : ℕ := by
   classical
   exact if h : ∃ P, IsWitness n P then Nat.find h else 0
 
-/-! ## Ground truth against the listed terms -/
+/-! ## Listed terms -/
 
 example : decimalString 2112 = [2, 1, 1, 2] := by norm_num [decimalString]
 
@@ -106,7 +71,7 @@ example : IsWitness 45 5445 := by
     show decimalString 5445 = [5, 4, 4, 5] by norm_num [decimalString]]
   exact ⟨[5, 4], [], rfl⟩
 
-/-- Ground truth: `a 11 = 11`, the listed eleventh term (minimal since any
+/-- `a 11 = 11`, the listed eleventh term (minimal since any
 positive multiple of `11` is at least `11`). -/
 theorem a_eleven : a 11 = 11 := by
   classical
@@ -301,10 +266,9 @@ so no positivity guard is needed; the entry's offset is `1`.) -/
 theorem exists_isWitness_iff (n : ℕ) : (∃ P, IsWitness n P) ↔ ¬ 10 ∣ n :=
   ⟨fun ⟨_, hP⟩ => not_ten_dvd_of_isWitness hP, exists_isWitness_of_not_ten_dvd n⟩
 
-/-- **Conjecture of OEIS A084044 (entry comment, Amarnath Murthy entry, May
-2003).**  Verbatim: "Conjecture: a(n) = 0 iff n = 10k."  Here `a n` is the
-smallest palindromic multiple of `n` in which `n` is a substring (anywhere), or
-`0` if none exists.  Stated for all `n` (at `n = 0` both sides hold). -/
+/-- The least positive palindromic multiple containing the input numeral,
+with default zero if absent, is zero iff `10 ∣ n` (OEIS A084044).
+The statement includes `n=0`, when both sides hold. -/
 theorem a_eq_zero_iff (n : ℕ) : a n = 0 ↔ 10 ∣ n := by
   classical
   rw [← not_iff_not, ← exists_isWitness_iff]

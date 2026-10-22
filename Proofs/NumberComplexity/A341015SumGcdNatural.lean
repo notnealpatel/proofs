@@ -1,32 +1,11 @@
 /-
 # A341015 — Bergot–Israel: `gcd(A066840(n), A124440(n)) = 1` exactly for `4, 3^j, 2*3^j, 5^j`
 
-## OEIS source (retrieved with `oeis show A341015` and the live entry, 2026-10-21)
-
-```
-NAME:     Numbers k such that A124446(k) = 1.
-TERMS:    1,2,3,4,5,6,9,18,25,27,54,81,125,162,243,486,625,729,1458,2187,3125,...
-AUTHOR:   J. M. Bergot and Robert Israel, Feb 02 2021
-COMMENT:  Numbers k such that A066840(k) and A124440(k) are coprime.
-COMMENT:  Contains all numbers of the forms 3^j, 2*3^j and 5^j.
-COMMENT:  Conjecture: the only term not of one of those forms is 4.
-```
-
-A066840: "Sum of positive integers k where k <= n/2 and gcd(k,n) = 1."
-A124440: "a(n) = Sum_{n/2<=k<=n, gcd(k,n)=1} k."
-A124446: "a(n) = gcd(A066840(n), A124440(n))."
-
-The conjecture line carries no separate attribution; it is part of the entry by
-J. M. Bergot and Robert Israel (Feb 02 2021).
-
-## Status
-
-Triage: open (no proof in the entry; Baum, Math. Mag. 55 (1982) 111-113, linked from
-A066840, gives the half-range totative sum formula but not this characterization; the
-literature search was shallow, so this is not a novelty claim).  This module proves the
-conjecture in full (`a341015`), with no `sorry`.
-
-## Proof outline
+OEIS A341015, J. M. Bergot and Robert Israel: the half-range totative
+sums A066840 and A124440 are coprime exactly at `4`, `3^j`, `2·3^j`,
+and `5^j`, with `j ≥ 0`. The statement includes `n = 0`, where both
+sides are false. See also Baum, Math. Mag. 55 (1982), 111–113, for
+the half-range sum formula.
 
 * Reflection `k ↦ n - k`: `S2 n + S1 n = n * cnt n` (`n ≥ 2`), so
   `gcd(S1, S2) = gcd(S1, n * cnt n)`, where `cnt n = φ(n)/2` for `n ≥ 3`.
@@ -64,12 +43,12 @@ def F (m x : ℕ) : ℕ := ∑ k ∈ range x, if Nat.Coprime k m then k else 0
 /-- Number of the `k < x` coprime to `m` (auxiliary). -/
 def G (m x : ℕ) : ℕ := ∑ k ∈ range x, if Nat.Coprime k m then 1 else 0
 
-/-! Ground truth against A066840 (offset 1) and A124440 (offset 1). -/
+/-! Examples against A066840 (offset 1) and A124440 (offset 1). -/
 example : (List.range 12).map (fun i => S1 (i + 1)) = [0, 1, 1, 1, 3, 1, 6, 4, 7, 4, 15, 6] := by
   decide
 example : (List.range 12).map (fun i => S2 (i + 1)) = [1, 1, 2, 3, 7, 5, 15, 12, 20, 16, 40, 18] :=
   by decide
-/-- Ground truth: the first terms of A341015 below 30 are exactly 1,2,3,4,5,6,9,18,25,27. -/
+/-- Examples: the first terms of A341015 below 30 are exactly 1,2,3,4,5,6,9,18,25,27. -/
 example : (List.range 30).filter (fun n => Nat.gcd (S1 n) (S2 n) = 1) =
     [1, 2, 3, 4, 5, 6, 9, 18, 25, 27] := by decide
 
@@ -729,7 +708,7 @@ lemma eq_four_of_four_dvd (n : ℕ) (hn : 3 ≤ n) (h4 : 4 ∣ n)
   rw [hS] at hkey
   omega
 
-/-- **A341015 conjecture (J. M. Bergot and Robert Israel, Feb 02 2021).**
+/-- **A341015 conjecture (J. M. Bergot and Robert Israel, 2021).**
 Let `S1 n` (A066840) be the sum of the `k` with `1 ≤ k ≤ n/2` and `gcd(k, n) = 1`, and
 `S2 n` (A124440) the sum of the `k` with `n/2 ≤ k ≤ n` and `gcd(k, n) = 1`. Then
 `gcd(S1 n, S2 n) = 1` if and only if `n = 4`, `n = 3^j`, `n = 2 * 3^j` or `n = 5^j` for

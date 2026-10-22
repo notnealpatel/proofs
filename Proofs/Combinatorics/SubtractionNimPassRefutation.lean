@@ -1,46 +1,26 @@
 /-
 # Subtraction Nim with a pass: the reverse-mex / pass-independence conjecture fails
 
-## Source
+U. Larsson, H. Manabe and R. Miyadera, *A Subtraction Nim with a Pass*,
+arXiv:2605.14321, Section "Conjectures" (`conject`), subsection
+"Prediction on Reverse-Mex Property for Subtraction Nim with a Pass",
+conjectures pass-independence and reverse-mex identities.
 
-U. Larsson, H. Manabe, R. Miyadera, *A Subtraction Nim with a Pass*,
-arXiv:2605.14321.  Section "Conjectures" (label `conject`), subsection
-"Prediction on Reverse-Mex Property for Subtraction Nim with a Pass".
+A position `(x,p)` has `x` stones and a pass available if `p = 1`.
+Legal moves subtract a positive `s ∈ S` with `s ≤ x`; the one-time pass
+`(x,1) → (x,0)` is forbidden at terminal positions (Definitions
+`defofmove`, `subtractionsmallpass`, Section `subtractionnimpass`).
+Conjecture (a) asserts the three equations defined below for
+`S = {a,2an,2an+a}`, with the pass equations required beyond
+`6an+4a+1`. In equation (conjecture3), `𝒢(x)` is read as `𝒢(x,1)`.
+The accompanying periodicity claim and the other subtraction-set families
+are not addressed.
 
-Rules (paper, Definitions `defofmove`, `subtractionsmallpass`, and the
-introduction of Section `subtractionnimpass`): a position is `(x, p)`, `x`
-stones and `p = 1` if a pass is still available.  A move removes `s ∈ S`
-stones with `s ≤ x`; the one-time pass `(x,1) → (x,0)` "may be used at most
-once in the game and not from a terminal position".  Hence
-
-  `𝒢(x,1) = mex({𝒢(x-s,1) : s ∈ S, s ≤ x} ∪ {𝒢(x,0)})`  (`x` not terminal).
-
-The paper's equations, verbatim:
-
-  (conjecture1) `𝒢(x,0) = mex({𝒢(x+s_1,0), 𝒢(x+s_2,0), 𝒢(x+s_3,0)})`
-  (conjecture2) `𝒢(x,1) = mex({𝒢(x-s_1,1), 𝒢(x-s_2,1), 𝒢(x-s_3,1)})`
-  (conjecture3) `𝒢(x) = mex({𝒢(x+s_1,1), 𝒢(x+s_2,1), 𝒢(x+s_3,1)})`
-                (the left side is evidently a typo for `𝒢(x,1)`)
-
-Conjecture (verbatim, part (a)): "For a subtraction Nim with a subtraction
-set `{s_1,s_2,s_3} = {a,2an,2an+a}`, where `a, n ∈ ℕ`, we obtain
-(conjecture1), and for `x ≥ 6an+(4a+1)`, we have (conjecture2) and
-(conjecture3).  The sequence of Grundy numbers enters into a loop when
-`x ≥ 6an+(4a+1)`."  Parts (b) and (iii) treat `{a,(2n+1)a,(2n+3)a}` and
-`{a,(2n+1)a,(2n+5)a}`.
-
-Status in the paper: a conjecture based on computer calculation (not proved).
-
-## This module (2026-10-21)
-
-Refutation of part (a) at `a = 1`, `n = 2`, i.e. `S = {1,4,5}`, threshold
-`6an + 4a + 1 = 17`, witness `x = 18`:
-`𝒢(18,0) = 0`, `𝒢(18,1) = 4`, but
-`mex{𝒢(17,1), 𝒢(14,1), 𝒢(13,1)} = mex{2,3,1} = 0` (so (conjecture2) fails) and
-`mex{𝒢(19,1), 𝒢(22,1), 𝒢(23,1)} = mex{2,1,0} = 3` (so (conjecture3) fails).
-With `a = 1` the only terminal position is `x = 0`, so the reading
-"pass usable from every non-terminal position" and the reading
-"pass usable from every nonzero pile" coincide here.
+At `a = 1`, `n = 2`, `S = {1,4,5}`, the threshold is 17. At `x = 18`,
+`𝒢(18,0) = 0` and `𝒢(18,1) = 4`, but the backward mex is
+`mex{2,3,1} = 0` and the forward mex is `mex{2,1,0} = 3`, refuting
+both pass equations. Here only the zero pile is terminal, so prohibiting
+the pass at terminal positions coincides with prohibiting it at zero.
 -/
 import Mathlib
 
@@ -403,7 +383,7 @@ theorem g1_23 : grundy1 S145 23 = 0 := by
   simp only [Finset.image_insert, Finset.image_singleton, Nat.reduceSub, g0_23, g1_22, g1_19, g1_18]
   exact (mex_eq_iff _ _).mpr (by decide)
 
-/-! ### Ground-truth checks -/
+/-! ### Examples -/
 
 example : mex {0, 1, 3} = 2 := (mex_eq_iff _ _).mpr (by decide)
 
@@ -485,7 +465,7 @@ theorem counterexample_values :
   · simp only [Finset.image_insert, Finset.image_singleton, Nat.reduceAdd, g1_19, g1_22, g1_23]
     exact (mex_eq_iff _ _).mpr (by decide)
 
-/-- Non-vacuity: at `x = 17` (the threshold) both equations do hold for
+/-- At `x = 17` (the threshold) both equations do hold for
 `S = {1,4,5}`, so the predicates are not trivially false. -/
 example : PassIndependentAt S145 17 ∧ ReverseMexPassAt S145 17 := by
   unfold PassIndependentAt ReverseMexPassAt

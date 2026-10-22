@@ -1,4 +1,4 @@
-import Erdos.Covering.OddCovering
+import Sorry.Quarantine.Erdos.Covering.OddCovering
 
 /-!
 Quarantined admissions and their dependent consequences. Production supplies the

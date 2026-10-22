@@ -1,4 +1,4 @@
-import NumberComplexity.KnuthStolarsky
+import Sorry.Quarantine.NumberComplexity.KnuthStolarsky
 
 /-!
 # Archived open admission: knuth_stolarsky

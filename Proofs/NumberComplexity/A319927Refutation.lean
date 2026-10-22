@@ -1,41 +1,11 @@
 /-
 # A319927 — refutation of Ianakiev's all-powers conjecture
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A319927`; author line
-## from the live entry https://oeis.org/A319927)
-
-```
-NAME:     Numbers k such that the sum of the squares of the odd non-unitary
-          divisors of k divides the sum of the squares of the non-unitary
-          divisors of k.
-TERMS:    9,18,25,27,45,49,50,54,63,75,81,90,98,99,117,121,125,126,135,147,
-          150,153,162,169,171,175,189,198,207,225,234,242,243,245,250,261,
-          270,275,279,289,294,297,306,315,325,333,338,342,343,350,351,361,
-          363,369,375,378,387,405
-AUTHOR:   Ivan N. Ianakiev, Oct 02 2018
-COMMENT (the conjecture, unsigned, hence the entry author's, Oct 02 2018):
-  Conjecture: For any nonnegative integer power p the sum of the p-th powers
-  of the odd non-unitary divisors of a(n) divides the sum of the p-th powers
-  of the non-unitary divisors of a(n).
-COMMENT (later, not a retraction):
-  The start of this sequence, including the 58 terms currently shown in the
-  data section, is consistent with a definition "nonsquarefree numbers not
-  divisible by 4", but some larger terms are divisible by 4: for example,
-  a(1305) = 9216 = 2^10 * 3^2. - _Peter Munn_, Sep 21 2020
-  It seems that, for every n and odd prime p, p*a(n) is a term.
-  - _Ivan N. Ianakiev_, Sep 11 2022
-```
-
-No later comment retracts the conjecture.
-
-## Status
-
-This module **refutes** the conjecture: `k = 9216 = 2^10 * 3^2` is a term
-(the sums of squares are `9` and `41243877 = 9 * 4582653`), but for `p = 1`
-the only odd non-unitary divisor is `3`, while the sum of all non-unitary
-divisors is `16361`, which is not divisible by `3`.  An exhaustive scan
-(Python, terms `k ≤ 9216`, `p ≤ 5`) found `9216` to be the smallest
-counterexample; it also fails for `p = 3, 4, 5`.
+Ivan N. Ianakiev's conjecture in OEIS A319927 extends its defining
+square-sum divisibility to every nonnegative power. Peter Munn's term
+`9216 = 2^10·3²` refutes this extension: the odd non-unitary square sum `9`
+divides the full square sum `41243877`, but the odd first-power sum `3`
+does not divide the full sum `16361`.
 
 ## Definitional fidelity
 
@@ -83,7 +53,7 @@ def IsTerm (k : ℕ) : Prop :=
 instance : DecidablePred IsTerm := fun k =>
   inferInstanceAs (Decidable (0 < ONU k 2 ∧ ONU k 2 ∣ NU k 2))
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- `12 = 2^2 * 3` has non-unitary divisors `2, 6`; their squares sum to `40`. -/
 example : NU 12 2 = 40 := by decide +kernel
@@ -104,7 +74,7 @@ example : (Finset.range 406).filter IsTerm =
 
 /-! ## The conjecture and its refutation -/
 
-/-- **Ianakiev's conjecture (A319927, Oct 02 2018).** For every term `k` of
+/-- **Ianakiev's conjecture (A319927).** For every term `k` of
 A319927 and every `p ≥ 0`, the sum of the `p`-th powers of the odd
 non-unitary divisors of `k` divides the sum of the `p`-th powers of the
 non-unitary divisors of `k`. -/
@@ -125,9 +95,8 @@ theorem NU_9216_one : NU 9216 1 = 16361 := by
 
 /-- **The conjecture is false.** Counterexample: `k = 9216 = 2^10 * 3^2` is
 a term of A319927, but for `p = 1` its odd non-unitary divisor sum `3` does
-not divide its non-unitary divisor sum `16361`.  The author probably had in
-mind terms not divisible by `4` (all 58 listed data terms are), for which
-the divisibility holds for every `p`. -/
+not divide its non-unitary divisor sum `16361`.  For numbers not divisible by `4`, the divisibility holds for every `p`;
+see below. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have hdvd : ONU 9216 1 ∣ NU 9216 1 := hconj 9216 isTerm_9216 1

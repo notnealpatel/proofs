@@ -1,44 +1,16 @@
 /-
 # A018804 — Ordowski: `n ∣ P(n) + 1` characterizes the primes
 
-## OEIS source (retrieved with `oeis show A018804`, 2026-10-21)
+Thomas Ordowski's conjecture in OEIS A018804 (2014), with Varun Vejalla's
+counterexample (2025). Pillai's function is `P(n) = Σ_{k=1}^n gcd(k,n)`;
+Vladeta Jovovic's divisor-sum formula (2001) gives its multiplicativity.
 
-```
-NAME:     Pillai's arithmetical function: Sum_{k=1..n} gcd(k, n).
-TERMS:    1,3,5,8,9,15,13,20,21,27,21,40,25,39,45,48,33,63,37,72,65,63,45,100,
-          65,75,81,104,57,135,61,112,105,99,117,168,73,111,125,180,81,195,85,...
-COMMENT (the conjecture):
-  Conjecture: n>1 divides a(n)+1 iff n is prime. - _Thomas Ordowski_, Oct 22 2014
-COMMENT (the next comment, already recording a refutation):
-  The above conjecture is false, with counterexample given by
-  n = 3*37*43*42307*116341 and a(n)+1 = 26*n. - _Varun Vejalla_, Jun 19 2025
-FORMULA (used here):
-  a(n) = Sum_{d|n} d*phi(n/d) ...  - _Vladeta Jovovic_, Apr 04 2001
-  Multiplicative; for prime p, a(p^e) = p^(e-1)*((p-1)e+p).
-```
+At `n = 3 · 37 · 43 · 42307 · 116341 = 23492890653051`, the prime factors
+are pairwise coprime and `P(n) = 610815156979325`, so `P(n)+1 = 26n`
+although `n` is composite. The implication from primality to divisibility remains true:
+`P(p)+1 = 2p` for prime `p`.
 
-## Status
-
-**False** (already recorded in the entry by Vejalla, Jun 19 2025).  This module
-kernel-checks that refutation with
-`n = 3 · 37 · 43 · 42307 · 116341 = 23492890653051`:
-
-* the five factors are prime and pairwise coprime, so `n` is composite;
-* `P` is multiplicative and `P(p) = 2p - 1`, hence
-  `P(n) = 5 · 73 · 85 · 84613 · 232681 = 610815156979325` and
-  `P(n) + 1 = 26 · n`.
-
-Computational re-validation (Sage, 2026-10-21): the factors are prime, the
-product formula agrees with the defining sum for `n < 2000`, and
-`(P(n) + 1) mod n = 0` with quotient `26`.
-
-The direction "prime ⟹ divides" is true (`P(p) + 1 = 2p`) and is proved below
-as `dvd_pillai_add_one_of_prime`; only the converse fails.
-
-## Formal conventions
-
-* `pillai n = ∑ k ∈ Icc 1 n, gcd k n`, exactly the entry's NAME; `pillai 0 = 0`
-  (empty sum), which the conjecture never inspects because of the `1 < n` guard.
+The convention `pillai 0 = 0` is an empty sum; the conjecture uses `1 < n`.
 -/
 import Mathlib
 
@@ -48,12 +20,12 @@ open Finset
 
 namespace Candidates.A018804Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A018804, Pillai's arithmetical function: `P(n) = ∑_{k=1}^{n} gcd(k, n)`. -/
 def pillai (n : ℕ) : ℕ := ∑ k ∈ Icc 1 n, Nat.gcd k n
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- `P(1..19) = 1, 3, 5, 8, 9, 15, 13, 20, 21, 27, 21, 40, 25, 39, 45, 48, 33, 63, 37`
 -- (the first 19 listed terms of A018804).
@@ -123,9 +95,7 @@ theorem pillai_prime {p : ℕ} (hp : p.Prime) : pillai p = 2 * p - 1 := by
 
 /-! ## The conjecture -/
 
-/-- **Ordowski's conjecture (A018804, Thomas Ordowski, Oct 22 2014).**
-
-Verbatim: "Conjecture: n>1 divides a(n)+1 iff n is prime."
+/-- **Ordowski's conjecture (A018804, Thomas Ordowski, 2014).**
 
 Formalized: for every `n > 1`, `n ∣ P(n) + 1` if and only if `n` is prime,
 where `P` is Pillai's function `pillai`. -/
@@ -161,11 +131,11 @@ theorem pillai_counterexample :
     pillai_prime hp116341]
 
 /-- **Ordowski's conjecture is false** (counterexample of Varun Vejalla,
-recorded in A018804, Jun 19 2025).
+recorded in A018804, 2025).
 
 The composite `n = 3 · 37 · 43 · 42307 · 116341 = 23492890653051` satisfies
 `P(n) + 1 = 610815156979326 = 26 · n`, so `n ∣ P(n) + 1` although `n` is not
-prime.  Only the converse direction "prime ⟹ `n ∣ P(n) + 1`" holds; see
+prime. The implication from primality to divisibility holds; see
 `dvd_pillai_add_one_of_prime`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj

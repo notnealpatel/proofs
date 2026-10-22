@@ -1,38 +1,11 @@
 /-
 # A036284 — the (x^3+1)-power dividing the vertical Fibonacci bit vectors
 
-## OEIS source (local `oeis show A036284`, retrieved 2026-10-21)
-
-```
-NAME:     Periodic vertical binary vectors of Fibonacci numbers.
-TERMS:    6,24,1440,5728448,92568198012160,
-          26494530374406845814111659520, ...
-FORMULA:  a(n) = Sum_{k=0..A007283(n)-1} ([A000045(k)/(2^n)] mod 2) * 2^k,
-          where [] stands for floor function, i.e. Sum (bit n of
-          Fibonacci(k))*(2^k), k = 0 ... (3*(2^n))-1.
-COMMENT (the conjecture):
-  Conjecture: For n>=1, each term a(n), when considered as a
-  GF(2)[X]-polynomial, is divisible by GF(2)[X] -polynomial
-  (x^3 + 1) ^ A000225(n-1). If this holds, then for n>=1,
-  a(n) = A048720bi(A136380(n),A048723bi(9,A000225(n-1))).
-  Conjecture 2: there is also one extra (x^1 + 1) factor present,
-  see A136384.
-```
-
-The comment carries no signature in the local store; A136380 and A136384
-("Quotient obtained when A136380(n)/2 is considered as a GF(2)[X]-polynomial
-and it is divided by (x + 1)") are Antti Karttunen's companion entries
-(Jan 2008).  `A000225(n-1) = 2^(n-1) - 1`, and Conjecture 2 together with the
-evenness built into A136384 says that the quotient A136380(n) is divisible by
-`x (x + 1)`.
-
-## Status
-
-Triage: open (no proof in A036284, A136380, A136382, A136384).  Computation
-(this campaign, 2026-10-21): the `(x^3+1)`-adic valuation of `a(n)` is exactly
-`2^(n-1) - 1` and the quotient is divisible by `x (x + 1)` for `n = 1..14`.
-
-## Result
+OEIS A036284 encodes bit `n` of the Fibonacci numbers for `0 ≤ k < 3·2^n`
+as a binary integer. Its two divisibility conjectures concern
+`(x^3+1)^(2^(n-1)-1)` and an extra `x+1` factor for `n ≥ 1`.
+Antti Karttunen's companion entries A136380 and A136384 encode the quotient;
+the evenness in A136384 gives the additional factor `x`.
 
 Both conjectures are proved below (`conjecture_one`, `conjecture_two`, and
 the combined `X_mul_X_add_one_mul_pow_dvd`), stated on `gf2Poly (a n)`, the
@@ -54,7 +27,7 @@ namespace Candidates.A036284SumBitFib
 
 open Polynomial
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `fibBit n k` is bit `n` of the Fibonacci number `F(k)`, i.e.
 `floor(F(k) / 2^n) mod 2`, exactly as in the A036284 formula. -/
@@ -74,7 +47,7 @@ whose coefficient vector is the bit vector defining A036284(n). -/
 noncomputable def colF (n : ℕ) : (ZMod 2)[X] :=
   ∑ k ∈ Finset.range (3 * 2 ^ n), C ((fibBit n k : ℕ) : ZMod 2) * X ^ k
 
-/-! Ground truth: the first five listed terms of A036284. -/
+/-! the first five listed terms of A036284. -/
 
 example : a 0 = 6 := by decide
 example : a 1 = 24 := by decide
@@ -341,7 +314,7 @@ theorem X_mul_X_add_one_dvd_colF_divByMonic (n : ℕ) (hn : 1 ≤ n) :
 
 /-- **A036284, Conjecture 1** (comment in A036284, see also A136380).
 
-Verbatim: "For n>=1, each term a(n), when considered as a GF(2)[X]-polynomial,
+"For n>=1, each term a(n), when considered as a GF(2)[X]-polynomial,
 is divisible by GF(2)[X] -polynomial (x^3 + 1) ^ A000225(n-1)."
 Here `A000225(n-1) = 2^(n-1) - 1` (the `Nat` subtraction is exact since
 `1 ≤ 2^(n-1)`), and `gf2Poly (a n)` is A036284(n) read as a `GF(2)[X]`-polynomial. -/
@@ -352,7 +325,7 @@ theorem conjecture_one (n : ℕ) (hn : 1 ≤ n) :
 
 /-- **A036284, Conjecture 2** (comment in A036284, see A136380 and A136384).
 
-Verbatim: "Conjecture 2: there is also one extra (x^1 + 1) factor present, see
+"Conjecture 2: there is also one extra (x^1 + 1) factor present, see
 A136384."  A136384(n) is the quotient of `A136380(n)/2` by `x + 1`, where
 A136380(n) is the quotient of A036284(n) by `(x^3+1)^A000225(n-1)` in
 `GF(2)[X]`; so the claim is that this quotient (computed here as the exact
@@ -371,7 +344,7 @@ theorem X_mul_X_add_one_mul_pow_dvd (n : ℕ) (hn : 1 ≤ n) :
   rw [← colF_eq_gf2Poly_a, hP, Nat.add_sub_cancel, mul_comm (X * (X + 1))]
   exact mul_dvd_mul_left _ (X_mul_X_add_one_dvd P h0 h1)
 
-/-! Satisfiability: the hypothesis `1 ≤ n` is met, e.g. at `n = 3`, where the
+/-! Example: the hypothesis `1 ≤ n` is met, e.g. at `n = 3`, where the
 divisor `(x^3+1)^3` is a genuine (degree 9) factor. -/
 
 example : (X ^ 3 + 1 : (ZMod 2)[X]) ^ 3 ∣ gf2Poly (a 3) := conjecture_one 3 (by norm_num)

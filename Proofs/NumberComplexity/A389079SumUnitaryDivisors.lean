@@ -1,31 +1,13 @@
 /-
 # A389079 — Karttunen: no Euler-form terms, and every term has ω ≥ 3
 
-## OEIS source (retrieved with `oeis show A389079` and the live entry, 2026-10-21)
+Antti Karttunen's conjecture in OEIS A389079 (2025): no odd nonsquarefree
+`k` with `U(k)+S(k) ≥ 2k` has Euler's odd-perfect form (A228058), and each
+has at least three distinct prime factors. Here `U` sums unitary divisors
+(A034448), `S` squarefree divisors (A048250). A228058 requires
+`k=p^(4m+1)r²`, `p ≡ 1 (mod 4)` prime, `r > 1`, `gcd(p,r)=1` and odd `k`.
 
-```
-NAME:     Odd nonsquarefree numbers k such that {sum of unitary divisors of k}
-          plus {sum of squarefree divisors of k} >= 2*k.
-TERMS:    315,495,585,3465,4095,5355,5775,5985,6435,6825,7245,8085,8415,8925,
-          9009,9135,9405,9555,9765,9945,9975,10725,11115,11385,11655,11781,...
-FORMULA:  {k | k == 1 (mod 2), A008683(k) = 0 and A034448(k)+A048250(k) >= 2*k}.
-COMMENT (the conjecture, unsigned; entry AUTHOR: Antti Karttunen, Sep 30 2025):
-  It is conjectured that there are no common terms with A228058 (see also
-  A388986), and for all terms, A001221(a(n)) >= 3.
-```
-
-A228058: "Odd numbers of the form p^(1+4k) * r^2, where p is prime of the form
-1+4m, r > 1, and gcd(p,r) = 1. (Euler's criteria for odd perfect numbers)."
-A388986 (numbers with U(k) + S(k) < 2k) asks: "Is A228058 a subsequence?"
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell; A388986 still prints the question on 2026-10-21).  Computation:
-odd k ≤ 3·10^6 give 6123 terms, none with ω < 3; over the 34998 Euler-form
-k ≤ 3·10^6 the maximum of (U + S)/k is 28/15, at k = 45.
-
-This module proves both parts (`a389079_conjecture`).  Argument: U and S are
+Proof: U and S are
 multiplicative with U(p^e) = 1 + p^e and S(p^e) = 1 + p.  Part (i) reduces,
 via p ≥ 5, to 3(U(r²) + S(r²)) < 5r² for odd r > 1, which follows from
 U(r²)/r² ≤ ∏(1 + 1/q²) ≤ 4/3 (telescoping ∑_{odd q ≥ 3} 1/q² ≤ 1/4) and
@@ -38,7 +20,7 @@ set_option autoImplicit false
 
 namespace Candidates.A389079SumUnitaryDivisors
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `usigma k` is the sum of the unitary divisors of `k` (A034448): divisors `d ∣ k`
 with `gcd(d, k / d) = 1`. -/
@@ -51,7 +33,7 @@ def sqfsigma (k : ℕ) : ℕ := ∑ d ∈ k.divisors with Squarefree d, d
 `usigma k + sqfsigma k ≥ 2 * k`. -/
 def IsA389079 (k : ℕ) : Prop := Odd k ∧ ¬ Squarefree k ∧ 2 * k ≤ usigma k + sqfsigma k
 
-/-! ### Ground truth -/
+/-! ### Examples -/
 
 example : usigma 315 = 480 := by decide
 example : sqfsigma 315 = 192 := by decide +kernel
@@ -462,14 +444,10 @@ theorem not_isA389079_eulerForm (p m r : ℕ) (hp : p.Prime) (hp4 : p % 4 = 1) (
 
 /-! ## The conjecture -/
 
-/-- **Karttunen's conjecture (A389079, comment in the entry by Antti Karttunen, 2025).**
-
-Verbatim: "It is conjectured that there are no common terms with A228058 (see also
-A388986), and for all terms, A001221(a(n)) >= 3."
-
-(i) No `k = p^(4m+1) * r^2` with `p` prime, `p ≡ 1 (mod 4)`, `r > 1`, `gcd(p, r) = 1`
-(the A228058 form; the oddness of A228058 is implied by membership) is a term.
-(ii) Every term has at least three distinct prime factors (`A001221 = ω`). -/
+/-- Karttunen's conjecture (OEIS A389079, 2025): no term has A228058 form
+`p^(4m+1)r²` with `p ≡ 1 (mod 4)` prime, `r > 1` and `gcd(p,r)=1`, and
+every term has at least three distinct prime factors. The oddness required
+by A228058 follows from A389079 membership. -/
 theorem a389079_conjecture :
     (∀ p m r : ℕ, p.Prime → p % 4 = 1 → 1 < r → Nat.Coprime p r →
       ¬ IsA389079 (p ^ (4 * m + 1) * r ^ 2)) ∧
@@ -477,7 +455,7 @@ theorem a389079_conjecture :
   ⟨fun p m r hp hp4 hr hcop => not_isA389079_eulerForm p m r hp hp4 hr hcop,
     fun _ hk => three_le_card_primeFactors hk⟩
 
-/-! ### Non-vacuity -/
+/-! ### Examples -/
 
 /-- The Euler-form hypotheses are jointly satisfiable (`45 = 5 * 3^2`). -/
 example : Nat.Prime 5 ∧ 5 % 4 = 1 ∧ 1 < 3 ∧ Nat.Coprime 5 3 ∧ 5 ^ (4 * 0 + 1) * 3 ^ 2 = 45 :=

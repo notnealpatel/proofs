@@ -1,47 +1,19 @@
 /-
-# Multiparameter counting of numerical semigroups: the refined Kaplan recurrence
+# A refined Kaplan recurrence for numerical semigroups
 
-## Source
+*Multiparameter counting of numerical semigroups: recurrences and
+leaf-discriminating trees*, arXiv:2607.23111, Section 2.3, Theorem
+`t:twostepdoubling`; Section 2.4, Lemma `fmgmgran`, Theorem `kaplanrefinat`
+and Remark `remkaplan`.
+`n_{F,m,g}` counts semigroups of Frobenius number F, multiplicity m and genus g.
+For `F+2 ≤ 3m`, `m+2 ≤ F`, `2 ≤ g`,
+`n_{F,m,g}=n_{F-2,m-1,g-1}+n_{F-2,m-1,g-2}`; dropping genus gives doubling.
+The printed refined theorem allows `m=F-1`, which fails at `(F,m,g)=(3,2,2)`:
+the left side is 1 and the right side 0. The corrected bound here is `m ≤ F-2`.
 
-arXiv:2607.23111, *Multiparameter counting of numerical semigroups: recurrences
-and leaf-discriminating trees*, Section 2 ("Multiparameter exact Fibonacci
-growth by genus and two-step doubling growth by Frobenius number"):
-Theorem `t:twostepdoubling` (Section 2.3), Lemma `fmgmgran`, Theorem
-`kaplanrefinat` and Remark `remkaplan` (Section 2.4, "Fibonacci-like growth by
-the genus").
-
-`n_{F,m,g}` is the number of numerical semigroups with Frobenius number `F`,
-multiplicity `m` (least nonzero element) and genus `g` (number of gaps);
-`n_{F,m}` drops the genus.
-
-Verbatim printed claims:
-
-> Theorem (kaplanrefinat). Let $F,m$ be nonnegative integers such that
-> $\frac{F+2}{3}\leq m\leq F-1$. It holds
-> $$n_{F,m,g}=n_{F-2,m-1,g-1}+n_{F-2,m-1,g-2}.$$
-
-> Theorem (t:twostepdoubling). Let $F,m$ be nonnegative integers. If
-> $\frac{F+2}{3}\leq m<F-1$, then $$n_{F,m}=2n_{F-2,m-1}.$$
-
-Status (2026-10-21): proved in the paper, but `kaplanrefinat` as printed is
-false at the boundary `m = F - 1`: `S = ⟨2,5⟩` gives `n_{3,2,2} = 1` while
-`n_{1,1,1} + n_{1,1,0} = 0` (the proof applies Lemma `fmgmgran` at
-`m - 1 = F - 2`, outside its range).  The corrected bound is `m ≤ F - 2`, the
-same as in `t:twostepdoubling`.
-
-## What this module proves
-
-* `kaplan_refined`: for `F + 2 ≤ 3m`, `m + 2 ≤ F`, `2 ≤ g`,
-  `n_{F,m,g} = n_{F-2,m-1,g-1} + n_{F-2,m-1,g-2}`;
-* `two_step_doubling`: for `F + 2 ≤ 3m`, `m + 2 ≤ F`, `n_{F,m} = 2 n_{F-2,m-1}`;
-* `printed_bound_false`: the printed hypothesis `m ≤ F - 1` does not suffice.
-
-Proof: one explicit bijection `𝒮_{F,m} ≃ 𝒮_{F-2,m-1} × Bool` in each regime,
-`S ↦ (ψ⁻¹(S), [d ∈ S])`, abstracted in `Transfer`.  For `2m < F` the
-reindexing `ψ(q(m-1)+r) = qm + r` deletes the last Kunz coordinate (Remark
-`remkaplan`, `d = 2m - 1`); for `F < 2m` the reindexing shifts `[1, F-2)` by
-one and `[F-2, ∞)` by two (Lemma `fmgmgran`, `d = F - 1`); `F = 2m` is empty on
-both sides.  The genus drops by `1` if `d ∈ S` and by `2` otherwise.
+An explicit transfer bijection splits according to membership of one free gap;
+genus drops by 1 or 2. Kunz reindexing handles `2m<F`, a piecewise shift handles
+`F<2m`, and both sides are empty when `F=2m`.
 -/
 import Mathlib
 import Enumerative.NumericalSemigroupLeafInternal
@@ -619,14 +591,14 @@ theorem twoFive_mem_nsSet : twoFive ∈ nsSet 3 2 2 := by
   rw [mem_twoFive] at hx
   omega
 
-/-- Ground truth: `n_{3,2,2} = 1`. -/
+/-- `n_{3,2,2} = 1`. -/
 theorem nFmg_three_two_two : nFmg 3 2 2 = 1 := by
   unfold nFmg
   rw [Set.ncard_eq_one]
   refine ⟨twoFive, Set.eq_singleton_iff_unique_mem.2 ⟨twoFive_mem_nsSet, fun S hS => ?_⟩⟩
   exact eq_twoFive hS.1 hS.2.1
 
-/-- Ground truth: `n_{3,2,g} = 0` for `g ≠ 2`. -/
+/-- `n_{3,2,g} = 0` for `g ≠ 2`. -/
 theorem nFmg_three_two_of_ne {g : ℕ} (hg : g ≠ 2) : nFmg 3 2 g = 0 := by
   unfold nFmg
   rw [show nsSet 3 2 g = ∅ from ?_, Set.ncard_empty]
@@ -636,7 +608,7 @@ theorem nFmg_three_two_of_ne {g : ℕ} (hg : g ≠ 2) : nFmg 3 2 g = 0 := by
   rw [eq_twoFive hF hm, genus_twoFive] at hgen
   exact hg hgen.symm
 
-/-- Ground truth: `n_{1,1,g} = 0` (no semigroup has `F = m`). -/
+/-- `n_{1,1,g} = 0` (no semigroup has `F = m`). -/
 theorem nFmg_one_one (g : ℕ) : nFmg 1 1 g = 0 := by
   unfold nFmg
   rw [show nsSet 1 1 g = ∅ from ?_, Set.ncard_empty]

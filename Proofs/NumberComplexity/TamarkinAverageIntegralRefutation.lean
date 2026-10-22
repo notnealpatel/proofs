@@ -1,35 +1,16 @@
 /-
 # Generalized Tamarkin conjecture: refutation at `p = 5`
 
-## Source
-
-MathOverflow question 66959, "Generalization of Tamarkin's ARO 1993, final
-round, problem 10/8: still a conjecture?", asked by Darij Grinberg on
-2011-06-05 (<https://mathoverflow.net/questions/66959>).  No arXiv paper is
-involved.  Verbatim (re-pulled through the StackExchange API, 2026-10-21):
-
-```
-Let p be a prime. Define a linear operator F_p : R^Z -> R^Z by
-  (F_p f)(n) = (f(n) + f(n+1) + ... + f(n+p-1)) / p
-for every n in Z and every f in R^Z. [...] An element f in Z^Z is said to be
-average-integral if it satisfies F_p^k f in Z^Z for every nonnegative integer
-k. For any f in R^Z, define f^p in R^Z by f^p(n) = (f(n))^p for every n in Z.
-
-Conjecture: If f in Z^Z is average-integral, then so is f^p.
-```
-
-For `p = 2` this is problem 8, grade 10, of the All-Russian Olympiad 1993
-(proposed by D. Tamarkin); Grinberg reports a verification for `p = 3`.
-
-## Status
-
-False for every prime `p > 3`, settled in the thread itself:
-Gjergji Zaimi (answer of 2011-06-16) gave `(1 + n^2 + n^7 + n^15)^5` for
-`p = 5`, and zeb (answer of 2011-06-16/17) proved that `(1 + n^(p+1))^p` is a
-counterexample for every prime `p > 3`.  This module kernel-checks zeb's
-witness at `p = 5`: `f(n) = 1 + n^6` is `5`-average-integral, `f^5` is not.
-
-## Proof route (no iterate of `F_5` is expanded naively)
+Darij Grinberg, MathOverflow question 66959, “Generalization of
+Tamarkin’s ARO 1993, final round, problem 10/8: still a conjecture?”,
+https://mathoverflow.net/questions/66959 .
+A sequence is `p`-average-integral when all iterates of the length-`p`
+averaging operator are integer-valued. The proposed closure under
+pointwise `p`-th powers fails at `p = 5`: zeb's witness `1+n⁶` is
+average-integral but `(1+n⁶)⁵` is not. The thread gives counterexamples
+for every prime `p > 3`; only `p = 5` is formalized here.
+Sequences are rational-valued rather than real-valued; all values
+in this witness are rational.
 
 Write `D f = Δ⁴ f / 5` (`quartOp`).  Pointwise
 `F_5 f (n) = f(n+1) - f(n+2) + f(n+3) + D f (n)`.
@@ -61,7 +42,7 @@ integer-valued for every `k ≥ 0`. -/
 def AvgIntegral (p : ℕ) (f : ℤ → ℤ) : Prop :=
   ∀ k : ℕ, ∀ n : ℤ, ∃ m : ℤ, (avgOp p)^[k] (fun x => (f x : ℚ)) n = m
 
-/-! ### Ground truth -/
+/-! ### Examples -/
 
 example : avgOp 5 (fun n => (n : ℚ)) 0 = 2 := by
   simp only [avgOp, zero_add, Int.cast_natCast, Finset.sum_range_succ, Finset.range_one,

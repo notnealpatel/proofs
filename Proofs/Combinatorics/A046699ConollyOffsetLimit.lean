@@ -1,36 +1,13 @@
 /-
-# A046699 — Yanev: Conolly differences read off the limit word A215530
+# A046699 — Conolly differences and the limit word A215530
 
-## OEIS source (retrieved with `oeis show A046699`, 2026-10-21)
+Velin Yanev (OEIS A046699, Oct 17 2019) conjectured
+`a(n+1) = a(n) + A215530(a(n) + n)` for `n ≥ 1`.
+A215530 is the limit of `01` under `s ↦ s s 0`, indexed from 0.
+The closed form used below is due to Benoit Cloitre (Jan 19 2007);
+Paul Boddington (Jul 30 2004) identified the first differences as A079559.
 
-```
-NAME:     a(1) = a(2) = 1, a(n) = a(n - a(n-1)) + a(n-1 - a(n-2)) if n > 2.
-TERMS:    1,1,2,2,3,4,4,4,5,6,6,7,8,8,8,8,9,10,10,11,12,12,12,13,14,14,15,16,
-          16,16,16,16,17,18,18,19,20,20,20,21,22,22,23,24,24,24,24,25,26,26,
-          27,28,28,28,29,30,30,31,32,32,32,32,32,32,33,34,34,35,36,36,36,37
-FORMULA (the conjecture):
-  Conjecture: a(n+1) = a(n) + A215530(a(n) + n) for all n > 0.
-  - _Velin Yanev_, Oct 17 2019
-FORMULA (context):
-  First differences seem to be A079559. ... This is correct and not too hard
-  to prove ... - _Paul Boddington_, Jul 30 2004
-  For n>=1, a(n)=w(n-1) where w(n) is the least k such that 2^n divides
-  (2k)!. - _Benoit Cloitre_, Jan 19 2007
-COMMENT:  Except for the first term, n occurs A001511(n) times.
-```
-
-A215530 (offset 0): "The limit of the string "0, 1" under the operation
-'repeat string twice and append 0'."  Terms
-0,1,0,1,0,0,1,0,1,0,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0,1,0,0,1,0,1,0,0,0,1,...
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  Verified numerically for `1 ≤ n ≤ 200000` before formalizing.
-This file proves the conjecture in full (`yanev_conjecture`, and for every function
-meeting the entry's specification, `yanev_conjecture_of_isConolly`), sorry-free.
-
-## Proof outline (this file)
+## Proof outline
 
 Let `g = A005187`, `g k = k + g ⌊k/2⌋ = ν₂((2k)!)`.  Cloitre's formula says
 `a n = min {k ≥ 1 | n ≤ g k + 1}`; we take this as the closed form
@@ -632,10 +609,10 @@ theorem conollyClosed_succ_eq_add_limitWord {n : ℕ} (hn : 1 ≤ n) :
 
 /-! ## Yanev's conjecture -/
 
-/-- **Yanev's conjecture (A046699, Velin Yanev, Oct 17 2019), additive form.**
-Verbatim: "Conjecture: a(n+1) = a(n) + A215530(a(n) + n) for all n > 0."
-Here `conolly` is A046699 computed by the entry's recurrence and `limitWord` is A215530
-(offset 0), the limit of `01` under `s ↦ s s 0`. -/
+/-- Yanev's conjecture (A046699, Velin Yanev, Oct 17 2019), additive form:
+`a(n+1) = a(n) + w(a(n)+n)` for `n ≥ 1`. Here `conolly` is computed by the
+entry's recurrence and `limitWord` is A215530 (offset 0), the limit of `01`
+under `s ↦ s s 0`. -/
 theorem conolly_succ_eq_add_limitWord {n : ℕ} (hn : 1 ≤ n) :
     conolly (n + 1) = conolly n + limitWord (conolly n + n) := by
   rw [conolly_eq_conollyClosed (by omega), conolly_eq_conollyClosed hn]

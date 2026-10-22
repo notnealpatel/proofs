@@ -1,42 +1,13 @@
 /-
-# A070251 — the "a(6) = 4 is the only powerful term > 1" conjecture is false
+Powerful terms of OEIS A070251 (Michael De Vlieger, Jan 15 2025).
 
-## OEIS source (retrieved with `oeis show A070251`, 2026-10-21)
-
-```
-NAME:     Unrelated-factorial numbers: product of numbers unrelated to n
-          (numbers which have a common divisor with n but do not divide n).
-TERMS:    1,1,1,1,1,4,1,6,6,192,1,720,1,23040,6480,10080,1,12902400,1,
-          34836480,2449440,1857945600,1,50295168000,3000,980995276800,9797760,
-          9564703948800,1,1518492398911488000,1,41845579776000,1571364748800
-COMMENT (the conjecture, from _Michael De Vlieger_, Jan 15 2025):
-  Conjectures: a(6) = 4 is likely the only powerful term that exceeds 1.
-  a(8) = a(9) = 6 is likely the only squarefree number exceeding 1 that
-  appears in the sequence.
-FORMULA (same author and date):
-  Let S(n) = { k < n : 1 < gcd(k,n) < k } = row n of A133995 for composite
-  n > 4.  a(n) = product of S(n).
-```
-
-## Status
-
-Literature status (triage): no proof or refutation recorded in the entry or
-found elsewhere; the triage found the counterexample `n = 35`.  This module
-kernel-checks it:
-
-  a(35) = 18522000000 = 2^7 * 3^3 * 5^6 * 7^3,
-
-which exceeds 1 and is powerful (every prime factor occurs at least squared).
-
-Independent recomputation (Python, 2026-10-21): the definition below
-reproduces all 33 DATA terms; the indices `n ≤ 600` with `a(n) > 1` powerful
-are exactly `6, 35, 77, 143, 221, 323, 437` (`437 = 19 * 23`).
-
-The module also proves the infinite family behind these counterexamples:
-for consecutive primes `5 ≤ p < q`, `a(p q)` exceeds 1 and is powerful
-(`one_lt_unrelProd_mul_and_isPowerful`).  Only the powerful-term conjecture
-is addressed here; the squarefree, A055932, `n = 2p` and `n ∣ a(n)`
-sub-conjectures of the same comment are not formalized.
+The unrelated-factorial product uses 0<k<n, gcd(k,n)>1 and k∤n.
+The claim that a(6)=4 is its only powerful value exceeding 1 is refuted by
+ a(35)=18522000000=2^7*3^3*5^6*7^3.
+More generally, a(pq) is powerful and exceeds 1 for consecutive primes 5≤p<q,
+yielding an unbounded family of indices.
+The source's squarefree-value, A055932, n=2p and n∣a(n) sub-conjectures
+are not addressed.
 -/
 import Mathlib
 
@@ -48,7 +19,7 @@ namespace Candidates.A070251Refutation
 
 /-- The numbers unrelated to `n`: those `k` with `0 < k < n` that share a
 common divisor `> 1` with `n` but do not divide `n`.  The lower bound `0 < k`
-is load-bearing: `k = 0` satisfies `1 < gcd 0 n` and `¬ 0 ∣ n` for `n ≥ 2`,
+is key: `k = 0` satisfies `1 < gcd 0 n` and `¬ 0 ∣ n` for `n ≥ 2`,
 and would make every product `0`. -/
 def unrelSet (n : ℕ) : Finset ℕ :=
   (Finset.Ioo 0 n).filter (fun k => 1 < Nat.gcd k n ∧ ¬ k ∣ n)
@@ -62,7 +33,7 @@ divides it at least squared.  With this convention `1` is powerful and so is
 `0`; the conjecture concerns terms `> 1`, so `0` never enters. -/
 def IsPowerful (m : ℕ) : Prop := ∀ p : ℕ, p.Prime → p ∣ m → p ^ 2 ∣ m
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The definition reproduces all 33 listed terms a(1), ..., a(33).
 example : (List.range 33).map (fun i => unrelProd (i + 1)) =
@@ -75,7 +46,7 @@ example : (List.range 33).map (fun i => unrelProd (i + 1)) =
 -- The unrelated set of `10` is `{4, 6, 8}`, whose product is `a(10) = 192`.
 example : unrelSet 10 = {4, 6, 8} := by decide
 
--- `IsPowerful` ground truth: `4 = a(6)` is powerful, `6 = a(8)` is not.
+-- `IsPowerful` examples: `4 = a(6)` is powerful, `6 = a(8)` is not.
 example : IsPowerful 4 := by
   intro p hp hdvd
   have hp2 : p = 2 :=
@@ -117,11 +88,8 @@ theorem isPowerful_unrelProd_35 : IsPowerful (unrelProd 35) := by
         (hp.dvd_of_dvd_pow h7))))
   rcases hcases with rfl | rfl | rfl | rfl <;> norm_num
 
-/-- **De Vlieger's powerful-term conjecture (A070251, Jan 15 2025) is false.**
-
-Verbatim: "a(6) = 4 is likely the only powerful term that exceeds 1."
-Formalized as `∀ n, 1 < a(n) → a(n) powerful → n = 6`; the index `n = 35`
-refutes it, since `a(35) = 2^7 * 3^3 * 5^6 * 7^3`. -/
+/-- De Vlieger's unique-index reading is false: `n=35`, not `6`, gives
+a powerful term exceeding `1`. -/
 theorem a070251_powerful_conjecture_false :
     ¬ ∀ n : ℕ, 1 < unrelProd n → IsPowerful (unrelProd n) → n = 6 := by
   intro h
@@ -237,7 +205,7 @@ theorem one_lt_unrelProd_mul_and_isPowerful (p q : ℕ) (hp : p.Prime) (hq : q.P
     1 < unrelProd (p * q) ∧ IsPowerful (unrelProd (p * q)) := by
   have hp1 : 1 < p := hp.one_lt
   have hq1 : 1 < q := hq.one_lt
-  -- the members `m * p` (`2 ≤ m < q`) and `m * q` (`2 ≤ m < p`)
+  -- The members `m * p` (`2 ≤ m < q`) and `m * q` (`2 ≤ m < p`)
   have hmemp : ∀ m, 2 ≤ m → m < q → m * p ∈ unrelSet (p * q) :=
     fun m hm2 hmq => mul_mem_unrelSet hp1 hq hm2 hmq
   have hmemq : ∀ m, 2 ≤ m → m < p → m * q ∈ unrelSet (p * q) := by

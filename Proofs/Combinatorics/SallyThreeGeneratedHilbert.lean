@@ -1,33 +1,16 @@
 /-
-# Sally's conjecture for 3-generated numerical semigroups
+# Sally's conjecture for three-generated numerical semigroups
 
-## Source
+T. Cortadellas Benítez, R. Jafari and S. Zarzuela Armengou, *On the Apéry
+sets of monomial curves*, arXiv:1205.4118, Section 4, Remark `Hi`,
+Lemma `land` and the proposition for `b = 3`, with order defined in Section 2.
+The proof follows the injection `D_k → C_k`, similar to Şerban's argument;
+the general embedding-dimension-3 ring case is due to Elias (1993).
 
-T. Cortadellas Benítez, R. Jafari, S. Zarzuela Armengou,
-"On the Apéry sets of monomial curves", arXiv:1205.4118.
-Section 4 ("Non-decreasing Hilbert functions"): Remark `Hi`, Lemma `land`
-and the Proposition for `b = 3` ("Let `b = 3`. Then the numerical semigroup
-ring `k[[S]]` has non-decreasing Hilbert function."), whose proof builds an
-injective map `D_k → C_k`.  The order of an element is defined in Section 2:
-"For `s ∈ S` we consider the order of `s` ... the integer `k` such that
-`s ∈ kM \ (k+1)M`.  In particular `s` may be represented as
-`s = r_1 n_1 + ⋯ + r_b n_b` with `∑ r_i = k` maximum over all
-representations of `s` in `S`."  The Hilbert function of `k[[S]]` is
-`H(k) = #(kM \ (k+1)M) = #{s ∈ S : ord(s) = k}`.
-
-## Informal claim (as triaged, recorded 2026-10-21)
-
-For positive integers `n1 < n2 < n3`, let `ord(x)` be the maximum of
-`r1 + r2 + r3` over `r ∈ ℕ³` with `r1 n1 + r2 n2 + r3 n3 = x`, and let
-`H(k) = #{x : x representable, ord(x) = k}`.  Then `H` is monotone.
-
-## Status
-
-Proved in the paper (Proposition for `b = 3` in Section 4, similar to
-Şerban's proof); the general embedding-dimension-3 ring case is Elias (1993).
-Here the statement does not assume `gcd(n1, n2, n3) = 1` or minimality of
-the generators: the injection argument uses neither.  Formalized below with
-no remaining `sorry`.
+For positive `n₁ < n₂ < n₃`, let `ord(x)` be the maximal representation
+length of `x` in these generators. Then
+`H(k) = #{x ∈ ⟨n₁,n₂,n₃⟩ : ord(x) = k}` is nondecreasing. Neither coprimality
+nor minimality of the generators is assumed: the injection uses neither.
 -/
 import Mathlib
 
@@ -74,7 +57,7 @@ def hilb (n₁ n₂ n₃ k : ℕ) : ℕ :=
   ((Finset.range (k * (n₁ + n₂ + n₃) + 1)).filter
     (fun x => IsRep n₁ n₂ n₃ x k ∧ ord n₁ n₂ n₃ x = k)).card
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 section GroundTruth
 

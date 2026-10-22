@@ -1,29 +1,10 @@
 /-
 # A078173 — Layman: maxima of `t` and `s` over solutions of `r*s*t = n*(r+s+t)`
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A078173`, cross-checked
-against https://oeis.org/A078173)
-
-```
-NAME:     a(n) = max(min(r,s,t)), where the maximum is taken over all positive
-          integer solutions of the Diophantine equation r*s*t = n * (r+s+t).
-TERMS:    1,2,3,2,3,3,3,4,4,4,4,6,3,5,5,6,4,6,5,6,7,4,5,6,5,7,9,7,6,6,...
-KEYWORDS: nonn
-AUTHOR:   John W. Layman, Nov 20 2002
-COMMENT (the conjecture, the entry's only comment):
-  Conjecture: max(t) = n*(n+2) and max(s) = 2*n, where the maxima are taken
-  over all positive integer solutions r<=s<=t of the above Diophantine
-  equation.
-```
-
-The comment carries no separate signature; it is part of the original
-submission by John W. Layman, Nov 20 2002.
-
-## Status
-
-Triage: open (stated only as a conjecture in the entry; no proof found in the
-entry or the literature).  Brute force confirms both maxima for `1 ≤ n ≤ 120`.
-This file proves both claims for every `n ≥ 1`.
+John W. Layman's conjecture in OEIS A078173 (2002): over ordered positive
+solutions `r ≤ s ≤ t` of `rst = n(r+s+t)`, the maxima of `t` and `s` are
+`n(n+2)` and `2n` for every `n ≥ 1`. The entry's sequence instead records
+the maximum of `min(r,s,t)`.
 
 ## Argument
 
@@ -39,7 +20,7 @@ set_option autoImplicit false
 
 namespace Candidates.A078173LaymanSolutionsMaximum
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The ordered positive solutions of Layman's equation: triples `(r, s, t)` of
 positive integers with `r ≤ s ≤ t` and `r*s*t = n*(r+s+t)`.  Positivity of `s`
@@ -47,7 +28,7 @@ and `t` follows from `0 < r ≤ s ≤ t`. -/
 def solutions (n : ℕ) : Set (ℕ × ℕ × ℕ) :=
   {p | 0 < p.1 ∧ p.1 ≤ p.2.1 ∧ p.2.1 ≤ p.2.2 ∧ p.1 * p.2.1 * p.2.2 = n * (p.1 + p.2.1 + p.2.2)}
 
-/-! ## Ground truth: membership witnesses realising `a(1), a(2), a(3) = 1, 2, 3`
+/-! ## Examples: membership witnesses realising `a(1), a(2), a(3) = 1, 2, 3`
 
 Each listed triple has `min = r` equal to the corresponding first term. -/
 
@@ -132,7 +113,7 @@ theorem mem_s_witness {n : ℕ} (hn : 0 < n) : (1, 2 * n, 2 * n + 1) ∈ solutio
   simp only [solutions, Set.mem_ofPred_eq]
   refine ⟨Nat.one_pos, by omega, by omega, by ring⟩
 
-/-! ## Ground truth for the sequence values `a(1) = 1` and `a(2) = 2`
+/-! ## Examples for the sequence values `a(1) = 1` and `a(2) = 2`
 
 The entry's `a(n)` is the maximum of `min(r,s,t) = r` over `solutions n`. -/
 
@@ -156,7 +137,7 @@ example : IsGreatest ((fun p : ℕ × ℕ × ℕ => p.1) '' solutions 2) 2 := by
 
 /-! ## The conjecture -/
 
-/-- **Layman's conjecture, `t` part (A078173, John W. Layman, Nov 20 2002).**
+/-- **Layman's conjecture, `t` part (A078173, John W. Layman, 2002).**
 For every `n ≥ 1`, the maximum of `t` over all positive integer solutions
 `r ≤ s ≤ t` of `r*s*t = n*(r+s+t)` is `n*(n+2)`. -/
 theorem isGreatest_t {n : ℕ} (hn : 0 < n) :
@@ -165,7 +146,7 @@ theorem isGreatest_t {n : ℕ} (hn : 0 < n) :
   rintro _ ⟨⟨r, s, t⟩, hp, rfl⟩
   exact le_of_mem_t hn hp
 
-/-- **Layman's conjecture, `s` part (A078173, John W. Layman, Nov 20 2002).**
+/-- **Layman's conjecture, `s` part (A078173, John W. Layman, 2002).**
 For every `n ≥ 1`, the maximum of `s` over all positive integer solutions
 `r ≤ s ≤ t` of `r*s*t = n*(r+s+t)` is `2*n`. -/
 theorem isGreatest_s {n : ℕ} (hn : 0 < n) :
@@ -174,10 +155,9 @@ theorem isGreatest_s {n : ℕ} (hn : 0 < n) :
   rintro _ ⟨⟨r, s, t⟩, hp, rfl⟩
   exact le_of_mem_s hn hp
 
-/-- **Layman's conjecture (A078173, John W. Layman, Nov 20 2002).**
-Verbatim: "Conjecture: max(t) = n*(n+2) and max(s) = 2*n, where the maxima are
-taken over all positive integer solutions r<=s<=t of the above Diophantine
-equation."  Here the equation is `r*s*t = n*(r+s+t)` and `n ≥ 1`. -/
+/-- Layman's conjecture (OEIS A078173, 2002): for `n ≥ 1`, over ordered
+positive solutions `r ≤ s ≤ t` of `rst=n(r+s+t)`, the maxima of `t` and
+`s` are `n(n+2)` and `2n`, respectively. -/
 theorem layman_conjecture {n : ℕ} (hn : 0 < n) :
     IsGreatest ((fun p : ℕ × ℕ × ℕ => p.2.2) '' solutions n) (n * (n + 2)) ∧
       IsGreatest ((fun p : ℕ × ℕ × ℕ => p.2.1) '' solutions n) (2 * n) :=

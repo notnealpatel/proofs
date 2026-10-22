@@ -1,52 +1,21 @@
 /-
-# Erdős Problem 348, existence half: powers of two and Fibonacci deletions
+# Erdős problem 348: the existence constructions
 
-## Source
+Jesse Geneson, *Deletion thresholds and exponential examples for complete
+sequences*, arXiv:2609.25107, Section 3, "Existence for m=0" and
+"Existence for m=1". The underlying Fibonacci results are attributed to
+Brown (1961) and Graham (1964).
+A deletion removes indices, so the two initial Fibonacci ones are distinct
+occurrences: `fibSeq i=Nat.fib(i+1)`. Finite subset sums include the empty sum.
 
-Jesse Geneson, "Deletion thresholds and exponential examples for complete
-sequences", arXiv:2609.25107, Section 3 ("The two existence constructions"),
-proofs labelled "Existence for m=0" and "Existence for m=1".  The underlying
-results are classical: Brown (1961) for completeness of the Fibonacci
-sequence after one deletion, Graham (1964) for incompleteness after two.
-Recorded 2026-10-21.
-
-Conventions of the paper (Section 1): for a sequence `A = (a_i)`, `FS(A)` is
-the set of sums of finite selections of terms with distinct indices,
-including the empty sum; `A` is *complete* if `FS(A)` contains every
-sufficiently large integer; a deletion removes an occurrence (index).
-
-Verbatim informal claims (Section 3):
-
-> The sequence $1,2,4,8,\ldots$ represents every nonnegative integer by
-> binary expansion. After deleting $2^j$, no remaining subset sum is
-> congruent to $2^j$ modulo $2^{j+1}$ [...] Thus a one-occurrence deletion
-> leaves infinitely many missing integers.
-
-> [Fibonacci, $F_1 = F_2 = 1$] The interval induction therefore shows that
-> every nonnegative integer is represented after any one-occurrence
-> deletion.
-> Now delete $F_i,F_j$ with $i<j$. For $t\ge0$ and $1\le d\le F_i$, put
-> $x_t(d)=F_{j+2t+1}-d$. We prove by induction on $t$ that these integers
-> are missing. [...] The Fibonacci sequence therefore works for every pair
-> $(1,n)$ with $n\ge2$.
-
-Together these give the "if" direction of the paper's Theorem 1.1
-(Erdős Problem 348): for `0 ≤ m < n` with `m ≤ 1` there is a nondecreasing
-sequence complete after every deletion of `m` occurrences and incomplete
-after every deletion of `n` occurrences.
-
-## Status
-
-Proved in the paper (and classical: Brown 1961, Graham 1964).  Fully
-formalized here, no `sorry`.
-
-## Indexing
-
-Lean indices start at `0`: `fibSeq i = Nat.fib (i + 1)`, so
-`fibSeq 0 = fibSeq 1 = 1` are the paper's `F_1 = F_2 = 1` as two distinct
-occurrences, and the paper's `F_k` is `fibSeq (k - 1)`.  The paper's missing
-integers `F_{j+2t+1} - d` for paper indices `i < j` become
-`Nat.fib (j + 2 t + 2) - d` for Lean indices `i < j`, with `1 ≤ d ≤ fibSeq i`.
+Powers of two represent every natural number before deletion; any nonempty
+deletion leaves infinitely many missing integers. Fibonacci numbers still
+represent every natural number after at most one deletion, but any deletion
+of at least two occurrences leaves infinitely many missing integers.
+These give the existence direction of Theorem 1.1 for `0 ≤ m < n`, `m ≤ 1`,
+not the converse classification. The paper's missing values
+`F_{j+2t+1}-d` become `Nat.fib(j+2t+2)-d` for Lean indices `i<j`,
+`1 ≤ d ≤ fibSeq i`.
 -/
 import Mathlib
 
@@ -361,7 +330,7 @@ theorem erdos348_existence (m n : ℕ) (hm : m ≤ 1) (hmn : m < n) :
     · intro D hD
       exact fibSeq_not_isComplete_of_one_lt_card D (by omega)
 
-/-! ## Ground-truth checks -/
+/-! ## Examples -/
 
 example : (List.range 6).map fibSeq = [1, 1, 2, 3, 5, 8] := by decide
 example : (List.range 5).map powTwo = [1, 2, 4, 8, 16] := by decide

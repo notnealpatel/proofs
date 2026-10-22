@@ -1,38 +1,14 @@
 /-
 # A285127 — Kimberling's bound `-3 < n*r - a(n) < 0` is false
 
-## OEIS source (retrieved 2026-10-21; `oeis show A285127` and the live entry)
+OEIS A285127 (Clark Kimberling, April 19, 2017) lists the 1-based
+positions of 1 in A285125, the limit of the even iterates of
+`0 ↦ 10`, `1 ↦ 0000` starting at 0. Its conjectured bound is
+`-3 < nr - a(n) < 0` for `n ≥ 1`, with `r = 3.5621...`.
 
-```
-A285127   Positions of 1 in A285125; complement of A285126.
-OFFSET:   1
-DATA:     5,11,17,23,25,27,29,31,37,43,49,55,61,63,65,67,69,75,81,87,93,99,
-          101,103,105,107,113,119,125,131,137,139,141,143,145,151,153,155,157,
-          159,165,167,169,171,173,179,181,183,185,187,193,195,197,199,201,207
-COMMENT:  Conjecture: -3 < n*r - a(n) < 0 for n>=1, where r = 3.5621...
-MATHEMATICA: s = Nest[Flatten[# /. {0 -> {1, 0}, 1 -> {0, 0, 0, 0}}] &, {0}, 14];
-          (* A285125 *)  Flatten[Position[s, 1]];  (* A285127 *)
-AUTHOR:   Clark Kimberling, Apr 19 2017
-```
-
-A285125: "0-limiting word of the morphism 0->10, 1-> 0000.", offset 1, data
-`0,0,0,0,1,0,0,0,0,0,1,...`; its comment: the morphism has two limiting words,
-the 0-word (an even number of iterations of the morphism applied to `0`) and
-the 1-word (odd iterations, A285128).  The conjecture line carries no separate
-author or date; it belongs to the entry by Clark Kimberling, Apr 19 2017.  No
-later comment on A285125 or A285127 retracts it.
-
-## Status
-
-This module **refutes** the conjecture.  Already `a(1) = 5` and `a(2) = 11`:
-for any `r < 4` (in particular `r = 3.5621...`) the value
-`2*r - a(2) = 2*r - 11` is `< -3`.  In fact no real `r` at all works:
-`a(1) = 5` forces `r < 5`, while `a(4) = 23` forces `4*r > 20`.  (The density
-of `1`s is `1/(1+λ)` with `λ = (1+√17)/2` the Perron eigenvalue of the
-substitution matrix, so the natural constant is `r = (3+√17)/2 = 3.56155...`;
-the second eigenvalue `(1-√17)/2` has modulus `> 1`, and numerically
-`n*r - a(n)` drifts to about `-2603` by `n ≈ 8.3·10^5`, so no bounded-window
-correction is evident.  That unboundedness is not formalized here.)
+Since `a(2) = 11`, every `r < 4` violates the lower bound at `n = 2`.
+In fact no real constant works: `a(1) = 5` forces `r < 5`,
+whereas `a(4) = 23` forces `5 < r`. No unboundedness result is formalized.
 -/
 import Mathlib
 
@@ -178,7 +154,7 @@ theorem A285127_eq_of {n m : ℕ} (hm : m ≤ 246) (hq : IsOnePosTable m)
   have hp : IsOnePos m := (isOnePos_iff hm).2 hq
   rw [A285127, ← hc, ← hcount, Nat.nth_count hp]
 
-/-! ## Ground truth against the OEIS data -/
+/-! ## Examples against the OEIS data -/
 
 /-- The first 86 terms of A285125 match the OEIS DATA line. -/
 example : (List.range 86).map (fun n => A285125 (n + 1)) =
@@ -219,17 +195,15 @@ def BoundsWith (r : ℝ) : Prop :=
   ∀ n : ℕ, 1 ≤ n →
     -3 < (n : ℝ) * r - (A285127 n : ℝ) ∧ (n : ℝ) * r - (A285127 n : ℝ) < 0
 
-/-- **Kimberling's conjecture (A285127, Apr 19 2017).**  Verbatim:
-"Conjecture: -3 < n*r - a(n) < 0 for n>=1, where r = 3.5621..."
-
-The constant is given only by its leading digits, so it is read as some real
-`r` whose decimal expansion begins `3.5621`, i.e. `3.5621 ≤ r < 3.5622`. -/
+/-- Kimberling's conjecture (OEIS A285127, April 19, 2017):
+`-3 < nr - a(n) < 0` for all `n ≥ 1`, where `r = 3.5621...`.
+The decimal specification is interpreted as `3.5621 ≤ r < 3.5622`. -/
 def Conjecture : Prop := ∃ r : ℝ, 3.5621 ≤ r ∧ r < 3.5622 ∧ BoundsWith r
 
 /-! ## The refutation -/
 
-/-- The triage counterexample at `n = 2`: since `a(2) = 11`, every `r < 4`
-(in particular `r = 3.5621...`) gives `2*r - a(2) < -3`. -/
+/-- Since `a(2) = 11`, every `r < 4` (in particular `r = 3.5621...`)
+gives `2r - a(2) < -3`. -/
 theorem two_mul_sub_A285127_two_lt {r : ℝ} (hr : r < 4) :
     (2 : ℝ) * r - (A285127 2 : ℝ) < -3 := by
   rw [A285127_two]
@@ -247,12 +221,9 @@ theorem not_boundsWith (r : ℝ) : ¬ BoundsWith r := by
   push_cast at h1 h4
   linarith
 
-/-- **Kimberling's A285127 conjecture is false.**  Counterexample: `n = 2`,
-where `a(2) = 11` and `2*r - 11 < -3` for every `r = 3.5621...`
-(`two_mul_sub_A285127_two_lt`).  No other constant rescues it
-(`not_boundsWith`); the natural constant is the reciprocal density
-`(3+√17)/2 = 3.56155...`, for which the deviation `n*r - a(n)` is numerically
-unbounded below, so no corrected bounded window is evident. -/
+/-- Kimberling's A285127 conjecture fails at `n = 2`: `a(2) = 11`
+and `2r - 11 < -3` for every `r = 3.5621...`.
+Moreover, `not_boundsWith` excludes every real constant `r`. -/
 theorem conjecture_false : ¬ Conjecture := by
   rintro ⟨r, _, hr, h⟩
   have h2 := (h 2 (by norm_num)).1

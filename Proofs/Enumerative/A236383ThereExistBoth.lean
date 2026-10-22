@@ -1,38 +1,12 @@
 /-
-# A236383 — Lagneau: the "x ‖ (x + n²)" square exists for every n ≥ 1
+Equal-length square concatenations (OEIS A236383; attributed to Michel Lagneau,
+2014; definition corrected by Giovanni Resta, Jun 2019).
 
-## OEIS source (retrieved with `oeis show A236383`, 2026-10-21)
-
-```
-NAME:     Smallest k such that k^2 is a concatenation of two numbers x and y
-          where y = x + n^2 and x and y have the same number of digits.
-TERMS:    428,453,465,381,369,358,917,421,394,452,704,716,442,833,323,380,347,
-          697,8376,449,3994,407,439,431,4770,6961,391,336,3533,4277,7915,36332,
-          7705,4487,3323,8869,8942,3250,4560,7632,90951,7988,4204,3606,8586,72774
-COMMENT:  Conjecture: a(n) exists for all numbers n.
-COMMENT:  a(1) = A030467(1).
-COMMENT:  The corresponding sequence with x + n instead of x + n^2 starts with
-          36363636364, 428, 8874, 5, 310, 7, 39 for n = 0,...,6, and
-          a(7) > 10^70, if it exists. - _Giovanni Resta_, Jun 24 2019
-```
-
-The conjecture line is unsigned in the entry; per the triage it is due to the
-entry author, Michel Lagneau (2014), and Giovanni Resta corrected the
-definition in Jun 2019 (the local OEIS store carries no author field).  The Maple program splits
-`k^2` (with an even number `2d` of digits) into its high half `x` and low half
-`y` and tests `y - x = n^2`.
-
-## Status
-
-Triage: open — no proof or counterexample in the entry; the literature beyond
-the entry was not searched, so novelty is not established.
-
-This module proves the conjecture (theorem `exists_witness`), by an explicit
-construction (no search, no CRT): with `u = 10^e ≡ 1 (mod 3)`,
-`A = u + 1`, `B = u^2 - u + 1`, `10^(3e) + 1 = A * B`, and a residue split on
-`n mod 3`, one writes down `K, α, β` with `K - n = α A`, `K + n = β B` (or the
-signs swapped), so `K^2 = α β (10^(3e) + 1) + n^2`; for `u ≥ 3n + 4` the
-product `x = α β` has exactly `3e` digits and so does `x + n^2`.
+For every n≥1 there is a square k² whose decimal halves are positive,
+equal-length numbers x and x+n². Well-ordering then gives a least witness.
+The construction factors 10^(3e)+1=(10^e+1)(10^(2e)-10^e+1), splits on
+n modulo 3, and proves the required digit bounds. Existence, rather than
+minimality of the displayed example witnesses, is the constructive result.
 -/
 import Mathlib
 
@@ -49,17 +23,17 @@ def IsWitness (n k : ℕ) : Prop :=
   ∃ x y : ℕ, (Nat.digits 10 x).length = (Nat.digits 10 y).length ∧ y = x + n ^ 2 ∧
     k ^ 2 = x * 10 ^ (Nat.digits 10 y).length + y
 
-/-- Ground truth: `a(1) = 428`, `428^2 = 183184 = 183 ‖ 184`, `184 = 183 + 1^2`. -/
+/-- Witness `k = 428` at `n = 1`: `428^2 = 183184 = 183 ‖ 184`, `184 = 183 + 1^2`. -/
 example : IsWitness 1 428 := ⟨183, 184, by norm_num, by norm_num, by norm_num⟩
 
-/-- Ground truth: `a(2) = 453`, `453^2 = 205209 = 205 ‖ 209`, `209 = 205 + 2^2`. -/
+/-- Witness `k = 453` at `n = 2`: `453^2 = 205209 = 205 ‖ 209`, `209 = 205 + 2^2`. -/
 example : IsWitness 2 453 := ⟨205, 209, by norm_num, by norm_num, by norm_num⟩
 
-/-- Ground truth: `a(19) = 8376`, `8376^2 = 70157376 = 7015 ‖ 7376`,
+/-- Witness `k = 8376` at `n = 19`: `8376^2 = 70157376 = 7015 ‖ 7376`,
 `7376 = 7015 + 19^2`. -/
 example : IsWitness 19 8376 := ⟨7015, 7376, by norm_num, by norm_num, by norm_num⟩
 
-/-- Ground truth: `a(46) = 72774`, `72774^2 = 5296055076 = 52960 ‖ 55076`,
+/-- Witness `k = 72774` at `n = 46`: `72774^2 = 5296055076 = 52960 ‖ 55076`,
 `55076 = 52960 + 46^2`. -/
 example : IsWitness 46 72774 := ⟨52960, 55076, by norm_num, by norm_num, by norm_num⟩
 
@@ -139,7 +113,7 @@ theorem core (n u : ℕ) (hn : 1 ≤ n) (hu : u % 3 = 1) (hbig : 3 * n + 4 ≤ u
     subst hm hw
     exact core_zero m w
 
-/-- Numeric form (the triage's formal sketch): for `1 ≤ n` there are `k`, `d`,
+/-- Numeric form : for `1 ≤ n` there are `k`, `d`,
 `x` with `0 < d`, `k^2 = x * 10^d + (x + n^2)`, `10^(d-1) ≤ x` and
 `x + n^2 < 10^d`. -/
 theorem exists_bounds (n : ℕ) (hn : 1 ≤ n) :
@@ -162,11 +136,7 @@ theorem exists_bounds (n : ℕ) (hn : 1 ≤ n) :
     omega
   · rw [hd]; exact hhi
 
-/-- **Lagneau's conjecture (A236383, Michel Lagneau, 2014), proved.**
-
-Verbatim: "Conjecture: a(n) exists for all numbers n." — i.e. for every `n ≥ 1`
-there is `k` such that `k^2` is the concatenation of two numbers `x` and `y`
-with `y = x + n^2` and `x`, `y` having the same number of decimal digits. -/
+/-- Every `n≥1` has a square concatenating equal-length numbers `x` and `x+n²`. -/
 theorem exists_witness (n : ℕ) (hn : 1 ≤ n) : ∃ k, IsWitness n k := by
   obtain ⟨k, d, x, hd, hk, hlo, hhi⟩ := exists_bounds n hn
   have hxd : (Nat.digits 10 x).length = d := length_digits_eq_of_bounds hd hlo (by omega)

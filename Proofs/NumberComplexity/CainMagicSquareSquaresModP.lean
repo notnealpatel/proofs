@@ -1,33 +1,11 @@
 /-
 # Cain: the prime-field Parker conjecture (Conjecture 7.1)
 
-## Source
-
 Onno M. Cain, *Gaussian Integers, Rings, Finite Fields, and the Magic Square
-of Squares*, arXiv:1908.03236.
-
-* Section 1 defines a magic square of squares: nine distinct squares in a
-  `3 × 3` grid whose rows, columns and both main diagonals all have the same
-  sum `T`.
-* Section 5: "We call a finite field -- or ring in general -- *Parker* if no
-  magic square of square can be formed; that is, if no nine distinct squared
-  elements can be found satisfying the constraints given in the Section 1."
-* Section 7, Observation 7.1 (computation, `p < 1000`) and Conjecture 7.1
-  (verbatim): "The only Parker fields of prime order are: F_2, F_3, F_5, F_7,
-  F_11, F_13, F_17, F_19, F_23, F_31, F_43, F_47, and F_67."
-
-Status in the paper: Conjecture 7.1 is **open**. Cain gives only a
-probabilistic heuristic. The direction "`p ∈ L` implies Parker" is the finite
-computation behind Observation 7.1. As of the 2026-10-21 triage, OEIS A308838
-still lists the sequence as conjectural.
-
-## What this file proves (2026-10-21)
-
-* `exists_isMagicOfSquares_of_not_mem_parkerPrimes`: for every prime
-  `p ∉ L`, `ZMod p` carries a magic square of nine distinct squares. This is
-  the open, infinite direction of Conjecture 7.1.
-* `isParker_zmod_iff`: the full conjecture,
-  `IsParker (ZMod p) ↔ p ∈ L` for every prime `p`.
+of Squares*, arXiv:1908.03236, §§1, 5, 7, Conjecture 7.1. A field is Parker
+if it admits no `3 × 3` magic square of nine distinct squares. The theorem
+`isParker_zmod_iff` identifies the Parker prime fields as exactly
+`2,3,5,7,11,13,17,19,23,31,43,47,67`.
 
 ## Proof outline
 
@@ -38,9 +16,7 @@ still lists the sequence as conjectural.
    is a product of the generators `-1, 2, 3, 5, 7, 11, 13`. Every offset form
    of these grids divides `67!`. Splitting on the Legendre symbols of the seven
    generators gives a 33-leaf decision tree, and each leaf uses a grid all of
-   whose classes `c` are residues. This cover was found by a MILP search for
-   this file. It differs from the 17-grid cover in the triage notes and does
-   not need any extra prime threshold.
+   whose classes `c` are residues.
 3. The six non-Parker primes `29, 37, 41, 53, 59, 61 ≤ 67` get explicit grids,
    checked by `decide`.
 4. Converse: every magic square over a commutative ring is a grid
@@ -89,7 +65,7 @@ def gridDiffs : List (ℤ × ℤ) :=
     (2, 2), (2, -2)]
 
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- `L` contains `67` but not `29`. -/
 example : 67 ∈ parkerPrimes ∧ 29 ∉ parkerPrimes := by decide

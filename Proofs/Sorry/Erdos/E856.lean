@@ -33,7 +33,7 @@
   are fresh.
 -/
 import Mathlib
-import Erdos.MertensLowerBound
+import Sorry.Erdos.MertensLowerBound
 
 set_option autoImplicit false
 

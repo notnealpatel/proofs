@@ -1,32 +1,17 @@
 /-
 # Melnikov's valency-variety problem: the 37-vertex counterexample `G_*`
 
-## Source
+Yang–Zeng, *Melnikov's valency variety problem*, arXiv:2610.09649,
+Conjecture 1.1, §4.1, Table 1, Proposition 4.1 and its following remark.
+Melnikov's conjecture (recorded by Vizing and Zykov, 1968, and Open
+Problem Garden) asserts `χ(G) > ⌈⌊w(G)/2⌋/(|V(G)|-w(G))⌉` for simple
+graphs on at least two vertices, where `w` counts distinct degrees.
 
-Yang–Zeng, arXiv:2610.09649, "Melnikov's valency variety problem".
-Conjecture 1.1 (Melnikov; recorded by Vizing 1968 and Zykov 1968, Open
-Problem Garden), Section 4.1 ("A 37-Vertex Extremal Graph"), Table 1,
-Proposition 4.1 and the Remark following it.  Recorded 2026-10-21.
-
-Verbatim informal claims:
-
-* Conjecture 1.1: "Every simple graph `G` with at least two vertices
-  satisfies `χ(G) > ⌈⌊w(G)/2⌋ / (|V(G)| - w(G))⌉`", where the valency
-  variety `w(G)` is the number of distinct vertex degrees of `G`.
-* Section 4.1: "Let `A, B, C` be pairwise disjoint independent sets with
-  `|A| = 8`, `|B| = 10` and `|C| = 19`. Assign to their vertices the integer
-  weights displayed below. [...] For vertices `u, v` in different parts, put
-  `uv ∈ E(G_*) ⟺ λ(u) + λ(v) ≥ 0` [...]. There are no edges within any of the
-  three parts."  Weights: `A: -9,-8,2,4,5,6,7,9`;
-  `B: -6,-5,-2,-1,0,1,2,3,6,8`; `C: -8,-7,-6,-4,-3,-2,-1,0,1^(8),4,5,7`.
-* Proposition 4.1: "The degree set of `G_*` is exactly `{0,1,…,29}`.
-  Consequently, `|V(G_*)| = 37`, `w(G_*) = 30` and `χ(G_*) = ω(G_*) = 3`."
-* Remark: "`⌈⌊w(G_*)/2⌋/(|V(G_*)| - w(G_*))⌉ = ⌈15/7⌉ = 3 = χ(G_*)`. Thus
-  the strict inequality in Conjecture 1.1 fails for `G_*`."
-
-## Status
-
-Proved in the paper (Proposition 4.1 and Remark); Conjecture 1.1 is false.
+The graph `G_*` has independent parts of sizes `8,10,19`, with integer
+weights from Table 1; vertices in different parts are adjacent iff their
+weights have nonnegative sum. Its degree set is `{0,…,29}`, and
+`χ(G_*) = ω(G_*) = 3`. The conjectured lower bound is `⌈15/7⌉ = 3`,
+so its strict inequality fails.
 
 ## Encoding
 
@@ -65,7 +50,7 @@ def MelnikovConjecture : Prop :=
     2 ≤ Fintype.card V →
       ((melnikovBound (Fintype.card V) (valencyVariety G) : ℕ) : ℕ∞) < G.chromaticNumber
 
-/-! ### Ground truth on the general notions -/
+/-! ### Examples on the general notions -/
 
 /-- The empty graph on `3` vertices has only degree `0`. -/
 example : valencyVariety (⊥ : SimpleGraph (Fin 3)) = 1 := by decide
@@ -111,7 +96,7 @@ def degTable : Fin 37 → ℕ :=
     4, 6, 9, 17, 18, 19, 20, 21, 23, 26,
     2, 3, 5, 7, 8, 10, 11, 12, 13, 13, 13, 13, 13, 13, 13, 13, 14, 15, 16]
 
-/-! ### Ground truth on the definitions -/
+/-! ### Examples on the definitions -/
 
 example : (Finset.univ.filter fun v : Fin 37 => part v = 0).card = 8 := by decide
 example : (Finset.univ.filter fun v : Fin 37 => part v = 1).card = 10 := by decide

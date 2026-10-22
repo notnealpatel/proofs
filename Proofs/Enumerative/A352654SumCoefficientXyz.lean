@@ -1,41 +1,14 @@
 /-
-# A352654 — Bala: the binomial sum is a coefficient of 1/(1 - x - xy - yz - xz - xyz)
+Coefficient identities for the binomial sum in OEIS A352654
+(Peter Bala, Apr 14 2022).
 
-## OEIS source (retrieved with `oeis show A352654` and https://oeis.org/A352654, 2026-10-21)
-
-```
-NAME:     a(0) = 0, a(n) = [x^n] P(n-1,(1 + x)/(1 - x)) for n >= 1, where P(n,x)
-          denotes the n-th Legendre polynomial.
-TERMS:    0,0,2,18,162,1500,14240,137886,1356194,13507416,135916002,...
-AUTHOR:   Peter Bala, Apr 14 2022
-FORMULA (first):
-  a(n) = Sum_{k = 1..n-1} binomial(n-1,k)*binomial(n-1,k-1)*binomial(n+k-1,k).
-FORMULA (the conjecture, unsigned, hence the author's, Peter Bala, Apr 14 2022):
-  Conjecture: a(n) = [(x*y)^(n-1)*z^n] 1/(1 - x - x*y - y*z - x*z - x*y*z) =
-  [(x*z)^(n-1)*y^n] 1/(1 - x - x*y - y*z - x*z - x*y*z) for n >= 1.
-```
-
-## Status
-
-Triage: open (no proof in the entry or found in the literature).  This file
-proves both equalities, with `a(n)` given by the entry's first formula.
-
-Proof (three-step coefficient extraction).  The denominator factors as
-`(1 - yz) - x(1+y)(1+z)`, so the `x^a` slice of its inverse is
-`V a = (1+y)^a (1+z)^a (1-yz)^{-(a+1)}`; this is checked by verifying that the
-series `G` with slices `V a` satisfies `denom * G = 1` coefficientwise
-(`denom_mul_G`), using only `(1-yz) V 0 = 1` and `(1-yz) V (a+1) = (1+y)(1+z) V a`.
-The series `(1-yz)^{-(k+1)} = ∑_j C(k+j,k) (yz)^j` is given explicitly (`W`) and
-its recurrence is Pascal's rule.  Expanding `(1+y)^a (1+z)^a` binomially and
-reading off `y^a z^(a+1)` (resp. `y^(a+1) z^a`) gives
-`∑_{i<a} C(a,i) C(a,i+1) C(2a-i,a)`, which the substitution `k = a - i` turns
-into the first formula.
-
-Definitional-fidelity note.  The entry's NAME defines `a(n)` through Legendre
-polynomials; this file defines `a352654` by the entry's first FORMULA line,
-which is the sum named in the triaged conjecture.  The equality of the NAME
-and the first FORMULA is the entry's own (unproved here) claim; the
-ground-truth examples check `a352654` against the listed terms.
+For n≥1, ∑_{k=1}^{n-1} C(n-1,k) C(n-1,k-1) C(n+k-1,k)
+is both [(xy)^(n-1) z^n] and [(xz)^(n-1) y^n] of
+1/(1-x-xy-yz-xz-xyz). The proof factors the denominator as
+(1-yz)-x(1+y)(1+z) and extracts coefficients.
+The sum is the entry's first FORMULA and defines a352654 here.
+Its identification with the Legendre-polynomial NAME is not proved;
+the formal result is the pair of coefficient identities for the explicit sum.
 -/
 import Mathlib
 
@@ -391,7 +364,7 @@ theorem coeff_xz_pow_mul_y_pow_eq (n : ℕ) (hn : 1 ≤ n) :
 
 /-! ## Sanity layer -/
 
--- Ground truth: the definition reproduces the first listed terms
+-- The definition reproduces the first listed terms
 -- 0, 0, 2, 18, 162, 1500, 14240 (offset 0).
 example : a352654 0 = 0 := by decide
 example : a352654 1 = 0 := by decide
@@ -401,7 +374,7 @@ example : a352654 4 = 162 := by decide
 example : a352654 5 = 1500 := by decide
 example : a352654 6 = 14240 := by decide
 
--- Non-vacuity: the hypothesis `1 ≤ n` is satisfiable, and at `n = 3` the theorem
+-- The hypothesis `1 ≤ n` is satisfiable, and at `n = 3` the theorem
 -- asserts the nonzero value `18` for the coefficient of `x^2 y^2 z^3`.
 example : coeff (Finsupp.single 0 2 + Finsupp.single 1 2 + Finsupp.single 2 3)
     (1 - X 0 - X 0 * X 1 - X 1 * X 2 - X 0 * X 2 - X 0 * X 1 * X 2 :

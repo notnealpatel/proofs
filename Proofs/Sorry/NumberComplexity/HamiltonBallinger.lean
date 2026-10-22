@@ -1,4 +1,4 @@
-import NumberComplexity.HamiltonBallinger
+import Sorry.Quarantine.NumberComplexity.HamiltonBallinger
 
 /-!
 # Archived open admission: hamiltonBallinger_finiteness

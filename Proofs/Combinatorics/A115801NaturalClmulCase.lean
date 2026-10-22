@@ -1,32 +1,11 @@
 /-
 # A115801 — 9k = 25 ⊗ k iff 15k = 19 ⊗ k (carryless multiplication)
 
-## OEIS source (retrieved with `oeis show A115801`, 2026-10-21)
-
-```
-NAME:     Numbers k such that 9*k = A048720(25,k), where A048720 is carryless
-          base-2 multiplication.
-TERMS:    0,15,30,31,60,62,63,120,124,126,127,240,248,252,254,255,480,496,504,
-          508,510,511,960,992,1008,1016,1020,1022,1023,1920,1984,2016,2032,2040,
-          2044,2046,2047,3840,3855,3968,4032,4064,4080,4088,4092,4094,4095,7680,
-          7695,7710,7711,7936,7951,8064,8128,8160,8176,8184
-COMMENT:  If n is a term, then 2*n is also a term, and vice versa.
-COMMENT (the conjecture):
-  Conjecture: also k such that 15*k = A048720(19,k). This has been checked for
-  all k in range 0 .. 2^25. - _Antti Karttunen_, Dec 21 2025
-```
-
-`A048720` (carryless product): "Multiplication table {0..i} X {0..j} of binary
-polynomials (polynomials over GF(2)) interpreted as binary vectors, then written
-in base 10; or, binary multiplication without carries", with the recurrence
-`T(c, 2b) = 2 T(c, b)` and `T(c, 2b+1) = 2 T(c, b) XOR c` (Henry Bottomley,
-Mar 16 2001), which is the definition `clmul` below.
-
-## Status
-
-Triage literature status: open (no proof in the entry or the literature as far
-as the triage could tell; the entry reports a check for `k < 2^25`).  This file
-proves the conjecture for every natural number `k`.
+Antti Karttunen's conjecture in OEIS A115801 (December 21, 2025) states
+that `9k = A048720(25,k)` iff `15k = A048720(19,k)` for all natural `k`.
+A048720 is carryless base-2 multiplication, defined by Henry Bottomley's
+recurrence (March 16, 2001): `T(c,2b) = 2T(c,b)` and
+`T(c,2b+1) = 2T(c,b) XOR c`.
 
 ## Proof method
 
@@ -55,7 +34,7 @@ def clmul (n : ℕ) : ℕ → ℕ
   | 0 => 0
   | k + 1 => 2 * clmul n ((k + 1) / 2) ^^^ (if (k + 1) % 2 = 1 then n else 0)
 
-/-! ### Ground truth against A048720 and A115801 -/
+/-! ### Examples against A048720 and A115801 -/
 
 -- A048720 table entries: T(3,3) = 5, T(3,4) = 12, T(5,5) = 17, T(3,5) = 15, T(6,6) = 20.
 example : clmul 3 3 = 5 := by simp [clmul]

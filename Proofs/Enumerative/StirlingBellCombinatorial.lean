@@ -1,37 +1,13 @@
 /-
-# Combinatorial meaning of Stirling numbers of the second kind and Bell numbers
+# Counting finite partitions by Stirling and Bell numbers
 
-## Classical source (recorded 2026-10-21)
-
-* R. P. Stanley, *Enumerative Combinatorics*, Vol. 1 (2nd ed., 2012), §1.9: `S(n, k)` is the
-  number of partitions of an `n`-set into `k` blocks, and `B(n) = ∑_k S(n, k)` is the number of
-  all partitions of an `n`-set.
-* D. E. Knuth, *The Art of Computer Programming*, Vol. 1, §1.2.6 (cited by Mathlib's
-  `Mathlib/Combinatorics/Enumerative/Stirling.lean`).
-
-## Informal statement (verbatim from the target spec)
-
-```
-For all n, k: #{P : Finpartition (univ : Finset (Fin n)) | #P.parts = k} = Nat.stirlingSecond n k.
-Consequently Fintype.card (Finpartition (univ : Finset (Fin n))) = Nat.bell n.
-```
-
-## Mathlib status
-
-`Nat.stirlingSecond` (`Combinatorics/Enumerative/Stirling.lean`) and `Nat.bell`
-(`Combinatorics/Enumerative/Bell.lean`) are defined by their recurrences only; their docstrings
-assert the counting meaning but no theorem connects them to `Finpartition`.  Re-checked with
-`leandoc` on 2026-10-21 ("stirlingSecond finpartition card", "card finpartition bell",
-"number of partitions of a finset into k parts", "card setoid partition stirling"): no hit.
-
-## Proof outline
-
-For `a ∉ s`, a finpartition `P` of `insert a s` corresponds bijectively to a pair `(Q, t)`
-where `Q = eraseElem P` is `P` with `a` deleted and `t = P.part a \ {a}` is either `∅`
-(`a` was a singleton) or a part of `Q`; the inverse is `insertElem`.  Counting parts gives
-`N(insert a s, k + 1) = N(s, k) + (k + 1) N(s, k + 1)`, which is the Stirling recurrence.
-The Bell corollary uses the identity `∑_{k ≤ n} S(n, k) = B(n)`, proved from Mathlib's
-recurrence `Nat.bell_succ` via `S(n + 1, k + 1) = ∑_i C(n, i) S(i, k)`.
+R. P. Stanley, "Enumerative Combinatorics", Vol. 1, 2nd ed. (2012), §1.9;
+D. E. Knuth, "The Art of Computer Programming", Vol. 1, §1.2.6.
+For a finite set `s`, the number of its finpartitions into `k` blocks is
+`S₂(s.card,k)`, and the total number is `Bell(s.card)`.
+Deleting one element and reinserting it into an existing block or a new
+singleton gives the Stirling recurrence. Summing its row gives the Bell
+identity. The statements include the empty set and specialize to `Fin n`.
 -/
 import Mathlib
 
@@ -64,10 +40,10 @@ def eraseElem {a : α} {s : Finset α} (ha : a ∉ s) (P : Finpartition (insert 
     rw [insert_sdiff_of_mem _ (mem_singleton_self a), sdiff_singleton_eq_erase,
       erase_eq_of_notMem ha])
 
-/-- Ground truth: deleting `2` from the one-block partition of `{2, 0, 1}` leaves `{{0, 1}}`. -/
+/-- Example: deleting `2` from the one-block partition of `{2, 0, 1}` leaves `{{0, 1}}`. -/
 example : (eraseElem (a := (2 : ℕ)) (s := {0, 1}) (by decide) ⊤).parts = {{0, 1}} := by decide
 
-/-- Ground truth: deleting `2` from `{{2}, {0, 1}}` drops the emptied block. -/
+/-- Example: deleting `2` from `{{2}, {0, 1}}` drops the emptied block. -/
 example :
     (eraseElem (a := (2 : ℕ)) (s := {0, 1}) (by decide)
       ((⊤ : Finpartition ({0, 1} : Finset ℕ)).extend (b := {2}) (by decide) (by decide)
@@ -146,11 +122,11 @@ theorem insertElem_parts {a : α} {s : Finset α} (ha : a ∉ s) (Q : Finpartiti
     (t : Finset α) (ht : t ∈ insert ∅ Q.parts) :
     (insertElem ha Q t ht).parts = insert (insert a t) (Q.parts.erase t) := rfl
 
-/-- Ground truth: inserting `2` as a new singleton block into `{{0}, {1}}`. -/
+/-- Example: inserting `2` as a new singleton block into `{{0}, {1}}`. -/
 example : (insertElem (a := (2 : ℕ)) (s := {0, 1}) (by decide) ⊥ ∅ (by decide)).parts =
     {{2}, {0}, {1}} := by decide
 
-/-- Ground truth: inserting `2` into the block `{0}` of `{{0}, {1}}`. -/
+/-- Example: inserting `2` into the block `{0}` of `{{0}, {1}}`. -/
 example : (insertElem (a := (2 : ℕ)) (s := {0, 1}) (by decide) ⊥ {0} (by decide)).parts =
     {{2, 0}, {1}} := by decide
 
@@ -462,11 +438,11 @@ theorem card_finpartition_eq_bell (n : ℕ) :
     Fintype.card (Finpartition (univ : Finset (Fin n))) = n.bell := by
   rw [card_finpartition_eq_bell_finset, card_univ, Fintype.card_fin]
 
-/-- Ground truth (independent of the proof): `{0, 1}` has exactly `2 = B(2)` partitions, one of
+/-- Example (independent of the proof): `{0, 1}` has exactly `2 = B(2)` partitions, one of
 them with a single block. -/
 example : Fintype.card (Finpartition (univ : Finset (Fin 2))) = 2 := by decide
 
-/-- Ground truth (independent of the proof): `{0, 1}` has exactly `1 = S(2, 1)` partition into
+/-- Example (independent of the proof): `{0, 1}` has exactly `1 = S(2, 1)` partition into
 one block. -/
 example : #{P : Finpartition (univ : Finset (Fin 2)) | #P.parts = 1} = 1 := by decide
 

@@ -1,32 +1,16 @@
 /-
 # Fici–Saarela: words whose abelian squares are all trivial
 
-## Source
+Fazekas, Mammoliti, Mercaş and Simpson, *Binary Words Containing Few
+Abelian Squares*, arXiv:2604.23188, Theorem 2 (`FSthm`), attributes to
+G. Fici and A. Saarela, *On the minimum number of abelian squares in a word*,
+Dagstuhl Reports 4(3) (2014), the following result: if all abelian squares
+of a binary word `w` are trivial (`a^{2i}` or `b^{2i}`, `i > 0`), then
+`w` contains at least `⌊|w|/4⌋` distinct abelian squares.
 
-arXiv:2604.23188, "Binary Words Containing Few Abelian Squares",
-by Fazekas, Mammoliti, Mercaş and Simpson.
-Section 1 (Introduction), Theorem 2 (`\label{FSthm}`), attributed to
-G. Fici and A. Saarela, "On the minimum number of abelian squares in a word",
-Dagstuhl Reports 4(3), 2014.  The paper quotes it without proof; the proof here
-follows the paper's Theorem 3 (three runs of one letter force a non-trivial
-abelian square), the run analysis of its "effective words" (Section 5) and its
-Lemma "effective word inequality".
-
-Verbatim (paper, Section 1):
-
-  "Following Fici and Saarela we say that an abelian square of the form
-   $a^{2i}$ or $b^{2i}$ for some positive integer $i$ is \emph{trivial}.
-   They proved the following theorem.
-   Theorem [FS]. If a binary word $w$ contains only trivial abelian squares
-   then it satisfies Conjecture 1."
-  "Conjecture 1. Any binary word of length $n$ contains at least
-   $\lfloor n/4 \rfloor$ abelian squares."
-
-Here "abelian square" means a factor $w[i+1..i+2p]$ whose two halves have the same
-Parikh vector, and abelian squares are counted as distinct words.
-
-Date: 2026-10-21.  Status: known result (proved by Fici–Saarela 2014; quoted as
-Theorem 2 in the paper).  Formalised and proved here in full.
+The proof uses the paper's Theorem 3 (three runs of one letter force a
+nontrivial abelian square), its effective-word run analysis (Section 5),
+and its effective-word inequality.
 
 ## Encoding
 
@@ -88,7 +72,7 @@ theorem mem_factors {u w : List Bool} : u ∈ factors w ↔ u <:+: w := by
 def abelianSquares (w : List Bool) : Finset (List Bool) :=
   (factors w).filter IsAbelianSquare
 
-/-! ## Ground truth
+/-! ## Examples
 
 The paper's example `abaababa` has exactly the six abelian squares
 `aa, abab, abaaba, baba, baab, aababa`; Table 3 gives `θ(b^9 a b^8) = 4` and
@@ -368,7 +352,7 @@ theorem exists_runs_of_no_nontrivial (w : List Bool)
     simp only [append_assoc, cons_append, nil_append]
 
 
-/-- Satisfiability witness: `a b^3 a^3 b` has only the trivial abelian squares `aa` and
+/-- `a b^3 a^3 b` has only the trivial abelian squares `aa` and
 `bb`, attaining the bound `⌊8/4⌋ = 2`. -/
 example :
     let w := [true, false, false, false, true, true, true, false]

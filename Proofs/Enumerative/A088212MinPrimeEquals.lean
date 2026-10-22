@@ -1,42 +1,12 @@
 /-
-# A088212 — Seidov: every integer `k ≥ 2` is a value of `a(n) = min{k > 1 : n + k^2 prime}`
+Values of OEIS A088212 (Zak Seidov, Jun 06 2013).
 
-## OEIS source (pulled with `oeis show A088212`, retrieved 2026-10-21)
-
-```
-NAME:     Smallest k>1 such that n+k^2 is prime.
-TERMS:    2,3,2,3,6,5,2,3,2,3,6,5,2,3,2,5,6,5,2,3,4,3,6,7,2,9,2,3,12,7,4,3,2,
-          3,6,5,2,3,2,7,24,5,2,3,4,5,6,5,2,3,4,3,6,5,2,9,2,3,18,7,6,3,2,3,6,
-          25,2,9,2,3,6,5,4,3,2,5,6,5,2,3,4,5,12,5,2,9,4,3,12,7,4,3,2,3,6,19,
-          2,3,2,3,6,5,2
-OFFSET:   n starts at 1 (a(1) = 2 since 1 + 2^2 = 5 is prime).
-COMMENT (the conjecture):
-  Conjecture: all integers >1  eventually appear. Among first 300000 terms,
-  first absent integers are 113, 119, 122, 124, 127, 130, 134, 136, 137, 139,
-  140, ... - _Zak Seidov_, Jun 06 2013
-```
-
-## Status
-
-Triage status: open (no proof in the entry or in the literature found by the
-triage).  Computation (2026-10-21) extends Seidov's table: the first `n` with
-`a(n) = 113, 124, 122, 119` are `314760, 369171, 373635, 418116`, all just past
-Seidov's bound of 300000.
-
-This file proves the conjecture.  The argument is Chinese remaindering plus
-Dirichlet's theorem on primes in arithmetic progressions
-(`Nat.forall_exists_prime_gt_and_eq_mod`): for `2 ≤ j < k` pick distinct primes
-`q_j > 2k`, a residue `n₀ ≡ -j^2 (mod q_j)`, and a prime
-`P ≡ n₀ + k^2 (mod ∏ q_j)` that is large; then `n = P - k^2` works.
-
-## Definitional-fidelity note
-
-Whether `n + k^2` is prime for some `k > 1` is not known for every `n`
-(it is a Bunyakovsky-type question), so `a` is defined as an `sInf` over
-`{k | 1 < k ∧ (n + k^2).Prime}`, whose junk value on the empty set is `0`.
-The conjecture concerns values `k ≥ 2`, which the junk value never attains, and
-`a_eq_iff` characterises `a n = k` for `k ≥ 2` exactly as the entry's
-"smallest `k > 1`" (in particular, it forces the set to be nonempty).
+For every k≥2 there is n≥1 for which k is the least j>1 with n+j² prime.
+The construction uses CRT and Dirichlet's theorem on primes in progressions.
+The function a is the infimum of the admissible natural shifts, with value zero
+on the empty set. Its equality to a positive k≥2 is characterized by existence
+and minimality. Existence of some admissible shift for every n is not proved;
+that totality assertion is not needed for the value-range theorem.
 -/
 import Mathlib
 
@@ -72,7 +42,7 @@ theorem a_eq_iff {n k : ℕ} (hk : 2 ≤ k) :
     by_contra hlt
     exact hmin m (by omega) (by omega) hmp
 
-/-! ## Ground truth against the listed terms: `a(1) = 2`, `a(5) = 6`, `a(41) = 24`. -/
+/-! ## Examples against the listed terms: `a(1) = 2`, `a(5) = 6`, `a(41) = 24`. -/
 
 example : a 1 = 2 := by
   rw [a_eq_iff le_rfl]; refine ⟨by norm_num, fun j hj hjk => by omega⟩
@@ -149,10 +119,7 @@ theorem exists_n_minimal (k : ℕ) (hk : 2 ≤ k) :
   · exact (hqprime j).one_lt.ne' h1
   · omega
 
-/-- **Seidov's conjecture (A088212, Zak Seidov, Jun 06 2013), proved.**
-Verbatim: "Conjecture: all integers >1 eventually appear."  That is, every
-integer `k ≥ 2` equals `a(n)` for some `n ≥ 1`, where `a(n)` is the smallest
-`k > 1` with `n + k^2` prime. -/
+/-- Every `k≥2` occurs as the least admissible prime shift at some positive index. -/
 theorem seidov_conjecture (k : ℕ) (hk : 2 ≤ k) : ∃ n, 1 ≤ n ∧ a n = k := by
   obtain ⟨n, hn1, hp, hmin⟩ := exists_n_minimal k hk
   exact ⟨n, hn1, (a_eq_iff hk).2 ⟨hp, hmin⟩⟩

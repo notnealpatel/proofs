@@ -59,8 +59,8 @@ Open.  The candidates document calls this "heavy … and an awkward one", which 
 right; the awkwardness is exactly the well-definedness above.
 -/
 import Mathlib
-import Enumerative.Practical
-import Enumerative.MelfiPracticalSum
+import Sorry.Quarantine.Enumerative.Practical
+import Sorry.Enumerative.MelfiPracticalSum
 
 set_option autoImplicit false
 

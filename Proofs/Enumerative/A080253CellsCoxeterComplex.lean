@@ -1,48 +1,13 @@
 /-
-# A080253 — Bala: cells of the B_n Coxeter complex are eventually φ(k)-periodic mod k
+Eventual periodicity of OEIS A080253 (Peter Bala, Dec 31 2025).
 
-## OEIS source (retrieved with `oeis show A080253`, 2026-10-21)
-
-```
-NAME:     a(n) is the number of elements in the Coxeter complex of type B_n
-          (or C_n).
-TERMS:    1,3,17,147,1697,24483,423857,8560947,197613377,5131725123,
-          148070287697,4699645934547,162723741209057,6103779096411363,...
-FORMULA:  a(n) = 1 + Sum_{r=1..n} 2^r *binomial(n, r) *a(n-r).
-FORMULA:  E.g.f.: exp(x)/(2-exp(2*x)). - Antonio G. Astudillo, Feb 14 2003
-FORMULA:  a(n) = Sum_{k=0..n} Stirling2(n, k)*k!*A001333(k+1).
-          - Vladeta Jovovic, Sep 28 2003
-COMMENT (the conjecture):
-  Conjecture: Let k be a positive integer. The sequence obtained by reducing
-  a(n) modulo k is eventually periodic with the period dividing
-  phi(k) = A000010(k). For example, modulo 7 we obtain the sequence
-  [1, 3, 3, 0, 3, 4, 0, 3, 3, 0, 3, 4, 0, 3, 3, 0, 3, 4, 0, ...], with an
-  apparent period of 6 = phi(7) beginning at a(1). Cf. A000670.
-  - _Peter Bala_, Dec 31 2025
-```
-
-## Status
-
-Triage: open (no proof in the entry; no printed proof for the `B_n` instance
-was located by the triage).  The same Bala conjecture for the Fubini numbers
-A000670 is due to Poonen (Fibonacci Quart. 26 (1988)) at prime powers, and the
-general ordinary-integral `G(exp x - 1)` family is already proved in this repo
-(`Enumerative.OrdinaryIntegralEGF`).  This module proves the A080253 instance
-by identifying the entry's recurrence with that family.
-
-## Formalization
-
-* `a n` is the entry's recurrence `a(n) = 1 + Σ_{r=1..n} 2^r C(n,r) a(n-r)`
-  verbatim (well-founded recursion; the empty sum gives `a 0 = 1`).
-* "eventually periodic with the period dividing φ(k)" is stated as:
-  there is `N` with `a (n + φ k) ≡ a n [MOD k]` for every `n ≥ N`.  Since
-  `φ k` is then an eventual period, the least eventual period divides it.
-* Proof: `c k = A001333(k+1)` (`1, 3, 7, 17, …`, `c (k+2) = 2 c (k+1) + c k`);
-  the Jovovic sum `b n = Σ_k c k · k! · S(n,k)` satisfies the entry's
-  recurrence (`b_recurrence`, via `Σ_r C(n,r) 2^r D_k(n-r) = D_k + 2D_{k+1} +
-  D_{k+2}` with `D_k(n) = k! S(n,k)`, i.e. `E² = (1 + Δ)²`), hence `a = b`
-  (`a_eq_b`), and the repo theorem
-  `OrdinaryIntegralEGF.weightedStirlingTransform_eventuallyPeriodic` finishes.
+The sequence is defined by a(n)=1+∑_{r=1}^n 2^r C(n,r) a(n-r), including a(0)=1.
+It equals ∑_j S(n,j) j! A001333(j+1) (Vladeta Jovovic, Sep 28 2003).
+The weighted-Stirling-transform theorem then gives φ(k) as an eventual
+period modulo each positive k. The recurrence and transform provide a
+formula-level treatment; no separate Coxeter-complex counting bridge is proved.
+The entry also gives the e.g.f. exp(x)/(2-exp(2x))
+(Antonio G. Astudillo, Feb 14 2003).
 -/
 import Enumerative.OrdinaryIntegralEGF
 
@@ -69,23 +34,23 @@ theorem a_eq (n : ℕ) :
     a n = 1 + ∑ r ∈ Icc 1 n, 2 ^ r * n.choose r * a (n - r) := by
   rw [a, Finset.sum_attach (Icc 1 n) (fun r => 2 ^ r * n.choose r * a (n - r))]
 
-/-- Ground truth: `a 0 = 1` (first listed term). -/
+/-- `a 0 = 1` (first listed term). -/
 example : a 0 = 1 := by decide +kernel
-/-- Ground truth: `a 1 = 3`. -/
+/-- `a 1 = 3`. -/
 example : a 1 = 3 := by decide +kernel
-/-- Ground truth: `a 2 = 17`. -/
+/-- `a 2 = 17`. -/
 example : a 2 = 17 := by decide +kernel
-/-- Ground truth: `a 3 = 147`. -/
+/-- `a 3 = 147`. -/
 example : a 3 = 147 := by decide +kernel
-/-- Ground truth: `a 4 = 1697`. -/
+/-- `a 4 = 1697`. -/
 example : a 4 = 1697 := by decide +kernel
-/-- Ground truth: `a 5 = 24483`. -/
+/-- `a 5 = 24483`. -/
 example : a 5 = 24483 := by decide +kernel
-/-- Ground truth: `a 6 = 423857`. -/
+/-- `a 6 = 423857`. -/
 example : a 6 = 423857 := by decide +kernel
-/-- Ground truth: `a 7 = 8560947`. -/
+/-- `a 7 = 8560947`. -/
 example : a 7 = 8560947 := by decide +kernel
-/-- Ground truth: `a 8 = 197613377`. -/
+/-- `a 8 = 197613377`. -/
 example : a 8 = 197613377 := by decide +kernel
 
 /-- The ordinary coefficients `c k = A001333(k+1)` of `G(u) = (1+u)/(1-2u-u²)`,
@@ -96,20 +61,20 @@ def c : ℕ → ℤ
   | 1 => 3
   | k + 2 => 2 * c (k + 1) + c k
 
-/-- Ground truth: `c` lists `A001333(1..6) = 1, 3, 7, 17, 41, 99`. -/
+/-- `c` lists `A001333(1..6) = 1, 3, 7, 17, 41, 99`. -/
 example : (c 0, c 1, c 2, c 3, c 4, c 5) = (1, 3, 7, 17, 41, 99) := by decide
 
 /-- `D k n = k! · S(n,k)`, the number of surjections from an `n`-set onto a
 `k`-set. -/
 def D (k n : ℕ) : ℤ := (k.factorial : ℤ) * (n.stirlingSecond k : ℤ)
 
-/-- Ground truth: `D 2 3 = 2! · S(3,2) = 6`. -/
+/-- `D 2 3 = 2! · S(3,2) = 6`. -/
 example : D 2 3 = 6 := by decide
 
 /-- Jovovic's formula as a sequence: `b n = Σ_{k≤n} c k · k! · S(n,k)`. -/
 def b (n : ℕ) : ℤ := weightedStirlingTransform c n
 
-/-- Ground truth: `b` matches the first listed terms. -/
+/-- `b` matches the first listed terms. -/
 example : (b 0, b 1, b 2, b 3, b 4) = (1, 3, 17, 147, 1697) := by decide
 
 /-! ## Surjection numbers -/
@@ -140,7 +105,7 @@ lemma fwdDiff_iter_succ_point (g : ℕ → ℤ) (k x : ℕ) :
   rw [Function.iterate_succ_apply', fwdDiff]
   ring
 
-/-- The load-bearing binomial identity (`E² = (1 + Δ)²`):
+/-- The key binomial identity (`E² = (1 + Δ)²`):
 `Σ_{r≤n} C(n,r) 2^r D_k(n-r) = D_k(n) + 2 D_{k+1}(n) + D_{k+2}(n)`. -/
 lemma binomial_shift (k n : ℕ) :
     ∑ r ∈ range (n + 1), (n.choose r : ℤ) * 2 ^ r * D k (n - r) =
@@ -248,16 +213,8 @@ theorem a_eq_b (n : ℕ) : (a n : ℤ) = b n := by
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjecture (A080253, Peter Bala, Dec 31 2025).**
-
-Verbatim: "Conjecture: Let k be a positive integer. The sequence obtained by
-reducing a(n) modulo k is eventually periodic with the period dividing
-phi(k) = A000010(k)."
-
-Stated as: for every `k ≥ 1` there is `N` such that
-`a (n + φ k) ≡ a n [MOD k]` for all `n ≥ N`; hence `φ k` (which is positive for
-`k ≥ 1`) is an eventual period and the least eventual period divides it.
-Proved via `a_eq_b` and the repo theorem
+/-- For every positive `k`, `φ(k)` is an eventual period of A080253
+(Peter Bala, Dec 31 2025), by `a_eq_b` and
 `OrdinaryIntegralEGF.weightedStirlingTransform_eventuallyPeriodic`. -/
 theorem bala_conjecture (k : ℕ) (hk : 0 < k) :
     ∃ N : ℕ, ∀ n : ℕ, N ≤ n → a (n + Nat.totient k) ≡ a n [MOD k] := by
@@ -270,7 +227,7 @@ theorem bala_conjecture (k : ℕ) (hk : 0 < k) :
 
 /-! ## Sanity layer -/
 
-/-- Non-vacuity: the period `φ k` is positive for every `k ≥ 1`, so the
+/-- The period `φ k` is positive for every `k ≥ 1`, so the
 conclusion is not the trivial shift by `0`. -/
 example (k : ℕ) (hk : 0 < k) : 0 < Nat.totient k := Nat.totient_pos.mpr hk
 

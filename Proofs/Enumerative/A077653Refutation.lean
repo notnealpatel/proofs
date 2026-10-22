@@ -1,36 +1,13 @@
 /-
-# A077653 — Cloitre: running maximum of `|z(n-1) - z(n-2) - z(n-3)|` orbits is `⌊√(n+w)⌋`
+# A077653: a scaling counterexample to the running-maximum formula
 
-## OEIS source (`oeis show A077653`, retrieved 2026-10-21)
-
-```
-NAME:     a(1)=1, a(2)=2, a(3)=2, a(n) = abs(a(n-1) - a(n-2) - a(n-3)).
-TERMS:    1,2,2,1,3,0,4,1,3,2,2,3,1,4,0,5,1,4,2,3,3,2,4,1,5,0,6,1,5,2,...
-FORMULA:  a(n)/sqrt(n) is bounded. More precisely, let M(n) = Max ( a(k) :
-          1<=k<=n ); then M(n)= floor(sqrt(n+9)) for n>4
-COMMENT (the conjecture, verbatim):
-  Conjecture : let z(1)=x; z(2)=y; z(3)= z; z(n)=abs(z(n-1)-z(n-2)-z(n-3)) if
-  z(n) is unbounded (i.e. x,y,z are such that z(n) doesn't reach a cycle of
-  length 2), then there are 2 integers n(x,y,z) and w(x,y,z) such that M(n) =
-  floor(sqrt(n+w(x,y,z))) for n>n(,x,y,z) where M(n) = Max ( a(k) : 1<=k<=n ).
-  As example : w(1,2,2)=9 n(1,2,2)=4; w(1,2,4)=29 n(1,2,4)=4; w(1,2,8)=157
-  n(1,2,8)=9
-AUTHOR:   Benoit Cloitre, Dec 02 2002 (the comment carries no separate
-          signature, so it is the author's original submission).
-```
-
-No later comment in the entry retracts or amends the conjecture.
-
-## Status: this module refutes the conjecture
-
-The recurrence is homogeneous: scaling the seed by `c` scales the whole orbit
-by `c`.  The seed `(0,0,2)` is twice the seed `(0,0,1)` of A088226, whose orbit
-is unbounded (ramp blocks `0, k, 1, k-1, 2, …, 1, k` start at the squares), so
-the hypothesis holds.  Every term of the doubled orbit is even, hence every
-`M(n)` is even, while `⌊√(n+w)⌋` takes the odd value `2t+1` at
-`n = (2t+1)² - w`.  The seed `(2,4,4)`, twice the A077653 seed, fails the same
-way.  The author very probably intended primitive seeds (`gcd(x,y,z) = 1`);
-that corrected form is not addressed here.
+OEIS A077653, Benoit Cloitre (Dec 02 2002), with A088226.
+For the recurrence `z(n) = |z(n-1)-z(n-2)-z(n-3)|`, the nonnegative seed
+`(0,0,2)` has an unbounded orbit and an even running maximum. It cannot
+eventually equal `floor(sqrt(n+w))` for any integer `w`, since that expression
+takes arbitrarily large odd values.
+This refutes the unrestricted nonnegative-seed claim, not a version
+restricted to primitive seeds. A positive-seed variant is not proved here.
 -/
 import Mathlib
 
@@ -50,7 +27,7 @@ def orb (x y z : ℕ) : ℕ → ℕ
 (`f i = z(i+1)`); `runMax f 0 = 0` is the empty-maximum junk value. -/
 def runMax (f : ℕ → ℕ) (n : ℕ) : ℕ := (Finset.range n).sup f
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The first 40 terms of A077653 (seed `(1,2,2)`). -/
 example : (List.range 40).map (orb 1 2 2) =
@@ -189,11 +166,9 @@ def Conjecture : Prop :=
     ∃ n0 w : ℤ, ∀ n : ℕ, 1 ≤ n → n0 < n →
       (runMax (orb x y z) n : ℤ) = ⌊Real.sqrt ((n : ℝ) + w)⌋
 
-/-- **Refutation of Cloitre's conjecture.**  The seed `(0,0,2)` (twice the
-A088226 seed; `(2,4,4)`, twice the A077653 seed, works the same way) has an
-unbounded orbit with every term even, so `M(n)` is always even, whereas
-`⌊√(n+w)⌋ = 2t+1` at `n = (2t+1)² - w` for `t` large.  The author probably
-intended the hypothesis `gcd(x,y,z) = 1`. -/
+/-- The seed `(0,0,2)` has an unbounded orbit with even running maxima,
+whereas `floor(sqrt(n+w))` takes odd values at arbitrarily large shifted
+odd-square indices. This does not refute a primitive-seed restriction. -/
 theorem a077653_conjecture_false : ¬ Conjecture := by
   intro hC
   obtain ⟨n0, w, hw⟩ := hC 0 0 2 orb002_unbounded

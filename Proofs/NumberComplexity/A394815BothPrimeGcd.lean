@@ -1,34 +1,8 @@
 /-
 # A394815 — Sulaiman: twin-prime averages `k` with `gcd(k, σ(k)) = 2` are divisible by 36
 
-## OEIS source (retrieved with `oeis show A394815` and the live internal entry, 2026-10-21)
-
-```
-NAME:     Numbers k in A014574 (averages of twin prime pairs) such that
-          gcd(k, sigma(k)) = 2.
-TERMS:    5652,6948,16452,20772,27792,44532,65700,67428,126612,143568,180288,
-          194868,195732,212868,216900,218628,236772,276372,299700,328788,369828,
-          377172,390672,400068,402768,425988,437652,441108,463248,483408,491328,
-          530532,536868,539712
-COMMENT (the conjecture, unsigned, in the entry of _Aied Sulaiman_, May 01 2026):
-  Conjecture: every term is divisible by 36.
-COMMENT:
-  Conjecturally, A394757 is the disjoint union of this sequence and A394399.
-EXAMPLE:
-  For k = 5652: k-1 = 5651 and k+1 = 5653 are prime; also sigma(5652) = 14378
-  and gcd(5652, 14378) = 2, so 5652 is a term.
-CROSSREF: Subsequence of A394757.  Cf. A014574, A392199, A394399.
-AUTHOR:   _Aied Sulaiman_, May 01 2026
-```
-
-## Literature status (triage)
-
-Open as far as the triage could tell: the entry gives no proof.  Computation
-(2026-10-21, Python): the 91 terms below `2 · 10^6` include the 34 listed
-terms and are all divisible by `36`; moreover every `k ≤ 2 · 10^6` with
-`6 ∣ k` and `gcd(k, σ k) = 2` is divisible by `36`.
-
-## Proof (kernel-checked below)
+The unsigned conjecture in OEIS A394815, an entry by Aied Sulaiman
+(2026): every twin-prime average `k` with `gcd(k,σ(k))=2` is divisible by `36`.
 
 A term is a term of A394757 (`2` is prime), so `6 ∣ k` and `9 ∣ k` (A394757
 module).  Write `k = 2^a m` with `m` odd.  If `a` were odd then
@@ -45,7 +19,7 @@ namespace Candidates.A394815BothPrimeGcd
 open ArithmeticFunction
 open Candidates.A394757TwinPrimeSigma (IsTwinPrimeAverage)
 
-/-! ## Definition layer
+/-! ## Definitions
 
 `IsTwinPrimeAverage k := 0 < k ∧ (k - 1).Prime ∧ (k + 1).Prime` (A014574
 membership) is reused from `Proofs/NumberComplexity/A394757TwinPrimeSigma.lean`.
@@ -59,7 +33,7 @@ def IsTerm (k : ℕ) : Prop :=
 instance (k : ℕ) : Decidable (IsTerm k) := by
   unfold IsTerm; infer_instance
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The entry's example: `5651, 5653` are prime, `σ(5652) = 14378`, `gcd = 2`.
 example : (5651 : ℕ).Prime ∧ (5653 : ℕ).Prime := by norm_num
@@ -144,15 +118,15 @@ theorem thirtysix_dvd_of_six_dvd_of_gcd_eq_two {k : ℕ} (h6 : 6 ∣ k)
 
 /-! ## The conjecture -/
 
-/-- **A394815 conjecture (unsigned, in the entry of Aied Sulaiman, May 01 2026).**
+/-- **A394815 conjecture (unsigned, in the entry of Aied Sulaiman, 2026).**
 
-Verbatim: "Conjecture: every term is divisible by 36."  That is: if `k - 1` and
+"Conjecture: every term is divisible by 36."  That is: if `k - 1` and
 `k + 1` are both prime and `gcd(k, σ(k)) = 2`, then `36 ∣ k`. -/
 theorem a394815_thirtysix_dvd {k : ℕ} (hk : IsTerm k) : 36 ∣ k :=
   thirtysix_dvd_of_six_dvd_of_gcd_eq_two
     (Candidates.A394757TwinPrimeSigma.six_dvd_of_isTerm (isTerm_a394757_of_isTerm hk)) hk.2
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- Satisfiability of the hypotheses of the general form: `k = 5652`.
 example : 6 ∣ 5652 ∧ Nat.gcd 5652 (sigma 1 5652) = 2 :=

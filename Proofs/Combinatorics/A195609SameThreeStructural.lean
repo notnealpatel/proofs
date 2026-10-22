@@ -1,38 +1,14 @@
 /-
 # A195609 — Shevelev: gaps, runs and first terms for `Σ O(i) = O(n)O(n+1)/4`
 
-## OEIS source (retrieved with `oeis show A195609` and the live entry, 2026-10-21)
+OEIS A195609, Vladimir Shevelev (2011): gaps, runs and series starts for
+`Σ_{i=1..n} O(i) = O(n)O(n+1)/4`, where `O` is the odious-number sequence
+A000069 with offset 1 (`O(1) = 1`). The results give gaps in `{1,4,6}`,
+maximal run lengths `1` or `3`, and `O(m+1)-O(m-1)=5` at series starts.
 
-```
-NAME:     Numbers n such that Sum_{i=1..n} A(i) = A(n)*A(n+1)/4,
-          where A(n) = A000069(n).
-OFFSET:   1
-AUTHOR:   Vladimir Shevelev, Sep 21 2011
-TERMS:    3,4,5,9,15,16,17,23,27,28,29,33,39,43,44,45,51,52,53,57,63,64,65,
-          71,75,76,77,83,84,85,89,95,99,100,101,105,111,112,113,119,123,124,
-          125,129,135,139,140,141,147,148,149,153,159,163,164,165,169,175,176
-COMMENT (the conjecture; no separate signature, so it is Shevelev's,
-         Sep 21 2011):
-  Conjectures: 1) there are only 3 different first differences 1,4,6; 2) the
-  sequence contains either isolated series of terms, e.g., {9},{23},{33},
-  {39},..., or series of 3 consecutive integers, e.g., {3,4,5}, {15,16,17},
-  etc.; 3)the first terms m of every series satisfy the condition
-  A(m+1)-A(m-1)=5, where A(n)=A000069(n).
-A000069:  Odious numbers: numbers with an odd number of 1's in their binary
-          expansion.  1,2,4,7,8,11,13,14,...  (offset 1)
-```
+## Proof outline
 
-## Literature status (triage)
-
-Open: no proof in the entry or in the literature as far as the triage could
-tell.  Re-validated here (Python, exact integers, 2026-10-21): the
-characterisation below, the gap set `{1, 4, 6}`, the run lengths `{1, 3}` and
-claim 3 for every series start hold for `n ≤ 10^6`.
-
-## Result of this module
-
-All three conjectures are proved, with no remaining `sorry`.  The argument
-mirrors `Candidates.A195608TakeSumEvil`, with the Thue–Morse value replaced by
+The argument mirrors A195608, with the Thue–Morse value replaced by
 the evil indicator `e(k) = 1 - t(k)`.
 
 * `odious_succ`: `O(k+1) = 2k + e(k)` (exactly one of `2k`, `2k+1` is odious).
@@ -414,15 +390,15 @@ theorem first_term_odious_sub (m : ℕ) (hm : IsTerm m) (hprev : ¬ IsTerm (m - 
     exact absurd
       ((isTerm_iff_of_eq_four_mul_add_three (n := m - 1) (j := j) (by omega)).mpr hj12.1) hprev
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
--- Ground truth for `odious` against the A000069 data `1, 2, 4, 7, 8, 11, 13, 14`.
+-- Examples for `odious` against the A000069 data `1, 2, 4, 7, 8, 11, 13, 14`.
 example : odious 1 = 1 ∧ odious 2 = 2 ∧ odious 3 = 4 ∧ odious 4 = 7 ∧ odious 5 = 8 ∧
     odious 6 = 11 ∧ odious 7 = 13 ∧ odious 8 = 14 := by
   simp only [odious_succ (0 : ℕ), show (2 : ℕ) = 1 + 1 from rfl, odious_succ]
   decide
 
--- Ground truth for `IsTerm` against the A195609 data: the terms `≤ 49` are
+-- Examples for `IsTerm` against the A195609 data: the terms `≤ 49` are
 -- exactly `3, 4, 5, 9, 15, 16, 17, 23, 27, 28, 29, 33, 39, 43, 44, 45`.
 example : ∀ k < 49, (IsTerm (k + 1) ↔
     k + 1 ∈ ({3, 4, 5, 9, 15, 16, 17, 23, 27, 28, 29, 33, 39, 43, 44, 45} :

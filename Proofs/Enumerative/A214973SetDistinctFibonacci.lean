@@ -1,45 +1,14 @@
 /-
-# A214973 — records of the greedy Fibonacci-and-Lucas representation length
+# A214973: records of Fibonacci-Lucas greedy length
 
-## OEIS source (retrieved with `oeis show A214973`, 2026-10-21)
-
-```
-NAME:     Number of terms in greedy representation of n using Fibonacci and Lucas
-          numbers.
-TERMS:    1,1,1,1,1,2,1,1,2,2,1,2,1,2,2,2,2,1,2,2,1,2,2,2,2,2,3,2,1,2,...
-          (offset 1: a(1) = 1, ..., a(6) = 2, ..., a(27) = 3)
-COMMENT (definition):
-  Consider the sequence b = A116470 consisting of all the Fibonacci numbers and
-  Lucas numbers.  For n>=0, let k(1) be the greatest k in the basis b = {b(k)}
-  such that b(k) <= n, let k(2) be the greatest k in b such that
-  k <= n-b(k(1)), and so on, resulting in the greedy b-representation ...
-COMMENT (the conjecture):
-  Conjecture: a(A049651(n)) = n and this is the first instance of n in the
-  sequence for all n > 0. In other words, apart from its initial term, A049651
-  is the RECORDS transform of this sequence. - _Charles R Greathouse IV_,
-  Oct 14 2021
-```
-
-A049651: `a(n) = (F(3*n+1) - 1)/2`; Kimberling (A049651, Oct 23 2012) states
-without proof that for `n > 0` it is the least number whose greedy
-Fibonacci-union-Lucas representation has `n` terms.
-
-## Status
-
-Triage: open (no proof in the entries; Greathouse labels it a conjecture; a light
-literature search found none).  Checked numerically for all `m ≤ 3·10^6`
-(records `1, 6, 27, ..., 2851443` at counts `1..11`).  This file proves it.
-
-## Proof outline
-
-`U` sorted is `1,2,3,4,5,7,8,11,...`; above `F(k+1)` the next element is the
-Lucas number `F(k+1) + F(k-1)`, and above `L(k)` it is `F(k+2)`.  Writing
-`A(n) = (F(3n+1)-1)/2`, one has `2A(n)+1 = F(3n+1)` and `A(n+1) = A(n) + F(3n+2)`.
-* Achievement: the greedy step at `A(n+1)` picks `F(3n+2)` (there is no element
-  of `U` in `(F(3n+2), F(3n+2) + F(3n))` and `A(n) < F(3n)`), leaving `A(n)`.
-* Minimality: if `g(m) ≥ n+1`, the greedy pick `u` leaves `r ≥ A(n)`; if
-  `u < F(3n+2)` the gap after `u` is at most `F(3n-1) ≤ A(n) ≤ r`, contradicting
-  maximality of `u`; so `m = u + r ≥ F(3n+2) + A(n) = A(n+1)`.
+OEIS A214973, Charles R Greathouse IV (Oct 14 2021), with A116470 and
+A049651; Kimberling's least-value comment in A049651 (Oct 23 2012).
+Use the positive distinct Fibonacci and Lucas values as the basis, choosing
+the greatest available value at each step. For every `n ≥ 1`,
+`A(n) = (F(3n+1)-1)/2` is the first argument with greedy length `n`.
+The basis excludes `0`, which does not affect the greedy choices.
+This uses basis values, as in the source programs, rather than the apparent
+index/value typo in the source's description of the second greedy step.
 -/
 import Mathlib
 

@@ -1,42 +1,21 @@
 /-
 # Cameron–Ellis–Raynaud: unipotent maps admit no proper cover
 
-## Source
+Peter J. Cameron, David Ellis and William Raynaud, *Smallest cyclically
+covering subspaces of F_q^n, and lower bounds in Isbell's conjecture*,
+arXiv:1810.03485: Theorem `thm:prime-power` (k = 1), Lemmas `lemma:peter`
+and `lemma:peterII`, and the following corollary.
 
-Peter J. Cameron, David Ellis, William Raynaud, "Smallest cyclically
-covering subspaces of F_q^n, and lower bounds in Isbell's conjecture",
-arXiv:1810.03485, Section "Cases in which the covering subspaces are
-trivial": Theorem `thm:prime-power` (k = 1 case), Lemma `lemma:peter`,
-Lemma `lemma:peterII`, and the unnamed Corollary after the proof of
-Theorem `thm:prime-power`.
+A subspace is cyclically covering if its cyclic shifts cover the space.
+The results below are:
+(A) If `T - 1` is nilpotent and every vector has a power of `T` in a
+submodule `U`, then `U = ⊤`; this holds over any ring, without finite dimension.
+(B) In characteristic `p` prime, every cyclically covering subspace of
+`K^(p^d)` is the whole space.
+(C) For `n ≥ 1`, this holds over `ZMod 2` iff `n` is a power of 2.
 
-A subspace `U ≤ F_q^n` is *cyclically covering* if the cyclic shifts
-`σ^k(U)` cover `F_q^n`; `h_q(n)` is the largest codimension of such a `U`.
-
-Verbatim (Corollary): "We have $h_2 (n) = 0$ if and only if $n = 2^d$ for
-some $d \in \mathbb{N} \cup \{0\}$, and $h_2(n)=1$ if and only if $n=3$."
-
-Verbatim (Lemma `lemma:peter`): "Suppose that a finite $p$-group $Q$ acts
-on a finite $p$-group $P$ by automorphisms. If $H$ is a subgroup of $P$
-such that $\bigcup_{g\in Q}H^g=P$, then $H=P$."
-
-## Target (a7-4), recorded 2026-10-21
-
-(A) Let `V` be a finite-dimensional vector space over a field `K`, `T`
-linear with `T - 1` nilpotent, and `U` a subspace such that every `v`
-has some `k` with `T^k v ∈ U`. Then `U = V`.
-(B) For a prime `p` and a field `K` of characteristic `p`, every
-cyclically covering subspace of `K^(p^d)` is the whole space.
-(C) Over `ZMod 2`, for `n ≥ 1`, the only cyclically covering subspace of
-`(ZMod 2)^n` is the whole space iff `n = 2^d`
-(the `h_2(n) = 0` half of the Corollary).
-
-## Status
-
-Proved in the paper (2018). The proof here of (A) is a direct descending
-induction along the images of `(T - 1)^j`; it needs neither a field nor
-finite dimension, so the general form is stated over any ring.
-The `h_2(n) = 1 ↔ n = 3` half of the Corollary is not formalized here.
+The proof of (A) descends along the images of `(T - 1)^j`. The other half
+of the paper's corollary, `h_2(n) = 1 ↔ n = 3`, is not formalized here.
 -/
 import Mathlib
 
@@ -95,7 +74,7 @@ theorem eq_top_of_isNilpotent_sub_one (T : Module.End R V) (hT : IsNilpotent (T 
 
 end General
 
-/-- Target (A), Cameron–Ellis–Raynaud (arXiv:1810.03485, the `k = 1`, cyclic case of
+/-- Part (A), Cameron–Ellis–Raynaud (arXiv:1810.03485, the `k = 1`, cyclic case of
 Lemmas `lemma:peter`/`lemma:peterII`): for a finite-dimensional vector space `V` over a
 field `K`, a linear map `T` with `T - 1` nilpotent, and a subspace `U` such that every
 `v` has some `k` with `T^k v ∈ U`, we have `U = V`. -/
@@ -117,10 +96,10 @@ section Cyclic
 def shift (K : Type*) [Field K] (n : ℕ) [NeZero n] : Module.End K (ZMod n → K) :=
   LinearMap.funLeft K K (fun i : ZMod n => i - 1)
 
-/-- Ground truth: shifting the indicator of `0` in `(ZMod 2)^3` moves the `1` to index `1`. -/
+/-- Shifting the indicator of `0` in `(ZMod 2)^3` moves the `1` to index `1`. -/
 example : shift (ZMod 2) 3 (fun i => if i = 0 then 1 else 0) 1 = 1 := by decide
 
-/-- Ground truth: the shifted indicator vanishes at index `0`. -/
+/-- The shifted indicator vanishes at index `0`. -/
 example : shift (ZMod 2) 3 (fun i => if i = 0 then 1 else 0) 0 = 0 := by decide
 
 /-- Iterated shift: `(σ^k x) i = x (i - k)`. -/
@@ -176,7 +155,7 @@ theorem isNilpotent_shift_sub_one (p d : ℕ) [Fact p.Prime] (K : Type*) [Field 
     (sub_pow_char_pow (R := Polynomial K) (p := p) (n := d) Polynomial.X 1)
   simpa [shift_pow_self] using h
 
-/-- Target (B), Cameron–Ellis–Raynaud Theorem `thm:prime-power` with `k = 1`
+/-- Part (B), Cameron–Ellis–Raynaud Theorem `thm:prime-power` with `k = 1`
 (arXiv:1810.03485): for a prime `p` and a field `K` of characteristic `p`, every
 cyclically covering subspace of `K^(p^d)` is the whole space, i.e. `h_q(p^d) = 0`. -/
 theorem charP_pow_no_proper_cover (p d : ℕ) [Fact p.Prime] (K : Type*) [Field K] [CharP K p]
@@ -252,14 +231,14 @@ theorem pairHyperplane_ne_top (n a : ℕ) [NeZero n] (ha : 2 ^ a < n) :
   rw [Pi.single_eq_same, Pi.single_eq_of_ne hc] at hmem
   exact one_ne_zero hmem
 
-/-- Ground truth `h_2(3) ≥ 1`: in `(ZMod 2)^3` the hyperplane `x 0 = x 1` is cyclically
+/-- Example `h_2(3) ≥ 1`: in `(ZMod 2)^3` the hyperplane `x 0 = x 1` is cyclically
 covering and proper. -/
 example : CyclicallyCovering (ZMod 2) 3 (pairHyperplane 3 ((2 ^ 0 : ℕ) : ZMod 3)) ∧
     pairHyperplane 3 ((2 ^ 0 : ℕ) : ZMod 3) ≠ ⊤ :=
   ⟨pairHyperplane_cyclicallyCovering 3 0 3 rfl (by decide),
     pairHyperplane_ne_top 3 0 (by decide)⟩
 
-/-- Target (C), the `h_2(n) = 0` half of the Corollary after Theorem `thm:prime-power` in
+/-- Part (C), the `h_2(n) = 0` half of the Corollary after Theorem `thm:prime-power` in
 Cameron–Ellis–Raynaud (arXiv:1810.03485): for `n ≥ 1`, the only cyclically covering subspace
 of `(ZMod 2)^n` is the whole space if and only if `n` is a power of `2`. -/
 theorem forall_cyclicallyCovering_eq_top_iff (n : ℕ) [NeZero n] :

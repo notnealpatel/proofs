@@ -6,7 +6,7 @@
 Murali Menon, *Two Questions on G-Harmonic Tuples*, arXiv:2608.15873.
 Theorem 3.1 (with Lemma 2.1(i) for the `ℤ` side), Section 3; the
 explicit subgroups and coset representatives are in the proof of
-Theorem 3.1 and in the appendix GAP code.  Recorded 2026-10-21.
+Theorem 3.1 and in the appendix GAP code.
 
 Definitions (Introduction, after Margolis–Schnabel, Definition 1.1):
 
@@ -16,7 +16,7 @@ Definitions (Introduction, after Margolis–Schnabel, Definition 1.1):
 > *`ℤ`-harmonic* if there exist integers `rᵢ` with
 > `rᵢ ≢ rⱼ (mod gcd(aᵢ,aⱼ))` for `i ≠ j`.
 
-Claim (Theorem 3.1, verbatim):
+Theorem 3.1:
 
 > The tuple `(6,6,6,10,15)` is `A₅`-harmonic but not `ℤ`-harmonic.
 
@@ -29,12 +29,9 @@ and Corollary 3.2 (the five cosets extend to a coset partition of `A₅` with
 index tuple `(6,6,6,10,15,15,15,10,10)`, which is `A₅`-harmonic but not
 `ℤ`-harmonic).
 
-## Status
-
-Proved in the paper (the `A₅` side by a finite GAP computation, the `ℤ`
-side by the residue argument of Lemma 2.1(i)).  Every statement in this file
-is proved; the finite group checks are kernel `decide` over explicit
-permutation tables (no `native_decide`).
+The `A₅` construction uses explicit permutation tables and finite `decide`
+checks in place of the paper's GAP computation; the `ℤ` obstruction uses
+the residue argument of Lemma 2.1(i).
 
 ## Conventions
 
@@ -67,10 +64,10 @@ def GHarmonic (G : Type*) [Group G] {n : ℕ} (a : Fin n → ℕ) : Prop :=
   ∃ (U : Fin n → Subgroup G) (g : Fin n → G), (∀ i, (U i).index = a i) ∧
     Pairwise fun i j => Disjoint (g i • (U i : Set G)) (g j • (U j : Set G))
 
-/-! ### Ground truth for `ZHarmonic`
+/-! ### Examples for `ZHarmonic`
 
-The paper's appendix states that every 4-subtuple of `(6,6,6,10,15)` is
-`ℤ`-harmonic; we check two of them with explicit witnesses. -/
+Explicit residues witness `ℤ`-harmonic 4-subtuples of `(6,6,6,10,15)`,
+as in the paper's appendix. -/
 
 /-- `(6,6,6,10)` is `ℤ`-harmonic, witnessed by residues `(1,3,5,0)`. -/
 example : ZHarmonic ![6, 6, 6, 10] :=
@@ -89,7 +86,7 @@ example : ¬ ∀ i j : Fin 2, i ≠ j →
     ¬ ((Nat.gcd ((![6, 10] : Fin 2 → ℕ) i) (![6, 10] j) : ℤ) ∣ (![1, 3] : Fin 2 → ℤ) i - ![1, 3] j) := by
   decide
 
-/-! ### Ground truth for `GHarmonic` -/
+/-! ### Examples for `GHarmonic` -/
 
 /-- The single-entry tuple `(1)` is `G`-harmonic in every group, via `U = ⊤`. -/
 example (G : Type*) [Group G] : GHarmonic G ![1] :=
@@ -272,7 +269,7 @@ theorem vSet_card : vSet.card = 4 := by decide
 def vSub : Subgroup (Perm (Fin 5)) :=
   ofFinset vSet vSet_one_mem vSet_mul_mem vSet_inv_mem
 
-/-! ### Ground truth: the paper's generators lie in the listed carriers -/
+/-! ### Examples: the paper's generators lie in the listed carriers -/
 
 example : c[(0 : Fin 5), 1, 4, 2, 3] ∈ dSet ∧ swap (0 : Fin 5) 1 * swap 3 4 ∈ dSet := by decide
 example : c[(1 : Fin 5), 2, 4] ∈ tSet ∧ swap (0 : Fin 5) 3 * swap 1 2 ∈ tSet := by decide
@@ -293,7 +290,7 @@ def g4Perm : Perm (Fin 5) := mk5 ![1, 3, 2, 0, 4] ![3, 0, 2, 1, 4] (by decide)
 /-- The paper's coset representative `g5 = (3 4 5)`. -/
 def g5Perm : Perm (Fin 5) := mk5 ![0, 1, 3, 4, 2] ![0, 1, 4, 2, 3] (by decide)
 
-/-- Ground truth: the representatives match the paper's cycle notation. -/
+/-- The representatives match the paper's cycle notation. -/
 example : g1Perm = c[(0 : Fin 5), 4, 2] ∧ g2Perm = c[(0 : Fin 5), 3, 1, 2, 4] ∧
     g3Perm = c[(0 : Fin 5), 4, 1, 2, 3] ∧ g4Perm = c[(0 : Fin 5), 1, 3] ∧
     g5Perm = c[(2 : Fin 5), 3, 4] := by decide
@@ -518,7 +515,7 @@ def g8Perm : Perm (Fin 5) := mk5 ![3, 1, 2, 4, 0] ![4, 1, 2, 0, 3] (by decide)
 /-- The paper's additional coset representative `(1 4 3 2 5)` (Corollary 3.2). -/
 def g9Perm : Perm (Fin 5) := mk5 ![3, 4, 1, 2, 0] ![4, 2, 3, 0, 1] (by decide)
 
-/-- Ground truth: the subgroup generators and representatives match the paper's
+/-- The subgroup generators and representatives match the paper's
 cycle notation. -/
 example : c[(0 : Fin 5), 2, 3] ∈ t2Set ∧ swap (0 : Fin 5) 2 * swap 1 4 ∈ t2Set ∧
     c[(0 : Fin 5), 1, 3] ∈ t3Set ∧ swap (0 : Fin 5) 1 * swap 2 4 ∈ t3Set ∧

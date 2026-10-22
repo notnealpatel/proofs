@@ -1,64 +1,15 @@
 /-
-# A215944 — Fermat pseudoprimes divisible by a smaller one: the
-# `p*((m+1)p-m)*((n+1)p-n)` / `5461*(42k-13)` dichotomy (refuted)
+Refutation of the representation dichotomy in OEIS A215944
+(unsigned conjecture in the 2012 submission; T. D. Noe's note, Aug 28 2012).
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A215944`)
-
-```
-NAME:     Fermat pseudoprimes to base 2 with three prime factors divisible
-          by a smaller Fermat pseudoprime to base 2.
-TERMS:    13981,137149,158369,176149,276013,285541,294409,348161,387731,
-          423793,488881,493697,617093,625921,847261,1052503,1052929,1104349,
-          1128121,1152271,1398101,1461241,1472353,1507561,1534541,1549411,
-          1746289,1840357,1857241,2299081
-COMMENT:  These are members of A215150 having three divisors.
-          - _T. D. Noe_, Aug 28 2012
-COMMENT:  Almost all the numbers from the sequence above can be written as
-          p*((m + 1)*p - m)*((n + 1)*p - n), where m, n, p are natural
-          numbers (in the brackets is written the Poulet number which every
-          one of them is divisible by): ...
-COMMENT:  The only few numbers from the sequence above that can't be written
-          this way are multiples of the Poulet number 5461 and can be,
-          instead, written as 5461*(42*k - 13): 158369 = 5461*29,
-          387731 = 5461*71, 617093 = 5461*113 and 1534541 = 5461*281.
-COMMENT:  Conjecture: The only Fermat pseudoprimes to base 2 divisible by a
-          smaller Fermat pseudoprime to base 2 that can't be written as
-          p*((m + 1)*p - m)*((n + 1)*p - n), where m, n, p are natural
-          numbers, are multiples of 5461 and can be written as
-          5461*(42*k - 13).
-COMMENT:  Conjecture is checked for the numbers from the sequence above and
-          for the first 15 Poulet numbers with four prime factors.
-```
-
-The conjecture comments are unsigned in the retrieved entry; they
-belong to the 2012 submission (the entry's comment block is dated by
-T. D. Noe's Aug 28 2012 note and lists only the first 30 terms).
-
-## Status
-
-Triage status: **false**.  No proof or refutation was found in the
-entry or the literature; the triage found a counterexample by
-enumeration of base-2 pseudoprimes below `3.676e8`.
-
-This module **refutes** the conjecture (`conjecture_false`).  The
-counterexample is `N = 3048841 = 61 * 151 * 331`, the smallest exception
-the triage found (its search is complete below `3.676e8`): `N` is a
-base-2 Fermat pseudoprime (`fermatPsp_N`), it is divisible by the
-smaller base-2 Fermat pseudoprime `49981 = 151 * 331` (`fermatPsp_d`),
-it is not of the form `p*((m+1)p-m)*((n+1)p-n)` (`not_isPQForm_N`,
-a finite check over the divisors of `N`), and `5461 ∤ N`
-(`N mod 5461 = 1603`), so it is not of the form `5461*(42k-13)`
-(`not_is5461Form_N`).
-
-The statement reads "natural numbers" with the weakest convention,
-`m n p : ℕ` including `0` and with no primality required of the three
-factors; this only enlarges the set of representable numbers, so the
-refutation applies under every stricter reading as well.  The Lean
-truncated subtraction in `42 * k - 13` makes `k = 0` give `0`, which
-is not a pseudoprime; `(m + 1) * p - m` never truncates for `p ≥ 1`.
-
-`Elab.async false` keeps the kernel checks sequential; under a virtual-memory
-cap the asynchronous elaboration of the theorems cannot spawn threads.
+N=3048841=61*151*331 is a base-2 Fermat pseudoprime divisible by the
+smaller pseudoprime 49981=151*331. It has neither form
+p*((m+1)p-m)*((n+1)p-n) nor 5461*(42k-13).
+This refutes both the broad wording and its restriction to the three-prime
+sequence A215944. No least-counterexample or search-completeness claim is made.
+The natural parameters include zero and need not be prime, so nonrepresentation
+also holds under stricter readings. At k=0 the truncated 42k-13 gives zero,
+not a pseudoprime; (m+1)p-m does not truncate for p≥1.
 -/
 import Mathlib
 
@@ -100,7 +51,7 @@ theorem length_primeFactorsList_of_three_primes {p q r : ℕ} (hp : p.Prime) (hq
     Nat.primeFactorsList_prime hr]
   rfl
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- `341 = 11 * 31`, the smallest base-2 Fermat pseudoprime, is one. -/
 example : Nat.FermatPsp 341 2 :=
@@ -190,17 +141,9 @@ theorem not_is5461Form_N : ¬ Is5461Form 3048841 := by
 
 /-! ## The conjecture -/
 
-/-- **A215944 conjecture (2012), refuted.**
-
-Verbatim: "Conjecture: The only Fermat pseudoprimes to base 2 divisible by a
-smaller Fermat pseudoprime to base 2 that can't be written as
-p*((m + 1)*p - m)*((n + 1)*p - n), where m, n, p are natural numbers, are
-multiples of 5461 and can be written as 5461*(42*k - 13)."
-
-The theorem states the negation of: every base-2 Fermat pseudoprime `N` with a
-smaller base-2 Fermat pseudoprime divisor is of the form
-`p*((m+1)p-m)*((n+1)p-n)` or of the form `5461*(42k-13)`.  Counterexample:
-`N = 3048841 = 61 * 151 * 331`, divisible by the pseudoprime `49981`. -/
+/-- The A215944 representation dichotomy fails: `3048841=61*151*331` is a
+base-2 pseudoprime divisible by the smaller pseudoprime `49981`, but belongs
+to neither representation family. -/
 theorem conjecture_false :
     ¬ ∀ N : ℕ, Nat.FermatPsp N 2 → HasSmallerPspDivisor N →
       IsPQForm N ∨ Is5461Form N := by

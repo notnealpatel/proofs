@@ -1,32 +1,10 @@
 /-
 # A295458 — Bala: both `a(n/2)` and `a(n/3)` are integers
 
-## OEIS source (retrieved with `oeis show A295458`, 2026-10-21)
-
-```
-NAME:     a(n) = (30*n)!*(5*n)!*(4*n)!/((15*n)!*(10*n)!*(8*n)!*(6*n)!).
-TERMS:    1,5545451340,188242272043069768860,7383354803839076831124554790900,...
-FORMULA:  a(n) = binomial(30*n,15*n)*binomial(15*n,5*n)*binomial(4*n,n)/
-          (binomial(8*n,3*n)*binomial(6*n,n)). - _Chai Wah Wu_, Feb 16 2026
-COMMENT (the conjecture):
-  Conjecture: for n >= 0, both a(n/2) = (15*n)!*(5*n/2)!*(2*n)! /
-  ((15*n/2)!*(5*n)!*(4*n)!*(3*n)!) and a(n/3) = (10*n)!*(5*n/3)!*(4*n/3)! /
-  ((5*n)!*(10*n/3)!*(8*n/3)!*(2*n)!) are integers, where fractional factorials
-  are defined using the Gamma function - for example,
-  (5*n/2)! := Gamma(5*n/2 + 1). - _Peter Bala_, Jul 29 2026
-```
-
-## Literature status (triage)
-
-Open: no proof in the entry or in the literature as far as the triage could
-tell. The cases `n = 2m` and `n = 3m` are the integrality of `a(m)` itself,
-which is classical (Landau's criterion). Triage evidence: both ratios integral
-for `n ≤ 300`. Re-validated here (Sage, exact rationals, 2026-10-21) for
-`n ≤ 450`, with the closed forms below checked against mpmath Gamma for `n ≤ 5`.
-
-## Result of this module
-
-Both conjectures are proved for every `n`, with no remaining `sorry`.
+Peter Bala's conjecture in OEIS A295458 (July 29, 2026) asserts that
+both `a(n/2)` and `a(n/3)` are integers for every natural `n`, where
+`a(n) = (30n)! (5n)! (4n)! / ((15n)! (10n)! (8n)! (6n)!)`
+and fractional factorials mean `x! = Γ(x+1)`.
 
 * Half index, odd `n`: `Γ(k/2 + 1) = k! √π / (2^k ⌊k/2⌋!)` for odd `k` gives
   `a(n/2) = 2^(10n) ⌊15n/2⌋! (2n)! / (⌊5n/2⌋! (4n)! (3n)!)`, and Landau's
@@ -499,7 +477,7 @@ theorem thirdRatio_integral (n : ℕ) : ∃ k : ℕ, thirdRatio n = k := by
 theorem thirdRatio_three_mul (m : ℕ) : thirdRatio (3 * m) = a295458 m :=
   thirdRatio_eq (third_three_mul_eq m)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : a295458 0 = 1 := by decide
 
@@ -537,12 +515,9 @@ example : thirdRatio 3 = 5545451340 := by
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjecture (A295458, Peter Bala, Jul 29 2026).** Verbatim:
-"Conjecture: for n >= 0, both a(n/2) = (15*n)!*(5*n/2)!*(2*n)! /
-((15*n/2)!*(5*n)!*(4*n)!*(3*n)!) and a(n/3) = (10*n)!*(5*n/3)!*(4*n/3)! /
-((5*n)!*(10*n/3)!*(8*n/3)!*(2*n)!) are integers, where fractional factorials are
-defined using the Gamma function - for example, (5*n/2)! := Gamma(5*n/2 + 1)."
-Both ratios are natural numbers, for every `n`. -/
+/-- Bala's conjecture (OEIS A295458, July 29, 2026): both `a(n/2)` and
+`a(n/3)` are natural numbers for every natural `n`, interpreting
+fractional factorials as `x! = Γ(x+1)`. -/
 theorem bala_both (n : ℕ) : (∃ k : ℕ, halfRatio n = k) ∧ (∃ k : ℕ, thirdRatio n = k) :=
   ⟨halfRatio_integral n, thirdRatio_integral n⟩
 

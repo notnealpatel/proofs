@@ -1,57 +1,15 @@
 /-
-# A126364 — Forgues: `a(n) = 3 a(n-1) - A025565(n)` (refuted)
+# A counterexample to the A126364 recurrence
 
-## OEIS source (retrieved with `oeis show A126364` and checked against
-## `https://oeis.org/search?q=id:A126364&fmt=text`, 2026-10-21)
+Source: Daniel Forgues' OEIS A126364 formula (Aug 23 2011),
+`a(n)=3a(n-1)-A025565(n)` for `n ≥ 2`.
+The identity holds for `2 ≤ n ≤ 11` and first fails at 12:
+`a(12)=1161634`, whereas `3·398746-34606=1161632`.
 
-```
-A126364   NAME:   Number of base 10 n-digit numbers with adjacent digits
-                  differing by one or less.
-          OFFSET: 1,1
-          DATA:   10,28,80,230,664,1922,5574,16188,47064,136946,398746,1161634,
-                  3385486,9869934,28781908,83948652,244894048,714493794,...
-COMMENT:  [Empirical] a(base,n)=a(base-1,n)+3^(n-1) for base>=n;
-          a(base,n)=a(base-1,n)+3^(n-1)-2 when base=n-1.
-FORMULA:  G.f.: x*(10 - 32*x + 12*x^2 + 20*x^3 - 4*x^4)/(1 - 6*x + 10*x^2
-          - x^3 - 6*x^4 + x^5). - _Alexander R. Povolotsky_, Aug 18 2011
-FORMULA:  Conjecture: a(n) = 3*a(n-1) - A025565(n), n >= 2.
-          - _Daniel Forgues_, Aug 23 2011
-```
-
-Referenced entries (same retrieval date):
-
-```
-A025565   NAME:   a(n) = T(n,n-1), where T is array defined in A025564.
-          OFFSET: 1,2
-          DATA:   1,2,4,10,26,70,192,534,1500,4246,12092,34606,99442,286730,...
-          FORMULA: G.f.: x*sqrt((1+x)/(1-3*x)).
-A025564   NAME:   Triangular array, read by rows: pairwise sums of trinomial
-                  array A027907.
-          OFFSET: 0,3
-          DATA:   1,1,2,1,1,3,4,3,1,1,4,8,10,8,4,1,1,5,13,22,26,22,13,5,1,...
-          FORMULA: T(n, k) = T(n-1, k-2) + T(n-1, k-1) + T(n-1, k), starting
-                   with [1], [1, 2, 1], [1, 3, 4, 3, 1].
-```
-
-No later comment in A126364 retracts or amends the conjecture.
-
-## Status
-
-**Refuted.**  The identity holds for `2 ≤ n ≤ 11` and first fails at
-`n = 12`: `3 * a(11) - A025565(12) = 3 * 398746 - 34606 = 1161632`, but
-`a(12) = 1161634`.  A Python check (`/tmp/claude/a126364.py`, 2026-10-21)
-recomputed `a(n)` by brute force for `n ≤ 5` and by the digit transfer
-recursion for `n ≤ 15`; it matched the DATA line and found the failures
-`n = 12, 13, 14`.  A second check (`/tmp/claude/a126364b.py`) shows that
-in base `b` (`2 ≤ b ≤ 14`) the identity holds exactly for `2 ≤ n ≤ b + 1`
-and `n ≤ 18`: it is a large-base phenomenon, broken once the digit walk
-can feel both ends of the digit range (compare the entry's own
-[Empirical] comment).  The failure is also forced in general, since the
-g.f. of A126364 is rational and that of A025565 is not.
-
-This module **refutes** the conjecture (`conjecture_false`) and
-kernel-checks that `n = 12` is the least counterexample
-(`conjecture_of_le_eleven`).
+A126364 counts length-`n` decimal strings, including leading zeros, with
+adjacent digits differing by at most one. A025565 uses the middle entry
+`T(n-1,n-1)` of the zero-indexed A025564 array, as fixed by its data;
+the A025565 NAME's row numbering differs. The recurrence is compared in `ℤ`.
 -/
 import Mathlib
 
@@ -59,7 +17,7 @@ set_option autoImplicit false
 
 namespace Candidates.A126364Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- Two decimal digits differ by at most one. -/
 def DigitAdj (a b : Fin 10) : Prop := (a : ℕ) ≤ b + 1 ∧ (b : ℕ) ≤ a + 1
@@ -88,7 +46,7 @@ leading zero would give `9, 26, 75, …`, which does not match.  The value
 def a126364 (n : ℕ) : ℕ :=
   (Finset.univ.filter (fun s : Fin n → Fin 10 => IsAdjBounded s)).card
 
--- Brute-force ground truth straight from the definition.
+-- Values computed directly from the definition.
 example : a126364 1 = 10 := by decide
 example : a126364 2 = 28 := by decide
 
@@ -268,25 +226,14 @@ theorem a025565_data :
 
 /-! ## The conjecture and its refutation -/
 
-/-- **Forgues' conjecture (A126364, Daniel Forgues, Aug 23 2011).**
-
-Verbatim: "Conjecture: a(n) = 3*a(n-1) - A025565(n), n >= 2."
-
-The identity is stated in `ℤ`, so the subtraction is not truncated; the
-guard `2 ≤ n` is from the source and keeps `n - 1` at an index `≥ 1` inside
-the offset of A126364. -/
+/-- Forgues' A126364 recurrence, stated in `ℤ` to avoid truncated
+subtraction. The guard `2 ≤ n` keeps `n-1` inside the offset-1 domain. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 2 ≤ n → (a126364 n : ℤ) = 3 * (a126364 (n - 1) : ℤ) - (a025565 n : ℤ)
 
-/-- **The conjecture is false.**  Counterexample `n = 12`:
-`a(12) = 1161634`, but `3 * a(11) - A025565(12) = 3 * 398746 - 34606 =
-1161632`.
-
-The author probably extrapolated from the large-base regime: in base `b`
-the identity holds exactly for `2 ≤ n ≤ b + 1` (numerically, `b ≤ 14`,
-`n ≤ 18`), so in base 10 it holds for `n ≤ 11`
-(`conjecture_of_le_eleven`) and breaks once a length-`n` digit walk can
-reach both ends of the digit range `0..9`. -/
+/-- Forgues' recurrence fails at 12: `a(12)=1161634`, but
+`3a(11)-A025565(12)=1161632`. The identity holds for `2 ≤ n ≤ 11`
+by `conjecture_of_le_eleven`, so 12 is the least counterexample. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have h12 := hconj 12 (by norm_num)
@@ -300,7 +247,7 @@ theorem conjecture_false : ¬ Conjecture := by
   rw [show (12 : ℕ) - 1 = 11 from rfl, ha12, ha11, hb12] at h12
   norm_num at h12
 
-/-- The conjectured identity holds for `2 ≤ n ≤ 11` (finite kernel check), so
+/-- The conjectured identity holds for `2 ≤ n ≤ 11`, so
 `n = 12` is the least counterexample. -/
 theorem conjecture_of_le_eleven (n : ℕ) (hn2 : 2 ≤ n) (hn11 : n ≤ 11) :
     (a126364 n : ℤ) = 3 * (a126364 (n - 1) : ℤ) - (a025565 n : ℤ) := by

@@ -1,35 +1,14 @@
 /-
 # A160217 — Shevelev: every admissible start merges with A160217
 
-## OEIS source (retrieved with `oeis show A160217`, 2026-10-21)
+Vladimir Shevelev's conjecture in OEIS A160217 (May 2009) states that
+every greedy increasing sequence starting at `m > 3` in A003159 and
+preserving A003159 membership of its indices eventually agrees with A160217.
+A003159 consists of positive integers whose 2-adic valuation is even.
 
-```
-NAME:     Minimal increasing sequence with a(1)=3 and the property that a(n) and n
-          are both in or both not in A003159.
-TERMS:    3,6,7,9,11,14,15,18,19,22,23,25,27,30,31,33,35,38,39,41,43,46,47,50,...
-AUTHOR:   Vladimir Shevelev, May 04 2009 (edited by R. J. Mathar, May 08 2009)
-FORMULA:  a(n)=2n+1, if A007814(n) is even. a(n)=2n+2, if A007814(n) is odd.
-COMMENT (the conjecture, Vladimir Shevelev, May 2009):
-  Conjecture: Let m>3 belong to A003159. Define the sequence b(n) to be the
-  minimal increasing sequence with b(1)=m and the property that b(n) and n are
-  both in or both not in A003159. Then a(n)=b(n) for all n larger than some
-  m-dependent minimum index.
-```
-
-A003159 is the set of `l ≥ 1` whose 2-adic valuation `v_2(l)` is even.
-
-## Status
-
-Triage: open (no proof in the entry; Shevelev's arXiv:0904.2101 treats analogues
-for other properties, not the parity of `v_2`).  This file gives a complete
-elementary proof: `a(n) ∈ {2n+1, 2n+2}` by the entry formula, `b_m ≥ a` termwise,
-the gap `b_m(n) - a(n)` never increases, and a 2-adic choice of index forces it to
-drop while positive (`exists_drop_index`).
-
-Computation (bounded python, 2026-10-21): every admissible start `m ≤ 21000`
-(triage: `m < 20000`, here also `20001 ≤ m ≤ 21000`) and the starts
-`2^k * j` (`k ∈ {16,18,20}`, `j ∈ {1,3,5}`, when admissible) merge with `a`, with the gap
-never increasing.
+The entry formula gives `a(n) ∈ {2n+1, 2n+2}`. The sequence `b_m` dominates
+`a` termwise, its gap never increases, and `exists_drop_index` gives a
+2-adic choice of index forcing a positive gap to drop.
 -/
 import Mathlib
 
@@ -66,7 +45,7 @@ theorem chi_two_mul (k : ℕ) (hk : k ≠ 0) : chi (2 * k) = !chi k := by
 theorem chi_eval (j u n : ℕ) (hu : Odd u) (h : n = 2 ^ j * u) : chi n = decide (Even j) := by
   rw [h, chi_pow_mul j u hu]
 
-/-! Ground truth for `chi` against A003159 (`1, 3, 4, 5, 7, 9, 11, 12, ...`). -/
+/-! Examples for `chi` from A003159 (`1, 3, 4, 5, 7, 9, 11, 12, ...`). -/
 example : chi 12 = true := by rw [chi_eval 2 3 12 (by decide) rfl]; decide
 example : chi 4 = true := by rw [chi_eval 2 1 4 (by decide) rfl]; decide
 example : chi 2 = false := by rw [chi_eval 1 1 2 (by decide) rfl]; decide
@@ -274,7 +253,7 @@ theorem exists_drop_index (c N : ℕ) (hc : 1 ≤ c) :
     · rw [chi_of_odd _ ⟨8 * N + 4 + d + 1, by omega⟩, chi_of_odd _ ⟨4 * N + 2, by ring⟩]
 
 
-/-! Ground truth: `b 3` reproduces the listed terms `3, 6, 7, 9, 11, 14, 15, 18, 19, 22, 23, 25`
+/-! `b 3` reproduces the listed terms `3, 6, 7, 9, 11, 14, 15, 18, 19, 22, 23, 25`
 of A160217 (via the closed form, which is itself proved from the `Nat.find` definition). -/
 example : b 3 1 = 3 := by rw [b_three_eq 1 le_rfl, chi_eval 0 1 1 (by decide) rfl]; decide
 example : b 3 2 = 6 := by rw [b_three_eq 2 (by norm_num), chi_eval 1 1 2 (by decide) rfl]; decide
@@ -357,7 +336,7 @@ theorem shevelev_A160217 (m : ℕ) (hm : 3 < m) (hchi : chi m = true) :
   have hle := b_three_le m hm.le n (by omega)
   omega
 
-/-- Non-vacuity: `m = 4` is an admissible start (`3 < 4`, `v_2(4) = 2` even), so the theorem
+/-- `m = 4` is an admissible start (`3 < 4`, `v_2(4) = 2` even), so the theorem
 applies; `b 4` starts `4, 6, 7, 9, ...` and merges with `b 3` from `n = 2` on. -/
 example : 3 < 4 ∧ chi 4 = true := ⟨by norm_num, by rw [chi_eval 2 1 4 (by decide) rfl]; decide⟩
 

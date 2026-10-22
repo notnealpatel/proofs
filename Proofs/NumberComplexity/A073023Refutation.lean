@@ -1,31 +1,12 @@
 /-
 # A073023 — Cloitre: `Sum_{k=1..n} a(k) > n^(3/2)` for `n > 100` is false
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A073023` and the live entry)
+Benoit Cloitre's conjecture in OEIS A073023 (2002), where `a(n)` counts
+`1 ≤ x ≤ n` satisfying `n^x ≡ 1 (mod x)`.
 
-```
-NAME:     Number of solutions to the equation n^x==1 (mod x), 1<=x<=n.
-TERMS:    1,1,2,2,3,2,5,2,4,3,7,2,8,2,6,5,7,2,11,2,8,5,11,2,12,3,9,4,14,2,18,2,
-          7,6,12,5,16,2,10,6,19,2,22,2,9,9,16,2,19,3,13,6,18,2,20,5,14,7,21,2,
-          28,2,10,9,17,5,29,2,17,6,31,2,23,2,10,9,23,5,32,2,16,5,26,2,28,6,14,9
-KEYWORDS: easy,nonn
-FORMULA (the conjecture, unsigned; AUTHOR line of the entry is
-  Benoit Cloitre, Aug 21 2002):
-  Conjecture: for n>100, Sum_{k=1..n} a(k) > n^(3/2).
-PROGRAM (PARI):
-  a(n)=sum(i=1,n,if((n^i-1)%i,0,1))
-```
-
-The entry has no comments; nothing in it retracts or amends the conjecture.
-
-## Status
-
-This module **refutes** the conjecture.  With `S(n) = Sum_{k=1..n} a(k)`,
-`S(102) = 1025` and `1025^2 = 1050625 < 1061208 = 102^3`, so
-`S(102) < 102^(3/2)`.  A bounded computation (Python, `n ≤ 3000`) finds the
-failures with `n > 100` to be exactly `n = 102, 105, 106, 108`; the probably
-intended threshold is `n > 108`, which remains unproved and is not stated here
-as a theorem.
+For `S(n) = Σ_{k=1}^n a(k)`, `S(102) = 1025` and
+`1025^2 = 1050625 < 1061208 = 102^3`, refuting `n^(3/2) < S(n)` for `100 < n`.
+No assertion about a corrected eventual threshold is proved here.
 -/
 import Mathlib
 
@@ -39,7 +20,7 @@ For `x = 1` the congruence holds trivially, matching the PARI program
 def a (n : ℕ) : ℕ :=
   ((Finset.Icc 1 n).filter (fun x => n ^ x ≡ 1 [MOD x])).card
 
-/-- Ground truth: `a 1, …, a 88` agree with all 88 terms of the OEIS DATA line. -/
+/-- Examples: `a 1, …, a 88` agree with all 88 terms of the OEIS DATA line. -/
 example : (List.range 88).map (fun i => a (i + 1)) =
     [1, 1, 2, 2, 3, 2, 5, 2, 4, 3, 7, 2, 8, 2, 6, 5, 7, 2, 11, 2, 8, 5, 11, 2,
      12, 3, 9, 4, 14, 2, 18, 2, 7, 6, 12, 5, 16, 2, 10, 6, 19, 2, 22, 2, 9, 9,
@@ -47,9 +28,8 @@ example : (List.range 88).map (fun i => a (i + 1)) =
      2, 17, 6, 31, 2, 23, 2, 10, 9, 23, 5, 32, 2, 16, 5, 26, 2, 28, 6, 14, 9] := by
   decide +kernel
 
-/-- **Cloitre's conjecture (A073023, Benoit Cloitre, Aug 2002).**
-Verbatim: "Conjecture: for n>100, Sum_{k=1..n} a(k) > n^(3/2)."
-The power `n^(3/2)` is the real power `Real.rpow`, applied to a positive base. -/
+/-- Cloitre's conjecture (OEIS A073023, 2002): for `n > 100`,
+`n^(3/2) < Σ_{k=1}^n a(k)`. The power is `Real.rpow` at a positive base. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 100 < n → (n : ℝ) ^ ((3 : ℝ) / 2) < ∑ k ∈ Finset.Icc 1 n, (a k : ℝ)
 
@@ -80,8 +60,7 @@ theorem sum_a_Icc_102_lt_rpow :
 
 /-- **Refutation of Cloitre's conjecture.**  The counterexample is `n = 102`:
 `Sum_{k=1..102} a(k) = 1025` and `1025^2 < 102^3`, so the sum is below
-`102^(3/2)`.  Further failures occur at `n = 105, 106, 108` (computation);
-the author probably intended the threshold `n > 108`, which is still open. -/
+`102^(3/2)`.  No corrected eventual threshold is proved here. -/
 theorem cloitre_conjecture_false : ¬ Conjecture := by
   intro hconj
   have h102 := hconj 102 (by norm_num)

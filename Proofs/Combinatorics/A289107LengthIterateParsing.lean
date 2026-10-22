@@ -1,44 +1,13 @@
 /-
 # A289107 — Kimberling: iterate lengths of `00->0010, 01->011, 10->000` (proved)
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A289107`, `oeis show
-## A289104`, and the live entry https://oeis.org/A289107)
-
-```
-NAME:     a(n) = 2*a(n-1) - a(n-3) for n >= 5, a(0) = 2, a(1) = 4, a(2) = 7,
-          a(3) = 12, a(4) = 22.
-OFFSET:   0
-TERMS:    2,4,7,12,22,37,62,102,167,272,442,717,1162,1882,3047,4932,7982,...
-COMMENT:  Conjecture:  a(n) is the number of letters (0's and 1's) in the
-          n-th iterate of the mapping 00->0010, 01->011, 10->000, starting
-          with 00; see A289104.
-FORMULA:  G.f.: (2 - x^2 + 2*x^4)/(1 - 2*x + x^3).
-FORMULA:  a(n) = -3 + 2^(-1-n)*sqrt(5)*(-(1-sqrt(5))^(1 + n)
-          + (1+sqrt(5))^(1+n)) for n>1. - _Colin Barker_, Jun 28 2017
-AUTHOR:   _Clark Kimberling_, Jun 28 2017
-```
-
-The conjecture comment carries no separate signature; it belongs to the
-entry's author, Clark Kimberling (Jun 28 2017).  The companion entry A289104
-repeats it ("Conjecture: the number of letters (0's and 1's) in the n-th
-iterate of the mapping is given by A289107.") and fixes the meaning of
-"iterate" through its Mathematica program:
-
-```
-w[n_] := StringReplace[w[n - 1], {"00" -> "0010", "01" -> "011", "10" -> "000"}]
-Table[StringLength[w[n]], {n, 0, 20}] (* A289107 *)
-```
-
-`StringReplace` scans left to right, replaces non-overlapping matches, tries
-the rules in order at each position, and keeps unmatched characters.
-
-## Status
-
-Triage status: open (no proof in the entry or in the literature found by the
-triage; Python agreement for `n < 30`, extended here to `n < 36`).  This
-module **proves** the conjecture (`length_eq_a`) and the closed form
-`|w n| + 3 = 5 F(n+1)` for `n ≠ 1` (`length_add_three_eq_five_mul_fib`), which
-is Colin Barker's Binet formula with `F` the Fibonacci numbers.
+OEIS A289107 and A289104, Clark Kimberling (2017): the recurrence
+`a(n) = 2a(n-1)-a(n-3)` for `5 ≤ n`, with initial values `2,4,7,12,22`,
+gives the iterate lengths of `00 ↦ 0010`, `01 ↦ 011`, `10 ↦ 000` from `00`.
+Mathematica's `StringReplace` scans left to right, replaces non-overlapping
+matches in rule order, and keeps unmatched characters.
+The Fibonacci form `|w n| + 3 = 5 F(n+1)` for `n ≠ 1` is Colin Barker's
+Binet formula (2017); it also holds at `n = 0`.
 
 ## Proof outline
 
@@ -90,7 +59,7 @@ def a : ℕ → ℤ
   | 4 => 22
   | n + 5 => 2 * a (n + 4) - a (n + 2)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The first iterates, as printed by the A289104 program
 -- (`00`, `0010`, `0010000`, `001000000100`).
@@ -370,9 +339,8 @@ theorem length_rec (n : ℕ) :
 /-! ## The conjecture -/
 
 /-- **Kimberling's conjecture (A289107, Jun 28 2017), proved.**
-Verbatim: "Conjecture:  a(n) is the number of letters (0's and 1's) in the
-n-th iterate of the mapping 00->0010, 01->011, 10->000, starting with 00; see
-A289104."  Here `w n` is the `n`-th iterate of Mathematica's `StringReplace`
+The length of `w n` equals `a n` for every natural `n`.
+Here `w n` is the `n`-th iterate of Mathematica's `StringReplace`
 with those rules, starting from `00`, and `a` is A289107 as defined by its
 NAME line; the length is cast to `ℤ`, where `a` takes its values. -/
 theorem length_eq_a : ∀ n : ℕ, ((w n).length : ℤ) = a n

@@ -1,32 +1,10 @@
 /-
 # A321790 — Ordowski: least non-liar of a semiprime base-2 pseudoprime lies below its least prime factor
 
-## OEIS source (retrieved with `oeis show A321790` and the live entry, 2026-10-21)
-
-```
-NAME:     a(n) is the smallest base a > 2 such that a^(k-1) != 1 (mod k), where
-          k = A001567(n), the n-th Fermat pseudoprime to base 2.
-OFFSET:   1,1
-TERMS:    3,3,3,5,3,7,3,3,5,5,7,3,3,3,3,3,3,7,3,3,3,7,3,5,3,3,3,3,3,3,3,7,3,3,
-          5,3,3,3,3,13,3,3,3,3,5,3,3,3,3,7,3,3,13,5,3,7,3,3,3,3,3,7,3,3,3,3,3,
-          11,3,5,5,3,3,3,5,5,3,5,7,5,5,3,13,3,3
-AUTHOR:   Thomas Ordowski, Nov 19 2018
-COMMENT (the conjecture, unattributed in the entry, hence the author's own):
-  Conjecture: if k = A001567(n) is semiprime, then a(n) < lpf(k).
-```
-
-## Status
-
-Triage: open (no proof recorded in A321790, A177415, A285549 or A380978; no
-wider literature search, so it may be folklore).  Numerically checked by the
-triage for all prime pairs `3 ≤ p ≤ q < 20000`; re-checked here on 2823 random
-pairs with `p < 3000`, `q < 10^12`, on 189 base-2 pseudoprime semiprimes
-`p * q` with `p < 400`, `q < 2 * 10^6`, and on the Wieferich squares
-`1093^2`, `3511^2`.
-
-This module **proves** the conjecture (`a321790_lt_minFac`), via the stronger
-statement `exists_nonliar_lt_of_prime_le` (for all primes `3 ≤ p ≤ q` some
-`a ∈ [2, p-1]` has `a^(pq-1) ≢ 1 (mod pq)`):
+Thomas Ordowski's conjecture in OEIS A321790 says that the least base
+`a > 2` which is not a Fermat liar for a semiprime base-2 pseudoprime lies
+below its least prime factor. The stronger statement below gives such a
+non-liar in `[2,p-1]` for all primes `3 ≤ p ≤ q`, modulo `pq`.
 
 * `p < q`: if every `a ∈ [1, p-1]` were a liar mod `pq`, then in `ZMod q` the
   `p - 1` residues `1, …, p-1` and also `-1 = q - 1` (as `p - 1` is even) would
@@ -50,7 +28,7 @@ set_option autoImplicit false
 
 namespace Candidates.A321790BaseFermatPseudoprime
 
-/-! ## Definition layer
+/-! ## Definitions
 
 * Membership in A001567 ("Fermat pseudoprimes to base 2") is Mathlib's
   `Nat.FermatPsp k 2`, unfolding to `k ∣ 2 ^ (k - 1) - 1 ∧ ¬ k.Prime ∧ 1 < k`.
@@ -78,7 +56,7 @@ theorem leastNonLiar_le {k a : ℕ} (ha : 2 < a) (hna : ¬ a ^ (k - 1) ≡ 1 [MO
     leastNonLiar k ≤ a :=
   Nat.sInf_le ⟨ha, hna⟩
 
-/-- Characterisation used for the ground-truth checks: if `a > 2` is a non-liar
+/-- Characterisation used for the examples: if `a > 2` is a non-liar
 mod `k` and every `b` with `2 < b < a` is a liar, then `leastNonLiar k = a`. -/
 theorem leastNonLiar_eq_of {k a : ℕ} (ha : 2 < a) (hna : ¬ a ^ (k - 1) ≡ 1 [MOD k])
     (hb : ∀ b, 2 < b → b < a → b ^ (k - 1) ≡ 1 [MOD k]) : leastNonLiar k = a := by
@@ -89,7 +67,7 @@ theorem leastNonLiar_eq_of {k a : ℕ} (ha : 2 < a) (hna : ¬ a ^ (k - 1) ≡ 1 
   by_contra hlt
   exact hnb (hb b hb2 (Nat.lt_of_not_le hlt))
 
-/-! ## Ground truth against the first terms
+/-! ## Examples against the first terms
 
 `A001567` begins `341, 561, 645, 1105, 1387, 1729`, and A321790 begins
 `3, 3, 3, 5, 3, 7`. -/
@@ -259,10 +237,8 @@ theorem two_pow_modEq_one_of_fermatPsp {k : ℕ} (hk : Nat.FermatPsp k 2) :
 
 /-! ## The conjecture -/
 
-/-- **Ordowski's conjecture (A321790, Thomas Ordowski, Nov 19 2018), in the
+/-- **Ordowski's conjecture (A321790, Thomas Ordowski), in the
 pseudoprime form.**
-
-Verbatim: "Conjecture: if k = A001567(n) is semiprime, then a(n) < lpf(k)."
 
 If `k` is a Fermat pseudoprime to base 2 and `k = p * q` with `p`, `q` prime,
 then the least base `a > 2` with `a ^ (k - 1) ≢ 1 (mod k)` is smaller than the
@@ -310,9 +286,7 @@ theorem fermatPsp_A001567 (n : ℕ) : Nat.FermatPsp (A001567 n) 2 := by
     Nat.frequently_atTop_iff_infinite.mp (Nat.frequently_atTop_fermatPsp (by norm_num))
   exact Nat.nth_mem_of_infinite hinf (n - 1)
 
-/-- **Ordowski's conjecture (A321790, Thomas Ordowski, Nov 19 2018), OEIS-indexed.**
-
-Verbatim: "Conjecture: if k = A001567(n) is semiprime, then a(n) < lpf(k)."
+/-- **Ordowski's conjecture (A321790, Thomas Ordowski), OEIS-indexed.**
 
 If the `n`-th base-2 Fermat pseudoprime `k = A001567 n` is a product of two
 primes, then `a(n) = a321790 n < lpf(k) = k.minFac`.  (`n = 0` merely aliases

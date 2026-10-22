@@ -1,29 +1,8 @@
 /-
 # A361035 — Bala: `9979200 (4n)!/(n! (n+3)!^3)` is odd iff `n = 2^k - 3`
 
-## OEIS source (retrieved with `oeis show A361035` and the live entry, 2026-10-21)
-
-```
-NAME:     a(n) = 9979200 * (4*n)!/(n!*(n+3)!^3).
-TERMS:    46200,17325,116424,2134440,67953600,3086579925,179961581800,
-          12633303042360,1023952465972800,93080123469333000,...
-COMMENT:  ... the numbers A008977(n) = (4*n)!/n!^4 appear to have the property
-          that 9979200*A008977(n) is divisible by ((n + 1)*(n + 2)*(n + 3))^3,
-          leading to the present sequence. Cf. A361030.
-COMMENT (the conjecture):
-          Conjecture: a(n) is odd iff n = 2^k - 3 for some k >= 2.
-AUTHOR:   _Peter Bala_, Mar 01 2023 (the conjecture line carries no separate
-          signature; it is part of the original submission).
-```
-
-## Status
-
-Triage: open (no proof in the entry or located literature).  Computationally
-re-validated for `0 ≤ n ≤ 1499` (exact integer arithmetic, also confirming the
-divisibility of the comment).  This module proves both the divisibility
-("appear to have the property") and the parity conjecture.
-
-## Argument
+OEIS A361035, Peter Bala: `9979200(4n)!/(n!(n+3)!³)` is an integer
+and is odd iff `n = 2^k-3` for `k ≥ 2`.
 
 Legendre's formula.  For an odd prime `p` and `q = p^i ≥ 3`, writing
 `n = q m + r`, the deficit `⌊n/q⌋ + 3⌊(n+3)/q⌋ - ⌊4n/q⌋` is at most
@@ -40,13 +19,13 @@ namespace Candidates.A361035OddSome
 
 open Nat
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A361035: `a(n) = 9979200 * (4n)! / (n! * (n+3)!^3)`, with truncating
 natural-number division; `den_dvd_num` shows the division is exact. -/
 def a (n : ℕ) : ℕ := 9979200 * (4 * n)! / (n ! * (n + 3)! ^ 3)
 
--- Ground truth against the OEIS DATA line `46200, 17325, 116424, 2134440, 67953600`.
+-- Examples against the OEIS DATA line `46200, 17325, 116424, 2134440, 67953600`.
 example : a 0 = 46200 := by rfl
 example : a 1 = 17325 := by rfl
 example : a 2 = 116424 := by rfl
@@ -196,9 +175,9 @@ theorem padicValNat_den (p n : ℕ) [Fact p.Prime] :
   rw [padicValNat.mul (Nat.factorial_ne_zero _) (pow_ne_zero _ (Nat.factorial_ne_zero _)),
     padicValNat.pow]
 
-/-! ## Integrality (the entry's "appear to have the property" comment) -/
+/-! ## Integrality -/
 
-/-- **Integrality of A361035 (Bala, Mar 01 2023, stated as "appear to").**
+/-- **Integrality of A361035 (Bala, 2023).**
 `n! (n+3)!^3` divides `9979200 (4n)!` for every `n`, so `a n` is the exact
 quotient. -/
 theorem den_dvd_num (n : ℕ) : n ! * (n + 3)! ^ 3 ∣ 9979200 * (4 * n)! := by
@@ -262,7 +241,7 @@ theorem padicValNat_two_a (n : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Bala's parity conjecture (A361035, Mar 01 2023), shifted form.**
+/-- **Bala's parity conjecture (A361035, 2023), shifted form.**
 `a(n) = 9979200 (4n)!/(n! (n+3)!^3)` is odd iff `n + 3 = 2^k` for some `k ≥ 2`. -/
 theorem a_odd_iff (n : ℕ) : Odd (a n) ↔ ∃ k, 2 ≤ k ∧ n + 3 = 2 ^ k := by
   have hval := padicValNat_two_a n
@@ -282,11 +261,9 @@ theorem a_odd_iff (n : ℕ) : Odd (a n) ↔ ∃ k, 2 ≤ k ∧ n + 3 = 2 ^ k := 
     have hs := (digits_two_sum_eq_one_iff (n + 3)).mpr ⟨k, hk⟩
     omega
 
-/-- **Bala's parity conjecture (A361035, Mar 01 2023), verbatim form.**
-
-"Conjecture: a(n) is odd iff n = 2^k - 3 for some k >= 2."  The natural-number
-subtraction `2 ^ k - 3` is genuine (no truncation) because `k ≥ 2` gives
-`2 ^ k ≥ 4`. -/
+/-- Bala’s parity conjecture (A361035): `a(n)` is odd iff
+`n = 2^k-3` for some `k ≥ 2`. The natural subtraction is exact
+since `k ≥ 2` gives `4 ≤ 2^k`. -/
 theorem a_odd_iff_eq_two_pow_sub_three (n : ℕ) :
     Odd (a n) ↔ ∃ k, 2 ≤ k ∧ n = 2 ^ k - 3 := by
   rw [a_odd_iff]
@@ -299,7 +276,7 @@ theorem a_odd_iff_eq_two_pow_sub_three (n : ℕ) :
       _ ≤ 2 ^ k := Nat.pow_le_pow_right (by norm_num) hk
     exact ⟨k, hk, by omega⟩
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- Both sides of the equivalence are realized: `n = 1 = 2^2 - 3` gives the odd
 -- term `17325`; `n = 0` gives the even term `46200`.

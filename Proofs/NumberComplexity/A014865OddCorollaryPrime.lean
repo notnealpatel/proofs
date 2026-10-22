@@ -1,26 +1,9 @@
 /-
 # A014865 — Dale: terms are odd, and terms > 1 are divisible by 3, 5 or 7
 
-## OEIS source (retrieved with `oeis show A014865`, 2026-10-21)
-
-```
-NAME:     Numbers k that divide s(k), where s(1)=1, s(j)=15*s(j-1)+j.
-TERMS:    1,3,5,7,15,21,35,49,55,105,147,165,245,343,385,605,723,735,903,915,
-          1029,1155,1715,1815,2401,2485,2695,3615,3685,4235,4515,5061,5145,...
-COMMENT (the conjecture):
-  Conjecture: all terms are odd, all terms greater than 7 are composite, and
-  all terms greater than 1 are divisible by 3 or 5 or 7 some combination
-  therof. - _Harvey P. Dale_, Dec 04 2020
-```
-
-## Status
-
-Triage: open (no proof or refutation in the entry or in the sibling
-"k divides s(k)" entries).  Numerically: `196 k ∣ 15^(k+1) - 14 k - 15`
-(equivalent to `k ∣ s k`) gives 119 terms up to `4 · 10^5`, all odd and all
-`> 1` sharing a factor with `105`.
-
-This module proves the conjecture in full.
+Harvey P. Dale's conjecture in OEIS A014865 (2020): positive `k` dividing
+`s(k)`, where `s(1)=1` and `s(j)=15s(j-1)+j`, are odd; those greater than one
+are divisible by `3`, `5` or `7`, hence those greater than seven are composite.
 
 ## Argument
 
@@ -184,13 +167,8 @@ theorem dvd_three_or_five_or_seven (k : ℕ) (hk : 1 < k) (hodd : Odd k) (h : k 
     linear_combination h151
   exact ((ZMod.natCast_eq_zero_iff 14 p).mp h14).trans (by norm_num)
 
-/-- **Dale's conjecture (A014865, Harvey P. Dale, Dec 04 2020), proved.**
-
-Verbatim: "Conjecture: all terms are odd, all terms greater than 7 are composite,
-and all terms greater than 1 are divisible by 3 or 5 or 7 some combination therof."
-
-For every `k ≥ 1` with `k ∣ s k` (i.e. every term of A014865): `k` is odd, and if
-`k > 1` then `3 ∣ k`, `5 ∣ k` or `7 ∣ k`. -/
+/-- Dale's conjecture (OEIS A014865, 2020): every positive `k` with `k ∣ s k`
+is odd, and if `1 < k` then `3 ∣ k`, `5 ∣ k` or `7 ∣ k`. -/
 theorem a014865_odd_and_dvd_three_five_seven (k : ℕ) (hk : 0 < k) (h : k ∣ s k) :
     Odd k ∧ (1 < k → 3 ∣ k ∨ 5 ∣ k ∨ 7 ∣ k) :=
   ⟨odd_of_dvd_s k hk h, fun hk1 => dvd_three_or_five_or_seven k hk1 (odd_of_dvd_s k hk h) h⟩

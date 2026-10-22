@@ -1,49 +1,25 @@
 /-
-# Self-dual quadratical quasigroups of every odd square order (a5-27)
+# Self-dual quadratical quasigroups of odd square order
 
-## Source
+W. A. Dudek and R. A. R. Monzo, *Translatable quadratical quasigroups*,
+arXiv:1708.08830, Section 2 and the final section, Problem 3: are there
+self-dual quadratical groupoids of order greater than nine?
 
-arXiv:1708.08830, W. A. Dudek and R. A. R. Monzo, "Translatable quadratical
-quasigroups".  Section 2 (Preliminaries) recalls Volenec's definition: a
-*quadratical groupoid* is a right solvable groupoid satisfying
+For each odd `r`, this file constructs a family on `ZMod r × ZMod r`:
+`x · y = φ x + ψ y`, where `J(u,v) = (-v,u)`, `φ = (1+J)/2`, and
+`ψ = (1-J)/2`. The operation is a quasigroup satisfying Volenec's identity
+`xy · x = zx · yz`. Conjugation `(u,v) ↦ (u,-v)` is an isomorphism to its
+dual. The order is `r²`, so `r = 5` gives an example of order 25 and the
+family has arbitrarily large finite orders. No translatability assertion
+is made here.
 
-  `xy · x = zx · yz`   (A)
-
-and Volenec proved such groupoids are quasigroups.  Theorem 2.3 of the paper
-(Dudek's representation) says quadratical quasigroups are exactly the groupoids
-`xy = φ(x) + ψ(y)` on an abelian group with unique halving, where `φ, ψ` are
-automorphisms with `φ + ψ = id` and `2φψ = id`.  Section 4 shows that the
-unique quadratical quasigroup `Q2` of order 9 is self-dual.  The final section
-("Open questions and problems") asks, verbatim:
-
-  **Problem 3.** *Are there self-dual, quadratical groupoids of order greater
-  than 9?*  Such quasigroups cannot be induced by `ℤ_m`.
-
-## Claim formalized here (recorded 2026-10-21)
-
-The answer is yes, with an explicit infinite family.  For every odd `r`, put
-`x · y = φ x + ψ y` on `ZMod r × ZMod r`, where `J (u, v) = (-v, u)`,
-`φ = (1 + J)/2` and `ψ = (1 - J)/2` (the `ℤ[i]/(r)` model).  This is a
-quadratical quasigroup of order `r²`, and conjugation `(u, v) ↦ (u, -v)` is an
-isomorphism onto its dual `x * y = y · x`.  Taking `r = 5` gives order 25.
-
-## Status
-
-The problem is posed as open in the paper (and in its antecedent
-arXiv:1603.08502).  The construction above is a direct verification and is
-not stated in the paper; it uses only the explicit model, not the
-representation theorem.
-
-## Fidelity notes
-
-* We formalize the *stronger* notion "quasigroup satisfying (A)": both left and
-  right multiplications are bijective (`∃!` solutions of `a·x = b` and
-  `y·a = b`).  This implies right solvability under either reading of
-  Volenec's convention, so the family is quadratical in the paper's sense.
-* "Self-dual" means isomorphic to the dual groupoid `(G, *)`, `a * b = b · a`:
-  a bijection `e` with `e (x · y) = e y · e x`.
-* `(2 : ZMod r)⁻¹` is `ZMod`'s totalized inverse; every statement using it
-  carries `Odd r`, which makes `2` a unit (`two_mul_inv_two`).
+Both left and right equations have unique solutions, implying the source's
+right-solvability requirement. Self-duality means a bijection `e` with
+`e (x · y) = e y · e x`. The construction is verified directly, without
+using the representation theorem. Statements requiring division by two
+assume `Odd r`, making `(2 : ZMod r)⁻¹` a genuine inverse. Identification
+of the order-nine member with the paper's `Q2` uses the source's uniqueness
+statement, not an explicit isomorphism formalized here.
 -/
 import Mathlib
 
@@ -195,7 +171,7 @@ theorem qmul_quadratical_selfDual (r : ℕ) (hr : Odd r) :
   have h2 := two_mul_inv_two r hr
   exact ⟨⟨gmul_isQuasigroup _ h2, gmul_satisfiesA _ h2⟩, gmul_isSelfDual _⟩
 
-/-! ## Ground truth on small instances -/
+/-! ## Examples -/
 
 /-- In `ZMod 3`, `2⁻¹ = 2`, so `qmul 3 = gmul 2`. -/
 theorem qmul_three : qmul 3 = gmul (2 : ZMod 3) := by

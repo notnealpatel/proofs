@@ -1,37 +1,23 @@
 /-
 # Omega-primality of `ℕ₀[2 + √3]` (Jiang–Li–Zhu conjecture, corrected form, one instance)
 
-## Source
+C. Jiang, B. Li, S. Zhu, 'On the primality and elasticity of algebraic
+valuations of cyclic free semirings', arXiv:2201.01245, §3, conjecture after
+Example 3.4; published in IJAC, DOI 10.1142/S021819672350011X (the published
+version was not checked). For positive algebraic `α`, the printed conjecture
+says that an atomic `ℕ₀[α]` has finite omega-primality iff `α ∈ ℕ`. A proposed correction
+replaces this by finite generation; only one instance is treated here.
 
-arXiv:2201.01245, C. Jiang, B. Li, S. Zhu, "On the primality and elasticity of
-algebraic valuations of cyclic free semirings" (published IJAC,
-DOI 10.1142/S021819672350011X; the published version was not checked).
-Section 3 (Primality), the unnumbered Conjecture closing the section (after
-Example 3.4), based on Cor. 3.2 and [CGG20, Thm. 5.6]. Verbatim:
+For `α=2+√3`, every power `α^n` is an atom, these are all the atoms, and
+each has infinite omega-primality. Thus `ℕ₀[α]` is atomic and anti-prime,
+with `ω(ℕ₀[α])=∞`. This irrational instance with `α > 1` is not covered by
+the paper's `α < 1` result (Theorem 3.1/Corollary 3.2) or the rational case
+of [CGG20, Theorem 5.6].
 
-> Let $\alpha$ be a positive algebraic number such that $\nn_0[\alpha]$ is
-> atomic. Then $\omega(\nn_0[\alpha]) < \infty$ if and only if $\alpha \in \nn$.
-
-Omega-primality (verbatim, start of Section 3): "the omega-primality of
-$a \in \mathcal{A}(M)$, denoted by $\omega(a)$, is the smallest
-$n \in \nn \cup \{\infty\}$ such that the following condition holds: if
-$a \mid_M \sum_{i=1}^k a_i$ for some $a_1, \dots, a_k \in \mathcal{A}(M)$, then
-there exists $S \subseteq \ldb 1, k \rdb$ with $|S| \le n$ such that
-$a \mid_M \sum_{i \in S} a_i$. ... $\omega(M) := \sup \{\omega(a) \mid a \in
-\mathcal{A}(M)\}$." Divisibility: "$b \mid_M c$ if there exists $b' \in M$ such
-that $c = b + b'$."
-
-## Target (special case, open as of 2026-10-21)
-
-The conjecture as printed is false; the triage's corrected form reads
-"`ω(ℕ₀[α]) < ∞` iff `ℕ₀[α]` is finitely generated". The paper proves
-`ω = ∞` only for `α < 1` (Thm. 3.1 / Cor. 3.2) and [CGG20] only for rational
-`α`. This module treats the instance `α = 2 + √3 > 1` (irrational, with Galois
-conjugate `β = 2 - √3 ∈ (0, 1)`), which neither source covers, and proves:
-
-* every power `α ^ n` is an atom, and these are all the atoms (`M` is atomic);
-* `ω(α ^ k) = ∞` for every `k`, so `ℕ₀[α]` is anti-prime;
-* `ω(ℕ₀[α]) = ∞` (`omegaM_eq_top`).
+Omega-primality bounds the size of a subfamily of atoms whose sum is
+divisible by a given atom whenever the whole sum is; `ω(M)` is the
+supremum over atoms. Additive divisibility means `b ∣_M c` iff
+`c=b+b'` for some `b' ∈ M`.
 
 Model: `ℕ₀[α]` is realised inside `ℤ√3` as the additive closure of the powers of
 `α = ⟨2, 1⟩`; `sigma1 : ℤ√3 →+* ℝ` is injective and maps it onto the additive
@@ -42,8 +28,6 @@ Proof mechanism: both real embeddings are nonnegative on `M`; the conjugate
 `β ∈ (0, 1)` makes every `α ^ n` an atom, and `1 + α² = 4 α` gives
 `α ^ k ∣_M 4 ^ m • α ^ (m + k)`, while `α ^ k ∣_M K • α ^ (m + k)` forces
 `1 ≤ K β ^ m`.
-
-Date: 2026-10-21. Status: fully proved here (no `sorry`).
 -/
 import Mathlib
 
@@ -315,7 +299,7 @@ theorem omegaM_eq_top : omegaM = ⊤ := by
     _ ≤ ⨆ a : {a : ℤ√3 // IsAtomM a}, omega a :=
       le_iSup (fun a : {a : ℤ√3 // IsAtomM a} => omega a) ⟨1, by simpa using isAtomM_pow 0⟩
 
-/-! ## Fidelity and ground-truth checks -/
+/-! ## Fidelity and examples -/
 
 /-- `sigma1` is injective, so `ℤ√3` (and `M`) embeds in `ℝ` with `α ↦ 2 + √3`. -/
 lemma sigma1_injective : Function.Injective sigma1 :=

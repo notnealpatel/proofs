@@ -1,34 +1,18 @@
 /-
 # Borg's t-intersecting partition conjecture fails at `(n, k, t) = (29, 8, 1)`
 
-## Source
+Yury Person and Thomas Schweser, *Intersecting integer partitions: star
+bounds and counterexamples at every scale*, arXiv:2610.01747, Theorem 1.2
+and the remark before Section 6, refute Borg's Conjecture 1.6 (2016).
+The conjecture compares `t`-intersecting families of partitions of `n`
+into `k` positive parts with the canonical star, for `1 ≤ t < k ≤ n`
+except `(n,k) = (t+7,t+2)`; common parts are counted with multiplicity.
 
-* arXiv:2610.01747, Yury Person and Thomas Schweser, "Intersecting integer
-  partitions: star bounds and counterexamples at every scale".
-* Where: Introduction (Borg's Conjecture 1.6 from [Borg 2016], quoted before
-  Theorem 1.1), Theorem 1.2 (counterexamples at every scale), and the remark
-  just before Section 6 (the `(31, 8, 1)` family of 626 members).
-* Verbatim informal claim (Introduction): "Borg [Conjecture 1.6] conjectured
-  that `T_{n,k,t}` is largest for `1 ≤ t < k ≤ n`, apart from
-  `(n,k) = (t+7, t+2)`", where two partitions `t`-intersect "if they have at
-  least `t` common parts, counted with multiplicity", `P_{n,k}` is the set of
-  partitions of `n` into exactly `k` positive parts, and
-  `T_{n,k,t} = {λ ∈ P_{n,k} : m_λ(1) ≥ t}` with `|T_{n,k,t}| = p(n-t, k-t)`.
-* Date of this formalization: 2026-10-21.
-
-## Status
-
-The conjecture is *false*; the paper disproves it (Theorem 1.2, and the
-explicit 626 > 618 family in `P_{31,8}` in the remark before Section 6).
-This module records a smaller explicit counterexample, of the same
-Hilton–Milner type as the paper's remark, at `(n, k, t) = (29, 8, 1)`:
-
-  `H = {λ ∈ P_{29,8} : 1 ∈ λ, supp λ ∩ {2,3,4} ≠ ∅} ∪ {λ ∈ P_{29,8} : {2,3,4} ⊆ supp λ}`
-
-is intersecting with `|H| = 439`, while the canonical star has
-`|T_{29,8,1}| = p(28, 7) = 436` members.  The `(29, 8, 1)` instance is not
-stated in the paper; the construction is the paper's remark transplanted to
-`n = 29`.
+This file applies the remark's Hilton–Milner construction at `(29,8,1)`,
+rather than the paper's `(31,8,1)`. The family
+`H = {λ ∈ P_{29,8} : 1 ∈ λ, supp λ ∩ {2,3,4} ≠ ∅} ∪ {λ ∈ P_{29,8} : {2,3,4} ⊆ supp λ}`
+is intersecting and has 439 members, exceeding the star's
+`p(28,7) = 436` members.
 
 ## Method
 
@@ -233,7 +217,7 @@ lemma partitionsWithParts_eq_filter (n k : ℕ) :
       Finset.univ.filter fun p : Nat.Partition n => p.parts.card = k ∧ True := by
   simp [partitionsWithParts]
 
-/-! ## Ground truth on small instances from the paper -/
+/-! ## Examples on small instances from the paper -/
 
 /-- `|P_{8,3}| = 5`: `611, 521, 431, 422, 332`. -/
 example : (partitionsWithParts 8 3).card = 5 := by

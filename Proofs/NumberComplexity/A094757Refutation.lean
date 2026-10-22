@@ -1,31 +1,10 @@
 /-
 # A094757 — Murthy: every `n` shares its ratio `n / π(n)` with some `k ≠ n`
 
-## OEIS source (retrieved with `oeis show A094757`, 2026-10-21)
+Amarnath Murthy's conjecture in OEIS A094757, refuted by David A. Corneth
+(2019). Here `π(n)` counts primes at most `n`.
 
-```
-NAME:     Least positive k <= n such that n*pi(k) = k*pi(n), where pi(n) is
-          the number of primes <= n (A000720).
-OFFSET:   1
-TERMS:    1,2,3,2,5,2,7,2,9,10,11,12,13,14,10,16,17,18,19,10,21,22,23,16,
-          25,26,27,28,29,27,31,32,27,34,35,36,37,38,39,40,41,42,43,44,...
-COMMENT (the conjecture, unsigned in the comment, by the entry's author
-         Amarnath Murthy):
-  Conjecture: For every n there exists a k different from n (possibly
-  k > n) such that n*pi(k) = k*pi(n).
-COMMENT (later, refuting):
-  From _David A. Corneth_, Nov 15 2019: (Start)
-  ...
-  _Amarnath Murthy_'s conjecture above is false. For n = 3 we have
-  pi(n)/n = 2/3. For no other k we have pi(k)/k = 2/3. Therefore the
-  conjecture is false. (End)
-```
-
-No later comment retracts Corneth's refutation.
-
-## Status
-
-**False.**  This module refutes the conjecture at `n = 3`, Corneth's
+The conjecture fails at `n = 3`, Corneth's
 witness: `3 π(k) = 2 k` with `k ≥ 1` forces `k = 3`.  For `k ≤ 9` this is a
 finite check; for `k ≥ 10`, the Mathlib sieve bound
 `Nat.primeCounting'_add_le` with modulus `6` gives
@@ -35,10 +14,6 @@ The value `k` ranges over the positive integers, as in the entry's name;
 without that guard `k = 0` satisfies `n π(0) = 0 π(n)` trivially.  The
 case `n = 1` is a second, degenerate counterexample (`π(k) = 0` forces
 `k = 1`), recorded below.
-
-Computational evidence (Python, 2026-10-21): among `1 ≤ k ≤ 10^6` the only
-`k` with `π(k) / k = 2/3` is `k = 3`, and `3 π(k) - 2 k ≤ -1` for all
-`4 ≤ k ≤ 10^6`.
 -/
 import Mathlib
 
@@ -60,7 +35,7 @@ qualifies, so it agrees with the entry's "least positive `k ≤ n`".  At the
 junk index `n = 0` the value is `1`. -/
 noncomputable def a (n : ℕ) : ℕ := Nat.find (exists_pos_mul_primeCounting_eq n)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The first twenty-four listed terms `a(1), …, a(24)`. -/
 theorem a_ground_truth : ∀ n ∈ List.range' 1 24,
@@ -77,10 +52,9 @@ theorem a_le (n : ℕ) (hn : 0 < n) : a n ≤ n :=
 
 /-! ## The conjecture -/
 
-/-- **Murthy's conjecture (A094757).**  Verbatim: "Conjecture: For every n
-there exists a k different from n (possibly k > n) such that
-n*pi(k) = k*pi(n)."  Here `n` ranges over the entry's offset `n ≥ 1` and
-`k` over the positive integers, as in the entry's name. -/
+/-- Murthy's conjecture (OEIS A094757): for every `n ≥ 1`, some positive
+`k ≠ n`, possibly `k > n`, satisfies `nπ(k)=kπ(n)`. Positivity of `k`
+excludes the trivial witness `0`. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 0 < n → ∃ k : ℕ, 0 < k ∧ k ≠ n ∧
     n * Nat.primeCounting k = k * Nat.primeCounting n
@@ -130,7 +104,7 @@ theorem eq_one_of_mul_primeCounting_eq (k : ℕ) (hk : 0 < k)
   omega
 
 /-- **The conjecture is false.**  Counterexample `n = 3` (David A. Corneth,
-Nov 15 2019): `π(3)/3 = 2/3`, and no positive `k ≠ 3` has `π(k)/k = 2/3`,
+2019): `π(3)/3 = 2/3`, and no positive `k ≠ 3` has `π(k)/k = 2/3`,
 since `3 π(k) < 2 k` for every `k ≥ 4`.  The degenerate `n = 1` also fails
 (`theorem a094757_conjecture_false_at_one`); restricting to `n ≥ 2`, which
 the author may have intended, does not rescue the claim, because `n = 3`

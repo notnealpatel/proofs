@@ -1,37 +1,16 @@
 /-
 # A287723 — Kimberling: positions of 0 in the {0->1, 1->010}-transform of the Fibonacci word
 
-## OEIS source (retrieved 2026-10-21: local `oeis show A287723`, live `oeis.org/A287723/internal`)
+OEIS A287723 (Clark Kimberling, June 2, 2017) conjectures
+`-1 < nr - a(n) < 1` for `n ≥ 1`, where `r = (7+√5)/4`.
+Here `a(n)` lists the 1-based zero positions in A287722, the
+`0 ↦ 1`, `1 ↦ 010` transform of the Fibonacci word A003849
+(the limit of `0 ↦ 01`, `1 ↦ 0` starting at 0).
 
-```
-%N A287723 Positions of 0 in A287722; complement of A287724.
-%C A287723 Conjecture: -1 < n*r - a(n) < 1 for n >= 1, where r = (7 + sqrt(5))/4.
-%O A287723 1,1
-%A A287723 Clark Kimberling, Jun 02 2017
-TERMS: 2,4,7,9,11,13,16,18,21,23,25,27,30,32,34,36,39,41,44,46,48,50,53,55,58,...
-```
+The `1 ↦ 011` rule in the program copied into A287723 differs from
+A287722's `1 ↦ 010` rule; this file uses the latter, matching the listed terms.
 
-The conjecture line carries no separate signature; it is Clark Kimberling's
-(entry author, Jun 02 2017).
-
-* A287722 (NAME): "{0->1, 1->010}-transform of the infinite Fibonacci word
-  A003849"; its Mathematica program uses `"1" -> "010"`.  (The program
-  copied into A287723 reads `"1" -> "011"`, a typo: the listed terms of A287723
-  are the 0-positions of the `010` transform, and of no `011` transform.)
-* A003849 (NAME): "The infinite Fibonacci word (start with 0, apply 0->01,
-  1->0, take limit)", offset 0.
-
-## Status
-
-Triage: open (no proof in the entry; none located in the literature).  Sibling
-Kimberling transforms (e.g. A287725) were settled by Dekking via the
-Allouche–Dekking generalized-Beatty method; no proof of A287723 itself was
-found.  Numerically re-checked for `n ≤ 2692538` (2026-10-21): `n*r - a(n)`
-lies in `(-0.30902, 0.9999995)`.
-
-## Result in this file
-
-`a287723_conjecture` is **proved** (no `sorry`).  Route:
+The proof proceeds as follows:
 
 1. `fibWord` is the limit of `fibIter k` (iterates of `0 ↦ 01, 1 ↦ 0` on `[0]`).
 2. Self-similarity `σ(F) = F` gives, for `L(m) = |σ(F[0,m))|`,
@@ -78,7 +57,7 @@ def transWord (i : ℕ) : ℕ := ((fibIter i).flatMap transMorph).getD i 0
 The value at `n = 0` is junk; every statement below assumes `1 ≤ n`. -/
 noncomputable def a287723 (n : ℕ) : ℕ := Nat.nth (fun i => transWord i = 0) (n - 1) + 1
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : (List.range 14).map fibWord = [0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0] := by decide
 
@@ -583,15 +562,12 @@ lemma position_bounds {p : ℕ} (hp : fibWord p = 1) :
   constructor
   · linarith
   · linarith
-/-- **Kimberling's conjecture for A287723 (Clark Kimberling, Jun 02 2017).**
-
-Verbatim: "Conjecture: -1 < n*r - a(n) < 1 for n >= 1, where r = (7 + sqrt(5))/4."
-
-Here `a(n) = a287723 n` is the 1-indexed position of the `n`-th `0` in A287722,
-the `{0 ↦ 1, 1 ↦ 010}`-image of the Fibonacci word A003849.  The guard `1 ≤ n`
-is the source's offset (`a(0)` is junk).  Proved: the `j`-th `1` of A003849 sits
-at 1-indexed position `⌊jφ²⌋`, giving `a(2j-1) = ⌊jφ²⌋ + 2j - 2` and
-`a(2j) = ⌊jφ²⌋ + 2j`. -/
+/-- Kimberling's conjecture (OEIS A287723, June 2, 2017):
+`-1 < nr - a(n) < 1` for `1 ≤ n`, where `r = (7+√5)/4` and
+`a(n)` is the 1-indexed position of the `n`-th zero in the
+`0 ↦ 1`, `1 ↦ 010` transform of the Fibonacci word A003849.
+The guard is the source's offset; `a(0)` is unused. The proof uses
+`a(2j-1) = ⌊jφ²⌋ + 2j - 2` and `a(2j) = ⌊jφ²⌋ + 2j`. -/
 theorem a287723_conjecture (n : ℕ) (hn : 1 ≤ n) :
     -1 < (n : ℝ) * ((7 + √5) / 4) - a287723 n ∧ (n : ℝ) * ((7 + √5) / 4) - a287723 n < 1 := by
   obtain ⟨p, hp, hq⟩ := exists_fibWord_one ((n - 1) / 2)
@@ -646,7 +622,7 @@ theorem fibWord_eq_floor_sub (n : ℕ) :
   rw [show (n : ℝ) + 1 + 1 = n + 2 by ring] at h
   omega
 
-/-- Non-vacuity: the hypothesis `1 ≤ n` is met, e.g. at `n = 1`, where
+/-- The hypothesis `1 ≤ n` is met, e.g. at `n = 1`, where
 `a(1) = 2` and `r - 2 ≈ -0.309`. -/
 example : -1 < (1 : ℝ) * ((7 + √5) / 4) - a287723 1 ∧ (1 : ℝ) * ((7 + √5) / 4) - a287723 1 < 1 := by
   have h := a287723_conjecture 1 le_rfl

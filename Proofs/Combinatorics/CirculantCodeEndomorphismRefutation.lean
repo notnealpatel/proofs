@@ -1,34 +1,18 @@
 /-
-# Gupta–K N: circulant-code endomorphism count for `p ∣ n` is false
-
-## Source
+# Gupta–K N: a circulant-code endomorphism counterexample
 
 Neha Gupta and Suhith K N, *Neural codes and neural ring endomorphisms*,
-arXiv:2106.06565 (v3), Section 5 ("Circulant codes"), Conjecture `conj2`
-(the last statement of the paper). Verbatim:
+arXiv:2106.06565v3, Section 5, Conjecture `conj2`, predicts
+`|NRE(C)| = (p²+p+3)n + p²(n/p)!` when `3 < p < n-1` and `p ∣ n`.
 
-> Let $\mathcal C$ be a circulant code with support $p$. If $3<p<n-1$ and
-> $p \mid n$ then $|\mathrm{NRE}(\mathcal C)| = (p^2+p+3)n + p^2 (n/p)!$.
+For `n = 8`, `p = 4`, the certificate below gives 728 distinct pullback
+neural ring endomorphisms, exceeding the predicted 216. Only this lower
+bound, not exact enumeration of all endomorphisms, is needed.
+The neural ring is the function ring `F₂[C]`; its distinguished functions
+`x_i(c)` indicate whether neuron `i` fires. A neural ring endomorphism
+sends each `x_i` into `{x_j} ∪ {0,1}`.
 
-Here a circulant code with support `p` on `n` neurons is the code
-`{c_1, …, c_n}` whose correspondent matrix is circulant with
-`c_p = 1⋯10⋯0` (`p` ones), the neural ring is
-`F_2[C] = F_2[y_1,…,y_n]/I_C ≅ F_2^C` (basis the characteristic functions
-`ρ_c`), `x_i = ∑_{c_i = 1} ρ_c`, and `NRE(C)` is the set of ring
-endomorphisms `φ` of `F_2[C]` with `φ(x_i) ∈ {x_j} ∪ {0, 1}` for all `i`.
-
-The paper proves the cases `p ∈ {1, 2, 3, n-1}` (Theorems `propcirnrh`,
-`thnp2`, `thnpk2`, `thnp3k`) and leaves Conjecture `conj2` open.
-
-## Status (2026-10-21)
-
-The conjecture is **false**. At `n = 8`, `p = 4` it predicts
-`23 * 8 + 16 * 2! = 216`, while a computer enumeration finds 728
-neural ring endomorphisms. This file proves `728 ≤ |NRE(C)|` by exhibiting
-728 distinct pullback endomorphisms `g ↦ g ∘ σ`, each checked by kernel
-reduction, and derives the negation of the conjecture.
-
-## Modelling
+## Model
 
 * Codewords are indexed by `Fin n` (0-indexed: paper's `c_{k+1}` is
   `codeword n p k`). Codeword `k` contains neuron `j` iff `(k - j) mod n < p`,
@@ -89,7 +73,7 @@ def decode8 (m : ℕ) : Fin 8 → Fin 8 :=
 /-- Base-8 encoding `∑ i, σ i * 8 ^ i` of a map `σ : Fin 8 → Fin 8`. -/
 def encode8 (σ : Fin 8 → Fin 8) : ℕ := ∑ i : Fin 8, (σ i : ℕ) * 8 ^ (i : ℕ)
 
-/-! ## Ground truth against the paper -/
+/-! ## Examples from the paper -/
 
 /-- Paper, Section 5 examples: `n = 4`, `p = 2` gives the code
 `{1001, 1100, 0110, 0011}`. -/

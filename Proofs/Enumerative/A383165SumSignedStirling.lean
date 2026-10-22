@@ -1,44 +1,13 @@
 /-
-# A383165 — Bala: the e.g.f. `log(1 + (exp(2x) - 1)/2)^2 / 2` is eventually periodic mod every `k`
+# A383165: eventual periodicity of a signed Stirling sum
 
-## OEIS source (retrieved with `oeis show A383165`, 2026-10-21)
-
-```
-NAME:     Expansion of e.g.f. log(1 + (exp(2*x) - 1)/2)^2 / 2.
-TERMS:    0,0,1,3,3,-10,-30,112,588,-2448,-18960,87296,911328,-4599296,
-          -61152000,335523840,5464904448,...
-FORMULA:  a(n) = Sum_{k = 2..n} 2^(n-k) * Stirling2(n,k) * Stirling1(k,2).
-COMMENT (the conjecture, inside the block "From _Peter Bala_, Feb 17 2026"):
-  Conjecture: the sequence {a(n)} reduced modulo a positive integer k is
-  eventually periodic. For example, modulo 5 the sequence becomes [0, 0, 1,
-  3, 3, 0, 0, 2, 3, 2, 0, 1, 3, 4, 0, 0, 3, 1, 0, 4, 3, 3, 0, 3, 3, 0, 0, 2,
-  3, 2, 0, 1, 3, 4, 0, 0, 3, 1, 0, 4, 3, 3, 0, ...], with an apparent period
-  of 20 starting at n = 3. - _Peter Bala_, Feb 17 2026
-```
-
-`Stirling1` is the signed Stirling number of the first kind (the PARI program
-uses `stirling(k, 2, 1)`).
-
-## Status
-
-Triage: open (no proof in the entry; no literature search beyond the entry).
-This file proves the conjecture in full for the entry's `%F` formula.
-
-## Proof
-
-1. `m ∣ |s(j,k)|` for all large `j` (induction on `k` through the recurrence
-   `|s(j+1,k+1)| = j |s(j,k+1)| + |s(j,k)|`, restarting at a multiple of `m`).
-2. `u_j(n) = 2^(n-j) S2(n,j)` satisfies `u_{j+1}(n+1) = 2(j+1) u_{j+1}(n) + u_j(n)`
-   and `u_0(n+1) = 0` for all `n`, so `(u_j(n) mod m)_{j<J}` is the orbit of a
-   fixed map on the finite set `Fin J → ZMod m`, hence eventually periodic.
-3. For `n ≥ J` the sum defining `a(n)` reduces mod `m` to a fixed linear
-   function of that state.
-
-## Fidelity residual
-
-The sequence is defined by the entry's `%F` formula, not by the e.g.f.; the
-identification of the two (exponential composition of power series) is not
-formalized here.
+OEIS A383165, Peter Bala (Feb 17 2026).
+For every positive modulus, the finite sum
+`Σ_{k=2}^n 2^(n-k) S₂(n,k) s(k,2)` is eventually periodic, with a positive
+period; `s` denotes the signed Stirling number of the first kind.
+Large first-kind Stirling factors vanish modulo the modulus, leaving a
+finite-state recurrence. The identification of the sum with the source's
+e.g.f. `log(1+(exp(2x)-1)/2)^2/2` is not formalized.
 -/
 import Mathlib
 
@@ -46,7 +15,7 @@ set_option autoImplicit false
 
 namespace Candidates.A383165SumSignedStirling
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- Signed Stirling number of the first kind `s(j,k) = (-1)^(j-k) |s(j,k)|`.
 Mathlib's `Nat.stirlingFirst` is the unsigned one. The sign is written as
@@ -60,7 +29,7 @@ The natural subtraction `n - k` is guarded by `k ∈ Icc 2 n`. -/
 def a (n : ℕ) : ℤ :=
   ∑ k ∈ Finset.Icc 2 n, 2 ^ (n - k) * (Nat.stirlingSecond n k : ℤ) * signedStirlingFirst k 2
 
-/-! ## Ground truth against the DATA line -/
+/-! ## Examples against the DATA line -/
 
 example : signedStirlingFirst 3 2 = -3 := by decide
 example : signedStirlingFirst 4 2 = 11 := by decide
@@ -151,16 +120,10 @@ theorem a_eq_sum_range (n : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjecture (A383165, Peter Bala, Feb 17 2026), proved.**
-
-Verbatim: "Conjecture: the sequence {a(n)} reduced modulo a positive integer k
-is eventually periodic."
-
-Here `a(n) = Sum_{k=2..n} 2^(n-k) Stirling2(n,k) Stirling1(k,2)` (the entry's
-formula for the coefficients of `log(1 + (exp(2x)-1)/2)^2/2`), and the modulus is
-`m ≥ 1`: there are `N` and a period `T ≥ 1` with `a(n+T) ≡ a(n) (mod m)` for all
-`n ≥ N`. The guard `0 < m` is load-bearing: modulo `0` the claim would assert
-eventual periodicity over `ℤ`. -/
+/-- Bala's A383165 conjecture for the finite signed-Stirling formula:
+for every positive modulus `m`, there are a threshold and a positive
+period `T` with `a(n+T) ≡ a(n) (mod m)` thereafter.
+The positive-modulus guard excludes eventual equality over `ℤ`. -/
 theorem a_eventually_periodic_mod (m : ℕ) (hm : 0 < m) :
     ∃ N T, 0 < T ∧ ∀ n, N ≤ n → a (n + T) ≡ a n [ZMOD m] := by
   haveI : NeZero m := ⟨by omega⟩

@@ -1,42 +1,13 @@
 /-
-# A068689 — Hilliard: the sandwiches `9 d…d 9` are composite unless `d ∈ {1, 2, 8}`
+# Prime decimal sandwiches (A068689)
 
-## OEIS source (retrieved with `oeis show A068689`, 2026-10-21)
-
-```
-NAME:     Primes which are a sandwich of numbers made of only one decimal digit
-          between two 9's.
-TERMS:    919,929,9222229,9888889,9222222222229,
-          9888888888888888888888888888888888888888888888888888888888888888888888889
-KEYWORDS: nonn,base
-COMMENT (the conjecture):
-  Conjecture: Inner digits 1, 2 and 8 are the only repeating digits for which
-  the resulting numbers can be prime for outer digits 9. I.e., 9444..4449,
-  9555..5559, 9777..7779 are composite. The cases for inner digits 0, 3, 6 and
-  9 give composite numbers. - _Cino Hilliard_, Jul 11 2005
-COMMENT:
-  a(13) has 1141 digits. - _Michael S. Branicky_, Jan 28 2023
-```
-
-## Status
-
-Triage: open (no proof in the entry; none located in the literature).  The
-covering argument below settles it: writing `N(d, k)` for the decimal number
-`9 dᵏ 9`, one has `N(d, k + 6) = N(d, k) + 111111 · (d + 81) · 10^(k+1)`, and
-`111111 = 3 · 7 · 11 · 13 · 37`, so `N(d, k) mod 3003` depends only on `k mod 6`.
-For every `d ∈ {0, 3, 4, 5, 6, 7, 9}` and `r < 6` one of `3, 7, 11, 13` divides
-`N(d, r)`, and `N(d, k) ≥ 99`.  Covering sets of this kind may appear on
-near-repdigit factorization tables (e.g. Kamada's); that is unconfirmed, so no
-novelty claim is made.
-
-## Definition layer
-
-The entry's number "a 9, then `k` copies of the digit `d`, then a 9" is
-`Nat.ofDigits 10 (9 :: (List.replicate k d ++ [9]))`.  `Nat.ofDigits` lists
-digits least significant first; the digit list is a palindrome, so the reading
-direction does not matter.  The entry's PARI and Python programs use `k ≥ 1`;
-the compositeness theorem below holds for every `k` (at `k = 0` the number is
-`99`), and the characterization theorem uses the entry's `0 < k`.
+Source: Cino Hilliard's OEIS A068689 comment (Jul 11 2005).
+For a decimal digit `d`, some number `9 d^k 9` with `k > 0` is prime iff
+`d ∈ {1,2,8}`, witnessed by 919, 929 and 9888889.
+For every other digit and every `k ≥ 0`, one of 3, 7, 11, 13 divides the
+sandwich. Its residue modulo 3003 depends only on `k mod 6`.
+The palindrome digit list makes the little-endian `Nat.ofDigits` convention
+immaterial; at `k = 0` the sandwich is 99.
 -/
 import Mathlib
 
@@ -51,7 +22,7 @@ def repdigit (d k : ℕ) : ℕ := Nat.ofDigits 10 (List.replicate k d)
 then a 9 (A068689). -/
 def sandwich (d k : ℕ) : ℕ := Nat.ofDigits 10 (9 :: (List.replicate k d ++ [9]))
 
-/-! ### Ground truth against the listed terms of A068689 -/
+/-! ### Listed terms of A068689 -/
 
 example : repdigit 7 3 = 777 := by decide
 example : sandwich 1 1 = 919 := by decide
@@ -131,15 +102,8 @@ theorem exists_small_dvd_sandwich {d : ℕ} (hd : d ∈ ({0, 3, 4, 5, 6, 7, 9} :
 
 /-! ## The conjecture -/
 
-/-- **Hilliard's conjecture (A068689, Cino Hilliard, Jul 11 2005), composite half.**
-
-Verbatim: "Conjecture: Inner digits 1, 2 and 8 are the only repeating digits for
-which the resulting numbers can be prime for outer digits 9. I.e., 9444..4449,
-9555..5559, 9777..7779 are composite. The cases for inner digits 0, 3, 6 and 9
-give composite numbers."
-
-For every inner digit `d ∈ {0, 3, 4, 5, 6, 7, 9}` and every number `k` of inner
-digits, the decimal number `9 dᵏ 9` is not prime (a covering by `{3, 7, 11, 13}`). -/
+/-- Hilliard's composite cases: for `d ∈ {0,3,4,5,6,7,9}` and every `k`,
+the sandwich `9 d^k 9` is composite, by a covering with 3, 7, 11 and 13. -/
 theorem sandwich_not_prime {d : ℕ} (hd : d ∈ ({0, 3, 4, 5, 6, 7, 9} : Finset ℕ)) (k : ℕ) :
     ¬ (sandwich d k).Prime := by
   obtain ⟨p, hp3, hp13, hdvd⟩ := exists_small_dvd_sandwich hd k

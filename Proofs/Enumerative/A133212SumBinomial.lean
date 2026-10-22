@@ -1,34 +1,11 @@
 /-
-# A133212 — Mathar: a(n) = 2*A038503(n+3) for n ≥ 1
+A133212 and every fourth Pascal entry (R. J. Mathar, Oct 23 2007).
 
-## OEIS source (retrieved with `oeis show A133212` and `oeis show A038503`, 2026-10-21)
-
-```
-A133212
-NAME:     a(n) = 4*a(n-1) - 6*a(n-2) + 4*a(n-3), n > 3; a(0) = 1, a(1) = 4,
-          a(2) = 12, a(3) = 32.
-TERMS:    1,4,12,32,72,144,272,512,992,1984,4032,8192,16512,33024,65792,
-          131072,261632,523264,1047552,2097152,...
-COMMENT:  Conjecture: a(n) = 2*A038503(n+3) if n > 0. - _R. J. Mathar_, Oct 23 2007
-
-A038503
-NAME:     Sum of every 4th entry of row n in Pascal's triangle, starting at
-          "n choose 0".
-TERMS:    1,1,1,1,2,6,16,36,72,136,256,496,992,2016,4096,8256,16512,...
-```
-
-## Status
-
-Triage: open (no proof in the entry; the entry only records the conjecture).
-The identity is a routine roots-of-unity-filter / linear-recurrence fact.
-The guard `n > 0` is load-bearing: `a(0) = 1` but `2*A038503(3) = 2`.
-
-## Proof outline
-
-* Roots-of-unity filter over `ℂ`: for `m ≥ 1`,
-  `4 * A038503(m) = 2^m + (1+i)^m + (1-i)^m`.
-* `2 * a(n) = 2^(n+3) + (1+i)^(n+3) + (1-i)^(n+3)` for `n ≥ 1`, by strong
-  induction, since `2`, `1+i`, `1-i` are the roots of `x^3 - 4x^2 + 6x - 4`.
+The integer recurrence sequence A133212 satisfies a(n)=2*A038503(n+3)
+for n≥1, where A038503(m)=∑_k C(m,4k). A roots-of-unity filter and the
+characteristic recurrence prove the identity. No other combinatorial
+interpretations of A038503 are used.
+The guard is necessary: a(0)=1 but 2*A038503(3)=2.
 -/
 import Mathlib
 
@@ -166,13 +143,8 @@ lemma two_mul_a (n : ℕ) (hn : 1 ≤ n) : 2 * (a n : ℂ) = closedForm n := by
 
 /-! ## The conjecture -/
 
-/-- **Mathar's conjecture (A133212, R. J. Mathar, Oct 23 2007).**
-
-Verbatim: "Conjecture: a(n) = 2*A038503(n+3) if n > 0."
-
-Here `a` is A133212 (defined over `ℤ` by its recurrence) and
-`A038503(m) = ∑_k binomial(m, 4k)`.  The guard `1 ≤ n` is from the source and
-is load-bearing: `a 0 = 1` while `2 * A038503 3 = 2`. -/
+/-- For `n≥1`, A133212(n)=2*A038503(n+3). The guard is necessary:
+`a 0=1` whereas `2*A038503 3=2`. -/
 theorem a_eq_two_mul_A038503 (n : ℕ) (hn : 1 ≤ n) : a n = 2 * (A038503 (n + 3) : ℤ) := by
   have hC : (2 : ℂ) * (a n : ℂ) = 4 * (A038503 (n + 3) : ℂ) := by
     rw [two_mul_a n hn, four_mul_A038503, closedForm, zero_pow (by omega), add_zero]

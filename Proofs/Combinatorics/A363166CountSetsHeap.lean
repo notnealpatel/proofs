@@ -1,33 +1,12 @@
 /-
-# A363166 — Bouton numbers: closed form via A063915
+# A363166 — Bouton numbers and A063915
 
-## OEIS source (retrieved with `oeis show A363166`, 2026-10-21)
+Alan Michael Gómez Calderón (OEIS A363166, Sep 18 2025) conjectured
+`a(n) = A000217(n) - A063915(n-1)` for `n ≥ 1`. Bouton numbers count
+unordered P-positions of three-heap Nim with nonzero heaps at most `n`.
+A063915 is defined below by Kevin Ryde's closed form (Nov 27 2020).
 
-```
-NAME:     Bouton numbers: a(n) is the number of P positions in games of Nim
-          with three nonzero heaps each containing at most n sticks.
-TERMS:    0,0,1,1,2,4,7,7,8,10,13,17,22,28,35,35,36,38,41,45,50,56,63,71,80,
-          90,101,113,126,140,155,155,156,158,161,165,170,176,183,191,200,...
-          (offset 1: a(1) = a(2) = 0, a(3) = 1 from {1,2,3})
-COMMENT:  These positions have Nim sum zero. ...  Bouton excluded positions
-          where any heap has been reduced to zero sticks.
-FORMULA (the conjecture):
-  Conjecture: a(n) = A000217(n) - A063915(n-1). - _Alan Michael Gómez
-  Calderón_, Sep 18 2025
-```
-
-A063915 (`oeis show A063915`, same date): "Expansion of g.f.
-(1 + Sum_{ i >= 0 } 2^i*x^(2^(i+1)-1)) / (1-x)^2", terms `1,3,5,9,13,...`
-(offset 0), with the formula "a(n) = (n+2)*2^k - (2*4^k + 1)/3 where
-k = floor(log_2(n+2)) = A000523(n+2). - _Kevin Ryde_, Nov 27 2020" and the
-comment "First differences are in A053644" (A053644 = most significant bit).
-
-## Status
-
-Triage: open (no proof in the entry or in the literature found by the triage).
-This module proves it.
-
-## Proof
+## Proof outline
 
 P-positions are unordered triples `{x < y < z}` of distinct positive heap sizes
 with `x ^^^ y ^^^ z = 0` (zero Nim sum forces distinctness once heaps are
@@ -44,7 +23,7 @@ set_option autoImplicit false
 
 namespace Candidates.A363166CountSetsHeap
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A363166 (Bouton numbers): the number of P-positions of three-heap Nim with
 nonzero heaps of size at most `n`, counted as sets `{x < y < z} ⊆ [1, n]` with
@@ -62,13 +41,13 @@ partial sums of A053644, so no junk value enters. -/
 def a063915 (m : ℕ) : ℕ :=
   (m + 2) * 2 ^ Nat.log 2 (m + 2) - (2 * 4 ^ Nat.log 2 (m + 2) + 1) / 3
 
--- Ground truth: the first 16 listed terms of A363166 (offset 1), covering the
+-- The first 16 listed terms of A363166 (offset 1), covering the
 -- plateaus at `n = 7, 8` and `n = 15, 16`.
 example : (List.range 16).map (fun i => bouton (i + 1)) =
     [0, 0, 1, 1, 2, 4, 7, 7, 8, 10, 13, 17, 22, 28, 35, 35] := by
   decide +kernel
 
--- Ground truth: the 55 listed terms of A063915 (offset 0).
+-- The 55 listed terms of A063915 (offset 0).
 example : (List.range 55).map a063915 =
     [1, 3, 5, 9, 13, 17, 21, 29, 37, 45, 53, 61, 69, 77, 85, 101, 117, 133, 149,
       165, 181, 197, 213, 229, 245, 261, 277, 293, 309, 325, 341, 373, 405, 437,
@@ -262,9 +241,7 @@ theorem sum_Icc_id_mul_two (n : ℕ) : (∑ z ∈ Finset.Icc 1 n, z) * 2 = n * (
 
 /-! ## The conjecture -/
 
-/-- **Gómez Calderón's conjecture for A363166 (Sep 18 2025), proved.**
-
-Verbatim: "Conjecture: a(n) = A000217(n) - A063915(n-1)."
+/-- **Gómez Calderón's conjecture for A363166 (Sep 18 2025).**
 
 For every `n ≥ 1`, the number of P-positions `{x < y < z}` of three-heap Nim
 with nonzero heaps at most `n` equals `n(n+1)/2 - A063915(n-1)`, with A063915
@@ -290,7 +267,7 @@ theorem bouton_eq_triangular_sub_a063915 (n : ℕ) (hn : 1 ≤ n) :
   intro z hz
   rw [Nat.cast_sub (hmsb z hz)]
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- Satisfiability / non-vacuity: the hypothesis holds at `n = 3`, where the
 -- unique P-position is `{1, 2, 3}`.

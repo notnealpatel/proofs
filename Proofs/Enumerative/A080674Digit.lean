@@ -1,31 +1,10 @@
 /-
-# A080674 — Wajnberg: a(n) counts integers below 10^n with no digit in {0,...,5}
+# Decimal digit counts (A080674)
 
-## OEIS source (retrieved with `oeis show A080674`, 2026-10-21)
-
-```
-NAME:     a(n) = (4/3)*(4^n - 1).
-TERMS:    0,4,20,84,340,1364,5460,21844,87380,349524,1398100,...
-COMMENT (the conjecture):
-  Conjectured to be the number of integers from 0 to (10^n)-1 that lack 0, 1,
-  2, 3, 4 and 5 as a digit. - _Alexandre Wajnberg_, Apr 25 2005
-FORMULA:
-  a(n) = Sum_{i = 1..n} 4^i.
-  a(n) = 4*a(n-1) + 4. - _Alexandre Wajnberg_, Apr 25 2005
-```
-
-## Status
-
-Triage status: open (no proof recorded in the entry).  The argument is
-elementary: an admissible number with exactly `i` decimal digits has every
-digit in `{6,7,8,9}`, giving `4^i` of them for `1 ≤ i ≤ n`; the integer `0`
-is excluded because its decimal numeral is `0`.
-
-## Convention
-
-`Nat.digits 10 0 = []`, whereas the decimal numeral of `0` is the single
-digit `0`.  The definition `decimalDigits` below restores the numeral `0` for
-the integer `0`, so that `0` is (correctly) not counted.
+Source: Alexandre Wajnberg's OEIS A080674 comment (Apr 25 2005).
+The count of integers below `10^n` whose decimal digits all lie in `{6,7,8,9}`
+is `(4/3)(4^n-1)` for every `n`. Zero is represented by `[0]` and excluded,
+rather than admitted through Mathlib's empty digit list for zero.
 -/
 import Mathlib
 
@@ -153,11 +132,8 @@ theorem three_mul_count_add_four (n : ℕ) : 3 * count n + 4 = 4 ^ (n + 1) := by
     rw [count_succ, pow_succ]
     omega
 
-/-- **Wajnberg's conjecture (A080674, Alexandre Wajnberg, Apr 25 2005).**
-Verbatim: "Conjectured to be the number of integers from 0 to (10^n)-1 that
-lack 0, 1, 2, 3, 4 and 5 as a digit."  That is, for every `n`, the number of
-integers in `[0, 10^n - 1]` with no decimal digit in `{0,...,5}` equals
-`a(n) = (4/3)(4^n - 1)`. -/
+/-- Wajnberg's formula: the count below `10^n` with all decimal digits
+in `{6,7,8,9}` equals `(4/3)(4^n-1)`. -/
 theorem count_eq_a (n : ℕ) : (count n : ℚ) = a n := by
   have h := three_mul_count_add_four n
   have hq : (3 * count n + 4 : ℚ) = 4 ^ (n + 1) := by exact_mod_cast h

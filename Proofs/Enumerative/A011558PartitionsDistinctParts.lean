@@ -1,42 +1,12 @@
 /-
-# A011558 — Mathar: distinct-part partitions into terms of A084215
+Distinct-part partitions into A084215 (OEIS A011558; R. J. Mathar, Mar 01 2023).
 
-## OEIS source (retrieved with `oeis show A011558`, 2026-10-21)
-
-```
-NAME:     Expansion of (x + x^3)/(1 + x + ... + x^4) mod 2.
-TERMS:    0,1,1,1,1,0,1,1,1,1,0,1,1,1,1,0,1,1,1,1,0,1,1,1,1,0,...
-COMMENT:  Characteristic function of numbers coprime to 5.
-          - _Reinhard Zumkeller_, Nov 30 2009
-FORMULA:  O.g.f.: x*(1+x+x^2+x^3)/(1-x^5). - _Wolfdieter Lang_, Feb 05 2009
-FORMULA:  a(n) = sgn(n mod 5). - _Wesley Ivan Hurt_, Jun 30 2013
-COMMENT (the conjecture):
-  Conjecture: a(n+1) is the number of ways of partitioning n into distinct
-  parts of A084215. - _R. J. Mathar_, Mar 01 2023
-```
-
-A084215 (`oeis show A084215`): "Expansion of g.f.: (1+x^2)/(1-2*x)",
-terms `1, 2, 5, 10, 20, 40, 80, 160, …`; formula
-"a(n) = 2*a(n-1) for n >= 3, a(0) = 1, a(1) = 2, a(2) = 5"
-(Philippe Deléham, Mar 13 2013).
-
-## Status
-
-Triage: open (no proof in the entry or in the literature as far as the
-triage could tell).  Computation: the claim holds for every `n ≤ 20000`
-(subset-sum DP over the 14 terms of A084215 below 20000, 2026-10-21).
-This module proves the conjecture in full (`mathar_conjecture`).
-
-## Proof
-
-Index a distinct-part partition by the finite set `S` of indices `k` with
-`A084215(k)` a part (A084215 is strictly increasing, so this is a bijection,
-`toPartition_bijective`).  Writing `x = ∑_{k ∈ S} 2^k`, the parts sum to
-`x % 4 + 5 * (x / 4)` (`indexSum_eq`): the indices `0, 1` contribute the two
-low bits of `x` unchanged and every index `k ≥ 2` contributes
-`5 * 2^(k-2)`.  Since `S ↦ x` is a bijection `Finset ℕ ≃ ℕ`
-(`Finset.equivBitIndices`), the count equals the number of `x` with
-`x % 4 + 5 * (x / 4) = n`, which is `0` when `n % 5 = 4` and `1` otherwise.
+A011558 is defined by its period-5 characteristic formula (Wesley Ivan Hurt,
+Jun 30 2013). A084215 is defined by a(0)=1, a(1)=2, a(2)=5 and doubling
+thereafter (Philippe Deléham, Mar 13 2013).
+For every n, the number of partitions of n into distinct A084215 parts is
+A011558(n+1). Finite index sets give a bijection with these partitions;
+their sums are x % 4 + 5*(x/4), where x encodes the index set in binary.
 -/
 import Mathlib
 
@@ -51,7 +21,7 @@ expansion of the O.g.f. `x*(1+x+x^2+x^3)/(1-x^5)`, Lang): the period-5
 sequence `0, 1, 1, 1, 1, …`. -/
 def a011558 (n : ℕ) : ℕ := if n % 5 = 0 then 0 else 1
 
-/-- Ground truth: the first 30 listed terms of A011558. -/
+/-- The first 30 listed terms of A011558. -/
 example : (List.range 30).map a011558 =
     [0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1,
       0, 1, 1, 1, 1] := by
@@ -64,7 +34,7 @@ def a084215 : ℕ → ℕ
   | 1 => 2
   | k + 2 => 5 * 2 ^ k
 
-/-- Ground truth: the first 12 listed terms of A084215. -/
+/-- The first 12 listed terms of A084215. -/
 example : (List.range 12).map a084215 =
     [1, 2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560] := by
   decide
@@ -74,7 +44,7 @@ its parts are pairwise distinct and each part is a term of A084215. -/
 def DistinctA084215 {n : ℕ} (p : n.Partition) : Prop :=
   p.parts.Nodup ∧ ∀ i ∈ p.parts, i ∈ Set.range a084215
 
-/-- Non-vacuity: `8 = 1 + 2 + 5` is a partition of `8` into distinct parts of
+/-- `8 = 1 + 2 + 5` is a partition of `8` into distinct parts of
 A084215. -/
 example : ∃ p : Nat.Partition 8, DistinctA084215 p :=
   ⟨⟨{1, 2, 5}, by decide, by decide⟩, by decide,
@@ -219,13 +189,7 @@ theorem card_distinctA084215_partitions (n : ℕ) :
     Nat.card {p : n.Partition // DistinctA084215 p} = if n % 5 = 4 then 0 else 1 := by
   rw [← Nat.card_eq_of_bijective (toPartition n) (toPartition_bijective n), indexSet_card]
 
-/-- **Mathar's conjecture (A011558, R. J. Mathar, Mar 01 2023).**
-
-Verbatim: "Conjecture: a(n+1) is the number of ways of partitioning n into
-distinct parts of A084215."
-
-For every `n ≥ 0`, the number of partitions of `n` into distinct parts, each a
-term of A084215 `{1, 2, 5, 10, 20, 40, …}`, equals `A011558(n + 1)`. -/
+/-- A011558(n+1) counts partitions of `n` into distinct A084215 parts. -/
 theorem mathar_conjecture (n : ℕ) :
     Nat.card {p : n.Partition // DistinctA084215 p} = a011558 (n + 1) := by
   rw [card_distinctA084215_partitions, a011558]

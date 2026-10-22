@@ -1,35 +1,11 @@
 /-
 # A106303 — Wu: periods of the Fibonacci 5-step sequence modulo prime powers
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A106303`)
-
-```
-NAME:     Period of the Fibonacci 5-step sequence A001591 mod n.
-TERMS:    1,6,104,12,781,312,2801,24,312,4686,16105,312,30941,16806,81224,48,
-          88741,312,13032,9372,291304,96630,12166,312,3905,185646,936,33612,...
-FORMULA:  Let the prime factorization of n be p1^e1...pk^ek. Then
-          a(n) = lcm(a(p1^e1), ..., a(pk^ek)).
-FORMULA (the conjecture):
-  Conjectures: a(5^k) = 781*5^(k-1) for k > 0. If a(p) != a(p^2) for p prime,
-  then a(p^k) = p^(k-1)*a(p) for k > 0. - _Chai Wah Wu_, Feb 25 2022
-COMMENT:
-  This sequence can differ from the corresponding Lucas sequence (A106297)
-  only when n is a multiple of 2 or 599 because 9584 is the discriminant of
-  the characteristic polynomial x^5-x^4-x^3-x^2-x-1 and the prime factors of
-  9584 are 2 and 599. [Corrected by _Avery Diep_, Aug 25 2025]
-```
-
-A001591: "Pentanacci numbers: a(n) = a(n-1) + a(n-2) + a(n-3) + a(n-4) +
-a(n-5) with a(0) = a(1) = a(2) = a(3) = 0, a(4) = 1", terms
-0,0,0,0,1,1,2,4,8,16,31,61,120,236,464,912,1793,...
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell; the conditional `p^(k-1)` rule is classical for the ordinary
-Fibonacci sequence).  This module proves both parts.
-
-## Proof outline
+OEIS A106303, Chai Wah Wu: the pentanacci least period satisfies
+`a(5^k) = 781·5^(k-1)` for `k ≥ 1`. For prime `p`, if `a(p) ≠ a(p²)`,
+then `a(p^k) = p^(k-1)·a(p)` for `k ≥ 1`.
+The sequence starts `0, 0, 0, 0, 1`, with each later term the sum of
+the previous five (A001591).
 
 Let `M` be the companion matrix of the recurrence, acting on the state
 vectors `st n = (s n, …, s (n+4))`.  The Hankel matrix `K` with columns
@@ -73,7 +49,7 @@ period, which never happens for the moduli used below). -/
 noncomputable def leastPeriod (m : ℕ) : ℕ :=
   sInf {t | IsPeriodMod m t}
 
-/-! ## Ground truth for `pent` -/
+/-! ## Examples for `pent` -/
 
 /-- The first seventeen terms of A001591. -/
 example : (List.range 17).map pent =
@@ -517,7 +493,7 @@ theorem not_isPeriodMod_twentyfive : ¬ IsPeriodMod 25 781 := by
 theorem leastPeriod_eq {m t : ℕ} (h : IsLeast {s | IsPeriodMod m s} t) : leastPeriod m = t :=
   h.csInf_eq
 
-/-! ## Ground truth for `leastPeriod` against the listed terms `1, 6, 104, 12, 781` -/
+/-! ## Examples for `leastPeriod` against the listed terms `1, 6, 104, 12, 781` -/
 
 example : leastPeriod 1 = 1 := leastPeriod_eq isLeast_one
 example : leastPeriod 2 = 6 := leastPeriod_eq isLeast_two
@@ -527,9 +503,8 @@ example : leastPeriod 5 = 781 := leastPeriod_eq isLeast_five
 
 /-! ## The conjecture -/
 
-/-- **Wu's conjecture (i) (A106303, Chai Wah Wu, Feb 25 2022).**
-Verbatim: "a(5^k) = 781*5^(k-1) for k > 0."  The least period of the
-pentanacci sequence A001591 modulo `5^k` is `781 * 5^(k-1)` for every `k ≥ 1`
+/-- **Wu's conjecture (i) (A106303, Chai Wah Wu, 2022).**
+The least period of the pentanacci sequence A001591 modulo `5^k` is `781 * 5^(k-1)` for every `k ≥ 1`
 (the guard `1 ≤ k` keeps `k - 1` off natural-number truncation). -/
 theorem leastPeriod_five_pow (k : ℕ) (hk : 1 ≤ k) :
     leastPeriod (5 ^ k) = 781 * 5 ^ (k - 1) := by
@@ -538,9 +513,8 @@ theorem leastPeriod_five_pow (k : ℕ) (hk : 1 ≤ k) :
   rw [show 1 + (k - 1) = k by omega] at h
   exact leastPeriod_eq h
 
-/-- **Wu's conjecture (ii) (A106303, Chai Wah Wu, Feb 25 2022).**
-Verbatim: "If a(p) != a(p^2) for p prime, then a(p^k) = p^(k-1)*a(p) for
-k > 0."  For every prime `p` with `a(p^2) ≠ a(p)`, the least period of the
+/-- **Wu's conjecture (ii) (A106303, Chai Wah Wu, 2022).**
+For every prime `p` with `a(p^2) ≠ a(p)`, the least period of the
 pentanacci sequence modulo `p^k` is `p^(k-1) * a(p)` for every `k ≥ 1`. -/
 theorem leastPeriod_prime_pow (p : ℕ) (hp : p.Prime)
     (hne : leastPeriod (p ^ 2) ≠ leastPeriod p) (k : ℕ) (hk : 1 ≤ k) :

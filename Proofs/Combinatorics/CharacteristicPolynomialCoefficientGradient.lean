@@ -1,7 +1,7 @@
 /-
 # Bivariate Cayley–Hamilton theorem (gradient of characteristic-polynomial coefficients)
 
-## Source (pulled with `fetch 2511.04954`, 2026-10-21)
+## Source
 
 Christian Ikenmeyer, "On the gradient of the coefficient of the characteristic polynomial
 (bivariate Cayley–Hamilton theorem)", arXiv:2511.04954.
@@ -13,17 +13,15 @@ Definitions (paper, eqs. (cpct), (cpcS)): `X_n = (x_{i,j})` is the generic `n ×
 `c_{n,d} = ∑_{S ∈ binom([n], d)} det ([X_n]_{S,S})`; `∇f` is the `n × n` matrix with
 `(i, j)` entry `∂f/∂x_{i,j}`. Everything is over an arbitrary commutative ring `R`.
 
-Verbatim claim (Theorem `thm:CayleyHamilton`):
-"For all `n, d ∈ ℕ` we have
-`(∇ c_{n,d+1})ᵀ = ∑_{i=0}^d (-1)^i c_{n,d-i} X_n^i`."
+Theorem `thm:CayleyHamilton`: for all `n, d ∈ ℕ`,
+`(∇ c_{n,d+1})ᵀ = ∑_{i=0}^d (-1)^i c_{n,d-i} X_n^i`.
 
 Corollary `cor:CayHam`: `0 = ∑_{i=0}^n (-1)^i c_{n,n-i} X_n^i`.
 Corollary `cor:adjugate`: `(∇ det_n)ᵀ = ∑_{i=0}^{n-1} (-1)^i c_{n,n-1-i} X_n^i`.
 
-## Status
+## Proof
 
-Proved in the paper (combinatorial clow-sequence proof). This module gives an independent
-algebraic proof: `∂/∂x_{b,a} [t^(k+1)] det (1 + t X_n) = [t^k] adj (1 + t X_n)_{a,b}` (the
+The paper uses clow sequences. Here the proof is algebraic: `∂/∂x_{b,a} [t^(k+1)] det (1 + t X_n) = [t^k] adj (1 + t X_n)_{a,b}` (the
 determinant is affine in the entry `(b, a)`), and comparing `t`-coefficients in
 `adj (1 + t X) (1 + t X) = det (1 + t X) • 1` gives the closed form of `[t^d] adj (1 + t X)`.
 -/
@@ -232,16 +230,16 @@ noncomputable def gradient (f : MvPolynomial (Fin n × Fin n) R) :
     Matrix (Fin n) (Fin n) (MvPolynomial (Fin n × Fin n) R) :=
   Matrix.of fun i j => MvPolynomial.pderiv (i, j) f
 
-/-- Ground truth: `c_{n,0} = 1`. -/
+/-- `c_{n,0} = 1`. -/
 theorem cpc_zero : cpc R n 0 = 1 := by
   simp [cpc]
 
-/-- Ground truth: `c_{n,1} = tr X_n` (paper: "`c_{n,1} = tr_n` is the trace"). -/
+/-- `c_{n,1} = tr X_n` (paper: "`c_{n,1} = tr_n` is the trace"). -/
 theorem cpc_one : cpc R n 1 = (genericMatrix R n).trace := by
   rw [cpc_eq_coeff_det]
   exact coeff_det_one_add_X_smul_one _
 
-/-- Ground truth: `c_{n,n} = det X_n` (paper: "`c_{d,d} = det_d`"). -/
+/-- `c_{n,n} = det X_n` (paper: "`c_{d,d} = det_d`"). -/
 theorem cpc_self : cpc R n n = (genericMatrix R n).det := by
   have huniv : (Finset.univ : Finset (Fin n)).powersetCard n = {Finset.univ} := by
     simpa using Finset.powersetCard_self (Finset.univ : Finset (Fin n))
@@ -309,7 +307,7 @@ theorem gradient_det_transpose_eq_sum (hn : 1 ≤ n) :
   obtain ⟨m, rfl⟩ : ∃ m, n = m + 1 := ⟨n - 1, by omega⟩
   rw [← cpc_self, bivariate_cayley_hamilton, Nat.add_sub_cancel]
 
-/-! ### Ground truth on `n = 2` -/
+/-! ### Examples on `n = 2` -/
 
 example : cpc ℤ 2 1 = MvPolynomial.X (0, 0) + MvPolynomial.X (1, 1) := by
   rw [cpc_one, Matrix.trace_fin_two]

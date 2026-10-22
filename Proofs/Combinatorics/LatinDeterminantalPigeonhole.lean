@@ -4,30 +4,10 @@
 ## Source
 
 R. Bean, "A counting proof for the smallest critical set in a Latin square",
-arXiv:2610.18199 (dated 13 October 2026), retrieved with `fetch` on
-2026-10-21.  Theorem A of the paper (BCC19.2(2)):
-
-> If a partial Latin square $P$ of order $n$ has fewer than
-> $\lfloor n^2/4\rfloor$ filled cells, then $N(P)$ is even.
-
-The algebraic engine of the proof sits in Section 4 (the rules
-$a^2\equiv0$ and $(1+a)^2\equiv1$ for constant-free $a$), Sections 6.2-6.3
-(row and column additions; the general removal step) and Section 9 (the
-pigeonhole count).  Verbatim from Section 6.3:
-
-> *every matching sum of $Y$ is $\equiv$ a sum of expressions times
-> matching sums of $Z$, each of the same size or one less.*
-
-and from Section 9:
-
-> After $k$ removals, the product of the row expressions is $\equiv$ a sum
-> of terms, each an expression times a product of matching sums of one
-> final $(n-k)\times(n-k)$ table of constant-free entries. In each such
-> product the factor coming from row $r$ has size at least
-> $\max(t_r-k,0)$ [...] Every resulting product uses at least
-> $W=\sum_r\max(t_r-k,0)$ entries of the final table. [...] By the
-> pigeonhole principle, every term uses some entry $z$ at least twice and
-> therefore contains the factor $z^2\equiv0$.
+arXiv:2610.18199. Theorem A (BCC19.2(2)) states that a partial Latin square
+of order `n` with fewer than `⌊n²/4⌋` filled cells has an even number of
+completions. The determinantal argument uses §4 (square-zero rules),
+§§6.2–6.3 (row/column additions and removal), and §9 (pigeonhole count).
 
 ## Translation
 
@@ -60,13 +40,11 @@ Main declarations: `prod_minors_eq_zero` (pigeonhole vanishing),
 `prod_minors_eq_zero_of_marked` (the consequence), and
 `prod_row_minors_eq_zero` (the count `c < ⌊n^2/4⌋` of Section 9).
 
-## Status
+## Scope
 
-Proved in the paper (Theorem A, Sections 4-9).  This module formalizes the
+This module formalizes the
 determinantal core lemma; the identification of the coefficient of `V` with
 `N(P)` (eq. (1) of the paper) is not formalized here.
-
-Date: 2026-10-21.
 -/
 import Mathlib
 
@@ -78,7 +56,7 @@ open Matrix
 
 variable {R : Type*} [CommRing R]
 
-/-! ## Definitions and ground truth -/
+/-! ## Definitions and examples -/
 
 /-- The ideal of `R` spanned by all entries of a matrix `Z`; in the paper's
 language, the ideal of expressions in the entries of the final table. -/
@@ -90,14 +68,14 @@ row and column index maps `Fin t → _`, lies in the ideal `I t`. -/
 def MinorsIn {α β : Type*} (M : Matrix α β R) (I : ℕ → Ideal R) : Prop :=
   ∀ (t : ℕ) (f : Fin t → α) (g : Fin t → β), (M.submatrix f g).det ∈ I t
 
-/-- Ground truth: the entry ideal of the `1 × 1` matrix `(x)` is `(x)`. -/
+/-- The entry ideal of the `1 × 1` matrix `(x)` is `(x)`. -/
 example (x : ℤ) : entryIdeal (!![x] : Matrix (Fin 1) (Fin 1) ℤ) = Ideal.span {x} := by
   unfold entryIdeal
   congr 1
   ext y
   simp [eq_comm]
 
-/-- Ground truth: the `2 × 2` minor of `!![a, b; c, d]` along the identity maps
+/-- The `2 × 2` minor of `!![a, b; c, d]` along the identity maps
 is `a * d - b * c`, so `MinorsIn` constrains the usual determinant. -/
 example (a b c d : ℤ) :
     ((!![a, b; c, d] : Matrix (Fin 2) (Fin 2) ℤ).submatrix id id).det = a * d - b * c := by
@@ -269,7 +247,7 @@ of the table `Z`. -/
 def minorIdeal {α β : Type*} (Z : Matrix α β R) (j : ℕ) : Ideal R :=
   Ideal.span {x | ∃ (f : Fin j → α) (g : Fin j → β), (Z.submatrix f g).det = x}
 
-/-- Ground truth: the size-`0` minor ideal is the whole ring (the empty matching
+/-- The size-`0` minor ideal is the whole ring (the empty matching
 sum is `1`, as in Section 8 of the paper). -/
 example (Z : Matrix (Fin 2) (Fin 2) ℤ) : minorIdeal Z 0 = ⊤ := by
   rw [Ideal.eq_top_iff_one]

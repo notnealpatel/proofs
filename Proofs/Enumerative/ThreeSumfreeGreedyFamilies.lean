@@ -1,47 +1,18 @@
 /-
-# Greedy strict 3-sumfree families `S_{1,g,g+1}` and `S_{f,g,g+1}`
+Strict greedy 3-sumfree families S_{f,g,g+1}.
 
-## Source
+Source: Daan van Berkel and Wieb Bosma, On t-sumfree sequences,
+arXiv:2609.16843, §6, Theorems thm:k=1d=1 and thm:d=1.
+A strict greedy sequence excludes sums of three distinct previous terms.
+For 1≤f<g, the unique support with seeds f,g,g+1 is
+ {f,2g+f,6g+3f-2} ∪ {z : z mod M ∈ [g,2g+f-1] ∪ [6g+3f-1,7g+4f-3]},
+where M=10g+6f-3.
 
-Daan van Berkel and Wieb Bosma, *On t-sumfree sequences*, arXiv:2609.16843,
-Section 6 ("3-sumfree sequences").  Retrieved and read 2026-10-21.
-
-A greedy strict `t`-sumfree sequence starts from `s_1 < ⋯ < s_t`; for `n > t`,
-`s_n` is the least integer exceeding `s_{n-1}` that is not a sum of `t` different
-previous elements.  Here `t = 3` and the initial terms are `f < g < h`.
-
-Theorem `thm:k=1d=1` (verbatim): "For every `g ≥ 2` the 3-sumfree sequence
-`S_{1,g,g+1}` is characterized as follows: `z ∈ S_{1,g,g+1}` iff
-`z ∈ {1, 2g+1, 6g+1}` or `z ≡ {g, g+1, ⋯, 2g} ∪ {6g+2, 6g+3, ⋯, 7g+1} mod 10g+3`."
-The paper states it without proof.
-
-Theorem `thm:d=1` (verbatim): "For every `f ≥ 1` and every `g ≥ f+1` the greedy
-3-sumfree sequence `s_{f,g,g+1}` is ultimately periodic modulo `10g+6f-3`, with
-preperiod length `g+f+3` and period length `2g+2f-1`.  More explicitly,
-`D_{f,g,g+1}` is ultimately periodic in these cases, with preperiod
-`(g-f, 1^{f+g}, 4g+2f-2, 1)` and period `(1^{f+g-2}, 4g+2f, 1^{f+g-1}, 4g+2f)`."
-The paper's proof is "left to the reader".
-
-## Formalization
-
-* `IsGreedy3SumFree f g h S` is the greedy recursion on the support set: members up
-  to `h` are exactly `f, g, h`, and above `h` a number is a member iff it is not a sum
-  of three distinct smaller members.  Since the sequence is strictly increasing and
-  infinite, this is equivalent to the paper's sequence definition;
-  `IsGreedy3SumFree.unique` shows that the predicate determines the set.
-* The difference sequence in `thm:d=1` is equivalent to the set
-  `familySet f g = {f, 2g+f, 6g+3f-2} ∪ {z | z mod (10g+6f-3) ∈ [g, 2g+f-1] ∪
-  [6g+3f-1, 7g+4f-3]}`: summing the stated differences from `f` gives the blocks
-  `[g, 2g+f]`, `{6g+3f-2}`, `[6g+3f-1, 7g+4f-3]`, `10g+6f-3 + [g, 2g+f-1]`, ….
-  This module proves the set form (`isGreedy3SumFree_iff_eq_familySet`), periodicity
-  from `6g+3f-1` on (`familySet_add_modulus_iff`), and that `6g+3f-2` breaks the
-  period (`familySet_not_periodic_before`).  The difference-sequence wording itself
-  is not formalized.
-* `thm_k1_d1` is the `f = 1` specialization in the paper's exact form, and `a026471`
-  is the `g = 2` case (OEIS A026471, first proved by Akeran 2004).
-
-Status: the paper states both claims; it proves neither.  Every theorem here is
-compiler-checked without `sorry`.
+The support is periodic with shift M from 6g+3f-1; the preceding point
+6g+3f-2 breaks that shift. This is the set form of the paper's difference
+pattern, not a theorem about the difference-sequence object or its lengths.
+The f=1 specialization gives thm:k=1d=1, and g=2 gives OEIS A026471,
+attributed in the source to Akeran (2004). No general all-seeds theorem is claimed.
 -/
 import Mathlib
 
@@ -65,7 +36,7 @@ def familySet (f g : ℕ) : Set ℕ :=
     (6 * g + 3 * f - 1 ≤ z % (10 * g + 6 * f - 3) ∧
       z % (10 * g + 6 * f - 3) ≤ 7 * g + 4 * f - 3)}
 
-/-! ### Ground-truth checks on the paper's examples -/
+/-! ### Examples on the paper's examples -/
 
 /-- `6 = 1 + 2 + 3` is a 3-sum of distinct members of `{1, 2, 3}`. -/
 example : IsThreeSum {1, 2, 3} 6 := ⟨1, 2, 3, by decide, by decide, by decide,
@@ -172,7 +143,7 @@ lemma not_isThreeSum_of_mem (f g : ℕ) (hf : 1 ≤ f) (hfg : f < g) (z : ℕ)
   rintro ⟨a, b, c, hab, hbc, hcz, ha, hb, hc, hsum⟩
   obtain ⟨m, hm⟩ : ∃ m, m = 10 * g + 6 * f - 3 := ⟨_, rfl⟩
   by_cases hzm : z < m
-  · -- every summand is below the modulus: a value-level contradiction
+  · -- Every summand is below the modulus: a value-level contradiction
     rw [mem_familySet_of_lt f g m a hm (by omega)] at ha
     rw [mem_familySet_of_lt f g m b hm (by omega)] at hb
     rw [mem_familySet_of_lt f g m c hm (by omega)] at hc
@@ -275,7 +246,7 @@ lemma isThreeSum_of_not_mem (f g : ℕ) (hf : 1 ≤ f) (hfg : f < g) (z : ℕ)
   generalize z % m = r at hdiv hrm hz
   generalize z / m = q at hdiv
   rcases q with _ | k
-  · -- below the modulus: three summands from the initial blocks
+  · -- Below the modulus: three summands from the initial blocks
     simp only [Nat.mul_zero, Nat.zero_add] at hdiv
     subst hdiv
     by_cases hA : r ≤ 4 * g + 3 * f - 1
@@ -300,7 +271,7 @@ lemma isThreeSum_of_not_mem (f g : ℕ) (hf : 1 ≤ f) (hfg : f < g) (z : ℕ)
       exact ⟨x, y, 7 * g + 4 * f - 3, hxy, by omega, by omega,
         mem_familySet_of_low f g x hf hx (by omega), mem_familySet_of_low f g y hf (by omega) hy,
         mem_familySet_of_high f g _ hf (by omega) le_rfl, by omega⟩
-  · -- at or above the modulus: a shifted window element plus a small pair
+  · -- At or above the modulus: a shifted window element plus a small pair
     have hmk : m * (k + 1) = m * k + m := by ring
     rw [hmk] at hdiv
     have hz' : ¬ ((g ≤ r ∧ r ≤ 2 * g + f - 1) ∨
@@ -421,7 +392,7 @@ theorem a026471 (S : Set ℕ) :
     omega
   rw [hset]
 
-/-- Non-vacuity: the hypotheses `1 ≤ f < g` hold for `S_{4,7,8}`, and the greedy
+/-- The hypotheses `1 ≤ f < g` hold for `S_{4,7,8}`, and the greedy
 predicate is realized there. -/
 example : IsGreedy3SumFree 4 7 8 (familySet 4 7) :=
   isGreedy3SumFree_familySet 4 7 (by norm_num) (by norm_num)

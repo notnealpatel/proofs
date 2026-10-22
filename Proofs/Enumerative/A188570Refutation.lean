@@ -1,39 +1,14 @@
 /-
-# A188570 — Kimberling: every prime divides infinitely many terms (refuted)
+# A prime dividing no term of A188570
 
-## OEIS source (retrieved with `oeis show A188570`, 2026-10-21)
-
-```
-NAME:     a(n) = coefficient of the term that is independent of sqrt(2) and
-          sqrt(3) in the expansion of (1 + sqrt(2) + sqrt(3))^n.
-TERMS:    1,1,6,16,80,296,1296,5216,21952,90304,375936,1555456,6456320,...
-COMMENT:  From _Clark Kimberling_, Oct 23 2024: (Start)
-          Conjecture: every prime divides a(n) for infinitely many n, and if
-          K(p) = (k(1), k(2),...) is the maximal subsequence of indices n such
-          that p divides a(n), then the difference sequence of K(p) is
-          eventually periodic; indeed, K(p) is purely periodic for the first 6
-          primes, with respective period lengths 1,5,5,3,3,5 and these
-          periods: [rows for p = 2, 3, 5, 7, 11, 13 omitted] (End)
-FORMULA:  a(n) = 4*a(n-1) + 4*a(n-2) - 16*a(n-3) + 8*a(n-4).
-          - _Vaclav Kotesovec_, Aug 13 2013
-```
-
-No later comment in the entry retracts or corrects the conjecture.
-
-## This module refutes the conjecture
-
-The prime `23` divides no term.  Writing `(1 + √2 + √3)^n` in the basis
-`1, √2, √3, √6` with integer coefficients, the coefficient vector modulo `23`
-returns to `(1, 0, 0, 0)` after `22` steps, so `a(n) mod 23` is purely periodic
-with period `22`, and none of the residues `a(0), …, a(21) mod 23` is `0`
-(they are `1, 1, 6, 16, 11, 20, 8, 18, 10, 6, 1, 12, 13, 17, 5, 22, 9, 19, 7,
-21, 18, 12`).  A floating-point-free scan of the primes below `400` (Python,
-exact integers) finds exactly three primes that never divide a term:
-`23, 71, 311`.  (Independently of the refutation, the printed period rows do
-not match their labels: the row printed for `p = 2` is the difference pattern
-of `K(3)` and the row printed for `p = 3` is that of `K(5)`.)
-
-Everything below is kernel-checked; no `sorry` and no `native_decide`.
+Source: Clark Kimberling's OEIS A188570 comment (Oct 23 2024).
+For the integer coefficient of 1 in `(1+√2+√3)^n`, the prime 23 divides
+no term. The coordinate state modulo 23 has period 22, with nonzero first
+coordinate throughout. The real expansion and uniqueness of its integer
+coordinates are proved.
+This refutes the assertion that every prime divides infinitely many terms,
+and hence the source's conjunction. Eventual periodicity of index gaps
+under a restricted infinitude hypothesis is not settled here.
 -/
 import Mathlib
 
@@ -41,7 +16,7 @@ set_option autoImplicit false
 
 namespace Candidates.A188570Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- Multiplication in `ℤ[√2, √3]` (more generally in `R[√2, √3]`) written in
 coordinates for the basis `1, √2, √3, √6`: the quadruple `(a, b, c, d)` stands
@@ -66,7 +41,7 @@ def coeffs : ℕ → ℤ × ℤ × ℤ × ℤ
 `√3` in the expansion of `(1 + √2 + √3)^n`. -/
 def a188570 (n : ℕ) : ℤ := (coeffs n).1
 
--- Ground truth: the first 26 terms of the OEIS DATA line.
+-- The first 26 terms of the OEIS DATA line.
 example : (List.range 26).map a188570 =
     [1, 1, 6, 16, 80, 296, 1296, 5216, 21952, 90304, 375936, 1555456, 6456320,
       26754560, 110963712, 460015616, 1907494912, 7908659200, 32792076288,
@@ -185,16 +160,10 @@ example : (1 + √2 + √3 : ℝ) ^ 2 = (6 : ℤ) + (2 : ℤ) * √2 + (2 : ℤ)
 
 /-! ## The conjecture -/
 
-/-- **Kimberling's conjecture (A188570, Clark Kimberling, Oct 23 2024).**
-
-Verbatim: "Conjecture: every prime divides a(n) for infinitely many n, and if
-K(p) = (k(1), k(2),...) is the maximal subsequence of indices n such that p
-divides a(n), then the difference sequence of K(p) is eventually periodic".
-
-`Nat.nth (fun n => (p : ℤ) ∣ a188570 n) i` is `k(i+1)`, the `(i+1)`-st index
-(in increasing order) with `p ∣ a(n)`; the differences are taken in `ℤ`.
-The trailing claims about "the first 6 primes" are data, not part of the
-general conjecture, and are not formalized. -/
+/-- Kimberling's A188570 conjecture: each prime divides infinitely many
+terms, and the successive-index gaps are eventually periodic.
+`Nat.nth` uses zero-based indices, so its index `i` is the source's `k(i+1)`;
+gaps are taken in `ℤ`. The source's finite prime-period tables are not included. -/
 def KimberlingConjecture : Prop :=
   ∀ p : ℕ, p.Prime →
     {n : ℕ | (p : ℤ) ∣ a188570 n}.Infinite ∧
@@ -281,12 +250,9 @@ theorem forall_prime_infinite_false :
   rw [hempty] at hinf
   exact hinf Set.finite_empty
 
-/-- **Refutation of Kimberling's A188570 conjecture.** Counterexample: the prime
-`p = 23` divides no term `a(n)` (the residues `a(n) mod 23` are periodic with
-period `22` and never `0`); the primes `71` and `311` behave the same way.
-The author presumably intended the statement only for primes `p` for which some
-term is divisible by `p`, in which case `K(p)` is infinite and its differences
-are periodic because `a(n) mod p` is purely periodic. -/
+/-- Kimberling's conjunction fails because the prime 23 divides no A188570
+term: the first coordinate modulo 23 has period 22 and is never zero.
+No restricted version of the index-gap clause is proved here. -/
 theorem kimberlingConjecture_false : ¬ KimberlingConjecture := fun h =>
   forall_prime_infinite_false fun p hp => (h p hp).1
 

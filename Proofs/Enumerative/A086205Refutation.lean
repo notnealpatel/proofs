@@ -1,43 +1,12 @@
 /-
-# A086205 — Bala: `det[binomial(i^2 + z, j)] = a(n)` for every complex `z`
-# (refuted as stated)
+# A086205: the determinant identity and its indexing
 
-## OEIS source (retrieved with `oeis show A086205` and checked against
-## `https://oeis.org/A086205/internal`, 2026-10-21)
-
-```
-A086205   NAME:   Determinant of n X n matrix M_(i,j) = binomial(i^2, j).
-          OFFSET: 0,3
-          DATA:   1,1,6,360,302400,4572288000,1520925880320000,...
-          AUTHOR: Benoit Cloitre, Aug 27 2003
-          FORMULA: a(n) = Product_{k = 1..n} (2*k-1)!/(k-1)!.
-          PROG:   (PARI) a(n)=matdet(matrix(n,n,i,j,binomial(i^2,j)))
-FORMULA (block "From _Peter Bala_, Feb 19 2023: (Start)" ... "(End)"),
-last line:
-  Conjecture: a(n) = the determinant of the n X n matrix
-  ( binomial(i^2 + z, j) ) for arbitrary complex z. (End)
-```
-
-The PARI program fixes the indexing of the n X n matrix: `1 ≤ i, j ≤ n`.
-No later comment, formula or extension in A086205 retracts or amends the
-conjecture.
-
-## Status
-
-**Refuted as stated** (`conjecture_false`).  For `n = 1` the matrix is
-`(binomial(1 + z, 1)) = (1 + z)`, whose determinant is `1 + z`; this equals
-`a(1) = 1` only for `z = 0`.  At `z = 1` it is `2 ≠ 1`.  A Sage check
-(`/tmp/claude/a086205.sage`, 2026-10-21) found that for each `1 ≤ n ≤ 5` the
-`1 ≤ i, j ≤ n` determinant is a nonconstant polynomial in `z`; for `n = 2` it
-is `3z^2/2 + 15z/2 + 6`.
-
-**Probable intent** (`det_cbinom_sq_add_eq`, kernel-checked for every `n`
-and every complex `z`).  Index the matrix by `0 ≤ i, j ≤ n`, an
-`(n+1) X (n+1)` matrix.  Then the determinant does not depend on `z`: column
-`j` is `p_j(i^2)` for the polynomial `p_j(x) = binomial(x + z, j)` of degree
-`j` with leading coefficient `1/j!`, so the determinant is
-`Vandermonde(0, 1, 4, …, n^2) / ∏ j!`.  At `z = 0` row `0` is
-`(1, 0, …, 0)`, so it reduces to the `n X n` matrix of the entry's name.
+OEIS A086205, Peter Bala's complex binomial determinant conjecture.
+The literal one-based `n`-square statement fails at `n = 1`, `z = 1`:
+its determinant is `2`, whereas `a(1) = 1`.
+For the zero-based `(n+1)`-square matrix indexed by `0 ≤ i,j ≤ n`,
+the determinant identity holds for every natural `n` and complex `z`,
+by a Vandermonde shift argument.
 -/
 import Mathlib
 
@@ -47,7 +16,7 @@ namespace Candidates.A086205Refutation
 
 open Matrix Polynomial
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The generalized binomial coefficient
 `binomial(w, j) = w (w - 1) ⋯ (w - j + 1) / j!` of a complex number `w`. -/
@@ -63,7 +32,7 @@ theorem cbinom_natCast (m j : ℕ) : cbinom m j = (m.choose j : ℂ) := by
   push_cast
   field_simp
 
-/-- Ground truth at a non-integer argument: `binomial(1/2, 2) = -1/8`. -/
+/-- Examples at a non-integer argument: `binomial(1/2, 2) = -1/8`. -/
 example : cbinom (1 / 2) 2 = -1 / 8 := by
   simp only [cbinom, one_div, Finset.prod_range_succ, Finset.range_one, Finset.prod_singleton,
     CharP.cast_eq_zero, sub_zero, Nat.cast_one, Nat.factorial_two, Nat.cast_ofNat]
@@ -90,14 +59,10 @@ example : a086205 4 = 302400 := by
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjecture (A086205, Peter Bala, Feb 19 2023).**
-
-Verbatim: "Conjecture: a(n) = the determinant of the n X n matrix
-( binomial(i^2 + z, j) ) for arbitrary complex z."
-
-The `n X n` matrix is indexed by `1 ≤ i, j ≤ n`, as in the entry's name and
-PARI program; `i : Fin n` stands for `i + 1`.  `binomial(w, j)` is the
-generalized binomial coefficient `cbinom`. -/
+/-- Bala's conjecture (A086205, Feb 19 2023): the determinant of the
+one-based `n`-square matrix `binomial(i²+z,j)` equals `a(n)` for all complex `z`.
+Here a `Fin n` index represents `i+1`, and `cbinom` is the generalized
+complex binomial coefficient, as in the entry's name and PARI program. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, ∀ z : ℂ,
     (Matrix.of fun i j : Fin n => cbinom (((i : ℕ) + 1 : ℂ) ^ 2 + z) ((j : ℕ) + 1)).det =
@@ -105,10 +70,9 @@ def Conjecture : Prop :=
 
 /-! ## Refutation -/
 
-/-- **Bala's conjecture is false.**  Counterexample `n = 1`, `z = 1`: the
-`1 X 1` matrix is `(binomial(2, 1)) = (2)`, but `a(1) = 1`.  The author
-probably intended the `(n+1) X (n+1)` matrix indexed by `0 ≤ i, j ≤ n`; that
-form is `det_cbinom_sq_add_eq`. -/
+/-- The one-based determinant conjecture fails at `n = 1`, `z = 1`:
+the determinant is `2`, while `a(1) = 1`. The zero-based `(n+1)`-square
+identity is proved in `det_cbinom_sq_add_eq`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   have h1 := h 1 1

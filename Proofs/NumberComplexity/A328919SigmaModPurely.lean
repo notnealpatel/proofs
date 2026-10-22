@@ -1,33 +1,11 @@
 /-
 # A328919 — `σ_k(n) mod n` purely periodic only for `n = 1, 12`
 
-## OEIS source (`oeis show A328919` and https://oeis.org/A328919, retrieved 2026-10-21)
+Jianing Song's conjectures in OEIS A328919 (2019): the sequence
+`σ_k(n) mod n`, `k ≥ 0`, is purely periodic only for `n=1,12`, and the
+earliest occurrence of preperiod length `e` is at `n=2^e`.
 
-```
-NAME:   Smallest index m such that from the m-th term on, the sequence
-        {sigma_k(n) mod n: k >= 0} enters into a cycle.
-TERMS:  0,1,1,2,1,1,1,3,2,1,1,0,1,1,1,4,1,1,1,1,1,1,1,1,2,1,3,1,1,1,1,5,...
-AUTHOR: Jianing Song, Oct 31 2019
-COMMENT: Conjecture: a(n) = 0 only for n = 1, 12. If {sigma_k(n) mod n: k >= 0}
-  is purely periodic, then sigma_0(n) == sigma_psi(n)(n) (mod n). [...] So
-  sigma_0(n) == sigma_psi(n)(n) (mod n) means that p^e divides e*d(s) for every
-  p dividing n, which seems highly impossible for n > 12. [...]
-COMMENT: Every number occurs in this sequence, because a(p^e) = e for primes p.
-  Conjecture: a(2^e) is always the earliest occurrence of e.
-```
-
-The comments carry no separate signature; the attribution is the entry
-author, Jianing Song, Oct 31 2019.
-
-## Status
-
-Triage: open (no proof in the entry or the literature found; the entry gives only
-the necessary condition `p^e ∣ e·d(s)` and the heuristic "seems highly
-impossible"). Recomputed 2026-10-21: the necessary condition holds only for
-`n ∈ {1, 12}` up to `3·10^5`, `a(n) = 0` only for `n ∈ {1, 12}` up to `2·10^4`, and the first
-occurrence of each value `e ≤ 14` is at `2^e`.
-
-This module proves both conjectures. Route: (1) the entry's necessary condition
+Proof route: (1) the entry's necessary condition
 with `M = T·n·φ(n)`; (2) `n ∣ ∏ e_p(e_p+1)`; (3) a weighted product bound forces
 `n ∣ 144`; (4) a finite check on the divisors of `144`; (5) period `2` for `n = 12`.
 The second conjecture follows from periodicity from index `⌊log₂ n⌋` with period
@@ -400,7 +378,7 @@ theorem dvd_144_of_purelyPeriodic {n : ℕ} (hn : 0 < n) (hper : PurelyPeriodic 
     · exact (pow_dvd_pow 2 (hk.trans h4)).trans (by norm_num)
     · exact (pow_dvd_pow 3 (hk.trans h2)).trans (by norm_num)
 
-/-- **A328919 conjecture (Jianing Song, Oct 31 2019), periodicity form.**
+/-- **A328919 conjecture (Jianing Song, 2019), periodicity form.**
 For `n ≥ 1`, the sequence `{σ_k(n) mod n : k ≥ 0}` is purely periodic iff
 `n ∈ {1, 12}`. -/
 theorem purelyPeriodic_iff {n : ℕ} (hn : 0 < n) : PurelyPeriodic n ↔ n = 1 ∨ n = 12 := by
@@ -460,7 +438,7 @@ theorem a_lt_of_lt_two_pow {n e : ℕ} (hn : 0 < n) (he : n < 2 ^ e) : a n < e :
   · have := a_le_of_lt_two_pow (m := e - 1) hn (by rwa [Nat.sub_add_cancel he0])
     omega
 
-/-- **A328919 conjecture (Jianing Song, Oct 31 2019).** "a(n) = 0 only for
+/-- **A328919 conjecture (Jianing Song, 2019).** "a(n) = 0 only for
 n = 1, 12": for `n ≥ 1`, `a(n) = 0 ↔ n = 1 ∨ n = 12`. -/
 theorem a_eq_zero_iff {n : ℕ} (hn : 0 < n) : a n = 0 ↔ n = 1 ∨ n = 12 := by
   rw [← purelyPeriodic_iff hn]
@@ -508,14 +486,14 @@ theorem a_two_pow (e : ℕ) : a (2 ^ e) = e := by
   rw [ZMod.natCast_eq_zero_iff, Nat.pow_dvd_pow_iff_le_right (by norm_num)] at h0
   omega
 
-/-- **A328919 second conjecture (Jianing Song, Oct 31 2019).** "a(2^e) is always
+/-- **A328919 second conjecture (Jianing Song, 2019).** "a(2^e) is always
 the earliest occurrence of e": `a(2^e) = e`, and `a(n) ≠ e` for every
 `1 ≤ n < 2^e`. -/
 theorem a_two_pow_first_occurrence (e : ℕ) :
     a (2 ^ e) = e ∧ ∀ n, 0 < n → n < 2 ^ e → a n ≠ e :=
   ⟨a_two_pow e, fun _ hn hlt => (a_lt_of_lt_two_pow hn hlt).ne⟩
 
-/-! ## Ground truth against the listed terms
+/-! ## Examples against the listed terms
 `a(1..16) = 0, 1, 1, 2, 1, 1, 1, 3, 2, 1, 1, 0, 1, 1, 1, 4` (OEIS data). -/
 
 example : a 1 = 0 := (a_eq_zero_iff one_pos).2 (Or.inl rfl)

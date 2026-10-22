@@ -1,32 +1,14 @@
 /-
-# Davenport-Rado / Mirsky-Newman: the largest modulus of an exact covering repeats
+# Davenport–Rado / Mirsky–Newman: the largest covering modulus repeats
 
-## Source
+Fabienne Chouraqui, *About an extension of the Davenport-Rado result to the
+Herzog-Schönheim conjecture for free groups*, arXiv:1901.09898, Introduction
+after Theorem A, cites the classical theorem of Davenport–Rado and
+Mirsky–Newman (c. 1950), with the strengthening of Newman and Znám.
+This is the integer case of Erdős problem 274 (Herzog–Schönheim).
 
-arXiv:1901.09898, Fabienne Chouraqui, "About an extension of the
-Davenport-Rado result to the Herzog-Schönheim conjecture for free groups".
-The statement sits in the Introduction, in the paragraph after Theorem A
-(the `n = 1` specialisation of Theorem A), citing Erdős, Newman and Znám.
-Context: Erdős problem #274 (Herzog-Schönheim), whose cyclic/integer case
-this is.
-
-Verbatim informal claim (paper, Introduction):
-
-> Erdős conjectured that if $\{d_i\mathbb{Z} + r_i\}_{i=1}^{i=s}$,
-> $r_i \in \mathbb{Z}$, is a coset partition of $\mathbb{Z}$, then the largest
-> index $d_s$ appears at least twice. Erdős' conjecture was proved by
-> H. Davenport and R. Rado, and independently by L. Mirsky and D. Newman
-> (not published) using analysis of complex function. Furthermore, it was
-> proved that the largest index $d_s$ appears at least $p$ times, where $p$
-> is the smallest prime dividing $d_s$ [...]
-
-Date recorded: 2026-10-21.
-
-## Status
-
-Known result (Davenport-Rado, Mirsky-Newman, c. 1950); the paper quotes it
-and recovers it from its Theorem A, it does not prove it from scratch.
-This module proves it in full, by the roots-of-unity argument:
+For an exact covering of `ℤ` by at least two residue classes, the largest
+modulus repeats. The proof uses roots of unity:
 
 * `sum_root_pow_residue_eq_zero`: for a maximal modulus bound `N ≥ 2` and a
   primitive `N`-th root `ζ`, the residues `r_i` of the classes of modulus
@@ -51,7 +33,7 @@ partition of `ℤ`) when every integer lies in exactly one of the classes. -/
 def IsExactCover {ι : Type*} (d : ι → ℕ) (a : ι → ℤ) : Prop :=
   ∀ x : ℤ, ∃! i, (d i : ℤ) ∣ x - a i
 
-/-- Ground truth: `{0 mod 2, 1 mod 4, 3 mod 4}` is an exact covering. -/
+/-- `{0 mod 2, 1 mod 4, 3 mod 4}` is an exact covering. -/
 theorem isExactCover_two_four_four : IsExactCover ![2, 4, 4] ![0, 1, 3] := by
   intro x
   have hcases : x % 4 = 0 ∨ x % 4 = 1 ∨ x % 4 = 2 ∨ x % 4 = 3 := by omega
@@ -65,7 +47,7 @@ theorem isExactCover_two_four_four : IsExactCover ![2, 4, 4] ![0, 1, 3] := by
   refine ⟨i, hi, fun j hj => ?_⟩
   fin_cases i <;> fin_cases j <;> simp at hi hj ⊢ <;> omega
 
-/-- Ground truth: `{0 mod 2, 0 mod 3}` is not an exact covering (`1` is missed). -/
+/-- `{0 mod 2, 0 mod 3}` is not an exact covering (`1` is missed). -/
 example : ¬ IsExactCover ![2, 3] ![0, 0] := by
   intro h
   obtain ⟨i, hi, -⟩ := h 1

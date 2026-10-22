@@ -1,38 +1,13 @@
 /-
-# A293013 — Bala: `a(n + k) ≡ a(n) (mod k)` for `a(n) = n! [x^n] exp(x/(1-x)^n)`
+# A congruence for factorial-scaled exponential coefficients (A293013)
 
-## OEIS source (retrieved with `oeis show A293013`, 2026-10-21)
-
-```
-NAME:     a(n) = n! * [x^n] exp(x/(1 - x)^n).
-TERMS:    1,1,5,55,961,24101,818821,36053515,1984670465,132825475081,
-          10583425959301,988018789759871,106673677280748865,...
-KEYWORDS: nonn,easy
-FORMULA:  a(n) = A293012(n,n).
-COMMENT (the conjecture):
-  Conjecture: a(n+k) == a(n) (mod k) for all n and k. If true, then for each
-  k, the sequence a(n) taken modulo k is a periodic sequence and the period
-  divides k. - _Peter Bala_, Mar 12 2023
-```
-
-## Status
-
-Triage (2026-10-21): open.  The entry and the live OEIS page still call it a
-conjecture, and it is not among the Bala congruences proved in arXiv
-2608.11941 (which proves the analogous A278070 congruence for
-`e^x/(1-x)^n`).  This module proves it.
-
-## Proof outline
-
-Expanding `exp(x/(1-x)^n) = ∑_j x^j (1-x)^{-nj} / j!` and putting `i = n - j`
-gives the closed form `a(n) = ∑_{i ≤ n} C(n,i) · (n(n-i))^{(i)}` with the
-rising factorial `m^{(i)} = m(m+1)⋯(m+i-1)` (`Nat.ascFactorial`).  For
-`N = n + k`, Vandermonde splits `C(N,i) = ∑_{p+q=i} C(n,p) C(k,q)`.  Every
-term with `q ≥ 1` is divisible by `k`, since `C(k,q) q!` is the falling
-factorial `k(k-1)⋯` and `q! ∣ i! ∣ N(N-i)^{(i)}`.  The `q = 0` terms are
-`C(n,i) (N(N-i))^{(i)}`, which vanish for `i > n` and otherwise agree with
-`C(n,i) (n(n-i))^{(i)}` modulo `k`, because `N(N-i) ≡ n(n-i)` and the rising
-factorial is an integer polynomial in its base.
+Source: Peter Bala's OEIS A293013 comment (Mar 12 2023).
+For `entry(n)=n! [x^n] exp(x/(1-x)^n)`, the difference
+`entry(n+k)-entry(n)` is an integer multiple of `k` for all natural `n,k`.
+The degenerate case `k=0` is included trivially.
+The coefficient is identified with the natural sum
+`Σ_{i≤n} C(n,i) (n(n-i))^{(i)}`. Vandermonde and rising-factorial
+congruences then give the result.
 -/
 import Mathlib
 
@@ -64,7 +39,7 @@ with `m^{(i)} = m(m+1)⋯(m+i-1)` the rising factorial (`Nat.ascFactorial`).
 `entry_eq_a` proves that it equals the entry's definition `entry`. -/
 def a (n : ℕ) : ℕ := ∑ i ∈ range (n + 1), n.choose i * (n * (n - i)).ascFactorial i
 
-/-- Ground truth: the closed form reproduces the first eight listed terms. -/
+/-- The closed form reproduces the first eight listed terms. -/
 example : (List.range 8).map a = [1, 1, 5, 55, 961, 24101, 818821, 36053515] := by decide
 
 /-! ## Fidelity bridge: the entry's series equals the closed form -/
@@ -128,7 +103,7 @@ theorem entry_eq_a (n : ℕ) : entry n = a n := by
     show n - (n - d) = d by omega, Nat.cast_mul, Nat.cast_choose ℚ hd']
   field_simp
 
-/-- Ground truth on the entry's own definition: `n! [x^n] exp(x/(1-x)^n)` is
+/-- Examples on the entry's own definition: `n! [x^n] exp(x/(1-x)^n)` is
 `55` at `n = 3` and `961` at `n = 4`. -/
 example : entry 3 = 55 ∧ entry 4 = 961 := by
   rw [entry_eq_a, entry_eq_a]
@@ -191,14 +166,9 @@ theorem a_add_modEq (n k : ℕ) : a (n + k) ≡ a n [MOD k] := by
     rw [Finset.mem_range, not_lt] at hi
     rw [Nat.choose_eq_zero_of_lt (by omega), zero_mul, Nat.cast_zero]
 
-/-- **Bala's conjecture (A293013, Peter Bala, Mar 12 2023), proved.**
-
-Verbatim: "Conjecture: a(n+k) == a(n) (mod k) for all n and k."
-
-Stated on the entry's own definition `entry n = n! [x^n] exp(x/(1-x)^n)`
-(a rational number a priori): for all `n` and `k`, `a(n+k) - a(n)` is an
-integer multiple of `k`.  The source has `k ≥ 1`; the case `k = 0` is
-included and trivial, so the statement is not weakened. -/
+/-- Bala's congruence on the coefficient definition of A293013:
+`entry(n+k)-entry(n)` is an integer multiple of `k` for all natural `n,k`.
+The case `k=0` is trivial and included. -/
 theorem a293013_add_modEq (n k : ℕ) : ∃ m : ℤ, entry (n + k) - entry n = k * m := by
   obtain ⟨m, hm⟩ := (Nat.modEq_iff_dvd.1 (a_add_modEq n k).symm)
   refine ⟨m, ?_⟩

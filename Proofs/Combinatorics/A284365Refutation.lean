@@ -1,39 +1,11 @@
 /-
 # A284365 — Kimberling: `-2 < n r - a(n) < 2` for the positions of `0`
 
-## OEIS source (retrieved with `oeis show A284365` and the live entry, 2026-10-21)
-
-```
-NAME:     Positions of 0 in A284364; complement of A284366.
-TERMS:    2,4,6,9,11,13,16,18,20,23,25,27,29,31,33,36,38,40,43,45,47,50,52,54,
-          56,58,60,63,65,67,70,72,74,77,79,81,83,85,87,90,92,94,97,99,101,104,
-          106,108,111,113,115,118,120,122,125,127,129,131,133,135,138
-COMMENT (the conjecture, unattributed; entry by _Clark Kimberling_, Mar 26 2017):
-  Conjecture: -2 < n*r - a(n) < 2 for n >= 1, where r = (9+sqrt(21))/6.
-COMMENT:
-  Conjecture: The asymptotic density of this sequence is (9-sqrt(21))/10 =
-  0.441742... . - _Amiram Eldar_, Apr 13 2025
-PROGRAM (Mathematica):
-  s = Nest[Flatten[# /. {0 -> {1}, 1 -> {1, 0, 1, 0, 1, 0}}] &, {0}, 10] (* A284364 *)
-  Flatten[Position[s, 0]]  (* A284365 *)
-```
-
-A284364 is the fixed point `1010101101010...` of the morphism `0 ↦ 1`,
-`1 ↦ 101010`. No later comment on the live entry retracts the conjecture.
-Eldar's density comment is not addressed here.
-
-## Result of this module
-
-The first (Kimberling) conjecture is **false**: this module refutes it with a
-kernel-checked proof (`conjecture_false`). The upper bound fails first at
-`n = 8933313`, where `a(n) = 20222898` and
-`n r - a(n) = 2.00487217...`; exactly, `21 n² - (6 a(n) + 12 - 9 n)² = 2393460 > 0`
-with `6 a(n) + 12 - 9 n = 40937583`.
-
-Re-validated here (Python, 2026-10-21) on a 49553046-letter prefix whose first
-61 zero positions match the listed terms: the first three violations are
-`n = 8933313, 16229874, 18154434`; the lower bound `-2 < n r - a(n)` never
-fails in that range.
+OEIS A284365 (Clark Kimberling, March 26, 2017) lists the 1-based
+positions of 0 in A284364, the fixed point of `0 ↦ 1`, `1 ↦ 101010`.
+Its conjectured bound `-2 < nr - a(n) < 2`, with `r = (9+√21)/6`,
+fails at `n = 8933313`: `a(n) = 20222898` and `nr - a(n) > 2`.
+Amiram Eldar's separate density conjecture is not addressed here.
 
 The proof never materializes the 20-million-letter prefix. `cnt k c L` counts
 the zeros among the first `L` letters of `σ^k(c)` by walking down the
@@ -69,8 +41,8 @@ def u (i : ℕ) : Fin 2 := (W (i + 1)).getD i 0
 `n ≥ 1`. -/
 noncomputable def a (n : ℕ) : ℕ := Nat.nth (fun i => u i = 0) (n - 1) + 1
 
-/-- **Kimberling's conjecture (A284365).** Verbatim: "Conjecture:
--2 < n*r - a(n) < 2 for n >= 1, where r = (9+sqrt(21))/6." -/
+/-- Kimberling's conjecture in OEIS A284365:
+`-2 < nr - a(n) < 2` for `n ≥ 1`, where `r = (9+√21)/6`. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 1 ≤ n →
     (-2 : ℝ) < n * ((9 + Real.sqrt 21) / 6) - a n ∧
@@ -249,7 +221,7 @@ theorem a_eq_of_cnt (K m n : ℕ) (hm : m < pick (lens K) 1)
     simp [hne] at hc'
   rw [a, Nat.add_sub_cancel, ← hc, Nat.nth_count hp]
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The first 86 letters of `u` agree with the listed terms of A284364. -/
 example : (List.range 86).map u =
@@ -290,12 +262,9 @@ theorem two_lt_witness :
   push_cast
   linarith
 
-/-- **Kimberling's A284365 conjecture is false.** The upper bound
-`n r - a(n) < 2`, `r = (9 + √21)/6`, fails at `n = 8933313`, where
-`a(n) = 20222898` and `n r - a(n) = 2.00487...`. The lower bound is not
-touched. Numerically the supremum of `n r - a(n)` is about `2.1165`
-(triage automaton computation, not checked here), so the author presumably
-intended a slightly larger upper constant. -/
+/-- Kimberling's A284365 bound fails at `n = 8933313`, where
+`a(n) = 20222898` and `nr - a(n) > 2` for `r = (9+√21)/6`.
+The lower bound is not addressed. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   have hup := (h 8933313 (by norm_num)).2

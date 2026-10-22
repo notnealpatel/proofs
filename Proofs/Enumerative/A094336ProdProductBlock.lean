@@ -1,41 +1,12 @@
 /-
-# A094336 — the triangular block products are never factorials (n ≥ 5)
+# A094336: triangular block products are not factorials
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A094336` and the live entry)
-
-```
-NAME:     Product of next n numbers divided by the largest factorial divisor.
-TERMS:    1,1,1,1,3003,969,16445,30566,886163135,2658968130,491796152,
-          3340843549855,9129919051926,22487406253165,17391629252325717,
-          2248272948937235,15415916972482007401455,50848495433999570877570
-KEYWORDS: nonn
-COMMENT (the conjecture):
-  Conjecture: a(n) > 1 for n > 4.
-EXAMPLE:  a(5) = (11*12*13*14*15)/(5!) = 3003.
-          a(6) = (16*17*18*19*20*21)/(8!) = 969.
-MATHEMATICA:
-  Table[a := Product[i, {i, n*(n - 1)/2 + 1, n*(n + 1)/2}]; b := 1;
-    While[ IntegerQ[a/(b + 1)! ], b++ ]; a/b!, {n, 1, 20}]
-    (* _Stefan Steinerberger_, Mar 14 2006 *)
-AUTHOR:   Amarnath Murthy, May 17 2004 (the conjecture is part of the
-          original entry).
-```
-
-## Status
-
-Open according to the triage: no proof in the entry, and the triage did not
-find one in the literature (the general literature on factorial products of
-consecutive integers was not searched exhaustively).  This file proves it.
-
-## Proof outline
-
-Write `a = n(n-1)/2`, so the `n`-th block is `a+1, …, a+n` and its product
-`P` satisfies `a! * P = (a+n)!`.  If `P = m!` then `m < a + n`, and Legendre's
-formula at `p = 2` (`v₂(x!) = x - s₂(x)`) gives `m ≤ n + s₂(a) + s₂(m)`.
-For `n ≥ 40` one has `a + n ≤ 2^(n/4)`, so both binary digit sums are at most
-`n/4`, whence `m ≤ n + 2(n/4)`; but `(n + t)!² < P²` whenever `2t ≤ n` and
-`n ≥ 10`, a contradiction.  The range `5 ≤ n ≤ 39` is a kernel-checked finite
-computation (`decide`) bracketing `P` strictly between consecutive factorials.
+OEIS A094336, Amarnath Murthy (May 17 2004); program by Stefan Steinerberger
+(Mar 14 2006).
+For every `n > 4`, the product of the `n` integers after `n(n-1)/2` is
+not a factorial, so its quotient by its largest factorial divisor is greater
+than `1`. The proof treats `5 ≤ n ≤ 39` by finite certificates and
+`n ≥ 40` by Legendre bounds and factorial inequalities.
 -/
 import Mathlib
 
@@ -104,7 +75,7 @@ theorem a_eq_of (n b : ℕ) (h1 : b ! ∣ (n * (n - 1) / 2 + 1).ascFactorial n)
   rw [← blockProd_eq_ascFactorial] at h1 h2
   rw [a, factIndex_eq_of n b h1 h2, blockProd_eq_ascFactorial]
 
-/-! ### Ground truth against the entry -/
+/-! ### Examples against the entry -/
 
 example : blockProd 5 = 11 * 12 * 13 * 14 * 15 := by decide
 example : blockProd 6 = 16 * 17 * 18 * 19 * 20 * 21 := by decide
@@ -154,7 +125,7 @@ theorem notFactAux_sound (P : ℕ) :
       · exact hmj ▸ hne
       · exact ih (m + 1) hrec j hmj
 
-/-- Kernel-checked computation: for `5 ≤ n ≤ 39` the block product lies strictly
+/-- For `5 ≤ n ≤ 39` the block product lies strictly
 between two consecutive factorials. -/
 theorem small_check : ((List.range' 5 35).all fun n =>
     notFactAux ((n * (n - 1) / 2 + 1).ascFactorial n) 120 0 1) = true := by

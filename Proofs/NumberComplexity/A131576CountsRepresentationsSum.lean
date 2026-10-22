@@ -1,45 +1,22 @@
 /-
 # A131576 — Pol: even-length consecutive sums via odd and middle divisors
 
-## OEIS source (retrieved with `oeis show A131576`, 2026-10-21)
+Omar E. Pol's conjecture in OEIS A131576 relates even-length consecutive
+positive sums to odd and middle divisors:
+`a(n) = (A001227(n)-A067742(n))/2 = A082647(n)-A067742(n)` for `n ≥ 1`.
+Here A001227 counts odd divisors, A067742 counts divisors in
+`[√(n/2), √(2n))`, and A082647 counts consecutive positive sums whose length
+divides `n`.
 
-```
-NAME:     Number of ways to represent n as a sum of an even number of
-          consecutive integers.
-TERMS:    0,0,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,2,1,1,0,1,1,2,0,1,1,1,0,2,
-          1,1,1,1,1,2,0,...
-COMMENT:  Equals number of odd divisors of n greater than sqrt(2*n).
-          [Hirschhorn and Hirschhorn]
-COMMENT:  a(n) + A082647(n) = A001227. This follows immediately from the
-          definitions. - _N. J. A. Sloane_, Dec 07 2020
-FORMULA (the conjecture):
-  Conjectures: a(n) = (A001227(n) - A067742(n))/2 = A082647(n) - A067742(n).
-  - _Omar E. Pol_, Feb 22 2017
-```
+The positivity convention agrees with the Hirschhorn–Hirschhorn divisor
+characterization; the separate conjecture about mirror-image subparts of
+sigma is not treated.
 
-Cross-referenced entries (same retrieval):
-
-* A001227 — "Number of odd divisors of n."
-* A067742 — "Number of middle divisors of n, i.e., divisors in the half-open
-  interval [sqrt(n/2), sqrt(n*2))."
-* A082647 — "Number of ways n can be expressed as the sum of d consecutive
-  positive integers where d>0 is a divisor of n."
-
-The summands are positive integers: the listed terms (`a(1) = 0`, whereas
-`1 = 0 + 1` would count if `0` were allowed) and the Hirschhorn comment fix
-this reading.  The separate subparts conjecture in the same entry (mirror-image
-subparts of the symmetric representation of sigma(n)) is not formalized here.
-
-## Literature status
-
-Triage: proved elsewhere.  The middle-divisor identity
-`A067742(n) = #{odd d ∣ n : d < √(2n)} - #{odd d ∣ n : d > √(2n)}` is
-Theorem 1 of A067742 (Sloane, 2021), Amer. Math. Monthly Problem 10847
-(Chapman–Eriksson–Stanley, solved by R. Martin 2002) and Hirschhorn–Hirschhorn
-(2005); together with the divisor characterizations of A082647 (Jovovic) and
-A131576 (Hirschhorn) it yields the conjecture.  This file proves the conjecture
-in full, from the definitions, with a self-contained dyadic telescoping
-argument.
+The middle-divisor identity used here is Theorem 1 of A067742 (Sloane),
+Amer. Math. Monthly Problem 10847 (Chapman–Eriksson–Stanley, solved by
+R. Martin), and Hirschhorn–Hirschhorn (2005). Together with Jovovic's
+characterization of A082647 it yields Pol's formula. The proof below is a
+self-contained dyadic telescoping argument.
 -/
 import Mathlib
 
@@ -388,7 +365,7 @@ theorem middleDivisorCount_two_pow_mul (e m : ℕ) (hm : Odd m) :
   simp_rw [card_level_window]
   exact Finset.sum_range_sub' _ _
 
-/-- **Pol's conjecture (A131576, Omar E. Pol, Feb 22 2017).** For every `n ≥ 1`,
+/-- **Pol's conjecture (A131576, Omar E. Pol).** For every `n ≥ 1`,
 `a(n) = (A001227(n) - A067742(n)) / 2 = A082647(n) - A067742(n)`, where `a(n)` is the number of
 representations of `n` as a sum of an even number of consecutive positive integers.
 The halving is stated without division as `2 a(n) = A001227(n) - A067742(n)` in `ℤ`. -/

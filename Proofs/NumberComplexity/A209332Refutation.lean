@@ -1,30 +1,10 @@
 /-
 # A209332 — refutation of "for even n, a(n) > 0"
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A209332`; offset and
-## author line from https://oeis.org/A209332/internal)
-
-```
-NAME:    a(n) is the minimal positive number k such that n<+>k is prime or 0
-         if no such number exists (operation <+> defined in A206853).
-OFFSET:  1,7
-DATA:    1,1,1,1,1,1,2,2,1,1,2,1,3,5,1,1,1,1,1,2,1,1,1,3,0,3,1,1,1,1,2,4,0,...
-COMMENT: a(n) = 0 for n = 25, 33, 37, 47,... (A209333).
-COMMENT: Conjecture: for even n, a(n) > 0.
-AUTHOR:  _Vladimir Shevelev_, Mar 06 2012
-```
-
-The conjecture comment carries no separate signature; it belongs to the
-entry by Vladimir Shevelev, Mar 06 2012, and no later comment retracts it.
-
-The operation `<+>` comes from A206853: "For integers a, b, denote by a<+>b
-the least c>=a, such that D(a,c)=b", where `D` is the Hamming distance of
-binary expansions, i.e. the number of `1` bits of `a XOR c`.
-
-## Result
-
-This module **refutes** the conjecture. The even number `n = 108292506`
-has `n<+>k` composite for every `k ≥ 1`, so `a(108292506) = 0`.
+Vladimir Shevelev's conjecture in OEIS A209332 says that for positive even
+`n` some `n<+>k` with `k ≥ 1` is prime. Here `a<+>b` (A206853) is the least
+`c ≥ a` at binary Hamming distance `b` from `a`. The even number
+`108292506` is a counterexample.
 
 * For `k ≥ 28` we have `n < 2^(k-1)`, hence `n<+>k = 2^k - 1 - n`
   (`hamOp_eq_two_pow_sub`). With `m = n + 1 = 108292507`, every
@@ -33,10 +13,6 @@ has `n<+>k` composite for every `k ≥ 1`, so `a(108292506) = 0`.
 * For `1 ≤ k ≤ 27` the value `n<+>k` is certified by a dyadic-block
   minimality check (`noHit`, proved sound in `noHit_sound`) and shown
   composite with an explicit proper factor (`smallTable`).
-
-Smaller even candidates (such as 4168 and 7806) have no prime among
-`n<+>k` for `k < bitlength(n) + 120`, but no covering certificate is known
-for them; they are not used here.
 -/
 import Mathlib.Data.Nat.Digits.Defs
 import Mathlib.Tactic.NormNum.Prime
@@ -185,7 +161,7 @@ noncomputable def A209332 (n : ℕ) : ℕ := by
   classical
   exact if h : ∃ k, 0 < k ∧ (hamOp n k).Prime then Nat.find h else 0
 
-/-- **Shevelev's conjecture (A209332, Mar 06 2012).** Verbatim: "Conjecture: for even n,
+/-- **Shevelev's conjecture (A209332).** "Conjecture: for even n,
 a(n) > 0." The sequence has offset 1, so `n` ranges over positive even integers. -/
 def EvenPositiveConjecture : Prop :=
   ∀ n : ℕ, 0 < n → Even n → 0 < A209332 n
@@ -335,7 +311,7 @@ theorem hamOp_eq_of_noHit (n k c J : ℕ) (hnc : n ≤ c) (hlt : n ^^^ c < 2 ^ 6
   refine noHit_sound n k n c J 0 hchk d hd hdc ?_
   exact Nat.div_eq_of_lt (by omega)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- A206853 (iterating `<+>2` from 1): 1, 2, 4, 7, 11, 13, 14, 22, ..., 31, 47.
 example : hamOp 1 2 = 2 :=
@@ -461,8 +437,7 @@ theorem A209332_counterexample : A209332 108292506 = 0 := by
 /-- **Shevelev's conjecture "for even n, a(n) > 0" (A209332) is false.** The even number
 `n = 108292506` has `a(n) = 0`: `n<+>k` is composite for `1 ≤ k ≤ 27` (explicit factors), and
 for `k ≥ 28` it equals `2^k - 108292507`, which the covering system with primes
-`3, 5, 7, 13, 17, 241` (period 24) always divides properly. The conjecture was presumably
-extrapolated from small even `n`, where a prime `n<+>k` always appears early. -/
+`3, 5, 7, 13, 17, 241` (period 24) always divides properly. -/
 theorem evenPositiveConjecture_false : ¬ EvenPositiveConjecture := by
   intro hconj
   have hpos := hconj 108292506 (by norm_num) ⟨54146253, by norm_num⟩

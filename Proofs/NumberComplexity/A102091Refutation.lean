@@ -1,48 +1,17 @@
 /-
 # A102091 — Lu: primes `≡ 5, 7 (mod 12)` avoid centered `n`-gonal numbers
 
-## OEIS source (retrieved with `oeis show A102091`, 2026-10-21)
+Steven Lu's conjecture in OEIS A102091 says that, for `n > 6`, primes
+congruent to `5` or `7` modulo `12` divide no centered `n`-gonal number iff
+`n` is a term of A102091. The third term `108` refutes the implication from sequence membership to prime avoidance:
+`1 + 108·(2·3/2) = 325` is divisible by `5`.
 
-```
-NAME:     Number of perfect matchings in the C_{2n} X P_3 graph (C_{2n} is the
-          cycle graph on 2n vertices and P_3 is the path graph on 3 vertices).
-TERMS:    12,32,108,392,1452,5408,20172,75272,280908,1048352,3912492,14601608,...
-COMMENT (the conjecture, the entry's only comment):
-  Conjecture: For an integer n > 6, primes of the form either 12k+5 or 12k+7
-  will never appear in factors of any centered n-gonal number, if and only if
-  n is in A102091. - _Steven Lu_, Nov 15 2022
-FORMULA (used here as the definition):
-  a(n) = 5*a(n-1) - 5*a(n-2) + a(n-3) with a(1)=12, a(2)=32 and a(3)=108.
-  a(n) = 2*(2 + (2-sqrt(3))^n + (2+sqrt(3))^n). - _Colin Barker_, Nov 03 2016
-```
-
-No later comment in the entry retracts or corrects the conjecture.
-
-## Status
-
-**False.**  This module refutes Lu's conjecture.  The "if" direction fails at
-the third term `n = a(3) = 108`: the centered `108`-gonal number with `k = 2`
-is `1 + 108 · (2 · 3 / 2) = 325 = 5² · 13`, and `5 ≡ 5 (mod 12)`.
-
-Computational re-validation (Python, 2026-10-21, `k < 50` over the first seven
-terms): the terms `12, 32, 392, 20172` show no such prime factor, while
-`108` (`5 ∣ 325`, `k = 2`), `1452` (`19 ∣ 65341`, `k = 9`) and `5408`
-(`5 ∣ 16225`, `k = 2`) do.
-
-Explanation (informal, not formalized here): for an odd prime `q`,
-`q ∣ 1 + n k(k+1)/2` iff `n (2k+1)² ≡ n - 8 (mod q)`; the terms of A102091 are
-the `n` with `n (n - 8) = 3 m²`, so a prime `q` with `(3/q) = -1`, i.e.
-`q ≡ 5, 7 (mod 12)`, can divide a centered `n`-gonal number only when
-`q ∣ n - 8`.  For `n = 108`, `n - 8 = 100 = 2² · 5²`, and `q = 5` divides.
-The hypothesis Lu probably intended excludes primes dividing `n - 8`.
-
-The "if" direction of that repaired statement is proved below as
-`dvd_sub_eight_of_dvd_centeredPolygonal`: for `n` in A102091, every prime
-`q ≡ 5, 7 (mod 12)` dividing a centered `n`-gonal number divides `n - 8`.
-The Pell identity `a(i) (a(i) - 8) = 3 (4 y_i)²` comes from
-`a(i) = 4 + 4 x_i` with `x_i + y_i √3 = (2 + √3)^i`, and the quadratic
-character of `3` from Mathlib's quadratic reciprocity.  The repaired "only if"
-direction (which would need Dirichlet-type input) is not attempted.
+A restricted implication is proved as
+`dvd_sub_eight_of_dvd_centeredPolygonal`: for a term `n`, every such prime
+dividing a centered `n`-gonal number divides `n - 8`. The Pell identity
+`a(i)(a(i)-8) = 3(4y_i)²` follows from `a(i) = 4+4x_i`, with
+`x_i + y_i√3 = (2+√3)^i`; quadratic reciprocity supplies the character of `3`.
+The converse of this restricted statement is not treated.
 
 ## Formal conventions
 
@@ -60,7 +29,7 @@ set_option autoImplicit false
 
 namespace Candidates.A102091Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A102091 by the entry's recurrence `a(n) = 5 a(n-1) - 5 a(n-2) + a(n-3)`,
 `a(1) = 12`, `a(2) = 32`, `a(3) = 108` (offset 1).  The value `a 0 = 8` lies
@@ -79,7 +48,7 @@ def InA102091 (m : ℕ) : Prop := ∃ i : ℕ, 1 ≤ i ∧ a i = m
 /-- The `k`-th centered `n`-gonal number `1 + n k (k+1) / 2` (`k ≥ 0`). -/
 def centeredPolygonal (n k : ℕ) : ℕ := 1 + n * (k * (k + 1) / 2)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The first twelve listed terms of A102091.
 example : (List.range 12).map (fun i => a (i + 1)) =
@@ -97,11 +66,7 @@ example : (List.range 6).map (centeredPolygonal 12) = [1, 13, 37, 73, 121, 181] 
 
 /-! ## The conjecture -/
 
-/-- **Lu's conjecture (A102091, Steven Lu, Nov 15 2022).**
-
-Verbatim: "Conjecture: For an integer n > 6, primes of the form either 12k+5
-or 12k+7 will never appear in factors of any centered n-gonal number, if and
-only if n is in A102091."
+/-- **Lu's conjecture (A102091, Steven Lu).**
 
 Formalized: for every `n > 6`, no prime `q` with `q % 12 = 5` or `q % 12 = 7`
 divides any centered `n`-gonal number `1 + n k (k+1) / 2` (`k ≥ 0`) if and only
@@ -123,8 +88,7 @@ theorem centeredPolygonal_108_two : centeredPolygonal 108 2 = 325 := by decide
 
 Counterexample to the "if" direction: `n = 108 = a(3)` is a term of A102091
 and `108 > 6`, yet the prime `q = 5 ≡ 5 (mod 12)` divides the centered
-`108`-gonal number `1 + 108 · (2 · 3 / 2) = 325` (`k = 2`).  The intended
-hypothesis presumably excludes primes dividing `n - 8 = 100`. -/
+`108`-gonal number `1 + 108 · (2 · 3 / 2) = 325` (`k = 2`). See below for the restriction excluding primes dividing `n - 8`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have hiff := hconj 108 (by norm_num)

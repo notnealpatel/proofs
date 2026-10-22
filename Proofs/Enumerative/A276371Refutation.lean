@@ -1,40 +1,13 @@
 /-
-# A276371 — Bala: `a(n) mod k` is eventually periodic with period dividing `φ(k)`
+# A276371: a modulus-four counterexample
 
-## OEIS source (retrieved with `oeis show A276371`, 2026-10-21)
-
-```
-NAME:     Expansion of e.g.f. exp(x/2)/(2 - exp(2*x))^(1/4).
-TERMS:    1,1,3,19,177,2161,32643,587539,12273537,291853441,7782998883,
-          230028553459,7462717994097,263654454838321,...
-COMMENT (the conjecture):
-  Conjecture: the sequence a(n) taken modulo a positive integer k is eventually
-  periodic with the period dividing phi(k). For example, the sequence taken
-  modulo 21 begins [1, 1, 3, 19, 9, 19, 9, 1, 3, 19, 9, 19, 9, 1, 3, 19, 9, 19,
-  9, ...] with an apparent period of 6 (= phi(21)/2) starting at n = 1.
-  - _Peter Bala_, Oct 23 2025
-FORMULA (used as the definition below):
-  a(0) = 1; a(n) = a(n-1) + Sum_{k=1..n-1} 2^k * binomial(n-1,k) * a(n-k).
-  - _Seiichi Manyama_, Nov 16 2023
-```
-
-No later comment in the entry retracts or corrects the conjecture.
-
-## Status
-
-This module **refutes** the conjecture.  Modulo `k = 4` the sequence is
-`1, 1, 3, 3, 1, 1, 3, 3, ...` from `n = 0`: its exact period is `4`, which does
-not divide `φ(4) = 2`.  The mechanism: modulo `4` every term of the recurrence
-with `2^k`, `k ≥ 2`, vanishes, so `a(n+1) ≡ (2n+1) a(n) (mod 4)`.
-
-## Definition fidelity
-
-`a` is defined by Manyama's recurrence (shifted to `n + 1`).  The e.g.f.
-definition of the entry is connected by `egf_pow_four_mul` and `egf_unique`:
-the e.g.f. `A(x) = Σ a(n) xⁿ / n!` is the unique power series over `ℚ` with
-constant term `1` such that `A⁴ · (2 - e^{2x}) = e^{2x}`, which is the
-fractional-power-free form of `A = exp(x/2) / (2 - exp(2x))^(1/4)` (note
-`exp(x/2)⁴ = e^{2x}`; constant term `1` selects the principal fourth root).
+OEIS A276371, Peter Bala (Oct 23 2025); recurrence by Seiichi Manyama
+(Nov 16 2023).
+The recurrence's rational e.g.f. is uniquely characterized by constant term
+`1` and `A⁴(2-exp(2X)) = exp(2X)`. This is the algebraic branch identity
+for the source's fractional-power e.g.f., not an analytic convergence theorem.
+Modulo `4` the residues repeat `1,1,3,3` from index zero. No positive divisor
+of `φ(4) = 2` is an eventual period, refuting the conjecture.
 -/
 import Mathlib
 
@@ -44,7 +17,7 @@ namespace Candidates.A276371Refutation
 
 open PowerSeries
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A276371, via Manyama's recurrence:
 `a(0) = 1`, `a(n+1) = a(n) + Σ_{k=1}^{n} 2^k · C(n,k) · a(n+1-k)`.
@@ -60,7 +33,7 @@ theorem a_succ (n : ℕ) : a (n + 1) =
     a n + ∑ k ∈ Finset.range n, 2 ^ (k + 1) * (n.choose (k + 1) : ℤ) * a (n - k) := by
   rw [a]
 
--- Ground truth: the first twelve listed terms of A276371.
+-- Example: the first twelve listed terms of A276371.
 example : (List.range 12).map a = [1, 1, 3, 19, 177, 2161, 32643, 587539, 12273537,
     291853441, 7782998883, 230028553459] := by
   decide +kernel
@@ -194,15 +167,9 @@ theorem egf_unique (B : ℚ⟦X⟧) (hB0 : constantCoeff B = 1)
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjecture (A276371, Peter Bala, Oct 23 2025).**
-
-Verbatim: "Conjecture: the sequence a(n) taken modulo a positive integer k is
-eventually periodic with the period dividing phi(k)."
-
-Formalized in its weakest reading: for every `k ≥ 1` there are a threshold `N`
-and a positive period `P ∣ φ(k)` with `a(n + P) ≡ a(n) (mod k)` for all
-`n ≥ N`.  (Any stronger reading, e.g. that the *minimal* eventual period divides
-`φ(k)`, implies this one, so its refutation refutes them all.) -/
+/-- Bala's A276371 conjecture: for each positive modulus `k`, there are a
+threshold and a positive eventual period dividing `φ(k)`. Refuting this
+existence claim also refutes the least-eventual-period reading. -/
 def BalaConjecture : Prop :=
   ∀ k : ℕ, 0 < k → ∃ N P : ℕ, 0 < P ∧ P ∣ Nat.totient k ∧
     ∀ n : ℕ, N ≤ n → a (n + P) ≡ a n [ZMOD k]
@@ -259,18 +226,9 @@ theorem a_add_two_not_modEq (n : ℕ) : ¬ a (n + 2) ≡ a n [ZMOD 4] := by
   rw [a_emod_four, a_emod_four]
   split_ifs <;> omega
 
-/-- **Bala's conjecture for A276371 is false.**
-
-Counterexample: `k = 4`.  Here `φ(4) = 2`, but `a(n) mod 4` runs
-`1, 1, 3, 3, 1, 1, 3, 3, ...` (`a_emod_four`), with exact period `4`
-(`a_add_four_modEq`, `a_add_two_not_modEq`).  A period `P ∣ 2` would make
-`a(N + 2) ≡ a(N) (mod 4)`, which never holds.
-
-In a sample of moduli (all `k ≤ 1000` with a period found within the search
-window, per the triage computation, and a spot check of `k ∈ {2,3,5,7,8,9,12,
-16,20,21,24,25,27,32,64}`) the claim held for every `k ≠ 4`; the author
-probably intended the statement for `k ≠ 4` (this restricted form is neither
-claimed nor proved here). -/
+/-- At modulus `4`, the residues repeat `1,1,3,3` with period `4`.
+A positive period dividing `φ(4) = 2` would imply shift-two periodicity,
+which fails at every index. No conclusion about other moduli is asserted. -/
 theorem balaConjecture_false : ¬ BalaConjecture := by
   intro hconj
   obtain ⟨N, P, hP, hPdvd, hper⟩ := hconj 4 (by norm_num)

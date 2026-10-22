@@ -1,41 +1,25 @@
 /-
-# On the non-primality of certain symmetric ideals — Jun's "more variables" conjecture
+# Jun's more-variables ideal-membership conjecture
 
-## Source
+H. K. Jun, "On the non primality of certain symmetric ideals", arXiv:2112.10207,
+J. Commut. Algebra 16 (2024), 37–47, Section 5, "More variables",
+Conjecture `Conj:more variables`; Section 4 treats the case `r = 2`.
 
-H. K. Jun, *On the non primality of certain symmetric ideals*, arXiv:2112.10207,
-J. Commut. Algebra 16 (2024) 37–47. Section 5 "Open Problems", subsection
-"More variables", Conjecture `Conj:more variables`. (Theorem `theorem:generalization`
-of Section 4 is the `r = 2` case.)
+Over a characteristic-zero field, put `t_S = ∑_{i∈S} t_i` and
+`I_r^{(d)} = ⟨(t₀ + t_S)^d : S ⊆ [r]⟩` in `K[t₀, …, t_r]`.
+The conjecture is `(t₁ ⋯ t_r)^(2n-1) ∈ I_r^{(nr)}` for `2 ≤ r` and `1 ≤ n`.
+This module proves that membership and the unequal-exponent generalization
+`∏ tᵢ^(2aᵢ+1) ∈ I_r^{(∑ aᵢ + r)}` for natural exponents `aᵢ`. The underlying
+membership theorem holds over any commutative `ℚ`-algebra. No broader
+non-primality conclusions of the paper are formalized here.
 
-Verbatim (LaTeX source):
-
-  Fix $r, n \in \N$, and for a subset $S$ of $[r] := \{1,2, \cdots, r\}$, define
-  $t_S = \sum_{i \in S} t_i$, and $t_{S,0} = t_0 + t_S$. [...] We then define
-  $I_r^{(d)} \subset R := K[t_0, \cdots, t_r]$ to be
-  $I_r^{(d)} := \langle (t_{S,0})^d: S \subset [r]\rangle.$
-  Conjecture. For any $r\geq 2$ and $n\geq 1$, we have
-  $\left( t_1\cdots t_r\right)^{2n-1} \in I_{r}^{(nr)}$.
-
-(`K` is a field of characteristic zero throughout the paper.)
-
-Date: 2026-10-21. Status in the source: OPEN (proved there only for `r = 2`; checked by
-computer for some small `r ≥ 3`).
-
-## This module
-
-Proves the conjecture (`conj_more_variables`) and the free generalization
-`∏ tᵢ^(2aᵢ+1) ∈ I_r^{(∑ aᵢ + r)}` (`prod_X_pow_mem_symIdeal`), in fact over any commutative
-`ℚ`-algebra (`prod_pow_mem_span_pow_add_sum`).
-
-Proof (exponential generating functions):
-1. One variable: from `1 = ((Y+1) - Y)^(2a+1)` and the binomial theorem, obtain rational
-   power series `P, Q` of degree `≤ a` with `P + Q eˣ = X^(2a+1) + O(X^(2a+2))`
-   (`exists_oneVar`).
-2. Tensor step: `H = exp(xX) ∏ᵢ gᵢ(tᵢX)` with `gᵢ = Pᵢ + Qᵢ eˣ`. Its `D`-th coefficient
-   (`D = ∑ (2aᵢ+1)`) is `∏ tᵢ^(2aᵢ+1)`; expanding the product gives
-   `∑_S W_S(X) exp((x + t_S)X)` with `deg W_S ≤ ∑ aᵢ`, so the same coefficient is a
-   combination of powers `(x + t_S)^l` with `l ≥ ∑ aᵢ + r`.
+The proof uses exponential generating functions. The binomial identity
+`1 = ((Y+1) - Y)^(2a+1)` gives rational power series `P, Q` of degree at most
+`a` with `P + Q eˣ = X^(2a+1) + O(X^(2a+2))`.
+For `H = exp(xX) ∏ᵢ (Pᵢ(tᵢX) + Qᵢ(tᵢX) exp(tᵢX))`, its coefficient in degree
+`D = ∑ (2aᵢ+1)` is `∏ tᵢ^(2aᵢ+1)`. Expanding over subsets gives terms
+`W_S(X) exp((x + t_S)X)` with `deg W_S ≤ ∑ aᵢ`, whose degree-`D` coefficients
+are combinations of powers `(x + t_S)^l` with `∑ aᵢ + r ≤ l`.
 -/
 import Mathlib
 
@@ -248,7 +232,7 @@ theorem degLE_C_mul_X_pow {R : Type*} [CommRing R] {d k : ℕ} (hk : k ≤ d) (c
   intro j hj
   rw [coeff_C_mul_X_pow, if_neg (by omega)]
 
--- Ground truth for `DegLE`: `X²` has degree at most `2` but not at most `1`.
+-- `X²` has degree at most `2` but not at most `1`.
 example : DegLE 2 (X ^ 2 : ℚ⟦X⟧) := by
   simpa using degLE_C_mul_X_pow (d := 2) le_rfl (1 : ℚ)
 
@@ -282,7 +266,7 @@ theorem factorial_mul_inv_factorial {A : Type*} [CommRing A] [Algebra ℚ A] (m 
 def oneVarGens (a : ℕ) : Set (Polynomial ℚ) :=
   {f | ∃ k ≤ a, f = Polynomial.X ^ (2 * a + 1 - k) ∨ f = (Polynomial.X + 1) ^ (2 * a + 1 - k)}
 
--- Ground truth for `oneVarGens`: for `a = 1` (`2a+1 = 3`) it contains `Y³` and `(Y+1)²`.
+-- For `a = 1` (`2a+1 = 3`), `oneVarGens a` contains `Y³` and `(Y+1)²`.
 example : (Polynomial.X ^ 3 : Polynomial ℚ) ∈ oneVarGens 1 := ⟨0, Nat.zero_le 1, Or.inl rfl⟩
 
 example : ((Polynomial.X + 1) ^ 2 : Polynomial ℚ) ∈ oneVarGens 1 := ⟨1, le_rfl, Or.inr rfl⟩
@@ -444,7 +428,7 @@ noncomputable def symIdeal (K : Type*) [Field K] (r d : ℕ) :
   Ideal.span (Set.range fun S : Finset (Fin r) => (X none + ∑ i ∈ S, X (some i)) ^ d)
 
 open MvPolynomial in
--- Ground truth for `symIdeal`: `S = ∅` gives `t₀^d`, `S = [2]` gives `(t₀ + t₁ + t₂)^d`.
+-- `S = ∅` gives `t₀^d`, `S = [2]` gives `(t₀ + t₁ + t₂)^d`.
 example (d : ℕ) : (X none ^ d : MvPolynomial (Option (Fin 2)) ℚ) ∈ symIdeal ℚ 2 d :=
   Ideal.subset_span ⟨∅, by simp⟩
 
@@ -454,8 +438,8 @@ example (d : ℕ) :
   Ideal.subset_span ⟨Finset.univ, by simp [Fin.sum_univ_two, add_assoc]⟩
 
 open MvPolynomial in
-/-- Non-vacuity: for `d ≥ 1` the ideal `I_r^{(d)}` is proper (all generators have zero
-constant term), so membership in it is a genuine constraint. -/
+/-- For `1 ≤ d`, the ideal `I_r^{(d)}` is proper: all generators have zero
+constant term. -/
 theorem symIdeal_ne_top (K : Type*) [Field K] (r d : ℕ) (hd : 1 ≤ d) : symIdeal K r d ≠ ⊤ := by
   intro htop
   have hle : symIdeal K r d ≤
@@ -470,7 +454,7 @@ theorem symIdeal_ne_top (K : Type*) [Field K] (r d : ℕ) (hd : 1 ≤ d) : symId
   exact one_ne_zero h1
 
 open MvPolynomial in
-/-- Generalization of Jun's conjecture (free unequal exponents): over a field of characteristic
+/-- Unequal-exponent generalization of Jun's conjecture: over a field of characteristic
 zero, for every `r` and `a : Fin r → ℕ`, `∏ tᵢ^(2aᵢ+1) ∈ I_r^{(∑ aᵢ + r)}`. -/
 theorem prod_X_pow_mem_symIdeal (K : Type*) [Field K] [CharZero K] (r : ℕ) (a : Fin r → ℕ) :
     (∏ i : Fin r, X (some i) ^ (2 * a i + 1) : MvPolynomial (Option (Fin r)) K) ∈
@@ -496,7 +480,7 @@ theorem conj_more_variables (K : Type*) [Field K] [CharZero K] (r n : ℕ) (_hr 
   exact h
 
 open MvPolynomial in
--- Satisfiability of the hypotheses at the paper's worked example `r = 2`, `n = 2`:
+-- The paper's worked example `r = 2`, `n = 2`:
 -- `(t₁ t₂)³ ∈ I_2^{(4)}` (the paper's identity `aδ⁴ + b(δ+x)⁴ + c(δ+y)⁴ + d(δ+x+y)⁴ = (xy)³`).
 example : ((X (some 0) * X (some 1)) ^ 3 : MvPolynomial (Option (Fin 2)) ℚ) ∈ symIdeal ℚ 2 4 := by
   simpa [Fin.prod_univ_two] using conj_more_variables ℚ 2 2 le_rfl (by norm_num)

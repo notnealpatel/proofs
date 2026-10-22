@@ -1,49 +1,18 @@
 /-
 # A001917 — Shevelev: `k * a(n) = A006694((p_n^k - 1)/2)` for all `k`
 
-## OEIS source (retrieved with `oeis show A001917`, 2026-10-21)
+Vladimir Shevelev's conjecture in OEIS A001917 (2008), refuted by Andrew R.
+Epstein (2026). A001917 assigns `(p - 1) / ord(2,p)` to each odd prime `p`.
+A006694 counts cyclotomic cosets of `2` modulo `2n+1`, excluding `{0}`.
 
-```
-NAME:     a(n) = (p-1)/x, where p = prime(n) and x = ord(2,p), the smallest
-          positive integer such that 2^x == 1 (mod p).
-TERMS:    1,1,2,1,1,2,1,2,1,6,1,2,3,2,1,1,1,1,2,8,2,1,8,2,1,2,1,3,4,18,...
-          (offset 2: a(2) = 1 for p = 3; the programs run n = 2..)
-FORMULA (the conjecture):
-  From _Vladimir Shevelev_, May 26 2008: (Start)
-  a(n) = A006694((p_n-1)/2) where p_n is the n-th odd prime.
-  Conjecture: k*a(n) = A006694(((p_n)^k-1)/2). (End)
-FORMULA (later, refuting):
-  This conjecture fails for k >= 2 exactly when p_n is a Wieferich prime
-  (A001220): At p_183 = 1093, ord(2,1093^2) = ord(2,1093) = 364 gives
-  A006694((1093^2-1)/2) = 3282, not 2*a(183) = 6; likewise at p_490 = 3511.
-  - _Andrew R. Epstein_, Aug 01 2026
-```
+The counterexample is `p = 1093`, `k = 2`. Since `2^364 ≡ 1 (mod 1093^2)`,
+each coset has at most `364` elements, so the `1194648` nonzero residues
+require at least `3282` cosets, whereas `2 * a(183) ≤ 2 * 1092`.
+The proof needs some index for `1093`, not its exact index `183`.
 
-The companion entry A006694 (retrieved the same day) is
-"Number of cyclotomic cosets of 2 mod 2n+1", with terms
-`0,1,1,2,2,1,1,4,2,1,5,2,2,3,1,6,4,5,1,4,...` (offset 0) and formula
-`a(n) = A000374(2n+1) - 1`: the count excludes the trivial coset `{0}`.
-
-No later comment retracts the conjecture; Epstein's comment refutes it.
-
-## Status
-
-**False.** This module refutes the conjecture at the Wieferich prime
-`p = 1093 = prime(183)`, `k = 2`.  Since `2^364 ≡ 1 (mod 1093^2)`, every
-cyclotomic coset of `2` modulo `1093^2` has at most `364` elements, so the
-`1093^2 - 1 = 1194648` nonzero residues need at least `1194648 / 364 = 3282`
-cosets.  On the other side `2 * a(183) ≤ 2 * 1092`.  The kernel-checked proof
-uses only these two bounds and never computes the index `183`.
-
-Computational evidence (Python, `/tmp/claude/a1917.py`): `ord(2,1093) =
-ord(2,1093^2) = 364`, `a(183) = 3`, and the exact orbit count is
-`A006694((1093^2-1)/2) = 3282`; the identity holds for the first 19 odd primes
-whenever `p^k < 200000`, `k ≤ 3`.
-
-The intended hypothesis is "`p_n` is not a Wieferich prime", i.e.
-`2^(p-1) ≢ 1 (mod p^2)`; under it `ord(2, p^j) = p^(j-1) ord(2, p)` and the
-identity follows from `A006694(n) = Σ_{d ∣ 2n+1, d > 1} φ(d)/ord(2,d)`.  That
-corrected form is not formalized here.
+Restricting to non-Wieferich primes gives a corrected identity via
+`ord(2,p^j) = p^(j-1) ord(2,p)` and
+`A006694(n) = Σ_{d ∣ 2n+1, d > 1} φ(d)/ord(2,d)`; that form is not formalized here.
 -/
 import Mathlib
 
@@ -51,7 +20,7 @@ set_option autoImplicit false
 
 namespace Candidates.A001917Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The `n`-th prime in OEIS (1-based) indexing: `oeisPrime 1 = 2`,
 `oeisPrime 2 = 3`.  Only used for `2 ≤ n`, where `n - 1` is honest. -/
@@ -104,7 +73,7 @@ theorem mem_cycCoset_iff {m s x : ℕ} (hm : Odd m) :
         (lt_of_lt_of_le (Nat.mod_lt _ htpos) (Nat.totient_le m))
     · exact (hpow.mul_left s).symm
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- A006694, first 20 terms of the DATA line (offset 0).
 example : a006694 0 = 0 ∧ a006694 1 = 1 ∧ a006694 2 = 1 ∧ a006694 3 = 2 ∧
@@ -153,9 +122,7 @@ example : a006694 ((3 ^ 2 - 1) / 2) = 2 ∧ a006694 ((7 ^ 2 - 1) / 2) = 4 := by
 
 /-! ## The conjecture -/
 
-/-- **Shevelev's conjecture (A001917, Vladimir Shevelev, May 26 2008).**
-
-Verbatim: "Conjecture: k*a(n) = A006694(((p_n)^k-1)/2)."
+/-- **Shevelev's conjecture (A001917, Vladimir Shevelev, 2008).**
 
 Indices follow the entry: `n ≥ 2` (offset 2, `p_n = prime(n)` ranges over the
 odd primes) and `k ≥ 1`.  The subtraction `p_n^k - 1` is honest since
@@ -239,8 +206,7 @@ theorem exists_oeisPrime_eq_1093 : ∃ n : ℕ, 2 ≤ n ∧ oeisPrime n = 1093 :
 /-- **Shevelev's conjecture is false.**  Counterexample: `p_183 = 1093` (a
 Wieferich prime), `k = 2`.  Here `2 * a(183) ≤ 2 * 1092` (in fact `= 6`), while
 `A006694((1093^2 - 1)/2) ≥ 3282` (in fact `= 3282`), because
-`ord(2, 1093^2) = ord(2, 1093) = 364`.  The author presumably intended `p_n`
-not to be a Wieferich prime, i.e. `2^(p_n - 1) ≢ 1 (mod p_n^2)`. -/
+`ord(2, 1093^2) = ord(2, 1093) = 364`.  The restriction to non-Wieferich primes is not formalized here. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   obtain ⟨n, hn, hp⟩ := exists_oeisPrime_eq_1093

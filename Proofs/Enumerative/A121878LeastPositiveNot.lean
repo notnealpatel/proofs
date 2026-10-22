@@ -1,36 +1,11 @@
 /-
-# A121878 — Orr: the greedy squarefree-sum sequence is a permutation
+The greedy squarefree-sum permutation (OEIS A121878; Derek Orr, Jun 01 2015).
 
-## OEIS source (retrieved with `oeis show A121878`, 2026-10-21)
-
-```
-NAME:     a(1)=1. a(n) = the smallest positive integer not occurring earlier
-          in the sequence such that a(n-1)+a(n) is squarefree.
-TERMS:    1,2,3,4,6,5,8,7,10,9,12,11,15,14,16,13,17,18,19,20,21,22,24,23,28,
-          25,26,27,30,29,32,33,34,31,35,36,37,40,38,39,43,42,41,44,45,46,47,48,
-          49,52,50,51,54,53,56,55,58,57,61,62,60,59,63,64,65,66,67,70,68,69,72,71
-COMMENT (the conjecture):
-  Conjectured to be a permutation of the natural numbers. - _Derek Orr_,
-  Jun 01 2015
-COMMENT:
-  Inverse: A167905; A167904(n) = a(a(n)). [_Reinhard Zumkeller_, Nov 15 2009]
-```
-
-## Status
-
-Triage status: open (no proof in A121878, its inverse A167905, or related
-entries, as far as the triage could tell).  Computation: the first `3 * 10^5`
-terms are exactly `{1, …, 3 * 10^5}` and `a(n) - n ≤ 8` there.
-
-## Result
-
-`a_bijOn` proves the conjecture: `a` is a bijection from the positive indices
-onto the positive integers.  Argument: if `m` never occurs, injectivity makes
-`a(k) + m` non-squarefree for all large `k`, so every `y` above all early
-terms with `y + m` squarefree is never used; a two-residue squarefree sieve
-(`exists_squarefree_pair`) then finds such a `y` with `a(k) + y` squarefree in
-a window of length `O(√a(k))`, which bounds the sequence and contradicts
-injectivity.
+Starting with a(1)=1, choose the least unused positive integer a(n) with
+a(n-1)+a(n) squarefree. The exact least-admissible recurrence is established,
+and a is a bijection from positive indices to positive integers.
+A two-residue squarefree sieve supplies candidates; if a positive integer
+were omitted, the resulting bounds would contradict injectivity.
 -/
 import Mathlib
 
@@ -335,7 +310,7 @@ theorem exists_state_fst_eq (m : ℕ) (hm : 0 < m) : ∃ k, (state k).1 = m := b
       Finset.le_sup (f := fun j => (state j).1) (Finset.mem_range.mpr (by omega))
     omega
   obtain ⟨T, L, hBL, hwin⟩ := exists_window B m
-  -- one greedy step from a term `≤ T` lands below `T`
+  -- One greedy step from a term `≤ T` lands below `T`
   have hstep : ∀ k, (state k).1 ≤ T → (state (k + 1)).1 < T := by
     intro k hk
     obtain ⟨y, hBy, hyL, hsm, hsx⟩ :=
@@ -354,7 +329,7 @@ theorem exists_state_fst_eq (m : ℕ) (hm : 0 < m) : ∃ k, (state k).1 = m := b
     induction k, hk using Nat.le_induction with
     | base => have := hsmall K le_rfl; omega
     | succ k _ ih => exact (hstep k ih).le
-  -- pigeonhole: `T + 2` distinct terms cannot all lie in `[0, T]`
+  -- Pigeonhole: `T + 2` distinct terms cannot all lie in `[0, T]`
   have hcard := Finset.card_le_card_of_injOn (fun k => (state k).1)
     (s := Finset.Ico K (K + T + 2)) (t := Finset.range (T + 1))
     (fun k hk => by
@@ -399,7 +374,7 @@ theorem isLeast_a_succ (n : ℕ) (hn : 0 < n) :
   refine ⟨(hiff _).mpr (admissible_state_succ k), fun y hy => ?_⟩
   exact state_succ_le k y ((hiff y).mp hy)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- For positive `n`, squarefreeness is the bounded condition that no `d * d` with
 `2 ≤ d ≤ n` divides `n`; this form is decidable by kernel reduction. -/

@@ -12,20 +12,8 @@ semigroups* (J. Combin. Theory Ser. A 169 (2020)).
   Proposition (disjoint images) and Corollary `cor n'`; this is the left inequality
   of Theorem `theorem main`.
 
-Verbatim printed claims:
-
-> Corollary (cor n'). For all $g \ge 2$, we have $n_g' \,\ge \, n_{g-1}'+n_{g-2}'$.
-
-where $n'_g = |\Gamma(g, q \le 3)|$ is the number of numerical semigroups (gapsets)
-of genus $g$ and depth $q = \lceil c/m \rceil \le 3$ ($m$ the multiplicity, $c$ the
-conductor).
-
-> Corollary (fibo). For all $g \ge 0$, we have $|\mathcal{F}(g, q \le 2)|=\F_{g+1}$,
-> where $\F_n$ denote the $n$th Fibonacci number.
-
-(Zhao's theorem, reproved bijectively in the paper.)
-
-Date: 2026-10-21. Status: proved in the paper (known result).
+The depth-`≤ 3` counts satisfy `n'_g ≥ n'_{g-1}+n'_{g-2}` for `2 ≤ g`.
+For depth `≤ 2`, Zhao's count is `F_{g+1}`, reproved bijectively in the paper.
 
 ## Conventions
 
@@ -407,7 +395,6 @@ theorem ncard_add_ncard_le {q : ℕ} (hq2 : 2 ≤ q) (hq3 : q ≤ 3) (k : ℕ) :
 /-- **Corollary `cor n'` of arXiv:1811.10295 (Eliahou–Fromentin, *Gapsets and numerical
 semigroups*, §5).** Let `n'_g` be the number of numerical semigroups of genus `g` and depth
 `q = ⌈c/m⌉ ≤ 3` (conductor `c ≤ 3m`), the semigroup `ℕ` (genus `0`, depth `0`) included.
-Verbatim: "For all $g \ge 2$, we have $n_g' \,\ge \, n_{g-1}'+n_{g-2}'$."
 Here `n'_g = (depthLe 3 g).ncard`; the hypothesis `2 ≤ g` keeps both `ℕ`-subtractions genuine. -/
 theorem eliahou_fromentin_lower {g : ℕ} (hg : 2 ≤ g) :
     (depthLe 3 (g - 1)).ncard + (depthLe 3 (g - 2)).ncard ≤ (depthLe 3 g).ncard := by
@@ -584,9 +571,7 @@ theorem ncard_depthLe_two_add_two (k : ℕ) :
     (depthLe 2 (k + 2)).ncard = (depthLe 2 (k + 1)).ncard + (depthLe 2 k).ncard := by
   rw [depthLe_two_eq_union, ncard_image_alphaMap_union le_rfl (by norm_num)]
 
-/-- **Corollary `fibo` of arXiv:1811.10295 (Zhao's theorem).** Verbatim: "For all
-$g \ge 0$, we have $|\mathcal{F}(g, q \le 2)|=\F_{g+1}$, where $\F_n$ denote the $n$th
-Fibonacci number." The number of numerical semigroups of genus `g` and depth `≤ 2` is
+/-- **Corollary `fibo` of arXiv:1811.10295 (Zhao's theorem).** The number of numerical semigroups of genus `g` and depth `≤ 2` is
 `Nat.fib (g + 1)` (`fib 1 = fib 2 = 1`). -/
 theorem zhao_depth_two (g : ℕ) : (depthLe 2 g).ncard = Nat.fib (g + 1) := by
   suffices h : ∀ k, (depthLe 2 k).ncard = Nat.fib (k + 1) ∧
@@ -598,7 +583,7 @@ theorem zhao_depth_two (g : ℕ) : (depthLe 2 g).ncard = Nat.fib (g + 1) := by
     refine ⟨ih.2, ?_⟩
     rw [ncard_depthLe_two_add_two, ih.1, ih.2, Nat.fib_add_two (n := k + 1), add_comm]
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- `⟨2, 7⟩ = ℕ \ {1, 3, 5}`: multiplicity `2`, conductor `6 = 3 · 2`, so depth exactly `3`. -/
 def twoSeven : AddSubmonoid ℕ where

@@ -1,38 +1,10 @@
 /-
 # A156833 — Adamson: the action of A156348 on `[1,2,3,...]`, Möbius-inverted, detects primes
 
-## OEIS source (re-pulled with `oeis show A156833` and the live `%`-lines, 2026-10-21)
-
-```
-NAME:     A054525 * A156348 * [1,2,3,...].
-TERMS:    1,2,3,6,5,16,7,24,24,38,11,103,13,68,127,144,17,261,19,404,291,152,23,
-          994,370,206,540,1093,29,2195,31,1584,943,338,2543,4808,37,416,1479,
-          7371,41,7929,43,4691,8976,596,47,18876,6510,11035,3091
-KEYWORDS: nonn
-COMMENT (the conjecture):
-  Conjecture: for n>1, a(n) = n iff n is prime.
-AUTHOR:   _Gary W. Adamson_, Feb 16 2009 (the conjecture is part of the
-          original submission; the comment line carries no separate signature)
-EXTENSIONS: Extended beyond a(14) by _R. J. Mathar_, Mar 03 2013
-PROGRAM (Mathematica, Alcover, Oct 15 2023):
-  A054525[n_, k_] := If[Divisible[n, k], MoebiusMu[n/k], 0];
-  A156348[n_, k_] := Which[k < 1 || k > n, 0, Mod[n, k] == 0,
-                           Binomial[n/k - 2 + k, k - 1], True, 0];
-  T[n_, k_] := Sum[A054525[n, j]*A156348[j, k], {j, k, n}];
-  a[n_] := Sum[T[n, k]*k, {k, 1, n}];
-```
-
-Unfolding the matrix product, `b(d) = ∑_{k ∣ d} k · C(d/k + k - 2, k - 1)` is the
-action of A156348 on `[1,2,3,...]` and `a(n) = ∑_{d ∣ n} μ(n/d) · b(d)`.
-
-## Status
-
-Triage (2026-10-21): open — no proof in the entry or the literature as far as
-the triage could tell.  Computation (this campaign): the definitions below
-reproduce the 51 listed terms and `a(n) = n ↔ n` prime holds for
-`2 ≤ n ≤ 6000`, with `a(n) > n` at every composite `n` in that range.
-
-## Proof (formalized below)
+OEIS A156833, Gary W. Adamson: for `n > 1`, `a(n) = n` iff `n` is
+prime, where `a = A054525 · A156348 · [1,2,3,…]`.
+Unfolding gives `b(d) = ∑_{k∣d} k·C(d/k+k-2,k-1)` and
+`a(n) = ∑_{d∣n} μ(n/d)·b(d)`.
 
 Reindexing `d = k·e` gives `a(n) = ∑_{k ∣ n} k · g_k(n/k)` with
 `g_k(m) = ∑_{e ∣ m} μ(m/e) C(e + k - 2, k - 1)`.  Then `g_1(m) = [m = 1]`,
@@ -53,7 +25,7 @@ open scoped ArithmeticFunction.Moebius
 
 namespace Candidates.A156833AdamsonSumAction
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `b d = ∑_{k ∣ d} k · C(d/k + k - 2, k - 1)`: the action of the triangle A156348
 (`T(d, k) = C(d/k + k - 2, k - 1)` when `k ∣ d`, else `0`) on `[1,2,3,...]`.
@@ -65,12 +37,12 @@ def b (d : ℕ) : ℕ := ∑ k ∈ d.divisors, k * (d / k + k - 2).choose (k - 1
 applied to `b`. -/
 def a (n : ℕ) : ℤ := ∑ d ∈ n.divisors, μ (n / d) * (b d : ℤ)
 
-/-- Ground truth: the first twelve values of `b`. -/
+/-- Examples: the first twelve values of `b`. -/
 example :
     (List.range 12).map (fun i => b (i + 1)) = [1, 3, 4, 9, 6, 22, 8, 33, 28, 46, 12, 131] := by
   decide +kernel
 
-/-- Ground truth: the 51 listed terms of A156833. -/
+/-- Examples: the 51 listed terms of A156833. -/
 example : (List.range 51).map (fun i => a (i + 1)) =
     [1, 2, 3, 6, 5, 16, 7, 24, 24, 38, 11, 103, 13, 68, 127, 144, 17, 261, 19, 404, 291, 152,
       23, 994, 370, 206, 540, 1093, 29, 2195, 31, 1584, 943, 338, 2543, 4808, 37, 416, 1479,
@@ -269,12 +241,10 @@ theorem lt_a_of_not_prime {n : ℕ} (hn : 1 < n) (hnp : ¬ n.Prime) : (n : ℤ) 
   rw [a_eq_sum_g]
   nlinarith
 
-/-- **Adamson's conjecture (A156833, Gary W. Adamson, Feb 16 2009).**
-
-Verbatim: "Conjecture: for n>1, a(n) = n iff n is prime."  Here
-`a n = ∑_{d ∣ n} μ(n/d) · b d` with `b d = ∑_{k ∣ d} k · C(d/k + k - 2, k - 1)`
-(the action of A156348 on `[1,2,3,...]`).  The guard `1 < n` is from the source:
-`a 1 = 1` but `1` is not prime. -/
+/-- Adamson’s conjecture (A156833): for `1 < n`, `a(n) = n` iff `n` is
+prime. Here `a(n) = ∑_{d∣n} μ(n/d)b(d)` and
+`b(d) = ∑_{k∣d} k·C(d/k+k-2,k-1)`, the action of A156348 on `[1,2,3,…]`.
+The guard excludes `n = 1`, since `a(1) = 1` but `1` is not prime. -/
 theorem a_eq_self_iff_prime (n : ℕ) (hn : 1 < n) : a n = n ↔ n.Prime := by
   refine ⟨fun h => ?_, a_prime⟩
   by_contra hnp

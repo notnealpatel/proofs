@@ -1,34 +1,13 @@
 /-
 # A211417 — Bala: divisibility of (30n)! n! / ((15n)! (10n)! (6n)!) by 3n+1, 5n+1, ...
 
-## OEIS source (retrieved with `oeis show A211417`, 2026-10-21)
-
-```
-NAME:     a(n) = (30*n)!*n!/((15*n)!*(10*n)!*(6*n)!).
-TERMS:    1,77636318760,53837289804317953893960,...
-COMMENT (the conjecture):
-  From _Peter Bala_, Aug 28 2025: (Start)
-  Conjectures: 7*a(n)/(2*n + 1), a(n)/(3*n + 1), a(n)/(5*n + 1) and
-  42*a(n)/((2*n + 1)*(3*n + 1)*(5*n + 1)) are integers for all n
-  (checked up to n = 1000).
-COMMENT (context):
-  It appears that a(n)/(30*n - 1) is integral for all n ... - the conjecture that
-  (30*n-1) divides a(n) was proved by an autonomous AI agent, see the Lean file.
-  - _Ralf Stephan_, Jun 30 2026
-```
-
-## Literature status (triage)
-
-Open: no proof in the entry or in the literature as far as the triage could
-tell. The entry marks only the separate claim `(30n - 1) ∣ a(n)` as proved
-(AlphaProof Nexus; Adamczewski et al., arXiv:2608.11941, whose table lists only
-the `30n - 1` claim for this sequence).
-
-## Result of this module
-
-All four conjectures are proved for every `n`, with no remaining `sorry`:
-`three_mul_add_one_dvd`, `five_mul_add_one_dvd`, `two_mul_add_one_dvd` and
-`prod_dvd`.
+Peter Bala's four divisibility conjectures in OEIS A211417 concern
+`a(n) = (30n)! n! / ((15n)! (10n)! (6n)!)`:
+`2n+1 ∣ 7a(n)`, `3n+1 ∣ a(n)`, `5n+1 ∣ a(n)`, and
+`(2n+1)(3n+1)(5n+1) ∣ 42a(n)` for all `n`.
+They are proved below as `two_mul_add_one_dvd`, `three_mul_add_one_dvd`,
+`five_mul_add_one_dvd`, and `prod_dvd`. The separate `(30n-1)` claim is
+cited in Adamczewski et al., arXiv:2608.11941.
 
 Argument. Put `J = ⌊30n/q⌋`. Legendre's formula gives
 `v_p(a(n)) = ∑_{i ≥ 1} slack ⌊30n/p^i⌋`, where

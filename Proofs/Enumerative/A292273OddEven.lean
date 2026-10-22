@@ -1,26 +1,10 @@
 /-
-# A292273 — Granvik: `a(n) = Re(mu(n) * i^n)`
+Granvik's complex formula for OEIS A292273 (Mats Granvik, Jul 06 2024).
 
-## OEIS source (retrieved with `oeis show A292273`, 2026-10-21)
-
-```
-NAME:     For odd n: a(n) = 0, and for even n: a(n) = -mu(n), where mu is
-          Moebius function (A008683).
-TERMS:    0,1,0,0,0,-1,0,0,0,-1,0,0,0,-1,0,0,0,0,0,0,0,-1,0,0,0,-1,0,0,0,1,...
-FORMULA:  a(n) = (A000035(n)-1) * A008683(n).
-FORMULA (the conjecture, verbatim):
-  Conjecture: a(n) = Re(A008683(n)*(i^n)). - _Mats Granvik_, Jul 06 2024
-```
-
-## Status
-
-Triage status: open (no proof recorded in the entry). The argument is
-elementary and is formalized below: for odd `n`, `i^n = ±i` is purely
-imaginary; for `n ≡ 2 (mod 4)`, `i^n = -1`; for `n ≡ 0 (mod 4)`, `4 ∣ n`, so
-`n` is not squarefree and `mu(n) = 0`.
-
-Computational re-validation (Python, 2026-10-21): the identity holds for
-every `1 ≤ n ≤ 200000`.
+For a(n)=0 at odd n and a(n)=-μ(n) at even n,
+ a(n)=Re(μ(n) i^n) for every natural n; a positive-index wrapper matches
+the source offset. The proof splits modulo 4: odd powers are imaginary,
+powers at n≡2 are -1, and 4∣n forces μ(n)=0.
 -/
 import Mathlib
 
@@ -35,7 +19,7 @@ open scoped ArithmeticFunction.Moebius
 where `mu` is the Möbius function (A008683, Mathlib's `ArithmeticFunction.moebius`). -/
 def a (n : ℕ) : ℤ := if Even n then -(μ n) else 0
 
-/-! ## Ground truth against the DATA line `0, 1, 0, 0, 0, -1, …, 1` (offset 1) -/
+/-! ## Examples against the DATA line `0, 1, 0, 0, 0, -1, …, 1` (offset 1) -/
 
 example : a 1 = 0 := by simp [a]
 
@@ -101,12 +85,8 @@ theorem a_eq_re_moebius_mul_I_pow_all (n : ℕ) :
       omega
     simp [a, hodd, pow_succ]
 
-/-- **Granvik's conjecture (A292273, Mats Granvik, Jul 06 2024).**
-
-Verbatim: "Conjecture: a(n) = Re(A008683(n)*(i^n))."  For every `n ≥ 1`, the
-A292273 term `a(n)` (`0` for odd `n`, `-mu(n)` for even `n`) equals the real
-part of `mu(n) * i^n`.  The `1 ≤ n` hypothesis mirrors the entry's offset; the
-identity also holds at `n = 0` (`a_eq_re_moebius_mul_I_pow_all`). -/
+/-- Granvik's identity at positive source indices. The theorem
+`a_eq_re_moebius_mul_I_pow_all` also covers `n=0`. -/
 theorem a_eq_re_moebius_mul_I_pow (n : ℕ) (_hn : 0 < n) :
     ((a n : ℤ) : ℝ) = (((μ n : ℤ) : ℂ) * Complex.I ^ n).re :=
   a_eq_re_moebius_mul_I_pow_all n

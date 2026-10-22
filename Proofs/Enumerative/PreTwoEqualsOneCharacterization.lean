@@ -1,44 +1,18 @@
 /-
-# `pre_2(n) = 1` exactly for `n ∈ {1, 2, 4}`
+The pre₂ image has cardinality one exactly at positive n∈{1,2,4}.
 
-## Source
+Source: Aman Devnani and Pramod Eyyunni, “Elementary symmetric polynomials
+and a potentially injective family of maps on partitions”, arXiv:2604.17424,
+Introduction (definitions, following Ballantine–Beck–Merca), Theorem 1.6
+and Concluding Remarks, Problem 3.
 
-arXiv:2604.17424, Aman Devnani and Pramod Eyyunni, "Elementary symmetric
-polynomials and a potentially injective family of maps on partitions".
-
-Definitions (Introduction, after equation (1.1)): following Ballantine, Beck
-and Merca, for `λ = (λ_1, …, λ_ℓ)` the partition `pre_k(λ)` has the multiset of
-parts `{λ_{i_1} ⋯ λ_{i_k} | 1 ≤ i_1 < ⋯ < i_k ≤ ℓ}` if `ℓ ≥ k`, and is the
-empty partition if `ℓ < k`.  Before Theorem 1.6 (`pre2nsize`): "Let `Pre_2(n)`
-be the set of partitions of `n` which are in the image of `pre_2`. Set
-`pre_2(n) := |Pre_2(n)|`. ... we have that `pre_2(n) ≥ 1` for all `n ≥ 1`."
-
-Verbatim question (Concluding Remarks, Problem 3):
-
-  "In the course of the proof of Case 1 of Theorem \ref{pre2nsize}, we saw
-   that if `n+1` is a prime, then `pre_2(n) ≥ 1`. We thus ask
-   Does there exist an `n ≥ 1` such that `pre_2(n) = 1`?"
-
-## Claim formalized here
-
-For `n ≥ 1`, `pre_2(n) = 1` iff `n ∈ {1, 2, 4}`.  Equivalently, `n` is the
-second elementary symmetric function `e_2` of a multiset of at least three
-positive integers iff `n ∉ {0, 1, 2, 4}`.  In particular the answer to
-Problem 3 is "yes", and exactly three such `n` exist.
-
-## Status
-
-Open in the paper (posed as Problem 3; no answer given).  The characterization
-and its proof below are new elementary arguments (date: 2026-10-21):
-
-* a length-2 partition `(a, b)` maps to the single-part partition `(ab)`, and
-  `(n) = pre_2(n, 1)` is always in the image;
-* a partition with `ℓ ≥ 3` parts maps to a partition with `choose ℓ 2 ≥ 3`
-  parts; such a partition of `n` exists iff `n ∉ {0, 1, 2, 4}`:
-  writing `2n = j k` with `2 ≤ j < k` of opposite parity gives
-  `e_2(a, 1^j) = n` for `a = (k - j + 1)/2`, which covers every `n` that is not
-  a power of two; `e_2(2, 2, 2^{e-2} - 1) = 2^e` covers `e ≥ 3`; and
-  `e_2 ∈ {1, 2, 4}` is impossible for three or more positive parts.
+For a partition λ, pre₂(λ) has parts λ_i λ_j for i<j, and is empty when
+λ has fewer than two parts. Pre₂(n) is the set of partitions of n in this
+image; pre₂Count is its cardinality. The theorem answers the source's
+existence question and characterizes all positive n with pre₂Count(n)=1.
+The arithmetic core proves that n is e₂ of at least three positive parts
+iff n∉{0,1,2,4}. A two-part input always gives the single-part partition (n),
+whereas an input with at least three parts gives a different image partition.
 -/
 import Mathlib
 
@@ -65,7 +39,7 @@ the image of `pre_2`. -/
 noncomputable def pre2Count (n : ℕ) : ℕ :=
   (Pre2Set n).ncard
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The paper's example: `pre_2(7, 4, 4) = (28, 28, 16)`. -/
 example : pre2 {7, 4, 4} = {28, 28, 16} := by decide
@@ -328,7 +302,7 @@ theorem pre2Count_eq_one_iff {n : ℕ} (hn : 0 < n) :
 theorem exists_pre2Count_eq_one : ∃ n : ℕ, 1 ≤ n ∧ pre2Count n = 1 :=
   ⟨4, by norm_num, (pre2Count_eq_one_iff (by norm_num)).mpr (by norm_num)⟩
 
-/-- Non-vacuity check of the converse direction: `pre_2(3) ≠ 1`
+/-- Example for the converse direction: `pre_2(3) ≠ 1`
 (`pre_2(1, 1, 1) = (1, 1, 1)` is a second partition of `3` in the image). -/
 example : pre2Count 3 ≠ 1 := by
   rw [Ne, pre2Count_eq_one_iff (by norm_num)]

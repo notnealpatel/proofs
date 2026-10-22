@@ -1,31 +1,11 @@
 /-
 # A232656 — Kleinwaks: Fibonacci-like pairs mod n that hit zero
 
-## OEIS source (retrieved with `oeis show A232656`, 2026-10-21)
-
-```
-NAME:     The number of pairs of numbers below n that, when generating a
-          Fibonacci-like sequence modulo n, contain zeros.
-TERMS:    1,4,9,16,21,36,49,40,81,84,101,96,85,196,189,136,145,180,325,336,...
-FORMULA (the conjecture):
-  Conjecture: a(n) = Sum_{d|n} phi(d)*A001177(d), where phi = Euler's totient
-  function (A000010). - _Logan J. Kleinwaks_, Oct 28 2017
-FORMULA (restatement, no proof given):
-  a(n) = Sum_{d|n} phi(d)*A001177(d) = Sum_{k=1..n} A001177(n/gcd(n,k)) = ...
-  - _Richard L. Ollerton_, May 09 2021
-```
-
-`A001177(d)` is the Fibonacci entry point (rank of apparition): the least
-`k ≥ 1` with `d ∣ F_k`.
-
-## Status
-
-Triage: open (no proof in the entry; Ollerton's 2021 line restates the formula
-without proof; Avila–Khovanova, arXiv:1403.4614, give no such formula; no proof
-found by web search).  Brute force confirms the formula for `1 ≤ n ≤ 300`.
-This module proves it (`a232656`), sorry-free.
-
-## Proof outline (formalized below)
+Logan J. Kleinwaks' conjecture in OEIS A232656 gives the number of pairs
+modulo positive `n` whose Fibonacci-like sequence hits zero as
+`Σ_{d ∣ n} φ(d) A001177(d)`. The formula is also recorded by Richard L.
+Ollerton. Here A001177 is the rank of apparition: the least positive `k`
+with `d ∣ F_k`.
 
 The step map `T (x, y) = (y, x + y)` is a bijection of `(ZMod n)²`, so every
 point is periodic and a pair whose sequence contains `0` lies on the forward
@@ -43,7 +23,7 @@ namespace Candidates.A232656PairsWhoseFibonacci
 
 open Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The Fibonacci step map on pairs modulo `n`: `(x₀, x₁) ↦ (x₁, x₀ + x₁)`.  The
 `k`-th term of the Fibonacci-like sequence started at `(a, b)` is
@@ -108,7 +88,7 @@ theorem entryPoint_spec {d : ℕ} (hd : 0 < d) : 0 < entryPoint d ∧ d ∣ Nat.
 theorem entryPoint_le {d k : ℕ} (hk : 0 < k) (h : d ∣ Nat.fib k) : entryPoint d ≤ k :=
   Nat.sInf_le (show k ∈ {k | 0 < k ∧ d ∣ Nat.fib k} from ⟨hk, h⟩)
 
-/-- Characterization used for ground-truth checks: if `0 < k`, `d ∣ F_k` and no
+/-- Characterization used for examples: if `0 < k`, `d ∣ F_k` and no
 `0 < j < k` has `d ∣ F_j`, then `entryPoint d = k`. -/
 theorem entryPoint_eq_of {d k : ℕ} (hk : 0 < k) (h : d ∣ Nat.fib k)
     (hmin : ∀ j < k, 0 < j → ¬ d ∣ Nat.fib j) : entryPoint d = k := by
@@ -272,7 +252,7 @@ theorem sum_depth_eq (n : ℕ) [NeZero n] :
   rw [Finset.sum_congr rfl h2]
   exact Nat.sum_div_divisors n (fun d => Nat.totient d * entryPoint d)
 
-/-! ## Ground-truth checks
+/-! ## Examples
 
 `a` is checked independently of the main theorem: when `T^[m] = id`
 (`m` a multiple of the Pisano period), zero-hitting is a bounded search, which
@@ -329,10 +309,7 @@ example : entryPoint 8 = 6 := entryPoint_eq_of (by norm_num) (by decide) (by dec
 
 /-! ## The conjecture -/
 
-/-- **Kleinwaks' conjecture (A232656, Logan J. Kleinwaks, Oct 28 2017).**
-
-Verbatim: "Conjecture: a(n) = Sum_{d|n} phi(d)*A001177(d), where phi = Euler's
-totient function (A000010)."
+/-- **Kleinwaks' conjecture (A232656, Logan J. Kleinwaks).**
 
 For every `n ≥ 1`, the number of pairs `(a, b) ∈ (ZMod n)²` whose Fibonacci-like
 sequence `x₀ = a, x₁ = b, x_{k+2} = x_k + x_{k+1}` (mod `n`) contains a zero

@@ -1,45 +1,11 @@
 /-
-# A040027 — Yanev: the Gould numbers as an A058006-weighted Stirling sum
+# A Stirling transform for the Gould numbers (A040027)
 
-## OEIS source (pulled with `oeis show A040027`, retrieved 2026-10-21)
-
-```
-NAME:     The Gould numbers.
-TERMS:    1,1,3,9,31,121,523,2469,12611,69161,404663,2512769,16485691,...
-OFFSET:   0
-KEYWORDS: easy,nonn,nice
-FORMULA (the definition used here):
-  Recurrence: a(0)=1, a(1)=1, for n > 1,
-  a(n) = n + Sum_{j=1..n-1} binomial(n, j+1)*a(j). - _Jon Perry_, Apr 26 2005
-FORMULA (the conjecture):
-  Conjecture: a(n) = Sum_{k = 0..n} A058006(k)*A048993(n+1, k+1)
-  - _Velin Yanev_, Aug 31 2021
-```
-
-Cross-referenced entries:
-
-* A058006 "Alternating factorials: 0! - 1! + 2! - ... + (-1)^n n!",
-  terms 1,0,2,-4,20,-100,620,-4420,...
-* A048993 "Triangle of Stirling numbers of 2nd kind, S(n,k), n >= 0,
-  0 <= k <= n"; this is Mathlib's `Nat.stirlingSecond`.
-
-## Status
-
-Triage status: open (no proof in the entry or the literature found by the
-triage); verified numerically for `n ≤ 59` by the triage and for `n ≤ 120`
-before formalization.  This module proves it for all `n`.
-
-## Proof outline
-
-Write `A(k) = Σ_{i ≤ k} (-1)^i i!`, `U(j) = Σ_k A(k) S(j,k)` and
-`T(n) = Σ_k A(k) S(n+1,k+1)` (the conjectured right side).
-
-1. `Σ_m (-1)^m m! S(N,m) = (-1)^N` (induction on the Stirling recurrence).
-2. `T(n) = Σ_i C(n,i) U(i)` (binomial recurrence for `S(n+1,k+1)`).
-3. `U(n+1) + (-1)^n = T(n)` (from 1 and `A(k+1) - A(k) = (-1)^(k+1) (k+1)!`).
-4. Strong induction: Perry's recurrence for `a(n+2)` matches
-   `T(n+2) = Σ_i C(n+2,i) U(i)` after substituting 3 and the alternating
-   binomial sum.
+Source: Velin Yanev's OEIS A040027 formula (Aug 31 2021).
+The Gould numbers are defined by Jon Perry's recurrence (Apr 26 2005).
+For every `n`, `a(n) = Σ_{k≤n} A058006(k) S(n+1,k+1)`, where
+`A058006(k) = Σ_{i≤k} (-1)^i i!` and `S` is A048993, the Stirling numbers
+of the second kind. The sum is stated in `ℤ` since A058006 has negative terms.
 -/
 import Mathlib
 import Enumerative.StirlingBellCombinatorial
@@ -226,13 +192,8 @@ theorem gould_eq_gouldStirlingSum (n : ℕ) : (gould n : ℤ) = gouldStirlingSum
 
 /-! ## The conjecture -/
 
-/-- **Yanev's conjecture (A040027, Velin Yanev, Aug 31 2021), proved.**
-
-Verbatim: "Conjecture: a(n) = Sum_{k = 0..n} A058006(k)*A048993(n+1, k+1)".
-For every `n ≥ 0`, the Gould number `a(n)` equals
-`Σ_{k=0}^{n} A058006(k) S(n+1, k+1)`, where `A058006(k) = Σ_{i=0}^{k} (-1)^i i!`
-and `S` is the Stirling number of the second kind.  Stated in `ℤ` because
-A058006 takes negative values. -/
+/-- Yanev's formula: the Gould number equals the A058006-weighted shifted
+Stirling sum. The equality is in `ℤ` because A058006 takes negative values. -/
 theorem gould_eq_sum_altFactSum_mul_stirlingSecond (n : ℕ) :
     (gould n : ℤ) =
       ∑ k ∈ range (n + 1), altFactSum k * ((n + 1).stirlingSecond (k + 1) : ℤ) :=

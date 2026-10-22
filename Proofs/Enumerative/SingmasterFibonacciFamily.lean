@@ -1,46 +1,16 @@
 /-
-# Singmaster's Fibonacci family: infinitely many numbers occur at least
-# six times in Pascal's triangle
+# Singmaster's Fibonacci family of repeated binomial coefficients
 
-## Source (pulled 2026-10-21)
-
-MathOverflow question 100265, "Not especially famous, long-open problems
-which anyone can understand" (asked by David Feldman), answer 101093 by
-Michael Hardy (2012-07-01), https://mathoverflow.net/a/101093.  Verbatim:
-
-```
-Singmaster's conjecture says there is a finite upper bound on the number
-of times a number (other than the 1s on the edge) can appear in Pascal's
-triangle. [...] It has been proved that infinitely many numbers appear
-twice; similarly three times, four times, and six times.
-```
-
-The six-fold claim is Singmaster's theorem: D. Singmaster, "Repeated
-binomial coefficients and Fibonacci numbers", Fibonacci Quart. 13 (1975),
-295--298.  Writing `F` for the Fibonacci numbers, for every `i ≥ 1`
-with `N = F(2i+2) F(2i+3)` and `K = F(2i) F(2i+3)` one has
-`C(N, K) = C(N - 1, K + 1)`; for `i = 1` this is `C(15,5) = C(14,6) = 3003`.
-The value `a = C(N, K)` then occurs at the six positions
-`(N,K), (N,N-K), (N-1,K+1), (N-1,N-2-K), (a,1), (a,a-1)`.
-No arXiv paper is involved.
-
-## Status
-
-Proved in the literature (Singmaster 1975); the thread states it as known.
-Singmaster's conjecture itself (an absolute bound) remains open and is not
-formalized here.  "Appear six times" is formalized as "at least six times":
-it is not known that these values occur exactly six times.
-
-## Counting conventions
-
-* `solutions a` follows google-deepmind formal-conjectures
-  `Wikipedia/Singmaster.lean`: pairs `(n, k)` with `1 ≤ k < n` and
-  `C(n, k) = a` (the edge `1`s are excluded).
-* `halfSolutions a` follows `Proofs/Sorry/Erdos/E849.lean`
-  (`ErdosCandidates.E849.solutions`): pairs with `1 ≤ k` and `2k ≤ n`.
-
-Mathlib inventory (leandoc): `Nat.choose`, `Nat.fib`; no binomial
-repetition or Singmaster result exists in Mathlib.
+D. Singmaster, *Repeated binomial coefficients and Fibonacci numbers*,
+Fibonacci Quarterly 13 (1975), 295–298. Also Michael Hardy's MathOverflow
+answer 101093 (Jul 01 2012), https://mathoverflow.net/a/101093.
+For `i ≥ 1`, put `N=F(2i+2)F(2i+3)`, `K=F(2i)F(2i+3)`.
+Then `C(N,K)=C(N-1,K+1)`; at `i=1` the value is 3003.
+These yield six distinct off-edge positions, or three in the half-triangle,
+and infinitely many distinct values with at least that many occurrences.
+No exact multiplicity or universal Singmaster bound is asserted.
+`solutions` uses `1 ≤ k < n`; `halfSolutions` uses `1 ≤ k`, `2k ≤ n`,
+matching the Erdős problem 849 convention.
 -/
 import Mathlib
 
@@ -60,7 +30,7 @@ def solutions (a : ℕ) : Set (ℕ × ℕ) :=
 def halfSolutions (a : ℕ) : Set (ℕ × ℕ) :=
   {q | 1 ≤ q.2 ∧ 2 * q.2 ≤ q.1 ∧ q.1.choose q.2 = a}
 
-/-! Ground truth: `3003 = C(15,5) = C(14,6)` lies in both solution sets. -/
+/-! `3003 = C(15,5) = C(14,6)` lies in both solution sets. -/
 
 example : (15, 5) ∈ solutions 3003 := ⟨by norm_num, by norm_num, by decide⟩
 example : (14, 8) ∈ solutions 3003 := ⟨by norm_num, by norm_num, by decide⟩
@@ -166,7 +136,7 @@ theorem choose_fib_eq_choose_fib (i : ℕ) :
   rw [hN, show a * d + L + 1 - 1 = a * d + L by omega]
   exact choose_eq_choose_of_mul_eq (a * d) L hkey
 
-/-- Ground truth: the case `i = 1` is `C(15,5) = C(14,6)`. -/
+/-- The case `i = 1` is `C(15,5) = C(14,6)`. -/
 example : (Nat.fib 4 * Nat.fib 5, Nat.fib 2 * Nat.fib 5) = (15, 5) := by decide
 
 /-! ## Counting the repetitions -/

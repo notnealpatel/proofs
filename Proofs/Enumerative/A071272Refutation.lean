@@ -1,41 +1,12 @@
 /-
-# A071272 — refutation of Wu's characterization conjecture
+Refutation of Wu's criterion for OEIS A071272 (Chai Wah Wu, May 30 2026).
 
-## OEIS source (retrieved with `oeis show A071272`, 2026-10-21)
-
-```
-NAME:     Palindromes in A066492.
-TERMS:    1,2,3,4,5,6,7,8,9,101,111,121,131,141,151,161,171,181,202,212,222,
-          232,242,252,262,272,303,313,323,333,343,353,363,404,414,424,434,444,
-          454,505,515,525,535,545,606,616,626,636,707,717,727,808,818,909,10001
-COMMENT (the conjecture):
-  Conjecture: m is a term if and only if 1<=m<=9 or m is a palindrome of odd
-  length 2k+1 such that the sum of the k-th and (k+1)-th decimal digits is less
-  than or equal to 9. - _Chai Wah Wu_, May 30 2026
-COMMENT:
-  Also palindromes p such that 11*p is a palindrome with an even number of
-  digits. - _David A. Corneth_, May 30 2026
-```
-
-`A066492` is `a(n) = A056524(n)/11`, and `A056524` is "Palindromes with even
-number of digits" (`11, 22, …, 99, 1001, …`).  So `m` is in `A066492` iff
-`11 * m` is a positive palindrome with an even number of decimal digits, and
-`A071272` collects the palindromes among those — Corneth's restatement, and
-the PARI program `is(n)` of the entry.  No later comment on the entry retracts
-or amends the conjecture.
-
-## Status
-
-This module **refutes** the conjecture as literally stated.  The palindrome
-`m = 19091` has odd length `5 = 2*2+1`, and its 2nd and 3rd digits are `9` and
-`0`, summing to `9 ≤ 9`; but `11 * 19091 = 210001` is not a palindrome, so
-`19091` is not a term.  It is the least counterexample (computational check up
-to `2 * 10^5`; the reverse implication had no mismatches there).
-
-The criterion that matches the data (checked by the triage for all palindromes
-up to 13 digits) is the no-carry condition for `11 * m`: `m` is an odd-length
-palindrome all of whose *adjacent* digit pairs sum to at most `9`.  Wu's
-middle-pair condition only controls the carry at the centre.
+A term is a positive palindrome m for which 11m is an even-length palindrome
+(A066492 and A056524; David A. Corneth's restatement, May 30 2026).
+The palindrome 19091 satisfies the stated middle-pair digit bound but
+11*19091=210001 is not palindromic, refuting the proposed equivalence.
+The broader adjacent-pair no-carry criterion below is only defined and tested;
+its equivalence with sequence membership is not proved.
 -/
 import Mathlib
 
@@ -100,7 +71,7 @@ equal to 9." -/
 def Conjecture : Prop :=
   ∀ m : ℕ, IsTerm m ↔ WuCriterion m
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : (Nat.digits 10 19091) = [1, 9, 0, 9, 1] := by norm_num
 
@@ -137,20 +108,15 @@ theorem wuCriterion_19091 : WuCriterion 19091 := by
 theorem not_isTerm_19091 : ¬ IsTerm 19091 := by
   decide
 
-/-- **Wu's conjecture for A071272 is false.**  Counterexample `m = 19091`: it
-is an odd-length palindrome whose middle pair of digits (`9`, `0`) sums to `9`,
-yet `11 * 19091 = 210001` is not a palindrome.  The author probably intended
-the no-carry condition on `11 * m`: every adjacent pair of digits of `m` sums
-to at most `9`, not just the central pair. -/
+/-- Wu's A071272 criterion is false: the odd-length palindrome `19091` has
+central digits `9,0` summing to `9`, but `11*19091=210001` is not palindromic. -/
 theorem wuConjecture_false : ¬ Conjecture := fun h =>
   not_isTerm_19091 ((h 19091).mpr wuCriterion_19091)
 
-/-! ## The probable intended criterion -/
+/-! ## A no-carry criterion (finite examples only) -/
 
-/-- The no-carry criterion: `m` is a positive palindrome of odd decimal
-length all of whose adjacent digit pairs sum to at most `9` (so that the
-schoolbook product `11 * m` has no carries).  This is the likely intended
-form of Wu's conjecture; it is *not* proved here in general. -/
+/-- A positive odd-length palindrome with every adjacent digit pair summing
+to at most `9`. Its equivalence with sequence membership is not proved here. -/
 def NoCarryCriterion (m : ℕ) : Prop :=
   0 < m ∧ IsPal m ∧ Odd (Nat.digits 10 m).length ∧
     ∀ i < (Nat.digits 10 m).length - 1,

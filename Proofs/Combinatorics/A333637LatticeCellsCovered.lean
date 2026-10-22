@@ -1,37 +1,10 @@
 /-
-# A333637 — Kotesovec: cells covered twice in the square Genealodron
+# A333637 — multiply covered cells in the square Genealodron
 
-## OEIS source (`oeis show A333637`, retrieved 2026-10-21)
-
-```
-NAME:     The number of cells which contain multiple squares of a Genealodron
-          formed from 2^n - 1 equal-sized squares (when viewed from above).
-TERMS:    0,0,0,2,7,15,27,41,57,75,95,117,141,167,195,225,257,291,327,365,...
-KEYWORDS: nonn,easy
-COMMENT:  See A179178 for the definition of a Genealodron. In this variation,
-          a Genealodron is a rooted binary tree constructed from squares. One
-          edge of each square is attached to its parent and the two adjacent
-          edges to its child trees.
-          The first Genealodron consists of one square.
-          The second Genealodron is formed by joining another equal-sized
-          square to the left edge and to the right edge of the first so that
-          the second Genealodron is made up of three squares.
-          The third Genealodron is formed by joining squares to the upper and
-          lower edges of both the second and third square of the second
-          Genealodron so that the third Genealodron is made up of seven squares.
-          This continues, with the edges to which the new squares are attached
-          alternating between left/right and upper/lower.
-          From the fourth generation onwards, some squares will overlap. a(n)
-          is the number of cells which contain overlapping squares.
-FORMULA (the conjecture):
-  Conjecture: for n>=6, a(n) = n^2 - n - 15. - _Vaclav Kotesovec_, Apr 07 2020
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell). Colin Barker's g.f. and recurrence in the same entry are also
-marked conjectural; they follow from the closed form proved here.
+Vaclav Kotesovec (OEIS A333637, Apr 07 2020) conjectured
+`a(n) = n² - n - 15` for `n ≥ 6`, where `a(n)` counts cells covered
+by at least two of the `2^n - 1` squares. The Genealodron construction
+is described in A179178 and A333637.
 
 ## Model
 
@@ -39,9 +12,7 @@ Each square occupies one unit lattice cell of `ℤ × ℤ`; a child attached acr
 an edge occupies the adjacent cell. Generation `j` (0-indexed) attaches its
 children left/right when `j` is even and down/up when `j` is odd. The
 Genealodron is a multiset of cells and a cell "contains multiple squares" when
-its multiplicity is at least `2`. The model reproduces all 60 listed terms
-(Python check, 2026-10-21) and the ground-truth examples below check
-`a(1), …, a(8)` in the kernel.
+its multiplicity is at least `2`. 
 
 ## Proof
 
@@ -80,7 +51,7 @@ its cardinality is `A333637 n`. -/
 def multiplyCovered (n : ℕ) : Finset (ℤ × ℤ) :=
   (genealodron n).toFinset.filter (fun c => 2 ≤ (genealodron n).count c)
 
-/-! ## Ground truth against the listed terms `0, 0, 0, 2, 7, 15, 27, 41` -/
+/-! ## Examples: listed terms `0, 0, 0, 2, 7, 15, 27, 41` -/
 
 example : (genealodron 5).card = 2 ^ 5 - 1 := by decide
 example : (multiplyCovered 1).card = 0 := by decide
@@ -390,9 +361,7 @@ theorem four_mul_card_layer (J : ℕ) (hJ : 2 ≤ J) :
 
 /-- **Kotesovec's conjecture (A333637, Vaclav Kotesovec, Apr 07 2020).**
 
-Verbatim: "Conjecture: for n>=6, a(n) = n^2 - n - 15."
-
-Here `a(n) = (multiplyCovered n).card` is the number of lattice cells covered by at least two of
+For `6 ≤ n`, `a(n) = n² - n - 15`. Here `a(n) = (multiplyCovered n).card` is the number of lattice cells covered by at least two of
 the `2 ^ n - 1` squares of the `n`-generation square Genealodron. The guard `6 ≤ n` is from the
 source and is load-bearing: `a(5) = 7 ≠ 5^2 - 5 - 15 = 5`. The difference is taken in `ℤ`. -/
 theorem kotesovec_conjecture (n : ℕ) (hn : 6 ≤ n) : ((multiplyCovered n).card : ℤ) = (n : ℤ) ^ 2 - n - 15 := by

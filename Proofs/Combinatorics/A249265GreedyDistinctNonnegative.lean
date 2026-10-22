@@ -1,41 +1,16 @@
 /-
 # A249265 — Barker's linear recurrence for the greedy Fibonacci-average sequence
 
-## OEIS source (`oeis show A249265`, retrieved 2026-10-21)
+Colin Barker's conjecture in OEIS A249265 (October 24, 2014) gives
+`a(n) = 2a(n-2) + a(n-4) - 2a(n-6) - a(n-8)` for `n > 15`.
+The sequence greedily chooses distinct least nonnegative terms so that
+each prefix average is a Fibonacci number, starting with `a(1) = 0`.
 
-```
-NAME:     Sequence of distinct least nonnegative numbers such that the average
-          of the first n terms is a Fibonacci number.
-TERMS:    0,2,1,5,7,3,17,29,8,58,13,109,21,203,34,370,55,667,89,1189,144,2102,
-          233,3689,377,6435,610,11166,987,19287,1597,33181,2584,56882,4181,
-          97205,6765,165643,10946,281546,17711,477443,28657,807941,46368,
-          1364590,75025,2300689,121393
-COMMENT:  This is the same concept as A248982, but with a(1) = 0, the zeroth
-          Fibonacci number.
-FORMULA (the conjecture):
-  Conjecture: a(n) = 2*a(n-2) + a(n-4) - 2*a(n-6) - a(n-8) for n > 15.
-  - _Colin Barker_, Oct 24 2014
-FORMULA (unattributed, unproved in the entry):
-  For n > 5, a(2*n-3) = A000045(n).
-```
-
-## Status
-
-Triage: open. No proof in the entry. Fried (arXiv:2410.07237, pp. 11-12)
-treats the twin sequence A248982 and leaves its Fibonacci collision lemma
-unproved; Le (arXiv:2509.26138) claimed it, but that paper was withdrawn.
-
-## What this file proves (no `sorry`)
-
-* `term_eq_closedForm`: the greedy sequence equals an explicit closed form;
-* `a_two_mul_sub_three`: the entry's formula `a(2n-3) = F(n)` for `n > 5`;
-* `a_two_mul`: `a(2j) = F(j+1) + 2j F(j)` for `j ≥ 4`;
-* `barker`: Barker's conjecture for every `n > 15`;
-* `a_first_terms`: all 49 listed terms.
-
-The key step is the collision lemma `fib_ne_evenTerm`. For `i ≥ 1`,
-`F(i+2) + 2(i+1)F(i+1)` is never Fibonacci. The proof uses `Nat.fib_add`
-and the coprimality of `F(i)` and `F(i+1)`.
+The closed form proved below gives `a(2n-3) = F(n)` for `n > 5` and
+`a(2j) = F(j+1) + 2j F(j)` for `j ≥ 4`, and implies the recurrence.
+The key collision lemma `fib_ne_evenTerm` shows that, for `i ≥ 1`,
+`F(i+2) + 2(i+1)F(i+1)` is never Fibonacci, using `Nat.fib_add`
+and coprimality of consecutive Fibonacci numbers.
 -/
 import Mathlib
 
@@ -383,7 +358,7 @@ theorem term_eq_closedForm (n : ℕ) : term n = closedForm n := by
 theorem a_succ (n : ℕ) : a (n + 1) = closedForm n := by
   rw [a, Nat.add_sub_cancel, term_eq_closedForm]
 
-/-- Ground truth: `a(1), ..., a(49)` are exactly the 49 terms listed in the OEIS
+/-- `a(1), ..., a(49)` are exactly the 49 terms listed in the OEIS
 entry A249265. -/
 theorem a_first_terms : (List.range 49).map (fun n => a (n + 1)) =
     [0, 2, 1, 5, 7, 3, 17, 29, 8, 58, 13, 109, 21, 203, 34, 370, 55, 667, 89, 1189, 144, 2102,
@@ -393,8 +368,7 @@ theorem a_first_terms : (List.range 49).map (fun n => a (n + 1)) =
   simp only [a_succ]
   decide
 
-/-- The entry's unproved formula line "For n > 5, a(2*n-3) = A000045(n)":
-`a(2n-3) = F(n)` for `5 < n`. -/
+/-- The formula in OEIS A249265: `a(2n-3) = F(n)` for `5 < n`. -/
 theorem a_two_mul_sub_three (n : ℕ) (hn : 5 < n) : a (2 * n - 3) = fib n := by
   obtain ⟨m, rfl⟩ : ∃ m, n = m + 6 := ⟨n - 6, by omega⟩
   rw [show 2 * (m + 6) - 3 = 2 * (m + 4) + 1 by omega, a_succ, closedForm_two_mul (by omega)]
@@ -406,10 +380,10 @@ theorem a_two_mul (j : ℕ) (hj : 4 ≤ j) : a (2 * j) = fib (j + 1) + 2 * j * f
     closedForm_two_mul_add_one (by omega), evenTerm]
   ring
 
-/-- **Barker's conjecture (A249265, Colin Barker, Oct 24 2014).** Verbatim:
-"Conjecture: a(n) = 2*a(n-2) + a(n-4) - 2*a(n-6) - a(n-8) for n > 15."
-Stated over `ℤ` (cast before subtracting); the guard `15 < n` keeps every index
-`n - 8 ≥ 8` off the junk value `a 0`. -/
+/-- Barker's conjecture (OEIS A249265, October 24, 2014):
+`a(n) = 2a(n-2) + a(n-4) - 2a(n-6) - a(n-8)` for `15 < n`.
+Differences are in `ℤ`; the guard keeps every index at least 8,
+away from the unused value `a 0`. -/
 theorem barker (n : ℕ) (hn : 15 < n) :
     (a n : ℤ) = 2 * a (n - 2) + a (n - 4) - 2 * a (n - 6) - a (n - 8) := by
   obtain ⟨m, rfl⟩ : ∃ m, n = m + 16 := ⟨n - 16, by omega⟩

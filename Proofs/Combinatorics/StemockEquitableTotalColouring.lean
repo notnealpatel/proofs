@@ -1,33 +1,16 @@
 /-
 # Stemock's equitable 4-total-colouring conjecture for cubic graphs of order < 20
 
-## Source
+Adauto, de Figueiredo, Sasaki and Schneider, *Order 14 is the largest
+order for which every 4-total coloring of every cubic graph is equitable*,
+arXiv:2609.05259, Conjecture 1.1 and Corollary 5.1, refute Stemock's
+claim that every 4-total colouring of a cubic graph of order less than 20
+is equitable. The circular ladder `L₁₂ = C₆ □ K₂` has a colouring with
+class sizes `(8,8,8,6)`.
 
-arXiv:2609.05259, "Order 14 is the largest order for which every 4-total
-coloring of every cubic graph is equitable", by Adauto, de Figueiredo,
-Sasaki and Schneider.  Recorded 2026-10-21.
-
-Where the statement sits: Conjecture 1.1 (Stemock), refuted by Corollary 5.1
-(the circular ladder `L₁₂` of Figure 2); the minimality half uses Lemma 3.1
-(decomposition lemma), Lemma 3.2 (counting bounds) and Theorem 4.1
-(orders 6, 8, 10, 14).
-
-Verbatim informal claim (Conjecture 1.1, Stemock):
-
-> Every 4-total coloring of a cubic graph of order less than 20 is equitable.
-
-Definitions (Section 2): a `k`-total colouring colours vertices and edges with
-`k` colours so that adjacent vertices, adjacent edges, and a vertex and an
-incident edge receive distinct colours.  It is *equitable* when
-`||c_i| - |c_j|| ≤ 1` for all colour classes `c_i`, `c_j`.  The circular ladder
-`L_n` is the prism `C_{n/2} □ K_2`.
-
-## Status
-
-False, refuted in the paper (Corollary 5.1): `L₁₂` has a 4-total colouring
-with colour class configuration `(8,8,8,6)`.  The paper also proves that every
-4-total colouring of a cubic graph of order 6, 8, 10 or 14 is equitable
-(Theorem 4.1), so `L₁₂` is a smallest counterexample.
+Minimality uses Lemmas 3.1 and 3.2 and Theorem 4.1: every 4-total
+colouring at orders 6, 8, 10 and 14 is equitable. Equitability means
+that every two colour-class sizes differ by at most one.
 
 ## Content of this module
 
@@ -284,7 +267,7 @@ def l6Colouring : TotalColouring (circularLadder 3) 4 where
   incident_ne := by decide
   edge_ne := by decide
 
-/-! ### Ground-truth checks -/
+/-! ### Examples -/
 
 /-- `L₁₂` is cubic. -/
 lemma circularLadder_six_isRegular : (circularLadder 6).IsRegularOfDegree 3 := by
@@ -395,7 +378,7 @@ theorem cor_5_1 :
   ⟨not_stemockConjecture, circularLadder_six_isRegular, rfl, l12Colouring_not_equitable,
     fun _ _ _ _ _ hG hn c => equitable_of_card_lt_twelve_or_eq_fourteen hG (Or.inl hn) c⟩
 
-/-- Non-vacuity of the minimality theorem: `L₆` is a cubic graph of order 6
+/-- `L₆` is a cubic graph of order 6
 carrying a 4-total colouring, and the theorem applies to it. -/
 example : l6Colouring.Equitable :=
   thm_4_1 circularLadder_three_isRegular (by decide) l6Colouring

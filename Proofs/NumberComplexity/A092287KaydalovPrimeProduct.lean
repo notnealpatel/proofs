@@ -1,34 +1,9 @@
 /-
 # A092287 — Kaydalov: prime factorization of the rectangular gcd product
 
-## OEIS source (retrieved with `oeis show A092287`, 2026-10-21)
-
-```
-NAME:     a(n) = Product_{j=1..n} Product_{k=1..n} gcd(j,k).
-TERMS:    1,1,2,6,96,480,414720,2903040,5945425920,4334215495680,...
-COMMENT (Bala's square case):
-  Conjecture: Let p be a prime and let ordp(n,p) denote the exponent of the
-  highest power of p that divides n. [...] Then we conjecture that the prime
-  factorization of a(n) is given by the formula: ordp(a(n),p) =
-  (floor(n/p))^2 + (floor(n/p^2))^2 + (floor(n/p^3))^2 + .... [...]
-  - _Peter Bala_, Apr 16 2007
-COMMENT:
-  The conjecture is correct. - _Charles R Greathouse IV_, Apr 02 2013
-COMMENT (the target conjecture):
-  Conjecture: For a product over a rectangle, f(n,m) = Product_{j=1..n}
-  Product_{k=1..m} gcd(j,k), a factorization similar to the one given above
-  for the square case takes place: ordp(f(n,m),p) = floor(n/p)*floor(m/p) +
-  floor(n/p^2)*floor(m/p^2) + .... By way of directly computing the values of
-  f(n,m), it can be verified that the conjecture holds at least for all
-  1 <= m <= n <= 200. - _Andrey Kaydalov_, Mar 11 2019
-```
-
-## Status
-
-Triage: open (no printed proof in the entry; Greathouse marked only the square
-case "correct", without a proof).  Re-validated computationally on
-2026-10-21 for all `1 ≤ n, m ≤ 70` and every prime `p < 60` (83300 cases), and
-by direct factorization of `f(n,m)` for `1 ≤ n, m ≤ 24`.
+Andrey Kaydalov's rectangular extension of Peter Bala's conjecture in
+OEIS A092287 gives `v_p(f(n,m)) = Σ_{e ≥ 1} ⌊n/p^e⌋⌊m/p^e⌋` for prime `p`,
+where `f(n,m) = ∏_{j=1..n} ∏_{k=1..m} gcd(j,k)`.
 
 This file proves the conjecture (`kaydalov_padicValNat_eq_sum`) with the
 standard Legendre-type double counting:
@@ -50,7 +25,7 @@ namespace Candidates.A092287KaydalovPrimeProduct
 
 open Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- Kaydalov's rectangular product
 `f(n,m) = Product_{j=1..n} Product_{k=1..m} gcd(j,k)`. -/
@@ -62,13 +37,13 @@ the square case of `rectGcdProd`. -/
 def a (n : ℕ) : ℕ :=
   rectGcdProd n n
 
--- Ground truth: the first eight DATA terms `1, 1, 2, 6, 96, 480, 414720, 2903040`.
+-- the first eight DATA terms `1, 1, 2, 6, 96, 480, 414720, 2903040`.
 example : a 0 = 1 ∧ a 1 = 1 ∧ a 2 = 2 ∧ a 3 = 6 ∧ a 4 = 96 ∧ a 5 = 480 ∧
     a 6 = 414720 ∧ a 7 = 2903040 := by
   decide
 
--- Ground truth for a genuinely rectangular value (computed independently in
--- Python): `f(4,6) = f(6,4) = 1152 = 2^7 * 3^2` and `f(3,8) = 144`.
+-- A rectangular value:
+-- `f(4,6) = f(6,4) = 1152 = 2^7 * 3^2` and `f(3,8) = 144`.
 example : rectGcdProd 4 6 = 1152 ∧ rectGcdProd 6 4 = 1152 ∧ rectGcdProd 3 8 = 144 := by
   decide
 
@@ -121,11 +96,7 @@ theorem padicValNat_rectGcdProd_eq_sum_sum (p n m : ℕ) (hp : p.Prime) :
 
 /-! ## The conjecture -/
 
-/-- **Kaydalov's conjecture (A092287, Andrey Kaydalov, Mar 11 2019), proved.**
-
-Verbatim: "For a product over a rectangle, f(n,m) = Product_{j=1..n}
-Product_{k=1..m} gcd(j,k), [...] ordp(f(n,m),p) = floor(n/p)*floor(m/p) +
-floor(n/p^2)*floor(m/p^2) + ...."
+/-- **Kaydalov's conjecture (A092287, Andrey Kaydalov), proved.**
 
 For every prime `p` and every cutoff `b` with `n < p ^ b` (beyond which every
 term `⌊n/p^e⌋⌊m/p^e⌋` vanishes), `v_p(f(n,m)) = Σ_{e=1}^{b-1} ⌊n/p^e⌋⌊m/p^e⌋`.
@@ -167,7 +138,7 @@ theorem kaydalov_padicValNat_eq_sum_Ico_succ (p n m : ℕ) (hp : p.Prime) :
       (Nat.pow_le_pow_right hp.pos (Nat.le_succ n))
   exact kaydalov_padicValNat_eq_sum p n m (n + 1) hp hn
 
-/-- **Bala's square case (A092287, Peter Bala, Apr 16 2007)**, recovered as a
+/-- **Bala's square case (A092287, Peter Bala)**, recovered as a
 corollary: `v_p(a(n)) = Σ_{e ≥ 1} ⌊n/p^e⌋^2`, with the sum cut at any `b` with
 `n < p ^ b`. -/
 theorem bala_padicValNat_eq_sum (p n b : ℕ) (hp : p.Prime) (hnb : n < p ^ b) :
@@ -175,7 +146,7 @@ theorem bala_padicValNat_eq_sum (p n b : ℕ) (hp : p.Prime) (hnb : n < p ^ b) :
   rw [a, kaydalov_padicValNat_eq_sum p n n b hp hnb]
   exact Finset.sum_congr rfl fun e _ => (sq (n / p ^ e)).symm
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- Non-vacuity: the hypotheses are jointly satisfiable (`p = 2`, `n = 4`,
 -- `b = 3`, `4 < 2^3`), and both sides are checked independently of the

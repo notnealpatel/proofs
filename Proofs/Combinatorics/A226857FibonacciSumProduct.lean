@@ -1,36 +1,11 @@
 /-
-# A226857 — numbers that are both a sum and a product of two Fibonacci numbers
+# A226857 — sums and products of two Fibonacci numbers
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A226857` and the live
-## internal format `https://oeis.org/search?q=id:A226857&fmt=text`)
+Colin Barker (OEIS A226857, Nov 09 2014) conjectured
+`a(n) = a(n-3) + a(n-6)` for `n > 12`, with offset 1.
+Membership is characterized below by `F_k`, `2 F_k`, or `3 F_k` for `k ≥ 0`.
 
-```
-NAME:     Numbers that are both the sum of two Fibonacci numbers and the
-          product of two Fibonacci numbers.
-TERMS:    0,1,2,3,4,5,6,8,9,10,13,15,16,21,24,26,34,39,42,55,63,68,89,102,110,
-          144,165,178,233,267,288,377,432,466,610,699,754,987,1131,1220,1597,
-          1830,1974,2584,2961,3194,4181,4791,5168,6765,7752,8362,10946,12543,13530
-OFFSET:   1,3
-KEYWORDS: nonn,easy
-COMMENT:  All Fibonacci numbers are in the sequence. The only prime numbers in
-          this sequence are prime Fibonacci numbers.
-FORMULA (the conjecture):
-  Conjecture: a(n) = a(n-3)+a(n-6) for n>12. - _Colin Barker_, Nov 09 2014
-FORMULA:
-  Empirical g.f.: -x^2*(x^10 +x^9 +x^8 +2*x^7 +3*x^6 +3*x^5 +3*x^4 +3*x^3
-  +3*x^2 +2*x +1) / (x^6 +x^3 -1). - _Colin Barker_, Nov 09 2014
-EXAMPLE:  5 + 21 = 2 * 13 = 26;  8 + 21 = 1 * 34 = 34;  5 + 34 = 3 * 13 = 39.
-```
-
-## Status
-
-Triage status: open.  The entry gives only the empirical recurrence and
-g.f.; the triage found no source proving the recurrence or the underlying
-characterization `S = {F_k, 2 F_k, 3 F_k : k ≥ 0}` (search coverage thin).
-Computation (Python, 2026-10-21): the characterization and the recurrence
-(failing only at `n = 7..12`) hold for all terms up to `F_149`.
-
-## Proof outline (this file)
+## Proof outline
 
 * `fib_add_two_mul_fib_add_two`: `F_{a+2} F_{b+2} = F_{a+b+2} + F_a F_b`.
 * Applied twice: `F_{c+5} F_{d+5} = F_{c+d+8} + F_{c+d+4} + r` with
@@ -50,7 +25,7 @@ namespace Candidates.A226857FibonacciSumProduct
 
 open Nat
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `x` is a sum of two Fibonacci numbers `F_i + F_j` (`i, j ≥ 0`, `F_0 = 0`,
 Mathlib's `Nat.fib`). -/
@@ -68,7 +43,7 @@ element of `InA226857` (`a 1 = 0`).  The value `a 0` is the junk value
 `Nat.nth InA226857 0` and is never used in statements. -/
 noncomputable def a (n : ℕ) : ℕ := Nat.nth InA226857 (n - 1)
 
-/-! ## Ground truth for membership (the entry's EXAMPLE lines)
+/-! ## Membership examples (the entry's EXAMPLE lines)
 
 The entry's second example reads "8 + 21 = 1 * 34 = 34", but `8 + 21 = 29`;
 the intended sum is `13 + 21 = F_7 + F_8`, which is what is checked here. -/
@@ -172,8 +147,7 @@ theorem fib_mul_small (k l : ℕ) (hk : k ≤ 4) :
 
 /-- **Characterization of A226857.** A natural number is both a sum and a product of
 two Fibonacci numbers iff it is `F_k`, `2 F_k` or `3 F_k` for some `k ≥ 0`.  This is the
-characterization underlying Barker's empirical recurrence (triage conjecture,
-A226857); it is not stated in the entry. -/
+characterization underlying Barker's recurrence. -/
 theorem inA226857_iff (x : ℕ) :
     InA226857 x ↔ ∃ k, x = fib k ∨ x = 2 * fib k ∨ x = 3 * fib k := by
   constructor
@@ -355,9 +329,7 @@ theorem enum_recurrence {m : ℕ} (hm : 6 ≤ m) : enum (m + 6) = enum (m + 3) +
 
 /-- **Barker's conjecture (A226857, Colin Barker, Nov 09 2014).**
 
-Verbatim: "Conjecture: a(n) = a(n-3)+a(n-6) for n>12."
-
-Here `a n` is the `n`-th term with the entry's offset 1; the guard `12 < n` keeps
+For `12 < n`, `a n = a (n-3) + a (n-6)`. Here `a n` is the `n`-th term with the entry's offset 1; the guard `12 < n` keeps
 both subtractions `n - 3`, `n - 6` off truncation (and `a (n - 6)` off the junk
 index `0`).  The recurrence fails at `n = 7, …, 12` (e.g. `a 7 = 6 ≠ a 4 + a 1 = 3`),
 so the bound is sharp. -/
@@ -368,7 +340,7 @@ theorem barker_recurrence {n : ℕ} (hn : 12 < n) : a n = a (n - 3) + a (n - 6) 
     show m + 7 - 6 - 1 = m by omega]
   exact enum_recurrence hm
 
-/-! ## Ground truth for the sequence (the first 55 listed terms) -/
+/-! ## Sequence examples (the first 55 listed terms) -/
 
 example : (List.range 55).map (fun n => a (n + 1)) =
     [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 13, 15, 16, 21, 24, 26, 34, 39, 42, 55, 63, 68, 89, 102,

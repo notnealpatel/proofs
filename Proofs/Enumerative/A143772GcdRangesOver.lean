@@ -1,35 +1,12 @@
 /-
-# A143772 — values of `gcd_{d | m} (d + m/d)` over composite `m`
+# A143772: the range of a divisor gcd
 
-## OEIS source (retrieved with `oeis show A143772`, 2026-10-21)
-
-```
-NAME:     If m is the n-th composite, then a(n) = gcd(k + m/k), where k is
-          over all divisors of m.
-TERMS:    1,1,3,2,1,1,3,8,1,1,3,2,1,1,2,3,4,1,1,3,2,1,12,1,3,8,1,1,3,2,1,1,
-          2,3,4,1,1,8,3,2,1,1,3,8,1,6,1,3,2,1,1,3,4,1,6,1,3,2,1,1,2,3,8,1,1,
-          4,3,2,1,24,1,3,4,1,1,3,2,1,1,3,8,1,1,4,3,2,1,24,1,2,3,4,1,6,1,3,2,
-          1,1,2,3,8,1,1,3
-COMMENT (the conjecture):
-  Conjecture: All even numbers are terms and the only odd numbers which are
-  terms are 1 and 3. - _Robert G. Wilson v_, Sep 08 2008
-```
-
-## Status
-
-Open according to the triage: the entry carries the conjecture only, with no
-proof or refutation, and the companion A143771 has none either.  Brute force
-(triage: composite `m ≤ 3·10^6`; re-run here: composite `m ≤ 4·10^5`) finds
-only the odd values `1, 3`.
-
-## Result in this file
-
-The conjecture is proved here (theorem `range_a_eq`).  Odd values: for odd
-`m` every `d + m/d` is even; for even `m` the value divides both `m + 1`
-(`d = 1`) and `m/2 + 2` (`d = 2`), hence divides `3`.  Even values `e`: two
-applications of Dirichlet's theorem (`Nat.forall_exists_prime_gt_and_eq_mod`)
-produce primes `p, q` with `p ≡ 1 + 2e - e² (mod e(e² - 1))` and
-`q ≡ e - p (mod p² - 1)`, and then `g(pq) = gcd(pq + 1, p + q) = e`.
+OEIS A143772, Robert G. Wilson v (Sep 08 2008), with companion A143771.
+For composite `m`, put `g(m) = gcd_{d∣m}(d+m/d)`. The range of the
+sequence enumerating composites is exactly `{1,3}` together with all
+positive even integers; `0` is excluded.
+Odd values divide `3`. Each positive even value is realized using two
+applications of Dirichlet's theorem to construct suitable primes.
 -/
 import Mathlib
 
@@ -37,7 +14,7 @@ set_option autoImplicit false
 
 namespace Candidates.A143772GcdRangesOver
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `g m = gcd_{d ∣ m} (d + m / d)`, the gcd taken over all divisors `d` of `m`
 (the inner term of A143772). -/
@@ -53,7 +30,7 @@ instance : DecidablePred IsComposite := fun m => by
 composite number counting from `c 0 = 4` (OEIS offset `1` gives `a(1) = a 0`). -/
 noncomputable def a (n : ℕ) : ℕ := g (Nat.nth IsComposite n)
 
-/-! ### Ground truth -/
+/-! ### Examples -/
 
 example : g 4 = 1 := by decide
 example : g 8 = 3 := by decide
@@ -271,11 +248,8 @@ theorem even_mem_range_a {e : ℕ} (he : Even e) (hpos : 0 < e) : e ∈ Set.rang
   obtain ⟨m, hm, hg⟩ := exists_isComposite_g_eq_of_even he hpos
   exact ⟨m, hm, hg⟩
 
-/-- **Wilson's conjecture (A143772, Robert G. Wilson v, Sep 08 2008), proved.**
-Verbatim: "Conjecture: All even numbers are terms and the only odd numbers which are
-terms are 1 and 3."  The set of terms of A143772 (`a n = gcd_{k ∣ c n} (k + c n / k)`
-with `c n` the `n`-th composite) is exactly `{1, 3}` together with the positive even
-numbers (`0` is never a term, and `1 = a 0`, `3 = a 2` both occur). -/
+/-- The range of A143772 is `{1,3}` together with the positive even integers
+(Wilson's conjecture). Zero never occurs; `1 = a(0)` and `3 = a(2)`. -/
 theorem range_a_eq : Set.range a = {1, 3} ∪ {e | Even e ∧ 0 < e} := by
   rw [range_a_eq_image]
   ext v

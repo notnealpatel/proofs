@@ -1,44 +1,10 @@
 /-
 # A291982 — Luschny: `n(n+1)` divides `Euler(n, n+1)` for even `n ≥ 2`
 
-## OEIS source (pulled with `oeis show A291982` and checked against the live
-## page https://oeis.org/A291982, retrieved 2026-10-21)
-
-```
-NAME:     a(n) = Euler(n, n+1) * 2^valuation(n+1, 2), where Euler(n, x) denotes
-          the Euler polynomial.
-TERMS:    1,3,6,161,380,9251,68922,9718545,24721272,1140755269,14712346550,
-          1678097074579,13104139232340,889926827467887,16319429252249970,...
-KEYWORDS: nonn
-FORMULA:  a(n) = Euler(n, n+1)*2^A007814(n+1).
-COMMENT (the conjecture):
-  Conjecture: If n >= 2 is even then n*(n+1) divides a(n).
-COMMENT:
-  This conjecture was inspired by _Vladimir Shevelev_'s conjecture in A291897.
-AUTHOR:   Peter Luschny, Sep 22 2017
-```
-
-The conjecture comment carries no separate signature; it belongs to the
-original submission of Peter Luschny, Sep 22 2017.
-
-## Status
-
-Open according to the entry and the triage: the entry calls it a conjecture,
-and Shevelev's linked paper (arXiv 1708.08096) treats only denominators of
-`E_n(x) - E_n(1)` and does not address it.  This module proves it.
-
-## Definition layer
-
-Mathlib has no Euler polynomials.  `eulerPoly n` is defined by the recurrence
-read off from the defining generating function
-`2 e^{xt} / (e^t + 1) = ∑ E_n(x) t^n / n!`: comparing coefficients of
-`t^n / n!` in `(e^t + 1) · ∑ E_k(x) t^k / k! = 2 e^{xt}` gives
-`∑_{k ≤ n} C(n,k) E_k(x) + E_n(x) = 2 x^n`, that is
-`E_n(x) = x^n - (1/2) ∑_{k < n} C(n,k) E_k(x)`.  The generating-function
-identity is proved back as `eulerEGF_spec`, so the definition is checked
-against the entry's definition, not merely asserted.
-
-## Proof outline
+OEIS A291982, Peter Luschny: for even `n ≥ 2`, `n(n+1)` divides
+`E_n(n+1)·2^{v₂(n+1)}`. Divisibility is expressed by an integer quotient.
+The Euler polynomials are defined by the coefficient recurrence of
+`2e^{xt}/(e^t+1)`; `eulerEGF_spec` proves that generating-function identity.
 
 1. Power-series layer: `(e^t + 1) G_x = 2 e^{xt}` (`eulerEGF_spec`), hence
    `G_{x+1} = e^t G_x` and `E_n(x+1) + E_n(x) = 2 x^n`; the reflection
@@ -389,7 +355,7 @@ theorem mul_succ_dvd_two_mul_altPowSum (n : ℕ) (hn : Even n) (hn0 : n ≠ 0) :
   push_cast at h
   exact h
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- `E_0(x) = 1`. -/
 theorem eulerPoly_zero_eval (x : ℚ) : (eulerPoly 0).eval x = 1 := by
@@ -426,7 +392,7 @@ theorem eulerPoly_four_eval (x : ℚ) : (eulerPoly 4).eval x = x ^ 4 - 2 * x ^ 3
     eulerPoly_two_eval, eulerPoly_three_eval]
   ring
 
-/-- `v₂` of an odd number is zero (helper for the ground-truth checks). -/
+/-- `v₂` of an odd number is zero (helper for the examples). -/
 theorem padicValNat_two_eq_zero_of_odd (m : ℕ) (hm : Odd m) : padicValNat 2 m = 0 :=
   padicValNat.eq_zero_of_not_dvd (by rw [← even_iff_two_dvd, Nat.not_even_iff_odd]; exact hm)
 
@@ -449,12 +415,10 @@ example : a 4 = 380 := by
 
 /-! ## The conjecture -/
 
-/-- **Luschny's conjecture (OEIS A291982, Peter Luschny, Sep 22 2017).**
-
-Verbatim: "Conjecture: If n >= 2 is even then n*(n+1) divides a(n)", where
-`a(n) = Euler(n, n+1) · 2^{v₂(n+1)}`.  Divisibility is stated as the existence
-of an integer quotient, so the theorem also records that `a(n)` is an integer
-for these `n`.  For even `n`, `n + 1` is odd and `a(n) = E_n(n+1)`. -/
+/-- Luschny’s conjecture (A291982): for even `n ≥ 2`, `n(n+1)` divides
+`a(n) = E_n(n+1)·2^{v₂(n+1)}`. Divisibility is expressed by an integer
+quotient, so it also asserts integrality. Since `n+1` is odd,
+`a(n) = E_n(n+1)` in this range. -/
 theorem a291982_conjecture (n : ℕ) (hn : Even n) (h2 : 2 ≤ n) :
     ∃ m : ℤ, a n = ((n * (n + 1) : ℤ) : ℚ) * m := by
   have hn0 : n ≠ 0 := by omega

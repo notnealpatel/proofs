@@ -1,40 +1,12 @@
 /-
-# A144837 — Bala: `Lucas(5^(n+1)) ≡ Lucas(5^n) (mod 5^(n+r+1))` for `r ≤ n`
+# A sharp Lucas-number congruence (A144837)
 
-## OEIS source (retrieved with `oeis show A144837`, 2026-10-21)
-
-```
-NAME:     a(n) = Lucas(5^n).
-TERMS:    11,167761,132878596168524201724674011
-OFFSET:   1   (the entry's definition is for n >= 1)
-FORMULA (Peter Bala, Nov 14 2022):
-  a(n) = A000032(5^n).
-  a(n) = a(n-1)^5 + 5*a(n-1)^3 + 5*a(n-1) with a(1) = 11.
-  a(n) == 1 (mod 5).
-  a(n+1) == a(n) (mod 5^(n+1)) for n >= 1 (a particular case of the Gauss
-  congruences for the Lucas numbers).
-  Conjecture: a(n+1) == a(n) (mod 5^(n+r+1)) for n >= r.
-```
-
-The conjecture line is "Conjecture: a(n+1) == a(n) (mod 5^(n+r+1)) for
-n >= r." — _Peter Bala_, Nov 14 2022.  Taking `r = n` it is equivalent to
-`5^(2n+1) ∣ a(n+1) - a(n)` for `n ≥ 1`.
-
-## Status
-
-Triage: open (no proof in the entry or found in the literature; search
-limited).  This module proves it, and the sharper statement
-`v_5(a(n+1) - a(n)) = 2n + 1`, which shows that the range `r ≤ n` is sharp.
-
-## Proof outline
-
-* `lucas_five_mul`: for odd `m`, `L(5m) = L(m)^5 + 5 L(m)^3 + 5 L(m)`
-  (Binet over `ℝ` with `φψ = -1`), so `a(n+1) = f(a(n))` with
-  `f(x) = x^5 + 5x^3 + 5x`.
-* `f(11) ≡ 11 (mod 125)`, hence `a(n) ≡ 11 (mod 125)` for `n ≥ 1`.
-* `f(x) - f(y) = (x - y) g(x, y)` and `g(11, 11) ≡ 25 (mod 125)`, so each
-  step multiplies the difference by `25 · (unit mod 5)`.
-* `a(2) - a(1) = 167750 = 5^3 · 1342`, `5 ∤ 1342`.
+Source: Peter Bala's OEIS A144837 formulas (Nov 14 2022).
+For `a(n)=Lucas(5^n)`, `n ≥ 1` and `r ≤ n`,
+`5^(n+r+1)` divides `a(n+1)-a(n)` in `ℤ`.
+In fact this difference has 5-adic valuation exactly `2n+1`, so the range
+of `r` is sharp. The proof uses `L(5m)=L(m)^5+5L(m)^3+5L(m)` for odd `m`
+and factors successive differences. The entry starts at index 1.
 -/
 import Mathlib
 
@@ -56,7 +28,7 @@ def lucas : ℕ → ℤ
 /-- `A144837`: `a(n) = Lucas(5^n)` (the entry's offset is `1`). -/
 def a (n : ℕ) : ℤ := lucas (5 ^ n)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : lucas 0 = 2 ∧ lucas 1 = 1 ∧ lucas 2 = 3 ∧ lucas 3 = 4 ∧ lucas 4 = 7 ∧
     lucas 5 = 11 ∧ lucas 6 = 18 := by decide
@@ -173,11 +145,8 @@ theorem padicValInt_a_succ_sub (n : ℕ) (hn : 1 ≤ n) :
     padicValInt.eq_zero_of_not_dvd (p := 5) (z := u) (by exact_mod_cast hu5)]
   simp [padicValInt]
 
-/-- **Bala's conjecture (A144837, Peter Bala, Nov 14 2022).**
-
-Verbatim: "Conjecture: a(n+1) == a(n) (mod 5^(n+r+1)) for n >= r", where
-`a(n) = Lucas(5^n)` for `n ≥ 1`.  For all `r ≤ n` with `n ≥ 1`,
-`5^(n+r+1)` divides `a(n+1) - a(n)`. -/
+/-- Bala's congruence: for `a(n)=Lucas(5^n)`, `n ≥ 1`, and `r ≤ n`,
+`5^(n+r+1)` divides `a(n+1)-a(n)`. -/
 theorem conjecture (r n : ℕ) (hn : 1 ≤ n) (hrn : r ≤ n) :
     (5 : ℤ) ^ (n + r + 1) ∣ a (n + 1) - a n := by
   obtain ⟨u, hu, -⟩ := a_succ_sub_eq n hn

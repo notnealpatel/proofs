@@ -1,40 +1,17 @@
 /-
-# Pattern avoidance in canon permutations: Conjecture 1231
+# Canon-permutation pattern avoidance: the 1231 recurrence
 
-## Source
-
-R. Laudone, *Pattern avoidance in canon permutations*, arXiv:2608.21351,
-Section "Further directions", subsection "Changing the patterns",
-Conjecture `conj: 1231` (with the special cases listed right after it).
-Pulled with `fetch 2608.21351` on 2026-10-21.
-
-Verbatim:
-
-> \begin{conjecture} \label{conj: 1231}
->     Let $a_n = |\mathcal{L}_n^k(\O(1231))|$. Then $a_1 = 1$, $a_2 = C_k$, and for
->     $n \ge 3$ and $k \ge 1$,
->     \[ a_n = a_{n-1} + (C_k - 1) \, a_{n-2}. \]
-> \end{conjecture}
->
-> Here $\O(1231) = \{1231,1321,2132,2312,3123,3213\}$. [...]
-> If we take $n = 3$, we get $|\mathcal{L}_3^k(\O(1231))| = 2C_k -1$ for every $k \ge 1$.
-
-Definitions from the paper: a *lattice word* on `[n]` is a word in which every prefix has at
-least as many letters `i` as letters `i + 1` (`1 ≤ i ≤ n - 1`); `𝓛_n^k` is the set of
-`k`-regular lattice words of length `kn` on `[n]`; a word contains a pattern if some
-subsequence has the same relative order (here, the same equality pattern, since every pattern
-in `O(1231)` has pairwise distinct letters apart from the repeated `x`).
-
-## Status
-
-Open in the paper (stated as a conjecture, supported by computation).  Proved here, for every
-`k ≥ 0`, by the following decomposition (`latticeWords1231_eq`): a word in `𝓛_{n+2}^k(O(1231))`
-is either `0^k` followed by a word of `𝓛_{n+1}^k(O(1231))` shifted up by one, or a `k`-regular
-binary lattice word on `{0, 1}` other than `0^k 1^k` (a Dyck word of semilength `k` other than
-`U^k D^k`; there are `C_k - 1`) followed by a word of `𝓛_n^k(O(1231))` shifted up by two.
-
-Computation (2026-10-21, exhaustive, python): `a_n` matches the recurrence for
-`k = 2, n ≤ 8`; `k = 3, n ≤ 7`; `k = 4, n ≤ 5`; `k = 5, n ≤ 4`; `k ∈ {0, 1}, n ≤ 8`.
+R. Laudone, "Pattern avoidance in canon permutations", arXiv:2608.21351,
+"Further directions", "Changing the patterns", Conjecture `conj: 1231`.
+For `k`-regular lattice words avoiding
+`{1231,1321,2132,2312,3123,3213}`, the count satisfies
+`a(k,n+2) = a(k,n+1) + (Catalan(k)-1)*a(k,n)` for all natural `k,n`,
+with `a(k,0) = a(k,1) = 1` and `a(k,2) = Catalan(k)`.
+The source assumes `k ≥ 1`; the formal result also handles `k = 0`.
+The forbidden equality pattern is a repeated letter enclosing two other,
+pairwise distinct letters; its six strict orders give the six listed patterns.
+This correspondence is not a separate bridge to a paper pattern datatype.
+The decomposition uses a leading constant block or a nontrivial binary Dyck word.
 -/
 import Mathlib
 
@@ -80,7 +57,7 @@ instance {k m : ℕ} (w : List (Fin m)) : Decidable (IsRegular k w) := by
 instance {m : ℕ} (w : List (Fin m)) : Decidable (IsLattice w) := by
   unfold IsLattice; infer_instance
 
-/-! ### Ground truth
+/-! ### Examples
 
 For `k = 2`, `n = 3` the conjecture predicts `a_3 = 2 C_2 - 1 = 3`; the three words are
 `001122`, `001212`, `010122` (letters shifted to start at `0`). -/
@@ -856,11 +833,11 @@ theorem conj_1231 (k : ℕ) :
   rw [a_add_two]
   rfl
 
-/-- Ground truth: for `k = 2` the counts are Fibonacci numbers, `a_3 = 3`. -/
+/-- Example: for `k = 2` the counts are Fibonacci numbers, `a_3 = 3`. -/
 example : a 2 3 = 3 := by
   rw [a_three, catalan_two]
 
-/-- Ground truth: for `k = 3` (`C_3 = 5`), `a_3 = 9`, matching the exhaustive count. -/
+/-- Example: for `k = 3` (`C_3 = 5`), `a_3 = 9`, matching the exhaustive count. -/
 example : a 3 3 = 9 := by
   rw [a_three, catalan_three]
 

@@ -1,28 +1,16 @@
 /-
-# The corner set of the cyclic Latin square is a defining set of size ⌊n²/4⌋
-
-## Source
+# Corner defining sets of cyclic Latin squares
 
 Richard Bean, *A counting proof for the smallest critical set in a Latin
-square*, arXiv:2610.18199 (retrieved 2026-10-21).  Section 10 ("At the
-threshold, and proof of Theorem B"), subsections "The corner sets", "Why the
-same order works for every n" and "The number of filled cells".  The
-construction is classical (Curran and van Rees 1979; Smetaniuk; Cooper,
-Donovan and Seberry 1991), as the paper itself records.
+square*, arXiv:2610.18199, Section 10: the corner-set construction, forcing
+order and filled-cell count. The construction is classical (Curran and
+van Rees 1979; Smetaniuk; Cooper, Donovan and Seberry 1991).
 
-Verbatim informal claim (Section 10):
-"For any $n$, let $k=\lfloor n/2\rfloor$ and keep the cells $(r,c)$ of
-$B_n$ whose ordinary integer sum satisfies $r+c<k$ or $r+c\ge n+k$.
-Call the resulting partial Latin square $C_n$. [...] By induction every
-empty cell is forced, and $C_n$ is a defining set of $B_n$. [...] In both
-cases $C_n$ has $k(n-k)=\lfloor n^2/4\rfloor$ filled cells."
-Here `B_n` is the cyclic square with entry `(r + c) mod n` in cell `(r, c)`.
+For `k = ⌊n/2⌋`, the cells with ordinary sum `r+c < k` or `n+k ≤ r+c`
+form a defining set of the cyclic Latin square with `k(n-k) = ⌊n²/4⌋`
+filled cells. This is only the upper-bound half of Theorem B.
 
-Status: proved in the paper (and classical); this is the upper-bound half
-`scs(B_n) ≤ ⌊n²/4⌋` of the paper's Theorem B.  Date of this formalization:
-2026-10-21.
-
-## Formal reading
+## Conventions
 
 * Rows, columns and symbols are `Fin n`; a Latin square is a function
   `L : Fin n → Fin n → Fin n` whose rows and columns are bijections (each
@@ -78,7 +66,7 @@ corner set. -/
 def cornerSquare (n : ℕ) (r c : Fin n) : Option (Fin n) :=
   if (r, c) ∈ cornerSet n then some (cyclic n r c) else none
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : cyclic 5 3 4 = 2 := by decide
 example : cornerSet 3 = {(0, 0), (2, 2)} := by decide
@@ -315,7 +303,7 @@ theorem exists_definingSet_card_le (n : ℕ) :
   ⟨cornerSquare n, (cornerSquare_isDefiningSet n).1,
     (cornerSquare_isDefiningSet n).2.le⟩
 
-/-- Ground truth for `IsDefiningSet`: the empty partial square of order `2` is
+/-- The empty partial square of order `2` is
 not a defining set of `B_2`, since the other cyclic square `r + c + 1` is also
 a completion. -/
 example : ¬ IsDefiningSet (fun (_ _ : Fin 2) => (none : Option (Fin 2))) (cyclic 2) := by

@@ -31,8 +31,8 @@
   The ground examples here carry `native_decide` trust axioms by design
   (the same trust model as `Counterexample.lean`).
 -/
-import Erdos.Erdos20.SpreadDefect
-import Erdos.Erdos20.Counterexample
+import Sorry.Erdos.Erdos20.SpreadDefect
+import Sorry.Erdos.Erdos20.Counterexample
 
 set_option autoImplicit false
 

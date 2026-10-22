@@ -1,50 +1,19 @@
 /-
-# arXiv:2609.14054 — UUDD-avoiding Dyck paths by valleys are bargraphs by width
+# UUDD-avoiding Dyck paths and bargraphs
 
-## Source
+*Simplicial Complexes of Antichains in Root Posets and Related Combinatorics
+of Dyck Paths*, arXiv:2609.14054, Section 3, conjecture following
+`thm:typeA-f` and the remark on OEIS A086581 / A082582. By Lemma `lem:max`,
+Dyck paths whose valley sets are maximal faces of `Δ_{Dyck_n}` are precisely
+the UUDD-avoiding paths. The conjecture identifies their counts by valleys
+with OEIS A271942, counting bargraphs by semiperimeter and width.
 
-* Paper: *Simplicial Complexes of Antichains in Root Posets and Related
-  Combinatorics of Dyck Paths*, arXiv:2609.14054 (retrieved 2026-10-21).
-* Location: Section 3 (type `A_n`: classical and `(a,b)`-Dyck paths), the
-  unnumbered Conjecture right after the proof of the `f`-triangle theorem
-  (`thm:typeA-f`) and the remark citing A086581 / A082582 (tex line ~1012).
-* `Dyck^max_n` is the set of Dyck paths `w` of semilength `n` for which the
-  valley set `V(w)` is a maximal face of `Δ_{Dyck_n}`; by Lemma `lem:max` of the
-  paper these are exactly the Dyck paths with no factorization `w₁ UUDD w₂`
-  ("UUDD-avoiding Dyck paths").  A valley of `w` is an index `1 ≤ i < r` with
-  `w_i = D` and `w_{i+1} = U`.
-
-## Verbatim claim
-
-```
-\begin{conjecture}
-    The number $f_{ii}$ of Dyck paths in $\Dyck^{\max}_n$ with $i$ valleys
-    coincides with A271942 in \cite{OEIS}.
-\end{conjecture}
-```
-
-OEIS A271942: "Triangle read by rows: T(n,k) is the number of bargraphs of
-semiperimeter n having width k (n>=2, k>=1)."  A bargraph of width `k` is a
-sequence of `k` column heights `h₁, …, h_k ≥ 1`; its perimeter is
-`2k + h₁ + Σ |h_{i+1} - h_i| + h_k`, and the semiperimeter is half of it.
-
-## Status
-
-The paper states this as an open conjecture (the authors only say the counts
-"seem to coincide").  This module PROVES it, for every `n ≥ 2` and every `k`
-(for `k = 0` both sides are `0`), by an explicit bijection: a UUDD-avoiding
-Dyck path with valley heights `v₁, …, v_k` has peak heights
-`max(v_{i-1}, v_i) + 1` (with `v₀ = v_{k+1} = 0`), so it is determined by the
-free sequence `v`, and `h = v + 1` is the bargraph.  No `sorry` remains.
-
-## Computational evidence (before formalization)
-
-Python (`/tmp/claude/a289/check.py`, bounded run): for `n = 2..12` the numbers
-of UUDD-avoiding Dyck paths of semilength `n` by number of valleys, the numbers
-of bargraphs of semiperimeter `n` by width, and the A271942 rows agree, e.g.
-`n = 12`: `1, 19, 181, 995, 3235, 6083, 6244, 3186, 705, 55, 1`.
-
-Date: 2026-10-21.
+For `n ≥ 2` and every `k`, the bijection below identifies UUDD-avoiding Dyck
+paths of semilength `n` with `k` valleys and bargraphs of semiperimeter `n`
+and width `k`; both sets are empty for `k = 0`. Valley heights `v₁,…,v_k` determine the peak
+heights `max(v_{i-1},v_i)+1`, with `v₀ = v_{k+1} = 0`; the corresponding
+bargraph has column heights `v_i+1`. Its perimeter is
+`2k + h₁ + ∑ |h_{i+1}-h_i| + h_k`.
 -/
 import Mathlib.Combinatorics.Enumerative.DyckWord
 import Mathlib.SetTheory.Cardinal.Finite
@@ -700,7 +669,7 @@ theorem isEmpty_bargraph_zero (n : ℕ) (hn : 2 ≤ n) : IsEmpty (Bargraph n 0) 
   have h0 : bargraphPerimeter [] = 0 := by decide
   omega
 
-/-- **Conjecture of arXiv:2609.14054, Section 3 (proved here).** For `n ≥ 2`
+/-- **Conjecture of arXiv:2609.14054, Section 3.** For `n ≥ 2`
 and every `k`, the number `f_{kk}` of Dyck paths of semilength `n` whose valley
 set is a maximal face of `Δ_{Dyck_n}` — equivalently (paper, Lemma `lem:max`)
 the UUDD-avoiding Dyck paths — having exactly `k` valleys equals the number

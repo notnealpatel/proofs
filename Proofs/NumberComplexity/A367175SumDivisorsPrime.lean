@@ -1,31 +1,10 @@
 /-
 # A367175 — Luschny: `a(k) ∣ sigma(k)` exactly for `k ∈ {1, 2, 3, 6, 14, 15, 35}`
 
-## OEIS source (retrieved with `oeis show A367175` and https://oeis.org/A367175, 2026-10-21)
-
-```
-NAME:     a(n) = Sum_{d|n} (-1)^[d is prime] * d, where [] denotes the Iverson
-          bracket.
-TERMS:    1,-1,-2,3,-4,2,-6,11,7,4,-10,18,-12,6,8,27,-16,29,-18,28,12,10,-22,
-          50,21,12,34,38,-28,52,-30,59,20,16,24,81,-36,18,24,76,-40,72,-42,58,
-          62,22,-46,114,43,79,32,68,-52,110,40,102,36,28,-58,148,-60,30
-OFFSET:   1
-KEYWORDS: sign
-AUTHOR:   _Peter Luschny_, Nov 08 2023
-FORMULA:  sigma(n) - a(n) = 2 * A008472(n).
-FORMULA (the conjecture; no separate attribution, entry author Peter Luschny,
-         Nov 08 2023):
-  Conjecture: {k: a(k) divides sigma(k)} = {1, 2, 3, 6, 14, 15, 35}.
-```
-
-## Status
-
-Triage: open (the live entry lists it as a conjecture with no proof or
-reference; none found in the literature). Divisibility is in `ℤ` (`a(k)` is
-negative at primes). This module proves the conjecture in full.
-
-Computation (Python, exact integers, sieve): the set
-`{k ≤ 3·10^6 : a(k) ∣ sigma(k)}` is exactly `{1, 2, 3, 6, 14, 15, 35}`.
+Peter Luschny's conjecture in OEIS A367175 characterizes positive `k` for
+which `a(k) ∣ σ(k)` as exactly `1,2,3,6,14,15,35`, where
+`a(k) = Σ_{d ∣ k} (-1)^[d prime]d`. Divisibility is in `ℤ`, since `a` is
+negative at primes.
 
 Proof outline. `sigma = a + 2 sopf`, so `a ∣ sigma ↔ a ∣ 2 sopf`. At a prime
 `p`, `a = 1 - p` and `p - 1 ∣ 2`. For composite `k`, `sigma ≥ 1 + k + sopf` and
@@ -51,19 +30,19 @@ def a (k : ℕ) : ℤ := ∑ d ∈ k.divisors, (if d.Prime then -1 else 1) * (d 
 /-- OEIS A008472: the sum of the distinct primes dividing `n` (`sopf`). -/
 def sopf (n : ℕ) : ℕ := ∑ p ∈ n.primeFactors, p
 
-/-- Ground truth: the first 30 listed terms of A367175 (offset 1). -/
+/-- the first 30 listed terms of A367175 (offset 1). -/
 example : (List.range 30).map (fun n => a (n + 1)) =
     [1, -1, -2, 3, -4, 2, -6, 11, 7, 4, -10, 18, -12, 6, 8, 27, -16, 29, -18, 28,
      12, 10, -22, 50, 21, 12, 34, 38, -28, 52] := by
   decide
 
-/-- Ground truth: the first terms of A008472 (`sopf`, offset 1). -/
+/-- the first terms of A008472 (`sopf`, offset 1). -/
 example : (List.range 12).map (fun n => sopf (n + 1)) =
     [0, 2, 3, 2, 5, 5, 7, 2, 3, 7, 11, 5] := by
   simp only [sopf, Nat.primeFactors_eq_to_filter_divisors_prime]
   decide
 
-/-- Ground truth: `σ₁` agrees with A000203 on its first terms. -/
+/-- `σ₁` agrees with A000203 on its first terms. -/
 example : (List.range 8).map (fun n => σ 1 (n + 1)) = [1, 3, 4, 7, 6, 12, 8, 15] := by
   decide
 
@@ -268,9 +247,7 @@ theorem dvd_iff_of_lt_78 :
 
 /-! ## The conjecture -/
 
-/-- **A367175 conjecture (entry FORMULA line, Peter Luschny, Nov 08 2023).**
-
-Verbatim: "Conjecture: {k: a(k) divides sigma(k)} = {1, 2, 3, 6, 14, 15, 35}."
+/-- **A367175 conjecture (entry FORMULA line, Peter Luschny).**
 
 For every `k ≥ 1`, `a(k) = Σ_{d ∣ k} (-1)^[d prime] d` divides `σ₁(k)` in `ℤ`
 if and only if `k ∈ {1, 2, 3, 6, 14, 15, 35}`. The guard `0 < k` is the entry's

@@ -5,26 +5,17 @@
 
 David J. Grynkiewicz, "A Generalization of the Chevalley-Warning and Ax-Katz
 Theorems with a View Towards Combinatorial Number Theory", arXiv:2208.12895.
-Section 1.2 (Introduction), Theorem `thm-dav-pgroup`, proved in Section 3
-("Applications in Combinatorial Number Theory").  Retrieved 2026-10-21.
+Section 1.2, Theorem `thm-dav-pgroup`, proved in Section 3.
+The finite abelian `p`-group formula `D(G) = D*(G)` is due to Olson (1969)
+and van Emde Boas–Kruyswijk (1967).
 
-## Verbatim informal claim
-
-"Let `G` be a finite abelian `p`-group. Then `D(G) = D*(G)`."
-Here `D(G)` is "the minimal integer `ℓ` such that every sequence of `ℓ` terms
-from `G` must contain a nontrivial subsequence whose terms sum to zero", and
-`D*(G) = 1 + ∑_{i=1}^r (n_i - 1)` for `G = C_{n_1} ⊕ ⋯ ⊕ C_{n_r}`.
-The lower bound: "the sequence `∏_{i ∈ [1,s]} e_i^{[q_i - 1]}` is zero-sum
-free, showing `D(G) ≥ D*(G)`."
-
-## Status
-
-Known (Olson 1969; van Emde Boas–Kruyswijk 1967); reproved in the paper.
-This module formalizes the elementary abelian case `G = (ℤ/p)^r`, where
-`D*(G) = r(p-1)+1`, using Mathlib's Chevalley–Warning theorem (following the
-template of Mathlib's Erdős–Ginzburg–Ziv proof) for the upper bound and the
-basis sequence `∏_j e_j^{[p-1]}` for the lower bound.  The Davenport bound
-vocabulary (`HasDavenportBound`, `ZeroSumFree`) is the repository's, from
+This module proves only the elementary abelian case `G = (ℤ/p)^r`,
+`D(G) = r(p-1)+1`: Mathlib's Chevalley–Warning theorem gives the upper
+bound, following its Erdős–Ginzburg–Ziv proof, and the basis sequence
+`∏_j e_j^{[p-1]}` gives the lower bound. Here `D(G)` is the least length
+forcing a nonempty zero-sum subsequence; in general
+`D*(G) = 1 + ∑_i (n_i - 1)` for `G = C_{n_1} ⊕ ⋯ ⊕ C_{n_r}`.
+The multiset predicates `HasDavenportBound` and `ZeroSumFree` come from
 `GroupCount.GaoGeroldingerRefutation`.
 -/
 import Mathlib
@@ -45,7 +36,7 @@ noncomputable def cwPoly {ι : Type*} (s : Finset ι) (a : ι → Fin r → ZMod
     MvPolynomial s (ZMod p) :=
   ∑ i : s, a i j • X i ^ (p - 1)
 
-/-- Ground truth for `cwPoly`: evaluating at `x` gives `∑_{i ∈ s} a_i(j) x_i^(p-1)`. -/
+/-- Evaluating `cwPoly` at `x` gives `∑_{i ∈ s} a_i(j) x_i^(p-1)`. -/
 theorem eval_cwPoly {ι : Type*} (s : Finset ι) (a : ι → Fin r → ZMod p) (j : Fin r)
     (x : s → ZMod p) : eval x (cwPoly s a j) = ∑ i : s, a i j * x i ^ (p - 1) := by
   simp [cwPoly, map_sum]
@@ -118,21 +109,21 @@ times. -/
 noncomputable def basisSeq (p r : ℕ) : Multiset (Fin r → ZMod p) :=
   ∑ j : Fin r, Multiset.replicate (p - 1) (e p r j)
 
-/-- Ground truth: in `(ℤ/3)^2`, `e_0 = (1, 0)` and `e_1 = (0, 1)`. -/
+/-- In `(ℤ/3)^2`, `e_0 = (1, 0)` and `e_1 = (0, 1)`. -/
 example : e 3 2 0 = ![1, 0] ∧ e 3 2 1 = ![0, 1] := by
   refine ⟨?_, ?_⟩ <;> decide
 
-/-- Ground truth: over `(ℤ/3)^2` the extremal sequence is `e_0^{[2]} e_1^{[2]}`. -/
+/-- Over `(ℤ/3)^2` the extremal sequence is `e_0^{[2]} e_1^{[2]}`. -/
 example : basisSeq 3 2 = Multiset.replicate 2 (e 3 2 0) + Multiset.replicate 2 (e 3 2 1) := by
   simp [basisSeq, Fin.sum_univ_two]
 
-/-- Ground truth, independent of the general proof: the length-4 sequence
+/-- The length-4 sequence
 `(1,0)^{[2]} (0,1)^{[2]}` over `(ℤ/3)^2` is zero-sum free (exhaustive check). -/
 example : ZeroSumFree ({![1, 0], ![1, 0], ![0, 1], ![0, 1]} : Multiset (Fin 2 → ZMod 3)) := by
   rw [zeroSumFree_iff_powerset]
   decide
 
-/-- Ground truth: in `(ℤ/3)^2` the length-5 sequence `(1,0)^{[2]} (0,1)^{[2]} (1,1)`
+/-- In `(ℤ/3)^2` the length-5 sequence `(1,0)^{[2]} (0,1)^{[2]} (1,1)`
 is not zero-sum free (e.g. the whole sequence sums to `0`). -/
 example : ¬ ZeroSumFree
     ({![1, 0], ![1, 0], ![0, 1], ![0, 1], ![1, 1]} : Multiset (Fin 2 → ZMod 3)) := by

@@ -1,29 +1,11 @@
 /-
 # A390088 — the integers with no prime-digit base are exactly 0, 1, 4, 6, 9
 
-## OEIS source (retrieved with `oeis show A390088` and https://oeis.org/A390088, 2026-10-21)
-
-```
-NAME:     a(n) is the least integer base b > 1 in which the representation of n
-          uses only prime digits; or 0 if no such base exists.
-TERMS:    0,0,3,4,0,6,0,8,3,0,4,4,5,5,4,4,7,5,5,7,6,6,10,6,7,9,3,8,13,8,9,8,6,6,
-          9,6,11,7,7,12,7,12,4,4,13,8,4,4,9,14,9,16,9,10,17,10,15,10,4,4,11,8,4,
-          4,17,9,9,5,5,22,9,12,10,10,19,10,13,10,15,11
-KEYWORDS: nonn,base,easy
-COMMENT:  a(p) > 0 for any prime p because p is the only digit in base b = p + 1.
-COMMENT (the conjecture, unattributed in the entry; entry author Felix Huber,
-         Oct 29 2025):
-  Conjecture: Exactly the values k = 0, 1, 4, 6, 9 satisfy a(k) = 0.
-PROGRAM (PARI, Michel Marcus, Oct 29 2025):
-  a(n) = for(b=2, n+1, my(d=digits(n,b)); if (#select(isprime, d) == #d, return(b)));
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell), but elementary.  Proved here: two-digit witnesses
-`2b + 2 = (22)_b` for `b ≥ 3` and `2b + 3 = (23)_b` for `b ≥ 4`, base `p + 1`
-for a prime `p`, and a finite kernel check for `n ≤ 10`.
+The unsigned conjecture in OEIS A390088, an entry by Felix Huber (2025).
+The least base with only prime digits is zero exactly at `0,1,4,6,9`.
+For other values, use the two-digit witnesses `2b+2=(22)_b` (`b ≥ 3`) and
+`2b+3=(23)_b` (`b ≥ 4`), base `p+1` for prime `p`, and a finite check
+for `n ≤ 10`.
 
 ## Definitional fidelity
 
@@ -48,7 +30,7 @@ searched are `2, …, n + 1`. -/
 def a (n : ℕ) : ℕ :=
   ((List.range' 2 n).find? (fun b => (Nat.digits b n).all (fun d => decide d.Prime))).getD 0
 
-/-- Ground truth: the first 30 terms of A390088. -/
+/-- Examples: the first 30 terms of A390088. -/
 example : (List.range 30).map a =
     [0, 0, 3, 4, 0, 6, 0, 8, 3, 0, 4, 4, 5, 5, 4, 4, 7, 5, 5, 7, 6, 6, 10, 6, 7, 9, 3, 8,
       13, 8] := by
@@ -131,7 +113,7 @@ theorem a_ne_zero_of_eleven_le {n : ℕ} (hn : 11 ≤ n) : a n ≠ 0 := by
     · rw [hd]; exact Nat.prime_three
     · rw [hd]; exact Nat.prime_two
 
-/-- **A390088 conjecture** (OEIS comment, entry by Felix Huber, Oct 29 2025):
+/-- **A390088 conjecture** (OEIS comment, entry by Felix Huber, 2025):
 exactly the values `k = 0, 1, 4, 6, 9` satisfy `a(k) = 0`, i.e. every other
 `k ≥ 0` has a base `b > 1` in which all its digits are prime. -/
 theorem a_eq_zero_iff (n : ℕ) : a n = 0 ↔ n ∈ ({0, 1, 4, 6, 9} : Finset ℕ) := by

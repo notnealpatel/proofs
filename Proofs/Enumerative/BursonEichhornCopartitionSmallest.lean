@@ -1,43 +1,16 @@
 /-
-# Burson–Eichhorn finite copartition conjecture: the smallest open case `(k, N) = (2, 2)`
+# A finite copartition nonnegativity case
 
-## Source
-
-* arXiv:2609.16913, Haijun Li, "Further results on non-negativity conjectures
-  for copartition products" (retrieved 2026-10-21).
-* Sec. 1, Conjecture 1.2 (= Burson–Eichhorn, Ann. Comb. 29 (2025),
-  Conjecture 5.3), the reduction Theorem 1.3 ("diagonal reduction"), and the
-  concluding subsection "Remaining finite problem".
-
-Verbatim (Conjecture 1.2): "For $a, b, m, N, M\in \bN$, if $b\mid a$, $a+b=m$
-and $N\leq M$, then $g_{a, b, m}(N, M, q)\in \bN_0[[q]]$", where
-$g_{a,b,m}(N,M;q) := (-q^m;q^m)_{N+M-1} / ((-q^a;q^m)_N(q^b;q^m)_M)$.
-
-With $a = kb$ and $x = q^b$ the paper sets
-$G_{k,N,M}(x) := (-x^{k+1};x^{k+1})_{N+M-1} / ((-x^{k};x^{k+1})_N(x;x^{k+1})_M)$
-and $D_{k,N}(x) := G_{k,N,N}(x)$, and Theorem 1.3 shows that the conjecture is
-equivalent to $D_{k,N}(x)\in\bN_0[[x]]$.  The paper proves the cases $N = 1$
-and $k = 1$; "Remaining finite problem" states that for $k>1$, $N\geq2$ the
-assertion is open and that "any complete proof must therefore use
-cancellation between blocks, a sign-reversing involution, or a global
-analytic identity".
-
-## Status
-
-Open in the source (2026-10-21) for every `k ≥ 2`, `N ≥ 2`.  This module
-settles the smallest open case `(k, N) = (2, 2)`:
-
-  D_{2,2}(x) = (1+x^3)(1+x^6)(1+x^9) / ((1+x^2)(1+x^5)(1-x)(1-x^4)),
-
-by the explicit positive certificate
-
-  D_{2,2}(x) = P(x) / ((1-x^4)(1-x^10)),
-  P(x) = 1+x+x^3+2x^4+2x^7+x^8+x^9+2x^10+x^11+x^12+2x^13+2x^16+x^17+x^19+x^20,
-
-and extends it to `G_{2,2,M}(x) ∈ ℕ₀[[x]]` for every `M ≥ 2` along the
-manifestly non-negative factor of Theorem 1.3.  The certificate was found and
-checked in Sage (exact polynomial division, zero remainder); the Lean proof
-re-checks the identity with `ring`.
+Haijun Li, "Further results on non-negativity conjectures for copartition
+products", arXiv:2609.16913, Conjecture 1.2 (Burson-Eichhorn, Ann. Comb. 29
+(2025), Conjecture 5.3) and diagonal reduction Theorem 1.3.
+The formal power-series quotients use unit inverses. An explicit polynomial
+with nonnegative coefficients gives
+`D_{2,2}(x) = P(x)/((1-x^4)(1-x^10))`.
+The certificate extends to `G_{2,2,M}` for every `M ≥ 2`; substitution
+`x = q^b` gives coefficientwise nonnegativity of `g_{2b,b,3b}(2,M;q)`
+for every `b ≥ 1`, `M ≥ 2`. This is a special case, not the full conjecture;
+nonnegativity, rather than strict positivity, is asserted.
 -/
 import Mathlib
 
@@ -109,7 +82,7 @@ theorem eq_G_of_mul_denom (k N M : ℕ) (hk : 1 ≤ k) (f : ℤ⟦X⟧)
   calc f = f * (denom k N M * invOfUnit (denom k N M) 1) := by rw [hinv, mul_one]
     _ = G k N M := by rw [← mul_assoc, hf, G]
 
-/-! ### Ground truth: the case `(k, N, M) = (2, 2, 2)` unfolds to the displayed
+/-! ### Example: the case `(k, N, M) = (2, 2, 2)` unfolds to the displayed
 quotient. -/
 
 /-- The numerator of `D_{2,2}` is `(1+x^3)(1+x^6)(1+x^9)`. -/
@@ -221,7 +194,7 @@ theorem D_two_two_eq : D 2 2 = certP * geom 4 * geom 10 := by
     _ = (1 + X ^ 3) * (1 + X ^ 6) * (1 + X ^ 9) := by
         rw [geom_mul_one_sub 4 (by norm_num), geom_mul_one_sub 10 (by norm_num)]; ring
 
-/-! Ground truth: the first coefficients of `D_{2,2}` computed in Sage are
+/-! Example: the first coefficients of `D_{2,2}` are
 `1, 1, 0, 1, 3, 1, 0, 3, 4, 2, 3, …`; the zero at degree `2` shows that
 non-negativity, not strict positivity, is the right claim. -/
 
@@ -338,7 +311,7 @@ theorem eq_g_of_mul_denom (a b m N M : ℕ) (ha : 1 ≤ a) (hb : 1 ≤ b) (f : �
   calc f = f * (d * invOfUnit d 1) := by rw [hinv, mul_one]
     _ = g a b m N M := by rw [← mul_assoc, hf, g]
 
-/-- Ground truth: `G_{k,N,M}(x) = g_{k,1,k+1}(N,M;x)` (the substitution
+/-- Example: `G_{k,N,M}(x) = g_{k,1,k+1}(N,M;x)` (the substitution
 `a = kb`, `x = q^b` at `b = 1`). -/
 theorem G_eq_g (k N M : ℕ) : G k N M = g k 1 (k + 1) N M := by
   simp only [G, g, numer, denom, pow_one]

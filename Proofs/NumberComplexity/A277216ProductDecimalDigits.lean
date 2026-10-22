@@ -1,28 +1,9 @@
 /-
 # A277216 — the product of the decimal digits of `σ(n)` equals `n` only for `n = 1, 210`
 
-## OEIS source (retrieved with `oeis show A277216` and the live entry, 2026-10-21)
-
-```
-NAME:     Product of decimal digits of sum of divisors of n.
-TERMS:    1,3,4,7,6,2,8,5,3,8,2,16,4,8,8,3,8,27,0,8,6,18,8,0,3,8,0,30,0,14,6,18,
-          32,20,32,9,24,0,30,0,8,54,16,32,56,14,32,8,35,27,14,72,20,0,14,0,0,0,0,
-          48,12,54,0,14,32,16,48,12,54,16,14,45,28,4,8
-FORMULA:  a(n) = A007954(A000203(n)).
-COMMENT (the conjecture):
-          Conjecture: a(n) = n only for numbers 1 and 210; sigma(210) = 576;
-          a(210) = 5*7*6 = 210.
-AUTHOR:   _Jaroslav Krizek_, Oct 05 2016 (the comment carries no separate
-          signature; it is part of the original submission).
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature found by the triage).  Computation
-(2026-10-21) re-confirmed the claim over all 35681 seven-smooth `n ≤ 9 ^ 16` and directly
-for all `n ≤ 10 ^ 6`.  **This module proves the conjecture** (no `sorry`).
-
-## Proof outline (all kernel-checked below)
+Jaroslav Krizek's conjecture in OEIS A277216 asserts that the product of
+the decimal digits of `σ(n)` equals positive `n` only at `1` and `210`.
+At `210`, `σ(210) = 576` and `5·7·6 = 210`.
 
 Let `P(m)` be the product of the decimal digits of `m` and suppose `P(σ n) = n` with `0 < n`.
 
@@ -45,13 +26,13 @@ namespace Candidates.A277216ProductDecimalDigits
 open ArithmeticFunction
 open scoped ArithmeticFunction.sigma
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A277216: the product of the decimal digits of `σ(n)` (`A007954 ∘ A000203`).
 `Nat.digits 10 m` lists the digits little-endian; `(Nat.digits 10 0).prod = 1`. -/
 def a277216 (n : ℕ) : ℕ := (Nat.digits 10 (σ 1 n)).prod
 
-/-- Ground truth against the first listed terms `1,3,4,7,6,2,8,5,3,8,2,16`. -/
+/-- Examples against the first listed terms `1,3,4,7,6,2,8,5,3,8,2,16`. -/
 example : (List.range 12).map (fun i => a277216 (i + 1)) = [1, 3, 4, 7, 6, 2, 8, 5, 3, 8, 2, 16] := by
   decide
 
@@ -467,9 +448,9 @@ theorem a277216_210 : a277216 210 = 210 := by
 theorem a277216_one : a277216 1 = 1 := by
   simp [a277216]
 
-/-- **A277216 conjecture (Jaroslav Krizek, Oct 05 2016), proved.**
+/-- **A277216 conjecture (Jaroslav Krizek), proved.**
 
-Verbatim: "Conjecture: a(n) = n only for numbers 1 and 210; sigma(210) = 576;
+"Conjecture: a(n) = n only for numbers 1 and 210; sigma(210) = 576;
 a(210) = 5*7*6 = 210."  For a positive integer `n`, the product of the decimal digits of
 `σ(n)` equals `n` if and only if `n = 1` or `n = 210`.  The `0 < n` guard is the entry's
 offset (`n ≥ 1`); at `n = 0`, `σ 0 = 0` and the empty digit product is `1 ≠ 0`. -/

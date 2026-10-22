@@ -1,34 +1,15 @@
 /-
 # Alon–Jaeger–Tarsi conjecture: the counting case `|F| ≥ d + 2`
 
-## Source
+Baker, Bonin, Lazebnik and Shustin, *On the number of nowhere zero points
+in linear mappings*, Combinatorica 14 (1994), 149–157, prove the
+Alon–Jaeger–Tarsi counting case `d + 2 ≤ |F|`. It is cited in
+George A. Kirkup, *Minimal Primes Over Permanental Ideals* (2005),
+arXiv:math/0510025, Section `AJTsec`, following Conjecture `AJTconj1`.
 
-arXiv math/0510025, George A. Kirkup, *Minimal Primes Over Permanental
-Ideals* (2005), Section "The Alon--Jaeger--Tarsi Conjecture" (label
-`AJTsec`), Conjecture `AJTconj1` and the paragraph following it.
-
-Verbatim (Conjecture `AJTconj1`):
-
-> Let $A$ be a nonsingular $d \times d$ matrix over a finite field $k$ with
-> cardinality $q \geq 4$.  There exists a vector $v$ in $k^n$ such that both
-> $v$ and $Av$ have no zero component.
-
-Verbatim (the paragraph after it):
-
-> In \cite{BBLS} the authors extend this result to the cases
-> $q \geq d+1 \geq 4$ and $q \geq d+2 \geq 3$ using a simple counting
-> argument.
-
-`BBLS` = R. D. Baker, J. Bonin, F. Lazebnik, E. Shustin, *On the number of
-nowhere zero points in linear mappings*, Combinatorica 14 (1994), 149–157.
-
-## Status (recorded 2026-10-21)
-
-The general conjecture is open (Nagy–Pach, arXiv 2107.03956, settle it for
-`61 < |F| ≠ 79`).  The case formalized here, `|F| ≥ d + 2`, is the BBLS
-counting case, proved elsewhere (BBLS 1994) and only cited in the paper.
-We prove the slightly stronger form in which nonsingularity is weakened to
-"every row of `A` is nonzero"; the nonsingular form is a corollary.
+This is the established counting case, not the general conjecture.
+The theorem below weakens nonsingularity to the condition that every row
+is nonzero; the nonsingular form is a corollary.
 
 ## Proof (union bound with a scaling injection)
 
@@ -56,17 +37,17 @@ def nowhereZero (d : ℕ) : Finset (Fin d → F) :=
 def badAt {d : ℕ} (A : Matrix (Fin d) (Fin d) F) (i : Fin d) : Finset (Fin d → F) :=
   (nowhereZero (F := F) d).filter fun v => (A *ᵥ v) i = 0
 
-/-- Ground truth: over `ZMod 3` in dimension `1` the nowhere-zero vectors are
+/-- Over `ZMod 3` in dimension `1` the nowhere-zero vectors are
 the two vectors with entry `1` or `2`. -/
 example : (nowhereZero (F := ZMod 3) 1).card = 2 := by decide
 
-/-- Ground truth: for `A = [[1, 1], [1, 2]]` over `ZMod 3`, the vector `(1, 2)`
+/-- For `A = [[1, 1], [1, 2]]` over `ZMod 3`, the vector `(1, 2)`
 is nowhere zero with `(A v) 0 = 1 + 2 = 0`. -/
 example : ![1, 2] ∈ badAt (F := ZMod 3) !![1, 1; 1, 2] 0 := by
   simp only [badAt, nowhereZero, mem_filter, mem_univ, true_and]
   decide
 
-/-- Ground truth: for the same matrix, `(1, 1)` is not bad at row `0`,
+/-- For the same matrix, `(1, 1)` is not bad at row `0`,
 since `(A v) 0 = 2 ≠ 0`. -/
 example : ![1, 1] ∉ badAt (F := ZMod 3) !![1, 1; 1, 2] 0 := by
   simp only [badAt, nowhereZero, mem_filter, mem_univ, true_and]
@@ -176,7 +157,7 @@ theorem exists_nowhereZero_mulVec_nowhereZero_of_det_ne_zero (d : ℕ)
   refine exists_nowhereZero_mulVec_nowhereZero d hq A fun i hi => hdet ?_
   exact Matrix.det_eq_zero_of_row_eq_zero i fun j => by simp [hi]
 
-/-- Non-vacuity: the hypotheses are jointly satisfiable — `ZMod 5` has
+/-- The hypotheses are jointly satisfiable — `ZMod 5` has
 `2 + 2 ≤ 5` and `[[1, 1], [1, 4]]` has nonzero rows. -/
 example : ∃ v : Fin 2 → ZMod 5, (∀ j, v j ≠ 0) ∧
     ∀ i, ((!![1, 1; 1, 4] : Matrix (Fin 2) (Fin 2) (ZMod 5)) *ᵥ v) i ≠ 0 := by

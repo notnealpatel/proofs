@@ -1,33 +1,17 @@
 /-
-# Tyszka's determinant conjecture (Conjecture 4 of math/0702558)
+# Tyszka's determinant conjecture
 
-## Source
+Apoloniusz Tyszka, *Bounds of some real (complex) solution of a finite
+system of polynomial equations with rational coefficients*,
+arXiv:math/0702558v86, Conjecture 4 (after Theorem 11); restated as
+Conjecture 2 in arXiv:0807.3010. Its consequence for additive groups via
+Cramer's rule was proved by Freitas–Friedland–Porta, ELA 24 (2012).
 
-Apoloniusz Tyszka, "Bounds of some real (complex) solution of a finite system
-of polynomial equations with rational coefficients", arXiv math/0702558 (v86),
-Conjecture 4, stated right after the proof of Theorem 11 (around line 1540 of
-the TeX source); restated as Conjecture 2 in arXiv 0807.3010.  Statement
-re-read from the TeX source on 2026-10-21.
+If each row of an `(n-1) × n` integer matrix, after removing zeros, is
+one of `⟨1⟩`, `⟨-1,2⟩`, `⟨2,-1⟩`, `⟨-1,1,1⟩`, `⟨1,-1,1⟩`, `⟨1,1,-1⟩`,
+deleting any column gives a determinant of absolute value at most `2^(n-1)`.
 
-Verbatim:
-
-```
-Conjecture 4. Let B be a matrix with n-1 rows and n columns, n >= 2.
-Assume that each row of B, after deleting all zeros, forms a sequence
-belonging to
-  {<1>, <-1,2>, <2,-1>, <-1,1,1>, <1,-1,1>, <1,1,-1>}
-We conjecture that after deleting any column of B we get the matrix
-whose determinant has absolute value less than or equal to 2^(n-1).
-```
-
-## Status
-
-Stated as a conjecture in the paper (not proved there).  The paper uses it,
-via Cramer's rule, to derive Conjecture 3 for additive groups `G ⊇ ℚ`; that
-consequence was later proved by Freitas–Friedland–Porta (ELA 24, 2012).  This
-module proves Conjecture 4 itself.
-
-## Formal conventions
+## Conventions
 
 * The paper's `n - 1` rows and `n` columns are `m` rows (`Fin m`) and
   `m + 1` columns (`Fin (m + 1)`), so the paper's `n` is `m + 1` and the bound
@@ -339,7 +323,7 @@ with `m` rows and `m + 1` columns (the paper's `n - 1` and `n`), each row of
 which, after deleting all zeros, is one of `⟨1⟩, ⟨-1,2⟩, ⟨2,-1⟩, ⟨-1,1,1⟩,
 ⟨1,-1,1⟩, ⟨1,1,-1⟩`.  Then after deleting any column `c` of `B`, the
 resulting square matrix has determinant of absolute value at most `2 ^ m`
-(the paper's `2^(n-1)`).  Conjectured in the paper; proved here. -/
+(the paper's `2^(n-1)`). -/
 theorem conjecture_4 (m : ℕ) (B : Matrix (Fin m) (Fin (m + 1)) ℤ) (hB : ∀ r, TyszkaRow (B r))
     (c : Fin (m + 1)) : |(B.submatrix id c.succAbove).det| ≤ 2 ^ m := by
   choose I J K hIJK using fun r => (hB r).exists_eq

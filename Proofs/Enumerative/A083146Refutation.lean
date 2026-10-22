@@ -1,49 +1,12 @@
 /-
-# A083146 — refutation of "A083146 differs from A083145 exactly at n = 5..9"
+# A counterexample for A083146 and A083145
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A083146`)
-
-```
-A083146   Smallest palindromic multiple of n-th palindrome which is not a
-          concatenation of copies of that palindrome.
-TERMS:    2,4,6,8,505,222,161,232,171,22,44,66,88,5005,858,616,616,1881,202,
-          222,242,262,282,1661,1771,1881,1991,19291,404,424,444,464,484,2772,
-          2882,2992,27072,29492,606,626,646,666,686,3883,3993,37673,38683,
-          14541,808
-COMMENT:  Conjecture: (1). The sequence differs from A083145 only for finitely
-          many values of n. (2) Values of n are 5,6,7,8 and 9.
-          (unattributed; it belongs to the original entry)
-COMMENT:  Conjecture: The sequence differs from A083145 for infinitely many
-          values of n. - _Franklin T. Adams-Watters_, May 16 2006
-```
-
-and the companion entry
-
-```
-A083145   Smallest nontrivial palindromic multiple of the n-th palindrome
-          (a(n) is not equal to the n-th palindrome).
-TERMS:    2,4,6,8,55,66,77,88,99,22,44,66,88,5005,858,616,616,1881,202,222,
-          242,262,282,1661,1771,1881,1991,19291,404,424,444,464,484,2772,2882,
-          2992,27072,29492,606,626,646,666,686,3883,3993,37673,38683,14541,
-          808,828
-```
-
-The palindromes are indexed from `n = 1` (`1, 2, …, 9, 11, 22, …`), as the
-listed terms show (`a(1) = 2` is the least nontrivial multiple of `1`).
-No later comment retracts the conjecture; Adams-Watters' 2006 comment
-conjectures the negation of part (1).
-
-## Status
-
-This module refutes the conjecture, stated as the conjunction of parts (1)
-and (2), by refuting part (2).
-At `n = 74` the palindrome is `656`; no `656 * k` with `2 ≤ k ≤ 1000` is a
-palindrome, so `A083145(74) = 656 * 1001 = 656656`, a concatenation of two
-copies of `656`, while `A083146(74) = 656 * 3252 = 2133312`.  A Python
-recheck (2026-10-21) over the first 200 palindromes finds the differing
-indices `5, 6, 7, 8, 9, 74, 84, 85, 91, 92, 107` (palindromes
-`5, …, 9, 656, 757, 767, 828, 838, 989`).  Part (1) (finiteness) remains
-open and is not addressed here.
+The unsigned OEIS A083146 conjecture asserts finitely many differing indices,
+exactly 5 through 9. At index 74 the positive palindrome is 656:
+A083145 is 656656, a concatenation of two copies, whereas A083146 is 2133312.
+This refutes the exact-index clause and hence the conjunction; it does not
+settle finiteness or Franklin T. Adams-Watters' infinitude conjecture
+(May 16 2006). Positive palindromes are indexed from 1.
 -/
 import Mathlib
 
@@ -51,7 +14,7 @@ set_option autoImplicit false
 
 namespace Candidates.A083146Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A natural number is a (base-10) palindrome when its decimal digit list
 reads the same reversed. -/
@@ -178,7 +141,7 @@ theorem IsA083146.unique {n q q' : ℕ} (h : IsA083146 n q) (h' : IsA083146 n q'
   le_antisymm (h.2.2.2.2 q' h'.1 h'.2.1 h'.2.2.1 h'.2.2.2.1)
     (h'.2.2.2.2 q h.1 h.2.1 h.2.2.1 h.2.2.2.1)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : nthPal 1 = 1 := nthPal_eq (by decide) (by decide +kernel)
 example : nthPal 9 = 9 := nthPal_eq (by decide) (by decide +kernel)
@@ -260,12 +223,11 @@ def ConjecturePart1 : Prop := {n : ℕ | 1 ≤ n ∧ Differs n}.Finite
 5,6,7,8 and 9", i.e. for `n ≥ 1` the sequences differ exactly at `5 ≤ n ≤ 9`. -/
 def ConjecturePart2 : Prop := ∀ n, 1 ≤ n → (Differs n ↔ 5 ≤ n ∧ n ≤ 9)
 
-/-- **Conjecture in A083146 (original entry).** Verbatim: "Conjecture: (1).
-The sequence differs from A083145 only for finitely many values of n. (2)
-Values of n are 5,6,7,8 and 9." -/
+/-- The original A083146 conjecture: finitely many differing indices,
+exactly 5 through 9. The conjunction is refuted through its second clause. -/
 def Conjecture : Prop := ConjecturePart1 ∧ ConjecturePart2
 
-/-- Non-vacuity and ground truth: the sequences differ at `n = 5`
+/-- The sequences differ at `n = 5`
 (`55` versus `505`). -/
 example : Differs 5 :=
   ⟨5 * 11, 5 * 101,
@@ -276,7 +238,7 @@ example : Differs 5 :=
       (by simp only [isConcatCopies_iff_bounded (show 0 < 5 by norm_num)]; decide +kernel),
     by norm_num⟩
 
-/-- Ground truth: the sequences agree at `n = 14` (both `5005`). -/
+/-- The sequences agree at `n = 14` (both `5005`). -/
 example : ¬ Differs 14 := by
   rintro ⟨q, r, hq, hr, hne⟩
   have h145 : IsA083145 14 (55 * 91) :=
@@ -346,13 +308,10 @@ theorem conjecturePart2_false : ¬ ConjecturePart2 := fun h => by
   have h74 := (h 74 (by norm_num)).mp differs_74
   omega
 
-/-- **The A083146 conjecture is false.**  Counterexample: at `n = 74` the
-palindrome is `656`; its least nontrivial palindromic multiple is
-`656656 = 656 * 1001`, a concatenation of two copies of `656`, while the
-least non-concatenation palindromic multiple is `2133312 = 656 * 3252`.  So
-A083146 and A083145 differ at `n = 74 ∉ {5, …, 9}`.  The author probably
-had only the data up to the listed terms (`n ≤ 49`) in mind; part (1)
-(finiteness) is untouched and Adams-Watters conjectures its negation. -/
+/-- The exact-index clause, and hence the A083146 conjunction, fails at
+`n=74`: the least nontrivial palindromic multiple of 656 is 656656,
+whereas the least non-concatenation palindromic multiple is 2133312.
+The finiteness clause and Adams-Watters' infinitude conjecture are not settled. -/
 theorem conjecture_false : ¬ Conjecture := fun h => conjecturePart2_false h.2
 
 end Candidates.A083146Refutation

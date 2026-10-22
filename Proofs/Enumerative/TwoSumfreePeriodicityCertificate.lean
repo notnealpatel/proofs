@@ -1,46 +1,20 @@
 /-
-# Strict greedy 2-sumfree sequences: a finite periodicity certificate,
-# and the explicit families `g ≤ 2f - 1` and `g = 2f`
+A finite periodicity certificate for strict greedy 2-sumfree sequences.
 
-## Source
+Source: Daan van Berkel and Wieb Bosma, Periodicity conjectures for all
+2-sumfree sequences, arXiv:2609.18522, §5, Theorems 5.1–5.3
+(5.1 from [BeBo, Theorem 13]; 5.3 from [BeBo, Lemma 6], t=2).
+For positive seeds f<g, the greedy rule excludes sums of two distinct
+previous terms. The finite scan charSet defines the unique support sumfreeSeq.
 
-Daan van Berkel and Wieb Bosma, *Periodicity conjectures for all
-2-sumfree sequences*, arXiv:2609.18522, Section 5 ("Confirmed cases").
-Recorded 2026-10-21.
-
-Setting (Introduction): for positive integers `f < g`, the strict greedy
-2-sumfree sequence `S_{f,g}` starts `s₀ = f`, `s₁ = g`, and `s_k` is the
-smallest integer greater than `s_{k-1}` that is not the sum of two
-different previous elements.  Its characteristic sequence is
-`C_{f,g} = (c_i)`, `c_i = 1 ↔ i ∈ S_{f,g}`.
-
-Verbatim statements formalized here:
-
-* Theorem 5.1 (`thm:upper`, quoted from [BeBo, Thm 13]): "Let `f ≥ 1`.
-  For every `g ≤ 2f-1` the 2-sumfree sequence `S_{f,g}` is characterized
-  as follows: `z ∈ S_{f,g}` iff `z = f` or `z = g` or `g+1 ≤ z ≤ f+g-1` or
-  `z = w + k·(2f+g-1)`, for `k ≥ 0`, with
-  `w ∈ {2f+2g-2, 2f+2g-1, …, 3f+2g-3}`."
-* Theorem 5.2 (`thm:diag`, new in the paper): "For every `f ≥ 3` the
-  2-sumfree sequence `S_{f,2f}` is characterized as follows: `z ∈ S_{f,2f}`
-  iff `z = f` or `z = 2f` or `2f+1 ≤ z ≤ 3f-1` or `z = w + k·(5f-1)`, for
-  `k ≥ 0`, with `w ∈ {4f, 6f-2, 6f-1, 7f, 7f+1, …, 8f-3}`."
-* Theorem 5.3 (label `corollary`; the case `t = 2` of [BeBo, Lemma 6]):
-  "Let `S` be a 2-sumfree sequence.  Suppose that for some `M > 0` the
-  initial segment of length `5M` of the characteristic sequence `C` of `S`
-  has the property that the 5 consecutive blocks of length `M` of which it
-  is composed are, with the possible exception of the first block,
-  identical and non-null.  Then `C`, and hence `S`, is ultimately
-  periodic."
-
-Status: all three are proved in the paper (5.1 also in [BeBo]); this is a
-known-result formalization.  The paper's proof of 5.3 in fact shows
-periodicity with period `M` from index `M` on, which is what we prove
-(`IsGS.mem_iff_add_of_blocks`).  The "without loss of generality
-`5M ≤ v < 6M`" step of the paper is replaced by a strong induction.
-
-The trailing `(in particular …)` clauses of 5.1/5.2 about the minimal
-(pre)period lengths of the difference sequence are not formalized.
+If the five initial characteristic blocks of positive length M are identical
+and nonnull except possibly for the first, the support is M-periodic from
+index M. Strong induction proves the certificate.
+Explicit support formulas are proved for 0<f<g<2f (thm_5_1) and
+f≥3,g=2f (thm_5_2). The trailing source clauses about minimal period and
+preperiod lengths of the difference sequence are not formalized.
+The scan includes index zero, absent under the positive-seed hypotheses;
+the certificate permits the exceptional first block.
 -/
 import Mathlib
 
@@ -70,7 +44,7 @@ def charSet (f g : ℕ) : ℕ → Finset ℕ
 as a subset of `ℕ` (equivalently, its characteristic sequence `C_{f,g}`). -/
 def sumfreeSeq (f g : ℕ) : Set ℕ := {z | z ∈ charSet f g (z + 1)}
 
-/-! ### Ground truth from the paper -/
+/-! ### Examples from the paper -/
 
 /-- The first 26 terms of `S_{3,7}` listed in the Introduction. -/
 example : charSet 3 7 79 = {3, 7, 8, 9, 13, 14, 18, 19, 24, 29, 30, 34, 35, 40, 45, 46, 50, 51,
@@ -348,7 +322,7 @@ theorem exists_add_eq_of_not_mem_upperSet {f g z : ℕ} (hf : 0 < f) (hfg : f < 
   have hfmem : f ∈ upperSet f g := (mem_upperSet_iff hf).2 (Or.inl (Or.inl rfl))
   rw [mem_upperSet_iff hf] at hz
   by_cases hzc : z < 2 * f + 2 * g - 2
-  · -- a sum of two initial elements
+  · -- A sum of two initial elements
     by_cases h1 : z ≤ 2 * f + g - 1
     · exact ⟨f, hfmem, z - f, hinit _ (by omega) (by omega), by omega, by omega⟩
     by_cases h2 : z ≤ f + 2 * g - 1
@@ -471,7 +445,7 @@ theorem exists_add_eq_of_not_mem_diagSet {f z : ℕ} (hf : 3 ≤ f) (hgz : 2 * f
   by_cases h3 : 4 * f - 1 ≤ r
   · exact ⟨r - (2 * f - 1), hinit _ (by omega) (by omega), _, hper (2 * f - 1) k (by omega),
       by omega, by omega⟩
-  -- remaining offsets: `1 ≤ r ≤ 2f - 3`
+  -- Remaining offsets: `1 ≤ r ≤ 2f - 3`
   have hr1 : 1 ≤ r ∧ r ≤ 2 * f - 3 := by omega
   rcases k with _ | k
   · -- `z = 4f + r ∈ [4f+1, 6f-3]`, a sum of two initial elements
@@ -515,7 +489,7 @@ or `z = w + k(5f-1)` for some `k ≥ 0` and
 theorem thm_5_2 {f : ℕ} (hf : 3 ≤ f) : sumfreeSeq f (2 * f) = diagSet f :=
   ((isGS_diagSet hf).eq_sumfreeSeq (by omega) (by omega)).symm
 
-/-! ## Non-vacuity: the hypotheses of the family theorems are satisfiable -/
+/-! ## The hypotheses of the family theorems are satisfiable -/
 
 /-- Theorem 5.1 applies at `(f, g) = (3, 5)`. -/
 example : sumfreeSeq 3 5 = upperSet 3 5 := thm_5_1 (by norm_num) (by norm_num) (by norm_num)

@@ -1,36 +1,18 @@
 /-
 # Cyclic Hamilton decompositions of carousel tournaments: negative cases
 
-## Source
+Hongci Liao, Yongju Peng, Guang Li, and Yingbin Ma, *Cyclic Hamilton Cycle
+Decompositions of Carousel Tournaments of Order pq*, arXiv:2610.07102,
+Problem 1.2, asks which odd orders admit cyclic Hamilton decompositions.
+Here `T_n = Cay(ℤ_n,{1,…,(n-1)/2})` and cyclic means closed under translation
+by one. The paper gives existence for primes and for `pq` with primes
+`7 ≤ p < q`.
 
-Hongci Liao, Yongju Peng, Guang Li, Yingbin Ma, *Cyclic Hamilton Cycle
-Decompositions of Carousel Tournaments of Order pq*, arXiv:2610.07102.
-Recorded 2026-10-21.
-
-Problem 1.2 (`prob:carousel`, Section 1), verbatim:
-
-> For which odd integers $n$ does the carousel tournament $T_n$ admit a cyclic
-> Hamilton cycle decomposition?
-
-Here `T_n = Cay(ℤ_n, S_n)`, `S_n = {1, 2, …, (n-1)/2}`, and a Hamilton cycle
-decomposition `𝒞` is *cyclic* if `C + 1 ∈ 𝒞` for every `C ∈ 𝒞`.  The paper proves
-existence for `n = pq` with primes `7 ≤ p < q` (Theorem 1.3) and notes the prime
-case is immediate.  Concluding remarks, verbatim: "The remaining products $pq$ with
-$p\in\{3,5\}$, and more generally all odd composite orders, remain open."
-
-## Status of the statements below
-
-Open in the paper.  This module proves three *negative* answers to Problem 1.2:
-
-* `carousel15_no_cyclic`: `T_15` has no cyclic Hamilton cycle decomposition;
-* `carousel21_no_cyclic`: `T_21` has none;
-* `carousel_primePow_no_cyclic`: `T_{p^a}` has none for odd primes `p`, `a ≥ 2`.
-
-Reportedly (triage, from the abstract of Buratti–Del Fra, Discrete Math. 279
-(2004); the paper itself was not checked) the cases `15` and `p^a` also follow
-after forgetting orientations, while `21` does not (`K_21` has a cyclic Hamilton
-cycle system).  `carousel5_cyclic` instantiates the definition positively
-(the paper's prime construction at `n = 5`).
+This module proves nonexistence at `15`, `21`, and proper odd prime powers,
+and gives a positive example at `5`. Buratti–Del Fra, Discrete Math. 279
+(2004), is reported to imply the cases `15` and proper prime powers after
+forgetting orientations, but that source has not been checked here. The
+unoriented `K_21` admits a cyclic Hamilton system, so it does not give `21`.
 
 ## Encoding
 
@@ -71,7 +53,7 @@ def IsCyclicHamDecomp (n : ℕ) (D : Set (Perm (ZMod n))) : Prop :=
   (∀ x y, carouselArc n x y → ∃! σ, σ ∈ D ∧ σ x = y) ∧
   (∀ σ ∈ D, translate 1 σ ∈ D)
 
-/-- Ground truth: in `T_7` (`S_7 = {1,2,3}`) there are arcs `0 → 3` and `5 → 1`
+/-- in `T_7` (`S_7 = {1,2,3}`) there are arcs `0 → 3` and `5 → 1`
 (difference `3`), but no arc `0 → 4`. -/
 example : carouselArc 7 0 3 ∧ carouselArc 7 5 1 ∧ ¬ carouselArc 7 0 4 := by
   unfold carouselArc; decide

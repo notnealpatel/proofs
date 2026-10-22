@@ -1,31 +1,9 @@
 /-
 # A302864 — every 2-adic valuation is attained by a decimal palindrome
 
-## OEIS source (retrieved with `oeis show A302864`, 2026-10-21)
-
-```
-NAME:     a(n) is the smallest positive palindromic number whose binary
-          expansion ends in exactly n zeros, or 0 if no such number exists.
-TERMS:    1,2,4,8,272,25952,2112,4224,8448,44544,2532352,6547456,405504,
-          236101632,8634368,487030784,677707776,61486268416,25135153152,
-          4285005824,2912594952192,63115033051136,2114151514112,
-          65892155129856,29142024192,827163020361728,42643629092634624
-KEYWORDS: nonn,base
-COMMENT:  Equivalently, a(n) is the smallest base-10 palindrome of the form
-          (2k+1)*2^n.
-COMMENT (the conjecture, unattributed in the entry):
-          Conjecture: a(n) > 0 for all n >= 0.
-FORMULA:  If A082613(n)/A082614(n) = 2^n (see conjecture at A082613) and
-          a(n) > 0, then a(n) >= A082613(n). - _Altug Alkan_, Apr 15 2018
-```
-
-## Status
-
-Triage status: open (no proof in the entry; none found in the literature by
-the triage).  The entry's programs are by Altug Alkan (Apr 15 2018) and Chai
-Wah Wu (Jun 23 2022).
-
-## Proof (formalized below)
+OEIS A302864: every nonnegative 2-adic valuation is attained by a
+positive decimal palindrome. Thus the least such palindrome, defined
+as `0` if none exists, is always positive.
 
 1. By induction there is an `n`-digit number `N` with all digits in `{1, 2}`
    and `2 ^ n ∣ N` (prepend the digit `d ∈ {1, 2}` making
@@ -44,7 +22,7 @@ set_option autoImplicit false
 
 namespace Candidates.A302864ThereBasePalindrome
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `P` is a base-10 palindrome: its decimal digit list reads the same
 backwards (Mathlib's `List.Palindrome` on `Nat.digits 10 P`). -/
@@ -73,7 +51,7 @@ theorem isPalindrome10_iff (P : ℕ) :
     IsPalindrome10 P ↔ (Nat.digits 10 P).reverse = Nat.digits 10 P :=
   List.Palindrome.iff_reverse_eq
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- Membership test for `palSet` through divisibility. -/
 theorem mem_palSet_iff {n P : ℕ} :
@@ -203,9 +181,9 @@ theorem exists_mem_palSet (n : ℕ) : (palSet n).Nonempty := by
   obtain ⟨P, hP⟩ := exists_palindrome_dvd n
   exact ⟨P, mem_palSet_iff.2 hP⟩
 
-/-- **A302864 conjecture** (OEIS A302864, comment "Conjecture: a(n) > 0 for
-all n >= 0.", unattributed in the entry): for every `n ≥ 0`, `a n > 0`, i.e.
-there is a positive base-10 palindrome `P` with `v₂(P) = n` exactly. -/
+/-- The conjecture in A302864 (unattributed): for every `n ≥ 0`,
+`a(n)` is positive, since some positive decimal palindrome has
+2-adic valuation exactly `n`. -/
 theorem a_pos (n : ℕ) : 0 < a n :=
   (Nat.sInf_mem (exists_mem_palSet n)).1
 

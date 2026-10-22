@@ -1948,7 +1948,7 @@ private theorem tendsto_tail_shift :
 /-- Full moving mesoscopic rate for the actual terminal avoidance fraction: when
 `a n ≠ b n` eventually and `max (a n) (b n) / n → 0`, the normalized deficit
 `n / (a n + b n - 1) * (1 - F n (a n) (b n))` tends to `exp 1 - 1`.
-This theorem is proved and the whole file is placeholder-free. Proof route: a two-stage
+Proof: a two-stage
 squeeze (`two_stage_squeeze`) between the cutoff-`K` bounds `lower_finite` and
 `upper_finite`, taking `n → ∞` with `tendsto_ratio_two` and the low-density limit,
 then `K → ∞` with `tendsto_partial_sum` (via the production

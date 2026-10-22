@@ -1,40 +1,10 @@
 /-
-# A004981 — Bala: `a(p n) ≡ a(n) (mod p²)` for primes `p ≡ 1 (mod 4)`
+Bala's congruence for OEIS A004981 (Peter Bala, Dec 22 2019).
 
-## OEIS source (retrieved with `oeis show A004981`, 2026-10-21)
-
-```
-NAME:     a(n) = (2^n/n!) * Product_{k=0..n-1} (4*k + 1).
-TERMS:    1,2,10,60,390,2652,18564,132600,961350,7049900,52169260,...
-FORMULA:  G.f.: (1-8*x)^(-1/4).
-FORMULA:  D-finite with recurrence: n*a(n) = 2*(4*n-3)*a(n-1). - _R. J. Mathar_, Mar 14 2014
-COMMENT (the conjecture):
-  Conjecture: a(p*n) = a(n) (mod p^2) for prime p = 1 (mod 4) and all positive
-  integers n. Cf. A004982 and A298799. - _Peter Bala_, Dec 22 2019
-```
-
-## Status
-
-Triage status: open (no proof recorded in the entry; a short literature search found
-none, although a general Dwork-type supercongruence theorem might cover it).  This
-module proves the conjecture, with no remaining `sorry`, for every `n` (also `n = 0`).
-
-## Proof outline
-
-1. *Block reduction.* With `D p m = ∏_{j=1}^{p-1} (m p + j)` and
-   `N p m = ∏_{j<p, j≠(p-1)/4} (4pm + 4j + 1)`, the recurrence gives the exact identity
-   `a(pn) ∏_{m<n} D p m = a(n) ∏_{m<n} 2^(p-1) N p m` (`a_mul_prod_D`).
-2. *Block congruences.* Each block runs over a complete system of nonzero residues
-   modulo `p` shifted by a multiple of `p`; the first-order term is `∑ y⁻¹ = 0`, so
-   `D p m ≡ (p-1)!` and `N p m ≡ N p 0 (mod p²)` (`D_dvd`, `N_dvd`).
-3. *Core* `2^(p-1) N p 0 ≡ (p-1)! (mod p²)` (equivalently `a(p) ≡ 2`,
-   `two_pow_mul_N_zero_dvd`).  The odd numbers below `4p` give the exact identity
-   `4^(p-1) · N p 0 · B₃ = D p 2 · D p 3`, where `B₃` is the product of the numbers
-   `≡ 3 (mod 4)` below `4p` other than `3p`; reflection `m ↦ 4p - m` and step 2 give
-   `B₃ ≡ N p 0`, hence `(2^(p-1) N p 0)² ≡ ((p-1)!)² (mod p²)`; the two sides agree
-   modulo `p` (Fermat), so the sign is `+`.  Here `p ≡ 1 (mod 4)` is used: `p` is the
-   multiple of `p` in the class `1 (mod 4)` and `3p` the one in the class `3 (mod 4)`.
-4. Cancel the unit `((p-1)!)ⁿ` modulo `p²`.
+For a(n) = 2^n ∏_{k<n}(4k+1) / n!, the division is exact and
+ a(pn) ≡ a(n) (mod p²) for every n ≥ 0 and prime p ≡ 1 (mod 4).
+The proof uses the recurrence n a(n) = 2(4n-3)a(n-1)
+(R. J. Mathar, Mar 14 2014), block products, and cancellation modulo p².
 -/
 import Mathlib
 
@@ -326,13 +296,13 @@ theorem four_pow_mul_N_mul_B3 (p : ℕ) (hp : 0 < p) (h4 : p % 4 = 1) :
         ∏ j ∈ (range p).erase (p / 4), (-1 * (4 * (j : ℤ) + 1) + p * 4) =
       (D p 2 : ℤ) * (D p 3 : ℤ) := by
   have hj0 : p / 4 ∈ range p := Finset.mem_range.mpr (by omega)
-  -- the class `1 (mod 4)`
+  -- The class `1 (mod 4)`
   have hR1 : (∏ k ∈ range p, (4 * k + 1) : ℕ) = N p 0 * p := by
     rw [← Finset.prod_erase_mul _ _ hj0, N]
     congr 1
     · simp
     · omega
-  -- the class `3 (mod 4)`, reflected
+  -- The class `3 (mod 4)`, reflected
   have hR3 : ((∏ k ∈ range p, (4 * k + 3) : ℕ) : ℤ) =
       (∏ j ∈ (range p).erase (p / 4), (-1 * (4 * (j : ℤ) + 1) + p * 4)) * (3 * p) := by
     rw [← Finset.prod_range_reflect, Nat.cast_prod, ← Finset.prod_erase_mul _ _ hj0]
@@ -347,7 +317,7 @@ theorem four_pow_mul_N_mul_B3 (p : ℕ) (hp : 0 < p) (h4 : p % 4 = 1) :
       rw [h3]
       push_cast
       ring
-  -- the factorial ratio `(4p)! / (2p)!`
+  -- The factorial ratio `(4p)! / (2p)!`
   have hF : (4 * p).factorial = (2 * p).factorial * (D p 2 * (3 * p) * (D p 3 * (4 * p))) := by
     obtain ⟨q, rfl⟩ : ∃ q, p = q + 1 := ⟨p - 1, by omega⟩
     rw [← Finset.prod_range_add_one_eq_factorial, ← Finset.prod_range_add_one_eq_factorial,
@@ -602,27 +572,23 @@ theorem a_prime_mul_modEq (p n : ℕ) (hp : p.Prime) (h4 : p % 4 = 1) :
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjecture (A004981, Peter Bala, Dec 22 2019)**, proved.
-
-Verbatim: "Conjecture: a(p*n) = a(n) (mod p^2) for prime p = 1 (mod 4) and all positive
-integers n."  Here `a n = 2ⁿ ∏_{k<n} (4k+1) / n!` is the entry's definition.  The
-positivity hypothesis is kept to mirror the source; the proof does not need it (see
-`a_prime_mul_modEq`, which also covers `n = 0`). -/
+/-- Bala's congruence for positive `n` (OEIS A004981). The stronger theorem
+`a_prime_mul_modEq` also covers `n=0`. -/
 theorem bala_conjecture (p n : ℕ) (hp : p.Prime) (h4 : p % 4 = 1) (_hn : 0 < n) :
     a (p * n) ≡ a n [MOD p ^ 2] :=
   a_prime_mul_modEq p n hp h4
 
 /-! ## Sanity layer -/
 
--- Ground truth: the first eight terms of the OEIS DATA line.
+-- The first eight terms of the OEIS DATA line.
 example : (List.range 8).map a = [1, 2, 10, 60, 390, 2652, 18564, 132600] := by decide
 
--- Non-vacuity: the hypotheses hold jointly at `p = 5`, `n = 1`, where the conclusion
+-- The hypotheses hold jointly at `p = 5`, `n = 1`, where the conclusion
 -- reads `a 5 = 2652 ≡ 2 = a 1 (mod 25)`.
 example : Nat.Prime 5 ∧ 5 % 4 = 1 ∧ 0 < 1 ∧ a (5 * 1) ≡ a 1 [MOD 5 ^ 2] := by
   refine ⟨by norm_num, by norm_num, by norm_num, by decide⟩
 
--- The hypothesis `p ≡ 1 (mod 4)` is load-bearing: at `p = 3`, `a 3 = 60 ≢ 2 (mod 9)`.
+-- The hypothesis `p ≡ 1 (mod 4)` is key: at `p = 3`, `a 3 = 60 ≢ 2 (mod 9)`.
 example : ¬ a (3 * 1) ≡ a 1 [MOD 3 ^ 2] := by decide
 
 end Candidates.A004981ProdPrimePeter

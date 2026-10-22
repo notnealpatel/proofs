@@ -1,28 +1,11 @@
 /-
 # A231817 — multiplicative digital root of the concatenation of divisors is almost always 0
 
-## OEIS source (retrieved with `oeis show A231817`, 2026-10-21)
+The unsigned conjecture in OEIS A231817: the multiplicative digital root
+of the concatenation of the divisors is zero for almost all positive `n`.
+'Almost all' is read as natural density: the set where `a n ≠ 0` has density zero.
 
-```
-NAME:     Multiplicative digital root of concatenation of all divisors of n (A037278).
-TERMS:    1,2,3,8,5,8,7,8,4,0,1,6,3,0,5,0,7,0,9,0,8,8,6,8,0,4,6,0,8,0,3,0,4,6,0,0,2,
-          8,8,0,4,0,2,0,0,6,6,0,0,0,0,0,5,0,0,0,0,0,0,0,6,4,0,0,0,0,8,0,2,0,7,0,2,8,
-          0,0,8,0,8,0,0,6,8,0,0,0,0
-COMMENT:  Also multiplicative digital root of A190997 (product of digits of all the
-          divisors of n) or A007955 (product of divisors of n).
-COMMENT (the conjecture, unattributed in the entry):
-          Conjecture: a(n) = 0 for almost all n.
-COMMENT:  793 of the first 1000 terms are zeros, and 9147 out of the first 10000 terms
-          are zeros. - _Harvey P. Dale_, Jul 30 2019
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature found by the triage), flagged as
-essentially elementary.  "Almost all" is read as natural density: the set of `n ≥ 1` with
-`a n ≠ 0` has natural density `0`.
-
-## Proof outline (all kernel-checked below)
+## Proof outline
 
 The concatenation of the divisors of `n` ends with the decimal digits of `n` itself, so a
 digit `0` of `n` is a digit `0` of the concatenation, whose digit product is then `0`; hence
@@ -37,7 +20,7 @@ namespace Candidates.A231817MultiplicativeDigitalRoot
 
 open Filter Topology
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The divisors of `n` listed in increasing order: the `d ∈ [1, n]` with `d ∣ n`.
 (Bridged to `(Nat.divisors n).sort` by `divisorList_eq_sort`.) -/
@@ -63,7 +46,7 @@ def mdr (m : ℕ) : ℕ := mdrFuel m m
 /-- A231817: the multiplicative digital root of the concatenation of the divisors of `n`. -/
 def a (n : ℕ) : ℕ := mdr (concatDivisors n)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : divisorList 12 = [1, 2, 3, 4, 6, 12] := by decide
 example : concatStep 12 34 = 1234 := by decide +kernel

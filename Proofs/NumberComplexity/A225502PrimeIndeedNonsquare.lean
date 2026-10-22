@@ -1,35 +1,18 @@
 /-
 # A225502 — every prime times some triangular number is triangular
 
-## OEIS source (retrieved with `oeis show A225502`, 2026-10-21)
-
-```
-NAME:     Least m > 0 such that prime(n)*triangular(m) is a triangular number,
-          or 0 if no such m exists.
-TERMS:    2,1,2,2,3,3,12,4,9,5,5,30,6,6,20,14,230,23,24,8,8,35,36,9,29,90,30,
-          434,10,159,22,11,140,530,854,147,12,25,77,39,1938509,13,41,69,182,70,
-          14,104,105,60,30,15,15,47,240,65274,6314,16,17009,33,50,68,17,264,371
-COMMENT:  Conjecture: a(n) > 0.
-```
-
-The entry's comment carries no author or date in the local store.  The
-target formulation (triage): "For every prime p (indeed every nonsquare d>0)
-there is m>=1 and k with p*m(m+1)/2 = k(k+1)/2; i.e. a(n)>0 for all n."
-
-## Status
-
-Triage: proved elsewhere.  Chahal–Griffin–Priddis (arXiv:1806.07981,
-Hardy–Ramanujan J.), Thm 1: for nonsquare `m > 1` there are infinitely many
-triangular pairs with `T' = m T`; see also Pletser, arXiv:2102.13494, and
-R. Israel's Pell reformulation in A225503.
-
-## Proof used here
+OEIS A225502 asks whether every prime times some positive triangular
+number is triangular. Chahal–Griffin–Priddis, arXiv:1806.07981,
+Hardy–Ramanujan J., Theorem 1, proves infinitely many such pairs for every
+nonsquare multiplier greater than one; see also Pletser, arXiv:2102.13494,
+and R. Israel's Pell reformulation in A225503.
+The construction below works for every positive nonsquare multiplier.
 
 Let `(u, v)` be a Pell solution `u² - d v² = 1` with `u > 1`, `v > 0`
 (`Pell.Solution₁.exists_pos_of_not_isSquare`).  Then
 `m = u² + u v - 1` and `k = u² + d u v - 1` satisfy
 `k (k + 1) - d m (m + 1) = u² (1 - d) (u² - d v² - 1) = 0`, and `m ≥ 1`
-since `u ≥ 2`.  (This is the triage's squared-Pell construction
+since `u ≥ 2`.  (This is the squared-Pell construction
 `X = u' + d v'`, `Y = u' + v'` with `(u', v') = (u, v)²`, written out:
 `X = 2k + 1`, `Y = 2m + 1`.)
 -/
@@ -39,7 +22,7 @@ set_option autoImplicit false
 
 namespace Candidates.A225502PrimeIndeedNonsquare
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `t` is a triangular number: `t = k (k + 1) / 2` for some `k : ℕ`
 (OEIS A000217, which starts at `T(0) = 0`). -/
@@ -96,7 +79,7 @@ theorem leastM_eq_of_good {p m : ℕ} (hm : Good p m) (hlt : ∀ j < m, ¬ Good 
   rw [dif_pos h, Nat.find_eq_iff]
   exact ⟨hm, hlt⟩
 
-/-! ## Ground truth against the DATA line -/
+/-! ## Examples against the DATA line -/
 
 example : a 1 = 2 := by
   rw [a, show 1 - 1 = 0 from rfl, Nat.nth_prime_zero_eq_two]

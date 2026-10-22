@@ -1,44 +1,19 @@
 /-
-# Filaseta–Martirosyan–Swan: the non-reciprocal part of `x^{d_r} + ⋯ + x^{d_1} + p`
+The nonreciprocal part of ∑_{d∈D} X^d+p is irreducible.
 
-## Source
+Source: M. Filaseta, L. Martirosyan and L. C. Swan, “On the factorization of
+x^{d_r}+x^{d_{r-1}}+⋯+x^{d_2}+x^{d_1}+p and a conjecture of C. Nicol”,
+arXiv:2610.05568, Theorem 1.1; Lemma 2.2 and Borisov's argument.
+Here p is prime, D is a nonempty finite set of positive natural exponents,
+and polynomials are in ℤ[X]. Reciprocal means reverse(w)=±w.
 
-arXiv:2610.05568, M. Filaseta, L. Martirosyan, L. C. Swan, "On the factorization of
-`x^{d_r} + x^{d_{r-1}} + ⋯ + x^{d_2} + x^{d_1} + p` and a conjecture of C. Nicol".
-Statement: Section 1, Theorem 1.1 (label `factorizationthm`); proof in Section 2
-(Lemma 2.1 `f=uvlem` after Filaseta–Solan, Lemma 2.2 `Winfo`, Borisov's argument).
-Recorded 2026-10-21.
-
-Verbatim (Section 1):
-
-> The *reciprocal* of a polynomial `w(x) ∈ ℝ[x]` is the polynomial `w̃(x) = x^{deg w} w(1/x)`.
-> A `w(x) ∈ ℝ[x]` is a *reciprocal polynomial* if `w̃(x) = ±w(x)`. [...] The non-reciprocal
-> part of `w(x) ∈ ℤ[x]` is `w(x)` removed of all of its irreducible reciprocal factors in
-> `ℤ[x]` having positive leading coefficient. [...]
-> Let `F(x) = x^{d_r} + x^{d_{r-1}} + ⋯ + x^{d_2} + x^{d_1} + p`, with `r, d_j ∈ ℤ^+`,
-> `d_r > ⋯ > d_1`, and `p` prime.
-> **Theorem 1.1.** The non-reciprocal part of the polynomial `F(x)` given in (1.1) is
-> irreducible.
-
-Status: proved in the paper (known result).
-
-## Formalization
-
-* `filasetaPoly p D = ∑_{d ∈ D} X^d + C p`, with `D = {d_1 < ⋯ < d_r}` a `Finset ℕ`,
-  `0 ∉ D` (all `d_j ≥ 1`) and `D.Nonempty` (`r ≥ 1`).
-* The paper's reciprocal `w̃` is `Polynomial.reverse`; it agrees with `Polynomial.mirror` for
-  `w(0) ≠ 0` (`mirror_eq_reverse_of_coeff_zero_ne_zero`).
-* The non-reciprocal part `N` is characterized by `F = R * N` with every irreducible factor of
-  `R` reciprocal and no irreducible factor of `N` reciprocal; by unique factorization this
-  determines `N` up to sign, and `exists_reciprocal_mul_nonreciprocal` shows such `R, N`
-  always exist. `thm_1_1` is Theorem 1.1 in this form.
-* `reverse_eq_or_reverse_eq_of_eq_mul` is the core (stronger than the "no non-reciprocal
-  splitting" form): in any factorization `F = u v`, the factor whose constant term is prime to
-  `p` satisfies `w̃ = w`. This bypasses Lemma 2.1 of the paper: an irreducible factor of a
-  reducible non-reciprocal part with constant term prime to `p` would be reciprocal.
-* The proof of the core follows Lemma 2.2 and Borisov's argument with `W = u ṽ`, replacing the
-  paper's positivity/monic normalization by the inequality `c^2 - c ≥ p^2 - p` for nonzero
-  multiples `c` of `p`.
+The nonreciprocal part N is characterized by F=R*N, with every irreducible
+divisor of R reciprocal and no irreducible divisor of N reciprocal.
+Existence of such R,N is proved by unique factorization, retaining
+multiplicities; N is determined up to sign. The theorem proves Irreducible N.
+Polynomial.reverse agrees with Polynomial.mirror for nonzero constant term.
+The core shows that in F=u*v the factor with constant term prime to p is
+reciprocal, using W=u*reverse(v) and c²-c≥p²-p for nonzero multiples c of p.
 -/
 import Mathlib
 
@@ -149,14 +124,14 @@ theorem zeroOneShape_of_mul_mirror (p : ℤ) (hp : 1 < p) (F W : ℤ[X]) (hF : Z
   have hFt : F.natTrailingDegree = 0 := natTrailingDegree_eq_zero.mpr (.inr hF0)
   have hWN : W.natDegree < N := by omega
   have hFN : F.natDegree < N := by omega
-  -- sum of squares of the coefficients agree (middle coefficient of `W W̃ = F F̃`)
+  -- Sum of squares of the coefficients agree (middle coefficient of `W W̃ = F F̃`)
   have hsumsq : ∑ j ∈ Finset.range N, W.coeff j ^ 2 = ∑ j ∈ Finset.range N, F.coeff j ^ 2 := by
     have hW := coeff_mul_mirror W
     have hF' := coeff_mul_mirror F
     rw [hWt, hdeg, hsq, ← hFt, hF', sum_over_range' W (f := fun _ a => a ^ 2) (fun _ => zero_pow two_ne_zero) N hWN,
       sum_over_range' F (f := fun _ a => a ^ 2) (fun _ => zero_pow two_ne_zero) N hFN] at hW
     exact hW.symm
-  -- sums of the coefficients agree (`W(1) = F(1)`)
+  -- Sums of the coefficients agree (`W(1) = F(1)`)
   have hsum : ∑ j ∈ Finset.range N, W.coeff j = ∑ j ∈ Finset.range N, F.coeff j := by
     rw [eval_eq_sum_range' hWN, eval_eq_sum_range' hFN] at h1
     simpa only [one_pow, mul_one] using h1
@@ -201,7 +176,7 @@ theorem eq_of_zeroOneShape_of_mul_mirror (p : ℤ) (hp : 1 < p) (F W : ℤ[X])
   have hW0 : W.coeff 0 ≠ 0 := by rw [hW.1]; omega
   have hWt : W.natTrailingDegree = 0 := natTrailingDegree_eq_zero.mpr (.inr hW0)
   have hFt : F.natTrailingDegree = 0 := natTrailingDegree_eq_zero.mpr (.inr hF0)
-  -- the degree is positive, since a degree-zero `W` would equal `F`
+  -- The degree is positive, since a degree-zero `W` would equal `F`
   have hn : F.natDegree ≠ 0 := by
     intro hn0
     apply hne
@@ -227,7 +202,7 @@ theorem eq_of_zeroOneShape_of_mul_mirror (p : ℤ) (hp : 1 < p) (F W : ℤ[X])
     natAbs_trailingCoeff_eq_one A hAne hAc,
     natAbs_trailingCoeff_eq_one (F - W) hBne hBc, trailingCoeff_eq_coeff_zero hF0, hF.1,
     mul_one, one_mul] at htr
-  -- the leading coefficient of `W` is `0` or `1`, but has absolute value `p > 1`
+  -- The leading coefficient of `W` is `0` or `1`, but has absolute value `p > 1`
   have hlead : W.leadingCoeff = 0 ∨ W.leadingCoeff = 1 := hW.2 _ (by rw [hdeg]; exact hn)
   rcases hlead with h | h <;> rw [h] at htr <;> omega
 
@@ -242,7 +217,7 @@ theorem mirror_eq_of_mul_eq (p : ℤ) (hp : 1 < p) (F u v : ℤ[X]) (hF : ZeroOn
   have hune : u ≠ 0 := fun h0 => hu0 (by rw [h0, coeff_zero])
   have hvne : v ≠ 0 := fun h0 => hv0 (by rw [h0, coeff_zero])
   have hvt : v.natTrailingDegree = 0 := natTrailingDegree_eq_zero.mpr (.inr hv0)
-  -- the auxiliary polynomial `W = u ṽ` of (2.1)
+  -- The auxiliary polynomial `W = u ṽ` of (2.1)
   set W := u * v.mirror with hWdef
   have hmv0 : v.mirror.coeff 0 = v.leadingCoeff := by
     rw [← mirror_trailingCoeff, trailingCoeff, mirror_natTrailingDegree, hvt]
@@ -320,7 +295,7 @@ theorem not_nonreciprocal_split (p : ℕ) (hp : p.Prime) (D : Finset ℕ) (hD0 :
   · exact hu.1 h
   · exact hv.1 h
 
-/-- **No non-reciprocal splitting (`Polynomial.mirror` form).** The triage's formal sketch:
+/-- **No non-reciprocal splitting (`Polynomial.mirror` form).** 
 `F` has no factorization `F = u v` with `ũ ≠ ±u` and `ṽ ≠ ±v`, reciprocals taken via
 `Polynomial.mirror`. -/
 theorem no_nonreciprocal_split (p : ℕ) (hp : p.Prime) (D : Finset ℕ) (hD0 : 0 ∉ D)
@@ -405,13 +380,13 @@ theorem thm_1_1 (p : ℕ) (hp : p.Prime) (D : Finset ℕ) (hD0 : 0 ∉ D) (hD : 
     have hlc : w.leadingCoeff * c.leadingCoeff = 1 := by
       rw [← leadingCoeff_mul, ← hc, leadingCoeff_filasetaPoly p D hD0 hD]
     exact hpZ.not_unit (isUnit_of_dvd_unit hlead (isUnit_iff_exists_inv.mpr ⟨_, hlc⟩))
-  · -- a splitting `N = a b` into non-units yields a self-reciprocal irreducible factor of `N`
+  · -- A splitting `N = a b` into non-units yields a self-reciprocal irreducible factor of `N`
     by_contra hnot
     push Not at hnot
     obtain ⟨hau, hbu⟩ := hnot
     have h0 : R.coeff 0 * (a.coeff 0 * b.coeff 0) = p := by
       rw [← mul_coeff_zero, ← mul_coeff_zero, ← hab, ← hRN, hF0]
-    -- one of `a(0)`, `b(0)` is prime to `p`
+    -- One of `a(0)`, `b(0)` is prime to `p`
     have hex : ∃ x : ℤ[X], x ∣ N ∧ ¬ IsUnit x ∧ ¬ (p : ℤ) ∣ x.coeff 0 := by
       by_cases hpa : (p : ℤ) ∣ a.coeff 0
       · refine ⟨b, ⟨a, by rw [hab, mul_comm]⟩, hbu, fun hpb => ?_⟩
@@ -480,7 +455,7 @@ theorem exists_reciprocal_mul_nonreciprocal (f : ℤ[X]) (hf : f ≠ 0) :
       hPr ((reciprocal_iff_of_associated q r (hq.associated_of_dvd hr hqr)).mp hPq)
     exact not_or.mp hnq
 
-/-- Non-vacuity of `thm_1_1`: for `F = x + 2` the hypotheses are jointly satisfiable, so the
+/-- Example for `thm_1_1`: for `F = x + 2` the hypotheses are jointly satisfiable, so the
 theorem yields an irreducible non-reciprocal part. -/
 example : ∃ R N : ℤ[X], filasetaPoly 2 {1} = R * N ∧ Irreducible N := by
   have hne : filasetaPoly 2 {1} ≠ 0 := by

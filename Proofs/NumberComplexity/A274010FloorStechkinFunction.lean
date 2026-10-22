@@ -1,36 +1,11 @@
 /-
 # A274010 — Oudra: the Stechkin function is `tau(n) + tau(n-1) - 2`
 
-## OEIS source (retrieved with `oeis show A274010`, 2026-10-21)
-
-```
-NAME:     Boris Stechkin function: a(n) is the number of m with 2 <= m <= n
-          and floor(n(m-1)/m) divisible by m-1.
-TERMS:    0,0,1,2,3,3,4,4,4,5,5,4,6,6,4,6,7,5,6,6,6,8,6,4,8,9,5,6,8,6,8,8,6,
-          8,6,6,11,9,4,6,10,8,8,8,6,10,8,4,10,11,7,8,8,6,8,10,10,10,6,4,12,12,
-          4,8,11,9,10,8,6,8,10,8,12,12,4,8,10,8,10,8,10   (offset 0)
-FORMULA (the conjecture):
-  Conjecture: a(n) = tau(n) + tau(n-1) - 2, for n>=2. - _Ridouane Oudra_, Feb 28 2020
-COMMENT:
-  Stechkin proves: n-1 is prime iff a(n) = A000005(n). ...
-```
-
-## Status
-
-Triage: "open" in the sense that the entry labels the formula a conjecture
-and gives no proof; no proof was located in the literature.  The entry's
-Maple program already counts `m` with `n = k*m + j`, `j ∈ {0, 1}`, which is
-the content of the key lemma below.  Computationally checked for
-`2 ≤ n ≤ 3000` (python, against the listed terms for `0 ≤ n ≤ 80`).
-This module proves the conjecture without `sorry`
-(`stechkin_eq_tau_add_tau_sub_two`).
-
-## Proof
-
-Write `n = q*m + r`, `0 ≤ r < m`.  Then `floor(n(m-1)/m) = q(m-1) + (r - 1)`
-(truncated subtraction), and `0 ≤ r - 1 < m - 1`, so `(m-1)` divides the floor
-iff `r ≤ 1`, i.e. iff `m ∣ n` or `m ∣ n - 1`.  For `m ≥ 2` these are disjoint,
-so `a(n) = (tau(n) - 1) + (tau(n-1) - 1)`.
+Ridouane Oudra's conjecture in OEIS A274010 gives the Stechkin function
+as `a(n) = τ(n)+τ(n-1)-2` for `n ≥ 2`. The key lemma identifies the counted
+`m ≥ 2` with divisors of `n` or `n-1`; these two sets are disjoint.
+The proof also yields Stechkin's criterion that `n-1` is prime iff
+`a(n) = τ(n)`.
 -/
 import Mathlib
 
@@ -143,9 +118,9 @@ theorem stechkin_add_two (n : ℕ) (hn : 2 ≤ n) :
     Finset.card_union_of_disjoint (disjoint_divisors_erase n (by omega))]
   omega
 
-/-- **Oudra's conjecture (A274010, Ridouane Oudra, Feb 28 2020).**
+/-- **Oudra's conjecture (A274010, Ridouane Oudra).**
 
-Verbatim: "Conjecture: a(n) = tau(n) + tau(n-1) - 2, for n>=2."  Here `a` is
+"Conjecture: a(n) = tau(n) + tau(n-1) - 2, for n>=2."  Here `a` is
 the Stechkin function `stechkin` and `tau = Nat.divisors · |>.card`.  The
 difference is taken in `ℤ`; the `n - 1` inside `tau` is guarded by `2 ≤ n`. -/
 theorem stechkin_eq_tau_add_tau_sub_two (n : ℕ) (hn : 2 ≤ n) :

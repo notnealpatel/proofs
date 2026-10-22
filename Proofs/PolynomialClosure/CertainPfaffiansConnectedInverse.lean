@@ -1,69 +1,30 @@
 /-
-# Ferrario: Pfaffians of 6×6 matrices in the class `M_n` are positive
+# Positive Pfaffians in Ferrario's class `M_6`
 
-## Source
+Davide L. Ferrario, *On Certain Pfaffians Connected with the Inverse Problem
+for Collinear Central Configurations*, arXiv:2604.14827, Section 2:
+Definitions `defi:T` and `defi:one-bordered`, Propositions `propo:factors` and
+`propo:n6`, and Corollary `coro:mainineq`.
 
-* arXiv 2604.14827, Davide L. Ferrario, *On Certain Pfaffians Connected
-  with the Inverse Problem for Collinear Central Configurations*.
-* Section 2 (`section:2`), Definition `defi:T` (the class `M_n`),
-  verbatim: "Let $\quadmat_n$ be the space of all $n\times n$
-  antisymmetric matrices $A$ with real coefficients $a_{ij}$ satisfying
-  the following properties:
-  (A1) (positive) $1\leq i<j \leq n \implies a_{ij} > 0$;
-  (A2) (quadratic inequality) $a_{i,j}a_{i-1,j+1} \geq a_{i-1,j}
-  a_{i,j+1}$ for all $i = 2,\ldots, n-2$, $j = i+1 \ldots n-1$.
-  (A3) (monotone) For $j=2,\ldots n-2$
-  $a_{1,2} \geq \ldots \geq a_{1,j} \geq a_{1,j+1} \geq \ldots \geq
-  a_{1,n-1}$, $a_{2,n} \leq \ldots \leq a_{j,n} \leq a_{j+1,n} \leq
-  \ldots \leq a_{n-1,n}$."
-* Definition `defi:one-bordered`, verbatim: "A matrix $B\in \matrices_n$
-  is termed one-bordered if, for $j=1,\ldots, n-1$, $b_{j,n} = 1$ and
-  $b_{1,n-1} = 1$."
-* Proposition `propo:factors`, verbatim: "If $A$ is in $\matrices_n$, $n$
-  even, and let $B$ be obtained by dividing the $j$-th row and column of
-  $A$ by $a_{jn}$ for $j=1,\ldots, n-1$, and then by dividing the
-  resulting entries $a'_{ij} = \dfrac{a_{ij}}{a_{in}a_{jn}}$ for
-  $i,j\leq n-1$ by $a'_{1,n-1}$.  Then $B \in \matrices_n$, ... (thus $B$
-  is one-bordered), and
-  $\pfaff A = \left( \dfrac{a_{1,n-1}}{a_{1n}a_{n-1,n}}
-  \right)^{(n-2)/2} \left( \prod_{j=1,\ldots, n-1} a_{jn} \right)
-  \pfaff B$."
-* Proposition `propo:n6`, verbatim: "If $B\in \bmatrices_6$ is
-  one-bordered, then $\pfaff B \geq 1$."
-* Corollary `coro:mainineq` at `n = 6`: for `A ∈ M_6`,
-  `Pf A ≥ (a₁₅ / (a₁₆ a₅₆))² · ∏_{j ≤ 5} a_{j6} > 0`.
+This module treats only `n = 6`.  A real skew matrix is recorded by its
+strictly upper entries `a : ℕ → ℕ → ℝ`, read at `1 ≤ i < j ≤ 6` (the source's
+1-based indexing).  `skewMat6 a` is the corresponding matrix and `pf6 a` its
+first-row Pfaffian expansion; `det_skewMat6` identifies its square with the
+determinant.  The class `InM` imposes positive upper entries, the source's
+quadratic inequalities, and monotonicity along the first row and last column.
 
-Recorded 2026-10-21.
+The proof rescales to a one-bordered matrix (`scale6_mem`, `pf6_eq_factor`),
+uses the parametrization `μ(v)` (`mu6`), and bounds the pieces in the proof of
+`propo:n6` (`one_le_pf6_mu`).  Two misprints in the source's displayed pieces
+are corrected: in the second piece the last inner summand is `1`, not
+`v₂₃ v₂₄ v₂₅`; the third piece equals
+`v₁₄ v₂₅ (v₁₂ v₁₃ v₃₅ v₄₅ + v₂₄ - 1)`.  The corrected bounds follow the same
+argument.
 
-## Status
-
-Proved in the paper (hand proof for `n = 6`; computer-assisted for
-`8 ≤ n ≤ 14`).  This module formalizes the `n = 6` case completely.
-
-## Translation notes
-
-* A real skew `6 × 6` matrix is determined by its strictly upper
-  triangular entries; we record those as a function `a : ℕ → ℕ → ℝ`
-  read only at `1 ≤ i < j ≤ 6` (paper's 1-indexing).  `skewMat6 a` is the
-  corresponding skew matrix and `pf6 a` its Pfaffian (expansion along the
-  first row).
-* The proof follows the paper: the factorization `propo:factors`
-  (`pf6_eq_factor`), the reparametrization `μ(v)` of one-bordered matrices
-  (`defi:vij`, `propo:vij`) and the three nonnegative pieces of the proof
-  of `propo:n6` (`one_le_pf6_mu`).  Two misprints in the paper's displayed
-  pieces are corrected (checked in Sage): in the second piece the last
-  inner summand is `1`, not `v₂₃ v₂₄ v₂₅`; the third piece equals
-  `v₁₄ v₂₅ (v₁₂ v₁₃ v₃₅ v₄₅ + v₂₄ - 1)`.  Both corrected bounds still hold
-  with the paper's argument.
-
-## Main declarations (all sorry-free)
-
-* `det_skewMat6`: `det (skewMat6 a) = (pf6 a)²`, so `pf6` is the Pfaffian.
-* `one_le_pf6_mu`, `propo_n6`: Proposition `propo:n6`.
-* `pf6_eq_factor`, `scale6_mem`: Proposition `propo:factors` at `n = 6`.
-* `coro_mainineq_six`: `Pf A ≥ (a₁₅/(a₁₆ a₅₆))² ∏_{j≤5} a_{j6}`.
-* `pf6_pos`: `Pf A > 0` on `M_6`.
-* `det_pos_of_skew_of_InM`: matrix form, `det A > 0` for skew `A` in `M_6`.
+`coro_mainineq_six` gives
+`(a₁₅ / (a₁₆ a₅₆))² · ∏_{j≤5} a_{j6} ≤ Pf A` on `M_6`.
+Thus `pf6_pos` gives a positive Pfaffian, and `det_pos_of_skew_of_InM` gives a
+positive determinant for the corresponding real skew matrix.
 -/
 import Mathlib
 
@@ -137,7 +98,7 @@ noncomputable def scale6 (a : ℕ → ℕ → ℝ) (i j : ℕ) : ℝ :=
 def upper6 (A : Matrix (Fin 6) (Fin 6) ℝ) (i j : ℕ) : ℝ :=
   A (Fin.ofNat 6 (i - 1)) (Fin.ofNat 6 (j - 1))
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- `skewMat6 a` written out entrywise (row `i`, column `j`, 0-indexed). -/
 theorem skewMat6_eq (a : ℕ → ℕ → ℝ) : skewMat6 a = !![0, a 1 2, a 1 3, a 1 4, a 1 5, a 1 6;
@@ -209,7 +170,7 @@ example : pf6 (mu6 1 1 1 1 1 1 1 1 1) = 1 := by norm_num [pf6, mu6]
 /-- `μ` matches the paper's display `defi6vij` at a sample entry. -/
 example : mu6 2 3 5 7 11 13 17 19 23 2 3 = 3 * 5 * 7 * 11 * 13 := by norm_num [mu6]
 
-/-- Non-vacuity: the constant matrix `a_{ij} = 1` lies in `M_6`. -/
+/-- The constant matrix `a_{ij} = 1` lies in `M_6`. -/
 example : InM 6 (fun _ _ => 1) where
   positive := fun _ _ _ _ _ => one_pos
   quadratic := fun _ _ _ _ _ _ => le_refl _

@@ -1,54 +1,23 @@
 /-
-# Kedlaya's mixed AM-GM inequality (Holland's conjecture) and Nam's analogues
+# Kedlaya's mixed AM–GM inequality and Nam's analogues
 
-## Source (retrieved with `fetch 2401.10234`, 2026-10-21)
-
-Kyumin Nam, *On a Mixed Arithmetic-Mean, Geometric-Mean, Harmonic-Mean
-Inequality*, arXiv:2401.10234.  Lemma 1 and Proposition 2 are quoted there from
+Source: Kyumin Nam, *On a Mixed Arithmetic-Mean, Geometric-Mean,
+Harmonic-Mean Inequality*, arXiv:2401.10234: Lemma 1, Propositions 2–4,
+and Theorem 5. Nam quotes the weights and mixed AM–GM inequality from
 K. Kedlaya, *Proof of a mixed arithmetic-mean, geometric-mean inequality*,
-Amer. Math. Monthly 101 (1994) 355-357; the inequality was conjectured by
-F. Holland (Mathematics Competitions 5 (1992) 60-64).
+Amer. Math. Monthly 101 (1994), 355–357, conjectured by F. Holland,
+Mathematics Competitions 5 (1992), 60–64.
 
-Verbatim (LaTeX) from the paper:
+For `n > 0` and positive entries, this file proves the five weight
+properties, the mixed AM–GM, AM–HM and GM–HM inequalities, and their
+four-term chain. The source's equality characterizations
+("iff all entries are equal") are not formalized.
 
-```
-Lemma 1. The vectors a(i,j) = (a_1(i,j), ..., a_n(i,j)) given by
-  a_k(i,j) = {n-i \choose j-k} {i-1 \choose k-1} / {n-1 \choose j-1}
-satisfy  i. a_k(i,j) >= 0;  ii. a_k(i,j) = 0 for k > min(i,j);
-  iii. a_k(i,j) = a_k(j,i);  iv. \sum_{k=1}^n a_k(i,j) = 1;
-  v. \sum_{i=1}^n a_k(i,j) = n/j for k <= j, and 0 for k > j.
-
-Proposition 2. Let x_1,...,x_n be positive real numbers. Then
-  ( \prod_{j=1}^{n} (x_1 + ... + x_j)/j )^{1/n}
-      >= (1/n) \sum_{i=1}^{n} \sqrt[i]{x_1 x_2 ... x_i}.
-
-Proposition 3. Let x_1,...,x_n be positive real numbers. Then
-  [ (1/n) \sum_{j=1}^{n} ((x_1 + ... + x_j)/j)^{-1} ]^{-1}
-      >= (1/n) \sum_{i=1}^{n} i / (1/x_1 + ... + 1/x_i).
-
-Proposition 4. Let x_1,...,x_n be positive real numbers. Then
-  [ (1/n) \sum_{j=1}^{n} (\sqrt[j]{x_1 ... x_j})^{-1} ]^{-1}
-      >= ( \prod_{i=1}^{n} i / (1/x_1 + ... + 1/x_i) )^{1/n}.
-
-Theorem 5. (the chain obtained from Propositions 2, 3, 4).
-```
-
-(The equality cases "iff x_1 = ... = x_n" are not formalized.)
-
-## Status
-
-Proved in the literature: Proposition 2 by Kedlaya (1994); Propositions 3, 4
-and Theorem 5 in arXiv:2401.10234.  This module proves Lemma 1, Propositions
-2, 3, 4 and the inequality chain of Theorem 5 completely (no `sorry`).
-
-## Formalization notes
-
-Everything is 0-indexed: the paper's `x_1, …, x_n` are `x 0, …, x (n-1)` and
-`a_k(i,j)` is `weight n (i-1) (j-1) (k-1)`.  The paper invokes Hölder and
-Minkowski; here the two superadditivity steps are proved directly, from the
-unweighted AM-GM inequality (`Real.geom_mean_le_arith_mean_weighted`) and from
-Sedrakyan's form of Cauchy–Schwarz (`Finset.sq_sum_div_le_sum_sq_div`).  The
-upper-index Vandermonde identity needed for Lemma 1 (v) is proved by induction.
+Indices are shifted by one: the paper's `x₁, …, xₙ` are `x 0, …, x (n-1)`,
+and `a_k(i,j)` is `weight n (i-1) (j-1) (k-1)`. Superadditivity is derived
+from weighted AM–GM and Sedrakyan's Cauchy–Schwarz inequality rather than
+invoking Hölder and Minkowski. The upper-index Vandermonde identity for
+Lemma 1(v) is proved by induction.
 -/
 import Mathlib
 
@@ -117,7 +86,7 @@ theorem sum_antidiagonal_choose_mul_choose (m k b : ℕ) :
         Finset.sum_add_distrib, ih]
       rw [show k + (b + 1) + 1 = (k + b + 1) + 1 by ring, Nat.choose_succ_succ' (m + 1)]
 
-/-- Ground truth for the upper Vandermonde identity: `∑_{a+b=3} C(a,1) C(b,1) = C(4,3)`. -/
+/-- Examples for the upper Vandermonde identity: `∑_{a+b=3} C(a,1) C(b,1) = C(4,3)`. -/
 example : ∑ p ∈ antidiagonal 3, p.1.choose 1 * p.2.choose 1 = (3 + 1).choose (1 + 1 + 1) := by
   decide
 
@@ -129,16 +98,16 @@ noncomputable def weight (n i j k : ℕ) : ℝ :=
   if k ≤ j then (((n - 1 - i).choose (j - k) * i.choose k : ℕ) : ℝ) / ((n - 1).choose j : ℕ)
   else 0
 
-/-- Paper check (n = 3): `a_1(2,2) = C(1,1) C(1,0) / C(2,1) = 1/2`. -/
+/-- Example (n = 3): `a_1(2,2) = C(1,1) C(1,0) / C(2,1) = 1/2`. -/
 example : weight 3 1 1 0 = 1 / 2 := by norm_num [weight, Nat.choose]
 
-/-- Paper check (n = 3): `a_2(2,2) = C(1,0) C(1,1) / C(2,1) = 1/2`. -/
+/-- Example (n = 3): `a_2(2,2) = C(1,0) C(1,1) / C(2,1) = 1/2`. -/
 example : weight 3 1 1 1 = 1 / 2 := by norm_num [weight, Nat.choose]
 
-/-- Paper check (n = 3): `a_3(2,3) = 0` since `k > min(i,j)`. -/
+/-- Example (n = 3): `a_3(2,3) = 0` since `k > min(i,j)`. -/
 example : weight 3 1 2 2 = 0 := by norm_num [weight, Nat.choose]
 
-/-- Paper check (n = 4): `a_2(3,2) = C(1,0) C(2,1) / C(3,1) = 2/3`. -/
+/-- Example (n = 4): `a_2(3,2) = C(1,0) C(2,1) / C(3,1) = 2/3`. -/
 example : weight 4 2 1 1 = 2 / 3 := by norm_num [weight, Nat.choose]
 
 /-- Lemma 1 (i): the weights are nonnegative. -/
@@ -682,7 +651,7 @@ theorem mixed_am_gm_hm_chain {n : ℕ} (hn : 0 < n) (x : ℕ → ℝ) (hx : ∀ 
     exact inv_anti₀ hsum_pos (mul_le_mul_of_nonneg_left
       (Finset.sum_le_sum fun i hi => inv_anti₀ (hAMpos i hi) (h2 i hi)) (by positivity))
 
-/-! ## Ground truth and non-vacuity -/
+/-! ## Examples and non-vacuity -/
 
 /-- Lemma 1 (v) checked by direct computation (n = 3, j = 2, k = 1):
 `a_1(1,2) + a_1(2,2) + a_1(3,2) = 1/2 + 1/2 + 1/2 = 3/2 = n/j`. -/

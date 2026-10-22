@@ -1,35 +1,14 @@
 /-
 # A303639 — refutation of Z.-W. Sun's conjecture `a(n) > 0` for `n > 1`
 
-## OEIS source (pulled with `oeis show A303639`, retrieved 2026-10-21)
+Zhi-Wei Sun's conjecture in OEIS A303639 (April 27, 2018) asserts
+`a(n) > 0` for every `n > 1`, where `a(n)` counts representations
+`n = a² + b² + binomial(2c+1,c) + binomial(2d+1,d)` by nonnegative
+integers with `a ≤ b` and `c ≤ d`.
 
-```
-NAME:     Number of ways to write n as a^2 + b^2 + binomial(2*c+1,c)
-          + binomial(2*d+1,d), where a,b,c,d are nonnegative integers with
-          a <= b and c <= d.
-TERMS:    0,1,1,2,1,3,2,2,1,2,3,3,3,3,4,2,2,2,3,4,4,5,2,4,1,2,3,3,5,3,...
-AUTHOR:   Zhi-Wei Sun, Apr 27 2018 (author of the conjecture comment)
-COMMENT (the conjecture):
-  Conjecture: a(n) > 0 for all n > 1.
-COMMENT:
-  It has been verified that a(n) > 0 for all n = 2..6*10^8.
-COMMENT:
-  a(800322180) = 0, so the conjecture fails. For each of the 136 pairs
-  0 <= c <= d with binomial(2*c+1,c) + binomial(2*d+1,d) <= 800322180, the
-  remainder 800322180 - binomial(2*c+1,c) - binomial(2*d+1,d) is not a sum of
-  two squares: in every case some prime p == 3 (mod 4) divides it to an odd
-  power. This is the only n with 1 < n <= 2*10^9 for which a(n) = 0.
-  - _Sunsu Jeong_, Aug 10 2026
-COMMENT:
-  Adamczewski disproves the conjecture, showing a(800322180) = 0, in linked
-  article. - _Michael De Vlieger_, Aug 19 2026
-```
-
-## Status
-
-This module kernel-checks the refutation recorded in the entry itself:
-`a(800322180) = 0`.  It is a formal confirmation of a known counterexample,
-not a new result.
+This file formalizes the known counterexample `a(800322180) = 0`,
+recorded by Sunsu Jeong (August 10, 2026) and attributed to Adamczewski
+by Michael De Vlieger (August 19, 2026) in the entry.
 
 ## Proof outline
 
@@ -93,7 +72,7 @@ theorem mem_reps (n a b c d : ℕ) :
     simp only [reps, mem_filter, mem_product, mem_range]
     refine ⟨⟨?_, ?_, ?_, ?_⟩, hab, hcd, hn⟩ <;> omega
 
-/-! Ground truth: the first ten listed terms `0,1,1,2,1,3,2,2,1,2`. -/
+/-! the first ten listed terms `0,1,1,2,1,3,2,2,1,2`. -/
 
 example : A303639 1 = 0 := by decide +kernel
 example : A303639 2 = 1 := by decide +kernel
@@ -108,8 +87,8 @@ example : A303639 10 = 2 := by decide +kernel
 
 /-! ## The conjecture -/
 
-/-- **Sun's conjecture (A303639, Zhi-Wei Sun, Apr 27 2018).**
-Verbatim: "Conjecture: a(n) > 0 for all n > 1." -/
+/-- Sun's conjecture (OEIS A303639, April 27, 2018):
+`a(n)` is positive for every `n > 1`. -/
 def Conjecture : Prop := ∀ n : ℕ, 1 < n → 0 < A303639 n
 
 /-- The conjecture in representation form: every `n > 1` is

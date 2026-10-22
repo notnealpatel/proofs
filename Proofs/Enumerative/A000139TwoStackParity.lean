@@ -1,43 +1,15 @@
 /-
-# A000139 — Bala: parity of the two-stack-sortable / nonseparable-map numbers
+# Parity of A000139
 
-## OEIS source (retrieved with `oeis show A000139`, 2026-10-21)
+For `twoStack n = 2 (3n)! / ((2n+1)! (n+1)!)`, oddness is equivalent to
+`Odd n ∧ n AND 2n = 0`, or membership in A022341: `n = 4f+1` with
+`f AND 2f = 0` (A003714). This includes `n = 0`, where `twoStack 0 = 2`.
+Source: Peter Bala's comment in OEIS A000139 (Jul 24 2025).
+The permutation-pattern problem list arXiv:math/0505504 attributes the
+positive-index parity characterization to Miklós Bóna.
 
-```
-NAME:     a(n) = 2*(3*n)! / ((2*n+1)!*(n+1)!).
-OFFSET:   0
-TERMS:    2,1,2,6,22,91,408,1938,9614,49335,260130,1402440,7702632,42975796,
-          243035536,1390594458,8038677054,46892282815,275750636070,...
-KEYWORDS: nonn,easy,nice
-COMMENT:  The number of 2-stack sortable permutations on n letters (n >= 1).
-COMMENT:  The number of rooted non-separable planar maps with n+1 edges.
-COMMENT (the conjecture):
-  Conjecture: a(n) is odd iff n is a term of A022341. - _Peter Bala_, Jul 24 2025
-```
-
-A022341: "a(n) = 4*A003714(n) + 1; the odd Fibbinary numbers", and A003714
-(Fibbinary numbers) are the "numbers whose binary representation contains no
-two adjacent 1's", i.e. the `f` with `f AND 2f = 0`.
-
-## Status
-
-Triage: open (no proof in the entry or a located reference).  However, the
-problem list "Problems and Conjectures presented at the Third International
-Conference on Permutation Patterns" (2005, arXiv:math/0505504) records as known,
-crediting a combinatorial proof to Miklós Bóna, that the number of West
-2-stack-sortable permutations of length `n` is odd iff the binary expansion of
-`n` ends in `1` and has no two adjacent `1`s.  That is this statement for
-`n ≥ 1`, so the result is known in the literature; the entry does not cite it.
-The argument below is elementary and independent of that proof.  Computational check (Python, 2026-10-21): the parity
-of `a(n)` agrees with `Odd n ∧ n &&& 2n = 0` for every `0 ≤ n < 6000`.
-
-## Proof outline (formalized below, no `sorry`)
-
-1. Integer identity: `a(n) = 2 C(3n,n) + C(3n,n+1) - 8 C(3n,n-1)` for `n ≥ 1`,
-   so `a(n) ≡ C(3n, n+1) (mod 2)`.
-2. Lucas at `p = 2`: `C(a+b, a)` is odd iff `a AND b = 0`; here
-   `C(3n, n+1) = C((n+1) + (2n-1), n+1)`.
-3. Bit bridge: `(n+1) AND (2n-1) = 0` iff `n` is odd and `n AND 2n = 0`.
+The proof reduces parity to `C(3n,n+1)`, then applies Lucas's theorem and
+an elementary bitwise identity.
 -/
 import Mathlib
 
@@ -45,7 +17,7 @@ set_option autoImplicit false
 
 namespace Candidates.A000139TwoStackParity
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A000139: `a(n) = 2*(3n)! / ((2n+1)! (n+1)!)`, with offset `0`.  The
 `Nat` division is exact (established inside the proof of `twoStack_succ_eq`;
@@ -53,7 +25,7 @@ namespace Candidates.A000139TwoStackParity
 def twoStack (n : ℕ) : ℕ :=
   2 * (3 * n).factorial / ((2 * n + 1).factorial * (n + 1).factorial)
 
--- Ground truth against the OEIS DATA line `2,1,2,6,22,91,408,1938,9614,49335,…`.
+-- Listed terms from the OEIS DATA line `2,1,2,6,22,91,408,1938,9614,49335,…`.
 example : (List.range 10).map twoStack = [2, 1, 2, 6, 22, 91, 408, 1938, 9614, 49335] := by
   decide
 
@@ -259,12 +231,8 @@ theorem odd_twoStack_succ_iff (m : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjecture (A000139, Peter Bala, Jul 24 2025), proved.**
-
-Verbatim: "Conjecture: a(n) is odd iff n is a term of A022341."  With
-`a(n) = 2*(3n)!/((2n+1)!(n+1)!)` (offset `0`) and A022341 the odd Fibbinary
-numbers, this says: `a(n)` is odd iff `n` is odd and `n AND 2n = 0`.
-The A022341 form `n = 4f + 1` with `f` Fibbinary is `twoStack_odd_iff_A022341`. -/
+/-- The A000139 quotient is odd iff `n` is odd with `n AND 2n = 0`.
+The equivalent A022341 form is `twoStack_odd_iff_A022341` (Bala). -/
 theorem twoStack_odd_iff (n : ℕ) : Odd (twoStack n) ↔ Odd n ∧ n &&& (2 * n) = 0 := by
   rcases n with _ | m
   · have h0 : twoStack 0 = 2 := by decide
@@ -305,7 +273,7 @@ theorem twoStack_odd_iff_A022341 (n : ℕ) :
     Odd (twoStack n) ↔ ∃ f : ℕ, f &&& (2 * f) = 0 ∧ n = 4 * f + 1 := by
   rw [twoStack_odd_iff, odd_and_land_iff]
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- Satisfiability of both sides: `n = 1` (in A022341, `a(1) = 1` odd) and
 -- `n = 3` (odd but `3 AND 6 = 2`, `a(3) = 6` even).

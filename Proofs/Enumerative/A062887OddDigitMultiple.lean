@@ -1,43 +1,12 @@
 /-
-# A062887 — Irvine: a cyclic odd-digit multiple of `2n+1` exists iff `125 ∤ 2n+1`
+Cyclic odd-digit multiples (OEIS A062887; Sean A. Irvine, Apr 14 2023).
 
-## OEIS source (pulled with `oeis show A062887`, 2026-10-21)
-
-```
-NAME:     Smallest multiple of 2n+1 with the property that its digits are odd
-          and each digit is two less (mod 10) than the previous digit, or 0 if
-          no such number exists.
-TERMS:    1,3,5,7,9,319,975,75,7531,19,197531975319,3197,75,5319,319,31,
-          3197531975319,53197531975,1975319,975,531975,1975319753197,
-          19753197531975,75319753197531,319753197531975319,753197531975319753
-COMMENT (the conjecture):
-  Conjecture: The only numbers n for which a(n)=0 are those for which 2*n+1
-  is divisible by 125. - _Sean A. Irvine_, Apr 14 2023
-```
-
-## Status
-
-Triage status: open (no proof in the entry or in the literature found by the
-triage).  The triage reported an elementary argument, which this file
-formalizes:
-
-* (`125 ∤ m`) Write `m = 5^e k` with `gcd(k, 10) = 1`, `e ≤ 2`.  The number
-  `31975 31975 … 31975` (`j` blocks) equals `31975 (10^{5j} - 1) / 99999`;
-  for `j = φ(99999 k)` it is divisible by `25 k`, hence by `m`.
-* (`125 ∣ m`) A multiple of `125` ends in `5`, so a valid number is `5`, `75`
-  or ends in `975`; none of these is `0 mod 125` (`975 ≡ 100 mod 125`).
-
-Computational re-validation (2026-10-21, BFS over (residue, last digit)):
-the equivalence holds for every odd `m < 16000`, and the brute-force
-smallest witnesses reproduce the 26 listed terms.
-
-## Formal reading
-
-Digits are read with `Nat.digits 10`, which is little-endian: the head is the
-units digit.  "Each digit is two less (mod 10) than the previous digit"
-(reading left to right) is, little-endian, "each digit is two more (mod 10)
-than the next less significant one", i.e.
-`(Nat.digits 10 N).IsChain (fun a b => b = (a + 2) % 10)`.
+The least-witness-or-zero value for positive multiples of 2n+1 with cyclic
+odd decimal digits is zero exactly when 125 divides 2n+1; zero denotes absence of a witness.
+Digits are little-endian: the source's left-to-right decrement by 2 modulo 10
+becomes the chain b = (a+2) % 10. Valid lists are nonempty and all digits are odd.
+Repeating the block 31975 supplies witnesses when 125 does not divide the odd
+modulus; the endings 5, 75 and 975 rule out multiples of 125.
 -/
 import Mathlib
 
@@ -56,7 +25,7 @@ def IsOddCyclic (N : ℕ) : Prop :=
   Nat.digits 10 N ≠ [] ∧ (∀ d ∈ Nat.digits 10 N, Odd d) ∧
     (Nat.digits 10 N).IsChain (fun a b => b = (a + 2) % 10)
 
-/-- `IsOddCyclic` is decidable (used for the ground-truth checks). -/
+/-- `IsOddCyclic` is decidable (used for the examples). -/
 instance : DecidablePred IsOddCyclic := fun N => by
   unfold IsOddCyclic; infer_instance
 
@@ -66,7 +35,7 @@ digit property, or `0` if no such number exists. -/
 noncomputable def a (n : ℕ) : ℕ :=
   if h : ∃ N, 0 < N ∧ 2 * n + 1 ∣ N ∧ IsOddCyclic N then Nat.find h else 0
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : IsOddCyclic 319 := by decide
 example : IsOddCyclic 197531975319 := by decide
@@ -75,7 +44,7 @@ example : ¬ IsOddCyclic 0 := by decide
 example : ¬ IsOddCyclic 318 := by decide
 example : ¬ IsOddCyclic 315 := by decide
 
-/-- Ground truth for `a`: if `w` is a valid witness for `2n+1` and no smaller
+/-- Examples for `a`: if `w` is a valid witness for `2n+1` and no smaller
 number is, then `a n = w`. -/
 theorem a_eq_of_witness (n w : ℕ) (hw : 0 < w ∧ 2 * n + 1 ∣ w ∧ IsOddCyclic w)
     (hmin : ∀ N < w, ¬ (0 < N ∧ 2 * n + 1 ∣ N ∧ IsOddCyclic N)) : a n = w := by
@@ -264,9 +233,7 @@ theorem exists_isOddCyclic_iff {m : ℕ} (hm : Odd m) :
     exact not_isOddCyclic_of_dvd (h125.trans hmN) hN
   · exact exists_of_not_dvd hm
 
-/-- **Irvine's conjecture (A062887, Sean A. Irvine, Apr 14 2023), verbatim
-form.**  "The only numbers n for which a(n)=0 are those for which 2*n+1 is
-divisible by 125." -/
+/-- The least-witness-or-zero sequence satisfies `a(n)=0` iff `125∣2n+1`. -/
 theorem a_eq_zero_iff (n : ℕ) : a n = 0 ↔ 125 ∣ 2 * n + 1 := by
   classical
   have hodd : Odd (2 * n + 1) := odd_two_mul_add_one n

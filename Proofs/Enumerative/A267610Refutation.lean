@@ -1,64 +1,14 @@
 /-
-# A267610 — Wiseman: `a(n) = A267700(n) - n` (refuted)
+# A counterexample for the A267610–A267700 identity
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A267610`,
-## `oeis show A267700`, `oeis show A160720` and the live entries
-## https://oeis.org/A267610/internal, https://oeis.org/A267700/internal)
-
-```
-A267610
-NAME:     Total number of OFF (white) cells after n iterations of the
-          "Rule 182" elementary cellular automaton starting with a single
-          ON (black) cell.
-OFFSET:   0,3
-TERMS:    0,0,2,2,4,6,12,12,14,16,22,24,30,36,50,50,52,54,60,62,68,74,88,...
-PROGRAM (Mathematica, the counting convention): row k of the evolution is
-          truncated to the 2k+1 cells of the light cone, the OFF cells of
-          each truncated row are counted, and the counts of rows 0..n are
-          summed.
-FORMULA (the conjecture):
-          Conjecture: a(n) = A267700(n) - n. - _Gus Wiseman_, Mar 30 2019
-FORMULA:  G.f.: (1/x)*(A(x)/x - (x+1)/(1-x)^2) where A(x) is the g.f. for
-          A006046 (conjectured). - _John Tyler Rascoe_, Jul 08 2024
-AUTHOR:   _Robert Price_, Jan 18 2016
-
-A267700
-NAME:     "Tree" sequence in a 90-degree sector of the cellular automaton
-          of A160720.
-OFFSET:   0,3
-TERMS:    0,1,2,5,6,9,12,19,20,23,26,33,36,43,50,65,66,69,72,79,82,89,...
-FORMULA:  a(n) = (A160720(n+1) - 1)/4.
-FORMULA:  (Conjecture) a(n) = A267610(n) + n. - _Gus Wiseman_, Mar 31 2019
-AUTHOR:   _Omar E. Pol_, Jan 19 2016
-
-A160720
-NAME:     Number of "ON" cells at n-th stage in 2-dimensional cellular
-          automaton (see Comments for precise definition).
-TERMS:    0,1,5,9,21,25,37,49,77,81,93,105,133,145,173,201,261,265,...
-COMMENT:  We work on the vertices of the square grid Z^2, and define the
-          neighbors of a cell to be the four closest cells along the
-          diagonals.  We start at stage 0 with all cells in OFF state.  At
-          stage 1, we turn ON a single cell at the origin.  Once a cell is
-          ON it stays ON.  At each subsequent stage, a cell in turned ON if
-          exactly one of its neighboring cells that are no further from the
-          origin is ON.
-```
-
-No later comment in either entry retracts the conjecture.  This module
-**refutes** it.
-
-## Status (refuted, kernel-checked)
-
-Both entries have offset 0.  The identity holds at `n = 0, 1` but fails at
-`n = 2`: `A267610(2) = 2`, while `A267700(2) - 2 = 2 - 2 = 0`.  The
-intended statement is the index-shifted form
-`A267610(n) = A267700(n+1) - (n+1)`, checked here for `n ≤ 2` only.
-
-Re-validation (python, 2026-10-21): exact simulation of Rule 182 and of the
-A160720 automaton reproduces the listed terms of A267610, A160720 and
-A267700 (n < 40); the literal identity fails for `n = 2, 4, 5, 6, 8, ...`;
-the shifted form holds for all `n < 39`; and `A267700(n)` equals
-`∑_{k ≤ n} (2^{s₂(k)} - 1)` for `n < 44` (`s₂` = binary digit sum).
+Source: Gus Wiseman's OEIS A267610 formula (Mar 30 2019) and A267700 formula
+(Mar 31 2019). Both offsets are 0. At `n=2`, A267610 is 2 whereas
+`A267700(2)-2=0`, refuting the literal identity.
+A267610 counts OFF cells cumulatively over rows 0 through `n` of Rule 182,
+each truncated to its light cone. A267700 is defined by the source formula
+`(A160720(n+1)-1)/4`, not by a formal sector-count bijection.
+The shifted identity `A267610(n)=A267700(n+1)-(n+1)` is proved only for `n ≤ 2`;
+no global shifted identity is proved here.
 -/
 import Mathlib
 
@@ -66,7 +16,7 @@ set_option autoImplicit false
 
 namespace Candidates.A267610Refutation
 
-/-! ## Definition layer: Rule 182 and A267610 -/
+/-! ## Definitions: Rule 182 and A267610 -/
 
 /-- The elementary cellular automaton with Wolfram code `r`: a cell whose
 left neighbour, own state and right neighbour are `l, c, x` takes the state
@@ -100,10 +50,10 @@ noncomputable def offCount (n : ℕ) : ℕ :=
 cone of Rule 182 started from a single ON cell. -/
 noncomputable def a267610 (n : ℕ) : ℕ := ∑ k ∈ Finset.range (n + 1), offCount k
 
-/-- Ground truth: the first eight listed terms of A267610. -/
+/-- The first eight listed terms of A267610. -/
 example : (List.range 8).map a267610 = [0, 0, 2, 2, 4, 6, 12, 12] := by decide
 
-/-! ## Definition layer: the automaton of A160720 and A267700 -/
+/-! ## Definitions: the automaton of A160720 and A267700 -/
 
 /-- The four diagonal neighbour offsets of a cell of `ℤ²`. -/
 def diag : List (ℤ × ℤ) := [(-1, -1), (-1, 1), (1, -1), (1, 1)]
@@ -172,7 +122,7 @@ theorem a160720_eq_card (n : ℕ) :
   simp only [Set.mem_ofPred_eq, Finset.coe_filter, iff_and_self]
   exact mem_box_of_on160720 n p
 
-/-- Ground truth: the first five listed terms `0, 1, 5, 9, 21` of A160720
+/-- The first five listed terms `0, 1, 5, 9, 21` of A160720
 (kernel evaluation of the automaton inside the square `[-n, n]²`). -/
 theorem a160720_le_four : a160720 0 = 0 ∧ a160720 1 = 1 ∧ a160720 2 = 5 ∧
     a160720 3 = 9 ∧ a160720 4 = 21 := by
@@ -184,7 +134,7 @@ entry.  The `ℕ` subtraction and division are exact on every value used here
 (`A160720(n+1) ≡ 1 mod 4`, checked below for `n ≤ 3`). -/
 noncomputable def a267700 (n : ℕ) : ℕ := (a160720 (n + 1) - 1) / 4
 
-/-- Ground truth: the first four listed terms `0, 1, 2, 5` of A267700. -/
+/-- The first four listed terms `0, 1, 2, 5` of A267700. -/
 theorem a267700_le_three :
     a267700 0 = 0 ∧ a267700 1 = 1 ∧ a267700 2 = 2 ∧ a267700 3 = 5 := by
   obtain ⟨-, h1, h2, h3, h4⟩ := a160720_le_four
@@ -209,12 +159,8 @@ example :
 
 /-! ## The conjecture -/
 
-/-- **Wiseman's conjecture (A267610, Gus Wiseman, Mar 30 2019).**
-
-Verbatim: "Conjecture: a(n) = A267700(n) - n."
-
-Formalized at the common offset `0` of both entries, with the subtraction
-taken in `ℤ` (cast before subtracting). -/
+/-- Wiseman's literal A267610 identity at the common offset 0, with
+subtraction in `ℤ` after casting. -/
 def Conjecture : Prop := ∀ n : ℕ, (a267610 n : ℤ) = (a267700 n : ℤ) - n
 
 /-! ## The counterexample `n = 2` -/
@@ -225,10 +171,8 @@ theorem a267610_two : a267610 2 = 2 := by decide
 /-- `A267700(2) = 2`, since `A160720(3) = 9`. -/
 theorem a267700_two : a267700 2 = 2 := a267700_le_three.2.2.1
 
-/-- **Wiseman's conjecture is false**: at `n = 2`, `A267610(2) = 2` but
-`A267700(2) - 2 = 0`.  (It holds at `n = 0, 1`.)  The intended identity is
-almost certainly the index-shifted `A267610(n) = A267700(n+1) - (n+1)`; see
-`shifted_identity_of_le_two`. -/
+/-- Wiseman's literal identity fails at `n=2`: A267610 is 2 but
+`A267700(2)-2=0`. The shifted identity below is only a bounded result. -/
 theorem a267610_conjecture_false : ¬ Conjecture := by
   intro hconj
   have h2 := hconj 2
@@ -237,10 +181,8 @@ theorem a267610_conjecture_false : ¬ Conjecture := by
 
 /-! ## The shifted identity on small indices -/
 
-/-- The probably intended form `A267610(n) = A267700(n+1) - (n+1)` holds for
-`n ≤ 2` (kernel check).  The general statement, which follows from
-`#OFF cells in row n = 2^{s₂(n+1)} - 2` and Glaisher's theorem, is not proved
-here. -/
+/-- The shifted identity `A267610(n)=A267700(n+1)-(n+1)` holds for `n ≤ 2`.
+The global statement is not proved here. -/
 theorem shifted_identity_of_le_two :
     ∀ n ≤ 2, (a267610 n : ℤ) = (a267700 (n + 1) : ℤ) - (n + 1 : ℕ) := by
   obtain ⟨-, g1, g2, g3⟩ := a267700_le_three

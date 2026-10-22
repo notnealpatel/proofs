@@ -1,32 +1,8 @@
 /-
 # A060264 — Greathouse: least prime separating 1², …, n² is the first prime after 2n
 
-## OEIS source (retrieved with `oeis show A060264`, 2026-10-21)
-
-```
-NAME:     First prime after 2n.
-TERMS:    2,3,5,7,11,11,13,17,17,19,23,23,29,29,29,31,37,37,37,41,41,43,47,47,
-          53,53,53,59,59,59,61,67,67,67,71,71,73,79,79,79,83,83,89,89,89,97,...
-OFFSET:   0 (a(0) = 2, a(1) = 3, a(2) = 5, a(3) = 7, a(4) = 11, a(5) = 11)
-FORMULA:  a(n) = A151800(2*n). - _Reinhard Zumkeller_, Nov 15 2013
-PROGRAM:  (PARI) a(n) = nextprime(2*n + 1)  \\ _Harry J. Smith_, Jul 03 2009
-COMMENT (the conjecture):
-  Conjecture: for n > 2, this is the least prime p such that 1^2, 2^2, 3^2,
-  ..., n^2 are distinct mod p. Checked to 10^4. - _Charles R Greathouse IV_,
-  Dec 03 2022
-```
-
-## Literature status (triage)
-
-Open: no proof in the entry or in the literature as far as the triage could
-tell (the entry records only a check to `10^4`).
-
-## Result of this module
-
-The conjecture is proved for every `n > 2` (`greathouse_conjecture`), with no
-remaining `sorry`. The key step is `squaresDistinctMod_iff`: for a prime `p`
-and `n ≥ 3`, the squares `1², …, n²` are pairwise distinct mod `p` iff
-`2n < p`.
+OEIS A060264, Charles R Greathouse IV: for `n ≥ 3`, the least prime
+separating `1², …, n²` is the first prime strictly above `2n`.
 
 * If `2n < p` and `i² ≡ j² (mod p)` with `1 ≤ j ≤ i ≤ n`, then
   `p ∣ (i + j)(i - j)`; `0 < i + j ≤ 2n < p` and `i - j < n < p` force `i = j`.
@@ -35,7 +11,7 @@ and `n ≥ 3`, the squares `1², …, n²` are pairwise distinct mod `p` iff
   `1 ≤ k < k + 1 ≤ n`.
 
 The guard `n > 2` is load-bearing: for `n = 2` the prime `2` already
-separates `1² = 1` and `2² = 4`, while `a(2) = 5` (see the sanity layer).
+separates `1² = 1` and `2² = 4`, while `a(2) = 5` (see the examples).
 -/
 import Mathlib
 
@@ -43,7 +19,7 @@ set_option autoImplicit false
 
 namespace Candidates.A060264DistinctSquaresMod
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `a060264 n` is the first prime after `2n` (OEIS A060264, PARI
 `nextprime(2*n + 1)`): the least prime `p` with `2n + 1 ≤ p`. -/
@@ -68,8 +44,7 @@ theorem a060264_spec (n : ℕ) :
   exact Nat.find_min' (Nat.exists_infinite_primes (2 * n + 1)) ⟨hlt, hq⟩
 
 /-- Evaluation rule for `a060264`: `a060264 n = m` iff `m` is a prime with
-`2n + 1 ≤ m` and no prime lies in `[2n + 1, m)`. Used for the ground-truth
-checks against the DATA line. -/
+`2n + 1 ≤ m` and no prime lies in `[2n + 1, m)`. Used for the examples. -/
 theorem a060264_eq_iff (n m : ℕ) :
     a060264 n = m ↔
       (2 * n + 1 ≤ m ∧ m.Prime) ∧ ∀ k < m, ¬ (2 * n + 1 ≤ k ∧ k.Prime) := by
@@ -133,12 +108,9 @@ theorem squaresDistinctMod_iff {n p : ℕ} (hn : 3 ≤ n) (hp : p.Prime) :
 
 /-! ## The conjecture -/
 
-/-- **Greathouse's conjecture (A060264, Charles R Greathouse IV, Dec 03 2022).**
+/-- **Greathouse's conjecture (A060264, Charles R Greathouse IV, 2022).**
 
-Verbatim: "Conjecture: for n > 2, this is the least prime p such that 1^2, 2^2,
-3^2, ..., n^2 are distinct mod p."
-
-Formally: for `2 < n`, the first prime after `2n` is the least element of the
+For `2 < n`, the first prime after `2n` is the least element of the
 set of primes `p` modulo which `1², …, n²` are pairwise distinct. -/
 theorem greathouse_conjecture (n : ℕ) (hn : 2 < n) :
     IsLeast {p : ℕ | p.Prime ∧ SquaresDistinctMod n p} (a060264 n) := by
@@ -147,15 +119,15 @@ theorem greathouse_conjecture (n : ℕ) (hn : 2 < n) :
   rintro q ⟨hq, hdist⟩
   exact hmin q hq ((squaresDistinctMod_iff (by omega) hq).mp hdist)
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
--- Ground truth: the first terms `2, 3, 5, 7, 11, 11` of the DATA line.
+-- Examples: the first terms `2, 3, 5, 7, 11, 11` of the DATA line.
 example : a060264 0 = 2 ∧ a060264 1 = 3 ∧ a060264 2 = 5 ∧ a060264 3 = 7 ∧
     a060264 4 = 11 ∧ a060264 5 = 11 := by
   simp only [a060264_eq_iff]
   decide
 
--- Ground truth for the predicate: mod 7, the squares `1, 4, 9` are distinct
+-- Examples for the predicate: mod 7, the squares `1, 4, 9` are distinct
 -- (`1, 4, 2`), and mod 5 they are not (`1, 4, 4`).
 example : SquaresDistinctMod 3 7 ∧ ¬ SquaresDistinctMod 3 5 := by decide
 

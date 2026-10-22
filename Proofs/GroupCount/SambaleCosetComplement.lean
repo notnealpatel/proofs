@@ -1,47 +1,26 @@
 /-
-# Sambale — the complement of a union of `n` cosets (Kourovka 21.115)
+# The complement of a union of cosets
 
-## Source
+Benjamin Sambale, *On the complement of a union of cosets*, arXiv:2609.09052,
+Theorems 1 and 3 and Lemma 2. The finite cardinal bound is the
+Sambale–Tărnăuceanu conjecture (J. Algebraic Combin. 55 (2022), 979–987),
+Kourovka notebook Problem 21.115.
 
-Benjamin Sambale, *On the complement of a union of cosets*, arXiv:2609.09052.
-Recorded 2026-10-21.
+For an arbitrary group, the nonempty complement `A` of `n` left cosets has
+at most `2^n` left translates covering the group. For finite groups this
+gives `|G| ≤ 2^n |A|`. An irredundant cover by `n+1` left cosets forces each
+subgroup to have finite index at most `2^n`. The source's equality
+classification (Theorem 2) is not formalized here.
 
-* Section 1, inequality (1.1): the conjecture of Sambale and Tărnăuceanu
-  (J. Algebraic Combin. 55 (2022) 979–987), Kourovka notebook Problem 21.115.
-* Section 1, Theorem 1 (proved in Section 3):
-  "Let $G$ be a group with (left or right) cosets $C_1,\ldots,C_n$ of subgroups
-  such that $A:=G\setminus(C_1\cup\ldots\cup C_n)\ne\varnothing$. Then there exist
-  $t_1,\ldots,t_m\in G$ with $G=t_1A\cup\ldots\cup t_mA$ and $m\le2^n$."
-  "For finite $G$ the union bound $|G|\le m|A|\le2^n|A|$ yields (1.1)", that is
-  $|A|\ge|G|/2^n$.
-* Section 2, Lemma 2 (Helly lemma): "Let $X$ be a set equipped with equivalence
-  relations $\sim_1,\ldots,\sim_n$ and let $U_1,\ldots,U_m\subseteq X$ be sets of
-  the form $U_j=Q_{j,1}\cup\ldots\cup Q_{j,n}$, where $Q_{j,i}$ is a
-  $\sim_i$-class. If $U_1\cap\ldots\cap U_m=\varnothing$ while no proper
-  subfamily has empty intersection, then $m\le2^n$."
-* Section 1, Theorem 3 (proved in Section 5): "Let $G=C_1\cup\ldots\cup C_n$ be
-  an irredundant cover of a group $G$ by left cosets $C_i=g_iH_i$. Then
-  $|G:H_i|\le2^{n-1}$ for $i=1,\ldots,n$."
+Cosets are indexed by `Fin n` and may repeat. Only left cosets are represented;
+the paper reduces right cosets by `Hg = g(g⁻¹Hg)`. The irredundant bound uses
+`n+1` to avoid natural subtraction and includes finite index explicitly,
+since `Subgroup.index` is zero for infinite index.
 
-Status: proved in the paper. Every statement below is kernel-checked here.
-
-## Formalization notes
-
-* Left cosets `g • (H : Set G)` only; the paper reduces right cosets to left
-  cosets via $Hg=g(g^{-1}Hg)$.
-* The cosets are indexed by `Fin n` and may repeat, as in the paper.
-* Theorem 1 is proved for arbitrary (possibly infinite) groups. The paper uses
-  an inclusion-minimal family plus a termination lemma (Lemma 5) for infinite
-  groups. Here a greedy chain $t_1,t_2,\ldots$ with $t_ka\notin t_jA$ for $j<k$
-  gives a triangular evaluation matrix for the polynomials
-  $p_k=\prod_i(X_i-\lambda_i(t_kaH_i))$ at the points
-  $\alpha_j=(\lambda_i(t_jg_iH_i))_i$, so every such chain has length at most
-  $2^n$; a maximal chain covers $G$. This route avoids Lemma 5.
-* Multilinear polynomials are modelled as functions `(Fin n → ℚ) → ℚ` in the
-  `ℚ`-span of the $2^n$ monomial functions `x ↦ ∏ i ∈ S, x i`.
-* Theorem 3 is stated for `Fin (n + 1)` cosets with bound `2 ^ n`, avoiding
-  `Nat` subtraction; finiteness of the index is part of the conclusion because
-  `Subgroup.index` is `0` for infinite index.
+The proof uses multilinear polynomial functions over `ℚ`, in the span of
+`2^n` monomials. A triangular evaluation bound limits a greedy chain of
+translates to length `2^n`; a maximal chain covers the group. This replaces
+the paper's minimal-family and termination argument for infinite groups.
 -/
 import Mathlib
 

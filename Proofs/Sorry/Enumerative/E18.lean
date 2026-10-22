@@ -29,7 +29,7 @@
   while the DB says `1 ≤ n < m` (exclusive): equivalent since `m` is
   a divisor of itself — the repo file documents this equivalence.
 -/
-import Enumerative.E18
+import Sorry.Quarantine.Enumerative.E18
 
 set_option autoImplicit false
 

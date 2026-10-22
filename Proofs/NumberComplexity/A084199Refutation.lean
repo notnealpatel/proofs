@@ -1,24 +1,9 @@
 /-
 # A084199 — the range conjecture is false
 
-## OEIS source (retrieved with `oeis show A084199` and https://oeis.org/A084199, 2026-10-21)
-
-```
-A084199
-NAME:     Smallest prime q < prime(n) such that q+1 divides prime(n)+1,
-          a(n) = 1 if no such q exists.
-OFFSET:   1,3
-TERMS:    1,1,2,3,2,1,2,3,2,2,3,1,2,3,2,2,2,1,3,2,1,3,2,2,13,2,3,2,1,2,...
-COMMENT:  Conjecture: A008578 is the range of values (or A000040 = range of
-          values > 1).
-AUTHOR:   Reinhard Zumkeller, May 18 2003
-```
-
-The comment is unsigned, so it carries the entry author's attribution
-(Reinhard Zumkeller, May 18 2003). A008578 is `{1} ∪ primes`. No later
-comment retracts the conjecture.
-
-## Verdict
+OEIS A084199 (Reinhard Zumkeller) takes the smallest prime `q < p` with
+`q+1 ∣ p+1`, or `1` if none exists, as `p` ranges over primes. Its range
+conjecture proposes `{1} ∪ primes` (A008578).
 
 This module refutes the conjecture. `5` is never a value: if `6 ∣ p + 1`
 then `3 ∣ p + 1`, so the prime `2 < 5` already qualifies. The same argument
@@ -66,7 +51,7 @@ theorem a_eq_one_of {p : ℕ} (h : ∀ q < p, q.Prime → ¬ (q + 1) ∣ (p + 1)
   unfold a
   rw [dif_neg hne]
 
-/-! ## Ground truth against the DATA line `1, 1, 2, 3, 2, 1, ..., 13 (n = 25)` -/
+/-! ## Examples against the DATA line `1, 1, 2, 3, 2, 1, ..., 13 (n = 25)` -/
 
 example : seq 0 = 1 := by
   rw [seq, Nat.nth_prime_zero_eq_two]
@@ -96,7 +81,7 @@ example : a 97 = 13 := a_eq_of (by norm_num) (by norm_num) (by norm_num) (by dec
 
 /-! ## The conjecture and its refutation -/
 
-/-- **Zumkeller's conjecture (A084199, May 18 2003).** Verbatim: "Conjecture:
+/-- **Zumkeller's conjecture (A084199).** "Conjecture:
 A008578 is the range of values (or A000040 = range of values > 1)." Here
 A008578 is `{1} ∪ primes`, and the values are `a p` over the primes `p`,
 enumerated as `Nat.nth Nat.Prime n`. -/
@@ -119,9 +104,8 @@ theorem a_ne_five (p : ℕ) : a p ≠ 5 := by
   · norm_num
 
 /-- **Refutation of the A084199 range conjecture.** The prime `5` lies in
-A008578 but is never a value of the sequence (`a_ne_five`). The author
-presumably intended the range to be `{1}` together with the primes `q` having
-no smaller prime `r` with `(r + 1) ∣ (q + 1)` (A082539); see `range_eq`. -/
+A008578 but is never a value of the sequence (`a_ne_five`). The corrected range is `{1}` together with the primes `q` having no smaller
+prime `r` with `(r + 1) ∣ (q + 1)` (A082539); see `range_eq`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have h5 : (5 : ℕ) ∈ {m : ℕ | m = 1 ∨ m.Prime} := Or.inr Nat.prime_five

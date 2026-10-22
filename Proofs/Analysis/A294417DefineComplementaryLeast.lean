@@ -1,43 +1,21 @@
 /-
-# A294417 — Kimberling: golden-ratio growth of a complementary-equation solution
+# A294417: golden-ratio growth for the joint mex recursion
 
-## OEIS source (retrieved with `oeis show A294417` and the live entry, 2026-10-21)
+OEIS A294417 (Clark Kimberling, 2017-10-31) describes complementary
+sequences satisfying `a(n) = a(n-1)+a(n-2)+b(n-1)+b(n-2)-n`, with
+`a(0)=1`, `a(1)=3`, `b(0)=2`, and `b(1)=4`. Its conjecture is
+`a(n)/a(n-1) → (1+√5)/2`.
 
-```
-NAME:     Solution of the complementary equation a(n) = a(n-1) + a(n-2) +
-          b(n-1) + b(n-2) - n, where a(0) = 1, a(1) = 3, b(0) = 2, b(1) = 4.
-TERMS:    1,3,8,17,32,57,99,168,280,462,757,1235,2009,3262,5291,8575,13889,
-          22488,36402,58916,95345,154289,249663,403982,653676,1057690,1711399,
-          2769123,4480558,7249719,11730316,18980075,30710432,49690549,80401024,
-          130091617
-KEYWORDS: nonn,easy
-AUTHOR:   Clark Kimberling, Oct 31 2017
-COMMENT:  The complementary sequences a() and b() are uniquely determined by the
-          titular equation and initial values.  See A294414 for a guide to
-          related sequences.
-COMMENT (the conjecture, unsigned; entry author Clark Kimberling, Oct 31 2017):
-          Conjecture: a(n)/a(n-1) -> (1 + sqrt(5))/2, the golden ratio.
-PROGRAM (Mathematica, defines b):
-          mex := First[Complement[Range[1, Max[#1] + 1], #1]] &;
-          b[n_] := b[n] = mex[Flatten[Table[Join[{a[n]}, {a[i], b[i]}],
-                                            {i, 0, n - 1}]]];
-```
+This file uses the entry's finite-prefix mex rule: `b(n)` is the least
+positive integer absent from `a(0), …, a(n)` and `b(0), …, b(n-1)`.
+`b_isLeast` proves that rule, and `conjecture_A294417` gives the ratio
+limit for the explicit joint recursion. Global range complementarity and
+uniqueness are not separate formal theorems here.
 
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  This module proves the conjecture (`conjecture_A294417`).
-
-## Proof outline
-
-`b` is strictly increasing (the mex of a growing set, and `b n` is used before
-`b (n+1)` is chosen), so `n + 2 ≤ b n`; the mex of a list of length `L` is at
-most `L + 1`, so `b n ≤ 2n + 2`.  Hence the forcing term
-`F n = b(n+1) + b n - (n+2)` lies in `[0, 3n + 4]`, there is no natural-number
-truncation in the recurrence, and `n² ≤ a n`.  The error
-`e n = a(n+1) - φ a(n)` satisfies `e(n+1) = (1 - φ) e n + F n` with
-`|1 - φ| ≤ 2/3`, giving `|e n| ≤ 9(n+1)`, so
-`|a(n+1)/a(n) - φ| = |e n| / a n ≤ 18 / n`.
+The bounds `n+2 ≤ b(n) ≤ 2n+2` control the forcing term and remove natural
+subtraction truncation in the recurrence. With `φ = (1+√5)/2`, the error
+`e(n) = a(n+1)-φa(n)` satisfies a contracting recurrence, giving
+`|e(n)| ≤ 9(n+1)` and `|a(n+1)/a(n)-φ| ≤ 18/n` for `n ≥ 1`.
 -/
 import Mathlib
 
@@ -51,7 +29,7 @@ open Real Filter Topology
 
 The Mathematica `mex` returns the least positive integer not in its argument.
 `mex` below computes it by a fuel-bounded upward search from `1`, so that the
-ground-truth checks reduce in the kernel; `mex_not_mem`, `one_le_mex` and
+examples can be evaluated by reduction; `mex_not_mem`, `one_le_mex` and
 `mem_of_lt_mex` show it is exactly the least positive integer not in the list. -/
 
 /-- Upward search: starting from `k`, return the first value not in `l`,
@@ -211,7 +189,7 @@ theorem length_used (n : ℕ) : (used n).length = 2 * n + 4 := by
   | zero => rfl
   | succ n ih => rw [used_succ, List.length_cons, List.length_cons, ih]; ring
 
-/-- Definitional fidelity: `b n` is the least positive integer different from
+/-- `b n` is the least positive integer different from
 `a 0, …, a n` and `b 0, …, b (n-1)` (for `n = 0, 1` this checks the given
 initial values `b 0 = 2`, `b 1 = 4`). -/
 theorem b_isLeast (n : ℕ) :
@@ -412,13 +390,10 @@ theorem abs_ratio_sub_le (n : ℕ) (hn : 1 ≤ n) :
 
 /-! ## The conjecture -/
 
-/-- **Kimberling's conjecture (A294417, entry by Clark Kimberling, Oct 31 2017).**
-
-Verbatim: "Conjecture: a(n)/a(n-1) -> (1 + sqrt(5))/2, the golden ratio."
-
-Stated with the shift `n ↦ n + 1`: `a (n+1) / a n → (1 + √5)/2` as `n → ∞`.
-The division is guarded: `a n > 0` for all `n` (`a_pos`).  Proved here via the
-explicit bound `|a (n+1)/a n - φ| ≤ 18/n` (`abs_ratio_sub_le`). -/
+/-- The ratio limit in Kimberling's conjecture (OEIS A294417, 2017-10-31),
+for the explicit joint mex recursion, with the index shifted by one:
+`a(n+1)/a(n) → (1+√5)/2`. Positivity of every denominator is `a_pos`;
+`abs_ratio_sub_le` bounds the error by `18/n` for `n ≥ 1`. -/
 theorem conjecture_A294417 :
     Tendsto (fun n => (a (n + 1) : ℝ) / a n) atTop (𝓝 ((1 + √5) / 2)) := by
   rw [← goldenRatio, tendsto_iff_norm_sub_tendsto_zero]

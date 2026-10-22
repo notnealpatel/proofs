@@ -5,27 +5,13 @@
 
 André Ebling Brondani and Francisca Andrea Macedo França,
 *Counterexamples to the local antimagic leaf conjecture*, arXiv:2610.22783.
-Retrieved with `fetch 2610.22783` on 2026-10-21.
 
-* Conjecture 2.2 (the leaf conjecture, Bača et al. 2022; Premalatha,
-  Arumugam, Lee and Wang 2020), verbatim:
-  "Let $T$ be a tree of order at least three with $\ell(T)$ leaves. Then
-  $\chi_{la}(T)\leq\ell(T)+2$."
-* Lemma 3.1, verbatim: "Let $G$ be a graph with $m$ edges and let
-  $f:E(G)\to[m]$ be a bijection. If $d_G(v)=d$, then
-  $L_m(d)\leq f^{+}(v)\leq U_m(d)$", where $L_m(d)=d(d+1)/2$ and
-  $U_m(d)=d(2m-d+1)/2$.
-* Proposition 3.2 / Corollary 3.3: the separation criterion; if every
-  internal vertex $v$ has $L_m(d(v))>m$ and nonadjacent internal vertices
-  have disjoint intervals $I_m(d)=[L_m(d),U_m(d)]$, then $\chi_{la}(T)=|V(T)|$.
-* Theorem 3.4, verbatim: "The caterpillar $T_3$ satisfies
-  $\chi_{la}(T_3)=43=\ell(T_3)+3$", where $T_3=\mathrm{Cat}(8,7,25)$ is the
-  path $(a,b,c)$ with $8$, $7$, $25$ pendant leaves attached to $a$, $b$, $c$.
+The leaf conjecture (Conjecture 2.2; Bača et al. 2022; Premalatha,
+Arumugam, Lee and Wang 2020) asserts `χ_la(T) ≤ ℓ(T)+2` for trees of
+order at least three. Theorem 3.4 refutes it with
+`T₃ = Cat(8,7,25)`, for which `χ_la(T₃) = 43 = ℓ(T₃)+3`.
 
-## Status
-
-Proved in the paper (Theorem 3.4 disproves Conjecture 2.2).  This module
-formalizes, without `sorry`: Lemma 3.1 (`weight_mem_Icc`); Corollary 3.3 with
+This module formalizes: Lemma 3.1 (`weight_mem_Icc`); Corollary 3.3 with
 `S` the set of all internal vertices (`weight_injective_of_separated`, which
 only needs adjacent internal vertices to be distinguished, and
 `chiLA_eq_card_of_forall_injective`, which takes the existence of a local

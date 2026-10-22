@@ -1,44 +1,11 @@
 /-
-# A381717 — Wiseman: distinct run-sums of a permutation iff a constant
-# multiset partition with distinct block-sums
+# A381717 — distinct run-sums and constant-block partitions
 
-## OEIS source (retrieved with `oeis show A381717` and the live entry, 2026-10-21)
-
-```
-NAME:     Number of integer partitions of n that cannot be partitioned into
-          constant multisets with distinct block-sums.
-OFFSET:   0
-TERMS:    0,0,0,0,1,0,0,1,3,2,3,6,7,10,15,15,28,37,47,64,71,97,139,173,215,
-          273,361,439,551,691,853,1078,1325,1623,2046,2458,2998,3697,...
-AUTHOR:   Gus Wiseman, Mar 16 2025
-COMMENT (the conjecture; unsigned, so by the entry author Gus Wiseman,
-         Mar 2025):
-  Conjecture: Also the number of integer partitions of n having no
-  permutation with all distinct run-sums, ranked by zeros of A382876. In
-  other words, a partition has a permutation with all distinct run-sums iff
-  it has a multiset partition into constant blocks with all distinct
-  block-sums, where the run-sums of a sequence are obtained by splitting it
-  into maximal runs and taking their sums.
-EXAMPLE:  y = (3,2,2,1) has the split {{3},{2,2},{1}}, so it is not counted
-          under a(8); y = (3,2,1,1,1) has no constant split with distinct
-          block-sums, so it is counted under a(8).
-```
-
-The same equivalence is conjectured in A381636 ("Conjecture: These are the
-zeros of A382876").
-
-## Status
-
-Triage: open (stated only as a conjecture in A381717 and A381636; no proof in
-the entry or the literature as far as the triage could tell).  Brute force
-(`/tmp/claude/scratch/A381717PartitionFiniteMultiset-check.py`, checking (i)
-by a direct search over run arrangements and (ii) over constant splits,
-independently) confirms the equivalence for every partition of `n ≤ 34` and
-reproduces the DATA `0,0,0,0,1,0,0,1,3,2,3,6,…,853,1078,1325,1623,2046`.
-
-This module proves the conjecture in full
-(`hasDistinctRunSumPerm_iff_hasDistinctConstantBlockSplit`), and the
-counting form (`card_not_hasDistinctRunSumPerm_eq`).
+Gus Wiseman (OEIS A381717, Mar 2025; also A381636) conjectured that an
+integer partition has a permutation with distinct run-sums iff it has a
+multiset partition into constant blocks with distinct block-sums. Run-sums
+are sums of maximal constant runs. The equivalence and its counting form
+are established below for multisets of positive integers.
 
 ## Proof outline
 
@@ -81,7 +48,7 @@ def HasDistinctConstantBlockSplit (y : Multiset ℕ) : Prop :=
   ∃ P : Multiset (Multiset ℕ), P.join = y ∧ (∀ b ∈ P, IsConstantBlock b) ∧
     (P.map Multiset.sum).Nodup
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : runSums [1, 1, 2, 1] = [2, 2, 1] := by decide
 
@@ -468,11 +435,6 @@ theorem hasDistinctRunSumPerm_of_hasDistinctConstantBlockSplit (y : Multiset ℕ
 
 /-- **Wiseman's conjecture (A381717, Gus Wiseman, Mar 2025; also A381636).**
 
-Verbatim: "a partition has a permutation with all distinct run-sums iff it has a
-multiset partition into constant blocks with all distinct block-sums, where the
-run-sums of a sequence are obtained by splitting it into maximal runs and taking
-their sums."
-
 For every integer partition `y` (a finite multiset of positive integers),
 (i) some permutation of `y` has pairwise distinct run-sums iff (ii) `y` can be
 split into constant multisets with pairwise distinct block-sums. -/
@@ -497,7 +459,7 @@ theorem card_not_hasDistinctRunSumPerm_eq (n : ℕ) :
   rw [hasDistinctRunSumPerm_iff_hasDistinctConstantBlockSplit p.parts
     (fun x hx => p.parts_pos hx)]
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- The positivity hypothesis is satisfiable: the theorem applies to `(3,2,2,1)`.
 example : HasDistinctRunSumPerm {3, 2, 2, 1} ↔ HasDistinctConstantBlockSplit {3, 2, 2, 1} :=

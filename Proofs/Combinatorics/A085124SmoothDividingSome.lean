@@ -1,32 +1,10 @@
 /-
-# A085124 — Bala/Israel: 7-smooth `n` with `10 ∤ n` has a multiple whose digit product is a positive multiple of `n`
+# A085124 — digit products of multiples of 7-smooth numbers
 
-## OEIS source (retrieved with `oeis show A085124`, 2026-10-21)
-
-```
-NAME:     Smallest multiple of n whose digital product is also a positive
-          multiple of n, or 0 if no such number exists.
-TERMS:    1,2,3,4,5,6,7,8,9,0,0,168,0,378,135,48,0,36,0,0,273,0,0,168,525,0,
-          999,476,0,0,0,288,0,0,175,1296,0,0,0,0,0,378,0,0,495,0,0,384,3577,...
-COMMENT:  a(n) = 0 if n is not a term of A002473 (i.e., not a 7-smooth number).
-COMMENT:  a(n) = 0 if n is a multiple of 10.
-COMMENT:  Conjecture: otherwise, a(n) is positive.
-PROGRAM:  (Maple) ... # _Robert Israel_, Dec 28 2025
-```
-
-The conjecture line carries no separate signature in the entry; the
-surrounding comments and the Maple program are by Robert Israel
-(Dec 28 2025).
-
-## Status
-
-Triage status: open (no proof in the entry or the literature as far as the
-triage could tell; the Israel b-file to 10000 is consistent).  A brute-force
-re-check (2026-10-21) found a witness for every 7-smooth `n ≤ 30000` with
-`10 ∤ n` (264 values), agreeing with the DATA line.
-
-This module proves the conjecture (`a085124_conjecture`) by an explicit
-concatenation construction:
+OEIS A085124 is the least multiple of `n` whose decimal digit product is
+a positive multiple of `n`, or 0 if none exists. The unsigned conjecture
+following Robert Israel's comments (Dec 28 2025) asserts positivity when
+`n` is 7-smooth and `10 ∤ n`. The proof is an explicit concatenation construction:
 
 * write `n = p ^ e * Q` with `p ∈ {2, 5}` and `gcd(Q, 10) = 1`, and let
   `T = φ(Q)`, so `10 ^ T ≡ 1 (mod Q)`;
@@ -44,14 +22,14 @@ set_option autoImplicit false
 
 namespace Candidates.A085124SmoothDividingSome
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The decimal digit product ("digital product") of `m`: the product of the
 base-10 digits of `m`.  `Nat.digits 10 0 = []`, so `digitProd 0 = 1`; the
 conjecture below always requires `0 < m`, so this junk value is never used. -/
 def digitProd (m : ℕ) : ℕ := (Nat.digits 10 m).prod
 
--- Ground truth against the DATA line: a(12) = 168, a(16) = 48, a(49) = 3577.
+-- Listed values: a(12) = 168, a(16) = 48, a(49) = 3577.
 example : digitProd 168 = 48 := by norm_num [digitProd]
 example : digitProd 48 = 32 := by norm_num [digitProd]
 example : digitProd 3577 = 735 := by norm_num [digitProd]
@@ -302,16 +280,10 @@ theorem exists_decomp (n : ℕ) (hn0 : n ≠ 0) (h10 : ¬ 10 ∣ n) :
 
 /-! ## The conjecture -/
 
-/-- **A085124 conjecture (comment after Robert Israel's comments, Dec 28 2025).**
-
-Verbatim: "Conjecture: otherwise, a(n) is positive", where "otherwise" means
-`n` is 7-smooth (a term of A002473) and `n` is not a multiple of `10`; a(n)
-is the smallest multiple of `n` whose digital product is also a positive
-multiple of `n`.
-
-Formal reading: if every prime factor of `n` is at most `7` and `10 ∤ n`,
-then some positive multiple `m` of `n` has a positive digit product divisible
-by `n`.  (The smoothness hypothesis already excludes `n = 0`, since `11 ∣ 0`.) -/
+/-- The unsigned A085124 conjecture following Robert Israel's comments
+(Dec 28 2025): if every prime factor of `n` is at most 7 and `10 ∤ n`,
+there is a positive multiple `m` of `n` with positive digit product divisible
+by `n`. The smoothness hypothesis excludes `n = 0`, since `11 ∣ 0`. -/
 theorem a085124_conjecture (n : ℕ) (hsmooth : ∀ p, p.Prime → p ∣ n → p ≤ 7)
     (h10 : ¬ 10 ∣ n) :
     ∃ m, 0 < m ∧ n ∣ m ∧ 0 < digitProd m ∧ n ∣ digitProd m := by
@@ -325,7 +297,7 @@ theorem a085124_conjecture (n : ℕ) (hsmooth : ∀ p, p.Prime → p ∣ n → p
     exists_list_of_decomp p e Q n hp hQ hn Y₀ hY₀ hY₀prod
   exact witness_of_list n M hMne hdig hdvd hprod
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 /-- The guard `10 ∤ n` is load-bearing (entry comment "a(n) = 0 if n is a
 multiple of 10"): every positive multiple of a multiple of `10` ends in the

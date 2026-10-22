@@ -1,48 +1,22 @@
 /-
-# 30_65 has a finite representation with clique size 4
-
-## Source
+# Finite representations of `30_65` with clique sizes 4 and 5
 
 Eli Atkins, *Relation Algebra Representations from Distance-Regular Graphs*,
-arXiv:2605.14190.  Section 6 (open questions), fourth question, verbatim:
+arXiv:2605.14190, Section 6, fourth question, asks whether finite
+representations of `30_65` can have clique size 4 or 5. Section 4 constructs
+a 42-point representation with clique size 6; Maddux excluded size 3.
 
-> What clique sizes are possible in finite representations of $30_{65}$? In
-> particular, can one obtain such a representation with clique size $4$ or $5$?
->
-> As mentioned previously, the representation constructed here has clique size
-> $6$. Since Maddux has ruled out cliques of size $3$ in the finite case, it
-> would be interesting to understand whether clique sizes of $4$ or $5$ are
-> possible.
+The witnesses below have 32 points (eight c-cliques of size 4) and 60 points
+(twelve c-cliques of size 5, with Z/12 rotation symmetry). Boolean checkers
+are proved sound for the colouring definition and applied to these witnesses.
+No classification of all possible clique sizes is given.
 
-Context (Section 4): the second subconstituent of the Hoffman--Singleton graph
-gives a representation of $30_{65}$ on 42 points with seven $c$-cliques of
-size 6 ("Only known finite rep" in the paper's table).  The paper's Table 1
-lists the mandatory diversity cycles of $30_{65}$ as
-`aaa ccc abb baa caa abc`; the other diversity cycles `bbb acc bcc cbb` are
-forbidden (Section 4, "Forbidden triangle types").
+Table 1 specifies mandatory diversity cycles `aaa ccc abb baa caa abc`;
+`bbb acc bcc cbb` are forbidden. A representation is a colouring of the
+complete graph in which all triangles are allowed and every mandatory
+cycle is witnessed over every edge of the prescribed colour.
 
-The paper's notion of representation (Section 1, following Alm 2008): a
-colouring of the complete graph by the diversity atoms in which every triangle
-is a mandatory cycle and every mandatory cycle `(h,i,j)` is witnessed over
-every `h`-coloured edge.
-
-## Status
-
-Open in the paper (recorded 2026-10-21).  This module answers both named
-cases positively, with no `sorry`:
-
-* clique size 4: an explicit 32-point colouring (eight `c`-cliques of size 4,
-  with `b`-perfect matchings between cliques), `exists_rep30_65_cliqueSize_four`;
-* clique size 5: an explicit 60-point colouring (twelve `c`-cliques of size 5,
-  `Z/12`-rotation symmetric), `exists_rep30_65_cliqueSize_five`.
-
-Both are checked by kernel evaluation (`decide +kernel`, no `native_decide`)
-of Boolean checkers that are proved sound against the Prop-level definition.
-The witnesses were found by SAT search and re-checked by an independent Python
-checker before formalisation.  The general question (which clique sizes occur)
-remains open.
-
-## Definitional choices
+## Conventions
 
 * `Atom` lists the three diversity atoms; the identity atom `1'` is the
   diagonal and is not coloured.
@@ -245,7 +219,7 @@ theorem blockCol_eq_c_iff (k : ℕ) (σ : ℕ → ℕ → List ℕ) (x y : ℕ) 
 /-! ## The 32-point witness (clique size 4) -/
 
 /-- The table of permutations `σ_{VW}` of `{0,1,2,3}` for eight blocks
-(diagonal entries are unused); `σ_{WV} = σ_{VW}⁻¹`.  Found by SAT search. -/
+(diagonal entries are unused); `σ_{WV} = σ_{VW}⁻¹`. -/
 def sigTable4 : List (List (List ℕ)) :=
   [[[0,1,2,3],[0,1,2,3],[0,1,2,3],[0,1,2,3],[0,1,2,3],[0,1,2,3],[0,1,2,3],[0,1,2,3]],
    [[0,1,2,3],[0,1,2,3],[2,3,1,0],[2,3,0,1],[2,0,3,1],[1,3,0,2],[2,3,0,1],[3,2,0,1]],
@@ -309,7 +283,7 @@ theorem col32_isRep : IsRep30_65 col32 where
 size `4`: there is a colouring of the pairs of a 32-point set by the atoms
 `a, b, c` which represents `30_65` (every triangle is a mandatory cycle of the
 paper's Table 1 and every mandatory cycle is witnessed on every edge) and all
-of whose `c`-cliques have exactly 4 points.  The paper leaves this open. -/
+of whose `c`-cliques have exactly 4 points. -/
 theorem exists_rep30_65_cliqueSize_four :
     ∃ col : Fin 32 → Fin 32 → Atom, IsRep30_65 col ∧ HasCliqueSize col 4 :=
   ⟨col32, col32_isRep, col32_hasCliqueSize⟩
@@ -320,7 +294,7 @@ Twelve blocks of size 5, with `Z/12`-rotation symmetry: `σ_{VW}` depends only
 on `(W - V) mod 12`. -/
 
 /-- The permutations `σ_{0,d}` of `{0,…,4}` for `d = 0, …, 11` (entry `0`
-unused).  Found by SAT search. -/
+unused). -/
 def cycTable5 : List (List ℕ) :=
   [[0,1,2,3,4],[3,2,0,1,4],[0,3,4,1,2],[0,2,3,4,1],[1,2,4,0,3],[4,1,3,0,2],
    [2,1,0,4,3],[3,1,4,2,0],[3,0,1,4,2],[0,4,1,2,3],[0,3,4,1,2],[2,3,1,0,4]]
@@ -494,7 +468,7 @@ theorem col60_isRep : IsRep30_65 col60 where
 5.**  The relation algebra `30_65` has a finite representation with clique
 size `5`: there is a colouring of the pairs of a 60-point set by the atoms
 `a, b, c` which represents `30_65` and all of whose `c`-cliques have exactly 5
-points.  The paper leaves this open. -/
+points. -/
 theorem exists_rep30_65_cliqueSize_five :
     ∃ col : Fin 60 → Fin 60 → Atom, IsRep30_65 col ∧ HasCliqueSize col 5 :=
   ⟨col60, col60_isRep, col60_hasCliqueSize⟩

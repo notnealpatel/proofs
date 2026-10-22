@@ -1,41 +1,12 @@
 /-
 # A005840 — Mathar's connected-threshold-graph conjecture is false
 
-## OEIS source (retrieved 2026-10-21; `oeis show A005840`, `A285868`, `A285867`)
+R. J. Mathar's conjecture in OEIS A005840 (April 29, 2019) identifies
+A285868, read with offset 1, with the number of connected labeled threshold
+graphs. David Galvin's comment (October 18, 2021) instead identifies A317057.
 
-```
-A005840   Expansion of (1-x)*e^x/(2-e^x).
-DATA:     1,1,2,8,46,332,2874,29024,334982,4349492,62749906,...
-COMMENT:  a(n) is the number of labeled threshold graphs on n vertices.
-          [This is more specific than the reference to Stanley.]
-          [_Svante Janson_, Apr 01 2009]
-COMMENT:  Conjecture: A285868 (with offset 1) shows the associated connected
-          threshold graphs. - _R. J. Mathar_, Apr 29 2019
-COMMENT:  Re: above conjecture - the number of connected threshold graphs on
-          n labeled vertices is A317057 (see also A053525).
-          [_David Galvin_, Oct 18 2021]
-
-A285868   Row sums of triangle A285867.
-DATA:     1,1,4,20,126,962,8646,89546,...
-FORMULA:  a(n) = 1 for n = 0 and A000629(n) - n! for n >= 1.
-
-A285867   Triangle T(n, k) read by rows: T(n, k) = S2(n, k)*k! +
-          S2(n, k-1)*(k-1)! with the Stirling2 triangle S2 = A048993.
-```
-
-Galvin's 2021 comment points to the correct count (A317057:
-1, 1, 4, 23, 166, 1437, ...) but does not state that Mathar's conjecture is
-false, and the conjecture line is still in the entry.
-
-## Status
-
-This module **refutes** the conjecture.  Mathar's sequence, A285868 read with
-offset 1, predicts `1, 1, 4, 20, 126` connected labeled threshold graphs on
-`n = 1, …, 5` vertices; the true counts are `1, 1, 4, 23, 166` (brute force
-over all labeled graphs on `n ≤ 6` vertices, which also reproduces A005840's
-totals `1, 2, 8, 46, 332, 2874`).  The first failure is `n = 4`: there are 23
-connected threshold graphs on 4 labeled vertices, not 20.  The theorem below
-exhibits 23 of them explicitly, so the count is at least `23 > 20`.
+At `n = 4`, A285868 predicts 20 graphs. The 23 explicit, pairwise distinct
+connected threshold graphs below give a counterexample.
 -/
 import Mathlib
 
@@ -75,24 +46,20 @@ def a285867 (n k : ℕ) : ℕ :=
 /-- A285868 (offset 0): the row sums `∑_{k=0}^{n} T(n, k)` of A285867. -/
 def a285868 (n : ℕ) : ℕ := ∑ k ∈ Finset.range (n + 1), a285867 n k
 
-/-- Ground truth: the first rows of A285867, `1 | 0 1 | 0 1 3 | 0 1 7 12`. -/
+/-- The first rows of A285867, `1 | 0 1 | 0 1 3 | 0 1 7 12`. -/
 example : a285867 0 0 = 1 ∧ a285867 1 0 = 0 ∧ a285867 1 1 = 1 ∧
     a285867 2 2 = 3 ∧ a285867 3 2 = 7 ∧ a285867 3 3 = 12 := by decide
 
-/-- Ground truth: the first listed terms of A285868, `1, 1, 4, 20, 126, 962`. -/
+/-- The first listed terms of A285868, `1, 1, 4, 20, 126, 962`. -/
 theorem a285868_values :
     a285868 0 = 1 ∧ a285868 1 = 1 ∧ a285868 2 = 4 ∧ a285868 3 = 20 ∧
       a285868 4 = 126 ∧ a285868 5 = 962 := by decide
 
 /-! ## The conjecture -/
 
-/-- **Mathar's conjecture (A005840, R. J. Mathar, Apr 29 2019).**  Verbatim:
-"Conjecture: A285868 (with offset 1) shows the associated connected threshold
-graphs."
-
-Read with offset 1, the `n`-th term (`n ≥ 1`) of A285868 is `a285868 (n - 1)`;
-the conjecture says it is the number of connected labeled threshold graphs on
-`n` vertices.  Indexing by `n + 1` avoids natural subtraction. -/
+/-- Mathar's conjecture (OEIS A005840, April 29, 2019): A285868 read
+with offset 1 counts connected labeled threshold graphs on `n ≥ 1` vertices.
+The predicted count is `a285868 (n-1)`; indexing by `n+1` avoids subtraction. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, connectedThresholdCount (n + 1) = a285868 n
 
@@ -182,34 +149,34 @@ lemma witness_injective : Function.Injective witness := by
   obtain ⟨a, b, hab⟩ := witness_distinct i j hne
   exact hab (by rw [hij])
 
-/-- Ground truth for `IsThreshold`: the path `P₄` (`0 - 1 - 2 - 3`), one of
+/-- The path `P₄` (`0 - 1 - 2 - 3`), one of
 the three forbidden induced subgraphs `P₄, C₄, 2K₂`, is not a threshold
 graph. -/
 example : ¬ IsThreshold (ofEdges [(0, 1), (1, 2), (2, 3)]) := by
   unfold IsThreshold
   decide
 
-/-- Ground truth for `IsThreshold`: `C₄` is not a threshold graph. -/
+/-- `C₄` is not a threshold graph. -/
 example : ¬ IsThreshold (ofEdges [(0, 1), (1, 2), (2, 3), (0, 3)]) := by
   unfold IsThreshold
   decide
 
-/-- Ground truth for `IsThreshold`: `2K₂` is not a threshold graph. -/
+/-- `2K₂` is not a threshold graph. -/
 example : ¬ IsThreshold (ofEdges [(0, 1), (2, 3)]) := by
   unfold IsThreshold
   decide
 
-/-- Ground truth for `IsThreshold`: the star `K₁,₃` is a threshold graph. -/
+/-- The star `K₁,₃` is a threshold graph. -/
 example : IsThreshold (ofEdges [(0, 1), (0, 2), (0, 3)]) := by
   unfold IsThreshold
   decide
 
-/-- Ground truth for `IsThreshold`: `K₄` is a threshold graph. -/
+/-- `K₄` is a threshold graph. -/
 example : IsThreshold (ofEdges [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]) := by
   unfold IsThreshold
   decide
 
-/-- Ground truth: there is exactly one connected threshold graph on one
+/-- There is exactly one connected threshold graph on one
 vertex (A317057(1) = 1). -/
 theorem connectedThresholdCount_one : connectedThresholdCount 1 = 1 := by
   have hsub : Subsingleton (SimpleGraph (Fin 1)) := by
@@ -237,12 +204,9 @@ theorem twentythree_le_connectedThresholdCount_four : 23 ≤ connectedThresholdC
 
 /-! ## The refutation -/
 
-/-- **Mathar's A005840 conjecture is false.**  Counterexample `n = 4`
-(`a285868 3` in offset-0 indexing): A285868 with offset 1 predicts 20
-connected labeled threshold graphs on 4 vertices, but the 23 explicit graphs of
-`witness` (each threshold, with a dominating vertex, pairwise distinct) already
-exceed this.  The correct count is A317057 (`1, 1, 4, 23, 166, …`, Galvin), i.e.
-half of A005840 for `n ≥ 2`; A285868 agrees with it only for `n ≤ 3`. -/
+/-- Mathar's A005840 conjecture fails at `n = 4`: A285868 with offset 1
+predicts 20 connected labeled threshold graphs, but `witness` gives
+23 pairwise distinct threshold graphs with dominating vertices. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   have heq : connectedThresholdCount 4 = 20 := by

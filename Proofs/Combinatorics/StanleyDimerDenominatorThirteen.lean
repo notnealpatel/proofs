@@ -1,41 +1,15 @@
 /-
 # Stanley's 1985 dimer-denominator conjecture fails at `k = 13`
 
-## Source
+Xuejun Guo and Zhengyu Tao, *Counterexamples to Stanley's conjecture on
+dimer coverings*, arXiv:2605.28195, Section 2, Lemma 2.1 (`lem:criterion`),
+Theorem 2.2 (`thm:mainresult`), and identity `eq:keyeq1`, disprove
+Stanley's 1985 distinct-roots conjecture for the explicit denominator `Q_k`.
 
-Xuejun Guo and Zhengyu Tao, *Counterexamples to Stanley's conjecture on dimer
-coverings*, arXiv:2605.28195.  Section 2: Lemma 2.1 (`lem:criterion`),
-Theorem 2.2 (`thm:mainresult`) and identity (`eq:keyeq1`); the explicit
-factorization of `Q_13` is in the Remark following Theorem 2.2.
-
-Stanley's explicit denominator (paper, (`eq:cjej`), (`eq:aS`), (`eq:defofQk`)),
-verbatim: let `ℓ = ⌊k/2⌋`,
-
-  c_j = cos(jπ/(k+1)) + sqrt(1 + cos²(jπ/(k+1))),
-  c̄_j = cos(jπ/(k+1)) − sqrt(1 + cos²(jπ/(k+1))),
-
-  a_S = (∏_{j∈S} c_j)(∏_{j∈{1,…,ℓ}∖S} c̄_j)   (S ⊆ {1,…,ℓ}),
-
-  Q_k(x) = ∏_{S⊆{1,…,ℓ}} (1 − a_S x)      (k even),
-  Q_k(x) = ∏_{S⊆{1,…,ℓ}} (1 − a_S² x²)    (k odd).
-
-Conjecture (Stanley 1985): "The polynomial Q_k(x) has distinct roots."
-
-Theorem 2.2 (verbatim): "For every integer h ≥ 1, the polynomials Q_{14h−1}(x)
-and Q_{30h−1}(x) have repeated roots."  Its first family rests on (eq:keyeq1):
-
-  cos(π/7) + sqrt(1+cos²(π/7))
-    = (cos(2π/7) + sqrt(1+cos²(2π/7))) (cos(3π/7) + sqrt(1+cos²(3π/7))),
-
-which gives `b_{{2h}} = b_{{4h,6h}}` for `k = 14h − 1`, where `b_S = ∏_{j∈S} c_j`.
-
-## Status
-
-Proved in the paper (2026; the record date of this card is 2026-10-21).  This
-module formalizes the `14h − 1` family (hence `k = 13`) of Theorem 2.2 for
-Stanley's *explicit* `Q_k ∈ ℝ[X]`; "has repeated roots" is rendered as
-`¬ Squarefree` (and, as a corollary, `¬ Separable`).  The dimer-counting
-meaning of `Q_k` (Kasteleyn / Temperley–Fisher / Lieb) is not formalized.
+This file proves that `Q_k` is not squarefree for `k+1 = 14h` with `1 ≤ h`;
+at `k = 13` it also states nonseparability. The `30h-1` family and
+the dimer-counting interpretation of `Q_k` are not formalized.
+The definitions below follow `eq:cjej`, `eq:aS`, and `eq:defofQk`.
 
 ## Proof route
 
@@ -192,7 +166,7 @@ theorem key_identity : cst (π / 7) = cst (2 * π / 7) * cst (3 * π / 7) := by
   rw [h2, h3, hA, hB, hC]
   linear_combination (-a - 1) * hcubic
 
-/-! ## Ground truth on small cases -/
+/-! ## Examples on small cases -/
 
 /-- `Q_1 = 1 − x²` (`ℓ = 0`, a single empty subset with `a_∅ = 1`). -/
 example : stanleyQ 1 = 1 - X ^ 2 := by

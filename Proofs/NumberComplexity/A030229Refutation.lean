@@ -1,39 +1,10 @@
 /-
 # A030229 — Irwin: the inverse divisibility matrix has entry `-1` at `(a, 1)`
 
-## OEIS source (retrieved with `oeis show A030229`, 2026-10-21)
-
-```
-NAME:     Numbers that are the product of an even number of distinct primes.
-TERMS:    1,6,10,14,15,21,22,26,33,34,35,38,39,46,51,55,57,58,62,65,69,74,77,
-          82,85,86,87,91,93,94,95,106,111,115,118,119,122,123,129,133,134,...
-COMMENT:  These are the positive integers k with moebius(k) = 1 (cf. A008683).
-          - _N. J. A. Sloane_, May 18 2021
-COMMENT (the conjecture):
-  Conjecture: For the matrix M(i,j) = 1 if j|i and 0 otherwise,
-  Inverse(M)(a,1) = -1, for any a in this sequence.
-  - _Benedict W. J. Irwin_, Jul 26 2016
-```
-
-No later comment in the entry retracts or corrects the conjecture.
-
-## Status
-
-**False.** This module refutes it.  `M` is the zeta matrix of the divisibility
-order, so its inverse is the Möbius matrix `M⁻¹(i,j) = μ(i/j)·[j ∣ i]`; the
-`(a,1)` entry is `μ(a)`, which is `+1` (not `-1`) on every term of A030229.
-The smallest counterexample is the first term `a = 1` (with the `1 × 1`
-matrix `M = [1]`); the first nontrivial one is `a = 6`, where
-`Inverse(M)(6,1) = μ(6) = 1`.  The stated value `-1` is correct exactly on the
-complementary sequence A030059 (`μ(a) = -1`), so the comment was presumably
-intended for A030059; that corrected form is proved below as
-`divMatrix_inv_apply_zero_eq_neg_one_of_moebius_eq_neg_one`.
-
-Computational evidence (Sage, exact `40 × 40` inverse over `ℚ`): column 1 of
-the inverse equals `μ(a)` for all `a ≤ 40`, and the entry is `+1` at
-`a = 1, 6, 10, 14, 15, 21, 22, 26, 33, 34, 35, 38, 39`.
-
-## Formal conventions
+OEIS A030229, Benedict W. J. Irwin. The first column of the inverse
+divisibility matrix is `μ(a)`, hence `+1`, not `-1`, on A030229.
+The module refutes the conjecture at `a = 6` and proves the `-1` form
+for A030059 (`μ(a) = -1`).
 
 Matrices are `n × n` over `ℚ`, indexed by `Fin n`; the Lean index `i` stands
 for the OEIS row/column `i + 1`, so OEIS column `1` is `⟨0, _⟩`.  The inverse is
@@ -50,7 +21,7 @@ namespace Candidates.A030229Refutation
 
 open Matrix
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- Membership in A030229: `k` is a product of an even number of distinct
 primes, i.e. `k` is squarefree and its number of prime factors (with
@@ -76,7 +47,7 @@ otherwise, for OEIS indices `1 ≤ i, j ≤ n` (Lean indices shifted by one). -/
 def divMatrix (n : ℕ) : Matrix (Fin n) (Fin n) ℚ :=
   Matrix.of fun i j => if (j.val + 1) ∣ (i.val + 1) then 1 else 0
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The `3 × 3` divisibility matrix: rows `1, 2, 3`.
 example : divMatrix 3 = !![1, 0, 0; 1, 1, 0; 1, 0, 1] := by
@@ -123,12 +94,9 @@ example : ¬ InA030229 5 := by
 
 /-! ## The conjecture -/
 
-/-- **Irwin's conjecture (A030229, Benedict W. J. Irwin, Jul 26 2016).**
+/-- **Irwin's conjecture (A030229, Benedict W. J. Irwin, 2016).**
 
-Verbatim: "Conjecture: For the matrix M(i,j) = 1 if j|i and 0 otherwise,
-Inverse(M)(a,1) = -1, for any a in this sequence."
-
-Formally: for every size `n` and every OEIS index `a + 1 ≤ n` with `a + 1` in
+For every size `n` and every OEIS index `a + 1 ≤ n` with `a + 1` in
 A030229, the `(a + 1, 1)` entry of the inverse of the `n × n` divisibility
 matrix is `-1`. -/
 def Conjecture : Prop :=
@@ -232,11 +200,9 @@ example : (divMatrix 1)⁻¹ 0 0 = 1 := by
   rw [show (0 : Fin 1) = ⟨0, (0 : Fin 1).pos⟩ from rfl, divMatrix_inv_apply_zero]
   simp
 
-/-- **Irwin's conjecture is false.**  Counterexample: `a = 6` (the second term
-of A030229) with the `6 × 6` divisibility matrix, where
-`Inverse(M)(6, 1) = μ(6) = 1 ≠ -1`.  In general `Inverse(M)(a, 1) = μ(a)`
-(`divMatrix_inv_apply_zero`), which is `+1` on all of A030229; the author
-probably intended the complementary sequence A030059 (`μ(a) = -1`). -/
+/-- Irwin’s conjecture fails at `a = 6` in the `6 × 6` divisibility matrix:
+`Inverse(M)(6,1) = μ(6) = 1 ≠ -1`. More generally the first column is `μ(a)`,
+which is `+1` on A030229 and `-1` on A030059. -/
 theorem irwin_conjecture_false : ¬ Conjecture := by
   intro hconj
   have hmem : InA030229 ((5 : Fin 6).val + 1) :=

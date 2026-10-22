@@ -1,48 +1,12 @@
 /-
-# A294425 — Kimberling: the coupled complementary recurrence has golden-ratio growth
+# A294425: golden-ratio growth of the complementary recurrence
 
-## OEIS source (retrieved with `oeis show A294425` and the live `%`-format entry, 2026-10-21)
-
-```
-NAME:     Solution of the complementary equation
-          a(n) = a(n-1) + a(n-2) + 2*b(n-1) - b(n-2) - 1,
-          where a(0) = 1, a(1) = 3, b(0) = 2, b(1) = 4.
-TERMS:    1,3,9,17,32,56,96,163,270,445,728,1187,1930,3133,5082,8234,13336,
-          21591,34949,56563,91536,148124,239686,387837,627551,1015417,1642998,
-          2658446,4301478,6959958,11261471,18221465,29482973,47704476,77187488,
-          124892004,202079533
-KEYWORDS: nonn,easy
-AUTHOR:   _Clark Kimberling_, Nov 01 2017
-COMMENT:  The complementary sequences a() and b() are uniquely determined by the
-          titular equation and initial values.  See A294414 for a guide to
-          related sequences.
-COMMENT (the conjecture, entry author's, Nov 01 2017):
-          Conjecture: a(n)/a(n-1) -> (1 + sqrt(5))/2, the golden ratio.
-PROGRAM (Mathematica, the definition mirrored below):
-  mex := First[Complement[Range[1, Max[#1] + 1], #1]] &;
-  a[0] = 1; a[1] = 3; b[0] = 2; b[1] = 4;
-  a[n_] := a[n] = a[n - 1] + a[n - 2] + 2*b[n - 1] - b[n - 2] - 1;
-  b[n_] := b[n] = mex[Flatten[Table[Join[{a[n]}, {a[i], b[i]}], {i, 0, n - 1}]]];
-```
-
-## Status
-
-Triage: open.  The entry and the A294414 guide state the limit as a
-conjecture; the triage's web search found no proof.  The same conjecture
-recurs in about 170 Kimberling complementary-equation entries.
-
-This module proves it (`a294425_ratio_tendsto_goldenRatio`), through a
-generic bridge (`tendsto_ratio_goldenRatio_of_linear_forcing`): a real
-sequence that is Fibonacci up to a linearly bounded forcing term and grows at
-least geometrically has consecutive ratios tending to the golden ratio.
-
-## Definition layer
-
-`mex l` is the least positive integer not in `l`, exactly the Mathematica
-`mex`.  `hist n` stores `[a (n+1), …, a 0]` and `[b (n+1), …, b 0]`; one step
-appends `a (n+2)` by the recurrence and then `b (n+2)` as the `mex` of
-`a 0, …, a (n+2), b 0, …, b (n+1)`, as in the Mathematica program.  The
-recurrence's `ℕ` subtraction never truncates (`a_add_two_cast`).
+OEIS A294425, Clark Kimberling (Nov 01 2017), with guide A294414.
+The history/mex construction follows the source program, with `mex` the
+least missing positive integer. The natural subtraction agrees with the
+integer recurrence. Consecutive ratios of `a` tend to the golden ratio.
+The generic auxiliary theorem treats a Fibonacci recurrence with linearly
+bounded forcing and a positive geometric lower bound.
 -/
 import Mathlib
 
@@ -85,7 +49,7 @@ def b : ℕ → ℕ
   | 0 => 2
   | n + 1 => (hist n).2.headD 0
 
-/-! ## Ground truth: all 37 listed terms of A294425, and the first `b` values -/
+/-! ## Example: all 37 listed terms of A294425, and the first `b` values -/
 
 example : (List.range 37).map a =
     [1, 3, 9, 17, 32, 56, 96, 163, 270, 445, 728, 1187, 1930, 3133, 5082, 8234, 13336, 21591,
@@ -338,13 +302,9 @@ theorem tendsto_ratio_goldenRatio_of_linear_forcing (a : ℕ → ℝ) (C r : ℝ
 
 /-! ## The conjecture -/
 
-/-- **Kimberling's conjecture for A294425 (Clark Kimberling, Nov 01 2017).**
-
-Verbatim: "Conjecture: a(n)/a(n-1) -> (1 + sqrt(5))/2, the golden ratio."
-
-Stated with the index shifted by one, `a (n+1) / a n → (1 + √5)/2`, which avoids `ℕ`
-subtraction in the index and is the same limit statement.  Every `a n` is positive
-(`goldenRatio_pow_le_a`), so the real division is never the junk `x / 0`. -/
+/-- Kimberling's A294425 ratio limit. The shifted ratio `a(n+1)/a(n)`
+avoids natural subtraction and has the same limit as the source ratio.
+Every `a(n)` is positive by `goldenRatio_pow_le_a`. -/
 theorem a294425_ratio_tendsto_goldenRatio :
     Tendsto (fun n => (a (n + 1) : ℝ) / a n) atTop (𝓝 ((1 + √5) / 2)) :=
   tendsto_ratio_goldenRatio_of_linear_forcing (fun n => (a n : ℝ)) 8 Real.goldenRatio

@@ -1,25 +1,9 @@
 /-
 # A389000 — Wu: a(9m+5) = 2*10^(2m+1) - 1
 
-## OEIS source (retrieved with `oeis show A389000`, 2026-10-21)
-
-```
-NAME:     Smallest k such that the sums of digits of k and k^2 in base 10 are
-          both divisible by n or a(n) = -1 if no such k exists.
-TERMS:    1,2,3,13,19,24,149,583,9,19,74,264,2236,1999,1374,19499,299833,99,
-          199,767,9417,812083,199999,63087,1994999,99483667,999,1999,16697,
-          768108,113578114,19999999,2424867,88898999,69999835714,9999,19999,
-          196967,38455167,8943142063
-FORMULA:  a(9*m) = 10^m - 1. a(9*m + 1) = 2*10^m - 1 for m >= 1.
-          - _David A. Corneth_, Sep 25 2025
-FORMULA (the conjecture):
-  Conjecture: a(9*m+5) = 2*10^(2*m+1)-1 for m >= 0. - _Chai Wah Wu_, Oct 01 2025
-```
-
-## Status
-
-Open per triage (no proof in the entry or in the literature found by the
-triage).  This module gives a complete elementary proof:
+Chai Wah Wu's conjecture in OEIS A389000 gives the least positive `k`
+whose decimal digit sums at `k` and `k²` are both divisible by `9m+5`:
+`k = 2·10^(2m+1)-1` for `m ≥ 0`.
 
 * `s(k) ≡ k (mod 9)`, hence `s(k^2) ≡ s(k)^2 (mod 9)`.
 * If `k < K := 2*10^L - 1` (`L = 2m+1`) and `s(k) = n = 9m+5`, then
@@ -38,18 +22,18 @@ namespace Candidates.A389000LeastDividesBoth
 /-- Base-10 digit sum (OEIS A007953). -/
 def ds (k : ℕ) : ℕ := (Nat.digits 10 k).sum
 
-/-- Ground truth: `ds 199 = 19`. -/
+/-- `ds 199 = 19`. -/
 example : ds 199 = 19 := by decide
-/-- Ground truth: `ds (19^2) = ds 361 = 10`. -/
+/-- `ds (19^2) = ds 361 = 10`. -/
 example : ds (19 ^ 2) = 10 := by decide
 
 /-- The defining predicate of `A389000(n)`: `k ≥ 1` and `n` divides both the
 digit sum of `k` and the digit sum of `k^2`. -/
 def Good (n k : ℕ) : Prop := 0 < k ∧ n ∣ ds k ∧ n ∣ ds (k ^ 2)
 
-/-- Ground truth `a(5) = 19`: `19` is good for `5`. -/
+/-- Examples `a(5) = 19`: `19` is good for `5`. -/
 example : Good 5 19 := by unfold Good; decide
-/-- Ground truth `a(4) = 13`: `13` is good for `4`, while `12` is not. -/
+/-- Examples `a(4) = 13`: `13` is good for `4`, while `12` is not. -/
 example : Good 4 13 ∧ ¬ Good 4 12 := by unfold Good; decide
 
 /-- Peel the last digit off the digit sum. -/

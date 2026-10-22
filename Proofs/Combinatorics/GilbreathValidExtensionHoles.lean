@@ -8,26 +8,24 @@ arXiv:2606.23721 (v2), Section "The doubling sequence and the maximum-width
 conjecture" (Theorem `thm:doubling`, Conjecture `conj:max`), restated as
 Open Question (1); the extension criterion is Prop. `prop:criterion`.
 
-Setup (verbatim, 1-indexed): the difference triangle is `s_a^0 := s_a`,
+Setup (1-indexed): the difference triangle is `s_a^0 := s_a`,
 `s_a^b := |s_{a+1}^{b-1} - s_a^{b-1}|`; `S` is *Gilbreath* if `s_1^b = 1`
 for every `1 ≤ b ≤ n - 1`; `K_S := {k ∈ ℤ : (s_1, …, s_n, k) is Gilbreath}`;
 `𝒢_n` is the set of strictly increasing Gilbreath sequences of length `n`
 with `(s_1, s_2) = (2, 3)`; `U_n = (2, 3, 5, 9, 17, …, 2^{n-1} + 1)`.
 
-Conjecture (Maximum width, verbatim): "For every `n ≥ 2`,
-`max_{S ∈ 𝒢_n} |K_S| = 2^{n-1} + 1`, uniquely achieved by `U_n`."
+Maximum-width conjecture: for every `n ≥ 2`,
+`max_{S ∈ 𝒢_n} |K_S| = 2^{n-1} + 1`, uniquely achieved by `U_n`.
 
-Status: open in the paper (verified there by exhaustive computation for
-`n ≤ 10`); the attainment half `|K_{U_n}| = 2^{n-1} + 1` is the paper's
-Theorem `thm:doubling`. Recorded 2026-10-21. This file proves the full
-conjecture (`conj_max`) with no `sorry`.
+The attainment half `|K_{U_n}| = 2^{n-1} + 1` is the paper's
+Theorem `thm:doubling`; the full conjecture is `conj_max` below.
 
 ## Formalization
 
 Sequences are `s : ℕ → ℤ`, 0-indexed, of which only `s 0, …, s (n-1)` matter
 for length `n`; appending `k` is `Function.update s n k`.
 
-Proof outline (upper bound and uniqueness are new here): the right
+Proof outline: the right
 anti-diagonal entries `tri s i a` with `i + a = n - 1`, `1 ≤ i`, satisfy
 `tri s i a ≤ 2 ^ a` (`antidiag_le`, induction on the length, using that the
 apex is `1`); applied to the extended sequence this gives `|k - s (n-1)| ≤
@@ -66,7 +64,7 @@ Gilbreath, starting `(2, 3)`, strictly increasing. -/
 def InG (n : ℕ) (s : ℕ → ℤ) : Prop :=
   IsGilbreath n s ∧ s 0 = 2 ∧ s 1 = 3 ∧ ∀ i, i + 1 < n → s i < s (i + 1)
 
-/-! ### Ground truth on the paper's example `(2, 3, 5, 9, 15)` -/
+/-! ### Examples on the paper's example `(2, 3, 5, 9, 15)` -/
 
 /-- The paper's Example `ex:notation` sequence `(2,3,5,9,15)`. -/
 def exS : ℕ → ℤ := fun i => [2, 3, 5, 9, 15].getD i 0

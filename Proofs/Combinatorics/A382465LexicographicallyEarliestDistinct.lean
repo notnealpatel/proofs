@@ -1,36 +1,14 @@
 /-
-# A382465 — the range of A382462 is exactly A382465
+# A382465 — the range of the greedy digit sequence A382462
 
-## OEIS source (retrieved with `oeis show A382465`, 2026-10-21)
+The unsigned conjecture in OEIS A382465 says that its terms are A382462
+sorted; A382464 gives the complementary missing-number conjecture.
+A382465 consists of positive integers in which every even digit except
+the first is immediately preceded by a smaller digit. A382462 is the
+lexicographically earliest sequence of distinct positive integers obeying
+this rule on the concatenated digit stream.
 
-```
-A382465   Positive integers such that every even digit except the first is
-          immediately preceded by a smaller digit.
-TERMS:    1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,21,23,24,25,26,27,28,29,
-          31,33,34,35,36,37,38,39,41,43,45,46,47,48,49,51,53,55,56,57,58,59,61,
-          63,65,67,68,69,71,73,75,77,78,79,81,83,85,87,89,91,93,95,97,99
-COMMENT:  Conjecture: these are the terms of A382462, sorted.
-```
-
-(The entry carries no author/date on the conjecture line; the companion
-entry A382464 carries the equivalent "Conjecture: these are the numbers
-missing from A382462.")
-
-```
-A382462   Lexicographically earliest sequence of distinct positive integers such
-          that if a digit d in the digit stream (ignoring commas) is even, the
-          previous digit is < d.
-TERMS:    1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,31,21,23,33,34,35,36,37,
-          38,39,51,24,53,41,25,55,56,57,58,59,71,26,73,43,45,61,27,75,63,46,...
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature found).  This file
-proves the conjecture (both directions, plus distinctness of the greedy
-terms) with no `sorry`.
-
-## Fidelity notes
+## Conventions
 
 * A382462 is formalised as the greedy sequence `a`: `a n` is the least
   positive integer not among `a 0, …, a (n-1)` whose digits, appended to the
@@ -351,7 +329,7 @@ theorem conjecture : Function.Injective a ∧ Set.range a = {m | Elig m} := by
   rintro ⟨n, rfl⟩
   exact elig_a n
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- `Elig` reproduces the listed terms of A382465 below `100`. -/
 example : (List.range 100).filter (fun m => decide (Elig m)) =

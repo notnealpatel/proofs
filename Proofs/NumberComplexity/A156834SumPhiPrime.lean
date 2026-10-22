@@ -1,30 +1,12 @@
 /-
 # A156834 — Adamson: the totient-weighted divisor sum equals `n` exactly at primes
 
-## OEIS source (retrieved with `oeis show A156834` and https://oeis.org/A156834, 2026-10-21)
+Gary W. Adamson's conjecture in OEIS A156834 (2009), using Seiichi
+Manyama's formula (2021): `a(n) = Σ_{d∣n} φ(d) C(d+n/d-2,d-1)`.
 
-```
-NAME:     A156348 * A000010.
-TERMS:    1,2,3,5,5,12,7,17,19,30,11,63,13,56,99,89,17,154,19,269,237,132,23,
-          509,301,182,379,783,29,1230,31,881,813,306,2125,2431,37,380,1299,4157,
-          41,4822,43,3695,6175,552,47,8529,5587,6266,2787
-OFFSET:   1
-KEYWORDS: nonn,easy
-AUTHOR:   _Gary W. Adamson_, Feb 16 2009
-FORMULA:  a(n) = Sum_{d|n} phi(d) * binomial(d+n/d-2, d-1). - _Seiichi Manyama_, Apr 22 2021
-COMMENT (the conjecture, entry author Gary W. Adamson, Feb 16 2009):
-  Conjecture: for n>1, a(n) = n iff n is prime. Companion to A156833.
-```
-
-## Status
-
-Triage: open (no proof recorded in the entry or found in the literature).
-The argument is elementary: `Σ_{d ∣ n} φ(d) = n` and every binomial weight is
-at least `1`, with a weight of at least `2` at any divisor `1 < d < n`.
-This module proves the conjecture in full.
-
-Computation (Python, exact integers): the first 51 terms agree with the
-entry, and `a(n) = n ↔ n prime` holds for `2 ≤ n ≤ 8000`.
+For `1 < n`, `a(n)=n` iff `n` is prime. Since `Σ_{d∣n} φ(d)=n`, it
+suffices that each binomial weight is at least one; any divisor `1 < d < n`
+has weight at least two.
 -/
 import Mathlib
 
@@ -32,12 +14,12 @@ set_option autoImplicit false
 
 namespace Candidates.A156834SumPhiPrime
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A156834 via Manyama's formula:
 `a(n) = Σ_{d ∣ n} φ(d) · C(d + n/d − 2, d − 1)`.
 
-Truncation audit: for `d ∈ n.divisors` we have `1 ≤ d` and `1 ≤ n / d`, so
+For the natural-number subtractions, for `d ∈ n.divisors` we have `1 ≤ d` and `1 ≤ n / d`, so
 `d + n / d - 2` and `d - 1` never hit the `ℕ`-subtraction floor, and `n / d`
 is exact division. At `n = 0` the divisor set is empty and the value is `0`;
 the entry's offset is `1`, so `n = 0` is outside the sequence. -/
@@ -127,9 +109,7 @@ theorem lt_a_of_not_prime {n : ℕ} (hn : 1 < n) (hnp : ¬ n.Prime) : n < a n :=
 
 /-! ## The conjecture -/
 
-/-- **Adamson's conjecture (A156834, Gary W. Adamson, Feb 16 2009).**
-
-Verbatim: "Conjecture: for n>1, a(n) = n iff n is prime."
+/-- **Adamson's conjecture (A156834, Gary W. Adamson, 2009).**
 
 Here `a n = Σ_{d ∣ n} φ(d) · C(d + n/d − 2, d − 1)` (Manyama's formula for the
 entry). The guard `1 < n` is from the source; at `n = 1` the identity

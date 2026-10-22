@@ -1,43 +1,19 @@
 /-
-# Immaculate (Leinster) groups: the abelian quotient theorem
+# Immaculate groups and abelian quotients
 
-## Source
+Tom Leinster, *Perfect numbers and groups*, arXiv:math/0104012 (Eureka 55,
+2001), Sections 3–4. Leinster calls a finite group perfect (later immaculate,
+to distinguish it from `Group.IsPerfect`) when the sum `D(G)` of the orders
+of its normal subgroups equals `2|G|`.
 
-* MathOverflow question 54851, "Is there an odd-order group G with
-  D(G) = 2|G|?" (Tom Leinster), https://mathoverflow.net/questions/54851 .
-* Tom Leinster, "Perfect numbers and groups", arXiv:math/0104012
-  (Eureka 55, 2001).  Leinster calls a finite group *perfect* (later
-  *immaculate*, to avoid the clash with `Group.IsPerfect`) when
-  `D(G) := ∑_{N ⊴ G} |N| = 2|G|`.
+For finite groups, this file proves that `D(G) ≤ 2|G|` forces a normal
+generator and makes every abelian quotient cyclic. It also proves
+`D(G) ≡ 1 (mod p)` for finite `p`-groups, excluding immaculate `p`-groups.
 
-Informal claim (Leinster, stated in the MO question, proved in the paper,
-Sections 3-4):
-
-> If `G` is a finite group with `D(G) ≤ 2|G|`, then every abelian quotient
-> of `G` is cyclic.  In particular an abelian immaculate group is cyclic
-> (and hence the abelian immaculate groups are the cyclic groups of perfect
-> order).
-
-The thread's own question (an odd-order immaculate group) was answered
-positively in the thread (F. Brunault: `(C127 ⋊ C7) × C399812193`); that
-existence statement is NOT formalized here.
-
-Recorded 2026-10-21.  Status: proved in the literature (Leinster 2001).
-
-## What this file proves (no `sorry`)
-
-* `D_eq_sum_card_filter_mem`: the double count `D(G) = ∑_{g ∈ G} ν(g)`,
-  `ν(g) = #{N ⊴ G : g ∈ N}`.
-* `exists_forall_normal_mem_eq_top_of_D_le`: `D(G) ≤ 2|G|` forces an
-  element whose normal closure is `G`.
-* `isCyclic_of_D_le` (main): Leinster's abelian quotient theorem in the
-  surjective-homomorphism form; `isCyclic_abelianization_of_D_le` and
-  `isCyclic_of_isImmaculate` are corollaries.
-* `D_mod_prime_of_isPGroup`, `not_isImmaculate_of_isPGroup`: for a finite
-  `p`-group `D(G) ≡ 1 (mod p)`, so no `p`-group is immaculate.
-
-Not formalized: `D(C_n) = σ(n)` (needed for the converse "cyclic of perfect
-order ⇒ immaculate") and the odd immaculate examples from the thread.
+MathOverflow question 54851, Tom Leinster, "Is there an odd-order group G
+with D(G) = 2|G|?", https://mathoverflow.net/questions/54851, has positive
+examples due to F. Brunault. Those examples and `D(C_n) = σ(n)` (needed for
+the converse for cyclic groups of perfect order) are not formalized here.
 -/
 import Mathlib
 
@@ -225,7 +201,7 @@ theorem not_isImmaculate_of_isPGroup {G : Type*} [Group G] [Finite G] {p : ℕ}
     rw [Nat.mod_eq_zero_of_dvd hdvd] at hmod
     exact zero_ne_one hmod
 
-/-! ## Ground truth and satisfiability -/
+/-! ## Examples -/
 
 example : D Unit = 1 := D_of_subsingleton
 

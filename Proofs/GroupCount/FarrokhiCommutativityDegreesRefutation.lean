@@ -8,7 +8,7 @@ arXiv:1912.04550 (v1, Dec 2019; published in Results in Mathematics,
 DOI 10.1007/s00025-021-01591-3).  The statement is the unnumbered
 Conjecture after Lemma 2.6 (Conjecture 2.7 in the arXiv numbering).
 
-Definitions (Section 1, verbatim):
+Definitions (Section 1):
 
   d(H,G) := #{(h,g) ∈ H × G : hg = gh} / (|H||G|),
   D(G) = {d(H,G) : H ≤ G}.
@@ -17,13 +17,8 @@ Lemma 2.6 (proved in the paper): for finite groups `H`, `K` of coprime orders,
 `D(H × K) = D(H)D(K)` is the set of products of elements of `D(H)` by elements
 of `D(K)`, and `D(H) ∩ D(K) = {1}`.
 
-Conjecture (verbatim): "For any two finite groups H and K of coprime orders,
-we have |D(H × K)| = |D(H)| × |D(K)|."
-
-## Status
-
-Stated as an open conjecture in the paper (the paper only lists non-coprime
-failures such as `(A₄, S₄)`).  This module records a refutation, 2026-10-21:
+The conjecture asserts `|D(H × K)| = |D(H)| × |D(K)|` for finite groups of
+coprime orders. This module gives a counterexample:
 `H = F₂₁ = C₇ ⋊ C₃` and `K = D₃₄` (dihedral of order 34) have coprime orders
 21 and 34, and
 
@@ -31,9 +26,8 @@ failures such as `(A₄, S₄)`).  This module records a refutation, 2026-10-21:
     = d(C₇, F₂₁) · d(D₃₄, D₃₄),
 
 so the product map `D(H) × D(K) → D(H)D(K)` is not injective and
-`|D(H × K)| < |D(H)||D(K)|`.  (Sage/GAP computation gives `|D(H × K)| = 8`
-while `|D(H)| = |D(K)| = 3`; the formal proof below needs only the strict
-inequality.)
+`|D(H × K)| < |D(H)||D(K)|`. The exact cardinality of `D(H × K)` is not
+needed for this strict inequality.
 -/
 import Mathlib
 

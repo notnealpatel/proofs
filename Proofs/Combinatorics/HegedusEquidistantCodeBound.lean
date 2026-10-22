@@ -1,36 +1,16 @@
 /-
 # Hegedüs's equidistant-code bound via the equal-Gram lemma
 
-## Source
+Scott Duke Kominers, *An eigenvalue proof of Hegedüs's bound for codes
+with a single Hamming distance*, arXiv:2606.24624, Lemma 1, Theorems 1–2,
+and Remarks (b), (c), (e). The binary bound is Hegedüs, Australas. J.
+Combin. 94 (2026), Theorem 1.3; the q-ary bound is Hu–Huang–Yu,
+arXiv:2504.07036, Theorem 6.
 
-arXiv:2606.24624, Scott Duke Kominers, *An eigenvalue proof of Hegedüs's bound
-for codes with a single Hamming distance*.  Pulled with `fetch 2606.24624`,
-2026-10-21.
-
-Where the statements sit: Lemma 1 (`lem:gram`), Theorem 1 (`thm:main`, which is
-Hegedüs, Australas. J. Combin. 94 (2026), Thm 1.3) and Theorem 2 (`thm:qary`,
-which is Hu--Huang--Yu, arXiv:2504.07036, Thm 6); Remarks (b), (c), (e).
-
-Verbatim informal claims:
-
-* Lemma 1. "Let \(d\ge1\), and let \(w_1,\ldots,w_m\in\R^d\) have equal norms
-  \(\langle w_i,w_i\rangle=s\) and a common pairwise inner product
-  \(\langle w_i,w_j\rangle=t\) for \(i\ne j\), with \(t<s\). Then \(m\le d+1\);
-  moreover, if \(m=d+1\), then \(t=-s/d\)."
-* Theorem 1. "Let \(\mathcal F=\{F_1,\ldots,F_m\}\) be subsets of \([n]\) and
-  suppose there is a positive integer \(\lambda\) such that
-  \(\dH(F_i,F_j)=\lambda\) for all \(i\ne j\). If
-  \(\lambda\ne\dfrac{n+1}{2}\), then \(m\le n\)."  (Throughout the paper
-  \(n\) is a positive integer and \(\dH(F,G)=|F\triangle G|\).)
-* Theorem 2. "Consider \(n\ge1\) and \(q\ge2\). Let
-  \(V=\{x_1,\ldots,x_m\}\subseteq\{0,1,\ldots,q-1\}^n\) and suppose there is a
-  positive integer \(\lambda\) such that \(\dH(x_i,x_j)=\lambda\) for all
-  \(i\ne j\). If \(\lambda\ne\frac{(q-1)n+1}{q}\), then \(m\le n(q-1)\)."
-
-## Status
-
-Known results, proved in the paper (and earlier by Hegedüs and by
-Hu--Huang--Yu).  All three are proved below with no `sorry`.
+The equal-Gram lemma bounds the number of vectors by dimension plus one.
+It yields `m ≤ n` for positive-length binary equidistant codes except at
+distance `(n+1)/2`, and `m ≤ n(q-1)` for q-ary codes except at
+distance `((q-1)n+1)/q`.
 
 ## Formalization notes
 
@@ -186,7 +166,7 @@ theorem inner_signVec {n : ℕ} (F G : Finset (Fin n)) :
   rw [Finset.sum_sub_distrib, ← Finset.mul_sum, Finset.sum_boole]
   simp
 
-/-- Ground truth: the paper's Remark (b) tetrahedron vectors `(+,+,+)` and
+/-- The paper's Remark (b) tetrahedron vectors `(+,+,+)` and
 `(+,-,-)` have inner product `-1`. -/
 example : inner ℝ (signVec ({0, 1, 2} : Finset (Fin 3))) (signVec {0}) = -1 := by
   rw [inner_signVec]

@@ -1,43 +1,17 @@
 /-
 # Group logarithm implies a rainbow-cascade colouring, so `χ(B_n) = n`
 
-## Source
-
-arXiv:2609.15081, Lujia Wang and Ruihua Wang, "Obstructions to coloring
-arithmetic graphs" (dated 14 September 2026).  The statement sits in
-Sec. 1 (definition of the arithmetic graph `B_n`, the rainbow cascade
-condition `(cascade-conjecture)`, and the definition of cyclic / group
-logarithms) and Sec. 2, Lemma 2.2 (`lem:group`, "Group logarithm
-construction"), which the paper attributes to Caicedo, Chartier and Pach
-[CCP, Theorem 61 and Lemma 74]; see also Bosek et al.
-
-Verbatim informal claim (Sec. 1 and Lemma 2.2):
-
-> The arithmetic graph `B_n` has vertex set `ℕ = {1,2,…}` and adjacency
-> relation `a ∼ b ⟺ a ≠ b, max(a,b)/gcd(a,b) ≤ n`.  Every cascade `r[n]`
-> is a clique of order `n`, and every edge lies in the cascade based at the
-> greatest common divisor of its endpoints.  Thus `χ(B_n) ≥ n`, with
-> equality precisely when there is a coloring `c : ℕ → [n]` satisfying
-> `{c(r), c(2r), …, c(nr)} = [n]  (r ∈ ℕ)`.
->
-> A cyclic logarithm of length `n` is a bijection `h : [n] → ℤ_n` such that
-> `h(ab) = h(a) + h(b)  (ab ≤ n)`.  The same definition with a finite
-> abelian group `G` of order `n` gives a group logarithm.
->
-> Lemma 2.2 (Group logarithm construction).  A group logarithm
-> `h : [n] → G` gives a proper `n`-coloring of `B_n`.  The resulting
-> coloring is given explicitly by `c(a) = ∑_{r ≤ n, r prime} v_r(a) h(r)`.
-
-Date: 2026-10-21.
-
-Status: known result, proved elsewhere (CCP, Bosek et al.) and recalled
-(without proof) in the paper.  The paper's own new results (the
-obstructions at 205 and 211) are not formalized here.
-
-Formalized here (sorry-free): the satisfactory-colouring form
-(`exists_isSatisfactory_of_isGroupLog`), the chromatic-number form
-(`chromaticNumber_arithGraph_of_isGroupLog`, using the clique `{1,…,n}`),
-and `χ(B_n) = n` for `1 ≤ n ≤ 16` via explicit cyclic logarithms.
+Caicedo–Chartier–Pach's group-logarithm construction (Theorem 61 and
+Lemma 74), recalled in Lujia Wang and Ruihua Wang, “Obstructions to
+coloring arithmetic graphs”, arXiv:2609.15081, §§1–2, Lemma 2.2.
+A group logarithm of length `n` into a finite abelian group gives a
+rainbow-cascade colouring of the arithmetic graph `B_n` on positive
+integers, hence `χ(B_n) = n`. Explicit cyclic logarithms also give
+this equality for `1 ≤ n ≤ 16`. The source's obstructions at `205` and
+`211` are not formalized here.
+The colouring is the completely additive extension
+`c(a) = ∑_{r≤n, r prime} v_r(a) h(r)`. Every edge lies in the cascade
+at the gcd of its endpoints, and `{1,…,n}` is a clique.
 -/
 import Mathlib
 
@@ -71,7 +45,7 @@ for every positive `r`, `{c(r), c(2r), …, c(nr)} = [n]`. -/
 def IsSatisfactory (n : ℕ) (c : ℕ → ℕ) : Prop :=
   ∀ r, 0 < r → (fun k => c (r * k)) '' Icc 1 n = Icc 1 n
 
-/-! ### Ground truth for the definitions -/
+/-! ### Examples for the definitions -/
 
 example : (arithGraph 6).Adj 4 6 := by decide
 example : ¬ (arithGraph 2).Adj 2 3 := by decide
@@ -283,7 +257,7 @@ def tableLog (n : ℕ) (l : List ℕ) : ℕ → ZMod n := fun k => (l.getD (k - 
 theorem isGroupLog_six : IsGroupLog 6 (tableLog 6 [0, 1, 3, 2, 5, 4]) :=
   isGroupLog_of_check (ZMod.card 6) (by decide) (by decide)
 
-/-- Ground truth: the identity table `k ↦ k - 1` is not a logarithm of
+/-- Examples: the identity table `k ↦ k - 1` is not a logarithm of
 length 6, since `h(4) = 3 ≠ 2 = h(2) + h(2)`. -/
 example : ¬ IsGroupLog 6 (tableLog 6 [0, 1, 2, 3, 4, 5]) := fun hh =>
   absurd (hh.2 2 2 (by norm_num) (by norm_num) (by norm_num)) (by decide)

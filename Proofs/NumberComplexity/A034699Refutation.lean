@@ -2,39 +2,10 @@
 # A034699 — Serov: numbers strictly between consecutive primes have distinct
 # largest prime-power factors
 
-## OEIS source (retrieved with `oeis show A034699`, 2026-10-21)
-
-```
-NAME:     Largest prime power factor of n.
-TERMS:    1,2,3,4,5,3,7,8,9,5,11,4,13,7,5,16,17,9,19,5,7,11,23,8,25,13,27,7,
-          29,5,31,32,11,17,7,9,37,19,13,8,41,7,43,11,9,23,47,16,49,25,17,13,
-          53,27,11,8,19,29,59,5,61,31,9,64,13,11,67,17,23,7,71,9,73,37,25,19,
-          11,13,79
-KEYWORDS: nonn,easy,nice
-COMMENT (the conjecture):
-  Conjecture: For all n between two consecutive prime numbers, all a(n) are
-  different. - _I. V. Serov_, Jun 19 2019
-COMMENT (immediately following):
-  Disproved with between p=prime(574) = 4177 and prime(575) = 4201,
-  a(4180) = a(4199) = 19. See A308752. - _Michel Marcus_, Jun 19 2019
-```
-
-The entry already records the disproof (Marcus, same day); no later comment
-revives the unsigned form.  A later signed variant ("all (-1)^n*a(n) are
-different", Serov, Jun 23 2019) was disproved by L. Joris Perrenet
-(Jan 05 2020) between the primes 10120168277 and 10120168507; that variant is
-not formalized here.
-
-## Status
-
-**False.**  This module refutes the conjecture with Marcus's counterexample:
-`4177` and `4201` are consecutive primes, and
-`4180 = 2^2 · 5 · 11 · 19`, `4199 = 13 · 17 · 19` both have largest
-prime-power factor `19`.
-
-Computational evidence (pure Python, trial division): the gap `(4177, 4201)`
-is the first prime gap containing two numbers with equal `a(n)`; every earlier
-gap satisfies the conjecture.
+I. V. Serov's conjecture in OEIS A034699 (2019), refuted by Michel Marcus
+(2019). Between consecutive primes `4177` and `4201`, the distinct numbers
+`4180 = 2^2 · 5 · 11 · 19` and `4199 = 13 · 17 · 19` both have largest
+prime-power factor `19`. The later signed variant is not formalized here.
 
 ## Formal conventions
 
@@ -49,16 +20,16 @@ set_option autoImplicit false
 
 namespace Candidates.A034699Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- A034699: the largest prime-power factor of `n`, i.e. the largest divisor
 of `n` that is a prime power (`IsPrimePow`), and `1` when there is none
 (`n = 1`, matching the OEIS term `a(1) = 1`). -/
 def a (n : ℕ) : ℕ := max 1 ((n.divisors.filter IsPrimePow).sup id)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
--- The first 79 OEIS terms `a(1), …, a(79)`, checked by kernel evaluation.
+-- The first 79 OEIS terms `a(1), …, a(79)`, evaluated.
 example : ((List.range 79).map fun i => a (i + 1)) =
     [1, 2, 3, 4, 5, 3, 7, 8, 9, 5, 11, 4, 13, 7, 5, 16, 17, 9, 19, 5, 7, 11, 23,
       8, 25, 13, 27, 7, 29, 5, 31, 32, 11, 17, 7, 9, 37, 19, 13, 8, 41, 7, 43, 11,
@@ -68,10 +39,7 @@ example : ((List.range 79).map fun i => a (i + 1)) =
 
 /-! ## The conjecture -/
 
-/-- **Serov's conjecture (A034699, I. V. Serov, Jun 19 2019).**
-
-Verbatim: "Conjecture: For all n between two consecutive prime numbers, all
-a(n) are different."
+/-- **Serov's conjecture (A034699, I. V. Serov, 2019).**
 
 Formalized: whenever `p < q` are primes with no prime strictly between them,
 `a` is injective on the open interval `(p, q)`. -/
@@ -94,7 +62,7 @@ theorem a_4180 : a 4180 = 19 := by decide +kernel
 /-- `a(4199) = 19`, since `4199 = 13 · 17 · 19`. -/
 theorem a_4199 : a 4199 = 19 := by decide +kernel
 
-/-- **Serov's conjecture is false** (Michel Marcus, Jun 19 2019).
+/-- **Serov's conjecture is false** (Michel Marcus, 2019).
 
 Counterexample: `4177 = prime(574)` and `4201 = prime(575)` are consecutive
 primes, and the distinct numbers `4180, 4199` strictly between them share the

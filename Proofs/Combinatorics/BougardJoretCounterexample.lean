@@ -1,50 +1,21 @@
 /-
-  Counterexample to the Bougard-Joret Conjecture.
-  Source: arXiv:2608.18828, Joyentanuj Das and Sayan Gupta,
-  "Counterexample to the Bougard--Joret Conjecture".  The refuted
-  conjecture is eq. (conjecture) of the introduction (= Bougard and
-  Joret 2008, Conjecture 1 in Section 6; also Liu-Ning Conj. 3.1).
-  The refutation is Theorem thm:boundary (Section 3, case
-  alpha = k - 1) and Proposition prop:smallest (Section 4).
-  Recorded 2026-10-21.
+# Counterexample to the Bougard–Joret conjecture
 
-  Definitions, verbatim from the paper (Section 2):
+Joyentanuj Das and Sayan Gupta, *Counterexample to the Bougard–Joret
+Conjecture*, arXiv:2608.18828, Theorem `thm:boundary` (§3, `alpha = k-1`)
+and Proposition `prop:smallest` (§4). The conjecture is Bougard–Joret
+(2008), Conjecture 1, §6 (also Liu–Ning, Conjecture 3.1).
+For `n ≥ 2 alpha`, `n ≥ alpha+k`, `alpha ≥ 2`, `k ≥ 3`, its first regime
+predicts `f(n,alpha,k) = ceil(nk/2)` when `n ≤ k alpha`, where `f` is
+the minimum edge count of a k-connected graph of that order and
+independence number.
 
-    "A graph is k-connected if it has more than k vertices and
-     deleting any set of fewer than k vertices leaves a connected
-     graph."
-    "let f(n,alpha,k) denote the minimum size of a k-connected graph
-     of order n and independence number alpha."
-
-  Conjecture (Bougard-Joret), for n >= 2 alpha, n >= alpha + k,
-  alpha >= 2, k >= 3:
-
-    "f(n,alpha,k) = ceil(nk/2)  when n <= k alpha,
-     f(n,alpha,k) = t(n,alpha) + ceil(k alpha/2)  when n > k alpha."
-
-  Paper's claim (abstract / Theorem thm:boundary), verbatim:
-
-    "In particular, for every k >= 4, f(2k-1,k-1,k) = k^2-1, whereas
-     the conjectured value is k^2 - floor(k/2)."
-    "The smallest-order failure has parameters (n,alpha,k) = (7,3,4)"
-    "f(7,3,4)=15, while (conjecture) predicts 14."
-
-  Status in the paper: proved (elementary).  This module proves the
-  refutation of the first regime completely:
-  * `card_edgeFinset_lower`: every k-connected graph on 2k-1
-    vertices with independence number k-1 has at least k^2-1 edges
-    (the general boundary bound `boundary_lower`:
-    alpha k + (k - 1) <= e(G) when n = alpha + k and alpha < k);
-  * `isLeast_edgeCounts`: the bound is attained, so
-    f(2k-1,k-1,k) = k^2-1 for k >= 2.  The witness is
-    K_1 join K_{k-1,k-1}, i.e. the paper's extremal family
-    complement-of-K_{k-1} join T with T the star of order k;
-  * `ceil_lt`: ceil((2k-1)k/2) < k^2-1 for k >= 4;
-  * `not_bougardJoretFirstRegime`: the first regime of the
-    conjecture is false (instance (7,3,4)), and
-    `bougardJoret_counterexample` gives the failure for every k >= 4.
-  No `sorry`.  Mathlib has no vertex-connectivity predicate, so
-  `IsKConnected` transcribes the paper's definition.
+The boundary lower bound is `alpha k + k-1` when `n = alpha+k`,
+`alpha < k`. The graph `K₁ join K_{k-1,k-1}` attains it for `alpha = k-1`,
+so `f(2k-1,k-1,k) = k²-1` for `2 ≤ k`. For `4 ≤ k` this exceeds
+`ceil((2k-1)k/2) = k²-floor(k/2)`, refuting the first regime; at `(7,3,4)`
+the minimum is `15`, not `14`. `IsKConnected` uses the paper's convention:
+more than `k` vertices, connected after deleting fewer than `k` vertices.
 -/
 import Mathlib
 

@@ -1,49 +1,13 @@
 /-
-# A145920 — Mathar: recurrence and g.f. for common values of pentagonal numbers and C(n,4)
+# Common pentagonal and binomial values (A145920)
 
-## OEIS source (retrieved with `oeis show A145920`, 2026-10-21)
-
-```
-NAME:     List of numbers that are both pentagonal (A000326) and binomial
-          coefficients C(n,4) (A000332).
-TERMS:    0,1,5,35,70,210,330,715,1001,1820,2380,3876,4845,7315,8855,12650,
-          14950,20475,23751,31465,35960,46376,52360,66045,73815,91390,101270,...
-OFFSET:   1 (a(1) = 0, as fixed by Tedeschi's formula below)
-COMMENT:  All binomial coefficients C(n,4) belong to the generalized pentagonal
-          sequence (A001318).
-FORMULA:  a(n+1) = A000326 (A001318(n)).
-FORMULA:  Positive values of A000332(n) belong to the sequence if and only if 3
-          does not divide n. A000332(n) is positive when n>3.
-FORMULA (the conjecture):
-  Conjecture: a(n) = a(n-1) + 4a(n-2) - 4a(n-3) - 6a(n-4) + 6a(n-5) + 4a(n-6)
-  - 4a(n-7) - a(n-8) + a(n-9). - _R. J. Mathar_, Oct 29 2008
-  Conjecture: G.f.: x^2(1 + 4x + 26x^2 + 19x^3 + 4x^5 + x^6 + 26x^4)/((1+x)^4(1-x)^5).
-  - _R. J. Mathar_, Oct 29 2008
-FORMULA:  a(n) = (27x^4 - 18x^3 - 3x^2 + 2x)/8 where x = floor(n/2)*(-1)^n,
-          for n >= 1. - _William A. Tedeschi_, Aug 16 2010
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature found).  The entry's
-own formulas make it a quasi-polynomial identity; this file proves both
-conjectures from the definition (intersection of the two sets, enumerated in
-increasing order), not from the unproved formula lines.
-
-## Argument
-
-* `24·C(n,4) + 1 = (n² - 3n + 1)²` for every `n`, and `m` is pentagonal iff
-  `24m + 1 = (6j - 1)²` for some `j : ℕ`.
-* Hence `C(n,4)` (with `n ≥ 4`) is pentagonal iff `3 ∤ n`: if `3 ∣ n` then
-  `n² - 3n + 1 ≡ 1 (mod 3)` while `6j - 1 ≡ 2 (mod 3)`, and the negative root
-  is excluded by size.
-* So the set is `{C((3k+5)/2, 4) : k ∈ ℕ}`, listed in increasing order by `k`,
-  i.e. `a(k+1) = C(⌊(3k+5)/2⌋, 4)`; the recurrence and the g.f. are then
-  polynomial identities on each parity class of `k`.
-
-Computation (python, 2026-10-21): the set enumerated directly up to `10^13`
-(2624 terms) agrees with `C(⌊(3k+5)/2⌋, 4)`, satisfies the recurrence for all
-`10 ≤ n ≤ 2624`, and `(1+x)^4(1-x)^5 · Σ a(n)xⁿ` has the stated numerator.
+Source: R. J. Mathar's OEIS A145920 recurrence and generating-function
+formulas (Oct 29 2008), with William A. Tedeschi's formula (Aug 16 2010).
+The sequence is defined as the increasing intersection of pentagonal
+numbers and values `C(n,4)`, indexed from 1 with `a(1)=0`.
+For `k ≥ 0`, `a(k+1)=C(floor((3k+5)/2),4)`; this yields both Mathar formulas.
+The recurrence is stated from index 10. The generating-function quotient
+is expressed by multiplication in `ℤ⟦X⟧`, whose denominator has constant term 1.
 -/
 import Mathlib
 
@@ -53,7 +17,7 @@ namespace Candidates.A145920CommonValuesPentagonal
 
 open PowerSeries
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `m` is a pentagonal number (A000326): `m = j(3j-1)/2` for some `j ≥ 0`.
 The truncated subtraction `3 * j - 1` is harmless: it only truncates at
@@ -75,19 +39,19 @@ noncomputable def a (n : ℕ) : ℕ := Nat.nth InA145920 (n - 1)
 `⌊(3k+5)/2⌋ = 2, 4, 5, 7, 8, 10, …` run over the non-multiples of `3`. -/
 def closedForm (k : ℕ) : ℕ := ((3 * k + 5) / 2).choose 4
 
-/-! ## Sanity layer for the definitions -/
+/-! ## Examples -/
 
--- Ground truth: the explicit enumeration reproduces the first DATA terms.
+-- The explicit enumeration reproduces the first DATA terms.
 example : (List.range 12).map closedForm =
     [0, 1, 5, 35, 70, 210, 330, 715, 1001, 1820, 2380, 3876] := by decide
 
--- Ground truth: listed terms are members, by explicit witnesses
+-- Listed terms are members, by explicit witnesses
 -- (`35 = P(5) = C(7,4)`, `70 = P(7) = C(8,4)`, `0 = P(0) = C(0,4)`).
 example : InA145920 35 ∧ InA145920 70 ∧ InA145920 0 :=
   ⟨⟨⟨5, by decide⟩, ⟨7, by decide⟩⟩, ⟨⟨7, by decide⟩, ⟨8, by decide⟩⟩,
     ⟨⟨0, by decide⟩, ⟨0, by decide⟩⟩⟩
 
--- Ground truth: `15 = C(6,4)` is not pentagonal (`P(3) = 12 < 15 < 22 = P(4)`),
+-- `15 = C(6,4)` is not pentagonal (`P(3) = 12 < 15 < 22 = P(4)`),
 -- matching the FORMULA line "iff 3 does not divide n".
 example : ¬ IsPentagonal 15 := by
   rintro ⟨j, hj⟩
@@ -272,7 +236,7 @@ theorem nth_eq_closedForm : Nat.nth InA145920 = closedForm := by
 theorem a_succ (k : ℕ) : a (k + 1) = closedForm k := by
   rw [a, Nat.add_sub_cancel, nth_eq_closedForm]
 
--- Ground truth: the definition `a` (offset 1) reproduces the first DATA terms.
+-- The definition `a` (offset 1) reproduces the first DATA terms.
 example : [a 1, a 2, a 3, a 4, a 5, a 6, a 7, a 8, a 9, a 10, a 11, a 12] =
     [0, 1, 5, 35, 70, 210, 330, 715, 1001, 1820, 2380, 3876] := by
   simp only [a_succ]
@@ -316,14 +280,9 @@ theorem closedForm_rec (k : ℕ) :
     push_cast at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
     linear_combination h9 - h8 - 4 * h7 + 4 * h6 + 6 * h5 - 6 * h4 - 4 * h3 + 4 * h2 + h1 - h0
 
-/-- **Mathar's recurrence conjecture (A145920, R. J. Mathar, Oct 29 2008).**
-
-Verbatim: "Conjecture: a(n) = a(n-1) + 4a(n-2) - 4a(n-3) - 6a(n-4) + 6a(n-5)
-+ 4a(n-6) - 4a(n-7) - a(n-8) + a(n-9)."
-
-Stated for every `n ≥ 10` (written `n + 10` to avoid truncated subtraction), so
-that all nine earlier indices are `≥ 1` and lie in the entry's offset; `a` is the
-increasing enumeration of the numbers that are both pentagonal and a `C(n,4)`. -/
+/-- Mathar's order-9 recurrence for the increasing intersection of
+pentagonal numbers and values `C(n,4)`. It starts at index 10, written
+as `n+10` so all earlier indices remain in the offset-1 domain. -/
 theorem mathar_recurrence (n : ℕ) :
     (a (n + 10) : ℤ) = a (n + 9) + 4 * a (n + 8) - 4 * a (n + 7) - 6 * a (n + 6)
       + 6 * a (n + 5) + 4 * a (n + 4) - 4 * a (n + 3) - a (n + 2) + a (n + 1) := by
@@ -369,14 +328,10 @@ theorem closedForm_series_mul :
       show k + 9 - 8 = k + 1 by omega, show k + 9 - 9 = k by omega]
     linear_combination hrec
 
-/-- **Mathar's g.f. conjecture (A145920, R. J. Mathar, Oct 29 2008).**
-
-Verbatim: "Conjecture: G.f.: x^2(1 + 4x + 26x^2 + 19x^3 + 4x^5 + x^6 + 26x^4)/((1+x)^4(1-x)^5)."
-
-With the entry's offset 1 the g.f. is `Σ_{n ≥ 1} a(n) xⁿ = x · Σ_{k ≥ 0} a(k+1) xᵏ`.
-The quotient is stated in multiplied-out form over `ℤ⟦X⟧`; since the denominator
-`(1+x)^4 (1-x)^5` has constant term `1` it is a unit, so this is equivalent to
-the stated quotient. -/
+/-- Mathar's generating-function identity in multiplied-out form over
+`ℤ⟦X⟧`. The offset-1 series is `X Σ_{k≥0} a(k+1)X^k`; the denominator
+`(1+X)^4(1-X)^5` has constant term 1, so multiplication is equivalent
+to the source quotient. -/
 theorem mathar_gf :
     ((1 + X) ^ 4 * (1 - X) ^ 5 : ℤ⟦X⟧) * (X * mk (fun k => (a (k + 1) : ℤ))) =
       X ^ 2 * (1 + 4 * X + 26 * X ^ 2 + 19 * X ^ 3 + 4 * X ^ 5 + X ^ 6 + 26 * X ^ 4) := by

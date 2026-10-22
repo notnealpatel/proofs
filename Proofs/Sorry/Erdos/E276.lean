@@ -28,7 +28,7 @@
   Fresh def below.
 -/
 import Mathlib
-import Erdos.Covering.RankOfApparition
+import Sorry.Erdos.Covering.RankOfApparition
 
 set_option autoImplicit false
 

@@ -52,9 +52,9 @@ is hopeless.  The one thing it *adds* over `A005153Switkay.lean` is Hasler's
 parity split, which is provable and is stated below.
 -/
 import Mathlib
-import Enumerative.Practical
-import Enumerative.SymmetricPractical
-import Enumerative.StewartCriterion
+import Sorry.Quarantine.Enumerative.Practical
+import Sorry.Enumerative.SymmetricPractical
+import Sorry.Enumerative.StewartCriterion
 
 set_option autoImplicit false
 

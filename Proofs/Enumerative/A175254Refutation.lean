@@ -1,32 +1,12 @@
 /-
-# A175254 — Mathar's conjecture `a(n) = Sum_{k=0..n} A006218(n-k)` is false
+# A175254: the divisor-sum partial-sum identity
 
-## OEIS source (re-pulled with `oeis show A175254` and checked against the
-## live entry https://oeis.org/A175254, retrieved 2026-10-21)
-
-```
-NAME:     a(n) = Sum_{k<=n} A000203(k)*(n-k+1), where A000203(m) is the sum of
-          divisors of m.
-OFFSET:   1
-TERMS:    1,5,13,28,49,82,123,179,248,335,434,561,702,867,1056,1276,...
-FORMULA (the conjecture):
-  Conjecture: a(n) = Sum_{k=0..n} A006218(n-k). - _R. J. Mathar_, Oct 17 2012
-```
-
-`A006218(m) = Sum_{j=1..m} d(j)` (offset 0, terms `0,1,3,5,8,10,14,...`),
-where `d = A000005` is the number of divisors.  No later comment or formula in
-the entry retracts or corrects the conjecture.
-
-## Status
-
-This module **refutes** the conjecture.  At `n = 2`:
-`a(2) = sigma(1)*2 + sigma(2)*1 = 2 + 3 = 5`, while
-`A006218(2) + A006218(1) + A006218(0) = 3 + 1 + 0 = 4`.
-
-The intended identity is evidently the one with `A024916` (partial sums of
-`sigma`) in place of `A006218` (partial sums of `d`): the entry's own comment
-"Partial sums of A024916" (Omar E. Pol, Jul 03 2014) says exactly that, and it
-is proved below as `a_eq_sum_A024916`.
+OEIS A175254, R. J. Mathar (Oct 17 2012); Omar E. Pol's partial-sum
+comment (Jul 03 2014).
+The conjectured convolution with A006218 (partial sums of the divisor count
+A000005) fails at `n = 2`: `a(2) = 5`, but the convolution is `4`.
+The identity with A024916 (partial sums of the divisor sum A000203) is
+proved instead, for every natural `n`.
 -/
 import Mathlib
 
@@ -48,7 +28,7 @@ def A006218 (m : ℕ) : ℕ := ∑ j ∈ Icc 1 m, sigma 0 j
 function (offset 0 here, `A024916(0) = 0`). -/
 def A024916 (m : ℕ) : ℕ := ∑ j ∈ Icc 1 m, sigma 1 j
 
-/-! ## Ground truth against the OEIS data lines -/
+/-! ## Examples against the OEIS data lines -/
 
 example : a 1 = 1 ∧ a 2 = 5 ∧ a 3 = 13 ∧ a 4 = 28 ∧ a 5 = 49 ∧ a 6 = 82 := by
   simp only [a, sigma_one_apply]
@@ -73,10 +53,9 @@ truncated. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 1 ≤ n → a n = ∑ k ∈ range (n + 1), A006218 (n - k)
 
-/-- **Mathar's conjecture for A175254 is false.**  Counterexample `n = 2`:
-`a(2) = 5` but `A006218(2) + A006218(1) + A006218(0) = 3 + 1 + 0 = 4`.
-The intended statement uses `A024916` (partial sums of `σ`) instead of
-`A006218` (partial sums of `d`); see `a_eq_sum_A024916`. -/
+/-- Mathar's conjecture fails at `n = 2`: `a(2) = 5`, but
+`A006218(2) + A006218(1) + A006218(0) = 4`.
+The partial-sum identity using A024916 instead is `a_eq_sum_A024916`. -/
 theorem mathar_false : ¬ Conjecture := by
   intro h
   have h2 := h 2 (by norm_num)

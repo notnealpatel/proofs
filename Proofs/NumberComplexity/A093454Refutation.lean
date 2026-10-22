@@ -1,30 +1,11 @@
 /-
 # A093454 — the finiteness conjecture for `lcm(next n numbers)/n!` is false
 
-## OEIS source (retrieved with `oeis show A093454`, 2026-10-21)
+The finiteness conjecture in OEIS A093454; Robert G. Wilson v's program
+(2004) defines the block of 'next n numbers' as
+`{n(n-1)/2+1, …, n(n+1)/2}`. The sequence floors its lcm divided by `n!`.
 
-```
-NAME:     a(n) = floor((LCM of next n numbers)/n!).
-TERMS:    1,3,10,105,500,2261,24667,42028,1230782,20311562,4439826,359052299,
-          528351796,6320864852,54316890301,272889671456,59002964602937,
-          369404431595,79683951358252,35792935676910,137309505871357313
-COMMENT:  Conjecture: There are finitely many numbers of the form
-          {LCM of next n numbers}/n! which are not integers.
-COMMENT:  In the first three thousand terms, I found only five which are
-          integers: 1, 2, 3, 4, 6. - _Robert G. Wilson v_
-PROGRAM:  f[n_] := Floor[LCM @@ Drop[Range[n(n + 1)/2], n(n - 1)/2]/n! ];
-          Table[ f[n], {n, 21}] (* _Robert G. Wilson v_, Apr 30 2004 *)
-```
-
-The conjecture comment carries no separate signature; the entry's only dated
-author line is Robert G. Wilson v's program (Apr 30 2004).  No later comment
-retracts the conjecture.  The "next n numbers" are, per the program, the
-block `{n(n-1)/2 + 1, ..., n(n+1)/2}` (the `n`-th row of the triangle of
-consecutive integers).
-
-## Status
-
-This module **refutes** the conjecture.  The 2-adic valuation of `n!` is at
+The conjecture is false. The 2-adic valuation of `n!` is at
 least `⌊n/2⌋`, while a power of `2` divides the lcm of a block only if it
 divides one of its elements, all of which are at most `n(n+1)/2 < 2^⌊n/2⌋`
 for `n ≥ 14`.  Hence `L(n)/n!` is a non-integer for every `n ≥ 14`, and in
@@ -52,7 +33,7 @@ def L (n : ℕ) : ℕ := (block n).lcm id
 /-- The OEIS sequence A093454: `a(n) = ⌊L(n) / n!⌋`. -/
 def a (n : ℕ) : ℕ := L n / n.factorial
 
-/-! ### Ground truth against the listed terms -/
+/-! ### Examples against the listed terms -/
 
 example : block 6 = {16, 17, 18, 19, 20, 21} := by decide
 example : L 5 = 60060 := by decide
@@ -72,11 +53,8 @@ example : a 21 = 137309505871357313 := by decide
 
 /-! ## The conjecture -/
 
-/-- **Conjecture (A093454 comment).** Verbatim: "Conjecture: There are finitely
-many numbers of the form {LCM of next n numbers}/n! which are not integers."
-
-Formalized as: the set of indices `n ≥ 1` for which the rational number
-`L(n)/n!` is not an integer is finite. -/
+/-- The A093454 finiteness conjecture: only finitely many indices `n ≥ 1`
+have `L(n)/n!` nonintegral, with the quotient taken in `ℚ`. -/
 def Conjecture : Prop :=
   {n : ℕ | 1 ≤ n ∧ ¬ ∃ k : ℤ, (L n : ℚ) / (n.factorial : ℚ) = k}.Finite
 

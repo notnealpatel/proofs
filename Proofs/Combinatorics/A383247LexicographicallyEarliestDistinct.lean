@@ -1,38 +1,12 @@
 /-
 # A383247 — numbers missing from A342044
 
-## OEIS source (retrieved with `oeis show A383247` / `oeis show A342044`, 2026-10-21)
-
-```
-A383247
-NAME:     Positive integers that contain the digit 9, or an odd digit d
-          immediately followed by a digit <= d.
-TERMS:    9,10,11,19,29,30,31,32,33,39,49,50,51,52,53,54,55,59,69,70,71,72,73,
-          74,75,76,77,79,89,90,91,92,93,94,95,96,97,98,99,100,101,...,133
-COMMENT (the conjecture):
-  Conjecture: these are the numbers missing from A342044.
-PROGRAM (Python):  def ok(n): s = str(n); return "9" in s or any(d in "13579"
-          and s[i]<=d for i, d in enumerate(s, 1) if i < len(s))
-          # _Michael S. Branicky_, Apr 28 2025
-
-A342044
-NAME:     When a digit d is odd, the next digit is > d.
-TERMS:    0,1,2,3,4,5,6,7,8,12,13,40,14,15,60,16,17,80,18,20,21,22,23,41,24,
-          25,61,26,27,81,28,34,35,62,36,37,82,38,42,43,44,45,63,46,47,83,48,
-          56,57,84,58,64,65,66,67,85,68,78,86,87,88,120,121,200,122,123,400,
-          124,125,600,126,127,800,128
-COMMENT:  The sequence is always extended with the smallest positive integer
-          not yet present that doesn't lead to a contradiction.
-COMMENT:  No digit 9 is present in the sequence (as 9, being odd, would block it).
-```
-
-The conjecture line carries no separate author attribution; the entry
-A383247 dates from April 2025 (program by Michael S. Branicky, Apr 28 2025).
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  This module proves it (see `a383247_iff_not_mem_range_a342044`).
+OEIS A383247 (April 2025; program by Michael S. Branicky, April 28, 2025)
+conjectures that the positive integers containing 9, or an odd digit `d`
+immediately followed by a digit `≤ d`, are exactly the numbers missing
+from A342044. A342044 starts at 0 and greedily chooses the least unused
+positive term that can continue a digit string in which each odd digit
+is followed by a larger digit.
 
 ## Definition layer
 
@@ -378,27 +352,22 @@ theorem mem_range_a342044_iff (m : ℕ) : m ∈ Set.range a342044 ↔ Admissible
 
 /-! ## The conjecture -/
 
-/-- **A383247 conjecture (comment in A383247, 2025): A383247 is exactly the set of
-positive integers missing from A342044.**
-
-Verbatim: "Conjecture: these are the numbers missing from A342044."  That is, a
-positive integer `m` contains the digit 9 or an odd digit `d` immediately
-followed by a digit `≤ d` if and only if `m` is not a term of A342044 (the
-lexicographically earliest sequence of distinct nonnegative integers, starting
-with 0, whose concatenated digit string never has an odd digit `d` followed by
-a digit `≤ d`). -/
+/-- The conjecture in OEIS A383247 (2025): a positive integer contains
+9, or an odd digit immediately followed by a digit no larger than it,
+iff it is missing from A342044, the greedy distinct sequence starting
+at 0 whose concatenated digits have each odd digit followed by a larger one. -/
 theorem a383247_iff_not_mem_range_a342044 (m : ℕ) (hm : 0 < m) :
     InA383247 m ↔ m ∉ Set.range a342044 := by
   rw [inA383247_iff, mem_range_a342044_iff]
   exact ⟨fun h => h.2, fun h => ⟨hm, h⟩⟩
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
-/-- Non-vacuity of the main statement at a member: `10 ∈ A383247` is missing. -/
+/-- `10 ∈ A383247` is missing. -/
 example : 10 ∉ Set.range a342044 :=
   (a383247_iff_not_mem_range_a342044 10 (by norm_num)).mp (by decide)
 
-/-- Non-vacuity of the main statement at a non-member: `12` occurs. -/
+/-- `12` occurs. -/
 example : 12 ∈ Set.range a342044 := ⟨9, by decide⟩
 
 example : decDigits 0 = [0] := by decide

@@ -1,45 +1,11 @@
 /-
-# A008578 — Gerasimova: `sigma(k) > k * Omega(k)` iff `k = 1` or `k` prime
+Gerasimova's characterization of OEIS A008578 (Irina Gerasimova, Jun 08 2013).
 
-## OEIS source (retrieved with `oeis show A008578`, 2026-10-21)
-
-```
-NAME:     Prime numbers at the beginning of the 20th century (today 1 is no
-          longer regarded as a prime).
-TERMS:    1,2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,...
-COMMENT:  Positive integers that have no divisors other than 1 and itself (the
-          old definition of prime numbers). - _Omar E. Pol_, Aug 10 2012
-COMMENT (the conjecture):
-  Conjecture: the sequence contains exactly those k such that
-  sigma(k) > k*BigOmega(k). - _Irina Gerasimova_, Jun 08 2013
-COMMENT (status note in the entry):
-  Note on the Gerasimova conjecture: all terms in the sequence obviously
-  satisfy the inequality, because sigma(p) = 1+p and BigOmega(p) = 1 for
-  primes p, so 1+p > p*1. For composites, the (opposite) inequality is
-  heuristically correct at least up to k <= 4400000. The general proof
-  requires to show that BigOmega(k) is an upper limit of the abundancy
-  sigma(k)/k for composite k. [...] - _R. J. Mathar_, Jun 12 2013
-```
-
-## Status
-
-Triage status: open (the entry asks for a general proof; a web search found no
-published one).  Computation (this campaign): the characterization holds for
-every `k ≤ 10^6`, and `sigma(k) = k * Omega(k)` occurs there only at `k = 6`.
-
-## Proof outline (kernel-checked below)
-
-Let `S` be the set of prime factors of a composite `k`, `r = |S| = omega(k)`.
-Removing the largest element `a` of a finset of integers `≥ 2` leaves at most
-`a - 2` elements, which drives two finset inductions:
-
-* `∏_{p ∈ S} p ≤ (r + 1) ∏_{p ∈ S} (p - 1)`, hence (with
-  `sigma(p^e) (p - 1) ≤ p^e p`) `sigma(k) ≤ (omega(k) + 1) k`;
-* `2 ∏_{p ∈ S} (p + 1) ≤ (r + 2) ∏_{p ∈ S} p`, hence for squarefree `k`,
-  `2 sigma(k) ≤ (omega(k) + 2) k`.
-
-If `k` is not squarefree then `omega(k) + 1 ≤ Omega(k)`; if it is squarefree
-and composite then `omega(k) = Omega(k) ≥ 2`, so `(omega + 2)/2 ≤ Omega`.
+For every natural k, k Ω(k) < σ(k) iff k = 1 or k is prime.
+Membership is defined by the positive integers with no divisors other than
+1 and themselves (Omar E. Pol, Aug 10 2012), including 1.
+The composite direction follows from abundancy bounds in terms of the
+numbers of distinct and repeated prime factors.
 -/
 import Mathlib
 
@@ -71,17 +37,17 @@ theorem isA008578_iff (k : ℕ) : IsA008578 k ↔ k = 1 ∨ k.Prime := by
 instance (k : ℕ) : Decidable (IsA008578 k) :=
   decidable_of_iff _ (isA008578_iff k).symm
 
-/-- Ground truth: the members of A008578 below `50` are exactly the first
+/-- The members of A008578 below `50` are exactly the first
 sixteen listed terms `1, 2, 3, 5, …, 47`. -/
 example : (Finset.range 50).filter IsA008578 =
     {1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47} := by
   decide
 
-/-- Ground truth for the arithmetic functions in the statement. -/
+/-- Examples for the arithmetic functions in the statement. -/
 example : σ 1 12 = 28 ∧ σ 1 6 = 12 ∧ σ 1 7 = 8 := by
   decide
 
-/-- Ground truth for `Omega`: `Omega(12) = 3`, `Omega(6) = 2`, `Omega(7) = 1`. -/
+/-- Examples for `Omega`: `Omega(12) = 3`, `Omega(6) = 2`, `Omega(7) = 1`. -/
 example : Ω 12 = 3 ∧ Ω 6 = 2 ∧ Ω 7 = 1 := by
   have h7 : Nat.Prime 7 := by norm_num
   refine ⟨?_, ?_, cardFactors_apply_prime h7⟩
@@ -251,13 +217,8 @@ theorem sigma_le_mul_cardFactors {k : ℕ} (h1 : 1 < k) (hp : ¬ k.Prime) :
       _ ≤ Ω k * k := Nat.mul_le_mul_right k hlt
       _ = k * Ω k := Nat.mul_comm _ _
 
-/-- **Gerasimova's conjecture (A008578, Irina Gerasimova, Jun 08 2013).**
-
-Verbatim: "Conjecture: the sequence contains exactly those k such that
-sigma(k) > k*BigOmega(k)."  Here the sequence is A008578 (`1` and the primes,
-`IsA008578`), `sigma = σ 1` and `BigOmega = Ω`.  The statement is given for every
-natural `k`; at `k = 0` both sides are false (`σ 1 0 = 0`), so it contains the
-statement over positive integers. -/
+/-- Gerasimova's characterization: `k*Ω(k)<σ(k)` iff `k=1` or `k` is prime.
+The statement includes `k=0`, where both sides are false. -/
 theorem gerasimova (k : ℕ) : k * Ω k < σ 1 k ↔ IsA008578 k := by
   rw [isA008578_iff]
   constructor

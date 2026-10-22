@@ -1,36 +1,14 @@
 /-
-# A246396 — Dale: every term has a neighbouring term
+# A246396: every term has a neighbouring term
 
-## OEIS source (retrieved with `oeis show A246396`, 2026-10-21)
+OEIS A246396 consists of nonnegative integers `k` with `cos k ≤ 0` and
+`cos(k+1) ≤ 0`. Harvey P. Dale's conjecture (2023-07-11) says every term
+has a neighbouring term differing by one.
 
-```
-NAME:     Nonnegative integers k satisfying cos(k) <= 0 and cos(k+1) <= 0.
-TERMS:    2,3,8,9,15,16,21,22,27,28,33,34,35,40,41,46,47,52,53,59,60,65,66,
-          71,72,77,78,79,84,85,90,91,96,97,103,104,109,110,115,116,121,122,
-          123,128,129,134,135,140,141,147,148,153,154,159,160,165,166,167,172
-COMMENT (the conjecture):
-  Conjecture: every term t has at least one neighbor which is equal to t plus
-  or minus one. - _Harvey P. Dale_, Jul 11 2023
-```
-
-## Status
-
-Triage status: open (no proof in the entry; none found in the literature by
-the triage).  The triage judged it elementary: the closed arcs where
-`cos ≤ 0` have length `π > 3`, so the terms come in runs of length at least
-two.  Numerically re-validated for every `k < 2·10⁶` (681691 terms, no
-isolated term) before formalization.
-
-## Formalization
-
-`IsTerm k` is the entry's defining predicate for `k : ℕ`.  "A neighbour equal
-to `t ± 1`" is rendered as `IsTerm (k + 1)` or the existence of a natural
-`j` with `j + 1 = k` and `IsTerm j` (this avoids truncated `ℕ` subtraction;
-for `k = 0` the left neighbour does not exist).
-
-The proof reduces to a statement about real numbers: if `cos x ≤ 0` and
-`cos (x + 1) ≤ 0` then `cos (x + 2) ≤ 0` or `cos (x - 1) ≤ 0`, which uses only
-`1 < π` and `3 < π`.
+Reduction modulo `2π` to the closed band `[π/2, 3π/2]` shows that
+`cos x ≤ 0` and `cos(x+1) ≤ 0` imply `cos(x+2) ≤ 0` or `cos(x-1) ≤ 0`.
+The natural-number result expresses the predecessor as a witness `j`
+with `j+1 = k`, avoiding truncated subtraction; `k = 0` is not a term.
 -/
 import Mathlib
 
@@ -130,7 +108,7 @@ theorem isTerm_succ_or_exists_pred (k : ℕ) (hk : IsTerm k) :
         rw [hcast]
         exact h0
 
-/-! ## Ground truth: the first listed terms -/
+/-! ## Examples: the first listed terms -/
 
 /-- `2` is a term (first listed term): `cos 2 ≤ 0` and `cos 3 ≤ 0`. -/
 example : IsTerm 2 := by

@@ -1,36 +1,11 @@
 /-
-# A092674 — Perry: the constant term of a floor-sum recursion is never negative
+Nonnegativity of the constant term in OEIS A092674 (Jon Perry, Mar 02 2004).
 
-## OEIS source (retrieved with `oeis show A092674` and https://oeis.org/A092674, 2026-10-21)
-
-```
-NAME:     Derived from a(n)=binomial(n+1,2) - sum{i=1,n-1,a(i)*floor(n/i)}
-          (see A000010) - this is the value of the constant term.
-OFFSET:   1,2
-TERMS:    0,3,3,1,5,0,7,4,6,2,11,5,13,4,7,8,17,6,19,9,11,8,23,8,20,10,18,13,29,
-          10,31,16,19,14,23,12,37,16,23,16,41,14,43,21,24,20,47,16,42,20,31,25,...
-KEYWORDS: nonn
-COMMENT (the conjecture):
-  It is conjectured that a(n) is never less than 0 (tested to n=2000)
-PROGRAM:
-  (PARI) s=vector(200); t(n)=binomial(n+1,2); s[1]=x; for(i=2,200,
-  s[i]=t(i)-sum(j=1,i-1, s[j]*floor(i/j))); for(i=1,200,print1(","polcoeff(s[i],0)))
-AUTHOR:   _Jon Perry_, Mar 02 2004 (the conjecture comment is unsigned; it is
-          part of the original submission)
-```
-
-The PARI program fixes the meaning: `a(1) = x` is an indeterminate, every
-later `a(n)` is a polynomial (in fact linear) in `x`, and the sequence lists
-the coefficient of `x^0`.
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell; numerically checked to `n = 3000` by the triage and to `n = 6000`
-for this card).  This module proves it: Möbius inversion of the floor-sum
-recursion gives the closed form
-`c(n) = φ(n) - μ(n) + [2 ∣ n] μ(n/2)`, and `φ(n) ≥ 2` for `n ≥ 3`.
-The minimum value `0` is attained at `n = 1` and `n = 6`.
+The source's polynomial recursion starts with a(1)=x, an indeterminate;
+later terms satisfy the floor-sum recursion, and the sequence records
+constant coefficients. An affine-polynomial bridge identifies these with
+c(n)=φ(n)-μ(n)+[2∣n] μ(n/2). This is nonnegative for every n≥1,
+with value zero at n=1 and n=6.
 -/
 import Mathlib
 
@@ -95,7 +70,7 @@ theorem coeff_zero_seq_X (n : ℕ) :
   rw [Polynomial.coeff_zero_eq_eval_zero, ← Polynomial.coe_evalRingHom, map_seq]
   simp [constTerm]
 
-/-! ## Ground truth
+/-! ## Examples
 
 Kernel evaluation of the well-founded recursion `seq` is expensive (it is
 unmemoized and unfolds accessibility proofs), so the listed terms are checked
@@ -340,15 +315,9 @@ theorem constTerm_nonneg {n : ℕ} (hn : 1 ≤ n) : 0 ≤ constTerm n := by
 
 /-! ## The conjecture -/
 
-/-- **Perry's conjecture (A092674, Jon Perry, Mar 02 2004).**
-
-Verbatim: "It is conjectured that a(n) is never less than 0 (tested to n=2000)",
-where `a(n)` is the constant term of the polynomial `s[n] ∈ ℤ[x]` defined by
-`s[1] = x`, `s[n] = binomial(n+1, 2) - ∑_{j=1}^{n-1} s[j] * floor(n/j)`.
-
-Formalized: for every `n ≥ 1` (the entry's offset), the coefficient of `X^0` in
-`seq X n ∈ ℤ[X]` is nonnegative. Proved via the closed form
-`c(n) = φ(n) - μ(n) + [2 ∣ n] μ(n/2)`. -/
+/-- For every `n≥1`, the constant coefficient of the source's polynomial
+recurrence is nonnegative (Jon Perry, Mar 02 2004), by
+`c(n)=φ(n)-μ(n)+[2∣n] μ(n/2)`. -/
 theorem conjecture {n : ℕ} (hn : 1 ≤ n) :
     0 ≤ (seq (Polynomial.X : Polynomial ℤ) n).coeff 0 := by
   rw [coeff_zero_seq_X]

@@ -1,33 +1,11 @@
 /-
 # Smith's GCD determinant
 
-## Source
-
-C. Krattenthaler, *Advanced Determinant Calculus: A Complement*,
-arXiv:math/0503507, Section 5 (subsection "More poset and lattice
-determinants"), Theorem `thm:Smith`, stated just after Problem `prob:9` as a
-corollary of Lindström's meet-semilattice determinant (Theorem `thm:Lind`).
-The original result is H. J. S. Smith, *On the value of a certain arithmetical
-determinant*, Proc. London Math. Soc. 7 (1875/76), 208–212.
-
-Verbatim informal claim (retrieved 2026-10-21):
-
-```
-\begin{Theorem} \label{thm:Smith}
-For any positive integer $n$, we have
-$$\det_{1\le i,j\le n}\big(\gcd(i,j)\big)=
-\prod _{i=1} ^{n}\phi(i),$$
-where $\phi$ denotes the Euler totient function.
-\end{Theorem}
-```
-
-The paper adds: "In fact, Smith's result is a more general one for factor
-closed subsets of the positive integers."
-
-## Status
-
-Known theorem (Smith 1875; restated without proof in the source, which derives
-it from Lindström's theorem).  Not open.
+H. J. S. Smith, *On the value of a certain arithmetical determinant*,
+Proc. London Math. Soc. 7 (1875/76), 208–212, proves the GCD determinant
+formula and its factor-closed version. See also C. Krattenthaler,
+*Advanced Determinant Calculus: A Complement*, arXiv:math/0503507, §5,
+Theorem `thm:Smith`, as a corollary of Lindström's meet-semilattice formula.
 
 ## Formalization
 

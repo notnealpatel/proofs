@@ -1,27 +1,11 @@
 /-
 # A038867 — Purath: no term of `(n+5)^3 - n^3` is a perfect square
 
-## OEIS source (retrieved with `oeis show A038867`, 2026-10-21)
+Klaus Purath's conjecture in OEIS A038867 (2026): no term of
+`a(n) = (n+5)^3 - n^3` (offset 0) is a square. Elmo R. Oliveira's formula
+(2025) is `a(n) = 5(3n^2 + 15n + 25)`.
 
-```
-NAME:     a(n) = (n+5)^3 - n^3.
-TERMS:    125,215,335,485,665,875,1115,1385,1685,2015,2375,2765,3185,3635,...
-FORMULA:  a(n) = 5*(3*n^2 + 15*n + 25). - _Elmo R. Oliveira_, Sep 12 2025
-COMMENT:  From _Klaus Purath_, May 15 2026: (Start)
-          With a(-1) = 65, a(-2) = 35, numbers k such that 60*k - 1875 is a
-          perfect square.
-          Conjecture: There are no squares in this sequence, verified up to
-          n = 100000. (End)
-```
-
-The first listed term is `a(0) = 125`, so the entry is indexed from `n = 0`.
-
-## Status
-
-Triage: open (no proof in the entry or in the literature found by the triage;
-the entry prints only a computation up to `n = 100000`).
-
-This module proves the conjecture, for every integer `n` (hence in particular
+The result holds for every integer `n` (hence in particular
 for every `n ≥ 0`), by a 5-adic valuation argument: if
 `m^2 = 5 (3n^2 + 15n + 25)` then `5 ∣ m`, then `5 ∣ n`; writing `n = 5t` gives
 `a(n) = 125 (3t^2 + 3t + 1)` and `3t^2 + 3t + 1` is never divisible by `5`,
@@ -33,13 +17,13 @@ set_option autoImplicit false
 
 namespace Candidates.A038867ParticularPerfectSquare
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The OEIS sequence A038867, `a(n) = (n+5)^3 - n^3`, extended to all integers
 `n` (the entry itself mentions `a(-1) = 65` and `a(-2) = 35`). -/
 def a (n : ℤ) : ℤ := (n + 5) ^ 3 - n ^ 3
 
-/-! ## Ground truth against the DATA line `125, 215, 335, 485, 665, 875` -/
+/-! ## Examples against the DATA line `125, 215, 335, 485, 665, 875` -/
 
 example : a 0 = 125 := by decide
 example : a 1 = 215 := by decide
@@ -82,15 +66,10 @@ theorem not_five_dvd_quadratic (t : ℤ) : ¬ (5 : ℤ) ∣ 3 * t ^ 2 + 3 * t + 
 
 /-! ## The conjecture -/
 
-/-- **Purath's conjecture (A038867, Klaus Purath, May 15 2026), proved.**
-
-Verbatim: "Conjecture: There are no squares in this sequence, verified up to
-n = 100000."
-
-Stated for every integer `n` (the entry's terms are `n ≥ 0`; the comment also
-uses `n = -1, -2`): `(n+5)^3 - n^3` is not the square of any integer `m`.
-Proof: a 5-adic valuation argument (`5 ∣ m`, then `5 ∣ n`, then
-`a(5t) = 125 (3t^2 + 3t + 1)` with `5 ∤ 3t^2 + 3t + 1`). -/
+/-- Purath's conjecture (OEIS A038867, 2026), extended from `n ≥ 0` to all
+integers: `(n+5)^3-n^3` is not an integer square. The proof forces `5 ∣ m`
+and `5 ∣ n`; writing `n=5t` gives `a(5t)=125(3t²+3t+1)` with
+`5 ∤ 3t²+3t+1`. -/
 theorem a_ne_sq (n m : ℤ) : a n ≠ m ^ 2 := by
   intro h
   rw [a_eq] at h
@@ -128,7 +107,7 @@ theorem nat_not_isSquare (n : ℕ) : ¬ IsSquare ((n + 5) ^ 3 - n ^ 3) := by
   push_cast [Nat.cast_sub hle] at hz
   exact a_ne_sq (n : ℤ) (m : ℤ) (by unfold a; rw [hz]; ring)
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- The quantified domain is nonempty and the hypothesis-free statement is
 -- non-vacuous: the closed form really is near squares, e.g. `a(0) = 125`

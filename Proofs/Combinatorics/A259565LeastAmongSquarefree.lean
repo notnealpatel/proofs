@@ -1,33 +1,12 @@
 /-
-# A259565 — Zumkeller: the squarefree-mean greedy sequence permutes the odd numbers
+# A259565 — the squarefree-mean greedy sequence
 
-## OEIS source (retrieved with `oeis show A259565` and the live entry, 2026-10-21)
+Reinhard Zumkeller (OEIS A259565, Jun 30 2015) conjectured that this
+sequence permutes the odd numbers. It starts with `a(1) = 1`; each next
+term is the least unused positive integer whose arithmetic mean with the
+preceding term is an integer and squarefree.
 
-```
-NAME:     a(1) = 1, for n > 1 a(n) = smallest number not already in the
-          sequence such that the arithmetic mean of two neighboring terms is a
-          squarefree number.
-TERMS:    1,3,7,5,9,11,15,13,17,21,23,19,25,27,31,29,33,35,39,37,41,43,49,45,
-          47,55,51,59,57,53,61,63,67,65,69,71,75,73,81,77,79,85,87,83,89,93,
-          95,91,97,105,99,103,101,109,111,107,113,115,121,117,119,125,129
-KEYWORDS: nonn
-COMMENT (the conjecture):
-  conjecture: sequence is a permutation of the odd numbers;
-AUTHOR:   Reinhard Zumkeller, Jun 30 2015
-```
-
-Precise reading used here (from the triage): let a(1) = 1 and, for n > 1,
-let a(n) be the least positive integer not among a(1..n-1) such that
-(a(n-1) + a(n))/2 is an integer and squarefree.  Conjecture: {a(n) : n ≥ 1}
-is exactly the set of positive odd integers.
-
-## Status
-
-Triage: open (the entry and the live revision still call it a conjecture; no
-proof was found in the literature).  Computation (2026-10-21): the first
-300000 terms match the listed data and contain every odd number below 600001.
-
-## Proof (formalized below)
+## Proof outline
 
 Infinite descent.  If some odd `m` never occurs, take the least one, an index
 `N` after which every smaller odd number has occurred, and `K` the largest of
@@ -46,7 +25,7 @@ set_option autoImplicit false
 
 namespace Candidates.A259565LeastAmongSquarefree
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `x` is an admissible successor of the term `prev` given the set `used` of
 terms so far: `x` is a positive integer, not yet used, and the mean
@@ -92,16 +71,16 @@ def a : ℕ → ℕ
   | 0 => 0
   | n + 1 => (state n).1
 
-/-! ### Ground truth against the listed terms -/
+/-! ### Examples: listed terms -/
 
 example : (List.range 8).map (fun n => a (n + 1)) = [1, 3, 7, 5, 9, 11, 15, 13] := by
   decide +kernel
 
-/-- Ground truth: the state after the first eight terms `1, 3, 7, 5, 9, 11, 15, 13`. -/
+/-- The state after the first eight terms `1, 3, 7, 5, 9, 11, 15, 13`. -/
 theorem state_seven : state 7 = (13, {1, 3, 7, 5, 9, 11, 15, 13}) := by
   decide +kernel
 
-/-- Ground truth: the ninth term is `a 9 = 17`. -/
+/-- The ninth term is `a 9 = 17`. -/
 example : a 9 = 17 := by
   show (stepState (state 7)).1 = 17
   rw [state_seven]
@@ -440,8 +419,7 @@ theorem exists_a_eq (m : ℕ) (hm : Odd m) : ∃ n, 1 ≤ n ∧ a n = m := by
 
 /-- **Zumkeller's conjecture (A259565, Reinhard Zumkeller, Jun 30 2015).**
 
-Verbatim: "conjecture: sequence is a permutation of the odd numbers".  Here:
-the set of values `{a n : n ≥ 1}` is exactly the set of (positive) odd
+The set of values `{a n : n ≥ 1}` is exactly the set of (positive) odd
 integers; together with `a_injOn` this says `a` is a bijection from the
 indices `n ≥ 1` onto the odd numbers (`a_bijOn`). -/
 theorem image_a_eq : a '' Set.Ici 1 = {m : ℕ | Odd m} := by

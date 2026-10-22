@@ -1,36 +1,12 @@
 /-
-# A381355 — Hanna: prime(n) divides a(n) = [x^n] x F'(x)/F(x)
+# A381355: prime divisibility of logarithmic-derivative coefficients
 
-## OEIS source (retrieved with `oeis show A381355`, 2026-10-21)
-
-```
-NAME:     G.f. A(x) = x*F'(x)/F(x) where F(x) is the g.f. of A381353 that
-          satisfies [x^n] F(x)^prime(n) = 0 for n > 1.
-TERMS:    1,-3,10,-35,121,-390,1037,-1083,-14030,137837,-382106,-8791718,...
-COMMENT:  Conjecture: a(n) is divisible by prime(n) for n > 1.
-PROGRAM:  (PARI) {a(n) = my(F=[1, 1], A); for(m=2, n+1, F=concat(F, 0);
-          F[#F] = -polcoef(Ser(F)^prime(m)/prime(m), m) ); A=Vec(Ser(F)'/Ser(F)); A[n]}
-```
-
-The comment carries no signature or date in the local store; the entry (and
-its companion A381353, which has the same remark "It appears that
-[x^(n-1)] A'(x)/A(x) is divisible by prime(n) for n > 1") is by Paul D. Hanna.
-
-## Status
-
-Triage: open (listed only as a conjecture in the entry; no proof found in the
-literature).  This module proves it (`prime_dvd_a`), together with the
-integrality of the coefficients of `F` (`exists_int_f`) and of `A`
-(`a_eq_coeff_AZ`), and the existence/uniqueness of `F` (`coeff_F_pow_prime`,
-`eq_F_of_coeff_pow_prime`).  Numerically re-checked (exact integer arithmetic)
-for `2 ≤ n ≤ 110`.
-
-## Proof idea
-
-(1) Mod `p`, `G^p ≡ G(x^p)`, so `p ∣ [x^m] G^p` for `0 < m < p`; with
-`m < p_m` this makes every `f_m` an integer.  (2) With `H = F^p`, `p = p_n`:
-`x H' = p A H`, so `[x^n] (A H) = 0`; every term `a_i H_{n-i}` with `0 < i < n`
-has `0 < n - i < p`, hence `p ∣ H_{n-i}`, and `a_0 = 0`, `H_0 = 1`; so `p ∣ a_n`.
+OEIS A381355 and A381353, Paul D. Hanna; the conjecture comment is unsigned.
+The normalized rational series `F`, with constant and linear coefficients
+`1`, is uniquely determined by `[X^n] F^prime(n) = 0` for `n ≥ 2`.
+Its coefficients and those of `A = XF'/F` are integral. For every `n ≥ 2`,
+`prime(n)` divides the integer coefficient `a(n)`.
+The proof uses prime-power coefficient divisibility and `X(F^p)' = pAF^p`.
 -/
 import Mathlib
 
@@ -83,7 +59,7 @@ theorem coeff_pow_eq_coeff_trunc_pow_add {R : Type*} [CommRing R] (φ : R⟦X⟧
     Polynomial.coeff_coe, mul_comm]
 
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `prime n` is the `n`-th prime `p_n`, one-indexed: `prime 1 = 2`, `prime 2 = 3`. -/
 noncomputable def prime (n : ℕ) : ℕ := Nat.nth Nat.Prime (n - 1)
@@ -347,7 +323,7 @@ theorem prime_dvd_a (n : ℕ) (hn : 2 ≤ n) : ∃ z : ℤ, a n = z ∧ (prime n
   exact_mod_cast h
 
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- `A F = x F'`, the defining identity of `A = x F'/F`. -/
 theorem A_mul_F : A * F = PowerSeries.X * d⁄dX ℚ F := by

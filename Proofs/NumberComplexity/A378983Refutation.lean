@@ -1,31 +1,11 @@
 /-
 # A378983 — Karttunen: the square-or-twice-square terms are exactly A202274
 
-## OEIS source (retrieved with `oeis show A378983` and the live entry, 2026-10-21)
+Antti Karttunen's conjecture in OEIS A378983 (2024). A003961 is completely
+multiplicative with `prime(i) ↦ prime(i+1)`; A028982 consists of positive
+squares and twice squares, and A202274 of positive `k` with `σ(k)+1=2^m`.
 
-```
-NAME:     Numbers k such that (A003961(k)-2*k) divides (A003961(k)-(1+sigma(k))),
-          where A003961 is fully multiplicative with a(prime(i)) = prime(i+1),
-          and sigma is the sum of divisors function.
-TERMS:    1,2,3,4,5,8,10,11,15,16,17,25,26,29,32,33,35,39,41,57,59,64,71,93,
-          101,107,125,128,137,149,161,179,191,197,227,239,256,269,281,311,347,
-          419,431,461,512,521,569,599,617,641,659,782,809,821,827,857,881,1019,
-          1024,1030,1031,1034,1049,1054,1061,1091,1151
-COMMENT (the only comment; the conjecture):
-  Conjecture: A202274 gives all terms of A028982 that occur in this sequence.
-AUTHOR:   Antti Karttunen, Dec 13 2024
-```
-
-The comment is unsigned, so it is the author's (Antti Karttunen, Dec 13 2024).
-The entry has no later comment retracting it.  Cross-referenced entries:
-
-* A003961: completely multiplicative with `a(prime(k)) = prime(k+1)`.
-* A028982: squares and twice squares (positive terms).
-* A202274: numbers `k` for which `sigma(k) = 2^m - 1` for some `m`.
-
-## Status
-
-**False.**  This module refutes the conjecture with `k = 970225`:
+The conjecture fails at `k = 970225`:
 
 * `k = 5^2 · 197^2 = 985^2`, a square, so `k ∈ A028982`;
 * `A003961(k) = 7^2 · 199^2 = 1393^2 = 1940449`, so `A003961(k) - 2k = -1`
@@ -33,12 +13,6 @@ The entry has no later comment retracting it.  Cross-referenced entries:
   so `k ∈ A378983`;
 * `sigma(k) = 31 · 39007 = 1209217` and `sigma(k) + 1 = 1209218 = 2 · 604609`
   is not a power of two, so `k ∉ A202274`.
-
-Computational evidence (Sage, 2026-10-21): the definitions below reproduce all
-67 listed terms of A378983; among the 53982 squares and twice squares up to
-`10^9`, the only one where A378983 membership and A202274 membership disagree
-is `970225`.  (The triage scan to `10^12` reported no further disagreement.)
-The b-file (`n ≤ 20000`) ends below `970225`.
 
 ## Formal conventions
 
@@ -61,7 +35,7 @@ open scoped ArithmeticFunction.sigma
 
 namespace Candidates.A378983Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The least prime strictly greater than `p`; on the `i`-th prime it returns
 the `(i+1)`-th prime. -/
@@ -83,7 +57,7 @@ def IsA028982 (k : ℕ) : Prop := 0 < k ∧ (IsSquare k ∨ ∃ m : ℕ, k = 2 *
 `σ(k) + 1 = 2^m`. -/
 def IsA202274 (k : ℕ) : Prop := 0 < k ∧ ∃ m : ℕ, σ 1 k + 1 = 2 ^ m
 
-/-- Membership in A378983 is decidable (used only for the ground-truth checks). -/
+/-- Membership in A378983 is decidable (used only for the examples). -/
 instance (k : ℕ) : Decidable (IsA378983 k) := by
   unfold IsA378983
   infer_instance
@@ -133,7 +107,7 @@ theorem nextPrime_197 : nextPrime 197 = 199 :=
     obtain rfl : n = 198 := by omega
     norm_num
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- `A003961(1..10) = 1, 3, 5, 9, 7, 15, 11, 27, 25, 21` (OEIS A003961).
 example : (List.range 10).map (fun n => a003961 (n + 1)) =
@@ -187,10 +161,7 @@ example (k : ℕ) (hk : k < 42) :
 
 /-! ## The conjecture -/
 
-/-- **Karttunen's conjecture (A378983, Antti Karttunen, Dec 13 2024).**
-
-Verbatim: "Conjecture: A202274 gives all terms of A028982 that occur in this
-sequence."
+/-- **Karttunen's conjecture (A378983, Antti Karttunen, 2024).**
 
 Formalized: a natural number is a square-or-twice-square term of A378983 if
 and only if it is a term of A202274. -/
@@ -245,9 +216,7 @@ Counterexample: `k = 970225 = 985^2 = 5^2 · 197^2`.  It is a square, and
 `-1 ∣ A003961(k) - (1 + σ(k))` puts `k` in A378983.  But
 `σ(k) + 1 = 1209218 = 2 · 604609` is not a power of two, so `k ∉ A202274`.
 The same mechanism admits `25` (`A003961(25) - 50 = -1`), where it happens
-that `σ(25) = 31` is a Mersenne number.  The conjecture was probably
-extrapolated from the b-file range `n ≤ 20000`, which ends below `970225`;
-no corrected form is evident beyond excluding such `-1` coincidences. -/
+that `σ(25) = 31` is a Mersenne number. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   exact not_isA202274_witness

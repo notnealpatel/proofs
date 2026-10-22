@@ -1,28 +1,10 @@
 /-
 # A343260 — Bala: `a(p^r) ≡ 1 (mod p^(2r))` for `a(n) = 2 T_n((n+1)/2)`
 
-## OEIS source (retrieved with `oeis show A343260`, 2026-10-21)
+Peter Bala's conjecture in OEIS A343260 (2024): for primes `p ≥ 5` and
+positive `r`, `a(p^r) ≡ 1 (mod p^(2r))`, with `a(n)=2T_n((n+1)/2)`.
 
-```
-NAME:     a(n) = 2 * T(n,(n+1)/2) where T(n,x) is a Chebyshev polynomial of the
-          first kind.
-TERMS:    2,2,7,52,527,6726,103682,1874888,38925119,912670090,23855111399,
-          687808321212,21687295069442,742397047217294,27420344506901023,...
-FORMULA:  a(n) = 2 * cos(n*arccos((n+1)/2)).
-FORMULA:  a(n) = 2 * n * Sum_{k=0..n} (n-1)^k * binomial(n+k,2*k)/(n+k) for n > 0.
-FORMULA (the conjecture):
-  Conjecture: a(p^r) == 1 (mod p^(2*r)) for positive integer r and all primes
-  p >= 5. - _Peter Bala_, Mar 11 2024
-```
-
-## Status
-
-Triage: open (no proof in the entry or, as far as the triage could tell, in the
-literature).  Computation (Python, exact integers): the congruence holds for all
-primes `5 ≤ p ≤ 37` and `r ≥ 1` with `p^r ≤ 3000`, and the stronger
-`a(n) ≡ 2 cos(nπ/3) (mod n^2)` holds for all `1 ≤ n < 800`.
-
-## Proof strategy (formalized below)
+## Proof strategy
 
 `a(n) = C_n(n+1)` where `C_n` is the Vieta–Lucas polynomial
 (`Polynomial.Chebyshev.C`, `C_n(2x) = 2 T_n(x)`).  For every integer `m` and
@@ -30,8 +12,7 @@ every `k`, `C_k(1+m) ≡ c_k + m k s_k (mod m^2)`, where `c_k = C_k(1)` and
 `s` satisfies `s_0 = 0, s_1 = 1, s_{k+2} = s_{k+1} - s_k`.  Taking `m = k = n`
 gives `a(n) ≡ c_n (mod n^2)`; `c` has period 6 and `c_n = 1` when
 `gcd(n, 6) = 1`.  This proves Bala's conjecture and extends it to every `n`
-coprime to `6`.  The module is `sorry`-free; axiom audit (2026-10-21):
-`propext`, `Classical.choice`, `Quot.sound` only.
+coprime to `6`.
 -/
 import Mathlib
 
@@ -41,9 +22,9 @@ namespace Candidates.A343260ChebyshevPolynomialFirst
 
 open Polynomial Polynomial.Chebyshev
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
-/-- The OEIS definition verbatim: `a(n) = 2 * T(n, (n+1)/2)` with `T` the Chebyshev
+/-- OEIS A343260: `a(n) = 2 * T(n, (n+1)/2)` with `T` the Chebyshev
 polynomial of the first kind (`Polynomial.Chebyshev.T`), evaluated over `ℚ`. -/
 noncomputable def aQ (n : ℕ) : ℚ := 2 * (T ℚ n).eval (((n : ℚ) + 1) / 2)
 
@@ -215,11 +196,10 @@ theorem a_prime_pow_modEq_one (p r : ℕ) (hp : p.Prime) (h5 : 5 ≤ p) :
     rw [← pow_mul, mul_comm]
   rwa [e] at hm
 
-/-- **Bala's conjecture (A343260, Peter Bala, Mar 11 2024).**
-Verbatim: "Conjecture: a(p^r) == 1 (mod p^(2*r)) for positive integer r and all
-primes p >= 5."  Here `a(n) = C_n(n+1) = 2 T_n((n+1)/2)` (bridge `aQ_eq_a`).
-The hypothesis `1 ≤ r` is kept from the source; the proof does not need it
-(`a_prime_pow_modEq_one`). -/
+/-- Bala's conjecture (OEIS A343260, 2024): for prime `p ≥ 5` and `r ≥ 1`,
+`a(p^r) ≡ 1 (mod p^(2r))`, with `a(n)=C_n(n+1)=2T_n((n+1)/2)`
+(`aQ_eq_a`). The source's `1 ≤ r` is retained, though
+`a_prime_pow_modEq_one` also covers `r=0`. -/
 theorem bala_conjecture (p r : ℕ) (hp : p.Prime) (h5 : 5 ≤ p) (_hr : 1 ≤ r) :
     a (p ^ r) ≡ 1 [ZMOD (p : ℤ) ^ (2 * r)] := by
   exact a_prime_pow_modEq_one p r hp h5

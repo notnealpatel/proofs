@@ -1,36 +1,12 @@
 /-
-# A270753 — refutation of Mathar's conjecture `a(n) = A066169(n-1)` for `n > 2`
+# A counterexample to Mathar's A270753 formula
 
-## OEIS source (retrieved with `oeis show A270753`, 2026-10-21)
-
-```
-A270753
-NAME:     The least prime q > p for which n = p + q - r for some prime r,
-          where p = A270003(n).
-TERMS:    5,3,3,5,5,7,7,11,11,11,11,13,13,17,17,17,17,19,19,23,23,23,23,29,29,
-          29,29,29,29,31,31,37,37,37,37,37,37,41,41,41,41,43,43,47,47,47,47,53,
-          53,53,53,53,53,59,59,59,59,59,59,61,61,67,67,67,67,67
-FORMULA (the conjecture):
-  Conjecture: a(n) = A066169(n-1) for n>2. - _R. J. Mathar_, Jun 21 2025
-```
-
-No comment or later formula line on the entry retracts the conjecture.
-
-Auxiliary entries (same retrieval):
-
-* A270003, "Least prime p such that n = p + q - r for some primes q and r
-  with q > p."
-* A066169, "Least k such that phi(k) >= n."
-
-## Result
-
-The conjecture is **false**; this module refutes it.  At `n = 90` we have
-`A270003(90) = 2`, and the least prime `q > 2` with `90 + r = 2 + q` for a
-prime `r` is `q = 101` (`r = 13`): `q = 89` gives `r = 1` and `q = 97` gives
-`r = 9`.  So `A270753(90) = 101`, while `A066169(89) = 97`.  A Python
-recomputation (2026-10-21) reproduces all 66 listed terms and finds the first
-mismatches at `n = 90, 91, 114, 115, 120, 121, 142, 143, 184, 185`; the stored
-data stop at `n = 66`, which is why the conjecture fit them.
+Source: R. J. Mathar's OEIS A270753 formula (Jun 21 2025), with A270003
+and A066169. The proposed identity `a(n)=A066169(n-1)` for `n>2` fails at 90:
+`A270003(90)=2`, the least qualifying prime `q` is 101 (using `r=13`),
+while the least `k` with `φ(k) ≥ 89` is 97.
+Least-prime values are expressed relationally, so the counterexample
+includes existence and minimality rather than assuming global existence.
 -/
 import Mathlib
 
@@ -109,7 +85,7 @@ theorem isA270753_of (n p q : ℕ) (hp : IsA270003 n p) (hq : q.Prime) (hpq : p 
   rw [witness_iff]
   exact hmin q' hq' hq'p hpq'
 
-/-! ## Ground truth against the listed terms -/
+/-! ## Listed terms -/
 
 /-- `A270003(1) = 3` (first listed term): `p = 2` fails because `r = q + 1` is even
 and larger than `2` for every odd prime `q`, while `1 = 3 + 5 - 7`. -/
@@ -160,14 +136,9 @@ example : A066169 7 = 11 := A066169_eq_of 7 11 (by decide) (by decide)
 
 /-! ## The conjecture and its refutation -/
 
-/-- **Mathar's conjecture (A270753, R. J. Mathar, Jun 21 2025).**
-
-Verbatim: "Conjecture: a(n) = A066169(n-1) for n>2."
-
-The statement is relational in `a(n)`: whenever `q = A270753(n)` is defined,
-`q = A066169(n - 1)`.  This is the weakest reading (it is vacuous at any `n`
-where A270003 or A270753 is undefined), so refuting it refutes every reading.
-The truncated `n - 1` is guarded by `2 < n`. -/
+/-- Mathar's A270753 identity for `n>2`, stated relationally: whenever
+the least qualifying prime `q` exists, it equals `A066169(n-1)`.
+The guard makes `n-1` exact; the counterexample supplies such a `q`. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 2 < n → ∀ q : ℕ, IsA270753 n q → q = A066169 (n - 1)
 
@@ -183,11 +154,8 @@ theorem isA270753_ninety : IsA270753 90 101 :=
 theorem A066169_eighty_nine : A066169 89 = 97 :=
   A066169_eq_of 89 97 (by decide) (by decide)
 
-/-- **Mathar's conjecture is false.** Counterexample `n = 90`:
-`A270753(90) = 101` but `A066169(89) = 97`.  The conjectured identity
-`A270753(n) = nextprime(n - 1)` (the value of `A066169(n - 1)` for `n > 2`) fails
-whenever `r = p + nextprime(n - 1) - n` is not prime; the first failures are
-`n = 90, 91, 114, 115, 120`. -/
+/-- Mathar's identity fails at `n=90`: the least qualifying prime in
+A270753 is 101, whereas `A066169(89)=97`. -/
 theorem a270753_mathar_false : ¬ Conjecture := by
   intro hconj
   have hq : (101 : ℕ) = A066169 (90 - 1) := hconj 90 (by norm_num) 101 isA270753_ninety

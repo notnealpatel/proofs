@@ -1,38 +1,11 @@
 /-
 # A006308 — Somos: the coefficients of period polynomials are `p(p-1)/2`
 
-## OEIS source (retrieved with `oeis show A006308`, 2026-10-21)
+Michael Somos's conjecture in OEIS A006308 (2020), using Sean A. Irvine's
+period-polynomial definition (2017). The listed terms start at the odd prime
+`p = 3` (offset 2).
 
-```
-NAME:     Coefficients of period polynomials.
-TERMS:    3,10,21,55,78,136,171,253,406,465,666,820,903,1081,1378,1711,1830,
-          2211,2485,2628,3081,3403,3916,4656,5050
-KEYWORDS: nonn
-FORMULA (the definition, Sean A. Irvine, Mar 07 2017):
-  For an odd prime p, let g be a primitive root of p^2, q=g^p, and
-  zeta=exp(2*pi*i/p^2).  Define h(p,k) = Sum_{j=0..p-2} zeta^((q+k*p)*q^j)
-  and a polynomial f(p,x) = Product_{k=0..p-1} (x-h(p,k)). Finally,
-  a(n) = -[x^(p-2)] f(p,x) where p = A000040(n) is the n-th prime.
-COMMENT (the conjecture):
-  Conjecture: a(n) = A008837(n) = p*(p-1)/2 = Sum_{k=0..p-1} mod(k^3, p)
-  where p = prime(n). - _Michael Somos_, Feb 17 2020
-XREF:     Cf. A008837.
-```
-
-The listed terms start at `p = 3` (offset 2): `3 = 3·2/2`, `10 = 5·4/2`, ...
-
-## Status
-
-Triage: "unclear" — the entry still lists the identity as a conjecture
-(Somos 2020); the triage found no proof in the entry and did not check
-Lehmer & Lehmer (LNM 899, 1981), where it is probably implicit.  The
-triage checked the identity exactly in Sage over `ℚ(ζ_{p²})` for
-`p = 3, …, 29`; this attempt re-checked it numerically (floating point,
-three primitive roots `g` per prime) for every odd prime `p < 80`.
-
-## Result in this file
-
-The conjecture is **proved** here (`a006308_conjecture`), for every
+For every odd prime `p`, the coefficient identity holds for every
 primitive root `g` modulo `p²` (so the value is independent of `g`), and in
 the more general form `neg_coeff_periodPoly` for every primitive `p²`-th root
 of unity `ζ ∈ ℂ`.  The second equality of the comment,
@@ -54,7 +27,7 @@ namespace Candidates.A006308OddPrimePrimitive
 
 open Polynomial Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `ζ = exp(2πi/p²)`, the primitive `p²`-th root of unity of the entry. -/
 noncomputable def zeta (p : ℕ) : ℂ :=
@@ -69,7 +42,7 @@ noncomputable def periodSum (p g : ℕ) (ζ : ℂ) (k : ℕ) : ℂ :=
 noncomputable def periodPoly (p g : ℕ) (ζ : ℂ) : ℂ[X] :=
   ∏ k ∈ range p, (X - C (periodSum p g ζ k))
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The listed terms are `p(p-1)/2` for the odd primes `p = 3, …, 101`. -/
 example : [3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73,
@@ -377,15 +350,10 @@ theorem neg_coeff_periodPoly (p g : ℕ) (hp : p.Prime) (hp2 : p ≠ 2)
   rw [periodPoly]
   linear_combination (-1 / 2 : ℂ) * hkey
 
-/-- **Somos's conjecture (A006308, Michael Somos, Feb 17 2020).**
-
-Verbatim: "Conjecture: a(n) = A008837(n) = p*(p-1)/2 = Sum_{k=0..p-1} mod(k^3, p) where
-p = prime(n)", where (Sean A. Irvine, Mar 07 2017) `a(n) = -[x^(p-2)] f(p,x)` with
-`f(p,x) = Π_{k=0}^{p-1} (x - h(p,k))`, `h(p,k) = Σ_{j=0}^{p-2} ζ^((q+kp) q^j)`, `q = g^p`,
-`g` a primitive root of `p²`, and `ζ = exp(2πi/p²)`.
-
-Here: for every odd prime `p` and every `g` of multiplicative order `p(p-1) = φ(p²)` modulo
-`p²`, `-[x^(p-2)] f(p,x) = p(p-1)/2`.  The second equality is `sum_cube_mod_eq`. -/
+/-- Somos's conjecture (OEIS A006308, 2020), using Irvine's period polynomial:
+for every odd prime `p` and every primitive root `g` modulo `p²`,
+`-[x^(p-2)] f(p,x) = p(p-1)/2`, with `ζ = exp(2πi/p²)` and `q = g^p`.
+The second equality, with `Σ_{k<p} (k³ mod p)`, is `sum_cube_mod_eq`. -/
 theorem a006308_conjecture (p g : ℕ) (hp : p.Prime) (hp2 : p ≠ 2)
     (hg : orderOf (g : ZMod (p ^ 2)) = p * (p - 1)) :
     -(periodPoly p g (zeta p)).coeff (p - 2) = (p : ℂ) * ((p : ℂ) - 1) / 2 :=

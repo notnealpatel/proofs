@@ -1,37 +1,15 @@
 /-
-# A106249 — Lagneau: roots of `x^n + 1` in the left half-plane (refuted)
+# A106249: roots in the left half-plane and an index shift
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A106249` and the live
-## entry https://oeis.org/A106249)
+OEIS A106249 (Paul Barry, 2005-04-27) is the coefficient sequence of
+`(1-x+x²+x³)/((1+x)(1+x²)(1-x)²)`. Michel Lagneau's conjecture
+(2012-10-31) identifies `a(n)` with the number of roots of `x^n + 1` in
+the left half-plane for `n > 0`.
 
-```
-NAME:     Expansion of (1-x+x^2+x^3)/((1+x)*(1+x^2)*(1-x)^2).
-OFFSET:   0
-TERMS:    1,0,1,2,3,2,3,4,5,4,5,6,7,6,7,8,9,8,9,10,11,10,11,12,13,12,13,14,
-          15,14,15,16,17,16,17,18,19,18,19,20,21,20,21,22,23,22,23,24,...
-COMMENT:  Conjecture: number of roots of x^n + 1 in the left half-plane for
-          n > 0. - _Michel Lagneau_, Oct 31 2012
-FORMULA:  G.f.: (1-x+x^2+x^3)/(1-x-x^4+x^5)
-          = (1+x^2+2*x^3+x^4+2*x^5+x^6)/(1-x^4)^2.
-MATH:     LinearRecurrence[{1,0,0,1,-1},{1,0,1,2,3},80]
-AUTHOR:   _Paul Barry_, Apr 27 2005
-```
-
-No later comment retracts or corrects the conjecture.  (Lagneau's companion
-formula "a(n) = numbers of times cos(-Pi/n+2k*Pi/n) < 0 for k = 0..n-1",
-Nov 02 2012, counts the same roots and is off by one in the same way; it is
-not formalized here.)
-
-## Status
-
-This module **refutes** the conjecture.  For `n = 1`, `x + 1` has the single
-root `-1`, which lies in the left half-plane, while `a(1) = 0`
-(`conjecture_false`).  The conjecture is in fact false for every `n > 0`:
-the root counts for `n = 1, 2, 3, ...` are `1, 0, 1, 2, 3, 2, ...`, the
-sequence itself without its offset shift.  The corrected statement, that the
-number of roots of `x^(n+1) + 1` with negative real part is `a(n)`, is proved
-below as `ncard_leftRoots_succ`.  (Since `-1` has real part `< 0`, `n = 1`
-also refutes the reading with the closed half-plane.)
+At `n = 1` there is one such root, `-1`, but `a(1) = 0`, giving
+`conjecture_false`. The shifted identity `ncard_leftRoots_succ` counts
+the roots of `x^(n+1) + 1` with strictly negative real part and equals
+`a(n)`. The counterexample also applies to the closed half-plane reading.
 -/
 import Mathlib
 
@@ -59,7 +37,7 @@ def a : ℕ → ℤ
 /-- The set of roots of `x^n + 1` in the open left half-plane `Re z < 0`. -/
 def leftRoots (n : ℕ) : Set ℂ := {z : ℂ | z ^ n + 1 = 0 ∧ z.re < 0}
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 -- The recurrence reproduces the DATA line.
 example : (List.range 24).map a =
@@ -115,9 +93,9 @@ count is cast to `ℤ`, where `a` takes its values. -/
 def Conjecture : Prop :=
   ∀ n : ℕ, 0 < n → ((leftRoots n).ncard : ℤ) = a n
 
-/-- **The conjecture is false**, with counterexample `n = 1`: `x + 1` has one
-root (`-1`) in the left half-plane, but `a(1) = 0`.  The author evidently
-intended the offset-shifted count `a(n-1)`; see `ncard_leftRoots_succ`. -/
+/-- Lagneau's conjecture is false at `n = 1`: `x + 1` has one root (`-1`)
+in the left half-plane, but `a(1) = 0`. See `ncard_leftRoots_succ` for the
+shifted identity. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   have h1 := h 1 Nat.one_pos
@@ -278,7 +256,7 @@ theorem leftRoots_eq (n : ℕ) (hn : 0 < n) :
     rw [root_re]
     exact (cos_neg_iff n k hk).mpr hcond
 
-/-- **Corrected form (proved).** For every `n`, the number of roots of
+/-- **Shifted root-count identity.** For every `n`, the number of roots of
 `x^(n+1) + 1` in the open left half-plane is `a(n)`; that is, Lagneau's count
 holds with the index shifted by one. -/
 theorem ncard_leftRoots_succ (n : ℕ) : ((leftRoots (n + 1)).ncard : ℤ) = a n := by

@@ -1,32 +1,17 @@
 /-
-# VC-dimension of the linear Green-Sanders example GS(p,n)
+# VC-dimension of the linear Green–Sanders example
 
-## Source
+V. Gladkova, *On a conjecture of Terry and Wolf*, arXiv:2411.05612,
+Definitions 1.1, 1.2, 2.1 and Theorems 2.2, 1.2. The upper bound 3 is
+originally Terry–Wolf, Corollary A.10. The set GS(p,n) consists of vectors
+whose first nonzero coordinate equals 1.
 
-arXiv:2411.05612, V. Gladkova, "On a conjecture of Terry and Wolf".  Section 2,
-Theorem 2.2 (`theorem:vc-gs`) and Theorem 1.2 (`thm:vcp5`); Definitions 1.1
-(`def:linear-gs`), 1.2 (`def:vcdim`) and 2.1 (`def:vcfam`).  The bound 3 is
-originally Terry-Wolf, Corollary A.10.  Recorded 2026-10-21.
+For odd primes the translate family has VC-dimension at most 3; for
+`p ≥ 5`, `n ≥ 2` it has dimension exactly 2. Theorem 1.2 as printed omits
+the necessary `n ≥ 2`: `GS(p,1) = {1}` has dimension at most 1, whereas
+the paper's lower-bound witness `{0,w₂}` needs a second coordinate.
 
-Verbatim (Definition 1.1): "Let $w_1, \ldots, w_n$ denote the standard basis
-of $\mathbb{F}_p^n$.  The linear Green-Sanders example in $\mathbb{F}_p^n$ is
-defined as $\GS(p, n) = \{x \in \mathbb{F}_p^n : \exists i\ w_j^T x = 0
-\text{ for } j < i, w_i^T x = 1\}$."
-
-Verbatim (Theorem 2.2): "For all primes $p > 2$ and all $n$, $\GS(p,n)$ has
-VC-dimension at most 3."
-
-Verbatim (Theorem 1.2): "For all primes $p \geq 5$ and all
-$n\in \mathbb{N}$, the VC-dimension of $\GS(p,n)$ is 2."
-
-## Status
-
-Proved in the paper.  Theorem 1.2 as printed is false at `n = 1`
-(`GS(p,1) = {1}` has VC-dimension at most 1, proved below as
-`vcDim_translates_GS_one_le_one`); the lower-bound witness `{0, w_2}`
-used in the paper needs `n ≥ 2`, which is the hypothesis used here.
-
-## Formalization
+## Conventions
 
 `A` shatters `S` (via translates) when for every `T ⊆ S` there is `y` with
 `s + y ∈ A ↔ s ∈ T` for all `s ∈ S`; that is, the family
@@ -57,7 +42,7 @@ def TranslShatters {G : Type*} [Add G] (A : Set G) (S : Finset G) : Prop :=
 instance (p n : ℕ) : DecidablePred (· ∈ GS p n) := fun x =>
   inferInstanceAs (Decidable (∃ i, (∀ j < i, x j = 0) ∧ x i = 1))
 
-/-! Ground truth for `GS` on small instances. -/
+/-! Examples of `GS` on small instances. -/
 
 /-- `(1, 2) ∈ GS(3,2)`. -/
 example : (![1, 2] : Fin 2 → ZMod 3) ∈ GS 3 2 := ⟨0, by decide, rfl⟩
@@ -75,7 +60,7 @@ example : (0 : Fin 2 → ZMod 3) ∉ GS 3 2 := by unfold GS; decide
 example : (Finset.univ.filter fun x : Fin 2 → ZMod 3 => x ∈ GS 3 2).card = 4 := by
   decide
 
-/-- Ground truth for `TranslShatters`: translates of `{1} ⊆ ZMod 3` shatter `{0}` but
+/-- Translates of `{1} ⊆ ZMod 3` shatter `{0}` but
 not `{0, 1}`. -/
 example : TranslShatters ({1} : Set (ZMod 3)) {0} := by
   intro T hT

@@ -1,46 +1,14 @@
 /-
-# A365777 — Bala: `a(n) mod k` has eventual period dividing `phi(k)` (refuted at `k = 4`)
+# A counterexample modulus for A365777
 
-## OEIS source (retrieved with `oeis show A365777`, 2026-10-21)
-
-```
-NAME:     Expansion of e.g.f. (exp(2*x) / (2 - exp(2*x)))^(3/4).
-TERMS:    1,3,15,117,1257,17163,284055,5522877,123344817,3111071283,
-          87454712895,2710961144037,91862770847577,3378032307195003,...
-FORMULA:  a(n) = Sum_{k=0..n} (-2)^(n-k) * (Product_{j=0..k-1} (4*j+3))
-          * Stirling2(n,k).
-FORMULA:  a(0) = 1; a(n) = 3*a(n-1) + Sum_{k=1..n-1} 2^k * binomial(n-1,k)
-          * a(n-k).
-COMMENT (the conjecture):
-  Conjecture: the sequence a(n) taken modulo a positive integer k is
-  eventually periodic with the period dividing phi(k). For example, the
-  sequence taken modulo 21 begins [1, 3, 15, 12, 18, 6, 9, 3, 15, 12, 18, 6,
-  9, 3, 15, 12, 18, 6, 9, ...] with an apparent period of 6 (= phi(21)/2)
-  starting at n = 1. - _Peter Bala_, Oct 23 2025
-```
-
-No later comment in the entry retracts or amends the conjecture.
-
-## Status
-
-This module **refutes** the conjecture.  Modulo `k = 4` the residues of
-`a(n)` are `1, 3, 3, 1, 1, 3, 3, 1, ...`, with exact period `4`, while
-`phi(4) = 2`.  The proof: every term of the recurrence with `k ≥ 2` carries
-a factor `2^k ≡ 0 (mod 4)`, so `a(n+1) ≡ (2n+3) a(n) (mod 4)`, hence
-`a(n+2) ≡ 3 a(n) (mod 4)`; since every `a(n)` is odd, `a(n+2) ≢ a(n)
-(mod 4)` for all `n`.  A Python check (`n < 200`, moduli `1..129`) found
-`k = 4` to be the only failing modulus in that range; mod `8` the period is
-`4 = phi(8)`.
-
-## Definitional fidelity
-
-The sequence is defined by the entry's recurrence
-`a(n) = 3 a(n-1) + Sum_{k=1..n-1} 2^k binomial(n-1,k) a(n-k)`, reindexed as
-`a(n+1) = 3 a(n) + Sum_{k<n} 2^(k+1) binomial(n,k+1) a(n-k)`.  It is checked
-against the first eleven listed terms, and against the entry's independent
-Stirling-number closed form for `n ≤ 10`.  The e.g.f. identity itself is
-not formalized (it is the entry's own formula, not part of the claim being
-refuted).
+Source: Peter Bala's OEIS A365777 comment (Oct 23 2025).
+For the source recurrence, `a(n+2) ≡ 3a(n) (mod 4)` and every term is odd.
+Thus no eventual period divides `φ(4)=2`, refuting the proposed totient bound;
+period 4 modulo 4 is proved.
+The sequence is defined by the entry's recurrence, with finite checks
+against its data and Stirling formula. The EGF
+`(exp(2x)/(2-exp(2x)))^(3/4)` is not identified formally here.
+No assertion about other moduli is made.
 -/
 import Mathlib
 
@@ -64,7 +32,7 @@ def aStirling (n : ℕ) : ℤ :=
   ∑ k ∈ Finset.range (n + 1),
     (-2 : ℤ) ^ (n - k) * (∏ j ∈ Finset.range k, (4 * (j : ℤ) + 3)) * n.stirlingSecond k
 
-/-! ## Ground truth against the listed terms -/
+/-! ## Listed terms -/
 
 example : a 0 = 1 := by norm_num [a]
 example : a 1 = 3 := by norm_num [a]
@@ -83,13 +51,8 @@ example : aStirling 10 = 87454712895 := by decide
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjecture (A365777, Peter Bala, Oct 23 2025).**
-
-Verbatim: "Conjecture: the sequence a(n) taken modulo a positive integer k is
-eventually periodic with the period dividing phi(k)."
-
-Formalized: for every `k > 0` there is a positive period `p ∣ φ(k)` and a
-threshold `N` with `a(n + p) ≡ a(n) (mod k)` for all `n ≥ N`. -/
+/-- Bala's A365777 assertion: for every positive modulus there is a
+positive eventual period dividing its totient. -/
 def Conjecture : Prop :=
   ∀ k : ℕ, 0 < k → ∃ p : ℕ, 0 < p ∧ p ∣ Nat.totient k ∧
     ∃ N : ℕ, ∀ n : ℕ, N ≤ n → a (n + p) ≡ a n [MOD k]
@@ -164,13 +127,9 @@ theorem a_add_four_modEq (n : ℕ) : a (n + 4) ≡ a n [MOD 4] := by
 
 /-! ## The refutation -/
 
-/-- **Bala's A365777 conjecture is false**, with counterexample modulus
-`k = 4`.  Here `phi(4) = 2`, so the only admissible periods are `1` and `2`,
-and either would give `a(n+2) ≡ a(n) (mod 4)` for large `n`; but
-`a(n+2) ≡ 3 a(n) (mod 4)` with `a(n)` odd for every `n`.  The true period
-modulo 4 is `4` (`a_add_four_modEq`).  Computation over moduli `1..129`
-finds `4` as the only exception, so the author probably intended the claim
-for moduli `k ≠ 4` (or with period dividing `2 phi(k)` at `k = 4`). -/
+/-- Bala's totient-period bound fails modulo 4. The only positive divisors
+of `φ(4)=2` are 1 and 2, but `a(n+2) ≡ 3a(n)` and all terms are odd,
+so neither is an eventual period. Period 4 is given by `a_add_four_modEq`. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   obtain ⟨p, hp, hpd, N, hN⟩ := h 4 (by norm_num)

@@ -1,53 +1,13 @@
 /-
-# A166102 — Karttunen: the odd Jacobi-symbol conjecture
+# A166102: Karttunen's Jacobi-symbol identity
 
-## OEIS source (pulled with `oeis show A166102` and the live `/internal` page, 2026-10-21)
-
-```
-A166102  NAME:     Odd numbers k such that A166100((k-1)/2)/k is not an integer.
-         TERMS:    3,27,75,243,363,675,867,1587,1875,2187,2523,3267,5043,6075,
-                   6627,7803,8427,9075,10443,14283,15123,16875,19683,...
-         AUTHOR:   _Antti Karttunen_, Oct 13 2009
-         COMMENT:  Conjecture: a(n) = 3*A166103(n). (Checked for terms a(1)-a(92).)
-         KEYWORDS: nonn
-A166100  NAME:     Sum of those positive i <= 2n+1, for which J(i,2n+1)=+1.
-                   Here J(i,k) is the Jacobi symbol.
-         TERMS:    1,1,5,7,27,22,39,15,68,76,63,92,250,...
-A166103  NAME:     Squares of A166104.
-         TERMS:    1,9,25,81,121,225,289,529,625,729,841,1089,...
-         COMMENT:  Conjecture: a(n)=A166102(n)/3. (Checked for terms a(1)-a(92).)
-A166104  NAME:     Natural numbers whose prime factors are all congruent to 3 or 5
-                   mod 6 (i.e., are in the sequence A045410).
-         TERMS:    1,3,5,9,11,15,17,23,25,27,29,33,41,45,...
-         COMMENT:  1 is included, as it has no prime factors at all.
-```
-
-The conjecture line carries no separate signature; it is part of Karttunen's
-original Oct 13 2009 submission.
-
-## Status
-
-Triage: open (no proof in the entry or the literature found by the triage;
-the entry checked 92 terms, the triage checked every odd `k ≤ 40001`).  This
-module re-validated the characterisation for the 400 odd `k` in
-`[40003, 40801]` and for `k = 3m²`, `m` odd in `[117, 259]` (up to `201243`),
-with no mismatch, and then **proves it in full** (`a166102_conjecture`,
-`a166102_eq_three_mul_a166103`).
-
-## Proof outline
-
-Write `χ(i) = J(i,k)` for odd `k`, `S = ∑_{i<k} χ(i) i` and `S⁺ = A166100((k-1)/2)`.
-
-1. `2 S⁺ = ∑ χ(i)² i + ∑ χ(i) i` and reflecting `i ↦ k - i` shows `k ∣ ∑ χ(i)² i`,
-   so `k ∣ S⁺ ↔ k ∣ S` (`Splus_dvd_iff`).
-2. For `c` coprime to `k`, `x ↦ c x` permutes `ZMod k`, so `k ∣ S (1 - χ(c) c)`
-   (`dvd_Ssum_mul`).
-3. For each prime `p ∣ k` a Chinese-remainder multiplier `c` with
-   `p ∤ 1 - χ(c) c` exists unless `p = 3`, `v₃(k)` is odd and `k / 3^{v₃(k)}`
-   is a square; hence `k ∣ S` unless `k = 3 m²` (`dvd_Ssum_of_not_three_mul_sq`).
-4. For `k = 3 m²`, `χ(i) = J(i,3) [gcd(i,m) = 1]`, and induction over the prime
-   factors of `m` gives `S = -m² ∏_{p ∣ m} (1 - J(p,3))` (`Ssum_three_mul_sq`).
-   So `k ∣ S` iff `3` divides that product iff some `p ∣ m` has `p ≡ 1 (mod 3)`.
+OEIS A166102, Antti Karttunen (Oct 13 2009), with A166100, A166103,
+A166104 and A045410.
+For odd `k`, membership means that `k` does not divide the sum of positive
+`i ≤ k` with Jacobi symbol `J(i,k) = 1`. The predicate is equivalent to
+`k = 3x` for a member `x` of A166103 (squares of numbers whose prime factors
+are all `3` or `5` modulo `6`). Infinitude and the predicate equivalence
+give the termwise identity of the increasing nth enumerations.
 -/
 import Mathlib
 
@@ -57,7 +17,7 @@ namespace Candidates.A166102OddJacobiSymbol
 
 open Finset
 
-/-! ## Definition layer (mirrors the OEIS entries) -/
+/-! ## Definitions (mirrors the OEIS entries) -/
 
 /-- **A166100.** `A166100 n` is the sum of those positive `i ≤ 2n+1` with
 Jacobi symbol `J(i, 2n+1) = +1`. -/
@@ -77,7 +37,7 @@ def IsA166104 (n : ℕ) : Prop := 0 < n ∧ ∀ p ∈ n.primeFactors, p % 6 = 3 
 /-- **A166103** (membership). The squares of the members of A166104. -/
 def IsA166103 (x : ℕ) : Prop := ∃ n : ℕ, IsA166104 n ∧ x = n ^ 2
 
-/-! ### Ground truth against the DATA lines -/
+/-! ### Examples against the DATA lines -/
 
 -- A166100: 1, 1, 5, 7, 27, 22, ...
 example : A166100 0 = 1 := by
@@ -141,7 +101,7 @@ example : ¬ IsA166104 7 := by
 example : IsA166103 9 := ⟨3, ⟨by norm_num, by simp [Nat.prime_three.primeFactors]⟩, rfl⟩
 
 
-/-! ## Proof layer -/
+/-! ## Proofs -/
 
 /-- The internal sum `S⁺(k) = ∑_{1 ≤ i ≤ k, J(i,k) = 1} i`; `A166100 n = Splus (2n+1)`. -/
 def Splus (k : ℕ) : ℕ := ∑ i ∈ (Icc 1 k).filter (fun i : ℕ => jacobiSym (i : ℤ) k = 1), i
@@ -678,14 +638,10 @@ theorem not_dvd_Splus_iff (k : ℕ) (hk : Odd k) :
       exact (mul_dvd_mul_iff_right (by positivity)).mp hdvd
     exact not_three_dvd_gfac m hm h3
 
-/-- **Karttunen's conjecture (A166102, Antti Karttunen, Oct 13 2009), set form.**
-
-Verbatim: "Conjecture: a(n) = 3*A166103(n). (Checked for terms a(1)-a(92).)"
-
-An odd `k` fails to divide `A166100((k-1)/2)` exactly when `k = 3 x` with `x` a square of a
-number all of whose prime factors are `≡ 3` or `5 (mod 6)`.  Since A166102 and A166103 are
-the increasing enumerations of these two sets, this set equality is equivalent to the
-termwise statement, which is derived as `a166102_eq_three_mul_a166103`. -/
+/-- The predicate form of Karttunen's identity: an odd `k` fails to divide
+`A166100((k-1)/2)` iff `k = 3x` with `x` a square of a number whose prime
+factors are all `3` or `5` modulo `6`. The nth-enumeration identity follows
+in `a166102_eq_three_mul_a166103`. -/
 theorem a166102_conjecture (k : ℕ) : IsA166102 k ↔ ∃ x : ℕ, IsA166103 x ∧ k = 3 * x := by
   constructor
   · rintro ⟨hk, hnd⟩

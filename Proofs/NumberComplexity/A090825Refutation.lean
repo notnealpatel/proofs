@@ -1,38 +1,11 @@
 /-
 # A090825 — Cloitre: refutation of the A053176 membership conjecture
 
-## OEIS source (retrieved with `oeis show A090825` and checked against
-## https://oeis.org/A090825 on 2026-10-21)
-
-```
-NAME:     Nonprimes n such that (3/2)*(1/n)*(2*n+1)*(3^n+1)*B(2*n) is an
-          integer, where B(k) denotes the k-th Bernoulli number.
-TERMS:    1,49,91,119,133,169,217,221,247,259,289,301,323,329,335,343,361,
-          403,413,427,469,481,497,511,517,527,553,559,589,611,629,637,679,
-          703,707,721,731,749
-COMMENT:  Conjecture: composite numbers with all prime factors in A053176 are
-          in the sequence. For p prime (3/2)*(1/p)*(2*p+1)*(3^p+1)*B(2*p) == 1
-          (mod p). There are few terms n with
-          (3/2)*(1/n)*(2*n+1)*(3^n+1)*B(2*n) == 1 (mod n): 91,247,....Is this
-          subsequence finite?
-AUTHOR:   Benoit Cloitre, Feb 11 2004
-```
-
-A053176 is the sequence of primes `p` such that `2p + 1` is composite.  The
-live entry carries no later comment retracting the conjecture.
-
-## Status
-
-This module **refutes** the conjecture (first sentence of the comment).  The
-smallest counterexample is `n = 833 = 7^2 * 17`: both `2*7 + 1 = 15` and
-`2*17 + 1 = 35` are composite, but by von Staudt–Clausen the prime
-`239 = 2*119 + 1` divides the denominator of `B(1666)` while it divides none of
-`3`, `2*833 + 1 = 1667` or `3^833 + 1` (indeed `3^833 ≡ 1 (mod 239)`).
-
-Computational evidence (Sage, exact rationals, not part of the proof): the
-conjecture holds for every eligible composite `n < 833`; the counterexamples
-up to `2873` are `833, 1547, 2023, 2261, 2303, 2873`.  The open finiteness
-question in the same comment is not addressed here.
+OEIS A090825, Benoit Cloitre: the proposed membership criterion from
+A053176 fails at `n = 833 = 7²·17`. Although `2·7+1` and `2·17+1` are
+composite, the prime `239` survives in the denominator of
+`(3/2)(1/n)(2n+1)(3^n+1)B(2n)` by von Staudt–Clausen.
+The separate finiteness question in the source comment is not addressed.
 -/
 import Mathlib
 
@@ -59,7 +32,7 @@ is never `1`, so "composite" is "not prime"). -/
 def InA053176 (p : ℕ) : Prop :=
   p.Prime ∧ ¬ (2 * p + 1).Prime
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- First terms of A053176 (`7, 13, 17, 19`) and the excluded primes `2, 3, 5`
 (`5, 7, 11` are prime). -/
@@ -109,10 +82,7 @@ example : ¬ InA090825 4 := by
 
 /-! ## The conjecture -/
 
-/-- **Cloitre's conjecture (A090825, Benoit Cloitre, Feb 11 2004).**
-
-Verbatim: "Conjecture: composite numbers with all prime factors in A053176 are
-in the sequence."
+/-- **Cloitre's conjecture (A090825, Benoit Cloitre, 2004).**
 
 Every composite `n` (that is, `1 < n` and `n` not prime) all of whose prime
 factors lie in A053176 belongs to A090825. -/
@@ -188,16 +158,11 @@ theorem eligible_833 :
   simp only [InA053176]
   rcases hp' with rfl | rfl <;> norm_num
 
-/-- **Refutation of Cloitre's conjecture.**  `n = 833 = 7^2 * 17` is composite,
-its prime factors `7, 17` are in A053176, yet
-`(3/2) * (1/833) * 1667 * (3^833 + 1) * B(1666)` is not an integer: by
-von Staudt–Clausen the prime `239 = 2 * 119 + 1` divides the denominator of
-`B(1666)` and divides none of `3`, `1667`, `3^833 + 1`.
-
-The mechanism is a composite divisor `m = 119` of `n` with `2m + 1` prime, which
-the prime-factor hypothesis does not see.  A plausible intended hypothesis is
-that `2d + 1` be composite for every divisor `d > 1` of `n`; this stronger form
-is only supported computationally (Sage, `n ≤ 2000`) and is not proved here. -/
+/-- Cloitre’s conjecture fails at `833 = 7²·17`: both prime factors belong
+to A053176, but `239` survives in the denominator of
+`(3/2)(1/833)·1667·(3^833+1)·B(1666)`. The obstruction comes from the
+composite divisor `119`, for which `2·119+1` is prime. A stronger condition
+on every divisor `d > 1`, rather than just prime divisors, is not proved here. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   obtain ⟨h1, hnp, hfac⟩ := eligible_833

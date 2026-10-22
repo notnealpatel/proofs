@@ -1,32 +1,9 @@
 /-
 # A331021 — every k with gcd(k^2, 2^(k-1) - 1) > k is a multiple of a Wieferich prime
 
-## OEIS source (retrieved with `oeis show A331021` and https://oeis.org/A331021, 2026-10-21)
-
-```
-NAME:     Numbers k such that gcd(k^2, 2^(k-1) - 1) > k.
-TERMS:    1093,3511,398945,796797,1592501,1990353,2388205,3183909,3581761,
-          4377465,5173169,5968873,6165316,10345245,11538801,15119469,...
-COMMENT (the conjecture, unattributed and undated within the entry):
-  Conjecture: each term is a multiple of a Wieferich prime.
-COMMENT:  Prime numbers in this sequence are the Wieferich primes A001220.
-PROGRAM:  (PARI) isok(n) = gcd(n^2, 2^(n-1) - 1) > n; \\ _Michel Marcus_, Jan 07 2020
-AUTHOR:   Amiram Eldar and Thomas Ordowski, Jan 07 2020
-XREFS:    Cf. A001220, A001567.  Subsequence of A291194.
-```
-
-The conjecture line carries no separate signature; the entry's authors are
-Amiram Eldar and Thomas Ordowski (Jan 07 2020).
-
-## Status
-
-Triage (2026-10-21): open (no proof in the entry or in A291194, none found in
-the literature).  The triage checked odd k ≤ 3·10^6; this module's author
-re-checked all k ≤ 7·10^6 (13 terms, including the even term 6165316 =
-4·3511·439, each with a Wieferich prime factor 1093 or 3511) before
-formalizing.  No novelty is claimed: the argument below is elementary.
-
-## Proof (kernel-checked below)
+The conjecture in OEIS A331021 (Amiram Eldar and Thomas Ordowski) says that
+every positive `k` with `gcd(k²,2^(k-1)-1) > k` is divisible by a Wieferich
+prime (A001220).
 
 Let g = gcd(k^2, 2^(k-1) - 1) > k.  Then g ∤ k, so some prime p has
 v_p(g) > v_p(k).  As p ∣ g ∣ k^2, p ∣ k, so v_p(g) ≥ 2 and
@@ -54,7 +31,7 @@ instance : DecidablePred IsTerm := fun _ => inferInstanceAs (Decidable (_ ∧ _)
 def IsWieferich (p : ℕ) : Prop :=
   p.Prime ∧ p ^ 2 ∣ 2 ^ (p - 1) - 1
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- The first term `1093` is in the sequence (also witnesses that the
 hypothesis of the conjecture is satisfiable). -/
@@ -153,9 +130,7 @@ theorem sq_dvd_two_pow_pred_sub_one {p k : ℕ} (hp : p.Prime) (hpk : p ∣ k)
   exact (hcast _).mpr (orderOf_dvd_iff_pow_eq_one.mp hord)
 
 /-- **A331021 conjecture (OEIS comment, entry by Amiram Eldar and Thomas
-Ordowski, Jan 07 2020).**
-
-Verbatim: "Conjecture: each term is a multiple of a Wieferich prime."
+Ordowski).**
 
 For every positive integer `k` with `gcd(k^2, 2^(k-1) - 1) > k` there is a
 prime `p` with `p ∣ k` and `p^2 ∣ 2^(p-1) - 1`. -/

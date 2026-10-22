@@ -1,46 +1,26 @@
 /-
-# GKK τ-matrices (Holtz–Schneider), Problem 5: Newton's inequalities, order 3
+# Newton's inequalities for weakly sign-symmetric matrices of order three
 
-## Source
+O. Holtz and H. Schneider, "Open problems on GKK τ-matrices",
+arXiv:math/0109030 (2001), Section 2, Problem 5.
 
-O. Holtz and H. Schneider, *Open problems on GKK τ-matrices*,
-arXiv:math/0109030 (dated 20 August 2001), Section 2 ("GKK τ-matrix
-stability and related problems"), Problem 5.  The same question closes
-Chapter 1 of Holtz's thesis (arXiv:math/0512588): "Do the GKK matrices
-satisfy (newton)?".  Retrieved and re-read 2026-10-21.
+Write `A[α, β] = det A(α, β)` for increasing index sequences of equal length,
+`A[α] = A[α, α]`, and `A[∅] = 1`. Weak sign-symmetry means
+`0 ≤ A[α, β] A[β, α]` for minors of dispersal `#α - #(α ∩ β) = 1`.
+A weakly sign-symmetric `P`-matrix is GKK. Problem 5 asks whether GKK τ-matrices
+satisfy `c_{j-1} c_{j+1} ≤ c_j²` for `1 ≤ j < n`, where
+`c_j = (∑_{#α = j} A[α]) / C(n, j)`.
 
-Notation of the paper: `A[α, β] = det A(α, β)` for increasing sequences
-`α, β` of equal length, `A[α] = A[α, α]`, `A[∅] = 1`; the *dispersal* of
-`A[α, β]` is `#α - #(α ∩ β)`.  `A` is *weakly sign-symmetric* if
-`A[α, β] A[β, α] ≥ 0` for all minors of dispersal `1` (the *almost
-principal* minors); a weakly sign-symmetric `P`-matrix is called GKK.
+Here the result is restricted to real matrices of order three, under weak
+sign-symmetry alone; neither the `P`-matrix nor the τ-hypothesis is needed.
+Writing `E_j = ∑_{#α = j} A[α]`, the inequalities are
+`3 E₂ ≤ E₁²` and `3 E₁ E₃ ≤ E₂²`. No all-orders result is asserted.
 
-Verbatim (Problem 5):
-
-> **5. Newton's inequalities.** For a matrix `A`, let
-> `c_j := ∑_{#α = j} A[α] / C(n, j)`, `j = 0, …, n`.
-> Does any GKK τ-matrix `A` satisfy the inequalities
-> `c_j^2 ≥ c_{j-1} c_{j+1}`, `j = 1, …, n-1`?
-
-## Status
-
-Open in general (the paper: "Whether GKK matrices satisfy Newton's
-inequalities, however, is not known yet"; subproblem 5a, `M`-matrices,
-was later proved by Holtz, PAMS 133 (2005) 711–717).
-
-## Target formalized here (special case `n = 3`)
-
-For every real `3 × 3` weakly sign-symmetric matrix `A` (no `P`-matrix or
-τ-hypothesis is needed), Newton's inequalities `c_j^2 ≥ c_{j-1} c_{j+1}`
-hold for `j = 1, 2`.  Equivalently, with `E₁ = trace A`,
-`E₂ = ∑_{i<j} (a_ii a_jj - a_ij a_ji)`, `E₃ = det A`:
-`3 E₂ ≤ E₁²` and `3 E₁ E₃ ≤ E₂²`.  In particular every GKK τ-matrix of
-order `3` satisfies (newton).
-
-Proof: `E₁² - 3E₂ = ∑ a_ii² - ∑_{i<j} a_ii a_jj + 3 ∑_{i<j} a_ij a_ji`;
-for `j = 2` use the Desnanot–Jacobi identities
-`a_kk det A = A[ki] A[kj] - A[{k,i},{k,j}] A[{k,j},{k,i}]`, sum over `k`,
-and `3(xy + yz + zx) ≤ (x + y + z)²`.
+For the first inequality, expand
+`E₁² - 3E₂ = ∑ a_ii² - ∑_{i<j} a_ii a_jj + 3 ∑_{i<j} a_ij a_ji`.
+For the second, sum the Desnanot–Jacobi identities
+`a_kk det A = A[ki] A[kj] - A[{k,i},{k,j}] A[{k,j},{k,i}]`
+and use `3(xy + yz + zx) ≤ (x + y + z)²`.
 -/
 import Mathlib
 
@@ -217,7 +197,7 @@ theorem weaklySignSymmetric_of_isSymm {n : ℕ} {A : Matrix (Fin n) (Fin n) ℝ}
   rw [hT]
   exact mul_self_nonneg _
 
-/-- The identity matrix is GKK (a non-vacuity witness for `IsGKK`). -/
+/-- The identity matrix is GKK. -/
 theorem isGKK_one (n : ℕ) : IsGKK (1 : Matrix (Fin n) (Fin n) ℝ) := by
   refine ⟨fun α _ => ?_, weaklySignSymmetric_of_isSymm Matrix.isSymm_one⟩
   have h1 : (1 : Matrix (Fin n) (Fin n) ℝ).submatrix ((↑) : α → Fin n) ((↑) : α → Fin n) = 1 :=
@@ -226,8 +206,8 @@ theorem isGKK_one (n : ℕ) : IsGKK (1 : Matrix (Fin n) (Fin n) ℝ) := by
 
 /-! ## Main results -/
 
-/-- **Newton's inequalities for weakly sign-symmetric `3 × 3` matrices, in
-`E`-form.**  For every real weakly sign-symmetric `3 × 3` matrix `A`,
+/-- Newton's inequalities for weakly sign-symmetric `3 × 3` matrices, in
+`E`-form.  For every real weakly sign-symmetric `3 × 3` matrix `A`,
 `3 E₂ ≤ E₁²` and `3 E₁ E₃ ≤ E₂²`, where `E_j` is the sum of the `j × j`
 principal minors.  (Order-3 case of Holtz–Schneider, arXiv:math/0109030,
 Problem 5, without the `P`-matrix or τ-hypothesis.) -/
@@ -261,11 +241,11 @@ theorem newton_principalMinorSum_fin_three (A : Matrix (Fin 3) (Fin 3) ℝ)
       linarith
     nlinarith [sq_nonneg (x - y), sq_nonneg (x - z), sq_nonneg (y - z)]
 
-/-- **Newton's inequalities for weakly sign-symmetric `3 × 3` matrices.**
+/-- Newton's inequalities for weakly sign-symmetric `3 × 3` matrices.
 For every real weakly sign-symmetric `3 × 3` matrix `A` and `j = 1, 2`,
-`c_{j-1} c_{j+1} ≤ c_j²`, where `c_j = ∑_{#α = j} A[α] / C(3, j)`.  This
-answers Holtz–Schneider (arXiv:math/0109030), Problem 5, affirmatively for
-`n = 3`, without needing the `P`-matrix or τ-hypothesis. -/
+`c_{j-1} c_{j+1} ≤ c_j²`, where `c_j = ∑_{#α = j} A[α] / C(3, j)`.
+This is the order-three case of Holtz–Schneider, Problem 5, without the
+`P`-matrix or τ-hypothesis. -/
 theorem newton_fin_three (A : Matrix (Fin 3) (Fin 3) ℝ) (hA : WeaklySignSymmetric A)
     (j : ℕ) (hj1 : 1 ≤ j) (hj2 : j ≤ 2) :
     newtonCoeff A (j - 1) * newtonCoeff A (j + 1) ≤ newtonCoeff A j ^ 2 := by
@@ -278,7 +258,7 @@ theorem newton_fin_three (A : Matrix (Fin 3) (Fin 3) ℝ) (hA : WeaklySignSymmet
     norm_num [Nat.choose]
     nlinarith
 
-/-- **GKK matrices of order 3 satisfy Newton's inequalities** (Holtz–Schneider,
+/-- GKK matrices of order 3 satisfy Newton's inequalities (Holtz–Schneider,
 arXiv:math/0109030, Problem 5, case `n = 3`): if `A` is a real `3 × 3` GKK
 matrix, then `c_{j-1} c_{j+1} ≤ c_j²` for `j = 1, 2`. -/
 theorem newton_of_isGKK_fin_three (A : Matrix (Fin 3) (Fin 3) ℝ) (hA : IsGKK A)
@@ -286,7 +266,7 @@ theorem newton_of_isGKK_fin_three (A : Matrix (Fin 3) (Fin 3) ℝ) (hA : IsGKK A
     newtonCoeff A (j - 1) * newtonCoeff A (j + 1) ≤ newtonCoeff A j ^ 2 :=
   newton_fin_three A hA.2 j hj1 hj2
 
-/-! ## Ground truth and sharpness checks -/
+/-! ## Examples and sharpness -/
 
 /-- `E₂` of the `3 × 3` identity is `3`, so `c₂ = 1`. -/
 example : principalMinorSum (1 : Matrix (Fin 3) (Fin 3) ℝ) 2 = 3 := by
@@ -308,7 +288,7 @@ example :
     sub_zero, add_zero, zero_mul]
   norm_num
 
-/-- Satisfiability of the hypothesis at a non-diagonal matrix. -/
+/-- A non-diagonal symmetric matrix is weakly sign-symmetric. -/
 example : WeaklySignSymmetric !![(2 : ℝ), 1, 0; 1, 2, 1; 0, 1, 2] := by
   apply weaklySignSymmetric_of_isSymm
   ext i j

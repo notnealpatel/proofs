@@ -1,48 +1,13 @@
 /-
-# A008590 — Ratajczak: parity of the `gcd_2` / `lcd_2` sums characterizes multiples of 8
+# Parity of second-common-divisor sums (A008590)
 
-## OEIS source (retrieved with `oeis show A008590`, 2026-10-21)
+Source: Lechoslaw Ratajczak's OEIS A008590 comment (Sep 03 2017).
+For `m ≥ 2`, both sums of second greatest and second least common divisors
+over `1 ≤ k ≤ m` with `gcd(k,m) ≠ 1` are even if and only if `8 ∣ m`.
+At `m = 1` both sums are empty and even, so the lower bound is necessary.
 
-```
-NAME:     Multiples of 8.
-TERMS:    0,8,16,24,32,40,48,56,64,72,80,88,96,104,112,120,128,136,144,152,...
-COMMENT (the conjecture, From _Lechoslaw Ratajczak_, Sep 03 2017):
-  Conjecture: let gcd_2(b,c) be the second greatest common divisor and
-  lcd_2(b,c) be the second least common divisor of not coprime integers b and
-  c. Consecutive elements of this sequence (for a(n) > 0) are consecutive
-  integers m for which both Sum_{k=1..m, gcd(k,m)<>1} gcd_2(k,m) and
-  Sum_{k=1..m, gcd(k,m) <>1} lcd_2(k,m) are even numbers.
-  a(1) = 8 because 1+2+1+4 = 8 (8 is even) and 2+2+2+2 = 8 (8 is even).
-  a(2) = 16 because 1+2+1+4+1+2+1+8 = 20 (20 is even) and
-    2+2+2+2+2+2+2+2 = 16 (16 is even).
-  a(3) = 24 because 1+1+2+3+4+1+1+6+1+1+4+3+2+1+1+12 = 44 (44 is even) and
-    2+3+2+2+2+3+2+2+2+3+2+2+2+3+2+2 = 36 (36 is even).
-  The conjecture was checked for 5*10^4 consecutive integers.
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell; the entry reports a check to `5*10^4`).  Re-validated here by a
-bounded Python sweep for `2 ≤ m ≤ 20000` (no exceptions).  This module proves
-it outright (`ratajczak_conjecture`).
-
-## Reading of the conjecture
-
-"Consecutive elements ... (for a(n) > 0) are consecutive integers m for which
-both sums are even" says: the positive integers `m` with both sums even are
-exactly the positive multiples of `8`.  At `m = 1` both sums are empty (`0`,
-even) while `8 ∤ 1`, so the claim is stated for `2 ≤ m`; the sanity layer
-records the `m = 1` exception, which shows the guard is load-bearing.
-
-## Proof idea
-
-With `g = gcd(k,m) > 1`, `lcd_2(k,m) = minFac g` and `gcd_2(k,m) = g / minFac g`.
-`minFac g` is odd iff `g` is odd, and `g / minFac g` is odd iff `4 ∤ g`.  Hence,
-mod 2, the `lcd_2` sum is `(m - φ m) - #{k : 2 ∣ gcd k m}` and the `gcd_2` sum
-is `(m - φ m) - #{k : 4 ∣ gcd k m}`, where `#{k ≤ m : d ∣ gcd k m}` is `m / d`
-if `d ∣ m` and `0` otherwise.  Since `φ m` is even for `m > 2`, both are even
-iff `8 ∣ m` (the case `m = 2` has `φ 2 = 1` and is handled by the same counts).
+For `g = gcd(k,m) > 1`, the two divisors are `g/minFac g` and `minFac g`.
+Their parities reduce the claim to counting multiples of 2 and 4.
 -/
 import Mathlib
 
@@ -50,7 +15,7 @@ set_option autoImplicit false
 
 namespace Candidates.A008590GcdSecondLargest
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The common positive divisors of `k` and `m` (for `m ≠ 0`): the divisors of
 `m` that also divide `k`. -/
@@ -77,7 +42,7 @@ def gcd₂Sum (m : ℕ) : ℕ :=
 def lcd₂Sum (m : ℕ) : ℕ :=
   ∑ k ∈ (Finset.Icc 1 m).filter (fun k => Nat.gcd k m ≠ 1), lcd₂ k m
 
--- Ground truth: the worked examples of the entry (`a(1)`, `a(2)`, `a(3)`).
+-- The worked examples of the entry (`a(1)`, `a(2)`, `a(3)`).
 example : gcd₂Sum 8 = 8 := by decide
 example : lcd₂Sum 8 = 8 := by decide
 example : gcd₂Sum 16 = 20 := by decide
@@ -86,7 +51,7 @@ example : gcd₂Sum 24 = 44 := by decide
 example : lcd₂Sum 24 = 36 := by decide
 -- Individual values: `gcd_2(6, 24) = 3`, `lcd_2(6, 24) = 2`, `lcd_2(9, 24) = 3`.
 example : gcd₂ 6 24 = 3 ∧ lcd₂ 6 24 = 2 ∧ lcd₂ 9 24 = 3 := by decide
--- Ground truth against the DATA line: in `[1, 24]` the `m` with both sums even
+-- Listed terms from the DATA line: in `[1, 24]` the `m` with both sums even
 -- are `1` (empty sums) and the first positive terms `8, 16, 24`.
 example : (Finset.Icc 1 24).filter (fun m => Even (gcd₂Sum m) ∧ Even (lcd₂Sum m)) =
     {1, 8, 16, 24} := by decide
@@ -280,7 +245,7 @@ theorem ratajczak_conjecture (m : ℕ) (hm : 2 ≤ m) :
   simp only [Nat.even_iff]
   split_ifs at hy2 hw <;> omega
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- Satisfiability: the hypothesis `2 ≤ m` and the conclusion are jointly met
 -- at `m = 8`, and the theorem is not vacuous at a non-multiple (`m = 12`).

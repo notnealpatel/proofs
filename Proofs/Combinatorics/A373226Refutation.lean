@@ -1,59 +1,19 @@
 /-
 # A373226 — the odd terms are not A151907
 
-## OEIS source (retrieved from oeis.org, 2026-10-21; entry revision #20, Jun 21 2024)
+OEIS A373226 (Sidharth Ghoshal, May 28, 2024) counts points of a diagonal
+Vicsek fractal in a central `n × n` window. For even `n`, the top-left
+of the four most central placements is used. Its third conjecture identifies
+`a(2n+1)` with A151907, with both sequences at offset 0.
 
-```
-NAME:     Number of points in a diagonal Vicsek fractal subset of an n X n square.
-OFFSET:   0,3
-TERMS:    0,1,2,5,6,9,10,13,18,25,26,29,30,33,38,45,46,49,50,53,58,65,74,85,90,
-          97,110,125,126,129,130,133,138,145,146,149,150,153,158,165,174,185,
-          190,197,210,225,226,229,230,233
-FORMULA:  Conjecture: a(n) = O(n^log_3(5)). This is motivated by the log_3(5)
-          Hausdorff dimension of the diagonal Vicsek fractal.
-FORMULA:  Conjecture: a(3n) = 5*a(n). This is motivated by the recursive
-          construction of the diagonal Vicsek fractal.
-FORMULA:  Conjecture: a(2n+1) = A151907(n)
-EXAMPLE:  Generally for odd n, one can construct a diagonal Vicsek fractal on a
-          3^k X 3^k matrix such that 3^k >= n: place an n X n square in the
-          center and count the x's.
-          For even n, there are 4 ways to most "centrally" place an n X n
-          square; however, due to 4-fold symmetry of the diagonal Vicsek
-          fractal they result in the same value. In our ASCII convention above
-          we use the top-left selection.
-XREF:     Cf. A151907 (conjectured to be only the odd terms).
-AUTHOR:   _Sidharth Ghoshal_, May 28 2024
-```
+A151907 is the sequence of partial sums of A151906 (Applegate and Sloane,
+July 31, 2009); its auxiliary sequences are defined below.
 
-The conjecture lines carry no separate signature; they belong to the original
-submission of Sidharth Ghoshal, May 28 2024.  No later comment retracts the
-third conjecture.
-
-`A151907` (offset 0) is "Partial sums of A151906", where (Applegate and Sloane,
-Jul 31 2009) `A151906(0) = 0`, `A151906(1) = 1`, `A151906(n) = 8*A151905(n) + 4`
-for `n > 1`; `A151905(0) = A151905(2) = 0`, `A151905(1) = 1`, and for `n ≥ 3`,
-`n = 3*2^k + j` with `0 ≤ j < 3*2^k`, `A151905(n) = A151904(j)`;
-`A151904(6k + j) = (3^(wt(k) + f(j)) - 1)/2` for `0 ≤ j < 6`, with
-`wt = A000120` (binary weight) and `f = A151899` (period 6: `0,0,1,1,1,2`).
-
-## This module
-
-This module **refutes the third conjecture** `a(2n+1) = A151907(n)`.
-
-* Literally (offset 0 for both sequences) it fails already at `n = 0`:
-  `a(1) = 1` but `A151907(0) = 0`.
-* The evidently intended alignment `a(2n+1) = A151907(n+1)` (matching
-  `1, 5, 9, 13, 25, 29, 33, 45`) fails at `n = 8`:
-  `a(17) = 49` but `A151907(9) = 57`.
-* No index shift repairs it: `oddTerms_ne_A151907_shift`.
-
-The first two conjectures are not addressed here.  (Computation, not proof:
-`a(3n) = 5 a(n)` holds for `n ≤ 42`.)
-
-Computational re-validation (Python, 2026-10-21): the model below reproduces
-all 50 listed terms and agrees with the entry's own Python program on
-`n < 50`; the window count does not depend on the level `K` once `3^K ≥ n`
-(checked for `n < 30`, `K < 8`).
+The literal conjecture fails at `n = 0`: `a(1) = 1` but `A151907(0) = 0`.
+The shifted identity `a(2n+1) = A151907(n+1)` fails at `n = 8`:
+`a(17) = 49` but `A151907(9) = 57`. No nonnegative index shift works
+(`oddTerms_ne_A151907_shift`). The growth and scaling conjectures
+in the entry are not addressed.
 -/
 import Mathlib
 
@@ -105,7 +65,7 @@ truncated. -/
 theorem lt_three_pow_level (n : ℕ) : n < 3 ^ level n :=
   Nat.lt_pow_succ_log_self (by norm_num) n
 
-/-! ### Ground truth: the 50 listed terms of A373226 and the entry's examples -/
+/-! ### Examples: the 50 listed terms of A373226 and the entry's examples -/
 
 example : (List.range 25).map a =
     [0, 1, 2, 5, 6, 9, 10, 13, 18, 25, 26, 29, 30, 33, 38, 45, 46, 49, 50, 53,
@@ -180,19 +140,17 @@ theorem A151907_mono {m n : ℕ} (hmn : m ≤ n) : A151907 m ≤ A151907 n :=
 
 /-! ## The conjecture and its refutation -/
 
-/-- **Ghoshal's third conjecture (A373226, May 28 2024).**
-Verbatim: "Conjecture: a(2n+1) = A151907(n)", with both sequences at their
-OEIS offset 0. -/
+/-- Ghoshal's third conjecture (OEIS A373226, May 28, 2024):
+`a(2n+1) = A151907(n)`, with both sequences at offset 0. -/
 def Conjecture : Prop := ∀ n : ℕ, a (2 * n + 1) = A151907 n
 
-/-- The evidently intended alignment of the conjecture: the odd terms
-`1, 5, 9, 13, 25, 29, 33, 45, …` of A373226 are the positive terms of
-A151907, i.e. `a(2n+1) = A151907(n+1)`. -/
+/-- The shifted alignment `a(2n+1) = A151907(n+1)`, matching the initial
+odd terms `1,5,9,13,25,29,33,45`. -/
 def ShiftedConjecture : Prop := ∀ n : ℕ, a (2 * n + 1) = A151907 (n + 1)
 
-/-- **The conjecture `a(2n+1) = A151907(n)` is false.**  As written it fails at
-`n = 0` (`a(1) = 1`, `A151907(0) = 0`); the author probably intended
-`a(2n+1) = A151907(n+1)`, which is refuted in `shiftedConjecture_false`. -/
+/-- The identity `a(2n+1) = A151907(n)` fails at `n = 0`:
+`a(1) = 1`, whereas `A151907(0) = 0`. The shift by 1 is refuted
+separately in `shiftedConjecture_false`. -/
 theorem conjecture_false : ¬ Conjecture := fun h => by
   have ha : a 1 = 1 := by decide
   have hA : A151907 0 = 0 := by decide
@@ -200,8 +158,8 @@ theorem conjecture_false : ¬ Conjecture := fun h => by
   rw [ha, hA] at h0
   exact absurd h0 (by decide)
 
-/-- **The intended alignment is also false**: `a(17) = 49` but
-`A151907(9) = 57` (the case `n = 8`). -/
+/-- The shifted alignment also fails: `a(17) = 49`,
+whereas `A151907(9) = 57` (the case `n = 8`). -/
 theorem shiftedConjecture_false : ¬ ShiftedConjecture := fun h => by
   have ha : a 17 = 49 := by decide
   have hA : A151907 9 = 57 := by decide

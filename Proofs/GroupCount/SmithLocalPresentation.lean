@@ -1,43 +1,25 @@
 /-
-# Smith's 1950 conjecture: local presentations recover only `1`, `C₂`, `C₃`
+# Local presentations and Smith's conjecture
 
-## Source
+Yu Pan, *Local Presentations of Groups: Completion and Smith's Conjecture*,
+arXiv:2610.10586, Theorem 1.1, Section 2 (Lemma 2.2 and Theorem 2.3,
+(iii) ⇒ (i)), and Section 5 (Lemmas 5.2–5.3 and Theorem 5.4).
 
-arXiv:2610.10586, Yu Pan, "Local Presentations of Groups: Completion and
-Smith's Conjecture".  Retrieved 2026-10-21.
+A domain is an inverse-closed subset containing `1`. Its local presentation
+`U(X)` has generators `[x]` and relations `[1] = 1` and `[x][y] = [xy]`
+when `x, y, xy ∈ X`. Smith's property asks that evaluation `U(X) → G` be an
+isomorphism for every generating domain. Surjectivity follows from generation,
+so `SmithP` records injectivity.
 
-* Statement: Theorem 1.1 (classification), Section 1.  The definitions of a
-  domain, of `U(X)`, of `π_X` and of `P(G)` are in Section 1, display (1.1).
-* Proof route formalized here: Section 2 (Lemma 2.2, Theorem 2.3
-  (iii) ⇒ (i), the Zorn completion of local maps) and Section 5 (Lemma 5.2,
-  Lemma 5.3, the obstructions of Theorem 5.4), plus the converse in the
-  proof of Theorem 1.1.
+The classification is stated as `SmithP G ↔ Finite G ∧ Nat.card G ≤ 3`,
+equivalent to being trivial, `C₂` or `C₃`. The finite conjunct excludes the
+zero value of `Nat.card` for infinite groups.
 
-Verbatim informal claim (Section 1):
-
-  "Let `G` be a group.  A subset `X ⊆ G` is symmetric if `X⁻¹ = X`. ...  a
-  domain means a symmetric subset containing `1` ...
-  `U(X) = ⟨ [x] (x ∈ X) | [1] = 1, [x][y] = [xy] whenever x, y, xy ∈ X ⟩`.
-  ... `π_X : U(X) → ⟨X⟩, [x] ↦ x` ...  We write `P(G)` if
-  `π_X : U(X) → G` is an isomorphism for every domain `X` generating `G`."
-
-  "Theorem 1.1. For an arbitrary group `G`, the following are equivalent:
-  (i) `P(G)` holds; (ii) `G ≅ 1`, `C₂`, or `C₃`."
-
-Status: proved in the paper (Smith conjectured it in 1950, p. 438).
-
-## Formalization notes
-
-* `P(G)` asks for an isomorphism onto `G`; surjectivity is automatic for a
-  generating `X` (`surjective_evalU`), so `SmithP` records injectivity.
-* "`G ≅ 1`, `C₂` or `C₃`" is rendered as `Finite G ∧ Nat.card G ≤ 3`; a group
-  of order at most three is trivial or cyclic of prime order.  The `Finite`
-  conjunct guards the junk value `Nat.card G = 0` for infinite `G`.
-* The paper's affine target over `ℚ̄` is replaced by `Aff` over `ℂ`, as the
-  paper's countability is not used.  For the first three obstructions the
-  abelian target `ℂˣ` suffices.  The infinite-order obstruction uses the
-  values `s² ↦ -1`, `s³ ↦ 1` in place of the paper's `s² ↦ 1`, `s³ ↦ ζ₃`; the
-  finite-order obstruction uses `s ↦ 2` in place of `ζ_{n+1}`.
+The proof completes local maps by Zorn's lemma and constructs four
+obstructions. The affine target is over `ℂ` rather than `ℚ̄`; countability is
+not used. The first three obstructions use `ℂˣ`. For infinite-order elements
+the values are `s² ↦ -1`, `s³ ↦ 1`, rather than `s² ↦ 1`, `s³ ↦ ζ₃`;
+for finite-order elements the value is `s ↦ 2`, rather than `ζ_{n+1}`.
 -/
 import Mathlib
 
@@ -929,9 +911,9 @@ theorem smithP_iff : SmithP G ↔ Finite G ∧ Nat.card G ≤ 3 := by
 /-- Paper alias for `smithP_iff` (Theorem 1.1 of arXiv:2610.10586). -/
 theorem thm_1_1 : SmithP G ↔ Finite G ∧ Nat.card G ≤ 3 := smithP_iff
 
-/-! ## Ground-truth checks on small instances -/
+/-! ## Examples -/
 
-/-- The paper's sanity check (triage): in `C₄ = ⟨g⟩` the generating domain
+/-- In `C₄ = ⟨g⟩` the generating domain
 `{1, g, g⁻¹}` sees no relation beyond inverses, so `[g]⁴ ≠ 1` in `U(X)`
 although `π_X [g]⁴ = g⁴ = 1`.  This is checked directly from the definitions,
 independently of `smithP_iff`, via the local map `g ↦ 1 ∈ ℤ` into

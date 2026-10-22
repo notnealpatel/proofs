@@ -8,13 +8,6 @@ Section "Lattice structures for derivations" (the last section), Conjecture
 `qu:do` / `cj:00`, item (1), posed after "Based on the results in this section,
 it seems reasonable to pose the following conjectures."
 
-Verbatim (LaTeX source):
-
-```
-\item For any lattice $(L,\vee, \wedge, 0,1)$, the poset
-$(\DO(L), \preceq, \textbf{0}_{L},\mrep_{L})$ is a lattice.
-```
-
 Here a derivation (Eq. (eq:der), following Xin et al., *without* the linearity
 condition `d(x ∨ y) = d x ∨ d y`; see Remark `rk:cond`) is a map `d : L → L` with
 
@@ -25,13 +18,12 @@ d(x ∧ y) = (d(x) ∧ y) ∨ (x ∧ d(y))   for all x, y ∈ L,
 `DO(L)` is the set of derivations, and `d ⪯ d'` iff `d(x) ≤ d'(x)` for all `x`
 (the pointwise order).  The paper proves the conjecture for finite distributive
 lattices and for complete infinitely distributive lattices; for general lattices
-it is posed as open.  Item (2) presupposes item (1).
+it is posed as a conjecture. Item (2) presupposes item (1).
 
-Recorded 2026-10-21.
+## Counterexample
 
-## Status of the claim
-
-False.  Counterexample `L8` on `{0, …, 7}` with covers
+Conjecture (1), that the pointwise derivation poset is always a lattice, is
+false. Counterexample `L8` on `{0, …, 7}` with covers
 `0<1, 0<2, 0<3, 1<4, 1<5, 2<4, 3<4, 4<6, 5<7, 6<7` (non-distributive: `{0,1,2,3,4}`
 is an `M3`).  The derivations
 
@@ -42,15 +34,12 @@ have the two incomparable upper bounds `u₁ = (0,1,2,3,4,0,1,0)` and
 a join `j` satisfies `j ≤ u₁, u₂`, so `j 5 = j 6 = 0`, and `3 ⊔ 2 = 4 ≤ j 4`; then
 `j 1 = j (4 ⊓ 5) = (j 4 ⊓ 5) ⊔ (4 ⊓ j 5) ≥ 4 ⊓ 5 = 1` but also
 `j 1 = j (5 ⊓ 6) = (j 5 ⊓ 6) ⊔ (5 ⊓ j 6) = 0`.
-
-Computational evidence (triage, Sage): every lattice with at most 7 elements
-satisfies the conjecture; 4 of the 222 eight-element lattices fail it.
 -/
 import Mathlib
 
 set_option autoImplicit false
--- Sequential elaboration: under the repository's `ulimit -v` probe cap, the asynchronous
--- kernel-checking threads for the `decide +kernel` theorems cannot be created.
+
+
 set_option Elab.async false
 
 namespace GanGuoLatticeDerivationsRefutation
@@ -79,7 +68,7 @@ structure L8 where
   val : Fin 8
   deriving Fintype
 
-/-- Equality on `L8` is decide +kerneld through the labels. -/
+/-- Equality on `L8` is decidable through the labels. -/
 instance : DecidableEq L8 := fun a b =>
   decidable_of_iff (a.val = b.val) (by cases a; cases b; simp)
 
@@ -115,20 +104,20 @@ instance : BoundedOrder L8 where
 instance : DecidableRel (α := L8) (· < ·) := fun a b =>
   inferInstanceAs (Decidable (a ≤ b ∧ ¬ b ≤ a))
 
--- Ground truth: the covering relation of `L8` is exactly the source's list of covers, so
+-- the covering relation of `L8` is exactly the source's list of covers, so
 -- the order is the one of the source (a finite poset is determined by its covers).
 example : ∀ a b : L8, a ⋖ b ↔ (a.val, b.val) ∈
     ([(0, 1), (0, 2), (0, 3), (1, 4), (1, 5), (2, 4), (3, 4), (4, 6), (5, 7), (6, 7)] :
       List (Fin 8 × Fin 8)) := by
   unfold CovBy; decide +kernel
 
--- Ground truth: `{0,1,2,3,4}` is an `M3`, `4 ⊓ 5 = 1`, `5 ⊓ 6 = 1`.
+-- `{0,1,2,3,4}` is an `M3`, `4 ⊓ 5 = 1`, `5 ⊓ 6 = 1`.
 example : (⟨1⟩ : L8) ⊔ ⟨2⟩ = ⟨4⟩ ∧ (⟨1⟩ : L8) ⊔ ⟨3⟩ = ⟨4⟩ ∧ (⟨2⟩ : L8) ⊔ ⟨3⟩ = ⟨4⟩ ∧
     (⟨1⟩ : L8) ⊓ ⟨2⟩ = ⟨0⟩ ∧ (⟨1⟩ : L8) ⊓ ⟨3⟩ = ⟨0⟩ ∧ (⟨2⟩ : L8) ⊓ ⟨3⟩ = ⟨0⟩ ∧
     (⟨4⟩ : L8) ⊓ ⟨5⟩ = ⟨1⟩ ∧ (⟨5⟩ : L8) ⊓ ⟨6⟩ = ⟨1⟩ := by
   decide +kernel
 
--- Ground truth: `L8` is not distributive.
+-- `L8` is not distributive.
 example : ¬ ∀ a b c : L8, a ⊓ (b ⊔ c) = (a ⊓ b) ⊔ (a ⊓ c) := by decide +kernel
 
 /-! ## Derivations -/
@@ -149,11 +138,11 @@ instance {L : Type*} [Lattice L] [Fintype L] [DecidableEq L] :
 theorem le_iff_forall {L : Type*} [Lattice L] (d d' : {d : L → L // IsDerivation d}) :
     d ≤ d' ↔ ∀ x, d.1 x ≤ d'.1 x := Iff.rfl
 
--- Ground truth: the identity and the zero map are derivations (Gan–Guo, Example exm:000).
+-- the identity and the zero map are derivations (Gan–Guo, Example exm:000).
 example : IsDerivation (id : L8 → L8) := by decide +kernel
 example : IsDerivation (fun _ : L8 => (⊥ : L8)) := by decide +kernel
 
--- Ground truth: the pointwise join `(0,0,2,3,4,0,0,0)` of `d₁, d₂` is *not* a derivation.
+-- the pointwise join `(0,0,2,3,4,0,0,0)` of `d₁, d₂` is *not* a derivation.
 example : ¬ IsDerivation (fun x : L8 => (⟨![0, 0, 2, 3, 4, 0, 0, 0] x.val⟩ : L8)) := by
   decide +kernel
 

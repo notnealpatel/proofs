@@ -1,49 +1,14 @@
 /-
-# Generalized Glasby-Paseman sequence, case `l = 2`: log-concave for every real `a > 0`
+# Generalized Glasby-Paseman sequences for exponent two
 
-## Source
-
-Seok Hyun Byun and Svetlana Poznanović, *Unimodality and log-concavity of
-Generalized Glasby-Paseman sequences*, arXiv:2604.14639.
-
-For positive integers `m, l` and a real `a > 0` the paper (equation (BP3),
-Section 1) considers the sequence
-
-  g_{m,l,a}(r) = (∑_{i=0}^{r} (C(m,i) a^i)^l) / (∑_{i=0}^{r} (C(r,i) a^i)^l),
-  0 ≤ r ≤ m.
-
-Conjecture 1.1 (Section 1), verbatim:
-
-  (a) The sequence (BP3) is unimodal for all m, l ∈ Z^+ and a ∈ R^+.
-  (b) For l ∈ Z^+ and a ∈ R^+, the sequence (BP3) is log-concave for all
-      but finitely many m ∈ Z^+.
-
-The paper proves only `l = 2, a = 1` (Theorem 1.2(a), via Lemma 2.1 and the
-closed form `∑ C(r,i)^2 = C(2r,r)`), and remarks that `l = 2, a ≠ 1` is hard
-because the denominator has no closed form.  Section 4, Table 2: the row
-`l = 2` is all zeros (log-concave for every tested `m`).
-
-## Target (a6-24, recorded 2026-10-21; literature status: open)
-
-For `l = 2`, every real `a > 0` and every `m`, `g_{m,2,a}` is log-concave on
-`0 ≤ r ≤ m`, hence unimodal.  This settles Conjecture 1.1(a) and a strong
-form of 1.1(b) (no exceptional `m`) for `l = 2` and all real `a > 0`.
-
-## Proof outline (formalized below)
-
-1. The numerator `N_r = ∑_{i ≤ r} (C(m,i) a^i)^2` is a partial sum of a
-   positive log-concave sequence on `0..m`, hence log-concave (a
-   division-free form of the paper's Lemma 2.1).
-2. The denominator `D_s = ∑_{i ≤ s} (C(s,i) a^i)^2` (a type-B Narayana
-   polynomial in `a^2`) is log-convex: `D_{s}^2 ≤ D_{s-1} (D_{s+1} - a^2)`,
-   by Cauchy-Schwarz with `u_i = C(s-1,i) a^i` and
-   `v_i = a^i (C(s,i) + a^2 C(s,i+1))` after Pascal reindexing.
-3. A positive log-concave sequence divided by a positive log-convex one is
-   log-concave; a positive log-concave sequence is unimodal.
-
-Computational re-validation (exact rationals, 2026-10-21): log-concavity for
-`m ≤ 45`, `a ∈ {1/13, 7/4, 4, 2/9, 19/5}`, and the log-convexity bound for
-`s < 40` at the same `a`, with no failures.
+Seok Hyun Byun and Svetlana Poznanović, "Unimodality and log-concavity of
+Generalized Glasby-Paseman sequences", arXiv:2604.14639, equation (BP3),
+Conjecture 1.1(a),(b) and Theorem 1.2(a).
+For `l = 2`, every real `a > 0` and every natural `m`, the quotient
+`(Σ_{i≤r}(C(m,i)a^i)^2)/(Σ_{i≤r}(C(r,i)a^i)^2)` is log-concave and
+unimodal on `0 ≤ r ≤ m`. The numerator is log-concave and the positive
+denominator log-convex. General `l` and the peak-location/asymptotic
+claims in Conjecture 1.1(c),(d) are outside this module's scope.
 -/
 import Mathlib
 
@@ -68,15 +33,15 @@ noncomputable def partialSq (m r : ℕ) (a : ℝ) : ℝ :=
 theorem gpSeq_two_eq (m r : ℕ) (a : ℝ) : gpSeq 2 m r a = partialSq m r a / partialSq r r a :=
   rfl
 
-/-- Ground truth (paper, eq. (BP4)): for `a = 1`, `g_4(1) = (1 + 4^2) / C(2,1) = 17/2`. -/
+/-- Example (paper, eq. (BP4)): for `a = 1`, `g_4(1) = (1 + 4^2) / C(2,1) = 17/2`. -/
 example : gpSeq 2 4 1 1 = 17 / 2 := by
   norm_num [gpSeq, sum_range_succ]
 
-/-- Ground truth with `a = 2`: `g_{3,2,2}(2) = (1 + 6^2 + 12^2) / (1 + 4^2 + 4^2) = 181/33`. -/
+/-- Examples with `a = 2`: `g_{3,2,2}(2) = (1 + 6^2 + 12^2) / (1 + 4^2 + 4^2) = 181/33`. -/
 example : gpSeq 2 3 2 2 = 181 / 33 := by
   norm_num [gpSeq, sum_range_succ, Nat.choose]
 
-/-- Ground truth for `l = 1, a = 1` (the original Glasby-Paseman sequence
+/-- Examples for `l = 1, a = 1` (the original Glasby-Paseman sequence
 `2^{-r} ∑_{i ≤ r} C(m,i)`): `g_{3,1,1}(1) = (1 + 3)/2 = 2`. -/
 example : gpSeq 1 3 1 1 = 2 := by
   norm_num [gpSeq, sum_range_succ]
@@ -289,9 +254,9 @@ theorem partialSq_logConcave {a : ℝ} (ha : a ≠ 0) {m r : ℕ} (hrm : r + 2 �
   simpa only [partialSq, hw, show r + 1 + 1 = r + 2 by ring, show r + 2 + 1 = r + 3 by ring]
     using key
 
-/-- **Log-concavity for `l = 2` and every real `a > 0`** (target a6-24, settling
-Conjecture 1.1(b) of arXiv:2604.14639 for `l = 2` with no exceptional `m`):
-for `1 ≤ r + 1 ≤ m - 1`, `g_{m,2,a}(r) g_{m,2,a}(r+2) ≤ g_{m,2,a}(r+1)^2`. -/
+/-- For `l = 2` and every real `a > 0`, the quotient sequence is log-concave:
+`g(r)g(r+2) ≤ g(r+1)^2` whenever `r+2 ≤ m`.
+This is Conjecture 1.1(b) of arXiv:2604.14639 for `l = 2`, with no exceptional `m`. -/
 theorem gpSeq_two_logConcave {a : ℝ} (ha : 0 < a) {m r : ℕ} (hrm : r + 2 ≤ m) :
     gpSeq 2 m r a * gpSeq 2 m (r + 2) a ≤ gpSeq 2 m (r + 1) a ^ 2 := by
   rw [gpSeq_two_eq, gpSeq_two_eq, gpSeq_two_eq]
@@ -348,10 +313,9 @@ theorem unimodal_of_logConcave (g : ℕ → ℝ) (m : ℕ) (hpos : ∀ r, r ≤ 
     simp only [Set.mem_Icc] at hr hr1
     exact hdown r hr.1 (by omega)
 
-/-- **Unimodality for `l = 2` and every real `a > 0`** (target a6-24, settling
-Conjecture 1.1(a) of arXiv:2604.14639 for `l = 2`): for every `m` there is
-`j ≤ m` with `g_{m,2,a}` weakly increasing on `0..j` and weakly decreasing on
-`j..m`. -/
+/-- For `l = 2`, every real `a > 0` and every `m`, there is `j ≤ m` such
+that the quotient sequence increases weakly on `0..j` and decreases weakly
+on `j..m` (Conjecture 1.1(a) of arXiv:2604.14639 for `l = 2`). -/
 theorem gpSeq_two_unimodal {a : ℝ} (ha : 0 < a) (m : ℕ) :
     ∃ j ≤ m, MonotoneOn (fun r => gpSeq 2 m r a) (Set.Iic j) ∧
       AntitoneOn (fun r => gpSeq 2 m r a) (Set.Icc j m) := by

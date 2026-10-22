@@ -1,55 +1,16 @@
 /-
-# A007226 — Bala: parity of `2 C(3n,n)/(n+1)` and the odd Fibbinary numbers
+Parity of OEIS A007226 (Peter Bala, Mar 13 2023).
 
-## OEIS source (retrieved with `oeis show A007226`, 2026-10-21)
+For a(n) = 2 C(3n,n)/(n+1), a(n) is odd iff n = 4m+1 for a Fibbinary m
+(A003714: no adjacent binary ones), equivalently n belongs to A022341.
+The quotient is exact. The entry's determinant-ratio NAME is not formalized;
+the source's closed formula defines a here. Callan's subtraction identity
+(David Callan, Oct 25 2004) reduces the proof to Lucas's theorem and bit identities.
 
-```
-NAME:     a(n) = 2*det(M(n; -1))/det(M(n; 0)), where M(n; m) is the n X n matrix
-          with (i,j)-th element equal to 1/binomial(n + i + j + m, n).
-OFFSET:   0
-TERMS:    2,3,10,42,198,1001,5304,29070,163438,937365,5462730,32256120,
-          192565800,1160346492,7048030544,43108428198,265276342782,...
-KEYWORDS: nonn,easy
-FORMULA:  a(n) = (2/(n + 1))*binomial(3*n, n).
-FORMULA:  a(n) = 2*C(3*n, n) - C(3*n, n+1) for n >= 0. - _David Callan_, Oct 25 2004
-FORMULA:  a(n) = (2n+1) * A000139(n). - _F. Chapoton_, Feb 23 2024
-COMMENT (the conjecture):
-  Conjecture: a(n) is odd iff n = A022341(k) for some k. - _Peter Bala_, Mar 13 2023
-```
-
-A022341: "a(n) = 4*A003714(n) + 1; the odd Fibbinary numbers", and A003714
-(Fibbinary numbers) are the "numbers whose binary representation contains no
-two adjacent 1's", i.e. the `m` with `m AND 2m = 0`.
-
-**Definitional-fidelity note.**  The entry's NAME is a determinant ratio; its
-first FORMULA line `a(n) = (2/(n+1)) binomial(3n, n)` is the closed form used by
-every program in the entry and by the triage.  The definition below is that
-closed form, checked against the first 15 DATA terms; the `Nat` division is
-shown exact (`a_mul_succ`).
-
-## Status
-
-Triage: open (no proof in the entry).  Literature: the problem list of the
-Third International Conference on Permutation Patterns (2005,
-arXiv:math/0505504) records as known, crediting Miklós Bóna, that the number
-of 2-stack-sortable permutations (A000139) of length `n` is odd iff the binary
-expansion of `n` ends in `1` with no two adjacent `1`s.  Since
-`A007226(n) = (2n+1) A000139(n)` (Chapoton's formula) and `2n+1` is odd, this
-conjecture is a direct corollary of that known result.  The proof below is
-elementary and self-contained.  Computational check (Python, 2026-10-21): the parity
-claim holds for every `0 ≤ n < 20000` (direct binomials), and the first 25
-DATA terms agree with the closed form.
-
-## Proof outline (formalized below, no `sorry`)
-
-1. Callan's identity `a(n) = 2 C(3n,n) - C(3n,n+1)`, so `a(n) ≡ C(3n,n+1) (mod 2)`.
-2. Lucas at `p = 2`: `C(a+b, a)` is odd iff `a AND b = 0`; for `n ≥ 1`,
-   `C(3n, n+1) = C((n+1) + (2n-1), n+1)`.
-3. Bit bridge: `(n+1) AND (2n-1) = 0` iff `n = 4m+1` with `m AND 2m = 0`.
-
-The bitwise helpers and the Lucas step duplicate those of the sibling card
-`Proofs/Sorry/Enumerative/A000139TwoStackParity.lean` (a `Sorry` module, which
-may not be imported).
+The related parity result for A000139 is credited to Miklós Bóna in the
+Permutation Patterns 2005 problem list, arXiv:math/0505504; the relation
+A007226(n) = (2n+1) A000139(n) is recorded by F. Chapoton (Feb 23 2024).
+The proof here uses the explicit quotient directly.
 -/
 import Mathlib
 
@@ -70,13 +31,13 @@ def IsFibbinary (m : ℕ) : Prop := m &&& (2 * m) = 0
 /-- `IsFibbinary` is decided by evaluating `m AND 2m`. -/
 instance : DecidablePred IsFibbinary := fun m => inferInstanceAs (Decidable (m &&& (2 * m) = 0))
 
--- Ground truth against the OEIS DATA line `2,3,10,42,198,1001,5304,…`.
+-- Examples against the OEIS DATA line `2,3,10,42,198,1001,5304,…`.
 example : (List.range 15).map a =
     [2, 3, 10, 42, 198, 1001, 5304, 29070, 163438, 937365, 5462730, 32256120,
       192565800, 1160346492, 7048030544] := by
   decide
 
--- Ground truth against the A003714 DATA line `0,1,2,4,5,8,9,10,16,17,18,20,21,32`.
+-- Examples against the A003714 DATA line `0,1,2,4,5,8,9,10,16,17,18,20,21,32`.
 example : (List.range 33).filter (fun m => decide (IsFibbinary m)) =
     [0, 1, 2, 4, 5, 8, 9, 10, 16, 17, 18, 20, 21, 32] := by
   decide
@@ -114,7 +75,7 @@ theorem odd_choose_add_iff (a b : ℕ) : Odd (Nat.choose (a + b) a) ↔ a &&& b 
   subst h
   rcases Nat.even_or_odd' a with ⟨a', rfl | rfl⟩ <;>
     rcases Nat.even_or_odd' b with ⟨b', rfl | rfl⟩
-  · -- even, even
+  · -- Even, even
     by_cases h0 : a' + b' = 0
     · obtain ⟨rfl, rfl⟩ : a' = 0 ∧ b' = 0 := by omega
       simp
@@ -126,7 +87,7 @@ theorem odd_choose_add_iff (a b : ℕ) : Odd (Nat.choose (a + b) a) ↔ a &&& b 
     rw [e1, e2, e3, e4, Nat.choose_zero_right, one_mul] at hl
     rw [Nat.odd_iff, hl, ← Nat.odd_iff, ih (a' + b') (by omega) a' b' rfl, land_ee]
     omega
-  · -- even, odd
+  · -- Even, odd
     have hl := choose_mod_two_lucas (2 * a' + (2 * b' + 1)) (2 * a')
     have e1 : (2 * a' + (2 * b' + 1)) % 2 = 1 := by omega
     have e2 : (2 * a') % 2 = 0 := by omega
@@ -135,7 +96,7 @@ theorem odd_choose_add_iff (a b : ℕ) : Odd (Nat.choose (a + b) a) ↔ a &&& b 
     rw [e1, e2, e3, e4, Nat.choose_zero_right, one_mul] at hl
     rw [Nat.odd_iff, hl, ← Nat.odd_iff, ih (a' + b') (by omega) a' b' rfl, land_eo]
     omega
-  · -- odd, even
+  · -- Odd, even
     have hl := choose_mod_two_lucas (2 * a' + 1 + 2 * b') (2 * a' + 1)
     have e1 : (2 * a' + 1 + 2 * b') % 2 = 1 := by omega
     have e2 : (2 * a' + 1) % 2 = 1 := by omega
@@ -144,7 +105,7 @@ theorem odd_choose_add_iff (a b : ℕ) : Odd (Nat.choose (a + b) a) ↔ a &&& b 
     rw [e1, e2, e3, e4, Nat.choose_self, one_mul] at hl
     rw [Nat.odd_iff, hl, ← Nat.odd_iff, ih (a' + b') (by omega) a' b' rfl, land_oe]
     omega
-  · -- odd, odd
+  · -- Odd, odd
     have hl := choose_mod_two_lucas (2 * a' + 1 + (2 * b' + 1)) (2 * a' + 1)
     have e1 : (2 * a' + 1 + (2 * b' + 1)) % 2 = 0 := by omega
     have e2 : (2 * a' + 1) % 2 = 1 := by omega
@@ -268,12 +229,7 @@ theorem odd_a_iff (n : ℕ) : Odd (a n) ↔ Odd ((3 * n).choose (n + 1)) := by
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjecture (A007226, Peter Bala, Mar 13 2023), proved.**
-
-Verbatim: "Conjecture: a(n) is odd iff n = A022341(k) for some k."  With
-`a(n) = 2 binomial(3n, n)/(n+1)` (offset `0`) and A022341 the odd Fibbinary
-numbers `4m + 1` (`m` Fibbinary, `m AND 2m = 0`), this says: `a(n)` is odd iff
-`n = 4m + 1` for some Fibbinary `m`. -/
+/-- A007226(n) is odd iff `n=4m+1` for a Fibbinary `m` (Peter Bala, Mar 13 2023). -/
 theorem a_odd_iff (n : ℕ) : Odd (a n) ↔ ∃ m : ℕ, IsFibbinary m ∧ n = 4 * m + 1 := by
   rw [odd_a_iff]
   rcases n with _ | k

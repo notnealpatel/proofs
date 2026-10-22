@@ -1,39 +1,12 @@
 /-
-# A152020 — Cicuttin: `a(n) = denominator((n-2)^3/n^2)`
+# A denominator identity for A152020
 
-## OEIS source (pulled with `oeis show A152020`, retrieved 2026-10-21)
-
-```
-NAME:     Denominator of 8/(9*n^2) divided by 9.
-TERMS:    1,1,9,2,25,9,49,8,81,25,121,18,169,49,225,32,289,81,361,50,441,121,
-          529,72,625,169,729,98,841,225,961,128,1089,289,1225,162,1369,361,1521,
-          200,1681,441,1849,242,2025,529,2209,288,2401,625
-KEYWORDS: nonn,mult,easy
-OFFSET:   terms are indexed from n = 1 (a(1) = 1, a(2) = 1, a(3) = 9, ...)
-FORMULA (the conjecture):
-  Conjecture: a(n) = denominator((n-2)^3/n^2). - _Andres Cicuttin_, Sep 19 2017
-FORMULA (adjacent, unproved in the entry):
-  a(n) = n^2/gcd(n^2, 8). - _Andrew Howroyd_, Jul 25 2018
-PROGRAM:  (PARI) a(n) = denominator(8/(9*n^2))/9 \\ _Michel Marcus_, Jun 01 2013
-```
-
-## Status
-
-Triage status: open (no proof in the entry or the literature as far as the
-triage could tell); tractability "trivial".  The triage phrased the target as
-"`n^2/gcd(n^2, 8)` (the definition) equals the denominator of `(n-2)^3/n^2`
-for all `n ≥ 1`".  Since the entry's NAME is `denominator(8/(9 n^2))/9`, this
-module states the conjecture against the NAME definition (`conjecture`), proves
-Howroyd's closed form (`a_eq_sq_div_gcd`), and records the triage's phrasing
-separately (`den_eq_sq_div_gcd`).
-
-## Proof
-
-`gcd(n^2, (n-2)^3) = gcd(n^2, 8)` for every `n`, by cases on `n mod 4`
-(both sides are `8, 1, 4, 1` for `n ≡ 0, 1, 2, 3`), using explicit Bézout
-certificates for the coprimality of the cofactors.  The denominator of
-`p/q` is `|q| / gcd(q, p)` (`Rat.den_divInt`), and `gcd(9 n^2, 8) = gcd(n^2, 8)`
-because `gcd(9, 8) = 1`.
+Source: Andres Cicuttin's OEIS A152020 formula (Sep 19 2017) and Andrew
+Howroyd's closed form (Jul 25 2018). For `n ≥ 1`,
+`denominator(8/(9n²))/9 = denominator((n-2)³/n²) = n²/gcd(n²,8)`.
+The subtraction is in `ℚ` after casting, and denominators are reduced,
+positive rational denominators. Index 0 is outside the entry's domain.
+The proof reduces both denominators using `gcd(n²,(n-2)³)=gcd(n²,8)`.
 -/
 import Mathlib
 
@@ -49,7 +22,7 @@ def a (n : ℕ) : ℕ := ((8 : ℚ) / (9 * (n : ℚ) ^ 2)).den / 9
 (so `n - 2` is a rational, not truncated, difference). -/
 def cicuttin (n : ℕ) : ℕ := ((((n : ℚ) - 2) ^ 3) / (n : ℚ) ^ 2).den
 
-/-! ## Ground truth against the listed terms -/
+/-! ## Listed terms -/
 
 example : a 1 = 1 := by decide +kernel
 example : a 2 = 1 := by decide +kernel
@@ -119,8 +92,7 @@ theorem den_intCast_div_intCast (p q : ℤ) (hq : q ≠ 0) :
   rw [← Rat.divInt_eq_div, Rat.den_divInt, if_neg hq]
 
 /-- Cicuttin's denominator in closed form: for `n ≥ 1`,
-`denominator((n-2)^3/n^2) = n^2 / gcd(n^2, 8)`.  This is the triage's phrasing of
-the target. -/
+`denominator((n-2)^3/n^2) = n^2 / gcd(n^2, 8)`. -/
 theorem den_eq_sq_div_gcd (n : ℕ) (hn : 1 ≤ n) :
     cicuttin n = n ^ 2 / Nat.gcd (n ^ 2) 8 := by
   have hq : ((n : ℤ) ^ 2) ≠ 0 := by positivity
@@ -151,13 +123,9 @@ theorem a_eq_sq_div_gcd (n : ℕ) (hn : 1 ≤ n) :
 
 /-! ## The conjecture -/
 
-/-- **Cicuttin's conjecture (A152020, Andres Cicuttin, Sep 19 2017).**
-
-Verbatim: "Conjecture: a(n) = denominator((n-2)^3/n^2)."
-
-Here `a(n)` is the entry's NAME, `denominator(8/(9 n^2))/9`, and the right side
-is the denominator of the rational number `(n-2)^3/n^2`.  The guard `1 ≤ n` is
-the entry's offset; at `n = 0` both sides are junk (`a 0 = 0`, `cicuttin 0 = 1`). -/
+/-- Cicuttin's identity at positive indices: the NAME definition
+`denominator(8/(9n²))/9` equals the reduced denominator of `(n-2)³/n²`.
+Index zero is excluded: the totalized values would be 0 and 1. -/
 theorem conjecture (n : ℕ) (hn : 1 ≤ n) : a n = cicuttin n := by
   rw [a_eq_sq_div_gcd n hn, den_eq_sq_div_gcd n hn]
 

@@ -1,55 +1,25 @@
 /-
-# Bercovici's rectangle/square discrepancy problem: squares ≤ 1 imply rectangles ≤ 4
+# Bercovici's rectangle/square discrepancy bound
 
-## Source
+Source: Yaakov Baruch, MathOverflow question 13820, "1 rectangle <= 4 squares"
+(2010), https://mathoverflow.net/questions/13820/1-rectangle-4-squares,
+attributing the problem to H. Bercovici. The question's Update 2 sketches
+the bound proved here: if every axis-parallel square sum of a map
+`ℤ² → ℝ` has absolute value at most 1, every rectangle sum has absolute
+value at most 4. No optimality claim is made. A further reference given in
+the thread is I. Z. Ruzsa, "The discrepancy of rectangles and squares",
+Grazer Math. Ber. 318 (1992).
 
-MathOverflow question 13820, "1 rectangle <= 4 squares",
-<https://mathoverflow.net/questions/13820/1-rectangle-4-squares>, asked by
-Yaakov Baruch (2010-02-02, last edited 2010-03-10).  The asker attributes the
-problem to "a professor at Indiana U" (H. Bercovici).  No arXiv papers are
-involved; the only further literature pointer is I. Z. Ruzsa, "The discrepancy
-of rectangles and squares", Grazer Math. Ber. 318 (1992) (not read).
+The corner functional is `D G a b c d = G c d-G a d-G c b+G a b`.
+The corner theorem allows integer square side lengths; reversing both
+axes handles negative lengths. The cell theorem uses natural square
+side lengths and finite `Ico` rectangles, related to corners by signed
+prefix sums. Unordered rectangle endpoints give empty cell sums.
 
-Verbatim informal claim (question body, re-pulled 2026-10-21 through the
-StackExchange API):
-
-> given a map $\mathbb{Z}^2\rightarrow\mathbb{R}$ such that the sum inside every
-> square (parallel to the axes) is $\leq1$ in absolute value, prove that the sum
-> inside every rectangle (parallel to axes) is $\leq4$ in absolute value.
-
-Update 2 of the question sketches a proof of the bound 4 (cases (1), (2), (3)
-on "big" and "small" envelopes, each multiplying the excess over 4 by -3,
-iterated to a `3^n A × 3^n B` rectangle and tiled by `A·B` squares).  The
-optimal constant is open in the thread: `181/48 ≤ b ≤ 254/67`.
-
-Date of this card: 2026-10-21.  Status: **proved in the thread** (the bound 4);
-this file gives a complete kernel-checked proof.
-
-## Formalisation
-
-* Corner form.  For `G : ℤ → ℤ → ℝ` the rectangle functional is
-  `D G a b c d = G c d - G a d - G c b + G a b` (`x`-interval `[a, c]`,
-  `y`-interval `[b, d]`).  A square is `D G a b (a + s) (b + s)` for an
-  arbitrary integer `s` (negative `s` gives the same square up to the
-  symmetry `D G a b c d = D G c d a b`).  Theorem
-  `abs_rect_le_four_of_abs_square_le_one`.
-* Cell form, the literal statement of the thread.  For `f : ℤ × ℤ → ℝ`, the
-  sum over every box `Ico a (a + s) ×ˢ Ico b (b + s)` (`s : ℕ`) is at most 1 in
-  absolute value; then the sum over every box `Ico a c ×ˢ Ico b d` is at
-  most 4 in absolute value.  Theorem `abs_sum_rect_le_four_of_abs_sum_square_le_one`,
-  obtained from the corner form via a signed two-dimensional prefix sum.
-
-## Proof route
-
-One linear identity (`rect_identity`), the composition of the thread's
-cases (1) and (2), expresses the `3B × 3A` rectangle
-`[x - B, x + 2B] × [y - A, y + 2A]` as `9` times the `B × A` rectangle
-`[x, x + B] × [y, y + A]` plus 16 squares with coefficients `±1, ±3` of total
-absolute value `32`.  It is a formal identity in the values of `G` and needs
-no sign or size hypotheses on `A, B`.  Hence `|P| - 4 ≥ 9 (|R| - 4)`; iterating
-gives a `3^n B × 3^n A` rectangle of excess `≥ 9^n (|R| - 4)`, while tiling it
-by `B·A` squares of side `3^n` bounds it by `B·A`.  The thread's case split
-(thin/fat) is not needed.
+The identity `rect_identity` expresses a `3B × 3A` rectangle as nine times
+a `B × A` rectangle plus squares with total absolute coefficient 32.
+Iteration amplifies any excess above 4; tiling the enlarged rectangle
+by squares then rules out such an excess.
 -/
 import Mathlib
 
@@ -57,7 +27,7 @@ set_option autoImplicit false
 
 namespace Candidates.BercoviciRectangleDiscrepancy
 
-/-! ## Definitions and ground truth -/
+/-! ## Definitions and examples -/
 
 /-- The rectangle functional of a corner function `G : ℤ → ℤ → ℝ`:
 `D G a b c d = G c d - G a d - G c b + G a b`, the signed "sum" of `G` over the
@@ -76,26 +46,26 @@ noncomputable def prefixSum (g : ℤ → ℝ) (x : ℤ) : ℝ :=
 noncomputable def prefixSum2 (f : ℤ × ℤ → ℝ) (x y : ℤ) : ℝ :=
   prefixSum (fun i => prefixSum (fun j => f (i, j)) y) x
 
-/-- Ground truth: for `G x y = x y` the functional `D` is the signed area. -/
+/-- Examples: for `G x y = x y` the functional `D` is the signed area. -/
 example : D (fun x y => (x * y : ℝ)) 0 0 2 3 = 6 := by norm_num [D]
 
-/-- Ground truth: reversing both intervals keeps the signed area positive. -/
+/-- Examples: reversing both intervals keeps the signed area positive. -/
 example : D (fun x y => (x * y : ℝ)) 5 7 2 3 = 12 := by norm_num [D]
 
-/-- Ground truth: the signed prefix sum of `1` at `3` is `3`. -/
+/-- Examples: the signed prefix sum of `1` at `3` is `3`. -/
 example : prefixSum (fun _ => (1 : ℝ)) 3 = 3 := by simp [prefixSum]
 
-/-- Ground truth: the signed prefix sum of `1` at `-2` is `-2`. -/
+/-- Examples: the signed prefix sum of `1` at `-2` is `-2`. -/
 example : prefixSum (fun _ => (1 : ℝ)) (-2) = -2 := by simp [prefixSum]
 
-/-- Ground truth: the 2D prefix sum of `1` at `(2, 3)` is `6`. -/
+/-- Examples: the 2D prefix sum of `1` at `(2, 3)` is `6`. -/
 example : prefixSum2 (fun _ => (1 : ℝ)) 2 3 = 6 := by
   norm_num [prefixSum2, prefixSum, show Int.toNat 2 = 2 from rfl, show Int.toNat 3 = 3 from rfl]
 
-/-- Ground truth: the 2D prefix sum of `1` at `(-1, -2)` is `2`. -/
+/-- Examples: the 2D prefix sum of `1` at `(-1, -2)` is `2`. -/
 example : prefixSum2 (fun _ => (1 : ℝ)) (-1) (-2) = 2 := by simp [prefixSum2, prefixSum]
 
-/-- Ground truth: the indicator of the origin has prefix sum `1` at `(1, 1)`. -/
+/-- Examples: the indicator of the origin has prefix sum `1` at `(1, 1)`. -/
 example : prefixSum2 (fun p => if p = (0, 0) then (1 : ℝ) else 0) 1 1 = 1 := by
   simp [prefixSum2, prefixSum, show Finset.Ico (0 : ℤ) 1 = {0} by decide,
     Finset.filter_singleton]

@@ -1,7 +1,7 @@
 /- Quarantined pending a compiler gate: the 60-second build timed out;
 subsequent direct check found the required PowerOfTwoDigitsCount.olean absent.
 No source elaboration failure was established and no dependency rebuild attempted. -/
-import Enumerative.PowerOfTwoDigitsCount
+import Sorry.Enumerative.PowerOfTwoDigitsCount
 import Mathlib.Data.Nat.Totient
 import Mathlib.Data.ZMod.QuotientGroup
 import Mathlib.Algebra.Group.Subgroup.Finite

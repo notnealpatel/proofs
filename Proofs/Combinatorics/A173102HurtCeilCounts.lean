@@ -1,30 +1,12 @@
 /-
-# A173102 — Hurt: the ceiling double sum counts `x + y = z` in `{1, …, 3n}`
+# A173102 — Hurt's ceiling double sum
 
-## OEIS source (pulled with `oeis show A173102`, retrieved 2026-10-21)
+Wesley Ivan Hurt (OEIS A173102, Mar 12 2015) conjectured that the number
+of triples `1 ≤ x ≤ y < z ≤ 3n` with `x + y = z` equals
+`∑_{j=1..n} ∑_{i=1..n} ⌈(i+j-n+3)/2⌉`. Chai Wah Wu (Mar 03 2020)
+gave the closed form `⌊9n²/4⌋` by summing `⌊z/2⌋` over `2 ≤ z ≤ 3n`.
 
-```
-NAME:     Number of partitions x + y = z with {x,y,z} in {1,2,3,..,3*n} and
-          z > y >= x.
-TERMS:    2,9,20,36,56,81,110,144,182,225,272,324,380,441,506,576,650,729,812,
-          900,992,1089,1190,1296,1406,1521,1640,1764,1892,2025,...
-OFFSET:   1
-FORMULA (the conjecture):
-  Conjecture: a(n) = Sum_{j=1..n} Sum_{i=1..n} ceiling((i+j-n+3)/2).
-  - _Wesley Ivan Hurt_, Mar 12 2015
-FORMULA (context): From _Chai Wah Wu_, Mar 03 2020: a(n) = (9*n^2-1)/4 if n
-  is odd and a(n) = 9*n^2/4 if n is even, proved in the entry via
-  a(n) = Sum_{z = 2..3*n} floor(z/2).
-```
-
-## Status
-
-Triage: open (Hurt's double-sum form has no proof in the entry; Wu's closed
-form is proved there).  Python re-check (2026-10-21): the triple count, Hurt's
-double sum (exact rational ceilings) and `floor(9 n^2 / 4)` agree for
-`0 ≤ n < 80` (brute-force triple count for `n < 60`).
-
-## Proof outline (all kernel-checked below)
+## Proof outline
 
 * `⌈m / 2⌉ = ⌊(m + 1) / 2⌋` for `m : ℤ` (`ceil_half`), so after reindexing
   both sides become sums of `F n c = ∑_{i<n} ⌊(i + c + 1) / 2⌋`.
@@ -180,9 +162,7 @@ def a (n : ℕ) : ℕ := tripleCount (3 * n)
 
 /-- **Hurt's conjecture (A173102, Wesley Ivan Hurt, Mar 12 2015).**
 
-Verbatim: "Conjecture: a(n) = Sum_{j=1..n} Sum_{i=1..n} ceiling((i+j-n+3)/2)."
-
-Here `a n` counts the solutions of `x + y = z` with `1 ≤ x ≤ y < z ≤ 3n`
+The count `a n` equals `hurtSum n`. Here `a n` counts the solutions of `x + y = z` with `1 ≤ x ≤ y < z ≤ 3n`
 (the entry's definition) and `hurtSum n` is the double sum with exact rational
 ceilings.  Stated for every `n : ℕ`; the entry's offset is `1`, and at `n = 0`
 both sides are `0`. -/
@@ -213,7 +193,7 @@ theorem four_mul_a_add_mod_two (n : ℕ) : 4 * a n + n % 2 = 9 * n ^ 2 := by
     push_cast
     ring_nf
 
-/-! ## Ground truth against the listed terms `2, 9, 20, 36, …` -/
+/-! ## Examples: listed terms `2, 9, 20, 36, …` -/
 
 example : a 1 = 2 := by decide
 example : a 2 = 9 := by decide

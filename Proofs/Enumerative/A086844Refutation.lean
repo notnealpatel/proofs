@@ -1,50 +1,13 @@
 /-
-# A086844 — refutation of Cloitre's ultimate-periodicity conjecture
+Refutation of Cloitre's ultimate-periodicity conjecture (OEIS A086844;
+Benoit Cloitre, Aug 10 2003).
 
-## OEIS source (retrieved with `oeis show A086844`, 2026-10-21)
-
-```
-NAME:     Odd numbers m such that the sequence defined by b(1) = m; for k>1,
-          b(k) = floor((1+sqrt(3))*b(k-1)) contains only odd numbers.
-TERMS:    5,7,13,19,21,27,29,35,37,43,49,51,57,59,65,67,71,73,79,81,87,89,95,
-          97,101,103,109,111,117,119,125,131,133,139,141,147,149,155,161,163,
-          169,171,177,179,183,185,191,193,199,201,207,213,215,221,223,229,231,237
-KEYWORDS: nonn
-COMMENT (the conjecture):
-  Conjecture: let r(z)= (1/2) *(z+sqrt(z^2+4*z)), for any integral z>=1. Then
-  the sequence a(n)-4n (where a(n) is the sequence of odd numbers m such that
-  the sequence defined by b(1) = m; for k>1, b(k) = floor(r(z)*b(k-1))
-  contains only odd numbers) becomes ultimately periodic.
-  - _Benoit Cloitre_, Aug 10 2003
-FORMULA (the companion observation):
-  Observation: a(n+1)-a(n) = 2, 4 or 6 for every n, a(n)=4n+O(1) and more
-  precisely it seems that abs(a(n)-4n)<=9. Is the sequence a(n)-4n ultimately
-  periodic ? - _Benoit Cloitre_, Aug 10 2003
-XREF:     Cf. A086843 (the case z = 1, r = golden ratio).
-```
-
-## Status
-
-Triage status: false.  The entry records no proof or disproof and the triage
-found none in the literature; the triage found the refutation below, which
-this module kernel-checks.
-
-## Argument
-
-1. *Collapse.*  `r² = z r + z` and `0 < r - z < 1` give, for `b ≥ 1`,
-   `⌊r ⌊r b⌋⌋ + 1 = z ⌊r b⌋ + z b`; hence the orbit of an odd `m` is all odd
-   iff `⌊r m⌋` is odd (`S_eq`).
-2. *Shift.*  Ultimate periodicity of `a(n) - 4n` with period `p` makes `S`
-   eventually invariant under `m ↦ m + 4p`.
-3. *Density.*  Invariance pins `[fract (r m) ≥ 1 - fract (4 p r)]` to a constant
-   on large odd `m`; Dirichlet approximation of the irrational `2 r` and a
-   hitting lemma produce large odd `m` on both sides (`not_shift_invariant`).
-
-The same computation also refutes the observation `|a(n) - 4n| ≤ 9`:
-`a(838) = 3363 = 4·838 + 11` (`cloitre_observation_false`).
-
-Indexing: `a z n` is the `n`-th element of `S z` counted from `0`, so `a z n`
-is the OEIS `a(n+1)`; the statements below use `4 (n + 1)` accordingly.
+For each integral z≥1 let r=(z+√(z²+4z))/2 and enumerate the positive odd m
+whose orbit b(1)=m, b(k+1)=floor(r b(k)) stays odd. The centered sequence
+is not eventually periodic. The proof reduces orbit membership to the first
+two odd terms and contradicts shift invariance by irrational approximation.
+Here a z n is indexed from zero, hence corresponds to source term a(n+1).
+For z=2, a 2 837=3363 also refutes the bound |a(n)-4n|≤9 at source index 838.
 -/
 import Mathlib
 
@@ -172,7 +135,7 @@ theorem exists_fract_mem_Ico (y δ a b : ℝ) (hδ : δ ≠ 0) (ha : 0 ≤ a) (h
     (hab : |δ| ≤ b - a) : ∃ i : ℕ, a ≤ Int.fract (y + i * δ) ∧ Int.fract (y + i * δ) < b := by
   have hfl : ((⌊y⌋ : ℤ) : ℝ) ≤ y := Int.floor_le y
   have hfl' : y < ((⌊y⌋ : ℤ) : ℝ) + 1 := Int.lt_floor_add_one y
-  -- if `y + i δ ∈ [a + k, b + k)` for an integer `k`, we are done
+  -- If `y + i δ ∈ [a + k, b + k)` for an integer `k`, we are done
   have hdone : ∀ (i : ℕ) (k : ℤ), a + k ≤ y + i * δ → y + i * δ < b + k →
       a ≤ Int.fract (y + i * δ) ∧ Int.fract (y + i * δ) < b := by
     intro i k h1 h2
@@ -181,7 +144,7 @@ theorem exists_fract_mem_Ico (y δ a b : ℝ) (hδ : δ ≠ 0) (ha : 0 ≤ a) (h
     rw [hfr]
     constructor <;> linarith
   rcases lt_or_gt_of_ne hδ with hneg | hpos
-  · -- negative step: walk down from above into `[a + k, b + k)` with `k = ⌊y⌋ - 1`
+  · -- Negative step: walk down from above into `[a + k, b + k)` with `k = ⌊y⌋ - 1`
     have habs : |δ| = -δ := abs_of_neg hneg
     set k : ℤ := ⌊y⌋ - 1 with hk
     have hkc : ((k : ℤ) : ℝ) = (⌊y⌋ : ℝ) - 1 := by rw [hk]; push_cast; ring
@@ -195,7 +158,7 @@ theorem exists_fract_mem_Ico (y δ a b : ℝ) (hδ : δ ≠ 0) (ha : 0 ≤ a) (h
     · have h1 : u < (⌊u⌋₊ : ℝ) + 1 := Nat.lt_floor_add_one u
       push_cast
       nlinarith
-  · -- positive step: walk up from below into `[a + k, b + k)` with `k = ⌊y⌋ + 1`
+  · -- Positive step: walk up from below into `[a + k, b + k)` with `k = ⌊y⌋ + 1`
     have habs : |δ| = δ := abs_of_pos hpos
     set k : ℤ := ⌊y⌋ + 1 with hk
     have hkc : ((k : ℤ) : ℝ) = (⌊y⌋ : ℝ) + 1 := by rw [hk]; push_cast; ring
@@ -275,7 +238,7 @@ theorem not_shift_invariant {z : ℕ} (hz : 1 ≤ z) {p : ℕ} (hp : 0 < p) (M :
   have hg0 : 0 < g := fract_r_mul_pos hz h4p
   have hg1 : g < 1 := Int.fract_lt_one y
   set t : ℝ := 1 - g with ht
-  -- the indicator `[t ≤ fract (r m)]` is pinned by the parity of `⌊y⌋`
+  -- The indicator `[t ≤ fract (r m)]` is pinned by the parity of `⌊y⌋`
   have hpin : ∀ m : ℕ, Odd m → M ≤ m → (t ≤ Int.fract (r z * m) ↔ ⌊y⌋ % 2 = 1) := by
     intro m hm hMm
     have hm' : Odd (m + 4 * p) := hm.add_even (by
@@ -314,7 +277,7 @@ theorem not_shift_invariant {z : ℕ} (hz : 1 ≤ z) {p : ℕ} (hp : 0 < p) (M :
     apply one_div_le_one_div_of_le (by positivity)
     push_cast
     linarith
-  -- the odd numbers `m₀ + 2 k' i` all lie past `M`
+  -- The odd numbers `m₀ + 2 k' i` all lie past `M`
   set m₀ : ℕ := 2 * M + 1 with hm₀
   have hfr : ∀ i : ℕ, Int.fract (r z * ((m₀ + 2 * k' * i : ℕ) : ℝ)) =
       Int.fract (r z * m₀ + i * δ) := by
@@ -335,7 +298,7 @@ theorem not_shift_invariant {z : ℕ} (hz : 1 ≤ z) {p : ℕ} (hp : 0 < p) (M :
   rw [hfr] at h₁ h₂
   exact absurd (h₁.mpr (h₂.mp hi₂)) (not_le.mpr hi₁)
 
-/-- **Non-vacuity.** For `1 ≤ z`, the set `S z` is infinite, so `a z` is a genuine
+/-- For `1 ≤ z`, the set `S z` is infinite, so `a z` is a genuine
 increasing enumeration and not eventually `0`. -/
 theorem S_infinite {z : ℕ} (hz : 1 ≤ z) : (S z).Infinite := by
   intro hfin
@@ -403,21 +366,14 @@ theorem not_eventually_periodic {z : ℕ} (hz : 1 ≤ z) :
     rw [hm']
     exact hmem _
 
-/-- **Cloitre's conjecture (A086844, Benoit Cloitre, Aug 10 2003) is false.**
-
-Verbatim: "Conjecture: let r(z)= (1/2) *(z+sqrt(z^2+4*z)), for any integral z>=1.
-Then the sequence a(n)-4n (where a(n) is the sequence of odd numbers m such that
-the sequence defined by b(1) = m; for k>1, b(k) = floor(r(z)*b(k-1)) contains only
-odd numbers) becomes ultimately periodic."
-
-Stated as the negation of the conjecture over all `z ≥ 1`; the proof refutes it
-at every `z ≥ 1`, in particular at `z = 2` (A086844 itself). -/
+/-- Cloitre's centered sequence is not eventually periodic for any `z≥1`
+(Benoit Cloitre, Aug 10 2003), in particular at `z=2` for A086844. -/
 theorem cloitre_conjecture_false :
     ¬ ∀ z : ℕ, 1 ≤ z → ∃ N p : ℕ, 0 < p ∧ ∀ n, N ≤ n →
       (a z (n + p) : ℤ) - 4 * ((n + p + 1 : ℕ) : ℤ) = (a z n : ℤ) - 4 * ((n + 1 : ℕ) : ℤ) :=
   fun h => not_eventually_periodic (by norm_num : 1 ≤ 2) (h 2 (by norm_num))
 
-/-! ## The case `z = 2` (A086844 itself): computable form and ground truth -/
+/-! ## The case `z = 2` (A086844 itself): computable form and examples -/
 
 /-- For `z = 2`, `r = 1 + √3` and `⌊r m⌋ = m + ⌊√(3 m²)⌋`. -/
 theorem floor_r_two_mul (m : ℕ) : ⌊r 2 * m⌋₊ = m + Nat.sqrt (3 * m ^ 2) := by
@@ -457,7 +413,7 @@ theorem a_two_eq_of_count {m n : ℕ} (hm : IsA086844 m) (hc : Nat.count IsA0868
   rw [hfun, ← hc]
   exact Nat.nth_count hm
 
-/-- Ground truth: `a 2` reproduces all 58 terms listed in A086844 (`a(1) = 5`, …,
+/-- `a 2` reproduces all 58 terms listed in A086844 (`a(1) = 5`, …,
 `a(58) = 237`). -/
 theorem a_two_listed : (List.range 58).map (a 2) =
     [5, 7, 13, 19, 21, 27, 29, 35, 37, 43, 49, 51, 57, 59, 65, 67, 71, 73, 79, 81, 87, 89, 95,

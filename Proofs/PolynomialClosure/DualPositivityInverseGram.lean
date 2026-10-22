@@ -1,32 +1,21 @@
 /-
-# Dual positivity: the inverse Gram matrix of a positive-definite tree lattice
+# Dual positivity for inverse Gram matrices
 
-## Source
+Joshua Evan Greene, Ahmad Issa, Duncan McCoy, *Tree Lattices and the
+Neumann-Zagier conjecture*, arXiv:2610.27095, Section 2, Lemma 2.1
+(`lem:dual_positivity`): the dual of any vertex in a positive-definite tree
+lattice has strictly positive coefficients in the vertex basis.
 
-* arXiv:2610.27095 — Joshua Evan Greene, Ahmad Issa, Duncan McCoy,
-  *Tree Lattices and the Neumann-Zagier conjecture*.
-* Location: Section 2 ("Preparation"), Lemma 2.1 (`lem:dual_positivity`).
-* Setup (Introduction): a finite weighted tree `T` with vertex set `V`, edge
-  set `E` and weight `wt : V → ℤ` determines the tree lattice `L(T)`, the free
-  abelian group on `V` with `u · v = wt(u)` if `u = v`, `-1` if `(u,v) ∈ E`,
-  and `0` otherwise.
-* Verbatim claim:
-  "Let $L(T)$ be a positive definite tree lattice. Let
-   $v^*=\sum_{x\in V} \nu_x x$ be the dual to a vertex $v$. Then $\nu_x>0$ for
-   all $x \in V$."
-* Date recorded: 2026-10-21.
-* Status: proved in the paper (sign-splitting argument); it is also the
-  classical fact that the inverse of an irreducible nonsingular M-matrix
-  (Stieltjes matrix) is entrywise positive (Berman-Plemmons; Varga).
-
-## Formalization
-
-The dual vector `v^*` has coefficient vector `ν` characterised by
-`x · v^* = δ_{xv}`, i.e. `A *ᵥ ν = Pi.single v 1` where `A` is the Gram
-matrix; equivalently `ν x = A⁻¹ x v`.  We prove the general statement for a
-positive-definite real matrix with nonpositive off-diagonal entries that are
-strictly negative along the edges of a connected graph, following the paper's
-proof (which uses only these properties), and specialise to `treeForm`.
+The Gram matrix has integer vertex weights on the diagonal, `-1` on edges,
+and `0` on non-adjacent distinct pairs.  The dual coefficient vector `ν` is
+characterised by `A *ᵥ ν = Pi.single v 1`, equivalently `ν x = A⁻¹ x v`.
+Following the source's sign-splitting argument, this module proves positivity
+for any positive-definite real matrix with nonpositive off-diagonal entries
+and strictly negative entries along the edges of a connected graph.  It then
+specialises to the weighted-tree matrix `treeForm`.  This is the matrix
+positivity result, not the paper's full lattice theorem.  In matrix language
+this is positivity of the inverse of an irreducible Stieltjes matrix
+(Berman–Plemmons; Varga).
 -/
 import Mathlib
 
@@ -47,17 +36,17 @@ def treeForm [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj] (wt : V �
   fun u v => if u = v then (wt u : ℝ) else if G.Adj u v then -1 else 0
 
 open scoped Classical in
-/-- Ground truth: the path on two vertices with weights `2` has diagonal `2`. -/
+/-- The path on two vertices with weights `2` has diagonal `2`. -/
 example : treeForm (SimpleGraph.pathGraph 2) (fun _ => 2) 0 0 = 2 := by
   simp [treeForm]
 
 open scoped Classical in
-/-- Ground truth: the path on two vertices has off-diagonal entry `-1`. -/
+/-- The path on two vertices has off-diagonal entry `-1`. -/
 example : treeForm (SimpleGraph.pathGraph 2) (fun _ => 2) 0 1 = -1 := by
   simp [treeForm, SimpleGraph.pathGraph_adj]
 
 open scoped Classical in
-/-- Ground truth: non-adjacent distinct vertices (ends of the path on three
+/-- Non-adjacent distinct vertices (ends of the path on three
 vertices) pair to `0`. -/
 example : treeForm (SimpleGraph.pathGraph 3) (fun _ => 2) 0 2 = 0 := by
   simp [treeForm, SimpleGraph.pathGraph_adj]
@@ -230,7 +219,7 @@ theorem treeForm_inv_pos [DecidableEq V] {T : SimpleGraph V} [DecidableRel T.Adj
     simp only [treeForm, if_neg (T.ne_of_adj hab), if_pos hab]
     norm_num
 
-/-! ## Non-vacuity: the two-vertex path with weights `2` (the `A₂` lattice) -/
+/-! ## The two-vertex path with weights `2` (the `A₂` lattice) -/
 
 /-- The path on two vertices is a tree. -/
 theorem pathGraph_two_isTree : (SimpleGraph.pathGraph 2).IsTree := by
@@ -266,7 +255,7 @@ theorem treeForm_pathGraph_two_posDef :
       nlinarith [sq_nonneg (x 0 - x 1), sq_nonneg (x 0)]
 
 open scoped Classical in
-/-- Ground truth for the dual characterisation: in `A₂`, the dual of vertex `0`
+/-- In `A₂`, the dual of vertex `0`
 is `0^* = (2/3)·0 + (1/3)·1`, i.e. `A *ᵥ (2/3, 1/3) = e₀`. -/
 example : treeForm (SimpleGraph.pathGraph 2) (fun _ => 2) *ᵥ ![2/3, 1/3] =
     Pi.single 0 1 := by
@@ -275,8 +264,7 @@ example : treeForm (SimpleGraph.pathGraph 2) (fun _ => 2) *ᵥ ![2/3, 1/3] =
     SimpleGraph.pathGraph_adj] <;> norm_num
 
 open scoped Classical in
-/-- Non-vacuity of `treeForm_inv_pos`: all hypotheses hold jointly for the
-two-vertex path with weights `2`. -/
+/-- Inverse positivity for the two-vertex path with weights `2`. -/
 example (u v : Fin 2) : 0 < (treeForm (SimpleGraph.pathGraph 2) (fun _ => 2))⁻¹ u v :=
   treeForm_inv_pos pathGraph_two_isTree _ treeForm_pathGraph_two_posDef u v
 

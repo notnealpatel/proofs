@@ -1,41 +1,16 @@
 /-
-# Counterexample to the Beck–Sam–Woods minimum-period conjecture: `a = (1,1,2,2,2,2,13)`
+# A counterexample to the Beck-Sam-Woods minimum-period conjecture
 
-## Source
-
-arXiv:2608.02085, Feihu Liu, Jinlong Tang, Guoce Xin, Chen Zhang,
-"Counterexamples to the Minimum Period Conjecture for Restricted Partition
-Functions".  Conjecture 1.1 (= Beck–Sam–Woods 2008, JCTA 115, Conjecture 11),
-Theorem 1.3 and the remark after it ("One such pair is `(u,M) = (2,13)`. One
-checks that here `per(c_0) = 13` and `p_0 = 26`."), Section 4
-(Theorem 4.3, the two-parameter family `R_{u,M}`).
-
-Verbatim informal claims:
-
-* Conjecture 1.1 (Beck–Sam–Woods). "For `0 ≤ j ≤ n-1`, let
-  `p_j := lcm{m ∈ ℤ_{>0} : b_m > j}`. Then the minimum period of the coefficient
-  function `c_j(k)` in `q_a(k) = c_{n-1}(k)k^{n-1} + ⋯ + c_1(k)k + c_0(k)` is
-  `p_j`", where `q_a(k) = #{(u_1,…,u_n) ∈ ℤ_{≥0}^n : a_1u_1 + ⋯ + a_nu_n = k}`,
-  `b_m = #{i : m ∣ a_i}`, and the `c_j : ℤ → ℂ` are the uniquely determined
-  periodic functions.
-* Theorem 1.3 at `(u, M) = (2, 13)`, i.e. `a = (1,1,2,2,2,2,13)`:
-  "the coefficient function `c_0(k)` has minimum period `M`, whereas the number
-  `p_0` predicted by Conjecture 1.1 is `2M`."
-
-Date: 2026-10-21.  Status: proved in the paper (via a root-of-unity formula
-for the `c_j` and a vanishing Fourier coefficient at `-1`).
-
-## What is formalized
-
-The proof here does not use the paper's residue calculus.  It gives the seven
-coefficient functions explicitly (fitted with Sage, then verified in Lean): `c_0`
-is `13`-periodic, `c_1, c_2, c_3` depend only on parity, and `c_4, c_5, c_6`
-are constant.  The identity `q_a(k) = ∑_j c_j(k) k^j` is proved by adding the
-parts one at a time (`2,2,2,2,1,1,13`) with the first-part recursion
-`q_{(m,a)}(k) = q_a(k) + q_{(m,a)}(k-m)`.  Every step reduces to two
-polynomial identities (one per parity) and finitely many base values.  The
-coefficients are unique (`expansion_unique`), so every complex expansion has
-`c_0` of minimum period exactly `13`.  Meanwhile `p_0 = lcm{1,2,13} = 26`.
+Feihu Liu, Jinlong Tang, Guoce Xin and Chen Zhang, "Counterexamples to the
+Minimum Period Conjecture for Restricted Partition Functions", arXiv:2608.02085,
+Conjecture 1.1 (Beck-Sam-Woods, JCTA 115 (2008), Conjecture 11),
+Theorem 1.3 and Section 4, Theorem 4.3.
+For `a = (1,1,2,2,2,2,13)`, the denumerant has an explicit quasi-polynomial
+expansion, unique among periodic complex expansions on nonnegative arguments.
+Its constant coefficient has minimum period `13`, whereas the conjecture
+predicts `26`. This proves the `(u,M) = (2,13)` instance, not the whole
+infinite family. The expansion is verified by first-part recurrences,
+polynomial identities and finite base values.
 -/
 import Mathlib
 

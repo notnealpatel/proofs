@@ -1,4 +1,4 @@
-import Enumerative.Practical
+import Sorry.Quarantine.Enumerative.Practical
 
 /-!
 # Archived open admission

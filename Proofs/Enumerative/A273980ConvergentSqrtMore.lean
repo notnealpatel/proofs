@@ -1,53 +1,14 @@
 /-
-# A273980 — Schoenfield: digit excess of √2 convergents via the mantissa of (1+√2)^(k+1)/2
+# Digit excess in convergents of √2 (A273980)
 
-## OEIS source (retrieved with `oeis show A273980`, 2026-10-21)
-
-```
-NAME:     Numbers k such that the number of digits in the numerator of the k-th
-          convergent of the continued fraction 1+1/(2+1/(2+1/(2+...))) = sqrt(2)
-          exceeds the number of digits in the denominator.
-TERMS:    8,13,21,26,34,39,47,55,60,68,73,81,86,89,94,102,107,115,120,128,136,
-          141,149,154,162,167,175,183,188,196,201,209,217,222,230,235,243,248,...
-COMMENT (indexing):
-  The square root of two can be expressed as the continued fraction
-  1+1/(2+1/(2+1/(2+...))), whose first three convergents are a(1)=1+1/2=3/2,
-  a(2)=1+1/(2+1/2)=7/5 and a(3)=1+1/(2+1/(2+1/2))=17/12. At the 8th
-  convergent, 1393/985, the number of digits in the numerator exceeds the
-  number of digits in the denominator for the first time.
-COMMENT (the conjecture; From _Jon E. Schoenfield_, Nov 27 2016):
-  Conjecture: an integer k is in the sequence iff s(k)/10^floor(log_10(s(k)))
-  is in the interval [1, sqrt(2)] where s(k) = ((1+sqrt(2))^(k+1))/2. (In
-  other words, k is in the sequence if and only if ((1+sqrt(2))^(k+1))/2,
-  expressed in the form x*10^m where m is the integer such that 1 <= x < 10,
-  satisfies x < sqrt(2).)
-```
-
-## Status
-
-Triage: open (no proof in the entry or the literature as far as the triage
-could tell).  This module proves the conjecture for every `k ≥ 1`, i.e. for
-every index of a convergent in the entry's numbering (`a(1) = 3/2`).
-
-## Boundary
-
-The `0`-th convergent `1/1` is a genuine exception to the literal statement:
-`s(0) = (1+√2)/2 ≈ 1.207` has mantissa in `[1, √2]`, yet numerator and
-denominator both have one digit.  The entry numbers convergents from `1`, so
-the guard `1 ≤ k` matches the source; `conjecture_fails_at_zero` records the
-exception.
-
-## Proof
-
-With `α = 1+√2`, `β = 1-√2`: `α^(k+1) = p_k + q_k √2`, `β^(k+1) = p_k - q_k √2`,
-so `p_k = s + e` and `q_k √2 = s - e` with `e = β^(k+1)/2`, `|e| < 1/4`.  The
-numerator has more digits iff some `10^m` satisfies `q_k < 10^m ≤ p_k`.  This is
-equivalent to `10^m ≤ s ≤ √2·10^m` once `p_k ≠ 10^m` and `q_k ≠ 10^m`.  Both
-follow from the Pell identity `p² - 2q² = ±1`.  For `q = 10^m`, `m ≥ 1`, the
-`+1` case is excluded modulo `91`.  There `100` has order `3`, and
-`2·100^m + 1` is a nonresidue mod `7` or mod `13`.  The `-1` case is excluded
-modulo `4`.  For `p = 10^m`, parity rules out both cases.  Computation (k ≤ 3000,
-1200-digit arithmetic) agreed, with `k = 0` the only mismatch.
+Source: Jon E. Schoenfield's OEIS A273980 comment (Nov 27 2016).
+For every `k ≥ 1`, the reduced convergent numerator has more decimal digits
+than the denominator iff the mantissa of `s(k)=(1+√2)^(k+1)/2` lies in `[1,√2]`.
+This uses the source's closed-interval wording; the parenthetical source
+wording instead uses a strict upper endpoint. Convergents start with `3/2`
+at index 1. Index 0, the convergent `1/1`, is an explicit exception.
+The proof uses Binet's formula and the Pell identity to exclude powers of 10
+as numerators or denominators. The mantissa uses `floor(log_10 s(k))`.
 -/
 import Mathlib
 
@@ -55,7 +16,7 @@ set_option autoImplicit false
 
 namespace Candidates.A273980ConvergentSqrtMore
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The tail `2 + 1/(2 + 1/(⋯ + 1/2))` of the continued fraction of `√2`
 with `n + 1` partial quotients all equal to `2`. -/
@@ -87,7 +48,7 @@ def IsA273980 (k : ℕ) : Prop :=
   1 ≤ k ∧ (Nat.digits 10 (convergent k).den).length <
     (Nat.digits 10 (convergent k).num.natAbs).length
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 example : convergent 1 = 3 / 2 := by norm_num [convergent, cfTail]
 example : convergent 2 = 7 / 5 := by norm_num [convergent, cfTail]
@@ -362,17 +323,10 @@ theorem mantissa_mem_iff (x : ℝ) (hx : 1 ≤ x) :
 
 /-! ## The conjecture -/
 
-/-- **Schoenfield's conjecture (A273980, Jon E. Schoenfield, Nov 27 2016), proved
-for every convergent index `k ≥ 1`.**
-
-Verbatim: "Conjecture: an integer k is in the sequence iff s(k)/10^floor(log_10(s(k)))
-is in the interval [1, sqrt(2)] where s(k) = ((1+sqrt(2))^(k+1))/2."
-
-The numerator of the `k`-th convergent of `√2` has more decimal digits than its
-denominator iff the mantissa `s(k) / 10^⌊log₁₀ s(k)⌋` of
-`s(k) = (1 + √2)^(k+1)/2` lies in `[1, √2]`.  The guard `1 ≤ k` follows the
-entry's numbering (first convergent `3/2`); at `k = 0` the statement fails, see
-`conjecture_fails_at_zero`. -/
+/-- Schoenfield's closed-interval characterization for every convergent
+index `k ≥ 1`: digit excess is equivalent to the mantissa of
+`(1+√2)^(k+1)/2` lying in `[1,√2]`. The numbering begins at `3/2`;
+`conjecture_fails_at_zero` records the exception `1/1`. -/
 theorem schoenfield_conjecture (k : ℕ) (hk : 1 ≤ k) :
     (Nat.digits 10 (convergent k).den).length <
         (Nat.digits 10 (convergent k).num.natAbs).length ↔
@@ -412,7 +366,7 @@ theorem conjecture_fails_at_zero :
     exact ⟨0, by rw [hs0, pow_zero]; linarith, by rw [hs0, pow_zero, mul_one]; linarith⟩
   · norm_num [convergent]
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- `k = 8` (first term) is in the sequence and `k = 7` is not.
 example : IsA273980 8 := by

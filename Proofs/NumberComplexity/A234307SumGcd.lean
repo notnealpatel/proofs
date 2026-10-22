@@ -1,26 +1,10 @@
 /-
 # A234307 — Bala: an alternating gcd-sum formula for `Σ gcd(2n-i, i)`
 
-## OEIS source (retrieved with `oeis show A234307`, 2026-10-21)
+Peter Bala's conjecture in OEIS A234307 (2024), where
+`a(n) = Σ_{i=1}^n gcd(2n-i,i)`.
 
-```
-NAME:     a(n) = Sum_{i=1..n} gcd(2*n-i, i).
-TERMS:    1,3,6,8,11,17,16,20,27,31,26,44,31,45,60,48,41,75,46,80,...
-COMMENT:  Sum of the GCD's of the smallest and largest parts in the partitions
-          of 2n into exactly two parts.
-FORMULA:  a(n) = (A018804(2*n)-n)/2. - _Sebastian Karlsson_, Oct 03 2021
-FORMULA (the conjecture):
-  Conjecture: a(n) = (1/4)*Sum_{k = 1..4*n} (-1)^k *gcd(k, 8*n).
-  - _Peter Bala_, Jan 01 2024
-```
-
-## Status
-
-Triage status: open (no proof in the entry or the literature located by the
-triage; numerically verified for `n ≤ 2000` by the triage and `n ≤ 3000` here).
-
-This file proves the conjecture.  The argument is elementary and avoids
-Pillai's function: with `L = Σ_{i=1}^{n} gcd(i, 2n)` (which equals `a(n)`
+The alternating-sum identity follows without Pillai's function: with `L = Σ_{i=1}^{n} gcd(i, 2n)` (which equals `a(n)`
 because `gcd(2n-i, i) = gcd(2n, i)`) and `O = Σ_{j<n} gcd(2j+1, 2n)`,
 
 * the even terms of the alternating sum give `2 Σ_{j=1}^{2n} gcd(j, 4n)
@@ -43,7 +27,7 @@ open Finset
 subtraction `2n - i` is never truncated because `i ≤ n ≤ 2n`. -/
 def a (n : ℕ) : ℕ := ∑ i ∈ Icc 1 n, Nat.gcd (2 * n - i) i
 
-/-! ## Ground truth against the OEIS DATA line `1, 3, 6, 8, 11, 17, 16, 20, 27, 31` -/
+/-! ## Examples against the OEIS DATA line `1, 3, 6, 8, 11, 17, 16, 20, 27, 31` -/
 
 example : a 1 = 1 := by decide
 example : a 2 = 3 := by decide
@@ -153,20 +137,15 @@ lemma balaSum_eq (n : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjecture (A234307, Peter Bala, Jan 01 2024), integer form.**
-
-For `n ≥ 1`, `4 · Σ_{i=1}^{n} gcd(2n-i, i) = Σ_{k=1}^{4n} (-1)^k gcd(k, 8n)`.
-This clears the denominator of the verbatim statement
-"Conjecture: a(n) = (1/4)*Sum_{k = 1..4*n} (-1)^k *gcd(k, 8*n)." -/
+/-- Bala's conjecture (OEIS A234307, 2024), with the denominator cleared:
+for `n ≥ 1`, `4 Σ_{i=1}^n gcd(2n-i,i) = Σ_{k=1}^{4n} (-1)^k gcd(k,8n)`. -/
 theorem four_mul_a_eq_balaSum (n : ℕ) (_hn : 1 ≤ n) : 4 * (a n : ℤ) = balaSum n := by
   rw [balaSum_eq, sum_gcd_four_mul, sum_odd_gcd_two_mul, a_eq_sum_range]
   push_cast
   ring
 
-/-- **Bala's conjecture (A234307, Peter Bala, Jan 01 2024), verbatim form.**
-
-"Conjecture: a(n) = (1/4)*Sum_{k = 1..4*n} (-1)^k *gcd(k, 8*n)", for `n ≥ 1`,
-with `a(n) = Σ_{i=1}^{n} gcd(2n-i, i)`, stated over `ℚ`. -/
+/-- Bala's conjecture (OEIS A234307, 2024), over `ℚ`: for `n ≥ 1`,
+`a(n) = (1/4) Σ_{k=1}^{4n} (-1)^k gcd(k,8n)`. -/
 theorem a_eq_quarter_alternating_gcd_sum (n : ℕ) (hn : 1 ≤ n) :
     (a n : ℚ) = (1 / 4) * ∑ k ∈ Icc 1 (4 * n), (-1 : ℚ) ^ k * (Nat.gcd k (8 * n) : ℚ) := by
   have hZ := four_mul_a_eq_balaSum n hn

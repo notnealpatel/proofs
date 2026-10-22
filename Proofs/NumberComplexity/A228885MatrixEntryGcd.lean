@@ -1,46 +1,12 @@
 /-
 # A228885 — Sun: sign of the coprimality determinant for squarefree `n`
 
-## OEIS source (`oeis show A228885`, live entry https://oeis.org/A228885,
-## retrieved 2026-10-21)
-
-```
-NAME:     Determinant of the n X n matrix with (i,j)-entry equal to 1 or 0
-          according as i + j is coprime to n or not.
-AUTHOR:   Zhi-Wei Sun, Sep 06 2013
-TERMS:    1,-1,-2,0,4,-4,-6,0,0,-16,-10,0,12,-36,-2048,0,16,0,-18,0,27648,
-          -100,-22,0,0,-144,0,0,28,-4194304,...
-KEYWORDS: sign
-COMMENT (the conjecture; unsigned comment of the entry author, Zhi-Wei Sun,
-         Sep 06 2013):
-  Conjecture: If n is squarefree, then (-1)^(n*(n-1)/2)*a(n) > 0.
-COMMENT:
-  When p^2 divides n with p prime, (i + n/p) + j is coprime to n if and
-  only if i + j is coprime to n. So a(n) = 0 if n is not squarefree.
-COMMENT:
-  It is easy to show that Phi(n) divides a(n) for any n > 0, where Phi(n)
-  is Euler's totient function. Also, a(p) = (-1)^((p-1)/2)*(p-1) for any
-  odd prime p.
-FORMULA (Conjectures from _Ridouane Oudra_, Mar 13 2025):
-  a(n) = (-1)^floor(n/2)*mu(n)^2*Product_{k=1..n} phi(gcd(n,k)).
-  a(n) = (-1)^floor(n/2)*mu(n)^2*Product_{d|n} phi(d)^phi(n/d).
-```
-
-## Status
-
-Triage status: open.  The entry proves only `a(n) = 0` for non-squarefree
-`n`, `phi(n) ∣ a(n)` and the prime case.  Sun's arXiv:1308.2900 does not
-contain this conjecture, and one limited web search found no published
-proof; no novelty claim is made beyond that search.
-
-## Result in this file
-
-The conjecture is proved here, in the stronger closed form
-`a(n) = (-1)^(n(n-1)/2) * ∏_{p ∣ n} (p - 1)^(n/p)` for squarefree `n`
-(`sunDet_of_squarefree`), from which Sun's sign statement
-(`sun_conjecture`) follows.  Computational re-validation (Sage, exact
-integer determinants): the closed form matches `a(n)` for every squarefree
-`n ≤ 160`, and `a(n) = 0` for every non-squarefree `n ≤ 160`.
+Zhi-Wei Sun's sign conjecture in OEIS A228885 concerns the determinant
+`a(n)` of the matrix `[gcd(i+j,n)=1]`, indexed by `1 ≤ i,j ≤ n`.
+For squarefree `n`, the stronger formula proved here is
+`a(n) = (-1)^(n(n-1)/2) ∏_{p ∣ n} (p-1)^(n/p)`; it implies the sign claim.
+Ridouane Oudra's closed forms in the entry specialize to this formula on
+squarefree `n`.
 
 Proof outline.
 1. Index rows and columns by `ZMod n` via `i ↦ i + 1` on both sides, so the
@@ -68,7 +34,7 @@ namespace Candidates.A228885MatrixEntryGcd
 open Matrix
 open scoped Kronecker
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The `n × n` integer matrix of A228885: rows and columns are indexed by
 `i, j ∈ {1, …, n}` (stored as `Fin n` with offset `+1`), and the
@@ -79,22 +45,22 @@ def sunMatrix (n : ℕ) : Matrix (Fin n) (Fin n) ℤ :=
 /-- `a(n)` of A228885: the determinant of `sunMatrix n`. -/
 def sunDet (n : ℕ) : ℤ := (sunMatrix n).det
 
-/-- Ground truth: `a(1) = 1`. -/
+/-- `a(1) = 1`. -/
 example : sunDet 1 = 1 := by
   rw [sunDet, det_unique]
   decide
 
-/-- Ground truth: `a(2) = -1`. -/
+/-- `a(2) = -1`. -/
 example : sunDet 2 = -1 := by
   rw [sunDet, det_fin_two]
   decide
 
-/-- Ground truth: `a(3) = -2`. -/
+/-- `a(3) = -2`. -/
 example : sunDet 3 = -2 := by
   rw [sunDet, det_fin_three]
   decide
 
-/-- Ground truth: the matrix for `n = 4` is the checkerboard pattern
+/-- the matrix for `n = 4` is the checkerboard pattern
 `[[0,1,0,1],[1,0,1,0],[0,1,0,1],[1,0,1,0]]`. -/
 example : sunMatrix 4 = !![0, 1, 0, 1; 1, 0, 1, 0; 0, 1, 0, 1; 1, 0, 1, 0] := by
   ext i j
@@ -343,16 +309,14 @@ theorem det_unitHankel_of_squarefree :
 
 /-- **Closed form (strong form of Sun's conjecture, A228885).** For every
 squarefree `n`, `a(n) = (-1)^(n(n-1)/2) * ∏_{p ∣ n prime} (p - 1)^(n/p)`.
-The triage notes that Oudra's 2025 conjectural closed forms in the entry
-specialize to this on squarefree `n`. -/
+Oudra's conjectural closed forms in the entry specialize to this on
+squarefree `n`. -/
 theorem sunDet_of_squarefree {n : ℕ} (hn : Squarefree n) :
     sunDet n = (-1) ^ (n * (n - 1) / 2) * ∏ p ∈ n.primeFactors, ((p : ℤ) - 1) ^ (n / p) := by
   haveI : NeZero n := ⟨hn.ne_zero⟩
   rw [sunDet_eq_det_unitHankel, det_unitHankel_of_squarefree n inferInstance hn]
 
-/-- **Sun's conjecture (A228885, Zhi-Wei Sun, Sep 06 2013).**
-
-Verbatim: "Conjecture: If n is squarefree, then (-1)^(n*(n-1)/2)*a(n) > 0."
+/-- **Sun's conjecture (A228885, Zhi-Wei Sun).**
 
 Here `a(n) = sunDet n` is the determinant of the `n × n` matrix with
 `(i, j)`-entry `1` if `gcd(i + j, n) = 1` and `0` otherwise.  `Squarefree n`

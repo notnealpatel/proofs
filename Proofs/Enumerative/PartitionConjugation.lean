@@ -1,39 +1,13 @@
 /-
-# Partition conjugation: at most `k` parts ↔ parts at most `k`
+# Conjugation of integer partitions
 
-## Classical source
-
-G. E. Andrews, *The Theory of Partitions* (Addison-Wesley, 1976; Cambridge, 1998),
-Chapter 1, Theorem 1.4 (proved by conjugating the Ferrers graph); also
-R. P. Stanley, *Enumerative Combinatorics*, Vol. 1, §1.8 (conjugate partition).
-
-## Informal statement (verbatim from the target specification)
-
-```
-For all n, k, the number of partitions of n into at most k parts equals the number of
-partitions of n with every part ≤ k. Equivalently (exact version),
-#{λ ⊢ n : λ has exactly k parts} = #{λ ⊢ n : largest part = k}.
-```
-
-Date: 2026-10-21.
-
-## Mathlib status
-
-Mathlib has `Nat.Partition` (`Mathlib/Combinatorics/Enumerative/Partition/Basic.lean`, whose
-TODO reads "Link this to Young diagrams") and `YoungDiagram.transpose`, but no conjugation of
-`Nat.Partition` and no bridge between the two (checked with `leandoc`, 2026-10-21).
-
-## Formalization
-
-Partitions are Mathlib's `Nat.Partition n`.  The conjugate is defined directly on the multiset
-of parts: the `j`-th column of the Ferrers diagram (`0 ≤ j < max part`) has length
-`partsGT s j = #{parts > j}`.  Since `partsGT s` is antitone, the Galois-type identity
-`i < partsGT s l ↔ l < partsGT (conjParts s) i` (`lt_partsGT_iff`) gives
-`partsGT (conjParts (conjParts s)) = partsGT s`, and a multiset of positive integers is
-determined by its `partsGT` function, so conjugation is an involution.
-
-The largest part of a partition is `p.parts.sup` (with the convention `sup ∅ = 0`, matching
-"the empty partition of `0` has `0` parts").
+G. E. Andrews, *The Theory of Partitions* (1976; Cambridge, 1998), Chapter 1,
+Theorem 1.4; R. P. Stanley, *Enumerative Combinatorics*, Vol. 1, §1.8.
+Conjugation of `Nat.Partition n` is an involution exchanging the number of
+parts and the largest part. It equates counts with at most k parts and
+counts with all parts at most k, as well as their exact versions.
+Column lengths are `partsGT s j = #{parts > j}` for `j < max part`.
+The empty partition has largest part 0, so the statements include `n=k=0`.
 -/
 import Mathlib
 
@@ -51,19 +25,19 @@ def partsGT (s : Multiset ℕ) (j : ℕ) : ℕ := (s.filter (j < ·)).card
 Ferrers diagram of `s`. -/
 def conjParts (s : Multiset ℕ) : Multiset ℕ := (Multiset.range s.sup).map (partsGT s)
 
-/-- Ground truth: the conjugate of `3 + 1` is `2 + 1 + 1`. -/
+/-- The conjugate of `3 + 1` is `2 + 1 + 1`. -/
 example : conjParts {3, 1} = {2, 1, 1} := by decide
 
-/-- Ground truth: the conjugate of `4 + 2 + 1` is `3 + 2 + 1 + 1`. -/
+/-- The conjugate of `4 + 2 + 1` is `3 + 2 + 1 + 1`. -/
 example : conjParts {4, 2, 1} = {3, 2, 1, 1} := by decide
 
-/-- Ground truth: the conjugate of `5` is `1 + 1 + 1 + 1 + 1`. -/
+/-- The conjugate of `5` is `1 + 1 + 1 + 1 + 1`. -/
 example : conjParts {5} = {1, 1, 1, 1, 1} := by decide
 
-/-- Ground truth: the conjugate of the empty partition is empty. -/
+/-- The conjugate of the empty partition is empty. -/
 example : conjParts 0 = 0 := by decide
 
-/-- Ground truth: `partsGT {3, 1, 1} 0 = 3` and `partsGT {3, 1, 1} 1 = 1`. -/
+/-- `partsGT {3, 1, 1} 0 = 3` and `partsGT {3, 1, 1} 1 = 1`. -/
 example : partsGT {3, 1, 1} 0 = 3 ∧ partsGT {3, 1, 1} 1 = 1 := by decide
 
 /-- Counting a parts-exceed predicate as a sum of indicators. -/
@@ -297,7 +271,7 @@ theorem card_card_parts_eq_eq_card_sup_parts_eq (n k : ℕ) :
   · intro p _
     exact conj_conj p
 
-/-- Ground truth for `conj`: the partition `3 + 1` of `4` conjugates to `2 + 1 + 1`, so the
+/-- `conj`: the partition `3 + 1` of `4` conjugates to `2 + 1 + 1`, so the
 partition with `2` parts goes to a partition with largest part `2`. -/
 example : (conj (⟨{3, 1}, by decide, by decide⟩ : (4 : ℕ).Partition)).parts = {2, 1, 1} := by
   decide

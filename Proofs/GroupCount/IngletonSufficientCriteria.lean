@@ -1,70 +1,24 @@
 /-
-# Ingleton inequality: elementary sufficient criteria
+# Ingleton inequality: sufficient criteria
 
-## Source
+David A. Craven, *The Ingleton inequality holds for metacyclic groups and
+fails for supersoluble groups*, arXiv:2505.22565, Section 2.
 
-David A. Craven, "The Ingleton inequality holds for metacyclic groups and
-fails for supersoluble groups", arXiv:2505.22565, Section 2 ("Preliminary
-lemmas and general conditions"): Lemma 2.1 (`lem:orderintersection`),
-Lemma 2.4 (`lem:reducesizeofH1`), Proposition 2.6 (`prop:ingoffenderfact`),
-Lemma 2.8 (`lem:generalexclusions`).  Recorded 2026-10-21.
+For a quadruple of subgroups, `H_I` denotes intersection over `I`. This file
+proves the set-product cardinality formula and Lemma 2.1; the reduced-`H₁`
+criterion (Lemma 2.4, `lem:reducesizeofH1`); the factor criterion
+(Proposition 2.6, `prop:ingoffenderfact`); the cyclic-factor cases
+(Corollary 2.7); and Lemma 2.8 (`lem:generalexclusions`) for trivial `H₁₂`
+or subgroup set product `H₁H₂`, including the normal-factor and abelian
+consequences. The abelian case is attributed there to Chan (2007).
+The other trivial-intersection cases and the containment cases of Lemma 2.8
+are not formalized.
 
-Numbering note: the source shares one counter (`\numberwithin{prop}{section}`)
-across lemmas, remarks, propositions and corollaries, so the numbers above are
-computed from the `.tex`; the triage card called these Prop 2.4, Cor 2.5 and
-Lemma 2.6.  The `\label`s are the stable identifiers.
-
-Definition (paper, Introduction, verbatim): "let $G$ be a finite group and let
-$\mathbf H=(H_1,H_2,H_3,H_4)$ be a quadruple of subgroups of $G$. Write
-$H_{12}$ for the intersection $H_1\cap H_2$ and so on. We call $\mathbf H$ an
-*Ingleton offender* if the inequality
-$|H_1|\cdot|H_2|\cdot|H_{34}|\cdot|H_{123}|\cdot|H_{124}|\geq
-|H_{12}|\cdot|H_{13}|\cdot|H_{14}|\cdot|H_{23}|\cdot|H_{24}|$
-is not satisfied by the $H_i$."
-
-Lemma 2.1 (verbatim): "If $A$ and $B$ are subgroups of a finite group $G$
-then $|G|\cdot |A\cap B|\geq |A|\cdot |B|$."
-
-Lemma 2.4 (verbatim): "Let $G$ be a finite group and let
-$\mathbf H=(H_1,H_2,H_3,H_4)$ be a quadruple of subgroups of $G$. If
-$(H_1,H_2,H_3,H_4)$ is an Ingleton offender then so is
-$\bar{\mathbf H}=(\gen{H_{13},H_{14}},H_2,H_3,H_4)$."
-
-Proposition 2.6 (verbatim): "If $\mathbf H=(H_1,H_2,H_3,H_4)$ is a quadruple
-of subgroups of a finite group $G$ with $H_{12}=H_{123}H_{124}$ then
-$\mathbf H$ is not an Ingleton offender."
-
-Lemma 2.8 (verbatim, items 1 and 3 and the consequence): "Let
-$\mathbf{H}=(H_1,H_2,H_3,H_4)$ be a quadruple of subgroups of a finite group
-$G$. If any of the following hold, then $\mathbf{H}$ is not an Ingleton
-offender. (1) Any of $H_{12}$, [...] being trivial. [...] (3) $H_1H_2$ is a
-subgroup of $G$. Consequently, if $H_1$ or $H_2$ is a normal subgroup of $G$,
-or if $G$ is abelian, then $\mathbf H$ is not an Ingleton violator."
-
-## Status
-
-Proved in the paper (the abelian case is due to Chan, 2007).  Everything in
-this module is kernel-checked; it carries no `sorry`.  Formalized here:
-Lemma 2.1, the product formula `|AB|·|A ∩ B| = |A|·|B|`, Lemma 2.4,
-Proposition 2.6, Corollary 2.7 (`H₁` or `H₂` cyclic), Lemma 2.8(1) for
-`H₁₂ = 1`, Lemma 2.8(3), and the consequences for normal `H₁`, normal `H₂`
-and commutative `G`.  Not formalized: the remaining cases of Lemma 2.8(1)
-(`H₁₃`, `H₁₄`, `H₂₃`, `H₂₄` trivial) and Lemma 2.8(2) (containments).
-
-Corollary 2.7 (verbatim): "If $(H_1,H_2,H_3,H_4)$ is an Ingleton offender
-then $H_1$ and $H_2$ cannot be cyclic."  Its cyclic-lattice step ("if $X=AB$
-is cyclic and $C\leq X$ then $C=(A\cap C)(B\cap C)$") is proved here at the
-element level (`exists_zpow_split`) by a Bezout argument instead of the
-paper's gcd count.
-
-## Proof-route note
-
-The paper's last step for Lemma 2.8(3) applies "the order formula" to the
-*sets* $X = H_{13}H_{23}$, $Y = H_{14}H_{24}$, which are not subgroups, so
-that step is not literally the order formula.  We use a repaired route with
-the same ingredients: $X \subseteq K \cap H_3$ and $Y \subseteq K \cap H_4$
-for $K = H_1H_2$, and Lemma 2.1 inside $K$ gives
-$|K\cap H_3|\cdot|K\cap H_4| \le |K|\cdot|H_{34}|$.
+The cyclic splitting step uses Bézout at the element level. For Lemma 2.8(3),
+the proof bounds the set products `H₁₃H₂₃` and `H₁₄H₂₄` by the subgroups
+`K ∩ H₃` and `K ∩ H₄`, where `K = H₁H₂`, before applying the subgroup order
+inequality inside `K`. This avoids applying the subgroup order formula
+directly to set products that need not be subgroups.
 -/
 import Mathlib
 
@@ -87,9 +41,7 @@ def Ingleton (H₁ H₂ H₃ H₄ : Subgroup G) : Prop :=
     Nat.card H₁ * Nat.card H₂ * Nat.card ↥(H₃ ⊓ H₄) * Nat.card ↥(H₁ ⊓ H₂ ⊓ H₃) *
       Nat.card ↥(H₁ ⊓ H₂ ⊓ H₄)
 
-/-! Ground truth for `Ingleton` in `C₂ = Multiplicative (ZMod 2)`.  The
-unfolding is checked by rewriting each order to a numeral (no arithmetic
-evaluation), so the side and factor order of the definition are pinned:
+/-! Examples for `Ingleton` in `C₂ = Multiplicative (ZMod 2)`:
 for `(C₂, C₂, 1, 1)` the intersection side is `|H₁₂|·|H₁₃|·|H₁₄|·|H₂₃|·|H₂₄|
 = 2·1·1·1·1` and the order side is `|H₁|·|H₂|·|H₃₄|·|H₁₂₃|·|H₁₂₄| = 2·2·1·1·1`;
 for `(C₂, 1, C₂, C₂)` they are `1·2·2·1·1` and `2·1·2·1·1`. -/
@@ -483,7 +435,7 @@ theorem ingleton_of_isCyclic_right [Finite G] (H₁ H₂ H₃ H₄ : Subgroup G)
     (hc : IsCyclic H₂) : Ingleton H₁ H₂ H₃ H₄ :=
   ingleton_swap_left (ingleton_of_isCyclic_left H₂ H₁ H₃ H₄ hc)
 
-/-! Satisfiability of the hypotheses at concrete models. -/
+/-! Examples of the sufficient criteria. -/
 
 /-- The hypothesis of Proposition 2.6 holds with `H₁ = ⊤`, `H₂ = ⊥`. -/
 example (H₃ H₄ : Subgroup (Multiplicative (ZMod 6))) :

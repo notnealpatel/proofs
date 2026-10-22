@@ -1,43 +1,13 @@
 /-
-# A121724 — Mathar: a P-recursive recurrence for the k = 2 generalized central binomials
+# A121724: Mathar's recurrence from the algebraic generating function
 
-## OEIS source (retrieved with `oeis show A121724`, 2026-10-21)
-
-```
-NAME:     Generalized central binomial coefficients for k=2.
-TERMS:    1,1,5,9,45,97,485,1145,5725,14289,71445,185193,925965,2467137,
-          12335685,33563481,167817405,464221105,2321105525,6507351113, ...
-FORMULA:  G.f.: (sqrt(1-16*x^2) + 2*x - 1)/(2*x*(1-5*x)) = c(4*x^2)/(1-x*c(4*x^2)),
-          c(x) the g.f. of A000108.
-FORMULA (the conjecture):
-  Conjecture: (n+1)*a(n) = 5*(n+1)*a(n-1) + 16*(n-2)*a(n-2) - 80*(n-2)*a(n-3).
-  - _R. J. Mathar_, Nov 26 2012
-```
-
-## Status
-
-Triage: "open" (no proof recorded in the entry or found in the literature by the
-triage); flagged as a routine D-finite consequence of the algebraic g.f.
-This module proves it.
-
-## Formalization
-
-The entry defines the sequence by its g.f. `A = (√(1-16x²) + 2x - 1)/(2x(1-5x))`.
-Over `ℚ⟦X⟧` this is the statement `2X(1-5X)·A = D + 2X - 1` where `D` is the
-square root of `1 - 16X²` with constant term `1` (unique: `sqrt_unique`).
-
-* `recurrence_of_gf` proves Mathar's recurrence for *every* rational sequence
-  whose g.f. satisfies `2X(1-5X)·A = D + 2X - 1` with `D² = 1 - 16X²`.
-* `a` is a computable integer sequence (defined by the coefficient recursion of
-  the quadratic `A = 1 + 2XA - XA² + 5X²A²` equivalent to the g.f.);
-  `gf_spec` / `sqrtPart_sq` / `constantCoeff_sqrtPart` show its g.f. is the
-  entry's g.f., and the first 12 listed terms are checked by kernel evaluation.
-* `conjecture` is Mathar's recurrence for `a`, for `3 ≤ n` (the range in which
-  `a(n-3)` is defined).
-
-Proof: differentiating `D² = 1 - 16X²` gives `(1 - 16X²)D' = -16XD`, i.e.
-`(k+3) d_{k+3} = 16 k d_{k+1}`; comparing coefficients in the g.f. equation gives
-`d_{k+2} = 2(a_{k+1} - 5 a_k)`; substituting yields the recurrence.
+OEIS A121724, R. J. Mathar (Nov 26 2012), with A000108.
+The integer coefficient recurrence defines a series `A` satisfying
+`2X(1-5X)A = D + 2X - 1`, where `D² = 1 - 16X²` and `D(0) = 1`.
+This identifies the square-root branch of the entry's generating function.
+Differentiating gives Mathar's recurrence for every `n ≥ 3`.
+The first eight terms are checked; a combinatorial interpretation and
+positivity are not proved.
 -/
 import Mathlib
 
@@ -150,7 +120,7 @@ def a : ℕ → ℤ
       + 5 * ∑ i : Fin n, a i * a (n - 1 - i)
 decreasing_by all_goals first | exact Fin.isLt _ | omega
 
-/-- Ground truth: the first eight listed terms of A121724. -/
+/-- Example: the first eight listed terms of A121724. -/
 example : (List.range 8).map a = [1, 1, 5, 9, 45, 97, 485, 1145] := by
   decide +kernel
 

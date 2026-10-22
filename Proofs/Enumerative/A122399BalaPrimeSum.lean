@@ -1,36 +1,12 @@
 /-
-# A122399 — Bala: `∑ k^n k! S(n,k)` is purely periodic mod `p` with period dividing `p - 1`
+# A122399: a prime-modulus period
 
-## OEIS source (retrieved with `oeis show A122399`, 2026-10-21)
-
-```
-NAME:     a(n) = Sum_{k=0..n} k^n * k! * Stirling2(n,k).
-TERMS:    1,1,9,211,9285,658171,68504709,9837380491,1863598406805,
-          450247033371451,135111441590583909,...
-FORMULA:  E.g.f.: Sum_{n >= 0} (exp(n*x) - 1)^n. - _Vladeta Jovovic_, Sep 03 2006
-COMMENT (the conjecture):
-  Conjecture: Let p be prime. The sequence obtained by reducing a(n) modulo p
-  for n >= 1 is purely periodic with period p - 1. For example, modulo 7 the
-  sequence becomes [1, 2, 1, 3, 3, 0, 1, 2, 1, 3, 3, 0, ...], with an apparent
-  period of 6. Cf. A338040. - _Peter Bala_, May 31 2022
-```
-
-## Status
-
-Triage: "open" (no proof in the entry or located in the literature).  The
-statement is an instance of the routine argument for weighted Stirling
-transforms: modulo `p` only the terms `k < p` survive (`p ∣ k!` otherwise),
-`k! S(n,k) = ∑_i (-1)^(k+i) C(k,i) i^n`, and by Fermat `x^(n + (p-1)) = x^n`
-in `ZMod p` for every `x` once `n ≥ 1`.  This file formalizes that argument.
-
-## Reading of "purely periodic with period p - 1"
-
-We state that `p - 1` is a period of `n ↦ a(n) mod p` on `n ≥ 1`, i.e.
-`a(n + (p-1)) ≡ a(n) (mod p)` for all `n ≥ 1`; equivalently the minimal
-period divides `p - 1`.  Minimality (exact period `p - 1` for odd `p`) is
-observed numerically (all primes `p < 60`, `n ≤ 200`) but is not claimed
-here.  The guard `n ≥ 1` is load-bearing: `a(0) = 1` but `a(p-1) ≡ 0 (mod p)`
-for `p = 7` (the entry's own example shows `a(6) ≡ 0`).
+OEIS A122399, Peter Bala (May 31 2022); e.g.f. formula by Vladeta Jovovic
+(Sep 03 2006), with A338040.
+For prime `p` and `n ≥ 1`, the sum `Σ_k k^n k! S₂(n,k)` satisfies
+`a(n+p-1) ≡ a(n) (mod p)`. Thus `p-1` is a period, not necessarily the
+least period; minimality is not claimed. The index restriction is essential:
+the periodicity need not extend to `n = 0`.
 -/
 import Mathlib
 import Enumerative.A064618ModEventuallyPeriodic
@@ -41,7 +17,7 @@ namespace Candidates.A122399BalaPrimeSum
 
 open Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A122399: `a(n) = ∑_{k=0}^{n} k^n k! S(n,k)`, with `S = Nat.stirlingSecond`
 the Stirling numbers of the second kind (so `a(0) = 0^0 0! S(0,0) = 1`). -/
@@ -120,7 +96,7 @@ theorem bala_conjecture (p : ℕ) [Fact p.Prime] (n : ℕ) (hn : 1 ≤ n) :
   rw [← ZMod.natCast_eq_natCast_iff, cast_a_eq_powSum, cast_a_eq_powSum]
   simp_rw [pow_add_card_sub_one p hn]
 
-/-! ## Sanity layer -/
+/-! ## Examples -/
 
 -- PROVABLE: the hypotheses are jointly satisfiable and the statement is
 -- non-vacuous at the entry's example `p = 7`, `n = 1`: `a(7) ≡ a(1) (mod 7)`.

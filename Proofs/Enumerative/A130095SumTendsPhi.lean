@@ -1,26 +1,9 @@
 /-
-# A130095 — ratio of consecutive terms tends to φ²
+Consecutive-term ratio of OEIS A130095 (Gary W. Adamson, May 06 2007).
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A130095` and the live
-## entry `https://oeis.org/A130095/internal`)
-
-```
-NAME:     Inverse Möbius transform of odd-indexed Fibonacci numbers.
-TERMS:    1,3,6,16,35,97,234,626,1603,4218,10947,28767,75026,196654,514269,
-          1346895,3524579,9229159,24157818,63250217,...
-COMMENT:  Original name was: A051731 * A007436.
-COMMENT (the conjecture):
-          Conjecture: a(n)/a(n-1) tends to phi^2.
-AUTHOR:   Gary W. Adamson, May 06 2007 (the conjecture line carries no separate
-          attribution, so it is the author's, May 06 2007)
-FORMULA:  From Peter Bala, Mar 26 2015: a(n) = sum {d | n} Fibonacci(2*d - 1).
-```
-
-## Status
-
-Triage: "open" (no proof in the entry or the literature as far as the triage
-could tell).  The argument is elementary: `F(2n-1) ≤ a(n) ≤ F(2n-1) + F(n)`,
-and Binet's formula gives `a(n) / φ^(2n) → 1 / (√5 φ)`.  This file proves it.
+Using a(n)=∑_{d∣n} F(2d-1) (Peter Bala, Mar 26 2015), the real quotient
+a(n+1)/a(n) tends to φ². For positive n, F(2n-1)≤a(n)≤F(2n-1)+F(n).
+Binet's formula first gives a(n+1)/φ^(2n+2) → 1/(√5 φ), then the ratio limit.
 -/
 import Mathlib
 
@@ -36,7 +19,7 @@ Every divisor satisfies `d ≥ 1`, so the truncated subtraction `2 * d - 1` neve
 hits its junk value.  Offset 1: `a 0 = 0` (empty divisor set) is not a term. -/
 def a (n : ℕ) : ℕ := ∑ d ∈ n.divisors, Nat.fib (2 * d - 1)
 
--- Ground truth: the first twelve listed terms.
+-- The first twelve listed terms.
 example : (List.range 12).map (fun n => a (n + 1)) =
     [1, 3, 6, 16, 35, 97, 234, 626, 1603, 4218, 10947, 28767] := by
   decide
@@ -123,13 +106,13 @@ theorem tendsto_a_div_goldenRatio_pow :
     show n ≤ 2 * n + 1
     omega
   have hshift : Tendsto (fun n : ℕ => n + 1) atTop atTop := tendsto_add_atTop_nat 1
-  -- lower envelope `F(2n+1) / φ^(2n+2)`
+  -- Lower envelope `F(2n+1) / φ^(2n+2)`
   have hlow : Tendsto (fun n : ℕ => (Nat.fib (2 * n + 1) : ℝ) / φ ^ (2 * n + 2)) atTop
       (𝓝 (1 / √5 / φ)) := by
     refine ((tendsto_fib_div_goldenRatio_pow.comp hodd).div_const φ).congr fun n => ?_
     simp only [Function.comp_apply]
     rw [div_div, ← pow_succ]
-  -- error term `F(n+1) / φ^(2n+2) → 0`
+  -- Error term `F(n+1) / φ^(2n+2) → 0`
   have herr : Tendsto (fun n : ℕ => (Nat.fib (n + 1) : ℝ) / φ ^ (2 * n + 2)) atTop (𝓝 0) := by
     have hinv : |φ⁻¹| < 1 := by
       rw [abs_inv, abs_of_pos hφpos]
@@ -159,15 +142,9 @@ theorem tendsto_a_div_goldenRatio_pow :
 
 /-! ## The conjecture -/
 
-/-- **A130095 conjecture (Gary W. Adamson, May 06 2007), proved.**
-
-Verbatim: "Conjecture: a(n)/a(n-1) tends to phi^2."  Here
-`a(n) = ∑_{d ∣ n} F(2d - 1)` and `phi = (1 + √5)/2 = Real.goldenRatio`.
-
-Stated as `a(n+1) / a(n) → φ²` over `ℕ`, which is the entry's `a(n)/a(n-1)`
-with the index shifted by one.  The only junk value of the real division is at
-`n = 0` (`a 0 = 0`, outside the offset-1 range); a single index does not affect
-the limit, and `a n ≥ 1` for every `n ≥ 1`. -/
+/-- The ratio `a(n+1)/a(n)` tends to `φ²` (OEIS A130095; Gary W. Adamson,
+May 06 2007). This shifts the source's ratio index by one. For positive `n`,
+`a n≥1`; the totalized quotient at `n=0` does not affect the limit. -/
 theorem tendsto_a_succ_div_a :
     Tendsto (fun n : ℕ => (a (n + 1) : ℝ) / a n) atTop (𝓝 (Real.goldenRatio ^ 2)) := by
   open Real goldenRatio in

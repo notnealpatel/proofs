@@ -8,7 +8,7 @@ Plateaued Functions", arXiv:2609.21563.  Abstract, inequality (1) (`feie1`),
 and Section "Proof of the Main Inequality": Lemma 1 (`lemIA1`), Lemma 2
 (`lemIA2`), Theorem 3 (`ThAI3`); the dual form is Proposition `feie11`.
 
-Verbatim claim (Theorem 3):
+Theorem 3:
 
   Let $f:\mathbb{F}_2^n\rightarrow \mathbb{F}_2$ be a Boolean function then
   $$2\sum_{x\in \mathbb{F}_2^n}f(x)\wt(x)\geq \wt(f)(n-\deg_{alg}(f)).$$
@@ -17,8 +17,7 @@ Here `wt(x)` is the Hamming weight, `wt(f) = ∑ₓ f(x)` is the support size, a
 `deg_alg(f) = max_{M_f(y)=1} wt(y)` with Möbius transform
 `M_f(y) = ⊕_{x ≤ y} f(x)` (paper, equation `eqMob`).
 
-Status: proved in the paper (the author credits ChatGPT assistance for the
-main inequality).  Recorded 2026-10-21.
+The author credits ChatGPT assistance for the main inequality.
 
 ## Translation
 
@@ -55,7 +54,7 @@ parity of `#{x ∈ S | x ⊆ y}`, is `1`.  It is `0` when `S = ∅`. -/
 def anfDeg {n : ℕ} (S : Finset (Finset (Fin n))) : ℕ :=
   ({y | Odd #{x ∈ S | x ⊆ y}} : Finset (Finset (Fin n))).sup Finset.card
 
-/-! ### Ground truth for `anfDeg` -/
+/-! ### Examples for `anfDeg` -/
 
 /-- The constant function `1` on `𝔽₂²` has degree `0`. -/
 example : anfDeg (univ : Finset (Finset (Fin 2))) = 0 := by decide

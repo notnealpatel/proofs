@@ -1,32 +1,15 @@
 /-
-# Generating the symmetric group by three prefix reversals — Conjecture 4 is false as stated
+# Prefix reversals: counterexample to Conjecture 4 as stated
 
-## Source
+S. A. Blanco, M. P. Golubyatnikov, E. V. Konstantinova, N. V. Maslova
+and L. A. Nikiforov, *Generating the symmetric group by three prefix
+reversals*, arXiv:2511.16959, Section 4.1, Conjecture 4 (`conj:km_sum`).
+For `2 ≤ k < m < n`, its first clause asserts that `m+k < n` forces
+`⟨r_n,r_m,r_k⟩` to be proper; the second asserts this for odd `n` when
+`m+k < n-1`. Here `r_i` reverses the first `i` positions and fixes the rest.
 
-S. A. Blanco, M. P. Golubyatnikov, E. V. Konstantinova, N. V. Maslova,
-L. A. Nikiforov, *Generating the symmetric group by three prefix reversals*,
-arXiv:2511.16959, Section 4.1 "Generating sets", Conjecture 4
-(`\label{conj:km_sum}`), stated under the standing assumption
-`2 ≤ k < m < n`.
-
-Prefix reversals (paper, equation (1)): for `1 < i ≤ n`, `r_i ∈ Sym_n` is
-```
-r_i = ( 1  2  …  i-1  i  i+1 …  n )
-      ( i i-1 …   2   1  i+1 …  n )
-```
-i.e. `r_i` reverses the first `i` positions and fixes the rest.
-
-Verbatim claim (Conjecture 4):
-> If $m+k<n$ then $\langle r_n,r_m,r_k\rangle < \Sym_n$. Moreover, if $n$ is
-> odd and $m+k<n-1$ then $\langle r_n,r_m,r_k\rangle < \Sym_n$.
-
-## Status (recorded 2026-10-21)
-
-Open conjecture in the paper (formulated from computations for `n ≤ 100`).
-The literal first sentence is **false**: `⟨r_7, r_4, r_2⟩ = Sym_7` although
-`4 + 2 < 7`.  The paper itself lists `(7,4,2)` among the eight generating
-triples for `n = 7` (Section 4.2), so the first sentence was presumably
-intended for even `n` only.  This module refutes the literal statement.
+The first clause fails: `⟨r_7,r_4,r_2⟩ = Sym_7`, although `4+2 < 7`.
+This triple also appears among the paper's generating triples in Section 4.2.
 
 Certificate: `σ = r_7 r_4 r_2` is a `7`-cycle, `r_2` is the transposition
 `(1 2)`, and `7` is prime, so `Equiv.Perm.closure_prime_cycle_swap` gives
@@ -71,7 +54,7 @@ first `i` positions and fix the remaining `n - i`. -/
 def prefixRev (n i : ℕ) : Perm (Fin n) :=
   Function.Involutive.toPerm (prefixRevFun n i) (prefixRevFun_involutive n i)
 
-/-! ## Ground truth -/
+/-! ## Examples -/
 
 /-- One-line notation of `r_4 ∈ Sym_7`: `[4 3 2 1 5 6 7]` (0-indexed). -/
 example : (List.finRange 7).map (prefixRev 7 4) = [3, 2, 1, 0, 4, 5, 6] := by decide

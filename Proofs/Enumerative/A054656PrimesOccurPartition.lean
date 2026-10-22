@@ -1,45 +1,12 @@
 /-
-# A054656 — primes that occur in no partition of `n` into distinct primes
+# Primes absent from distinct-prime partitions (A054656)
 
-## OEIS source (retrieved with `oeis show A054656`, 2026-10-21)
-
-```
-NAME:     Number of primes <= n which do not appear in any partitions of n into
-          distinct primes.
-TERMS:    0,0,0,1,2,0,3,1,2,2,0,4,1,3,1,1,1,2,1,2,1,1,1,2,1,1,0,1,0,1,1,0,1,1,0,
-          2,0,1,1,0,0,1,1,1,1,1,0,2,1,1,0,1,0,1,1,0,0,1,0,1,1,0,1,1,0,2,0,1,1,0,
-          0,1,1,1,1,1,0,2,0,1,1,0,0,1,1,1,0
-OFFSET:   0  (a(3) = 1: the prime 2 is in no partition of 3 = 3 into distinct primes)
-KEYWORDS: nonn
-XREFS:    Cf. A000586.
-COMMENT (the conjecture, unsigned and undated in the entry):
-  Conjecture: if n >= 23 then a(n)=2 if both (n-6) and (n-4) are prime,
-  a(n)=1 if one of (n-6), (n-4) or (n-1) is prime, a(n)=0 otherwise
-```
-
-## Status
-
-Triage status: open (the entry carries no proof; no literature proof was found
-by the triage).  Computation (exact subset-sum DP) confirms the claim for all
-`23 ≤ n ≤ 3000`; the bound `23` is sharp (`n = 22`, `q = 11`).
-
-## Formalization
-
-A partition of `n` into distinct primes is a finset of primes with sum `n`.
-The count form `a n = #{k ∈ {n-1, n-4, n-6} | k prime}` is the entry's case
-split: for `n ≥ 23` the three numbers are distinct, `n-1` has the opposite
-parity of `n-4` and `n-6`, so at most two of them are prime, and two only
-when `n-4` and `n-6` both are.
-
-## Proof (kernel-checked below)
-
-`q ≤ n` occurs iff `n - q` is a sum of distinct primes avoiding `q`.  Sums of
-distinct primes never equal `1, 4, 6`.  Every `m ≥ 13` is a sum of distinct
-primes avoiding any prescribed prime `q` (Richert's window argument on the
-primes `≠ q`, with the step condition `B + 25 ≤ ∑_{p < B, p ≠ q} p` supplied by
-`2B + 24 ≤ ∑_{p < B} p` for `B ≥ 20`: explicit primes below `3002`, and
-Chebyshev's lower bound `Chebyshev.pi_ge` beyond).  For `n ≥ 23` the remaining
-cases `n - q ≤ 12` have `q ≥ 11` and are handled by explicit witnesses.
+Source: the unsigned conjecture in OEIS A054656.
+A partition into distinct primes is a finite set of primes with sum `n`.
+For `n ≥ 23`, the absent primes at most `n` are precisely the primes among
+`n-1`, `n-4`, `n-6`. This yields the entry's case split for their number.
+A Richert window argument represents all sufficiently large differences
+while avoiding a prescribed prime; the remaining differences have explicit witnesses.
 -/
 import Mathlib
 
@@ -49,7 +16,7 @@ namespace Candidates.A054656PrimesOccurPartition
 
 open Finset
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- The prime `q` occurs in some partition of `n` into distinct primes: there is
 a finite set `S` of primes containing `q` with `∑ S = n`. -/
@@ -85,7 +52,7 @@ theorem occursInB_iff (n q : ℕ) : OccursInB n q ↔ OccursIn n q := by
     exact mem_filter.mpr ⟨mem_range.mpr (Nat.lt_succ_of_le hle), hprime p hp⟩
 
 set_option maxRecDepth 100000 in
-/-- Ground truth: the first twenty-six terms of A054656 (offset 0). -/
+/-- The first twenty-six terms of A054656 (offset 0). -/
 example : (List.range 26).map a =
     [0, 0, 0, 1, 2, 0, 3, 1, 2, 2, 0, 4, 1, 3, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1] := by
   decide
@@ -420,10 +387,9 @@ theorem occursIn_iff (n q : ℕ) (hn : 23 ≤ n) (hq : q.Prime) (hqn : q ≤ n) 
 
 /-! ## The conjecture -/
 
-/-- **A054656 conjecture (count form).** For `n ≥ 23`, the number of primes
-`q ≤ n` occurring in no partition of `n` into distinct primes equals the number
-of primes among `n - 1`, `n - 4`, `n - 6`.  (Source: unsigned comment in
-OEIS A054656; open per triage.) -/
+/-- For `n ≥ 23`, the number of primes at most `n` absent from every
+distinct-prime partition equals the number of primes among `n-1`, `n-4`, `n-6`
+(the unsigned conjecture in OEIS A054656). -/
 theorem a_eq_card_filter_prime (n : ℕ) (hn : 23 ≤ n) :
     a n = (({n - 1, n - 4, n - 6} : Finset ℕ).filter Nat.Prime).card := by
   unfold a
@@ -445,9 +411,9 @@ theorem a_eq_card_filter_prime (n : ℕ) (hn : 23 ≤ n) :
 theorem not_prime_of_mod_two (k : ℕ) (hk : 2 < k) (he : k % 2 = 0) : ¬ k.Prime := fun hp => by
   rcases hp.eq_two_or_odd with h | h <;> omega
 
-/-- **A054656 conjecture (entry form).** For `n ≥ 23`: `a n = 2` if both `n - 6`
+/-- The A054656 case split: For `n ≥ 23`: `a n = 2` if both `n - 6`
 and `n - 4` are prime; otherwise `a n = 1` if one of `n - 6`, `n - 4`, `n - 1` is
-prime; otherwise `a n = 0`.  (Verbatim case split of the unsigned comment in
+prime; otherwise `a n = 0`.  (Unsigned comment in
 OEIS A054656; `n ≥ 23` keeps every subtraction off its truncation.) -/
 theorem a_eq_entry (n : ℕ) (hn : 23 ≤ n) :
     a n = if (n - 6).Prime ∧ (n - 4).Prime then 2

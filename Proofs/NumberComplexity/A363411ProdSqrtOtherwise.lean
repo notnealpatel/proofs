@@ -1,32 +1,10 @@
 /-
 # A363411 — Bala: the 5-adic valuation of `Re ∏ (1 + k√-3)`
 
-## OEIS source (retrieved 2026-10-21 with `oeis show A363411`; author line
-from the live entry `https://oeis.org/A363411/internal`)
-
-```
-NAME:     a(n) = the real part of Product_{k = 0..n} 1 + k*sqrt(-3).
-TERMS:    1,1,-5,-32,112,2212,-5348,-292880,276976,64180144,60400144,
-          -21123205376,-68151050240,9766562233792,57568265355328,...
-KEYWORDS: sign,easy
-AUTHOR:   _Peter Bala_, Jun 01 2023
-FORMULA (the conjecture, verbatim; no separate attribution, so it is the
-         entry author's, Peter Bala, Jun 01 2023):
-  Conjecture: the 5-adic valuation v_5(a(n+2)) = A079998(n) (checked up to
-  n = 5000).
-```
-
-`A079998(n)` is the characteristic function of the multiples of `5`
-(`1` if `5 ∣ n`, else `0`).  The entry's other conjectures (type 1/2/3
-primes, `v_p(a(n)) ~ n/(p-1)`) are not covered here.
-
-## Status
-
-Triage: open (no proof in the entry or found in the literature).  This file
-gives a complete kernel-checked proof of the stated 5-adic conjecture, with
-the side fact `a(n+2) ≠ 0`.
-
-## Proof outline
+OEIS A363411, Peter Bala: for the real part `a(n)` of
+`∏_{k=0}^n (1+k√(-3))`, `a(n+2) ≠ 0` and its 5-adic valuation is
+`1` if `5 ∣ n`, otherwise `0` (A079998). The other source conjectures
+on types of primes and valuation asymptotics are not covered.
 
 Write `z n = ∏_{k ≤ n} (1 + k w)` in `ℤ√(-3)`, so `z (n+1) = z n · (1 + (n+1) w)`.
 Since `1 + (n+25) w ≡ 1 + n w (mod 25)`, induction gives
@@ -49,7 +27,7 @@ def z (n : ℕ) : ℤ√(-3) := ∏ k ∈ Finset.range (n + 1), (⟨1, k⟩ : �
 /-- OEIS A363411: `a n` is the real part of `∏_{k=0}^{n} (1 + k·√-3)`. -/
 def a (n : ℕ) : ℤ := (z n).re
 
-/-! ## Ground truth against the listed terms -/
+/-! ## Examples against the listed terms -/
 
 example : a 0 = 1 := by decide
 example : a 1 = 1 := by decide
@@ -202,12 +180,9 @@ theorem dvd_pattern (n : ℕ) :
 
 /-! ## The conjecture -/
 
-/-- **Bala's conjecture (A363411, Peter Bala, Jun 01 2023), proved.**
-
-Verbatim: "Conjecture: the 5-adic valuation v_5(a(n+2)) = A079998(n)
-(checked up to n = 5000)."  Here `A079998(n) = 1` if `5 ∣ n` and `0`
-otherwise.  The statement also records `a (n+2) ≠ 0`, so the valuation is
-not the junk value `padicValInt 5 0 = 0`. -/
+/-- Bala’s 5-adic conjecture (A363411): `a(n+2)` has valuation `1`
+when `5 ∣ n`, otherwise `0` (A079998). The conclusion also records
+`a(n+2) ≠ 0`, excluding the totalized valuation at zero. -/
 theorem a_add_two_ne_zero_and_padicValInt_five (n : ℕ) :
     a (n + 2) ≠ 0 ∧ padicValInt 5 (a (n + 2)) = if 5 ∣ n then 1 else 0 := by
   haveI : Fact (Nat.Prime 5) := ⟨by norm_num⟩

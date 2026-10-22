@@ -1,40 +1,13 @@
 /-
 # A334337 — Sun: for every `n ≥ 1` some `φ(m·n)` is a perfect cube
 
-## OEIS source (retrieved with `oeis show A334337`, 2026-10-21)
-
-```
-NAME:     Least positive integer m such that phi(m*n) is a cube, where phi is
-          Euler's totient function (A000010).
-TERMS:    1,1,5,4,3,4,37,2,37,2,101,2,19,37,1,1,5,36,13,1,19,101,13333,1,55,19,
-          13,19,985,1,1057,4,401,4,73,18,7,13,9,4,275,18,2649,401,9,13333,
-          169285,4,1813,50,...
-OFFSET:   1
-COMMENT (the conjecture, entry author Zhi-Wei Sun):
-  Conjecture: a(n) exists for any n > 0. In other words, for any positive
-  integer n, there is a positive integer m with phi(m*n) equal to a cube.
-COMMENT:
-  We note that there is no positive integer m <= 10^8 with phi(107*m) equal
-  to a fourth power.
-```
-
-## Status
-
-Triage: open (no proof in the entry; the literature search covered the entry
-text and links only, and this folklore-level argument may be recorded
-elsewhere).  This module proves the conjecture in full, and more generally for
-every exponent `k ≥ 1`, by an explicit (far from least) witness:
-
-  `φ(φ(n!)^(k-1) · n!) = φ(n!)^k`,
-
-because every prime factor of `φ(n!)` is `≤ n` and hence divides `n!`, and
-`φ(a · b) = a · φ(b)` whenever every prime factor of `a` divides `b`.  Taking
-`m = φ(n!)^(k-1) · (n-1)!` gives `m · n = φ(n!)^(k-1) · n!`.  In particular a
-fourth-power value `φ(107 · m)` exists, with `m` far beyond `10^8`.
-
-Computation (Sage, exact integers): the least-`m` definition reproduces the
-first 50 listed terms, and `φ(φ(n!)^2 · (n-1)! · n) = φ(n!)^3` for
-`1 ≤ n ≤ 60`.
+OEIS A334337, Zhi-Wei Sun: for every positive `n`, some positive `m`
+makes `φ(mn)` a cube. More generally, for every `k ≥ 1`,
+`φ(φ(n!)^(k-1)·n!) = φ(n!)^k`.
+Every prime factor of `φ(n!)` is at most `n`, hence divides `n!`, and
+`φ(ab) = aφ(b)` when every prime factor of `a` divides `b`.
+The witness `m = φ(n!)^(k-1)·(n-1)!` need not be least. It also gives
+a fourth-power value for `n = 107`; no bound on that witness is proved.
 -/
 import Mathlib
 
@@ -42,7 +15,7 @@ set_option autoImplicit false
 
 namespace Candidates.A334337TherePhiPerfect
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- `m` witnesses the A334337 property for `n`: `m` is positive and `φ(m · n)`
 is a perfect cube. -/
@@ -71,7 +44,7 @@ instance (n m : ℕ) : Decidable (CubeWitness n m) :=
     (0 < m ∧ ∃ c ∈ Finset.range (Nat.totient (m * n) + 1), Nat.totient (m * n) = c ^ 3)
     (and_congr_right fun _ => (exists_cube_iff_bounded _).symm)
 
-/-! ## Ground truth for the witness predicate -/
+/-! ## Examples for the witness predicate -/
 
 /-- `a(3) = 5`: `φ(15) = 8 = 2^3`. -/
 example : CubeWitness 3 5 := ⟨by norm_num, 2, by decide⟩
@@ -159,18 +132,14 @@ theorem exists_totient_mul_eq_pow {n k : ℕ} (hn : 0 < n) (hk : 0 < k) :
       rw [Nat.factorial_succ, mul_assoc, mul_comm r.factorial (r + 1)]
     rw [hmn, totient_pow_mul_factorial]
 
-/-- **Sun's conjecture (A334337, Zhi-Wei Sun).**
-
-Verbatim: "Conjecture: a(n) exists for any n > 0. In other words, for any
-positive integer n, there is a positive integer m with phi(m*n) equal to a
-cube."
-
-Proved here as the `k = 3` case of `exists_totient_mul_eq_pow`. -/
+/-- Sun’s conjecture (A334337): for every positive `n` there is a
+positive `m` with `φ(mn)` a cube, the `k = 3` case of
+`exists_totient_mul_eq_pow`. -/
 theorem conjecture (n : ℕ) (hn : 0 < n) : ∃ m : ℕ, CubeWitness n m :=
   exists_totient_mul_eq_pow hn (by norm_num : 0 < 3)
 
-/-- The fourth-power remark of the entry: some `m ≥ 1` makes `φ(107 · m)` a
-fourth power (necessarily with `m > 10^8` by the entry's search). -/
+/-- A fourth-power value at `n = 107`: some positive `m` makes
+`φ(107·m)` a fourth power. No lower bound on `m` is proved here. -/
 theorem exists_totient_mul_107_fourth_power :
     ∃ m : ℕ, 0 < m ∧ ∃ c : ℕ, Nat.totient (m * 107) = c ^ 4 :=
   exists_totient_mul_eq_pow (by norm_num) (by norm_num)
@@ -180,12 +149,12 @@ well defined for `n ≥ 1` by `conjecture`. -/
 noncomputable def a (n : ℕ) (hn : 0 < n) : ℕ :=
   Nat.find (conjecture n hn)
 
-/-- Ground truth: `a(1) = 1`, `a(2) = 1`, `a(3) = 5`, matching the listed terms. -/
+/-- Examples: `a(1) = 1`, `a(2) = 1`, `a(3) = 5`, matching the listed terms. -/
 example : a 1 (by norm_num) = 1 ∧ a 2 (by norm_num) = 1 ∧ a 3 (by norm_num) = 5 := by
   refine ⟨?_, ?_, ?_⟩ <;> (rw [a, Nat.find_eq_iff]; decide)
 
 set_option maxRecDepth 20000 in
-/-- Ground truth: `a(7) = 37`, the first large listed term. -/
+/-- Examples: `a(7) = 37`, the first large listed term. -/
 example : a 7 (by norm_num) = 37 := by
   rw [a, Nat.find_eq_iff]
   decide

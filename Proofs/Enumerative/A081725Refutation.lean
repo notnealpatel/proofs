@@ -1,53 +1,13 @@
 /-
-# A081725 — refutation of "a(n) = A065560(n) + n - prime(n) > 0"
+# A081725: a negative value at index 709
 
-## OEIS source (retrieved with `oeis show A081725` / `oeis show A065560`, 2026-10-21)
-
-```
-A081725
-NAME:     a(n) = A065560(n) + n - prime(n).
-TERMS:    1,2,4,3,5,5,7,7,6,8,15,7,10,10,9,8,11,10,11,14,13,14,13,11,12,15,16,
-          20,21,13,14,14,17,13,16,16,16,17,17,17,20,16,20,22,26,19,13,15,19,21, ...
-          (offset 2: a(2) = 1)
-COMMENT (the conjecture; no author or date is attached to it in the entry):
-  Conjecture: a(n) > 0.
-COMMENT (later):
-  The conjecture is false; a(709) = -14 is the first nonpositive term.
-  - _Paolo Xausa_, Nov 11 2025
-
-A065560
-NAME:     a(n) is the smallest integer k such that
-          floor((1+1/n)^(k+1))/floor((1+1/n)^k) = 1+1/n.
-TERMS:    2,4,7,9,12,15,18,21,25,28,40,35,39,42,46,50,54,58,62,66, ...
-          (offset 2: a(2) = 2)
-COMMENT:  Conjecture: a(n)+n > prime(n).
-COMMENT:  The above conjecture is false. The first counterexample occurs at
-          n = 709: a(709) + 709 = 4658 + 709 = 5367 < prime(709) = 5381
-          (see A081725). - _Paolo Xausa_, Nov 11 2025
-```
-
-## Status
-
-The entry itself already records the refutation (Xausa, Nov 2025).  This module
-kernel-checks it: `A065560(709) = 4658` and `prime(709) = 5381`, so
-`A081725(709) = 4658 + 709 - 5381 = -14 < 0`.
-
-Independent recomputation (Python, exact integer arithmetic, 2026-10-21)
-reproduced the listed terms of both entries and found no nonpositive term of
-A081725 for `2 ≤ n < 709`.
-
-## Definition choices
-
-* `k` ranges over `ℕ`: for negative `k` the floor `⌊(1+1/n)^k⌋` is `0` and the
-  quotient is undefined, so the entry's "integer k" is a natural number.  For
-  `n ≥ 2` the value `k = 0` never qualifies (the quotient is `⌊1+1/n⌋ / 1 = 1`).
-* `A065560(n)` is not known to exist for every `n`, so it is expressed as the
-  relation `IsA065560 n k` ("`k` is the least witness") rather than a total
-  function; the conjecture quantifies over every such `k`.  This makes the
-  conjecture *weaker* (it asserts nothing where no witness exists), hence the
-  refutation stronger.
-* `prime(n)` (1-indexed, `prime(1) = 2`) is `Nat.nth Nat.Prime (n - 1)`; the
-  subtraction is guarded by `2 ≤ n`.
+OEIS A081725 and A065560, counterexample by Paolo Xausa (Nov 11 2025).
+At `n = 709`, the least witness A065560 is `4658` and the one-based prime
+is `5381`, giving `a(709) = 4658 + 709 - 5381 = -14`.
+A065560 is a least-witness relation over natural `k`, not a total function:
+existence is not assumed at every index. The positivity conjecture quantifies
+over such witnesses, so the counterexample refutes even this weaker reading.
+Both source sequences have offset `2`; no first-counterexample claim is proved.
 -/
 import Mathlib
 
@@ -144,7 +104,7 @@ theorem isA065560_of_check {n k : ℕ} (hn : 0 < n)
   by_contra hlt
   exact not_ratioProperty_of_noRatioBelow hn hbelow j (by omega) hj
 
-/-! ## Ground truth: the first terms -/
+/-! ## Example: the first terms -/
 
 /-- `A065560(2) = 2`. -/
 example : IsA065560 2 2 := isA065560_of_check (by norm_num) (by decide) (by decide)
@@ -246,11 +206,9 @@ theorem isA065560_709 : IsA065560 709 4658 :=
 
 /-! ## The refutation -/
 
-/-- **A081725's conjecture "a(n) > 0" is false.**  Counterexample `n = 709`
-(found by Paolo Xausa, Nov 2025): `A065560(709) = 4658` and `prime(709) = 5381`,
-so `a(709) = 4658 + 709 - 5381 = -14`.  The conjecture was presumably based on
-the heuristic `A065560(n) ≈ n log n ≈ prime(n)` with the observed slack `+ n`;
-the true inequality fails first at `n = 709`. -/
+/-- Xausa's counterexample at `n = 709`: `A065560(709) = 4658` and
+`prime(709) = 5381`, so `a(709) = -14`, refuting positivity.
+Minimality of the counterexample is not asserted. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   have hpos := h 709 (by norm_num) 4658 isA065560_709

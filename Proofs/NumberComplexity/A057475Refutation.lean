@@ -1,26 +1,9 @@
 /-
 # A057475 — Perry: every positive integer is a value of `a` (refuted)
 
-## OEIS source (retrieved with `oeis show A057475`, 2026-10-21)
-
-```
-NAME:     Number of k, 1 <= k <= n, such that gcd(n,k) = gcd(n+1,k) = 1.
-TERMS:    1,1,1,2,1,2,3,3,2,4,3,4,5,3,4,8,5,6,7,5,5,10,7,7,9,8,8,12,7,8,15,10,
-          9,11,8,12,17,11,9,16,11,12,19,11,11,22,15,14,17,13,15,24,17,14,17,15,
-          17,28,15,16,29,17,18,24,15,20,31,21,15,24,23,24,35,19,19,28,18,24,31,22
-COMMENT:  Number of numbers between 1 and n-1 coprime to n(n+1).
-COMMENT (the conjecture):
-  It is conjectured that every positive integer appears. - _Jon Perry_, Dec 12 2002
-```
-
-No later comment, formula or cross-reference in the retrieved entry retracts
-the conjecture.
-
-## Status
-
-This module **refutes** the conjecture: `49` is never a value of `a(n)`.
-
-Proof outline (all steps kernel-checked below).
+Jon Perry's conjecture in OEIS A057475 asserts that every positive integer
+occurs as `#{1 ≤ k ≤ n : gcd(n,k) = gcd(n+1,k) = 1}`. The value `49` never
+occurs.
 
 1. `1` and every prime `p ≤ n` not dividing `n (n + 1)` are counted by `a n`,
    so `π(n) + 1 ≤ a(n) + ω(n) + ω(n + 1)`.
@@ -41,37 +24,37 @@ set_option Elab.async false
 
 namespace Candidates.A057475Refutation
 
-/-! ## Definition layer -/
+/-! ## Definitions -/
 
 /-- OEIS A057475: `a n` is the number of `k` with `1 ≤ k ≤ n` such that
 `gcd(n, k) = gcd(n + 1, k) = 1`. -/
 def a (n : ℕ) : ℕ :=
   ((Finset.Icc 1 n).filter (fun k => Nat.gcd n k = 1 ∧ Nat.gcd (n + 1) k = 1)).card
 
-/-- Ground truth: terms `a 1` through `a 20` of A057475 as listed in the entry. -/
+/-- terms `a 1` through `a 20` of A057475 as listed in the entry. -/
 example : (List.range 20).map (fun i => a (i + 1)) =
     [1, 1, 1, 2, 1, 2, 3, 3, 2, 4, 3, 4, 5, 3, 4, 8, 5, 6, 7, 5] := by
   decide +kernel
 
-/-- Ground truth: terms `a 21` through `a 40` of A057475 as listed in the entry. -/
+/-- terms `a 21` through `a 40` of A057475 as listed in the entry. -/
 example : (List.range 20).map (fun i => a (i + 21)) =
     [5, 10, 7, 7, 9, 8, 8, 12, 7, 8, 15, 10, 9, 11, 8, 12, 17, 11, 9, 16] := by
   decide +kernel
 
-/-- Ground truth: terms `a 41` through `a 60` of A057475 as listed in the entry. -/
+/-- terms `a 41` through `a 60` of A057475 as listed in the entry. -/
 example : (List.range 20).map (fun i => a (i + 41)) =
     [11, 12, 19, 11, 11, 22, 15, 14, 17, 13, 15, 24, 17, 14, 17, 15, 17, 28, 15, 16] := by
   decide +kernel
 
-/-- Ground truth: terms `a 61` through `a 80` of A057475 as listed in the entry. -/
+/-- terms `a 61` through `a 80` of A057475 as listed in the entry. -/
 example : (List.range 20).map (fun i => a (i + 61)) =
     [29, 17, 18, 24, 15, 20, 31, 21, 15, 24, 23, 24, 35, 19, 19, 28, 18, 24, 31, 22] := by
   decide +kernel
 
 /-! ## The conjecture -/
 
-/-- **Perry's conjecture (A057475, Jon Perry, Dec 12 2002).**
-Verbatim: "It is conjectured that every positive integer appears."
+/-- **Perry's conjecture (A057475, Jon Perry).**
+"It is conjectured that every positive integer appears."
 Formally: every positive integer `m` equals `a n` for some `n ≥ 1`. -/
 def Conjecture : Prop :=
   ∀ m : ℕ, 0 < m → ∃ n : ℕ, 0 < n ∧ a n = m
@@ -163,7 +146,7 @@ def cntB (m n : ℕ) : ℕ → ℕ → ℕ
   | 0, lo => if lo ≤ n ∧ Nat.gcd m lo = 1 then 1 else 0
   | d + 1, lo => if n < lo then 0 else cntB m n d lo + cntB m n d (lo + 2 ^ d)
 
-/-- Ground truth for `cntB`: among `1, …, 6`, those coprime to `42` are `1` and `5`. -/
+/-- Examples for `cntB`: among `1, …, 6`, those coprime to `42` are `1` and `5`. -/
 example : cntB 42 6 3 0 = 2 := by decide
 
 /-- `cntB` computes the filtered cardinality it is meant to. -/
@@ -284,9 +267,7 @@ theorem a_ne_49 (n : ℕ) : a n ≠ 49 := by
 
 /-- **Refutation of Perry's conjecture (A057475).** The positive integer `49` is not
 a value of `a(n) = #{1 ≤ k ≤ n : gcd(n, k) = gcd(n + 1, k) = 1}` for any `n ≥ 1`
-(indeed for any `n`), so "every positive integer appears" is false. Other missing
-values include `50, 66, 73, 76, 81, 97, 102, 121` (computational evidence, not
-proved here). -/
+(indeed for any `n`). -/
 theorem conjecture_false : ¬ Conjecture := by
   intro hconj
   obtain ⟨n, -, hn⟩ := hconj 49 (by norm_num)

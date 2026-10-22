@@ -1,39 +1,13 @@
 /-
-# A114214 — Fischer: diagonal sums of A114213 equal A007306(floor(n/2)+1)
+# Diagonal sums of A114213 (A114214)
 
-## OEIS source (re-pulled verbatim with `oeis show A114214`, 2026-10-21)
-
-```
-NAME:     Diagonal sums of number triangle A114213.
-TERMS:    1,1,2,2,3,3,3,3,4,4,5,5,5,5,4,4,5,5,7,7,8,8,7,7,7,7,8,8,7,7,5,5,6,6,
-          9,9,11,11,10,10,11,11,13,13,12,12,9,9,9,9,12,12,13,13,11,11,10,10,...
-FORMULA:  a(n) = Sum_{k=0..floor(n/2)} mod(Sum_{j=0..n-2k} C(k, j) C(n-2k, j)
-          (1+(-1)^j)/2, 2). (corrected by _Jeffrey Shallit_, May 18 2016)
-COMMENT (the conjecture):
-  Conjecture: a(n) = A007306(floor(n/2)+1). - _Georg Fischer_, Nov 28 2022
-```
-
-A114213 ("A generalized Pascal triangle modulo 2"):
-`T(n, k) = (Sum_{j=0..n-k} C(k, j)*C(n-k, j)*(1+(-1)^j)/2) mod 2`.
-A007306 (Farey-tree denominators): `a(0) = 1` and, for `n > 0`,
-`a(n) = A002487(n-1) + A002487(n) = A002487(2*n-1)`, where A002487 is
-Stern's diatomic sequence `s(0)=0, s(1)=1, s(2n)=s(n), s(2n+1)=s(n)+s(n+1)`.
-
-## Status (triage)
-
-Proved elsewhere: Shallit–Spiegelhofer (arXiv:1710.06203, Prop. 1) prove
-`d(2n) = d(2n+1) = s(2n+1)` via Lucas's theorem mod 2 plus Carlitz's identity;
-since `A007306(n+1) = s(2n+1)` this is Fischer's conjecture.  Re-validated by
-direct Python evaluation of the entry formula for `n < 500`.
-
-## Proof outline (kernel-checked below, no `sorry`)
-
-1. Lucas mod 2 + Vandermonde: `Σ_{j even} C(k,j) C(m,j) ≡ C(k/2 + m/2, k/2)`.
-2. Hence, with `N = n/2` and `k ≤ N`, `T(n-k, k) ≡ C(2N - k, k) (mod 2)`, so
-   `a(n) = g(2N)` where `g(M) = Σ_{i ≤ M} (C(M-i, i) mod 2)` (Barry's formula
-   for A007306 in that entry).
-3. Lucas mod 2: `g(2L+1) = g(L)`, `g(2L+2) = g(L+1) + g(L)`, so `g(M) = s(M+1)`
-   (Carlitz's identity), and `a(n) = s(2N+1) = s(N) + s(N+1) = A007306(N+1)`.
+Source: Georg Fischer's OEIS A114214 comment (Nov 28 2022).
+For every `n`, the diagonal sum is `A007306(floor(n/2)+1)`, equivalently
+`stern(2 floor(n/2)+1)`. The triangle uses Jeffrey Shallit's corrected
+formula (May 18 2016).
+Reference: Shallit–Spiegelhofer, arXiv:1710.06203, deriving
+`d(2n)=d(2n+1)=s(2n+1)` by reduction modulo 2 and Carlitz's identity.
+Here Lucas's theorem and Vandermonde reduce the sum to that identity.
 -/
 import Mathlib
 
@@ -43,7 +17,7 @@ namespace Candidates.A114214SumFloorMod
 
 open Finset
 
-/-! ## Definition layer
+/-! ## Definitions
 
 All definitions mirror the OEIS entries; nothing is imported from the repo.
 
@@ -84,7 +58,7 @@ def T (n k : ℕ) : ℕ :=
 `d(n) = Sum_{k=0..floor(n/2)} (T(n-k, k) mod 2)`. -/
 def d (n : ℕ) : ℕ := ∑ k ∈ range (n / 2 + 1), T (n - k) k % 2
 
-/-! ## Ground truth against the listed terms -/
+/-! ## Listed terms -/
 
 example : (List.range 17).map stern = [0, 1, 1, 2, 1, 3, 2, 3, 1, 4, 3, 5, 2, 5, 3, 4, 1] := by
   decide +kernel
@@ -285,19 +259,15 @@ theorem d_eq_g (n : ℕ) : d n = g (2 * (n / 2)) := by
   rw [mem_range] at hk
   rw [T_sub_mod n k (by omega)]
 
-/-- `d(n) = s(2⌊n/2⌋ + 1)` (Shallit–Spiegelhofer, Prop. 1). -/
+/-- The diagonal sum equals `s(2 floor(n/2)+1)` (Shallit–Spiegelhofer,
+arXiv:1710.06203). -/
 theorem d_eq_stern (n : ℕ) : d n = stern (2 * (n / 2) + 1) := by
   rw [d_eq_g, g_eq_stern]
 
 
-/-- **Fischer's conjecture (A114214, Georg Fischer, Nov 28 2022), proved.**
-
-Verbatim: "Conjecture: a(n) = A007306(floor(n/2)+1)."
-
-For every `n`, the diagonal sum `d(n) = Sum_{k=0..floor(n/2)} (T(n-k,k) mod 2)`
-of Barry's triangle A114213 equals `A007306(floor(n/2) + 1)`.  Known result
-(Shallit–Spiegelhofer, arXiv:1710.06203, Prop. 1, in the form
-`d(2n) = d(2n+1) = s(2n+1)`). -/
+/-- Fischer's identity: the diagonal sum of A114213 is
+`A007306(floor(n/2)+1)`. See Shallit–Spiegelhofer, arXiv:1710.06203,
+for the identity `d(2n)=d(2n+1)=s(2n+1)`. -/
 theorem d_eq_a007306 (n : ℕ) : d n = a007306 (n / 2 + 1) := by
   rw [d_eq_stern, a007306, stern_two_mul_add_one]
 

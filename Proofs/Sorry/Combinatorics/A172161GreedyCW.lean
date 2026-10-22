@@ -66,7 +66,7 @@ This archive imports those results; all five former admissions are discharged.
 The retained name `cwGreedy_eq_recurrence` only unfolds the recurrence definition.
 The real semantic bridge is `a172161_eq_greedyA`, not that unfolding theorem.
 -/
-import Combinatorics.A172161Recurrence
+import Sorry.Combinatorics.A172161Recurrence
 
 set_option autoImplicit false
 
