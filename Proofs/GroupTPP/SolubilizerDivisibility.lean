@@ -1,43 +1,23 @@
 /-
-# Normalizer–solubilizer divisibility (Sabatini, arXiv:2610.03151, Theorem 1.1)
+# Normalizer–solubilizer divisibility
 
-## Source
+Luca Sabatini, *Arithmetic properties of solubilizers*, arXiv:2610.03151,
+Theorem 1.1, with proof in §4 ("Normalizers and the relative version").
+For a finite group `G`, an element `x ∈ G` and a subgroup `K`, the result is
+`|N_G(⟨x⟩) ∩ K| ∣ |Sol_G(x) ∩ K|`.  Here
+`Sol_G(x) = {g ∈ G | ⟨x, g⟩ is soluble}`, formalized using
+`Group.IsSolvable (closure {x, g})`, and `N_G(⟨x⟩)` is
+`Subgroup.normalizer (zpowers x : Set G)`.  Cardinalities use `Nat.card`,
+with `[Finite G]`.  The case `K = G` settles Conjecture 3 of
+Mousavi–Poozesh–Zamani (Ricerche Mat. 74 (2025)).
 
-* arXiv:2610.03151, Luca Sabatini, *Arithmetic properties of solubilizers*
-  (University of Warwick).  Retrieved 2026-10-21 with `fetch 2610.03151`.
-* Statement location: Section 1, Theorem 1.1 (`thMain`); proof in Section 4
-  ("Normalizers and the relative version"), after the figure.  The warm-up
-  Theorem 3.1 (Hai-Reuven 2013, `thHR`) is in Section 3; the facts
-  `N_G(x) ⊆ Sol_G(x)` and "`N_G(x)` normalizes `Sol_G(x)`" are in Section 2.
-* Verbatim informal claim (Theorem 1.1):
-
-  > Let $G$ be a finite group, $x \in G$, and $K \leqslant G$.  Then
-  > $|N_G(x) \cap K|$ divides $|\mathrm{Sol}_G(x) \cap K|$.
-
-  Here $\mathrm{Sol}_G(x) = \{g \in G : \langle x, g\rangle \text{ is soluble}\}$
-  and $N_G(x)$ denotes the normalizer of $\langle x \rangle$.  The case $K = G$
-  settles Conjecture 3 of Mousavi–Poozesh–Zamani (Ricerche Mat. 74 (2025)).
-* Date of this formalization: 2026-10-21.
-* Status in the source: **proved in the paper** (known result).  The only
-  external input is the Cauchy–Frobenius counting lemma (Mathlib's
-  `MulAction.sum_card_fixedBy_eq_card_orbits_mul_card_group`, used through
-  `MulAction.sigmaFixedByEquivOrbitsProdGroup`).
-
-## Formal rendering
-
-* `solubilizer x : Set G` is `{g | Group.IsSolvable (closure {x, g})}`.
-* `N_G(⟨x⟩)` is `Subgroup.normalizer (zpowers x : Set G)`.
-* Cardinalities are `Nat.card` throughout; `G` is `[Finite G]`.
-
-## Proof outline (as in the paper)
-
-Strong induction on `|K|`.  With `H = N_G(⟨x⟩) ∩ K` and `A = Sol_G(x) ∩ K`,
-choose `T ≤ H` maximal with `T ⊴ K` and `⟨x, a, T⟩` soluble for all `a ∈ A`.
-Maximality forces `(H/T) ∩ Z(K/T) = 1`.  `A` is a union of `T`-cosets, and
-`H/T` acts on `A/T` by conjugation.  For `1 ≠ h̄ ∈ H/T` the preimage `L` of
-`C_{K/T}(h̄)` is a proper subgroup of `K`, so the induction hypothesis gives
-`|C_{H/T}(h̄)| ∣ |Fix_{A/T}(h̄)|`, and the Cauchy–Frobenius lemma gives
-`|H/T| ∣ |A/T|`.
+The proof uses strong induction on `|K|`.  Put `H = N_G(⟨x⟩) ∩ K` and
+`A = Sol_G(x) ∩ K`, and choose `T ≤ H` maximal with `T ⊴ K` and
+`⟨x, a, T⟩` soluble for all `a ∈ A`.  Maximality forces
+`(H/T) ∩ Z(K/T) = 1`.  The set `A` is a union of `T`-cosets, and `H/T`
+acts on `A/T` by conjugation.  For nonidentity `h̄ ∈ H/T`, the preimage of
+`C_{K/T}(h̄)` is proper in `K`; induction gives
+`|C_{H/T}(h̄)| ∣ |Fix_{A/T}(h̄)|`.  Cauchy–Frobenius then gives `|H/T| ∣ |A/T|`.
 -/
 import Mathlib
 
@@ -241,7 +221,7 @@ theorem conj_mem_solubilizer {x h g : G} (hh : h ∈ normalizer (zpowers x : Set
 
 end helpers
 
-/-! ## Ground truth for `solubilizer` -/
+/-! ## Examples for `solubilizer` -/
 
 section groundTruth
 variable {G : Type*} [Group G]
@@ -293,7 +273,7 @@ theorem solubilizer_eq_univ [Group.IsSolvable G] (x : G) : solubilizer x = Set.u
 
 end groundTruth
 
-/-- Ground truth: in `S₅` the transposition `(0 1)` is not in the solubilizer of the 5-cycle
+/-- In `S₅` the transposition `(0 1)` is not in the solubilizer of the 5-cycle
 `finRotate 5`, because the two generate `S₅`, which is not soluble.  So `solubilizer` is a
 proper subset in non-soluble groups. -/
 example : Equiv.swap (0 : Fin 5) (finRotate 5 0) ∉ solubilizer (finRotate 5) := by
@@ -307,7 +287,7 @@ example : Equiv.swap (0 : Fin 5) (finRotate 5 0) ∉ solubilizer (finRotate 5) :
   exact Equiv.Perm.not_isSolvable_fin_5
     (Group.isSolvable_of_surjective (f := e.toMonoidHom) e.surjective)
 
-/-- Ground truth: the 5-cycle lies in its own solubilizer in `S₅`. -/
+/-- The 5-cycle lies in its own solubilizer in `S₅`. -/
 example : finRotate 5 ∈ solubilizer (finRotate 5) := mem_solubilizer_self _
 
 section counting
