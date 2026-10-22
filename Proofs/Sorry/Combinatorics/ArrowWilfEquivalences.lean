@@ -3,9 +3,9 @@
 
 ## Source
 
-Y. Zhou and Q. Yu (as listed on the arXiv record), "Arrow-Wilf equivalences and
+Robin D.P. Zhou and Xinyang Yu, "Arrow-Wilf equivalences and
 enumerative results for short arrow patterns", arXiv:2609.29392.  Retrieved
-2026-10-21 (`/tmp/claude/refs/2609.29392.tex`).
+2026-10-21.
 
 * Theorem 3.1 (`thm:12-33`): for `n ≥ 1`,
   `|S_n(12; 3→3)| = d_n + ∑_{m=1}^{n} ∑_{k=0}^{n-m} C(n-m,k) C(m+k-1,n-m) d_k`.

@@ -183,7 +183,7 @@
   3-sunflower-free subfamilies of a power set.
 -/
 
-import Sorry.Erdos.Erdos20.Sunflower
+import Erdos.Erdos20.Sunflower
 import Mathlib.Data.Nat.Factorial.Basic
 
 set_option autoImplicit false

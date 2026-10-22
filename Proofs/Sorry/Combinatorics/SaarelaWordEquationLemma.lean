@@ -14,7 +14,7 @@
 * Stated by: A. Saarela (Lemmas 7 and 8 of the paper above).
 * Date of this card: 2026-10-21.
 * Status: proved in the literature (Saarela 2017, peer reviewed). This module
-  re-proves Lemmas 7 and 8 in Lean, with letters taken in `ℤ`.
+  proves the integer-letter specializations of Lemmas 7 and 8 in Lean.
 
 ## Verbatim informal claims (Saarela 2017, Section 5)
 
@@ -32,8 +32,11 @@ iff they are permutations of each other (`List.Perm`).
 
 ## Formalization notes
 
-* The paper takes `Γ ⊆ ℝ`; here letters are integers (`List ℤ`), which is the
-  setting used downstream (Saarela's Lemma 3 renames letters to integers).
+* The paper takes `Γ ⊆ ℝ`; the results below are the integer-letter
+  specializations (`List ℤ`) needed downstream. Saarela's Lemma 3 only produces
+  an alphabet isomorphism making a chosen word zero-sum; it does not rename
+  real letters to integers. This module does not formalize a reduction of the
+  full real-letter setting to the integer-letter setting.
 * `x₁, …, xₙ` is a `List (List ℤ)`; `n = 0` is excluded by the hypothesis that
   some `xᵢ` has nonzero sum.
 * `lemma8` is the three-exponent form; `lemma8_encard_le_two` is the paper's

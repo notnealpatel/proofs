@@ -5,9 +5,14 @@ import Sorry.GroupTPP.FDRepBridge
 /-!
 # Character degrees are bounded by the index of an abelian subgroup
 
-This file proves **Huppert Prop. 2.6 / Isaacs Thm. 2.6** (absent from Mathlib,
-upstream candidate): every irreducible complex character degree of a finite
-group `G` is at most the index of any commutative subgroup `A ≤ G`.
+This file independently proves the character-degree index bound stated in
+Cohn–Kleinberg–Szegedy–Umans (CKSU), [arXiv:math/0511460], in the basic
+representation-theory facts preceding `lemma:wreath-char-degrees`: every
+irreducible complex character degree of a finite group `G` is at most the
+index of any commutative subgroup `A ≤ G`. No normality of `A` is required.
+CKSU attribute this bound to Proposition 2.6 of B. Huppert, *Character Theory
+of Finite Groups* (1998). That textbook proposition has not been checked here;
+we make no claim about the previously cited Isaacs theorem/problem numbering.
 
 ## Main results
 
@@ -48,12 +53,14 @@ and `synthInstance.maxHeartbeats` is raised for the eigenvector lemma.
 
 ## References
 
-* B. Huppert, *Endliche Gruppen I*, V.2.6.
-* I. M. Isaacs, *Character Theory of Finite Groups*, Thm. 2.6 / Prob. 2.9
-  (Ito's lemma context).
-* CKSU FOCS'05 [arXiv:math/0511460], "basic facts" (tex 257–259): used for the
-  abelian branch of `lemma:wreath-char-degrees`.
+* H. Cohn, R. Kleinberg, B. Szegedy, C. Umans, *Group-theoretic Algorithms
+  for Matrix Multiplication*, FOCS'05, [arXiv:math/0511460], basic
+  representation-theory facts (FOCS05-10page.tex:257–259).
+* B. Huppert, *Character Theory of Finite Groups*, de Gruyter Expositions in
+  Mathematics 25 (1998), Proposition 2.6, as cited by CKSU; not directly checked.
 -/
+
+set_option autoImplicit false
 
 open scoped IsMulCommutative
 open GroupTPP.CharDegrees GroupTPP.FDRepBridge GroupTPP.CharDegreesComm
@@ -92,7 +99,8 @@ set_option synthInstance.maxHeartbeats 400000 in
 which every element of a commutative subgroup `A` acts by a scalar:
 `single a 1 * v = c • v`.
 
-This is the restriction-of-scalars half of Huppert Prop. 2.6: `S` viewed as a
+This supplies the restriction-of-scalars step of the index-bound proof:
+`S` viewed as a
 `ℂ[A]`-module (via `MonoidAlgebra.mapDomainAlgHom ℂ ℂ A.subtype` and
 `Module.compHom`) is semisimple by Maschke, its simple `ℂ[A]`-submodule is
 `ℂ[A]`-isomorphic to an ideal of `ℂ[A]`, and all simple pieces of the
@@ -159,7 +167,7 @@ private theorem exists_eigenvector (A : Subgroup G) [IsMulCommutative A]
       _ = ((c • w₀ : ↥W) : MonoidAlgebra ℂ G) := by rw [hc]
       _ = c • ((w₀ : ↥S) : MonoidAlgebra ℂ G) := rfl
 
-/-- **Huppert Prop. 2.6, module side (upstream candidate).**  If `S` is a simple
+/-- **Character-degree index bound, module side.** If `S` is a simple
 `ℂ[G]`-submodule of the regular module of a finite group `G` and `A ≤ G` is a
 commutative subgroup, then `Module.finrank ℂ S ≤ A.index`.
 
@@ -238,7 +246,7 @@ theorem finrank_simple_le_index (A : Subgroup G) [IsMulCommutative A]
       _ = A.index := rfl
   omega
 
-/-- **Huppert Prop. 2.6 / Isaacs Thm. 2.6 (upstream candidate).**  Every
+/-- **Character-degree index bound as stated by CKSU.** Every
 irreducible complex character degree of a finite group `G` is at most the index
 of a commutative subgroup `A ≤ G`:
 `c ∈ charDegrees G → c ≤ A.index`.

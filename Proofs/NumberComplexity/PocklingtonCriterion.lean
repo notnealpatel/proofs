@@ -10,6 +10,35 @@
 * R. Crandall and C. Pomerance, *Prime Numbers: A Computational Perspective*,
   2nd ed., §4.1 (Theorem 4.1.3 Pocklington; Theorem 4.1.4 / Proth's test).
 
+## Primary-text correspondence
+
+Pocklington's original two-page paper (read 9 March 1914) gives the local
+prime-power step used below: if `p ^ α` is the exact `p`-part of `N - 1`,
+the Fermat and coprimality checks force every prime divisor `r` of `N` to
+satisfy `p ^ α ∣ r - 1` (p. 29).  It then explicitly combines distinct
+prime factors in the resulting congruence condition.  The theorem
+`pocklington` is the standard modern packaging of those local conclusions
+for a known factor `F` with `N < F ^ 2`; it is not presented as a verbatim
+numbered theorem from the original note.
+
+The digitized 1878 page requires qualification rather than verbatim citation.
+Its uncorrected Wikisource transcription (quality level 1) renders the author
+as “E. Proth” and Theorem III's displayed form as `N = m * 2 ^ k`, omitting
+the `+ 1` required for a Proth number; the page scan has the same apparent
+formula.  Theorem III also expressly says that `a` is a nonresidue of `N`.
+Accordingly, that transcription is recorded only as historical attribution,
+not as an exact statement of `proth`.  The theorem below is the standard
+modern sufficient form: the assumed congruence to `-1` is itself the
+certificate, so its proof needs no separately formalized nonresidue
+condition.  It also allows an even coefficient, whose power of two can be
+absorbed into the exponent.  Here the result is derived from the fully
+stated `pocklington` theorem rather than from the anomalous transcription.
+
+Digitized primary texts: Internet Archive item
+`proceedingsofcam1718191316camb`, vol. 18, pp. 29–30; and *Comptes rendus
+hebdomadaires des séances de l’Académie des sciences*, vol. 87 (1878),
+p. 926, digitized as page 932 of the volume.
+
 ## Informal statement (verbatim from the target specification)
 
 ```

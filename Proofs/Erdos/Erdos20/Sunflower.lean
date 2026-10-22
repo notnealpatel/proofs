@@ -62,6 +62,8 @@ import Mathlib.Data.Finset.Card
 import Mathlib.Data.Finset.Powerset
 import Mathlib.Tactic
 
+set_option autoImplicit false
+
 open Finset
 
 variable {n : ℕ}
@@ -487,11 +489,13 @@ theorem atMostOne_mem_of_pairwiseDisjoint (sub : Finset (Finset (Fin n)))
   simp only [Finset.mem_filter] at hS hT
   exact Finset.disjoint_left.mp (hdisj S hS.1 T hT.1 hne) hS.2 hT.2
 
--- The forward map used in franklShift is injective on family.
--- Its inverse (well-defined since injective) maps each S ∈ franklShift to the unique T ∈ family
--- that maps to S. Since the forward map only swaps at most one element (i↔j) per set,
--- disjoint sets in the shifted family have disjoint preimages (the swap can't create new overlaps
--- because at most one set in a disjoint family can contain any given element).
+-- The forward map used in `franklShift` is injective on `family`, so each shifted member has a
+-- unique preimage. Pairwise-disjoint shifted members can nevertheless have preimages that meet:
+-- the only possible overlap is at `j`, between an unchanged preimage and one whose image replaces
+-- `j` by `i`. The matching proof below detects this collision and repairs it by substituting the
+-- unchanged preimage's shifted mate, which already belongs to `family`. This is a single-shift
+-- argument; it neither constructs a canonical full-shift endpoint nor removes the explicit chain
+-- required by the later transport theorem.
 
 -- The forward map sends x ∈ T to either x or (if x = j) i in the image.
 theorem franklShift_mem_or (i j : Fin n) (family : Finset (Finset (Fin n)))
@@ -558,12 +562,11 @@ theorem matchingNumber_shift_le (i j : Fin n) (family : Finset (Finset (Fin n)))
       · exact Finset.disjoint_left.mp hfd hxf₁ hxf₂
       · exact hxj rfl
     · exact hxj rfl
-  -- At most one element of sub₀ contains j (since overlap is only at j, and at most
-  -- one element of sub has j in its f-image, plus at most one case-B preimage has j).
-  -- Actually: if T₁, T₂ ∈ sub₀ both have j and T₁ ≠ T₂, they overlap at j.
-  -- Count: (sub₀.filter (j ∈ ·)).card ≤ 2 (at most one case-A, one case-B).
-  -- If ≤ 1: sub₀ is pairwise disjoint. Use sub₀.
-  -- If = 2: fix by replacing one element.
+  -- Two elements of `sub₀` may contain `j`: one whose shifted image still contains `j`,
+  -- and one whose shifted image instead contains `i`. Pairwise disjointness of the images permits
+  -- at most one of each kind, so `(sub₀.filter (j ∈ ·)).card ≤ 2`.
+  -- If the cardinality is at most one, `sub₀` is pairwise disjoint. Otherwise the proof repairs
+  -- the unique collision by replacing the unchanged preimage with its shifted mate.
   by_cases hjcount : (sub₀.filter fun T => j ∈ T).card ≤ 1
   · -- No collision: sub₀ is pairwise disjoint.
     refine ⟨sub₀, Finset.filter_subset _ _, hcard, ?_, ?_⟩

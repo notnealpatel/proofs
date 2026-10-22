@@ -74,7 +74,7 @@
     A_x (star at x)               → F.filter (fun S => x ∈ S)
 -/
 
-import Sorry.Erdos.Erdos20.Sunflower
+import Erdos.Erdos20.Sunflower
 import Sorry.Erdos.Erdos20.ShiftedSunflower
 
 open Finset

@@ -1,4 +1,4 @@
-import Sorry.GroupCount.Gnu
+import GroupCount.Gnu
 
 /-!
 # The coprime case of Lopes's submultiplicativity conjecture for A000001
@@ -14,8 +14,9 @@ The general case is open and is deliberately *not* stated anywhere in this file.
 
 ## Attribution and novelty status (literature sweep 2026-07-30)
 
-The coprime case proved here is **folklore** in the group-enumeration community: Ren
-(arXiv:2405.04794, Section 1) states it as "clear", without proof or citation, and no
+The coprime case proved here is **folklore** in the group-enumeration community: Aban
+S. Mahmoud, *Orders for which there exist exactly six or seven groups*
+(arXiv:2405.04794, Section 1), states it as "clear", without proof or citation, and no
 source located by the sweep states it as a standalone theorem (checked: Conway–Dietrich–
 O'Brien 2008; Blackburn–Neumann–Venkataraman 2007, whose Lemma 21.19 characterises the
 *equality* case for arithmetically independent factors; Pyber 1993; Eick's survey; the
@@ -342,13 +343,13 @@ theorem four_le_gnu_thirtysix : 4 ≤ gnu 36 := by
 
 end GroundTruth
 
-/-! ## Axiom audit
+/-! ## Axiom-audit note
 
-Every declaration above is `sorry`-free; the sweep below confirms each rests only on
-`{propext, Classical.choice, Quot.sound}`.  The subset is the sound `native_decide`
-detector: a use would appear as a per-declaration `*._native.native_decide.ax_*` axiom
-on this toolchain (`Lean.ofReduceBool` is never emitted, so grepping for it detects
-nothing).  There is no `native_decide` in this file. -/
+Every declaration above is intended to remain `sorry`-free and to depend only on
+`{propext, Classical.choice, Quot.sound}`. This must be checked from an importing audit,
+rather than by a command retained in this production-facing source. Such an audit also
+detects `native_decide`: on this toolchain it would add a per-declaration
+`*._native.native_decide.ax_*` axiom. There is no `native_decide` in this file. -/
 
 
 end GroupCount

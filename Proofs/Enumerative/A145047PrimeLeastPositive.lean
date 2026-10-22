@@ -87,8 +87,9 @@ theorem leastS_eq_of {p s : ℕ} (hs : Admissible p s)
 
 /-! ## Ground truth
 
-`1237` and `1621` are the first two terms of A145047 (so `s(p) = 10`); `5`
-is the first term of A145016 (`s = 1`), `13` of A145022 (`s = 2`). -/
+`1237` and `1621` are the first two terms of A145047 (so `s(p) = 10`).
+The primes `5` and `13` are the first terms of A145016 (so `s(p) = 1`), while
+`41` is the first term of A145022 (so `s(p) = 2`). -/
 
 example : leastS 1237 = 10 :=
   leastS_eq_of (by decide +kernel) (by decide +kernel)
@@ -100,6 +101,9 @@ example : leastS 5 = 1 :=
   leastS_eq_of (by decide +kernel) (by decide +kernel)
 
 example : leastS 13 = 1 :=
+  leastS_eq_of (by decide +kernel) (by decide +kernel)
+
+example : leastS 41 = 2 :=
   leastS_eq_of (by decide +kernel) (by decide +kernel)
 
 /-- The hypotheses of `leastS_mem_A008784` are jointly satisfiable (`p = 5`). -/

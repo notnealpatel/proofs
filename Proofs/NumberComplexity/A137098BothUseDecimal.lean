@@ -128,8 +128,10 @@ theorem units_digit_sq (k : ℕ) : k ^ 2 % 10 = (k % 100) ^ 2 % 100 % 10 := by
 
 Verbatim: "Conjecture: the last digit of all terms except the first two is 7."
 The terms are the positive `k` such that `k` and `k^2` use only the digits
-`2, 4, 5, 7, 9`; the first two terms are `2` and `5`, so the claim is that every
-term `k` with `7 < k` satisfies `k ≡ 7 (mod 10)`. -/
+`2, 4, 5, 7, 9`; the first two terms are `2` and `5`.  The finite residue
+argument below proves the tail `7 < k`; the exact sourced statement is then
+obtained by separately handling the third listed term `k = 7` and excluding
+the first two values `2` and `5`. -/
 theorem last_digit_seven (k : ℕ) (hk : 7 < k) (h : IsTerm k) : k % 10 = 7 := by
   obtain ⟨-, hk1, hk2⟩ := h
   -- units digits of `k` and `k^2`
@@ -161,5 +163,20 @@ theorem last_digit_seven (k : ℕ) (hk : 7 < k) (h : IsTerm k) : k % 10 = 7 := b
     rw [hundreds_digit_sq_of_mod_ten_eq_five k h5] at e2
     exact absurd e2 (hundreds_check (k / 10 % 10) (Nat.mod_lt _ (by norm_num)) d1)
   · exact h7
+
+/-- **Dale's conjecture (A137098), with the source's exact exception set.**
+Every term other than the first two values, `2` and `5`, ends in `7`.  The
+finite boundary case `k = 7` is included here rather than being hidden by the
+tail hypothesis of `last_digit_seven`. -/
+theorem last_digit_seven_except_first_two (k : ℕ) (h : IsTerm k)
+    (hk2 : k ≠ 2) (hk5 : k ≠ 5) : k % 10 = 7 := by
+  by_cases hk : 7 < k
+  · exact last_digit_seven k hk h
+  · interval_cases k <;> simp_all [IsTerm, UsesAllowed, allowedDigits]
+
+example : 7 % 10 = 7 :=
+  last_digit_seven_except_first_two 7 (by
+    refine ⟨by norm_num, ?_, ?_⟩ <;> simp [UsesAllowed, allowedDigits])
+    (by norm_num) (by norm_num)
 
 end Candidates.A137098BothUseDecimal

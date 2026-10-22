@@ -3,7 +3,7 @@ import Sorry.GroupTPP.TPP
 /-!
 # Murthy's prime-index bound `ρ₀(G) ≤ p²/(2p-1)`
 
-This file formalizes the main theorem of Murthy
+This file formalizes the bound in the main theorem of Sandeep R. Murthy
 [arXiv:2512.16730, Theorem 4.1 (`MABQuoPrime`)]:
 
 > If `G` is a finite group with an **abelian normal subgroup `N` of prime index
@@ -15,6 +15,7 @@ Equivalently, clearing denominators over `ℕ`, every subgroup TPP triple
 `(2p-1) · β₀(G) ≤ p² · |G|`.
 
 For `p = 2` (dihedral-type groups) this is the bound `ρ₀ ≤ 4/3`.
+The equality-case divisibility clause of the source theorem is not formalized here.
 
 ## Proof outline (Murthy, coset counting inside `N`)
 
@@ -39,9 +40,11 @@ So the whole theorem reduces to the **index bound**
 
 ## References
 
-* I. Murthy, *A note on the triple product property for finite groups with
+* Sandeep R. Murthy, *A note on the triple product property for finite groups with
   abelian normal subgroups of prime index*, [arXiv:2512.16730], Thm 4.1.
 -/
+
+set_option autoImplicit false
 
 open scoped BigOperators Pointwise
 
@@ -920,7 +923,7 @@ theorem stppCapacity_bound {N : Subgroup G} (hN : N.Normal)
 
 /-- **Dihedral-type case `p = 2`.** If `G` has an abelian subgroup `N` of index
 `2` (automatically normal), then `3 · β₀(G) ≤ 4 · |G|`, i.e. `ρ₀(G) ≤ 4/3`.
-This is Murthy's bound for dihedral groups (Hedtke–Murthy Conjecture 7.5). -/
+This is a bound on subgroup TPP capacity, not on arbitrary-subset TPP capacity. -/
 theorem stppCapacity_bound_index_two {N : Subgroup G}
     (hAb : ∀ a b : N, (a : G) * b = b * a) (hpN : N.index = 2) :
     3 * stppCapacity G ≤ 4 * Nat.card G := by

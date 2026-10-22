@@ -10,11 +10,13 @@ This file formalizes **Murthy's Proposition 2.14** (arXiv:2602.15796,
 
 ## The proof
 
-Murthy's paper proof routes through external structure theorems (every
-nonabelian group of order `p³`/`p⁴` has an abelian subgroup of index `p`).
-We instead give the **self-contained elementary** argument, which Murthy also
-attributes to "combinatorial constraints" from Neumann
-[Neunhöffer, S1461157010000288, Observation 3.1]:
+Murthy's paper gives a combinatorial argument and also an alternative via
+structure theorems (nonabelian groups of order `p³`/`p⁴` have an abelian
+subgroup of index `p`). Here we develop the elementary combinatorial argument
+independently. Murthy attributes the needed "combinatorial constraints" to
+P. M. Neumann's
+Observation 3.1 (DOI:10.1112/S1461157010000288). That attribution is via
+Murthy; the injectivity argument below is proved independently here:
 
 * **Neumann's inequality** (the engine, `card_mul_card_union_le`): for *any*
   basic TPP triple `(S, T, U)` of finsets in *any* finite group,
@@ -38,6 +40,8 @@ attributes to "combinatorial constraints" from Neumann
 * `GroupTPP.MurthySmallPGroups.stppCapacity_eq_card_of_card_le_pow_four` —
   `stppCapacity G = Fintype.card G` for a `p`-group of order `≤ p⁴`.
 -/
+
+set_option autoImplicit false
 
 open scoped BigOperators
 
@@ -78,10 +82,12 @@ theorem card_le_stppCapacity : Fintype.card G ≤ stppCapacity G := by
 
 /-! ### Neumann's inequality (the engine)
 
-For a basic TPP triple `(S, T, U)`, the map `(s, x) ↦ s⁻¹ * x` from
-`S × (T ∪ U)` into `G` is injective. This is Neumann's
-[S1461157010000288, Observation 3.1] sharpening of the abelian barrier; unlike
-the abelian barrier it uses no commutativity. -/
+For a basic TPP triple `(S, T, U)`, the map `(s, x) ↦ x * s⁻¹` from
+`S × (T ∪ U)` into `G` is injective under this file's left-quotient TPP
+convention. Murthy [2602.15796, proof of Proposition 2.14] attributes the
+resulting inequalities to P. M. Neumann, Observation 3.1
+[DOI:10.1112/S1461157010000288]; that original text has not been checked here.
+The proof below uses no commutativity, unlike the abelian barrier. -/
 
 omit [Fintype G] in
 /-- **Neumann injectivity.** Under the TPP with `1 ∈ T` and `1 ∈ U`, the map

@@ -39,3 +39,5 @@ import Erdos.Erdos142.ReflectionMassEnergy
 import Erdos.Erdos142.ReflectionCarryEnergy
 import Erdos.Erdos142.ReflectionMultiplicityCap
 import Erdos.Erdos142.ReflectionEnergyCriterion
+import Erdos.Erdos20.Sunflower
+import Erdos.Erdos64.Reductions

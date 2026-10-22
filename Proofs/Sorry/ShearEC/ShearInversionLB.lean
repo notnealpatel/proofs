@@ -8,8 +8,9 @@ import ShearEC.Secp256k1Prime
 
 Flagship lower bound for the shear-circuit model of `ShearEC.ShearCircuit`.
 
-Over a finite field `K` with `q` elements, the inverse function (with the
-`0⁻¹ = 0` convention) is the polynomial function `x ↦ x ^ (q - 2)`, and *no
+Over a finite field `K` with `q` elements and `3 ≤ q`, the inverse function
+(with the `0⁻¹ = 0` convention) is the polynomial function
+`x ↦ x ^ (q - 2)`, and *no
 polynomial of degree `< q - 2` computes it* (`card_sub_two_le_natDegree`):
 a lower-degree interpolant would disagree with `X ^ (q - 2)` somewhere, since
 their difference has fewer than `q` roots.
@@ -28,36 +29,41 @@ register to a single line keeps that bound
   Pratt/Lucas certificate of `ShearEC.Secp256k1Prime` (see `secp256k1P_prime`
   and the `Fact` instance below).
 
-This is the folklore addition-chain-style floor, transplanted to the
-reversible multiply-add model: it explains why reversible (and quantum)
-elliptic-curve arithmetic is dominated by modular inversions — each one costs
-a `Θ(log p)`-deep cascade of nonlinear gates, whereas every other step of the
-affine group law is a bounded number of shears (`ShearEC.ShearAddition`).
+This is an addition-chain-style lower bound on the **total number** of
+multiply-add gates in circuits explicitly specified to compute inversion
+on every field element. No circuit-depth theorem or matching upper bound
+is proved here. In particular, this does not prove that inversion is
+unavoidable in arbitrary elliptic-curve addition algorithms, or that
+inversion dominates their cost: such a conclusion requires a separate
+algorithm-to-model reduction, not just the chord formula correspondence
+of `ShearEC.ShearAdditionEC`.
 
 The bound needs **no** reversibility or invertibility assumption on the
 affine layers, so it holds a fortiori for the reversible subclass.
 
 ## References
 
-The core mathematics is classical: the degree-doubling bound for
-multiplication gates is Strassen's degree-bound circle of ideas, and the
-`⌊log₂ n⌋` floor for `x ↦ xⁿ` is the trivial addition-chain lower bound. No
-prior statement (or formalization) of the bound for the reversible
-affine-plus-multiply-add gate set is known; the quantum-EC literature gives
-only upper bounds/resource estimates.
+The core argument is the classical degree-doubling bound for
+multiplication gates, related to addition-chain lower bounds. The references
+below supply background; the exact theorem-number attribution, matching
+inversion upper bounds, and quantum resource estimates are not verified by
+this file. No historical priority or novelty claim is made.
 
 * V. Strassen, *Die Berechnungskomplexität von elementarsymmetrischen
   Funktionen und von Interpolationskoeffizienten*, Numer. Math. 20 (1973),
   238–251 — Ω(log r) product gates for `x^r` (degree bound).
 * A. Shpilka, A. Yehudayoff, *Arithmetic circuits: a survey*, Found. Trends
   Theor. Comput. Sci. 5 (2010), Theorem 3.2 and Remark 3.1.
-* D. E. Knuth, *TAOCP* vol. 2, §4.6.3 — addition chains (OEIS A003313);
-  Itoh–Tsujii inversion realizes the matching `O(log q)` upper bound.
+* D. E. Knuth, *TAOCP* vol. 2, §4.6.3 — addition chains (OEIS A003313).
+  Itoh–Tsujii inversion is background only; no matching upper bound for the
+  present gate model is established here.
 * M. Roetteler, M. Naehrig, K. Svore, K. Lauter, *Quantum resource estimates
   for computing elliptic curve discrete logarithms*, ASIACRYPT 2017.
 * T. Häner, S. Jaques, M. Naehrig, M. Roetteler, M. Soeken, *Improved quantum
   circuits for elliptic curve discrete logarithms*, PQCrypto 2020.
 -/
+
+set_option autoImplicit false
 
 namespace ShearEC.ShearInversionLB
 
@@ -69,9 +75,10 @@ section OneVariable
 
 open Polynomial
 
-/-- **Inversion has algebraic degree `q − 2`.** Any one-variable polynomial
+/-- **Inversion degree lower bound `q − 2`.** Any one-variable polynomial
 computing the field inverse (with `0⁻¹ = 0`) on all of a finite field `K`
-has `natDegree ≥ |K| - 2`. -/
+has `natDegree ≥ |K| - 2`. For `|K| = 2` this is the trivial lower bound
+zero, not a claim that inversion has degree zero. -/
 theorem card_sub_two_le_natDegree (g : Polynomial K)
     (hg : ∀ x : K, g.eval x = x⁻¹) :
     Fintype.card K - 2 ≤ g.natDegree := by
@@ -115,10 +122,9 @@ outputs `x⁻¹` in register `out` for every `x : K`, then
 The theorem assumes neither cleanliness nor reversibility: it bounds *any*
 shear circuit — affine layers need not be invertible, and every register
 other than `out` may end up holding arbitrary garbage (dirty ancillas are
-allowed), which only strengthens the bound. The cost is linear in the
-bit-length of the field: the multiply-add cascade must double degree
-`⌈log₂ (|K| - 2)⌉` times, i.e. `s ≥ log₂ (q - 2)` (see
-`clog_le_shearCount`). -/
+allowed), which only strengthens the bound. This is a bound on gate count,
+not depth: `s ≥ log₂ (q - 2)` (see `clog_le_shearCount`). It applies only
+when the explicit all-field inversion specification holds. -/
 theorem card_sub_two_le_two_pow_shearCount {n : ℕ} (C : Circuit n K)
     (inp out : Fin n)
     (hspec : ∀ x : K, run C (fun i => if i = inp then x else 0) out = x⁻¹) :
@@ -175,9 +181,9 @@ outstanding hypothesis. -/
 instance : Fact (Nat.Prime secp256k1P) := ⟨secp256k1P_prime⟩
 
 /-- **secp256k1 instantiation**: any shear circuit computing modular inversion
-in the secp256k1 base field uses at least `256` multiply-add gates. This is
-why reversible/quantum elliptic-curve point addition is dominated by its
-modular inversions. -/
+in the secp256k1 base field uses at least `256` multiply-add gates. This
+counts gates, not depth, and does not show that an arbitrary point-addition
+algorithm must perform such an inversion. -/
 theorem secp256k1_inversion_needs_256_shears [Fact (Nat.Prime secp256k1P)]
     {n : ℕ} (C : Circuit n (ZMod secp256k1P)) (inp out : Fin n)
     (hspec : ∀ x : ZMod secp256k1P,

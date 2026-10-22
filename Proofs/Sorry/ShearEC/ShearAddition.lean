@@ -1,7 +1,7 @@
 import Mathlib
 
 /-!
-# One multiply-add shear cannot clean the ancilla in reversible EC point addition
+# Whole-plane obstruction for a clean multiply-add shear specification
 
 Context (secp256k1, but nothing here is prime-specific). For a fixed point
 `P = (a, b)` and a varying `Q`, the affine group law reduces — after the slope
@@ -33,9 +33,9 @@ statement / a baby multiplicative-complexity lower bound):
 * `ShearEC.ShearAddition.ancilla_carries_lambda` — **the invariant**: any injective
   `F` that outputs the correct `(X, Y)` in the first two registers must have a
   third register that is injective in `λ` on the fibre `c = 0`; the ancilla
-  necessarily carries `λ` (in particular it cannot be `0`).  This is exactly the
-  garbage that a clean circuit must uncompute — matching the quantum-ECC counts of
-  Roetteler et al. and Häner et al., where the slope is computed *and* uncomputed.
+  necessarily distinguishes the independent values of `λ` on that fibre.
+  This is an injectivity statement, not a proof that clearing a slope on
+  realizable EC inputs requires a modular inverse or any specified gate count.
 * `ShearEC.ShearAddition.shear_comp_normal_form` — **the rank ≤ 1 normal form**: any
   `A₂ ∘ M ∘ A₁` (affine `Aᵢ`) equals an affine map plus a *single* product of two
   affine forms times a fixed vector `ℓ`; its quadratic part has "rank ≤ 1". Hence
@@ -50,23 +50,35 @@ statement / a baby multiplicative-complexity lower bound):
 `ShearEC.ShearAdditionEC` proves that on any Weierstrass curve with
 `a₁ = a₂ = a₃ = 0` (secp256k1 in particular) the map `(c, λ) ↦ (a - c, c·λ - b)`
 studied here **is** Mathlib's verified group law on the chord locus
-(`some_add_some`, `singleShear_computes_add`), and that the exceptional fibre
-`c = 0` is exactly `P + Q = -P`, i.e. `Q = -(2 • P)`
-(`c_eq_zero_iff_add_eq_neg`, `c_eq_zero_iff_eq_neg_two_smul`).
-`ShearEC.ShearCircuit` generalises the one-shear model to circuits of `s` shears
-(degree `≤ 2^s`), and `ShearEC.ShearInversionLB` derives the flagship consequence:
-clean modular inversion — the step that builds `λ` — needs `≥ ⌈log₂(p-2)⌉`
-shears.
+(`some_add_some`, `singleShear_computes_add`), and that, on realizable chord
+inputs, `c = 0` is exactly `P + Q = -P`, i.e. `Q = -(2 • P)`
+(`c_eq_zero_iff_add_eq_neg`, `c_eq_zero_iff_eq_neg_two_smul`). These coordinate
+identities do not make the realizable input set the whole `(c, λ)` plane.
+For fixed `P`, the exceptional chord fibre has at most one `Q` and hence
+at most one slope; it need not contain the collisions used here. No lower
+bound for arbitrary EC addition follows without an additional reduction or
+a realizable-domain obstruction.
+
+`ShearEC.ShearCircuit` generalises the model to circuits of `s` shears
+(degree `≤ 2^s`), and `ShearEC.ShearInversionLB` bounds circuits explicitly
+specified to compute inversion on every field element. It does not prove
+that an arbitrary EC addition algorithm must compute inversion.
 
 ## References
+
+The references give background on reversible computation and quantum EC
+resource estimates. No exact resource count or source-to-model equivalence
+is established by the theorems in this file.
 
 * C. H. Bennett, *Logical reversibility of computation*, IBM J. Res. Dev. 17 (1973).
 * M. Roetteler, M. Naehrig, K. Svore, K. Lauter, *Quantum resource estimates for
   computing elliptic curve discrete logarithms*, ASIACRYPT 2017, arXiv:1706.06752
-  (the slope is computed and uncomputed → 4 modular inversions per addition).
+  (background reference, not a resource-count theorem formalized here).
 * T. Häner, S. Jaques, M. Naehrig, M. Roetteler, M. Soeken, *Improved quantum
   circuits for elliptic curve discrete logarithms*, PQCrypto 2020, arXiv:2001.09580.
 -/
+
+set_option autoImplicit false
 
 namespace ShearEC.ShearAddition
 
@@ -206,13 +218,12 @@ def addWrap : (k × k × k) ≃ (k × k × k) where
 /-- The concrete **single-shear realisation** of the point-addition step:
 `A₂ ∘ M`. On input `(c, λ, w)` it returns `(a - c, (w + c·λ) - b, λ)`.
 
-Input-model caveat: the input `c = a - X = 2a + x - λ²` is quadratic in `λ`,
-so the reparametrization `(x, λ) ↦ (c, λ)` is *not* affine — forming `c`
-from `(x, λ)` costs one further shear (the `λ·λ` square). The impossibility
-and lower-bound results hold a fortiori (granting `c` for free only
-strengthens them), but the one-shear *achievability* is specific to this
-c-given input model, consistent with the classical two-multiplication count
-for the post-slope step. -/
+Input-model caveat: `c = a - X = 2a + x - λ²` depends quadratically on `λ`.
+The one-shear *achievability* statement assumes `c` is already supplied;
+forming `c` and computing the slope are not counted. The impossibility
+statements quantify over the entire independent `(c, λ)` plane. Granting
+`c` for free does not transfer those statements to the smaller set of
+realizable curve inputs. -/
 def singleShear : (k × k × k) ≃ (k × k × k) := shear.trans (addWrap a b)
 
 @[simp] lemma singleShear_apply (c lam w : k) :
@@ -250,8 +261,9 @@ theorem single_shear_cannot_clean
 /-- **The invariant: the ancilla necessarily carries `λ`.** If an injective `F` outputs
 the correct first two coordinates `(X, Y) = (a - c, c·λ - b)`, then on the exceptional
 fibre `c = 0` its third coordinate is an injective function of `λ`. So the ancilla
-cannot be constant there — in particular it cannot be `0` — and clearing it requires
-recovering `λ`, i.e. a second nonlinear step (the modular inverse that built `λ`). -/
+cannot be constant on the whole fibre — in particular it cannot be identically
+`0`. This does not specify an uncomputation algorithm, force a modular inverse,
+or imply a lower bound on realizable curve inputs. -/
 theorem ancilla_carries_lambda
     (F : k × k × k → k × k × k) (hF : Function.Injective F)
     (hX : ∀ c lam : k, (F (c, lam, 0)).1 = a - c)

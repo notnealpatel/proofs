@@ -1,4 +1,4 @@
-import Sorry.GroupCount.Gnu
+import GroupCount.Gnu
 
 /-!
 # Proved layer of the Conway–Dietrich–O'Brien `gnu`-iteration conjecture (OEIS A000001)

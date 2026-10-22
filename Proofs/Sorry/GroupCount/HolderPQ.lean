@@ -1,4 +1,4 @@
-import Sorry.GroupCount.Gnu
+import GroupCount.Gnu
 
 /-!
 # Hölder's classification at order `p * q`

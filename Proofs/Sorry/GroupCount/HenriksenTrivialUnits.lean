@@ -24,9 +24,10 @@ Claim formalized here (triage statement, recorded 2026-10-21):
 
 ## Status
 
-Proved in the literature (Henriksen 1989; Moore–Pierce–Yaqub 1968) for the
-periodic / finite / artinian cases treated here.  The general infinite case of
-Henriksen's question is reported open in the 2021 MathOverflow comments; it is
+Proved in the literature (Henriksen 1989; Moore–Pierce–Yaqub 1968) for related
+periodic, finite, and artinian cases. This file treats only the periodic and finite cases;
+the cited artinian result is context, not a theorem formalized here. The general infinite
+case of Henriksen's question is reported open in the 2021 MathOverflow comments; it is
 NOT addressed by this file.
 
 ## Proof outline (elementary, no Wedderburn)

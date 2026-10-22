@@ -63,9 +63,10 @@ def pairSet (n : ℕ) : Set (ℕ × ℕ) :=
     n = Nat.primeCounting (p.1 * (p.1 + 1) / 2) + Nat.primeCounting (1 + p.2 * (p.2 + 1) / 2)}
 
 /-- OEIS A262995: the number of ordered pairs `(k, m)` with `k > 0`, `m > 0` and
-`n = π(k(k+1)/2) + π(1 + m(m+1)/2)`.  The set is finite for every `n`
-(`π` is unbounded), so `Set.ncard` is the honest count; the refutation below
-exhibits an `n` whose pair set is empty. -/
+`n = π(k(k+1)/2) + π(1 + m(m+1)/2)`.  Mathematically the set is finite for
+every `n` because `π` is unbounded, but that global finiteness fact is not
+proved in this module.  The refutation below instead proves the relevant pair
+set empty, so its use of `Set.ncard` does not depend on that residual bridge. -/
 noncomputable def a (n : ℕ) : ℕ := (pairSet n).ncard
 
 /-- **Sun's conjecture (A262995, Zhi-Wei Sun, Oct 07 2015).**
@@ -1338,11 +1339,13 @@ theorem not_exists_rep_241540 :
   rw [pairSet_241540] at hmem
   exact hmem
 
-/-- **Sun's conjecture is false.**  Counterexample `n = 241540`: there is no
-pair `(k, m)` with `k, m > 0` and `241540 = π(k(k+1)/2) + π(1 + m(m+1)/2)`, so
-`a(241540) = 0`.  The author verified `n ≤ 10^5`; the intended statement was
-presumably the finite check "`a(n) > 0` for `0 < n ≤ 10^5`".  A further zero,
-`a(350366) = 0`, was found by computation (not formalized here). -/
+/-- **Sun's global conjecture is false.**  Counterexample `n = 241540`: there
+is no pair `(k, m)` with `k, m > 0` and
+`241540 = π(k(k+1)/2) + π(1 + m(m+1)/2)`, so `a(241540) = 0`.  The primary
+OEIS entry states the conjecture for every positive `n` and separately reports
+verification through `10^5`; the counterexample lies beyond that verified
+range.  A further zero, `a(350366) = 0`, was found by computation but is not
+formalized here. -/
 theorem conjecture_false : ¬ Conjecture := by
   intro h
   have hpos := h 241540 (by norm_num)

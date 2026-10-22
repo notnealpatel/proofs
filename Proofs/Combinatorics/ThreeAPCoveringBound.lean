@@ -19,14 +19,21 @@ Verbatim (Section 1):
 > at most `(1/2 + o(1)) n^2`. This counting argument, in the specific setting of `S_3(A_0)`,
 > appears in papers of Gerver and Ramsey and Moy.
 
-Formalized target (triage a2-18): the explicit Moy / Gerver–Ramsey bound for the Stanley
-sequence `S(0, n)` (`a_0 = 0`, `a_1 = n`, `a_{k+1}` the least `m > a_k` with
-`{a_0, …, a_k, m}` 3-AP-free): `a_k ≤ (k - 1)(k + 2)/2 + n` for every `k ≥ 1`;
-together with the explicit 3-AP covering count `2(n - n_0) ≤ m(m + 1)`,
-`m = |A ∩ [0, n]|`, and the Kiss–Sándor–Yang Proposition derived from it.
+Formalized target (triage a2-18): the explicit bound for the Stanley sequence
+`S(0, n)` (`a_0 = 0`, `a_1 = n`, `a_{k+1}` the least `m > a_k` with
+`{a_0, …, a_k, m}` 3-AP-free): `a_k ≤ (k - 1)(k + 2)/2 + n` for every `k ≥ 1`.
+The Erdős Problem #271 page credits David van Doorn and Nat Sothanaphan with
+refining Moy's argument; Sothanaphan's comment gives this exact formula. Moy's
+published paper proves the weaker counting inequality and its asymptotic
+consequence, while the Gerver–Ramsey and Moy papers are cited for the underlying
+counting argument. The module also proves the explicit 3-AP covering count
+`2(n - n_0) ≤ m(m + 1)`, `m = |A ∩ [0, n]|`, and derives the
+Kiss–Sándor–Yang Proposition from it.
 
-Date: 2026-10-21.  Status: known; proved in the literature (Gerver–Ramsey, Moy,
-Kiss–Sándor–Yang) and quoted, not proved, in arXiv:2609.02041.
+Date: 2026-10-21.  Status: the covering count and asymptotic bound are proved in
+published sources; the exact displayed finite Stanley bound is the documented
+van Doorn–Sothanaphan refinement on Erdős Problem #271, not a theorem quoted
+verbatim from Moy or Gerver–Ramsey.
 -/
 import Mathlib
 
@@ -91,19 +98,24 @@ example : ¬ IsThreeAPCovering ∅ := by
 
 /-! ### Basic API -/
 
+/-- The initial term of the Stanley sequence `S(0, n)` is zero. -/
 theorem stanley_zero (n : ℕ) : stanley n 0 = 0 := rfl
 
+/-- The second term of the Stanley sequence `S(0, n)` is `n`. -/
 theorem stanley_one (n : ℕ) : stanley n 1 = n := rfl
 
+/-- The list through index `k + 1` is its newest term followed by the list through `k`. -/
 theorem stanleyList_succ (n k : ℕ) :
     stanleyList n (k + 1) = stanley n (k + 1) :: stanleyList n k := by
   cases k with
   | zero => rfl
   | succ k => rfl
 
+/-- The term at index `k + 2` is the greedy step after the list through `k + 1`. -/
 theorem stanley_add_two (n k : ℕ) :
     stanley n (k + 2) = stanleyStep (stanleyList n (k + 1)) (stanley n (k + 1)) := rfl
 
+/-- Membership in the list through index `k` is equality to a term with index at most `k`. -/
 theorem mem_stanleyList {n k x : ℕ} : x ∈ stanleyList n k ↔ ∃ i ≤ k, stanley n i = x := by
   induction k with
   | zero =>
@@ -194,7 +206,8 @@ theorem term_or_blocked (a : ℕ → ℕ) (ha : StrictMono a)
     rw [hf1] at heq
     omega
 
-/-- Abstract Gerver–Ramsey / Moy counting: if `a` is strictly increasing and every integer
+/-- Abstract counting underlying the van Doorn–Sothanaphan refinement of Moy's argument: if
+`a` is strictly increasing and every integer
 strictly between consecutive terms `a_t < y < a_{t+1}` (`t ≥ 1`) has the form `2 a_j - a_i`
 with `i < j ≤ t`, then `a_k ≤ a_1 + (k - 1)(k + 2)/2` for `k ≥ 1`. -/
 theorem two_mul_le_of_blocked (a : ℕ → ℕ) (ha : StrictMono a)
@@ -235,8 +248,11 @@ theorem two_mul_le_of_blocked (a : ℕ → ℕ) (ha : StrictMono a)
   generalize k * (k - 1) = P at *
   omega
 
-/-- **Moy / Gerver–Ramsey bound** for the Stanley sequence `S(0, n)`: for `n ≥ 1` and `k ≥ 1`,
-`a_k ≤ (k - 1)(k + 2)/2 + n`, stated without division as `2 a_k ≤ (k - 1)(k + 2) + 2 n`. -/
+/-- **Erdős Problem #271 refinement (David van Doorn and Nat Sothanaphan).** For the
+Stanley sequence `S(0, n)`, with `n ≥ 1` and `k ≥ 1`, Sothanaphan's exact optimization of
+Moy's counting argument gives
+`a_k ≤ (k - 1)(k + 2)/2 + n`, stated without division as
+`2 a_k ≤ (k - 1)(k + 2) + 2 n`. -/
 theorem two_mul_stanley_le {n : ℕ} (hn : 0 < n) (k : ℕ) (hk : 1 ≤ k) :
     2 * stanley n k ≤ (k - 1) * (k + 2) + 2 * n := by
   have h := two_mul_le_of_blocked (stanley n) (stanley_strictMono hn)

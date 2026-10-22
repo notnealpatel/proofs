@@ -56,7 +56,7 @@ as a hypothesis: minimality appears only where the source uses it, and the
 corresponding conclusions are `False`, not axioms.
 -/
 
-import Sorry.Erdos.Erdos64.Reductions
+import Erdos.Erdos64.Reductions
 import Mathlib.Combinatorics.SimpleGraph.Dart
 
 set_option autoImplicit false

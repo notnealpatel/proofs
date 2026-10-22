@@ -38,9 +38,11 @@ cardinality.
 * `GroupCount.gnu_eq_zero_iff` — the junk value is pinned: `gnu n = 0 ↔ n = 0`.
 * `GroupCount.card_eq_gnu_of_classification`, `card_le_gnu_of_pairwise_not_iso` — a
   classification computes `gnu`; irredundancy alone bounds it below.
-* `GroupCount.mul_gnu_le_gnu_of_injective` — the reduction of the Lopes conjecture
-  `gnu i * gnu j ≤ gnu (i * j)` to injectivity of the descended product map.  The
-  injectivity itself is **not** proved here; it is the downstream lane's job.
+* `GroupCount.mul_gnu_le_gnu_of_injective` — a sufficient reduction of the Lopes
+  inequality `gnu i * gnu j ≤ gnu (i * j)` to injectivity of the descended product map.
+  The injectivity condition is not equivalent to the inequality and is false in general;
+  `GroupCount.not_injective_isoClass_prod_four` gives the factor-swap counterexample at
+  equal orders.
 * `GroupCount.gnu_prime` — `gnu p = 1` at every prime.
 * `GroupCount.gnu_four` — `gnu 4 = 2`, via `GroupCount.isCyclic_or_isKleinFour`.
 
@@ -559,12 +561,14 @@ theorem gnu_eq_one_of_forall_mulEquiv {n : ℕ} (hn : 1 ≤ n)
     (GroupStructure.iso_iff_nonempty_mulEquiv S T).mpr
       (h S.Carrier T.Carrier S.card_carrier T.card_carrier)⟩
 
-/-! ## Submultiplicativity scaffolding (the Lopes A000001 conjecture)
+/-! ## Conditional submultiplicativity scaffolding
 
-The direct product descends to isomorphism classes, so `gnu i * gnu j ≤ gnu (i * j)`
-reduces to injectivity of the descended product map.  Proving that injectivity is the
-content of the Lopes conjecture and is *not* attempted here; this lane supplies the
-reduction only. -/
+The direct product descends to isomorphism classes, so injectivity of the descended map
+is a sufficient condition for `gnu i * gnu j ≤ gnu (i * j)`. It is not an equivalent
+form of Lopes's A000001 conjecture: general ordered-product injectivity already fails at
+`i = j = 4`, since the distinct ordered pairs `(C₄, V₄)` and `(V₄, C₄)` have isomorphic
+direct products. The conditional counting reduction remains useful, in particular under
+the coprimality hypothesis proved in `Sorry.Quarantine.GroupCount.Submult`. -/
 
 /-- `gnu i * gnu j ≤ gnu (i * j)` reduces to injectivity of the descended direct-product
 map on isomorphism classes. -/
@@ -573,6 +577,30 @@ theorem mul_gnu_le_gnu_of_injective {i j : ℕ}
     gnu i * gnu j ≤ gnu (i * j) := by
   have key := Fintype.card_le_of_injective _ h
   rwa [Fintype.card_prod] at key
+
+/-- The ordered direct-product map on isomorphism classes is not injective in general.
+At order four, the cyclic and Klein-four classes are distinct, while swapping these two
+factors gives isomorphic direct products. This refutes only the sufficient injectivity
+condition, not Lopes's numerical inequality. -/
+theorem not_injective_isoClass_prod_four :
+    ¬ Function.Injective fun p : IsoClass 4 × IsoClass 4 => IsoClass.prod p.1 p.2 := by
+  let c := GroupStructure.cyclic 4
+  let k := GroupStructure.klein
+  have hnotIso : ¬ c.Iso k :=
+    GroupStructure.not_iso_of_powOneCount_ne (k := 2) (by decide)
+  have hne : c.isoClass ≠ k.isoClass :=
+    fun h => hnotIso ((GroupStructure.isoClass_eq_iff c k).mp h)
+  have hprodIso : (c.prod k).Iso (k.prod c) :=
+    GroupStructure.iso_of_mulEquiv
+      ((GroupStructure.prodMulEquiv c k).trans
+        (MulEquiv.prodComm.trans (GroupStructure.prodMulEquiv k c).symm))
+  have hprod : IsoClass.prod c.isoClass k.isoClass =
+      IsoClass.prod k.isoClass c.isoClass := by
+    simpa only [GroupStructure.isoClass_prod] using
+      (GroupStructure.isoClass_eq_iff (c.prod k) (k.prod c)).mpr hprodIso
+  intro hinjective
+  have hpairs : (c.isoClass, k.isoClass) = (k.isoClass, c.isoClass) := hinjective hprod
+  exact hne (congrArg Prod.fst hpairs)
 
 /-! ## Certified values against OEIS A000001
 
@@ -754,9 +782,9 @@ example : 1 ≤ 3 ∧ ∀ S T : GroupStructure 3, S.Iso T := gnu_eq_one_iff.mp g
 example : Nonempty ((GroupStructure.cyclic 3).Carrier ≃* Multiplicative (ZMod 3)) :=
   nonempty_mulEquiv_of_gnu_eq_one gnu_three (GroupStructure.cyclic 3).card_carrier (by simp)
 
-/-- The hypothesis of `mul_gnu_le_gnu_of_injective` is the *open* Lopes injectivity, so it
-is exhibited satisfiable rather than proved: at `i = j = 1` the source is a subsingleton,
-hence every map out of it is injective. -/
+/-- `mul_gnu_le_gnu_of_injective` has a sufficient hypothesis that fails in general (as
+`not_injective_isoClass_prod_four` shows). It is exhibited satisfiable here at
+`i = j = 1`: the source is a subsingleton, hence every map out of it is injective. -/
 example : Function.Injective fun p : IsoClass 1 × IsoClass 1 => IsoClass.prod p.1 p.2 := by
   haveI : Subsingleton (IsoClass 1) := Fintype.card_le_one_iff_subsingleton.mp gnu_one.le
   exact fun a b _ => Subsingleton.elim a b
@@ -845,13 +873,13 @@ end NondegenerateWitnesses
 
 end GroundTruth
 
-/-! ## Axiom audit
+/-! ## Axiom-audit note
 
-Every declaration above is `sorry`-free; the sweep below confirms each rests only on
-`{propext, Classical.choice, Quot.sound}`.  The subset is the sound `native_decide`
-detector: a use would appear as a per-declaration `*._native.native_decide.ax_*` axiom
-on this toolchain (`Lean.ofReduceBool` is never emitted, so grepping for it detects
-nothing).  There is no `native_decide` in this file. -/
+Every declaration above is intended to remain `sorry`-free and to depend only on
+`{propext, Classical.choice, Quot.sound}`. This must be checked from an importing audit,
+rather than by a command retained in this production-facing source. Such an audit also
+detects `native_decide`: on this toolchain it would add a per-declaration
+`*._native.native_decide.ax_*` axiom. There is no `native_decide` in this file. -/
 
 
 end GroupCount

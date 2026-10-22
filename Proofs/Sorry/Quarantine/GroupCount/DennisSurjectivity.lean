@@ -1,4 +1,4 @@
-import Sorry.GroupCount.Gnu
+import GroupCount.Gnu
 
 /-!
 # Dennis's gnu-surjectivity conjecture (OEIS A046057)

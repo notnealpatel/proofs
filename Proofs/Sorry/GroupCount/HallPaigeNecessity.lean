@@ -27,11 +27,11 @@
 
 ## Boundary convention
 
-The MO wording "Sylow 2-subgroups are not cyclic" counts the trivial group as
-non-cyclic; with Mathlib's `IsCyclic` the trivial Sylow 2-subgroup *is* cyclic, and odd
-order groups do have a complete mapping (`φ = id`, see
-`isCompleteMapping_id_of_odd_card`). The precise necessity statement therefore carries
-the hypothesis `Nontrivial P`.
+The quoted MO wording omits the trivial-Sylow exception: ordinary group theory and
+Mathlib both regard the trivial group as cyclic. Odd-order groups nevertheless have a
+complete mapping (`φ = id`, see `isCompleteMapping_id_of_odd_card`). Thus the precise
+obstruction formalized here assumes `Nontrivial P`; the full Hall–Paige condition is that
+a Sylow `2`-subgroup is trivial or noncyclic.
 
 ## Status (2026-10-21)
 

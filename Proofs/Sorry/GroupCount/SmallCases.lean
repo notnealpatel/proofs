@@ -1,4 +1,4 @@
-import Sorry.GroupCount.Gnu
+import GroupCount.Gnu
 
 set_option autoImplicit false
 

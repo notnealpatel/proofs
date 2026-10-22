@@ -12,7 +12,9 @@
   > using $n$ colors such that for any positive integer $a$, the numbers
   > $a,2a,\dots,na$ all have different colors?
 
-* The case `n + 1 = p` prime is KöMaL problem A.506 (Pálvölgyi, April 2010):
+* The case `n + 1 = p` prime is KöMaL problem A.506 (Péter Pál Pach,
+  April 2010; the primary paper identifies its third-named author, Pach, as the
+  proposer):
   "Prove that for every prime $p$, there exists a colouring of the positive
   integers with $p-1$ colours such that the colours of the numbers
   $\{a,2a,3a,\dots,(p-1)a\}$ are pairwise different for every positive integer $a$."
@@ -264,7 +266,7 @@ example : ∃ h : ℕ → Additive (ZMod 5)ˣ, IsPartialIso 4 h := by
   haveI : Fact (Nat.Prime (4 + 1)) := ⟨by norm_num⟩
   exact ⟨_, isPartialIso_unitOf⟩
 
-/-- **KöMaL A.506 (Pálvölgyi); CCP Theorem 1.4(1).**  If `n + 1` is prime, there is an
+/-- **KöMaL A.506 (Péter Pál Pach); CCP Theorem 1.4(1).**  If `n + 1` is prime, there is an
 `n`-satisfactory colouring of the positive integers with `n` colours. -/
 theorem exists_isSatisfactory_of_prime_succ {n : ℕ} (hp : (n + 1).Prime) :
     ∃ c : ℕ → Fin n, IsSatisfactory n c := by

@@ -1,12 +1,17 @@
 /-
   Erdős Problem #142 — avoidance of short-multiple preimages of a box.
 
-  Provenance: Elsholtz–Hunter–Proske–Sauermann (EHPS), "Improving Behrend's
-  construction", arXiv:2406.12290.  The good-direction Behrend argument chooses
-  a nonzero "dilation" vector `b` so that no short multiple `t • b` with
-  `1 ≤ t < N` falls into a small signed box `B`, and then embeds a length-`N`
+  Conceptual provenance: Elsholtz–Hunter–Proske–Sauermann (EHPS), "Improving
+  Behrend's construction", arXiv:2406.12290.  Their good-direction argument is
+  continuous: it chooses a nonzero direction `b` and uses a union bound over
+  `t ∈ {1, ..., N}` so that no such multiple lies near zero on a torus.  The
+  exact prime-grid theorem below is a finite abstraction motivated by that argument,
+  not a theorem stated in EHPS: because it indexes differences in a length-`N`
+  progression, its short multiples instead satisfy `1 ≤ t < N`.  It chooses a
+  "dilation" vector `b` so that no such short multiple `t • b` falls into a signed
+  box `B`, and then embeds a length-`N`
   progression `a + {0,…,N-1} • b` into the prime grid injectively.  The present
-  module isolates the finite, self-contained counting step of that argument:
+  module isolates its self-contained counting step:
 
   * the ambient group is the function module `Fin (2*k) → ZMod q` (the exponent
     vectors of the `2k`-dimensional residue grid);
@@ -82,8 +87,9 @@ example (q k : ℕ) : ShortMultipleBox q k 1 where
 
 /-- **Union bound for short-multiple preimages.**  In a prime field, dilation by
 a short multiple `1 ≤ t < N ≤ q` is a bijection of the grid, so each preimage
-has exactly `#B` elements; the union over the `N` short multiples therefore has
-cardinality at most `N * #B`. -/
+has exactly `#B` elements; the union over the `N - 1` indices `1 ≤ t < N`
+therefore has cardinality at most `(N - 1) * #B`, and in particular at most
+`N * #B`. -/
 theorem card_biUnion_shortMultiplePreimage_le {q k : ℕ} [Fact q.Prime] {N : ℕ}
     (hN1 : 1 ≤ N) (hNq : N ≤ q) (B : Finset (Fin (2*k) → ZMod q)) :
     ((Finset.Ioo 0 N).biUnion fun t => shortMultiplePreimage t B).card ≤ N * B.card := by

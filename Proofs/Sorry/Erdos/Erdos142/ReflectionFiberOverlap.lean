@@ -366,10 +366,15 @@ example : 2 * (5 : ℕ) ^ 2 + 2 * (3 * 7) ≤ (3 + 5) * (7 + 5) :=
   two_mul_sq_add_le_mul 5 3 7 (by norm_num) (by norm_num)
 
 /-- Satisfiability of the pure averaging lemma at a concrete dataset: with
-`T = {0,1,2}` and `f = ![3,1,1]`, the pairwise sums are at most `B = 6`, the
-mass is `5 ≥ 2*max = 6` fails, so use `B = 7`; the bound `2*11 = 22 ≤ 7*5 = 35`
-holds. -/
-example : 2 * ((3 : ℕ) ^ 2 + 1 ^ 2 + 1 ^ 2) ≤ 7 * (3 + 1 + 1) := by norm_num
+`T = {0,1,2}` and `f = ![2,1,1]`, all distinct pairwise sums are at most
+`B = 3` and the total mass `4` is at least twice every value.  Thus both
+hypothesis families are jointly satisfied, and the displayed conclusion is
+obtained by applying `two_mul_sum_sq_le_of_pairwise_sum_le`. -/
+example : 2 * ∑ c ∈ (Finset.univ : Finset (Fin 3)), (![2, 1, 1] c : ℕ) ^ 2
+    ≤ 3 * ∑ c ∈ (Finset.univ : Finset (Fin 3)), (![2, 1, 1] c : ℕ) := by
+  apply two_mul_sum_sq_le_of_pairwise_sum_le
+  · decide
+  · decide
 
 /-- A 3-AP-free set of size `9` inside `[0,28)` (all numbers with base-`3` digits
 in `{0,1}` and at most three digits plus `27`), satisfying the range and cap

@@ -1,8 +1,8 @@
 /-
 # A263100 — refutation of Sun's uniqueness conjecture (part (i))
 
-## OEIS source (retrieved with `oeis show A263100` and checked against the
-## live entry https://oeis.org/A263100, 2026-10-21)
+## OEIS source (retained from `oeis show A263100`; see the external
+## evidence capture recorded for this repair)
 
 ```
 NAME:     Number of ordered pairs (k, m) with k > 0 and m > 0 such that
@@ -16,13 +16,10 @@ COMMENT:  (ii) Any integer n > 0 can be written as pi(k^2) + pi((m^2+1)/2)
           with k and m positive integers.
 COMMENT:  (iii) Each n = 1,2,3,... can be written as pi(k^2/2) +
           pi((m^2+1)/2) with k and m positive integers.
-AUTHOR:   Zhi-Wei Sun, Oct 09 2015
-LINKS:    Zhi-Wei Sun, Table of n, a(n) for n = 1..10000
 ```
 
-The conjecture comments carry no separate signature; they are by the entry's
-author, Zhi-Wei Sun (Oct 09 2015).  No later comment in the live entry
-retracts or qualifies part (i) (checked 2026-10-21).  The entry's Mathematica
+The retained primary capture states part (i) as a global conjecture and does
+not restrict it to the displayed terms or to a finite table.  Its Mathematica
 program evaluates `PrimePi[m^2/2]`, the number of primes not exceeding the
 rational `m^2/2`; this equals `π(⌊m^2/2⌋)`, which is what `Nat.primeCounting
 (m ^ 2 / 2)` computes with floor division.
@@ -31,9 +28,8 @@ rational `m^2/2`; this equals `π(⌊m^2/2⌋)`, which is what `Nat.primeCountin
 
 This module **refutes** part (i): `a(15293) = 1`, the unique pair being
 `(k, m) = (339, 291)`, since `π(339^2) = π(114921) = 10867` and
-`π(⌊291^2/2⌋) = π(42340) = 4426`.  The case lies beyond the b-file range
-`n ≤ 10^4`, which explains why the pattern looked exceptionless.  A bounded
-computation (Python sieve, 2026-10-21) finds that the `n ≤ 10^5` with
+`π(⌊291^2/2⌋) = π(42340) = 4426`.  A separate bounded computation (Python
+sieve, 2026-10-21) finds that the `n ≤ 10^5` with
 `a(n) = 1` are exactly `1, 3, 28, 15293, 72102`, and that `a(n) > 0` for all
 `1 ≤ n ≤ 10^5`; the positivity half of part (i) is not addressed here.
 
@@ -626,13 +622,13 @@ theorem a_15293 : a 15293 = 1 := by
     rw [mem_pairSet_15293, Set.mem_singleton_iff, Prod.mk.injEq]
   rw [a, hset, Set.ncard_singleton]
 
-/-- **Part (i) of Sun's conjecture is false.**  Counterexample `n = 15293`:
-the only pair is `(k, m) = (339, 291)`, with `π(339^2) = 10867` and
-`π(⌊291^2/2⌋) = 4426`, so `a(15293) = 1` although `15293 ∉ {1, 3, 28}`.  The
-author checked `n ≤ 10^4` (the b-file range); the intended statement was
-presumably "for `n ≤ 10^4`, `a(n) = 1` only for `n = 1, 3, 28`".  Further
-exceptions found by computation are `72102` (and, per the triage, `448785`
-and `994007`). -/
+/-- **Part (i) of Sun's global conjecture is false.**  Counterexample
+`n = 15293`: the only pair is `(k, m) = (339, 291)`, with
+`π(339^2) = 10867` and `π(⌊291^2/2⌋) = 4426`, so `a(15293) = 1` although
+`15293 ∉ {1, 3, 28}`.  The primary OEIS entry states this as a global
+conjecture; it is not restricted to the displayed finite data.  Further
+exceptions found by computation are
+`72102` (and, per the triage, `448785` and `994007`). -/
 theorem conjecture_false : ¬ Conjecture := by
   rintro ⟨_, honly⟩
   have h := honly 15293 (by norm_num) a_15293

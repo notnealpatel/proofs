@@ -1,5 +1,5 @@
 /-
-# A070875 — Beck: the ones of A309019 - A002487 sit exactly at A070875
+# A070875 — a repaired, unshifted interpretation related to Beck's comment
 
 ## OEIS source (retrieved with `oeis show A070875`, 2026-10-21)
 
@@ -24,21 +24,23 @@ Companion entries (same retrieval):
 
 ## Status
 
-Triage: open (no proof in the entry or the literature found by triage).
-The triage checked `m < 32768`; this campaign re-checked `m < 2^20` and also
-checked the A309019 product NAME against the FORMULA recurrence for `m ≤ 200`
-(Python, evidence only).  This module proves the conjecture in full.
+Taken literally, the displayed `n+2` shift in Beck's comment does not match the
+data.  This module instead proves the repaired, unshifted interpretation in
+full.  The finite checks recorded during triage are evidence only and are not
+used by the proof.
 
-## Reading of the index shift
+## Repaired interpretation of the index shift
 
-Taken literally ("positions" of `A309019(n+2) - A002487(n+2)`, offset 0) the
-comment does not match the data; the triage records this as a convention
-mismatch.  The data fit the reading in which the difference sequence
-`D(m) = A309019(m) - A002487(m)` is listed from `m = 0` and positions are
-1-based (Mathematica `Position`), so "`-1 + position`" is the index `m` itself:
-the `n`-th (0-based) index `m` with `D(m) = 1` is `A070875(n)`.  This is the
-statement proved (`a070875_conjecture`), together with the set form
-(`a309019_sub_stern_eq_one_iff_mem_range`).
+Taken literally ("positions" of `A309019(n+2) - A002487(n+2)`, offset 0),
+the comment does not match the data.  For example, in the shifted list the
+first `1` occurs at local one-based position `4`, giving `-1 + 4 = 3`, whereas
+A070875 starts with `5`.  The theorem below deliberately drops the displayed
+shift: it lists the difference sequence `D(m) = A309019(m) - A002487(m)` from
+`m = 0` and uses 1-based positions, so "`-1 + position`" is the index `m`
+itself.  Thus the `n`-th (0-based) index `m` with `D(m) = 1` is `A070875(n)`.
+This repaired statement is proved by `a070875_conjecture`, together with the
+set form `a309019SubStern_eq_one_iff_mem_range`; it is not attributed as a
+proof of Beck's literal shifted comment.
 
 ## Proof outline
 
@@ -310,22 +312,20 @@ theorem a070875_strictMono : StrictMono a070875 := by
     have := Nat.two_pow_pos k
     nlinarith
 
-/-- **Set form of Beck's conjecture.** `A309019(m) - A002487(m) = 1` iff `m`
-is a term of A070875. -/
+/-- **Set form of the repaired unshifted interpretation.**
+`A309019(m) - A002487(m) = 1` iff `m` is a term of A070875. -/
 theorem a309019SubStern_eq_one_iff_mem_range (m : ℕ) :
     a309019SubStern m = 1 ↔ m ∈ Set.range a070875 := by
   rw [a309019SubStern_eq_one_iff, mem_range_a070875_iff]
 
-/-- **Beck's conjecture (A070875, George Beck, Mar 26 2022), proved.**
+/-- **Repaired unshifted interpretation related to Beck's A070875 comment.**
 
-Verbatim: "Conjecture: a(n) = -1 + positions of the ones in
-A309019(n+2) - A002487(n+2)."
-
-Read with the index shift recorded in the header (the difference sequence
-listed from `m = 0`, 1-based positions, so "`-1 + position`" is `m`): for every
-`n`, the `n`-th (0-based, increasing) index `m` with
-`A309019(m) - A002487(m) = 1` is `A070875(n)`.  `Nat.nth` is meaningful here
-because the set of such `m` is infinite (it is the range of `a070875`). -/
+Beck's literal comment is: "Conjecture: a(n) = -1 + positions of the ones in
+A309019(n+2) - A002487(n+2)."  As explained in the header, that shifted claim
+does not match the source data.  The theorem here drops the shift and states
+that, for every `n`, the `n`-th (0-based, increasing) index `m` with
+`A309019(m) - A002487(m) = 1` is `A070875(n)`.  `Nat.nth` is meaningful because
+the set of such `m` is infinite (it is the range of `a070875`). -/
 theorem a070875_conjecture (n : ℕ) :
     Nat.nth (fun m => a309019SubStern m = 1) n = a070875 n := by
   have hcomp := Nat.nth_comp_of_strictMono (p := fun m => a309019SubStern m = 1) (n := n)

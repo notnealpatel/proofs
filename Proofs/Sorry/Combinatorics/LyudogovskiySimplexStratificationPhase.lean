@@ -3,7 +3,7 @@
 
 ## Source
 
-arXiv:2603.23228, G. Lyudogovskiy, "Simplex Stratification and Phase Boundaries in the
+arXiv:2603.23228, Fedor B. Lyudogovskiy, "Simplex Stratification and Phase Boundaries in the
 Partition Graph", Section "Thresholds and computational evidence":
 Conjecture `conj:triangular-threshold` and Conjecture `conj:first-family`, restated in the
 conclusion as Problems `prob:threshold-formula` and `prob:first-occurrence-family`.

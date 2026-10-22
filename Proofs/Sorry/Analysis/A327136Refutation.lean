@@ -25,9 +25,12 @@ This module **refutes** the conjecture as stated.  It already fails at
 window `(1.285, 1.286)` at all; it ranges over `(1.2918..., 2.2831...)`.)
 
 The window the author presumably intended is `1.285 < n*Pi - a(n) < 2.286`,
-i.e. a window of width one.  The exact form, proved below as
-`a327136_window`, is `Pi/4 + 1/2 < n*Pi - a(n) < Pi/4 + 3/2`
-(`= 1.2853... , 2.2853...`).
+i.e. a window of width one.  A natural exact candidate is
+`Pi/4 + 1/2 < n*Pi - a(n) < Pi/4 + 3/2`
+(`= 1.2853... , 2.2853...`).  This module does **not** prove that candidate:
+it proves only the stated decimal-window refutation below.  A proof of the
+candidate would additionally require a complete membership classification and
+the bridge from that classification to the `Nat.nth` enumeration.
 -/
 import Mathlib
 
@@ -162,8 +165,8 @@ def Conjecture : Prop :=
   ∀ n : ℕ, 1 ≤ n → (1.285 : ℝ) < n * π - a n ∧ (n : ℝ) * π - a n < 1.286
 
 /-- **The conjecture is false.**  Counterexample `n = 1`: `a(1) = 1` and
-`1 * Pi - 1 = 2.14159... ≥ 1.286`.  The author presumably intended the
-width-one window `1.285 < n*Pi - a(n) < 2.286`; see `a327136_window`. -/
+`1 * Pi - 1 = 2.14159... ≥ 1.286`.  The likely width-one correction described
+in the module header is not proved here. -/
 theorem a327136_conjecture_false : ¬ Conjecture := by
   intro h
   obtain ⟨-, hupper⟩ := h 1 le_rfl

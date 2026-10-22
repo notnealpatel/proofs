@@ -60,8 +60,8 @@ theorem digits_eq_of_add_mul_eq {k a a' b b' : ℕ} (hk : 0 < k) (ha : a < k) (h
   exact Nat.mul_left_cancel hk (Nat.add_left_cancel h)
 
 /-- Encoding an element of `range N × range M` lands strictly below the sharp
-endpoint `2 * N * M - N`.  The largest possible value is the excluded
-`2 * N * M - N` itself. -/
+endpoint `2 * N * M - N`.  When `0 < N` and `0 < M`, the largest possible
+encoded value is `2 * N * M - N - 1`, one below that excluded endpoint. -/
 theorem scaleEnc_lt {N M a b : ℕ} (hM : 0 < M) (ha : a < N) (hb : b < M) :
     scaleEnc N (a, b) < 2 * N * M - N := by
   simp only [scaleEnc]

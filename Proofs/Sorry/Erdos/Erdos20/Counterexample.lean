@@ -44,7 +44,7 @@
   Lean ≥ 4.30's form of `Lean.ofReduceBool`). No `sorryAx`.
 -/
 
-import Sorry.Erdos.Erdos20.Sunflower
+import Erdos.Erdos20.Sunflower
 import Sorry.Erdos.Erdos20.ShiftedSunflower
 
 open Finset

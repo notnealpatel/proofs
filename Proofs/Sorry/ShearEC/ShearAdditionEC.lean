@@ -11,8 +11,9 @@ elliptic-curve point addition once the slope is in hand:
   `(c, λ) ↦ (a - c, c·λ - b) = (X, Y)`, with `c = a - X`,
 
 and proves reversibility/impossibility results about computing it with
-multiply-add shears. This file closes the "are we lower-bounding the right
-map?" gap: over any Weierstrass curve `W` with `a₁ = a₂ = a₃ = 0` (every
+multiply-add shears. This file proves a coordinate-formula correspondence,
+not a transfer of lower bounds to elliptic-curve algorithms: over any
+Weierstrass curve `W` with `a₁ = a₂ = a₃ = 0` (every
 short curve `y² = x³ + a₄x + a₆`; secp256k1 is `a₄ = 0, a₆ = 7`), those
 formulas are **provably the coordinates of Mathlib's verified group law** on
 the chord locus `x₁ ≠ x₂`:
@@ -31,17 +32,23 @@ the chord locus `x₁ ≠ x₂`:
 * `c_eq_zero_iff_eq_neg_two_smul` — via Mathlib's proven `AddCommGroup`
   structure: `c = 0 ↔ Q = -(2 • P)`.
 
-Everything is stated for the chord case `a ≠ x` — exactly the domain of the
-shear map; the tangent (doubling) case is a different formula and outside
-this map's domain by design. Nothing below touches `a₄` or `a₆`.
+Everything below concerns the chord case `a ≠ x`; tangent (doubling)
+formulas are outside its scope. The ambient `(c, λ)` plane used in
+`ShearAddition` is larger than the image of valid chord inputs on a fixed
+curve. In particular, `c = 0` forces the unique group element `Q = -2P`,
+so that image does not contain the independent slope values used in the
+whole-plane collision argument. Formula agreement alone therefore does not
+transfer the whole-plane impossibility or inversion lower bounds to actual
+EC addition. Such a transfer needs a separate reduction or an obstruction
+on the realizable input domain; neither is proved here. Nothing below
+restricts `a₄` or `a₆`.
 
-Note: Mathlib has the *predicate* `WeierstrassCurve.IsShortNF` (`a₁ = a₂ =
-a₃ = 0`, in `Mathlib/AlgebraicGeometry/EllipticCurve/NormalForms.lean`) with
-simp lemmas for the standard quantities `b₂, …, Δ, j` — but no bridge from it
-to the affine `slope`/`addX`/`addY`/`negY` formula API, no short-curve
-constructor, and no secp256k1 instantiation; that bridge is what this file
-provides (via explicit `a₁ = 0` … hypotheses, which `IsShortNF` supplies).
+The coordinate lemmas use explicit `a₁ = a₂ = a₃ = 0` hypotheses,
+which Mathlib's `WeierstrassCurve.IsShortNF` supplies. This file also defines
+a local short-curve constructor and a secp256k1 instantiation.
 -/
+
+set_option autoImplicit false
 
 namespace ShearEC.ShearAdditionEC
 
@@ -84,13 +91,15 @@ lemma addY_eq_c_mul (h1 : W.a₁ = 0) (h3 : W.a₃ = 0) (ℓ : F) :
 concrete single-shear realisation `ShearEC.ShearAddition.singleShear` the chord
 offset `c = a - W.addX …` and the slope `λ`, its first two registers hold
 exactly Mathlib's `(W.addX …, W.addY …)` — and the third holds the
-`λ`-garbage that `ShearEC.ShearAddition.ancilla_carries_lambda` proves is
-unavoidable.
+`λ` register. The whole-plane theorem
+`ShearEC.ShearAddition.ancilla_carries_lambda` does not establish that this
+garbage is unavoidable on realizable chord inputs.
 
 Input-model caveat: `c = a - W.addX … = 2a + x - λ²` is quadratic in `λ`, so
-`(x, λ) ↦ (c, λ)` is not affine and forming `c` costs one further shear (the
-`λ·λ` square); the one-shear count is specific to the c-given input model
-(the lower bounds, which grant `c` for free, only get stronger). -/
+`(x, λ) ↦ (c, λ)` is not affine. The one-shear count assumes `c` is already
+supplied; forming it and computing the slope are not counted. This formula
+identity provides no lower-bound transfer from the ambient plane to the
+realizable chord domain. -/
 theorem singleShear_computes_add (h1 : W.a₁ = 0) (h3 : W.a₃ = 0) (ℓ : F) :
     ShearEC.ShearAddition.singleShear a b (a - W.addX a x ℓ, ℓ, 0)
       = (W.addX a x ℓ, W.addY a x b ℓ, ℓ) := by
@@ -206,10 +215,13 @@ def secp256k1 : WeierstrassCurve.Affine (ZMod secp256k1P) :=
   shortCurve _ 0 7
 
 open ShearEC.ShearInversionLB in
-/-- **The secp256k1 payoff**: on the actual bitcoin curve, the group law on
-the chord locus is exactly the `(X, Y) = (λ² - a - x, λ(a - X) - b)` map of
-`ShearEC.ShearAddition` — so every reversibility/lower-bound statement about
-that map is a statement about the real secp256k1 point addition. -/
+/-- **secp256k1 formula correspondence**: on the bitcoin curve, the group
+law on nonsingular chord inputs has the coordinates
+`(X, Y) = (λ² - a - x, λ(a - X) - b)` appearing in
+`ShearEC.ShearAddition`. This equality does not extend a specification from
+realizable curve inputs to the whole `(c, λ)` plane and therefore does not
+transfer that model's reversibility or lower-bound results to arbitrary
+secp256k1 addition algorithms. -/
 theorem secp256k1_some_add_some [Fact (Nat.Prime secp256k1P)]
     {a b x y : ZMod secp256k1P}
     (hP : secp256k1.Nonsingular a b) (hQ : secp256k1.Nonsingular x y)

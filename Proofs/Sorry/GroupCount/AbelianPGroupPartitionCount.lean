@@ -41,7 +41,7 @@ zmod isomorphic iff multiset equal" found nothing of the kind).
   (`Proofs/GroupCount/Gnu.lean`).
 -/
 import Mathlib
-import Sorry.GroupCount.Gnu
+import GroupCount.Gnu
 
 set_option autoImplicit false
 

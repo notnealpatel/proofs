@@ -137,7 +137,7 @@ import Mathlib.Data.Fintype.Card
 import Mathlib.Algebra.Module.Pi
 import BilinearComplexity.Capset
 import BilinearComplexity.SliceRank
-import Sorry.Erdos.Erdos20.Sunflower
+import Erdos.Erdos20.Sunflower
 
 set_option autoImplicit false
 

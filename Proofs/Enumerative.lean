@@ -199,3 +199,5 @@ import Enumerative.A248982GreedyDistinctLeast
 import Enumerative.A077653Refutation
 import Enumerative.ColooplessZonotopesCounterexamplesShifted
 import Enumerative.KeilsonGerberUnimodalConvolution
+import Enumerative.A074162IrvineWhoseDecimal
+import Enumerative.A145047PrimeLeastPositive

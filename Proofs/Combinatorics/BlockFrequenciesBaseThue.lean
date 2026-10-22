@@ -26,10 +26,13 @@ Recorded 2026-10-21.
 
 ## Status
 
-The paper reports the 2-block frequencies only as experiments; it proves
-only the letter frequencies `1/2` (by 2-adic harmonic analysis).  This file
-proves unconditionally, by an elementary discrepancy argument from the
-recurrences of `pro:ytop`, that:
+The paper presents the 2-block frequencies as experimental in its concluding
+remarks.  Earlier, however, Proposition `pro:ytop` identifies the first-difference
+word as a regular Toeplitz word and explicitly computes the frequency of its
+letter `1` as `2/5`.  Since this letter marks changes, elementary telescoping
+then gives the `01` and `10` frequencies.  This file gives a self-contained
+formal derivation, by a discrepancy argument from the recurrences of
+`pro:ytop`, that:
 
 * the density of positions `n` with `t n ≠ t (n+1)` is `2/5`;
 * the factors `01` and `10` of `t_{3/2}` each have frequency `1/5`;

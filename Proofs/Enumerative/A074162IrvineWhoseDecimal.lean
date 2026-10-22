@@ -23,11 +23,13 @@ terms `a(2) = 4`, `a(3) = 6` use a single digit.
 
 ## Status
 
-Triage: open (no proof in the entry or the literature found by the triage).
-This file proves it: if `5^6 ∣ m` and `m > 0` then `m mod 10^6` is a nonzero
-multiple of `15625` whose decimal digits are among the digits of `m`, and a
-`decide` check over the 63 nonzero multiples of `15625` below `10^6` shows each
-has a digit outside `{1,2,3,5,7}`.  As a corollary Zucker's claim is false:
+This file proves the stated Irvine conjecture.  For a hypothetical admissible
+`m`, its decimal digits lie in the zero-free set `{1,2,3,5,7}`.  Consequently,
+if `5^6 ∣ m` and `m > 0`, then `m mod 10^6` is a nonzero multiple of `15625`
+whose decimal digits are among the digits of `m`; a `decide` check over the 63
+nonzero multiples of `15625` below `10^6` shows each has a digit outside that
+set.  (Positivity and divisibility alone would not make the remainder nonzero:
+`m = 10^6` is a counterexample.)  As a corollary Zucker's claim is false:
 `a(15625) = 0` although `10 ∤ 15625`.
 -/
 import Mathlib

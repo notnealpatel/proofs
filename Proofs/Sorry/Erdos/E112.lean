@@ -640,13 +640,14 @@ private theorem exists_bad_digraph (n m N : ℕ) (hn : 2 ≤ n) (hm : 2 ≤ m)
       ← Nat.div_add_mod ((e b : Fin N) : ℕ) (m - 1), hblock a, hblock b, heq]
 
 /-- Hunter–Steiner path variant: the vertex-count threshold is
-    `(n-1)*(m-1)+1`, so n=m=2 gives 2. Retained as an admission.
+    `(n-1)*(m-1)+1`, so n=m=2 gives 2.
 
-    Prose justification only: the lower construction is the disjoint union
-    of (n-1) bidirected cliques of size (m-1); it has neither an independent
-    n-set nor a directed path on m vertices. The upper argument uses the
-    directed-path/chromatic bound and the independence bound from a coloring.
-    This does not claim induced and non-induced extremal functions coincide. -/
+    The completed upper proof uses a maximal acyclic arc set, its height coloring, and
+    pigeonhole to obtain either an independent `n`-set or a directed path on `m` vertices.
+    The completed lower proof uses `(n-1)` bidirected blocks of size `(m-1)`; an independent
+    set meets each block at most once, while an injective directed path cannot leave its block.
+    This is the non-induced directed-path convention of `DirPathOn`; it does not identify
+    induced and non-induced extremal functions. -/
 theorem hunter_steiner_path_exact (n m : ℕ) (hn : 2 ≤ n) (hm : 2 ≤ m) :
     sInf {N : ℕ | ∀ r : Fin N → Fin N → Prop, (∀ v, ¬ r v v) →
         (∃ S : Finset (Fin N), S.card = n ∧ IndepSet r S) ∨
@@ -671,11 +672,10 @@ theorem hunter_steiner_path_exact (n m : ℕ) (hn : 2 ≤ n) (hm : 2 ≤ m) :
 end ErdosCandidates.E112
 
 /- AMENDED REVIEW
-   The previous path-value transcription is not a correct vertex threshold.
-   hunter_steiner_path_exact now has the +1 boundary correction and remains
-   admitted. TransTournamentOn has the non-induced forward-arc meaning;
-   reverse arcs are permitted. No equivalence with an induced extremal
-   function is asserted. The other relation definitions and statements are
-   unchanged. The lower construction and chromatic upper argument above are
-   prose justification, not a new formal proof.
+   The path theorem uses the vertex-count boundary correction `+1`: in particular, `n = m = 2`
+   requires two vertices. `hunter_steiner_path_exact` is formally proved above from the completed
+   upper and lower constructions. `TransTournamentOn` and `DirPathOn` both have non-induced
+   forward-arc meanings, with reverse ambient arcs permitted; no equivalence with an induced
+   extremal function is asserted. The Erdős–Rado and Larson–Mitchell source attributions remain
+   subject to the graph-convention uncertainty recorded in the module header.
 -/

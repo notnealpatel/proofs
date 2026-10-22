@@ -3,7 +3,7 @@
 
 ## Source
 
-arXiv 2504.19196 (v2, 8 May 2025), Sarah Adenwalla, "On a Generalisation of a
+arXiv 2504.19196 (v2, 8 May 2025), Sarosh Adenwalla, "On a Generalisation of a
 Function of Ron Graham's".  Definitions in Section 2 (Preliminaries); the statement
 is the unnumbered Conjecture at the end of Section 4, stated after Corollary
 `corollary:p`; the small cases `g_m(0..7)` are in the Appendix.

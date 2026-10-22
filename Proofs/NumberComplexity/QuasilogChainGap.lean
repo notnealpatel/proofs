@@ -65,9 +65,8 @@ Main declarations:
   tends to zero, using the proved bound `quasilog n ≤ (2 / log 2) * log n`;
 * `NumberComplexity.PositiveNormalizedGapLimit` — the exact historical strict-window
   formula, archived as a proposition, not asserted as a theorem;
-* `NumberComplexity.not_positiveNormalizedGapLimit` — the historical formula is
-  refuted under these local definitions and this normalization. This does not
-  refute a different interpretation of the original source sequence.
+* `NumberComplexity.not_positiveNormalizedGapLimit` — the retained live OEIS formula is
+  refuted: its normalized sums instead tend to zero.
 
 **Degenerate values.** At `n = 0` both `l 0 = 0` (empty infimum: no chain
 reaches `0`) and `quasilog 0 = 0` (junk input) are junk, so `gap 0 = 0` is a
@@ -93,13 +92,12 @@ window `0.006 < c < 0.01`. The sum is over `1 ≤ k ≤ n`; each gap is the inte
 difference `quasilog k - l k`, not truncated natural subtraction. The sequence
 is nonzero, but its normalization still forces this limit to zero.
 
-The historical assertion remains only as `PositiveNormalizedGapLimit : Prop`;
-no false admission is retained or moved to `Proofs/Sorry`. The proof uses the
-pointwise logarithmic majorant, so the former proposed average-order machinery
-is not needed for this normalization. The existing actual addition-chain and
-quasi-logarithm APIs are preserved. This correction is deliberately limited to
-these local definitions: it is not a blanket refutation of other interpretations
-of the OEIS source. Card retirement records this proved correction, not the
+The retained live assertion remains only as `PositiveNormalizedGapLimit : Prop`;
+it is not asserted as a theorem. The proof uses the pointwise logarithmic
+majorant, so the former proposed average-order machinery is not needed. The
+formal definitions exactly match the live entry's displayed sequence and
+normalization; this correction refutes that formula, not some unspecified
+alternate claim. Card retirement records this proved correction, not the
 claimed positive asymptotic.
 -/
 
@@ -497,13 +495,13 @@ theorem l_lt_quasilog_23 : l 23 < quasilog 23 := by
   unfold gap at hgap
   omega
 
-/-! ## The normalized sum tends to zero; the historical positive limit is refuted -/
+/-! ## The normalized sum tends to zero; the live positive limit is refuted -/
 
-/-- The gap sequence is not eventually zero on the range of the conjecture:
-`gap 23 = 1` gives `1 ≤ gapSum n` for every `23 ≤ n`.  This is the
-nontriviality check for the conjecture below — were every gap zero, the ratio
-would be identically `0` and its limit `0`, outside the entry's window
-`0.006 < c < 0.01`. -/
+/-- The certified value `gap 23 = 1` and pointwise nonnegativity imply
+`1 ≤ gapSum n` for every `23 ≤ n`.  Thus the partial sums remain positive and
+the gap sequence is not identically zero.  These facts alone do not imply that
+the gap sequence is not eventually zero; the limit contradiction below instead
+uses the proved logarithmic upper bound on every partial sum. -/
 theorem one_le_gapSum {n : ℕ} (hn : 23 ≤ n) : 1 ≤ gapSum n := by
   have hmem : (23 : ℕ) ∈ Finset.Icc 1 n := Finset.mem_Icc.mpr ⟨by norm_num, hn⟩
   have hle : gap 23 ≤ gapSum n :=
@@ -588,9 +586,9 @@ theorem tendsto_gapSum_mul_log_div_sq_zero :
   filter_upwards [Filter.eventually_ge_atTop 1] with n hn
   exact gapSum_mul_log_div_sq_le n hn
 
-/-- The historical strict-window positive-limit formula, archived as a proposition,
-not an assertion. It is refuted below for the local definitions and normalization;
-this does not assert a refutation of different source interpretations. -/
+/-- The strict-window positive-limit formula displayed in the retained live
+OEIS entry, archived as a proposition rather than asserted as a theorem.  Its
+sequence and normalization are exactly `gapSum` and the expression below. -/
 def PositiveNormalizedGapLimit : Prop :=
   ∃ c : ℝ, 0.006 < c ∧ c < 0.01 ∧
     Filter.Tendsto (fun n : ℕ => (gapSum n : ℝ) * Real.log n / (n : ℝ)^2)
@@ -601,7 +599,8 @@ example : PositiveNormalizedGapLimit ↔
       Filter.Tendsto (fun n : ℕ => (gapSum n : ℝ) * Real.log n / (n : ℝ)^2)
         Filter.atTop (nhds c) := Iff.rfl
 
-/-- The historical positive-limit window is impossible for the local normalization. -/
+/-- The retained live OEIS positive-limit window is impossible: the displayed
+normalized partial sums tend to zero. -/
 theorem not_positiveNormalizedGapLimit : ¬ PositiveNormalizedGapLimit := by
   rintro ⟨c, hc, _hcupper, hlimit⟩
   have hc0 : c = 0 := tendsto_nhds_unique hlimit tendsto_gapSum_mul_log_div_sq_zero

@@ -73,8 +73,9 @@ theorem hasPowerOfTwoCycle_of_le {H G : SimpleGraph V} (hle : H ≤ G)
     simpa [SimpleGraph.Hom.ofLE_apply] using hab
   · rw [SimpleGraph.Walk.length_map, hlen]
 
-/-- Contrapositive of `hasPowerOfTwoCycle_of_le`: a supergraph of a graph without a power-of-two
-cycle has none either. In particular deleting edges cannot create a forbidden cycle. -/
+/-- Contrapositive of `hasPowerOfTwoCycle_of_le`: cycle absence is inherited by subgraphs. If
+`H ≤ G` and `G` has no power-of-two cycle, then `H` has none either. In particular, deleting
+edges cannot create a forbidden cycle. -/
 theorem not_hasPowerOfTwoCycle_of_le {H G : SimpleGraph V} (hle : H ≤ G)
     (hG : ¬ HasPowerOfTwoCycle G) : ¬ HasPowerOfTwoCycle H :=
   fun hcyc => hG (hasPowerOfTwoCycle_of_le hle hcyc)

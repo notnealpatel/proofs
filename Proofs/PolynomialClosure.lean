@@ -18,6 +18,7 @@ import PolynomialClosure.CertainPfaffiansConnectedInverse
 import PolynomialClosure.BergExplicitInverseAlpha
 import PolynomialClosure.SqrtDeltaFineRings
 import PolynomialClosure.WeightSystemExtendGraph
+import PolynomialClosure.AlpogeJacobianCounterexampleThree
 
 set_option autoImplicit false
 

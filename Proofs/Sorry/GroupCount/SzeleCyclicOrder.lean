@@ -45,7 +45,7 @@ criterion.
   (`gnu 0 = 0`, and `gcd(0, φ 0) = gcd(0, 0) = 0`), so the statement is proved for all `n`.
 -/
 import Mathlib
-import Sorry.GroupCount.Gnu
+import GroupCount.Gnu
 import Sorry.GroupCount.HolderPQ
 
 set_option autoImplicit false

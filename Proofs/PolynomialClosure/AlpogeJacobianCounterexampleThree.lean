@@ -80,7 +80,8 @@ noncomputable def polyMap (F : Fin n → MvPolynomial (Fin n) R) : (Fin n → R)
   fun x i => eval x (F i)
 
 /-- A Keller map: a polynomial map whose Jacobian determinant is a unit of the
-polynomial ring (over a field or a domain: a nonzero constant). -/
+polynomial ring.  Over a field this means a nonzero constant; over an integral
+domain it means a constant whose coefficient is a unit of the domain. -/
 def IsKellerMap (F : Fin n → MvPolynomial (Fin n) R) : Prop :=
   IsUnit (jacobian F).det
 

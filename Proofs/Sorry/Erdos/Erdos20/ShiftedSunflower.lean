@@ -72,7 +72,7 @@
     f'(k,s) ≤ s^(2s-2)·2^k       → IsFullyCompressed.hasSunflower
 -/
 
-import Sorry.Erdos.Erdos20.Sunflower
+import Erdos.Erdos20.Sunflower
 import Mathlib.Combinatorics.SetFamily.Shadow
 import Mathlib.Combinatorics.Enumerative.DoubleCounting
 

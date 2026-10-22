@@ -7,7 +7,7 @@
   concerning nondeficient numbers".  Section 3 ("Disproof of Ross's second
   conjecture"), the unnumbered Theorem 3.1, with Lemma 2.1 (the criterion
   `lem:criterion`) from Section 2.
-* The refuted conjecture: J. Ross, J. Integer Seq. 27 (2024),
+* The refuted conjecture: T. Ross (Tyler Ross), J. Integer Seq. 27 (2024),
   Art. 24.7.5, Conjecture 17.
 
 Recorded 2026-10-21.
